@@ -305,6 +305,48 @@
   "Не вдалося завантажити стрічку. Оновіть сторінку.": "Could not load the feed. Refresh the page.",
   "Не вдалося підключитися до VATRA.": "Could not connect to VATRA.",
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Maintenance"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "TEMPORARY BREAK"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Maintenance"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk is working to improve VATRA. The social network will be available again soon. Thank you for your patience!"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Check availability"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Disable maintenance"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Administrator sign-in"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Your people. Your stories. Your VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Page not found",
@@ -330,7 +372,7 @@
     },
     "feed": {
       "meta": {
-        "title": "Feed · VATRA",
+        "title": "Feed",
         "description": "Posts and stories on VATRA."
       },
       "nodes": {
@@ -415,7 +457,7 @@
     },
     "create-account": {
       "meta": {
-        "title": "Create account · VATRA",
+        "title": "Create account",
         "description": "Create your VATRA account — a Ukrainian social network for conversations, communities, and creativity.",
         "og:locale": "en_US",
         "og:title": "Create account · VATRA",
@@ -828,7 +870,7 @@
     },
     "forgot": {
       "meta": {
-        "title": "Password recovery · VATRA",
+        "title": "Password recovery",
         "description": "Recover access to VATRA, the Ukrainian social network.",
         "og:locale": "en_US",
         "og:title": "Password recovery · VATRA",
@@ -1004,7 +1046,7 @@
     },
     "reset": {
       "meta": {
-        "title": "New password · VATRA",
+        "title": "New password",
         "description": "Create a new password for VATRA, the Ukrainian social network.",
         "og:locale": "en_US",
         "og:title": "New password · VATRA",
@@ -1160,7 +1202,7 @@
     },
     "terms": {
       "meta": {
-        "title": "Terms of Service · VATRA",
+        "title": "Terms of Service",
         "description": "VATRA terms: accounts, posts, communities, copyright, marketplace, and safety.",
         "og:locale": "en_US",
         "og:title": "Terms of Service — VATRA",
@@ -1525,7 +1567,7 @@
     },
     "privacy": {
       "meta": {
-        "title": "Privacy · VATRA",
+        "title": "Privacy",
         "description": "VATRA Privacy Policy — how the Ukrainian social network processes personal data.",
         "og:locale": "en_US",
         "og:title": "Privacy — VATRA",
@@ -1885,7 +1927,7 @@
     },
     "cookies": {
       "meta": {
-        "title": "Cookies and browser storage · VATRA",
+        "title": "Cookies and browser storage",
         "description": "VATRA cookies and browser data — session storage and settings on the Ukrainian social network.",
         "og:locale": "en_US",
         "og:title": "Cookies and browser storage — VATRA",
@@ -2228,7 +2270,7 @@
     },
     "offline": {
       "meta": {
-        "title": "No connection · VATRA"
+        "title": "No connection"
       },
       "nodes": {
         "n6": {
@@ -2260,7 +2302,7 @@
     },
     "index": {
       "meta": {
-        "title": "Sign in · VATRA",
+        "title": "Sign in",
         "description": "VATRA is a Ukrainian social network for communication, connections, creativity, communities, shopping, and business.",
         "og:locale": "en_US",
         "og:title": "VATRA — Ukrainian social network",
@@ -2565,7 +2607,7 @@
     },
     "profile": {
       "meta": {
-        "title": "My page · VATRA",
+        "title": "My page",
         "description": "Your page on VATRA."
       },
       "nodes": {
@@ -2630,7 +2672,7 @@
     },
     "verify": {
       "meta": {
-        "title": "Verification · VATRA",
+        "title": "Verification",
         "description": "Verify your email address."
       },
       "nodes": {
@@ -2658,7 +2700,7 @@
     },
     "commerce": {
       "meta": {
-        "title": "Commerce Rules · VATRA",
+        "title": "Commerce Rules",
         "description": "Marketplace rules for sellers and buyers: permitted listings, prohibitions, restrictions and appeals.",
         "og:title": "VATRA Commerce Rules",
         "og:description": "Marketplace rules for sellers and buyers: permitted listings, prohibitions, restrictions and appeals.",
@@ -3364,6 +3406,7 @@
   "VATRA — Стрічка": "VATRA — Feed",
   "У розробці": "Coming soon",
   "Зараз у мережі": "Online now",
+  "У мережі": "Online",
   "{name} хоче додатися до вас у друзі": "{name} wants to add you as a friend",
   "{name}: вашу заявку в друзі прийнято": "{name} accepted your friend request",
   "{name}: вподобайка вашої публікації": "{name} liked your post",

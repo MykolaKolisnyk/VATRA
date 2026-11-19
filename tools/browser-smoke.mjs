@@ -76,7 +76,7 @@ try{
     }};
    window.supabase={createClient:()=>client};
   };
-  const fixtureHTML='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/VATRA/assets/css/base.css"><link rel="stylesheet" href="/VATRA/assets/css/feed.css"><link rel="stylesheet" href="/VATRA/assets/css/core.css"><link rel="stylesheet" href="/VATRA/assets/css/business.css"><link rel="stylesheet" href="/VATRA/assets/css/communities.css"></head><body class="feed-page community-page vatra-section-page vatra-business-page" data-page="club"><div id="feed-loading" hidden>Loading</div><div id="feed-app"><main id="vatra-section-main" class="ui-vatra-section-main-001"><header class="ui-vatra-section-heading-001"><h1 id="vatra-section-title">VATRA Business</h1><p id="vatra-section-subtitle"></p><button id="vatra-section-action" hidden></button></header><div id="vatra-section-content" class="ui-vatra-section-content-001"></div><p id="vatra-section-status" hidden></p></main></div><script>('+bootstrap.toString()+')();</script><script defer src="/VATRA/assets/js/core.js"></script><script defer src="/VATRA/assets/js/business.js"></script><script>document.addEventListener("DOMContentLoaded",()=>window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client:window.supabase.createClient(),ownId:17,user:{id:"fixture"},content:document.querySelector("#vatra-section-content"),notice:document.querySelector("#vatra-section-status")})));</script></body></html>';
+  const fixtureHTML='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/VATRA/assets/css/base.css"><link rel="stylesheet" href="/VATRA/assets/css/feed.css"><link rel="stylesheet" href="/VATRA/assets/css/core.css"><link rel="stylesheet" href="/VATRA/assets/css/communities.css"></head><body class="feed-page community-page vatra-section-page vatra-business-page" data-page="club"><div id="feed-loading" hidden>Loading</div><div id="feed-app"><main id="vatra-section-main" class="ui-vatra-section-main-001"><header class="ui-vatra-section-heading-001"><h1 id="vatra-section-title">VATRA Business</h1><p id="vatra-section-subtitle"></p><button id="vatra-section-action" hidden></button></header><div id="vatra-section-content" class="ui-vatra-section-content-001"></div><p id="vatra-section-status" hidden></p></main></div><script>('+bootstrap.toString()+')();</script><script defer src="/VATRA/assets/js/core.js"></script><script defer src="/VATRA/assets/js/business.js"></script><script>document.addEventListener("DOMContentLoaded",()=>window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client:window.supabase.createClient(),ownId:17,user:{id:"fixture"},content:document.querySelector("#vatra-section-content"),notice:document.querySelector("#vatra-section-status")})));</script></body></html>';
   await businessProbe.route(/\/VATRA\/club10[12](?:\?.*)?$/,route=>route.fulfill({status:200,contentType:"text/html",body:fixtureHTML}));
   await businessProbe.goto(base+"club101?tools=overview",{waitUntil:"domcontentloaded"});
   await businessProbe.locator(".ui-business-dashboard-company-001").waitFor();
@@ -151,8 +151,13 @@ try{
    (await fetch("/VATRA/assets/css/base.css")).text());
   assert.ok(offlineStyle.includes("--vatra-default-avatar"),
    "After revalidation, CSS must remain available while offline");
-  await swContext.setOffline(false);
+  const cachedMascot=await swProbe.evaluate(async()=>{const response=await fetch("/VATRA/assets/vatryk/vatryk_offline.webp");return {ok:response.ok,bytes:(await response.arrayBuffer()).byteLength};});
+  assert.ok(cachedMascot.ok&&cachedMascot.bytes>0,"Vatryk must be served from the offline cache with the connection disabled");
+  await swProbe.goto(base+"offline.html",{waitUntil:"load"});
+  await swProbe.locator(".ui-offline-vatryk-001").evaluate(img=>img.decode());
+  assert.ok(await swProbe.locator(".ui-offline-vatryk-001").evaluate(img=>img.naturalWidth>0),"Cached offline page must display Vatryk with no network");
   await swProbe.close();
+  await swContext.setOffline(false);
   console.log("VATRA Service Worker: current UI assets plus offline fallback verified");
  }finally{await swContext.close();}
  // Verify actual image pixels: a neutral cover must be visually separated from
@@ -989,14 +994,17 @@ try{
   await page.setViewportSize({width,height});
   await page.goto(base+"offline.html",{waitUntil:"domcontentloaded"});
   await page.evaluate(()=>document.fonts.ready);
+  await page.locator(".ui-offline-vatryk-001").evaluate(img=>img.decode());
   const metrics=await page.evaluate(()=>{
    const rect=sel=>document.querySelector(sel).getBoundingClientRect();
-   const card=rect("main"),logo=rect(".offline-brand img"),icon=rect(".offline-icon");
+   const card=rect("main"),logo=rect(".offline-brand img"),icon=rect(".ui-offline-vatryk-001");
    const actions=[...document.querySelectorAll(".offline-actions>*")].map(x=>x.getBoundingClientRect().height);
    return {overflow:document.documentElement.scrollWidth-innerWidth,
     cardCenter:Math.abs((card.left+card.right)/2-innerWidth/2),
     logoLeft:logo.left-card.left,logoTop:logo.top-card.top,
     logoRight:logo.right-card.left,iconTop:icon.top-card.top,
+    mascotLoaded:document.querySelector(".ui-offline-vatryk-001").naturalWidth>0,
+    mascotInside:icon.left>=card.left&&icon.right<=card.right,
     titleSize:parseFloat(getComputedStyle(document.querySelector("h1")).fontSize),
     font:getComputedStyle(document.querySelector("h1")).fontFamily,
     isStandaloneV:document.querySelector(".offline-brand img").getAttribute("src").startsWith("data:image/svg+xml"),
@@ -1007,6 +1015,7 @@ try{
   assert.ok(metrics.isStandaloneV&&metrics.logoLeft>=15&&metrics.logoRight<260&&
    metrics.logoTop<metrics.iconTop,
    "Standalone V must sit at the top-left of the offline card at "+width+": "+JSON.stringify(metrics));
+  assert.ok(metrics.mascotLoaded&&metrics.mascotInside,"Offline mascot must load and fit at "+width);
   assert.ok(metrics.font.includes("Onest")&&metrics.titleSize>=27&&
    metrics.buttonCount===2&&metrics.actionHeights.every(h=>h>=48),
    "Offline typography and touch targets must remain legible at "+width+": "+JSON.stringify(metrics));
@@ -2240,7 +2249,7 @@ try{
  }));
  await confirmationPage.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
- assert.equal(await confirmationPage.title(),await confirmationPage.evaluate(()=>document.documentElement.lang==="en"?"Create account · VATRA":"Створити акаунт · VATRA"));
+ assert.equal(await confirmationPage.title(),await confirmationPage.evaluate(()=>document.documentElement.lang==="en"?"Create account":"Створити акаунт"));
  await confirmationPage.locator("#first-name").fill("Тест");
  await confirmationPage.locator("#last-name").fill("Користувач");
  await confirmationPage.evaluate(()=>{
@@ -2914,6 +2923,8 @@ try{
  assert.equal(await privateFriends.locator(".vatra-friends-person").count(),0);
  assert.equal(await privateFriends.evaluate(()=>window.__vatraFriendLimitCalls.length),0,
   "A third-party friends route must not query someone else's relationships");
+ assert.equal(await privateFriends.locator('[data-friends-tab="online"]').isDisabled(),true,"Locked friends lists cannot switch to another view");
+ assert.equal(await privateFriends.locator("#friends-search").isDisabled(),true);
  await privateFriends.close();
  const publicFriends=await feedContext.newPage();
  await publicFriends.goto(base+"friends.html?member=789012&friend-action-test=1",{waitUntil:"domcontentloaded"});
@@ -3089,7 +3100,7 @@ try{
    "A full-route skeleton must disappear once the shell is ready");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockCreateClientCalls),1,
    "Feed uses exactly one Supabase auth client");
-  const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
+  const expectedTitle=language==="en"?"Feed":"Стрічка";
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),0);
@@ -3352,11 +3363,14 @@ try{
   // realistic UUID post separately to cover inline comments and icon actions.
   await feedProbe.evaluate(()=>{
    window.__vatraSmokeParentCountQueries=0;
+   window.__vatraSmokeStickerUpload=null;
+   window.__vatraSmokeStickerInsert=null;
    const query=new Proxy({},{
     get(_target,key){
      if(key==="then")return resolve=>Promise.resolve({data:[],error:null,count:0}).then(resolve);
      return (...args)=>{
       if(key==="eq"&&args[0]==="parent_comment_id")window.__vatraSmokeParentCountQueries++;
+      if(key==="insert"&&args[0]?.media_path?.includes("/comments/sticker-"))window.__vatraSmokeStickerInsert=args[0];
       return query;
      };
     }
@@ -3370,6 +3384,7 @@ try{
    const rootB="00000000-0000-4000-8000-000000000102";
    window.VATRA_POST_INTERACTIONS.mount({
     from:()=>query,
+    storage:{from:bucket=>({upload:async(path,file)=>{window.__vatraSmokeStickerUpload={bucket,path,type:file.type,size:file.size};return {error:null};},remove:async()=>({error:null})})},
     rpc:async(name,args)=>{
      if(name==="comment_reply_counts"){
       window.__vatraSmokeReplyBatches.push(args.p_parents);
@@ -3385,7 +3400,7 @@ try{
      })),error:null};
     }
    },{id:"00000000-0000-4000-8000-000000000099",kind:"person",body:"Test"},
-   host,{ownId:"",userId:null});
+   host,{ownId:"654321",userId:"00000000-0000-4000-8000-000000000123"});
   });
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),false,
    "Comment threads must stay hidden until the member opens the post viewer");
@@ -3420,6 +3435,17 @@ try{
   assert.deepEqual(replyLabels,replyLocale==="en"?
    ["2 replies","1 reply"]:["2 відповідей","1 відповідь"],
    "Batched totals must preserve each localized reply count label");
+  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
+   "Closing the viewer must restore the original post without a duplicate");
+  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
+  await feedProbe.waitForFunction(()=>{
+   const list=document.querySelector(".vatra-post-comment-dialog .ui-vatra-post-comment-list-001");
+   return list?.getAttribute("aria-busy")==="false"&&
+    list.querySelectorAll(".vatra-post-comment").length===2;
+  });
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
+   "Reopening within four seconds should reuse the sorted comment page without a third RPC");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
@@ -3459,27 +3485,31 @@ try{
   assert.equal(await feedProbe.locator(".vt-vatra-sticker-pack-001").count(),9);
   await feedProbe.getByRole("button",{name:"Батя",exact:true}).click().catch(async()=>{await feedProbe.getByRole("button",{name:"Dad",exact:true}).click();});
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".vt-vatra-sticker-option-001").length===20);
+  await feedProbe.waitForFunction(()=>{const art=document.querySelector(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001");return art&&art.style.width&&art.style.visibility!=="hidden";});
+  const cropRatio=await feedProbe.locator(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001").first().evaluate(async art=>{
+   const mod=await import(new URL("assets/js/comment-picker.js",location.href).href);
+   const image=new Image();image.src=JSON.parse(art.style.backgroundImage.slice(4,-1));await image.decode();
+   const pack=mod.packs.find(p=>p.id==="dad"||p.uk==="Батя"),[, ,w,h]=pack.rects[0],rect=art.getBoundingClientRect();
+   return {actual:rect.width/rect.height,expected:w*image.naturalWidth/(h*image.naturalHeight)};
+  });
+  assert.ok(Math.abs(cropRatio.actual-cropRatio.expected)<.03,"Sticker thumbnails preserve the crop aspect ratio");
   await feedProbe.locator(".vt-vatra-sticker-option-001").first().click();
-  await feedProbe.locator(".vatra-post-comment-file-preview").waitFor({state:"visible"});
-  assert.match(await feedProbe.locator(".vt-vatra-post-comment-file-name-001").textContent(),/(Батя|Dad) · 1/);
+  await feedProbe.waitForFunction(()=>!!window.__vatraSmokeStickerInsert?.media_path);
+  const sentSticker=await feedProbe.evaluate(()=>({upload:window.__vatraSmokeStickerUpload,insert:window.__vatraSmokeStickerInsert}));
+  assert.equal(sentSticker.upload.bucket,"post-images");
+  assert.equal(sentSticker.upload.type,"image/webp");
+  assert.ok(sentSticker.upload.size>0);
+  assert.match(sentSticker.upload.path,/^654321\/comments\/sticker-[0-9a-f-]+\.webp$/i);
+  assert.equal(sentSticker.insert.media_path,sentSticker.upload.path);
+  assert.equal(sentSticker.insert.body,"");
+  assert.equal(await feedProbe.locator(".vatra-post-comment-file-preview").isVisible(),false,"Sticker sends directly without a file-preview step");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"","Sticker is an independent image, not fake emoji text");
-  await feedProbe.locator(".vt-vatra-post-comment-file-remove-001").click();
   const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-attach-001");
   await attachmentControl.click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
-  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
-  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
-   "Closing the viewer must restore the original post without a duplicate");
-  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
-  await feedProbe.waitForFunction(()=>{
-   const list=document.querySelector(".vatra-post-comment-dialog .ui-vatra-post-comment-list-001");
-   return list?.getAttribute("aria-busy")==="false"&&
-    list.querySelectorAll(".vatra-post-comment").length===2;
-  });
-  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
-   "Reopening within four seconds should reuse the sorted comment page without a third RPC");
+
   await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
 
@@ -3964,28 +3994,15 @@ try{
   await feedProbe.locator("#feed-story-media").setInputFiles({
    name:"story-test.png",mimeType:"image/png",buffer:onePixelPng
   });
-  const storyMediaState=await feedProbe.evaluate(()=>{
-   const input=document.querySelector("#feed-story-media");
-   const preview=document.querySelector("#feed-story-media-preview");
-   const image=preview?.querySelector("img");
-   return {dialogOpen:document.querySelector("#feed-story-dialog")?.open,
-    inputCount:input?.files?.length,inputMime:input?.files?.[0]?.type,
-    previewHidden:preview?.hidden,previewHTML:preview?.innerHTML?.slice(0,350),
-    previewDisplay:preview?getComputedStyle(preview).display:null,
-    imageRect:image?{width:image.getBoundingClientRect().width,height:image.getBoundingClientRect().height}:null,
-    error:document.querySelector("#feed-story-error")?.textContent,
-    mediaApi:typeof window.VATRA_POST_MEDIA?.bindPicker};
-  });
-  console.log("VATRA story media preview probe: "+JSON.stringify(storyMediaState));
-  // setInputFiles/change creates the image before the browser has decoded its
-  // blob. Wait for intrinsic size rather than one-shot isVisible on a 0x0 node.
-  await feedProbe.waitForFunction(()=>{
-   const img=document.querySelector("#feed-story-media-preview img");
-   return img?.complete===true&&img.naturalWidth>0&&
-    !document.querySelector("#feed-story-media-preview").hidden;
-  },null,{timeout:5000});
-  assert.equal(await feedProbe.locator("#feed-story-media-preview img").isVisible(),true,
-   "A selected story photo must appear after decoding: "+JSON.stringify(storyMediaState));
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-story-media-preview")?.dataset.ready==="true"&&!document.querySelector("#feed-story-media-preview canvas")?.hidden);
+  const storyCanvas=feedProbe.locator("#feed-story-media-preview canvas");
+  assert.ok(await storyCanvas.isVisible(),"Photo must be drawn into the real story canvas");
+  assert.equal(await storyCanvas.evaluate(el=>el.width/el.height),540/960);
+  await feedProbe.locator(".vt-vatra-story-tool-filters-001").click();
+  await feedProbe.locator(".vt-vatra-story-filter-001").nth(1).click();
+  assert.equal(await feedProbe.locator(".vt-vatra-story-filter-001").nth(1).getAttribute("aria-pressed"),"true");
+  await feedProbe.locator(".vt-vatra-story-undo-001").click();
+  assert.equal(await feedProbe.locator(".vt-vatra-story-filter-001").first().getAttribute("aria-pressed"),"true");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.media_kind),"image",
@@ -3993,7 +4010,7 @@ try{
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.body),"",
    "Story captions are optional when media exists");
   await feedProbe.locator("#feed-create-story").click();
-  assert.equal(await feedProbe.locator("#feed-story-media-preview").isVisible(),false,
+  assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();
   const composerFirst=await feedProbe.evaluate(()=>{
@@ -4097,8 +4114,12 @@ try{
   await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),false,
    "Escape must close the account dropdown");
-  assert.equal(await feedProbe.locator("footer").count(),0,
-   "Signed-in VATRA Feed must not show a footer");
+  assert.equal(await feedProbe.locator("footer:not(dialog footer), .auth-footer-content").count(),0,
+   "Signed-in VATRA Feed must not have a page footer");
+  assert.equal(await feedProbe.locator("#feed-story-dialog footer.ui-vatra-story-footer-001").count(),1,
+   "The story editor must retain its own publication controls");
+  assert.equal(await feedProbe.locator("#feed-story-dialog footer.ui-vatra-story-footer-001").isVisible(),false,
+   "Story editor controls must be hidden when its dialog is closed");
   assert.ok(new URL(feedProbe.url()).pathname.endsWith("/VATRA/feed"),
    "Feed must use an extensionless public URL");
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0);
@@ -4438,6 +4459,23 @@ try{
   assert.equal(await profilePage.locator("#profile-cover-change").evaluate(el=>getComputedStyle(el).opacity),"0","Cover edit is hidden at rest");
   await profilePage.locator("#profile-cover-image").hover();
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
+  const initialCover=await profilePage.locator("#profile-cover-photo").getAttribute("src");
+  const coverFixture=await profilePage.evaluate(()=>{const c=document.createElement("canvas");c.width=960;c.height=640;const ctx=c.getContext("2d");ctx.fillStyle="#927fe4";ctx.fillRect(0,0,960,640);ctx.fillStyle="#fff";ctx.fillRect(0,240,960,160);return c.toDataURL("image/png").split(",")[1];});
+  await profilePage.locator("#profile-cover-file").setInputFiles({name:"cover-preview.png",mimeType:"image/png",buffer:Buffer.from(coverFixture,"base64")});
+  await profilePage.locator("#profile-cover-edit-dialog").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-cover-crop-panel").isVisible(),true);
+  await profilePage.locator("#profile-cover-crop-zoom").evaluate(el=>{el.value="1.5";el.dispatchEvent(new Event("input",{bubbles:true}));});
+  await profilePage.locator("#profile-cover-edit-step").click();
+  await profilePage.locator("#profile-cover-preview-panel").waitFor({state:"visible"});
+  const previewRatio=()=>profilePage.locator("#profile-cover-preview-image").evaluate(el=>el.width/el.height);
+  assert.ok(Math.abs(await previewRatio()-960/290)<.01,"Desktop preview uses a wide crop");
+  await profilePage.locator("#profile-cover-preview-mobile").click();
+  assert.ok(Math.abs(await previewRatio()-390/185)<.01,"Mobile preview shows the outer crop");
+  await profilePage.locator("#profile-cover-edit-step").click();
+  assert.equal(await profilePage.locator("#profile-cover-crop-zoom").inputValue(),"1.5","Returning to cropping preserves zoom");
+  await profilePage.locator("#profile-cover-edit-close").click();
+  assert.equal(await profilePage.locator("#profile-cover-edit-dialog").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-cover-photo").getAttribute("src"),initialCover,"Cancel never changes the existing cover");
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),true);
@@ -4459,8 +4497,9 @@ try{
   assert.equal(await profilePage.locator("#profile-edit-open svg").count(),0,
    "Owner's edit action is text-only");
   assert.equal(await profilePage.locator("#profile-status svg").count(),0,"Status has no pencil");
-  const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,nav=row.querySelector(".social-profile-tabs");return {inRow:row.classList.contains("ui-profile-tab-row-001"),outsideTabs:!nav.contains(edit),rightGap:row.getBoundingClientRect().right-edit.getBoundingClientRect().right,background:getComputedStyle(edit).backgroundColor};});
-  assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=30&&editAlignment.background==="rgba(0, 0, 0, 0)","Edit action is text at the right edge of profile navigation");
+  const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,name=document.querySelector("#profile-heading"),er=edit.getBoundingClientRect(),nr=name.getBoundingClientRect();return {inRow:row.classList.contains("ui-profile-name-row-001")&&name.parentElement===row,outsideTabs:!document.querySelector(".social-profile-tabs").contains(edit),rightGap:Math.abs(row.getBoundingClientRect().right-er.right),sameLine:Math.abs((er.top+er.bottom-nr.top-nr.bottom)/2)<=5,background:getComputedStyle(edit).backgroundColor};});
+  assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=2&&editAlignment.background!=="rgba(0, 0, 0, 0)","Edit action has a VATRA background and sits at the right edge beside the name");
+  if((await profilePage.viewportSize()).width>970)assert.ok(editAlignment.sameLine,"Desktop edit action aligns with the name");
   assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
    "Inline post composer has a media action icon like Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);

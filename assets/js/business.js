@@ -1,20 +1,14 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-async function mount({root,t,make,link,btn,valid,title,subtitle,content,client,user,ownId,message,card,field,submit,tabs,dialog,nameOf,confirmRemove,sectionIcon,discoveryIcons,embedded=false}){
+async function mount({root,t,make,link,btn,valid,title,subtitle,content,client,user,ownId,message,card,field,submit,tabs,dialog,nameOf,confirmRemove,sectionIcon,discoveryIcons}){
  title.textContent=t("Бізнес-інструменти спільноти","Community business tools");subtitle.textContent="";
  const fields="id,club_id,name,category,category_code,description,city,contact_email,website,created_at,updated_at,logo_path,cover_path";
  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
- const current=new URL(location.href),requested=current.searchParams.get("company"),requestedSection=current.searchParams.get(embedded?"tools":"section"),requestedFilter=current.searchParams.get("for");
- let clubId=embedded?(current.pathname.match(/\/club([1-9][0-9]{0,18})$/)?.[1]||current.searchParams.get("club_id")):current.searchParams.get("club_id"),scopeCompany=null,scopeRole=null,scopePending=false;
+ const current=new URL(location.href),requestedSection=current.searchParams.get("tools");
+ const clubId=current.pathname.match(/\/club([1-9][0-9]{0,18})$/)?.[1]||current.searchParams.get("club_id");
+ let scopeCompany=null,scopeRole=null,scopePending=false;
  const clubPattern=/^[1-9][0-9]{0,18}$/;
- const goClub=number=>location.replace(new URL("club"+number,root).href);
- if(!embedded){
-  const legacy=uuid.test(requested||"")?requested:uuid.test(requestedFilter||"")?requestedFilter:null;
-  if(!clubPattern.test(clubId||"")&&legacy){const r=await client.from("business_companies").select("club_id").eq("id",legacy).maybeSingle();if(r.data?.club_id)clubId=String(r.data.club_id);}
-  if(clubPattern.test(clubId||"")){const next=new URL("club"+clubId,root);if(!requested&&requestedSection){next.searchParams.set("tools",requestedSection);if(current.searchParams.get("mode"))next.searchParams.set("mode",current.searchParams.get("mode"));}location.replace(next.href);}
-  else location.replace(new URL("communities",root).href);return;
- }
  if(!clubPattern.test(clubId||"")){message(t("Спільноту не знайдено.","Community not found."),true);return;}
  const result=await client.from("business_companies").select(fields).eq("club_id",clubId).maybeSingle();
  if(result.error||!result.data){location.replace(new URL("communities",root).href);return;}
@@ -104,17 +98,17 @@ async function mount({root,t,make,link,btn,valid,title,subtitle,content,client,u
  function companyAvatar(c,cls="ui-business-company-avatar-001"){const avatar=make("span",cls,(c.name||"V").trim().slice(0,1).toLocaleUpperCase());brandImage(avatar,c,"logo");return avatar;}
  async function editBrand(c){
   if(!["owner","admin","editor"].includes(roleOf(c.id)))return;
-  try{const module=await import(new URL("assets/js/business-brand.js?rev=6a1765ba2b76a433b0e6a0e8797197db73d93e61",root).href);await module.openBusinessBrand({company:c,client,t,make,btn,dialog,field,submit,message,onSaved:async()=>{if(embedded){location.reload();return;}brandUrls.clear();await refresh();await render();message(t("Оформлення збережено.","Branding saved."));}});}catch(_){message(err,true);}
+  try{const module=await import(new URL("assets/js/business-brand.js?rev=6a1765ba2b76a433b0e6a0e8797197db73d93e61",root).href);await module.openBusinessBrand({company:c,client,t,make,btn,dialog,field,submit,message,onSaved:async()=>{location.reload();}});}catch(_){message(err,true);}
  }
  async function operation(fn){
   if(working)return;working=true;message("");
   try{await fn();await refresh();await render();}catch(_){message(err,true);}finally{working=false;}
  }
- async function openEditor(existing=null){
+ async function openEditor(existing){
   const role=existing?roleOf(existing.id):null;if(!existing||!["owner","admin","editor"].includes(role))return;
   if(openingEditor||document.querySelector(".ui-business-editor-001[open]"))return;openingEditor=true;
   try{await loadCategories();}catch(_){message(t("Не вдалося завантажити категорії. Спробуйте ще раз.","Could not load categories. Please try again."),true);return;}finally{openingEditor=false;}
-  const d=make("dialog","ui-vatra-section-dialog-001 ui-business-editor-001"),head=make("header","ui-vatra-section-dialog-head-001"),headingText=make("h2","vt-vatra-section-dialog-title-001",existing?t("Редагувати компанію","Edit company"):t("Створити компанію","Create company"));
+  const d=make("dialog","ui-vatra-section-dialog-001 ui-business-editor-001"),head=make("header","ui-vatra-section-dialog-head-001"),headingText=make("h2","vt-vatra-section-dialog-title-001",t("Редагувати спільноту","Edit community"));
   headingText.id="business-editor-title";d.setAttribute("aria-labelledby",headingText.id);
   let saving=false;const close=btn("×","vt-vatra-section-dialog-close-001",()=>{if(!saving)d.close();});close.setAttribute("aria-label",t("Закрити","Close"));head.append(headingText,close);
   const scroll=make("div","ui-vatra-section-dialog-scroll-001 ui-business-editor-scroll-001"),form=make("form","ui-business-editor-form-001");form.id="business-company-form";
@@ -127,10 +121,10 @@ async function mount({root,t,make,link,btn,valid,title,subtitle,content,client,u
   contacts.append(make("h3","vt-business-editor-section-title-001",t("Контакти","Contact details")));
   const city=field(contacts,"business-city",t("Місто","City"),"text",100),email=field(contacts,"business-email",t("Публічна електронна пошта","Public email"),"email",254),website=field(contacts,"business-website",t("Вебсайт","Website"),"url",300);website.placeholder="https://";
   name.minLength=3;name.placeholder=t("Наприклад, BARBER STUDIO","e.g. BARBER STUDIO");
-  if(existing){name.value=existing.name;description.value=existing.description;city.value=existing.city;email.value=existing.contact_email;website.value=existing.website;}
+  name.value=existing.name;description.value=existing.description;city.value=existing.city;email.value=existing.contact_email;website.value=existing.website;
   form.append(note,basics,contacts);scroll.append(form);
   const footer=make("footer","ui-business-editor-footer-001"),status=make("p","vt-business-editor-status-001");status.setAttribute("role","alert");status.hidden=true;
-  const actions=make("div","ui-business-editor-actions-001"),cancel=btn(t("Скасувати","Cancel"),"vt-business-secondary-001",()=>{if(!saving)d.close();}),save=make("button","vt-vatra-section-submit-001 vt-business-editor-save-001",existing?t("Зберегти зміни","Save changes"):t("Створити компанію","Create company"));save.type="submit";save.setAttribute("form",form.id);actions.append(cancel,save);footer.append(status,actions);
+  const actions=make("div","ui-business-editor-actions-001"),cancel=btn(t("Скасувати","Cancel"),"vt-business-secondary-001",()=>{if(!saving)d.close();}),save=make("button","vt-vatra-section-submit-001 vt-business-editor-save-001",t("Зберегти зміни","Save changes"));save.type="submit";save.setAttribute("form",form.id);actions.append(cancel,save);footer.append(status,actions);
   const showError=copy=>{status.textContent=copy;status.hidden=!copy;};
   form.addEventListener("submit",async e=>{
    e.preventDefault();if(saving)return;showError("");
@@ -142,7 +136,7 @@ async function mount({root,t,make,link,btn,valid,title,subtitle,content,client,u
     const result=await client.from("business_companies").update(payload).eq("id",existing.id).select("id").single();
     if(result.error||!result.data?.id)throw Error("save");
     selected=result.data.id;d.close();setNav("overview");
-    try{await refresh();if(embedded){const h=document.querySelector("#club-heading");if(h)h.textContent=payload.name;const desc=document.querySelector("#club-description");if(desc)desc.textContent=payload.description||t("Опису поки немає.","No description yet.");document.title=payload.name+" · VATRA";}await render();message(existing?t("Зміни збережено.","Changes saved."):t("Компанію створено.","Company created."));}catch(_){message(t("Компанію збережено, але не вдалося оновити список.","Company saved, but the list could not be refreshed."),true);}
+    try{await refresh();const h=document.querySelector("#club-heading");if(h)h.textContent=payload.name;const desc=document.querySelector("#club-description");if(desc)desc.textContent=payload.description||t("Опису поки немає.","No description yet.");document.title=payload.name;await render();message(t("Зміни збережено.","Changes saved."));}catch(_){message(t("Компанію збережено, але не вдалося оновити список.","Company saved, but the list could not be refreshed."),true);}
    }catch(_){showError(t("Не вдалося зберегти компанію. Спробуйте ще раз.","Could not save the company. Please try again."));}finally{saving=false;save.disabled=cancel.disabled=close.disabled=false;}
   });
   d.addEventListener("cancel",e=>{if(saving)e.preventDefault();});d.addEventListener("close",()=>d.remove(),{once:true});d.append(head,scroll,footer);document.body.append(d);d.showModal();
@@ -247,5 +241,5 @@ async function mount({root,t,make,link,btn,valid,title,subtitle,content,client,u
  try{await Promise.all([refresh(),loadCategories().catch(()=>[])]);browseCompany=scopeCompany.id;const section=publicSections.includes(requestedSection)||canManageSection(requestedSection)||scopePending&&requestedSection==="overview"?requestedSection:(scopeRole||scopePending?"overview":"stores");await navigate(section,current.searchParams.get("mode"));}catch(_){main.replaceChildren(make("p","vt-business-empty-001",err));}
 }
 window.VATRA_BUSINESS_TOOLS=Object.freeze({mount});
-if(document.body.dataset.page!=="club")window.VATRA_SECTION_CORE?.start(mount);
+
 })();

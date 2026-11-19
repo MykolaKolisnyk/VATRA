@@ -15,7 +15,7 @@ export function openPanel(current,isCurrent,ui){
  const reasonField=()=>{const w=node("label","ui-vatra-admin-field-001"),i=node("textarea","ui-vatra-admin-reason-001");i.maxLength=1000;i.placeholder=t("Причина рішення (не менше 3 символів)","Decision reason (at least 3 characters)");w.append(node("span","vt-vatra-admin-label-001",t("Причина","Reason")),i);return {w,i};};
  async function mutate(action,params,reason,refresh,btn){if(reason.trim().length<3){say(t("Вкажіть причину рішення.","Enter a decision reason."),true);return;}if(!confirm(t("Підтвердити адміністративну дію?","Confirm this administrative action?")))return;btn.disabled=true;try{await rpc(action,{...params,p_reason:reason.trim()});say(t("Рішення збережено.","Decision saved."));await refresh();}catch(_){err();}finally{btn.disabled=false;}}
  function actionButton(label,action,params,reason,refresh,danger=false){const b=button(danger?"vt-vatra-admin-danger-001":"vt-vatra-admin-primary-001",label,()=>void mutate(action,params(),reason.value,refresh,b));return b;}
- const tabs=[["dashboard",t("Огляд","Overview")],["users",t("Користувачі","Members")],["requests",t("Верифікація","Verification")],["reports",t("Скарги на профілі","Profile reports")],["market",t("Маркетплейс","Marketplace")],["history",t("Журнал дій","Audit log")]];
+ const tabs=[["dashboard",t("Огляд","Overview")],["users",t("Користувачі","Members")],["requests",t("Верифікація","Verification")],["reports",t("Скарги на профілі","Profile reports")],["market",t("Маркетплейс","Marketplace")],["maintenance",t("Технічні роботи","Maintenance")],["history",t("Журнал дій","Audit log")]];
  const navButtons=new Map();for(const [key,label] of tabs){const b=button("vt-vatra-admin-nav-button-"+key,label,()=>void render(key));navButtons.set(key,b);nav.append(b);}
  async function users(host,selected=""){
  const form=node("form","ui-vatra-admin-lookup-001"),label=node("label","ui-vatra-admin-field-001"),input=node("input","ui-vatra-admin-id-input-001");input.inputMode="numeric";input.placeholder="123";input.value=selected;input.required=true;input.pattern="[1-9][0-9]{0,18}";label.append(node("span","vt-vatra-admin-label-001","VATRA ID"),input);const find=node("button","vt-vatra-admin-primary-001",t("Знайти","Find"));find.type="submit";form.append(label,find);const result=node("div","ui-vatra-admin-member-result-001");host.append(form,result);let searchEpoch=0;
@@ -31,6 +31,31 @@ export function openPanel(current,isCurrent,ui){
  else if(key==="users")await users(host,selected);
  else if(key==="requests"||key==="reports"){const rows=await rpc(key);if(stamp!==renderEpoch)return;const refresh=()=>render(key);if(!rows.length)host.append(node("p","vt-vatra-admin-empty-001",t("Немає відкритих звернень.","No open requests.")));for(const row of rows){const id=String(row.vatra_id??row.target_vatra_id),c=box((row.display_name||"VATRA")+" · ID "+id),reason=reasonField(),actions=node("div","ui-vatra-admin-actions-001");c.append(node("p","vt-vatra-admin-request-copy-001",[row.category,row.reason,row.details].filter(Boolean).join("\n")),node("p","vt-vatra-admin-request-date-001",safeDate(row.created_at)),reason.w);actions.append(button("vt-vatra-admin-secondary-001",t("Керувати акаунтом","Manage member"),()=>void render("users",id)));if(key==="requests"){actions.append(actionButton(t("Схвалити та видати галочку","Approve and grant badge"),"verify",()=>({p_id:id}),reason.i,refresh),actionButton(t("Відхилити","Reject"),"reject_verification",()=>({p_id:id}),reason.i,refresh,true));}else actions.append(actionButton(t("Закрити скаргу","Resolve report"),"resolve_report",()=>({p_report:row.id}),reason.i,refresh));c.append(actions);host.append(c);}}
  else if(key==="market"){const c=box(t("Модерація маркетплейсу","Marketplace moderation"));c.append(node("p","vt-vatra-admin-market-copy-001",t("Черга товарів, скарги, оскарження, обмеження продавців та історія рішень.","Listing queue, reports, appeals, seller restrictions and decision history.")),button("vt-vatra-admin-primary-001",t("Відкрити модерацію","Open moderation"),()=>{if(window.VATRA_OPEN_MARKET_MODERATION){d.close();void window.VATRA_OPEN_MARKET_MODERATION();}else location.assign(new URL("marketplace?admin=marketplace",root).href);}));host.append(c);}
+ else if(key==="maintenance"){
+  const c=box(t("Технічні роботи","Maintenance"));
+  c.append(node("p","vt-vatra-admin-maintenance-copy-001",t("Увімкнення тимчасово перенаправляє відвідувачів на сторінку технічних робіт. Доступ адміністратора зберігається.","Enabling redirects visitors to the maintenance page temporarily. Administrator access is retained.")));
+  const state=node("p","vt-vatra-admin-maintenance-state-001",t("Перевірка стану…","Checking status…"));state.setAttribute("role","status");c.append(state);
+  const actions=node("div","ui-vatra-admin-actions-001"),toggle=button("vt-vatra-admin-primary-001","",async()=>{
+   if(toggle.disabled||!isCurrent()||dialog!==d||!d.open)return;
+   const next=!enabled;
+   if(!confirm(next?t("Увімкнути технічні роботи для відвідувачів VATRA?","Enable maintenance for VATRA visitors?"):t("Вимкнути технічні роботи?","Disable maintenance?")))return;
+   toggle.disabled=true;
+   try{
+    const result=await client.from("site_maintenance").update({enabled:next}).eq("id",1).select("enabled").single();
+    if(result.error||result.data?.enabled!==next)throw result.error||Error("Maintenance not changed");
+    if(!isCurrent()||!toggle.isConnected)return;
+    enabled=next;paint();say(t("Режим оновлено.","Maintenance status updated."));window.dispatchEvent(new Event("vatra-maintenance-changed"));
+   }catch(_){err();}finally{toggle.disabled=false;}
+  });toggle.disabled=true;
+  const preview=node("a","vt-vatra-admin-profile-link-001",t("Переглянути сторінку","Preview page"));preview.href=new URL("maintenance.html?preview=1",root).href;preview.target="_blank";preview.rel="noopener";
+  actions.append(toggle,preview);c.append(actions);host.append(c);
+  let enabled=false;
+  function paint(){state.textContent=enabled?t("Стан: увімкнено","Status: enabled"):t("Стан: вимкнено","Status: disabled");toggle.textContent=enabled?t("Вимкнути технічні роботи","Disable maintenance"):t("Увімкнути технічні роботи","Enable maintenance");}
+  const result=await client.from("site_maintenance").select("enabled").eq("id",1).single();
+  if(result.error||typeof result.data?.enabled!=="boolean")throw result.error||Error("Missing status");
+  if(stamp!==renderEpoch)return;
+  enabled=result.data.enabled;paint();toggle.disabled=false;
+ }
  else if(key==="history"){const {data,error}=await client.from("admin_audit").select("id,target_vatra_id,event,reason,created_at").order("created_at",{ascending:false}).limit(100);if(error)throw error;if(stamp!==renderEpoch)return;const names={verify:t("Видано галочку","Badge granted"),unverify:t("Знято галочку","Badge revoked"),block:t("Заблоковано","Blocked"),unblock:t("Розблоковано","Unblocked"),reject_verification:t("Відхилено заявку","Verification rejected"),resolve_report:t("Закрито скаргу","Report resolved")};if(!data?.length)host.append(node("p","vt-vatra-admin-empty-001",t("Журнал поки порожній.","No activity yet.")));for(const row of data||[]){const c=box((names[row.event]||row.event)+" · ID "+(row.target_vatra_id??"—"));c.append(node("p","vt-vatra-admin-audit-reason-001",row.reason),node("p","vt-vatra-admin-audit-date-001",safeDate(row.created_at)));host.append(c);}}
  }catch(_){if(stamp===renderEpoch)err();}}
  d.showModal();void render("dashboard");

@@ -54,7 +54,7 @@ async function boot(init){
  $("#feed-logout")?.addEventListener("click",async()=>{const {error}=await client.auth.signOut({scope:"local"});if(error)return;window.VATRA_AVATAR?.clearHeader();location.replace(root.href);});
  $("#feed-app").hidden=false;$("#feed-loading").hidden=true;document.body.dataset.authReady="true";document.body.dataset.feedReady="true";document.body.classList.remove("vatra-shell-pending");
  try{await init({root,locale,t,$,make,link,btn,valid,title,subtitle,action,content,notice,client,user,ownId,message,empty,card,field,submit,confirmRemove,tabs,dialog,nameOf,sectionIcon,sectionIconButton,discoveryIcons});}finally{content.setAttribute("aria-busy","false");}
- document.title=title.textContent+" · VATRA";
+ document.title=title.textContent;
  }catch(_){const loader=$("#feed-loading");if(loader&&!loader.hidden)loader.textContent=t("Не вдалося відкрити VATRA. Оновіть сторінку.","Could not open VATRA. Refresh the page.");else message(t("Не вдалося завантажити розділ.","Could not load section."),true);}
 }
 let started=false;

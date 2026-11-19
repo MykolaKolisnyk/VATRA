@@ -83,7 +83,7 @@ async function boot(){
    event.preventDefault();const term=q("#feed-search-input")?.value.trim()||"";
    location.assign(new URL("feed"+(term?"?q="+encodeURIComponent(term):""),root).href);
   });
-  document.title=t("Подарунки · VATRA","Gifts · VATRA");
+  document.title=t("Подарунки","Gifts");
   const result=await client.from("profile_gifts").select("gift_code,created_at")
    .eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).limit(200);
   if(result.error)throw result.error;

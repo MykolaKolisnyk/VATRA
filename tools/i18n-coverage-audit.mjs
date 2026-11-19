@@ -13,7 +13,7 @@ const pendingLegalPages=new Set(["commerce"]);
 const pendingLegalTermsKeys=new Set(["market_rules_title","market_rules_intro","market_rules_full","market_rules_toc_desktop","market_rules_toc_mobile"]);
 assert.ok(uk.__pages.commerce&&en.__pages.commerce,"Published commerce page requires both active locales");
 const activePages=["index","404","feed","profile","offline","verify",
- "create-account","forgot","reset","terms","privacy","cookies"];
+ "create-account","forgot","reset","terms","privacy","cookies","maintenance"];
 const dynamicKeys=Object.keys(en).filter(key=>key!=="__pages");
 // Account sign-in, validation, recovery, connection, post and session status
 // messages must be localized as one coherent release batch across all six languages.
@@ -82,7 +82,7 @@ const giftKeys=[
  "У колекції",
  "Безкоштовний",
  "У цій колекції поки немає подарунків.",
- "Подарунки · VATRA",
+ "Подарунки",
  "Не вдалося завантажити колекцію.",
  "Не вдалося відкрити подарунки. Оновіть сторінку.",
  "Перший вогник",
@@ -136,7 +136,7 @@ const communityPages=[
 const communityKeys=[
  "Не вдалося відкрити VATRA",
  "Не вдалося відкрити сторінку. Оновіть її.",
- "Спільноти · VATRA",
+ "Спільноти",
  "Назва: 3–80 символів. Опис: до 1200 символів.",
  "Створення спільноти…",
  "Не вдалося створити спільноту. Повторіть спробу.",
@@ -155,7 +155,7 @@ const communityKeys=[
  "Не вдалося опублікувати допис.",
  "Спільноту не знайдено",
  "Ця спільнота не існує або її видалено.",
- "Спільноту не знайдено · VATRA",
+ "Спільноту не знайдено",
  "Не вдалося завантажити спільноту.",
  "Опису поки немає.",
  "Створити спільноту",
@@ -245,7 +245,7 @@ const friendsKeys=[
  "Немає нових запитів у друзі.",
  "Немає надісланих запитів.",
  "Приватність друзів",
- "Друзі · VATRA",
+ "Друзі",
  "Списки друзів інших користувачів приватні.",
  "Не вдалося завантажити друзів.",
  "Не вдалося відкрити друзів. Оновіть сторінку."
@@ -280,7 +280,7 @@ const notificationKeys=[
  "Ваші сповіщення",
  "Закрити сповіщення",
  "Відкрити всі сповіщення",
- "Сповіщення · VATRA",
+ "Сповіщення",
  "Не вдалося завантажити сповіщення. Оновіть сторінку."
 ];
 const interpolationTokens=value=>[...value.matchAll(/\{(name|count|page|id)\}/g)]
@@ -303,7 +303,7 @@ for(const key of notificationKeys){
 
 const feedRuntime=await readFile("assets/js/feed.js","utf8");
 const profileRuntime=await readFile("assets/js/profile.js","utf8");
-const socialPageKeys=["VATRA — Стрічка","У розробці","Зараз у мережі"];
+const socialPageKeys=["VATRA — Стрічка","У розробці","У мережі"];
 for(const key of socialPageKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
   "English Feed/profile shell translation missing: "+key);
@@ -315,7 +315,7 @@ for(const source of [feedRuntime,profileRuntime]){
   source.includes('t("VATRA — Стрічка","VATRA — Feed")'),
   "Feed/profile must apply translated shell controls and native date formats");
 }
-assert.ok(profileRuntime.includes('t("Зараз у мережі","Online now")'),
+assert.ok(profileRuntime.includes('t("У мережі","Online")'),
  "Online presence label must be localized");
 
 const verifyRuntime=await readFile("assets/js/verify.js","utf8");
@@ -396,7 +396,7 @@ for(const code of codes){
  const dictionary=await read(code);
  const status=dictionary.__translation_status;
  assert.deepEqual(status.translated_static_pages,activePages,
-  code+": localized static page manifest must match all twelve page catalogs");
+  code+": localized static page manifest must match all thirteen page catalogs");
  assert.equal(status.dynamic_strings_complete,false,
   code+": locale-specific JavaScript paths still require localization before launch");
  assert.equal(status.shared_catalog_complete,true,
@@ -502,7 +502,7 @@ for(const code of codes){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": invalid shared translation for "+key);
  assert.deepEqual(targetPages.filter(page=>!pendingLegalPages.has(page)).sort(),Object.keys(dictionary.__pages).sort(),
-  code+": all 12 static pages must be present in the catalog");
+  code+": all 13 static pages must be present in the catalog");
  console.log("VATRA "+code+": "+activePages.length+"/"+targetPages.length+
   " static page catalogs; "+texts+" UI fields; "+covered+"/"+dynamicKeys.length+
   " shared translation keys; locale-specific JavaScript, legal review and email templates pending");

@@ -116,6 +116,8 @@ async function start(init){
   });
   const {data,error}=await client.auth.getUser();
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
+   const id=location.pathname.match(/\/club([1-9][0-9]{0,18})$/)?.[1]||new URLSearchParams(location.search).get("club_id");
+   if(!data?.user?.id&&id&&document.querySelector("#club-heading")&&await window.VATRA_GUEST?.club(client,id))return;
    location.replace(root);return;
   }
   const user=data.user,meta=user.user_metadata||{};

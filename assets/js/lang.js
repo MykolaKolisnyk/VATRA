@@ -27,11 +27,11 @@
 
 
   const instantEnglishTitles={
-    index:"Sign in · VATRA","create-account":"Create account · VATRA",feed:"Feed · VATRA",friends:"Friends · VATRA",gifts:"Gifts · VATRA",notifications:"Notifications · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",clips:"Clips · VATRA",marketplace:"Marketplace · VATRA",business:"VATRA Business","vatra-id":"VATRA ID · VATRA",
-    forgot:"Password recovery · VATRA",reset:"New password · VATRA",
+    index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My page",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
+    forgot:"Password recovery",reset:"New password",
     "404":"Page not found",
-    terms:"Terms of Service · VATRA",commerce:"Commerce Rules · VATRA",privacy:"Privacy · VATRA",
-    cookies:"Cookies and browser storage · VATRA",offline:"No connection · VATRA"
+    terms:"Terms of Service",commerce:"Commerce Rules",privacy:"Privacy",
+    cookies:"Cookies and browser storage",offline:"No connection",maintenance:"Maintenance"
   };
   if(current==="en"){
     const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
@@ -58,7 +58,7 @@
 
 
   if(location.protocol!=="file:"){
-    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
     if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
   }
   document.documentElement.lang = current === "en" ? "en" : "uk";
@@ -190,7 +190,7 @@
         if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
           target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
-        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
         target.pathname = target.pathname.replace(/\/account(?:\.html)?$/,"/verify");
         target.searchParams.delete("locale");
         link.href = target.href;
@@ -259,7 +259,7 @@
   function applyTranslation(table) {
     const page=pageFromPath();
 
-    const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts"||page==="clips"||page==="marketplace"||page==="business"||page==="vatra-id";
+    const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts"||page==="clips"||page==="marketplace"||page==="vatra-id";
     const entry=table.__pages?.[page]||(communityShell?table.__pages?.feed:null);
     if (!entry) return;
     for (const element of document.querySelectorAll("[data-i18n]")) {
@@ -605,13 +605,13 @@
  "use strict";
  const selector=[
   ".captcha-dialog",".vatra-select-scroll-area",".vt-tour-scroll-area-001",
-  ".feed-compose-dialog",".feed-story-dialog",".club-compose-dialog",
+  ".feed-compose-dialog",".ui-vatra-story-editor-001",".ui-vatra-story-panel-001",".ui-vatra-story-tools-001",".club-compose-dialog",
   ".vatra-post-comment-dialog-content",".vatra-gallery-picker-grid",
   ".vatra-search-history",".vatra-search-live-results",".feed-account-dropdown",
   ".vatra-notification-panel",".vatra-post-share-dialog",".vatra-post-comment-emoji-scroll",
   ".profile-message-history",".profile-compose-dialog",".profile-photo-comments",
   ".vatra-profile-details-content",".profile-report-content",
-  ".profile-confirm-dialog",".profile-story-compose-dialog",
+  ".profile-confirm-dialog",
   ".vatra-post-composer-edit",".vatra-post-composer-settings",
   ".vatra-post-composer-drafts-panel",".feed-story-view",
   ".profile-story-viewer",".vatra-gift-viewer",".vatra-discovery-sidebar",".ui-vatra-market-sidebar-scroll-001",".ui-vatra-market-editor-scroll-001",".ui-vatra-market-detail-info-001",".ui-vatra-market-editor-preview-001",".ui-vatra-section-dialog-scroll-001",

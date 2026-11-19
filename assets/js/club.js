@@ -11,6 +11,8 @@ async function setupClubSocial(client,clubId,ownId,userId){
  const renderedPostIds=new Set();
  const CLUB_PAGE_SIZE=12;
  const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
+ const guestLabel=node("label","ui-club-guest-optin-001"),guestOption=node("input","ui-club-guest-optin-check-001");guestOption.type="checkbox";
+ guestLabel.append(guestOption,node("span","vt-club-guest-optin-label-001",t("Дозволити гостям читати цей текстовий допис","Allow guests to read this text post")));input.after(guestLabel);
  const picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
   input:"#club-compose-media",choose:"#club-compose-media-choose",
   clear:"#club-compose-media-remove",preview:"#club-compose-media-preview",
@@ -150,11 +152,11 @@ async function setupClubSocial(client,clubId,ownId,userId){
   let uploaded=null;
   try{
    if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,files);
-   const {error}=await client.from("community_posts").insert({
-    club_id:clubId,author_vatra_id:ownId,body,media_items:uploaded||[]
-   });
+   const payload={club_id:clubId,author_vatra_id:ownId,body,media_items:uploaded||[]};
+   if(guestOption.checked&&!files.length&&body)payload.guest_visible=true;
+   const {error}=await client.from("community_posts").insert(payload);
    if(error)throw error;
-   input.value="";picker?.reset();dialog.close();
+   input.value="";guestOption.checked=false;picker?.reset();dialog.close();
    await loadClubPosts();
   }catch(error){
    if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
@@ -209,7 +211,7 @@ async function setupCommunityBusiness(client,number,ownId,userId){
   const [membership,metrics]=await Promise.all([client.from("business_members").select("role,status").eq("company_id",company.id).eq("member_vatra_id",ownId).maybeSingle(),client.from("business_metrics").select("rating_count,rating_total").eq("company_id",company.id).maybeSingle()]);
   const role=membership.data?.status==="active"?membership.data.role:null,pending=membership.data?.status==="pending",manage=Boolean(role);
   // The public club is the only public identity; live linked data avoids a stale directory cache.
-  $("#club-heading").textContent=flags.data.name;$("#club-description").textContent=flags.data.description||t("Опису поки немає.","No description yet.");document.title=flags.data.name+" · VATRA";
+  $("#club-heading").textContent=flags.data.name;$("#club-description").textContent=flags.data.description||t("Опису поки немає.","No description yet.");document.title=flags.data.name;
   const identity=$("#club-identity-extra");if(identity){
    if(company.city)identity.append(node("span","vt-club-business-city-001",company.city));
    const n=Number(metrics.data?.rating_count),total=Number(metrics.data?.rating_total);
@@ -232,8 +234,8 @@ async function setupCommunityBusiness(client,number,ownId,userId){
    const resource=(tag,url)=>new Promise((resolve,reject)=>{const el=document.createElement(tag);if(tag==="link"){el.rel="stylesheet";el.href=new URL(url,root).href;}else{el.src=new URL(url,root).href;el.async=false;}el.addEventListener("load",resolve,{once:true});el.addEventListener("error",reject,{once:true});document.head.append(el);});
    try{
     document.body.classList.add("vatra-section-page","vatra-business-page");
-    await Promise.all([resource("link","assets/css/core.css?rev=e54d9ba8c2638618fb5402931fcc95d0bc36b418"),resource("link","assets/css/business.css?rev=0ef7bc4573fb0a8b62579ab0d34f93941c52ac8e"),resource("script","assets/js/core.js?rev=ff66004fe5c797e4335471a7ab34cc4856309a48")]);
-    await resource("script","assets/js/business.js?rev=76f3d3af1e18a64f209c6abbf491b6e401381fcf");
+    await Promise.all([resource("link","assets/css/core.css?rev=e54d9ba8c2638618fb5402931fcc95d0bc36b418"),resource("script","assets/js/core.js?rev=d6e6d62fef2bde0f674a3d7ec1a6dd199aa09d02")]);
+    await resource("script","assets/js/business.js?rev=79ef9f552a7d370890e653860a2931a8d5e28d2d");
     if(!window.VATRA_BUSINESS_TOOLS||!window.VATRA_SECTION_CORE?.embedded)throw Error("tools");
     await window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client,ownId,user:{id:userId},content,notice,t}));
    }catch(_){notice.hidden=false;notice.textContent=t("Не вдалося завантажити бізнес-інструмент. Оновіть сторінку.","Could not load business tools. Refresh the page.");}
@@ -261,7 +263,7 @@ async function openClub(client,ownId,userId){
   $("#club-public-id").textContent="";
   $("#club-description").textContent=t("Ця спільнота не існує або її видалено.",
    "This community does not exist or was deleted.");
-  document.title=t("Спільноту не знайдено · VATRA","Community not found · VATRA");
+  document.title=t("Спільноту не знайдено","Community not found");
  };
  if(!idPattern.test(number)){displayError();return;}
  const {data,error}=await fetchPublicClub(client,number);
@@ -275,7 +277,7 @@ async function openClub(client,ownId,userId){
  $("#club-public-id").textContent="Club ID "+String(data.club_id);
  $("#club-description").textContent=data.description||
   t("Опису поки немає.","No description yet.");
- document.title=data.name+" · VATRA";
+ document.title=data.name;
  await Promise.all([setupClubSocial(client,String(data.club_id),ownId,userId),setupCommunityBusiness(client,String(data.club_id),ownId,userId)]);
  const linkedId=query.get("post");
  const params=new URLSearchParams();const activeTools=new URLSearchParams(location.search).get("tools"),activeMode=new URLSearchParams(location.search).get("mode");if(["overview","team","analytics","stores","booking","jobs","ratings","inbox"].includes(activeTools)){params.set("tools",activeTools);if(activeMode==="manage")params.set("mode","manage");}else if(postPattern.test(linkedId||""))params.set("post",linkedId);const suffix=params.size?"?"+params.toString():"";

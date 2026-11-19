@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline"];
+const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline","maintenance"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
 const authBaseCss=await read("assets/css/base.css");
 const signInCss=await read("assets/css/sign-in.css");
@@ -85,7 +85,7 @@ const lang=await read("assets/js/lang.js");
 // English browser tab while the asynchronous translation JSON is loading.
 const instantEnglishTitles=lang.slice(lang.indexOf("  const instantEnglishTitles={"),
  lang.indexOf("\n  };",lang.indexOf("  const instantEnglishTitles={")));
-for(const [page,title] of [["friends","Friends · VATRA"],["gifts","Gifts · VATRA"]]){
+for(const [page,title] of [["friends","Friends"],["gifts","Gifts"]]){
  const html=await read(page+".html");
  assert.ok(instantEnglishTitles.includes(page+':"'+title+'"')&&
   html.indexOf('src="assets/js/lang.js"')>=0&&
@@ -376,8 +376,11 @@ assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
  offline.includes('class="ui-offline-img-001"')&&
  !offline.includes("logo.svg"),
  "Offline page must show only the self-contained V mark at the card top-left");
-assert.ok(offline.includes("ui-offline-path-004")&&offline.includes("ui-offline-dot-001"),
- "Offline Wi-Fi-off icon must use the crisp SVG geometry");
+assert.ok(offline.includes('class="ui-offline-vatryk-001" src="assets/vatryk/vatryk_offline.webp"')&&
+ offlineStyles.includes(".ui-offline-vatryk-001")&&!offlineStyles.includes(".offline-icon")&&
+ !offline.includes("ui-offline-path-004")&&sw.includes('ROOT+"assets/vatryk/vatryk_offline.webp"')&&
+ (await stat("assets/vatryk/vatryk_offline.webp")).size>0,
+ "Offline mascot replaces the old icon and is available through the offline cache");
 assert.ok(offline.includes("controller?.scriptURL")&&offline.includes('href="./" data-i18n="n9"'),
  "Offline fallback must resolve assets and home link at nested routes and localhost");
 assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page === "offline"'),
@@ -436,7 +439,7 @@ for(const page of pages){
  assert.ok(!/\/VATRA\/(?:ua|en)\//.test(html),filename+": stale locale-folder route");
  assert.ok(html.includes("data-i18n="),filename+": localized data nodes missing");
  assert.ok(html.includes("assets/js/lang.js"),filename+": shared language module missing");
- if(page!=="offline")assert.ok(html.includes("assets/css/base.css"),filename+": central stylesheet missing");
+ if(!["offline","maintenance"].includes(page))assert.ok(html.includes("assets/css/base.css"),filename+": central stylesheet missing");
  total+=inspect(filename,html);
  const bindings=[...html.matchAll(/\bdata-i18n="([^"]+)"/g)].map(x=>x[1]);
  assert.equal(new Set(bindings).size,bindings.length,filename+": duplicate translation keys");
@@ -590,8 +593,8 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
 assert.ok(css.includes(".signup-confirmation-tips p{margin:0;color:var(--soft);font-size:14px;")&&
  css.includes(".signup-confirmation-signin{display:inline-flex;align-items:center;justify-content:center;margin-top:22px;"),
  "Confirmation secondary typography must use consistent 13–14px rules");
-assert.ok(uk.__pages["create-account"].meta.title==="Створити акаунт · VATRA"&&
- en.__pages["create-account"].meta.title==="Create account · VATRA"&&
+assert.ok(uk.__pages["create-account"].meta.title==="Створити акаунт"&&
+ en.__pages["create-account"].meta.title==="Create account"&&
  !register.includes('href="./" class="vt-create-account-link-10"'),
  "Registration tab and account-creation links must use consistent naming");
 assert.ok(captcha.includes('dispose(scope,state);')&&
@@ -1145,7 +1148,8 @@ assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
 assert.ok(profileMarkup.includes('id="profile-heading"')&&
  !profileMarkup.includes('id="profile-not-found"')&&
  profileMarkup.includes('class="profile-panels ui-profile-panels-001"')&&
- (await read("assets/js/profile.js")).includes('q(".social-profile-tabs")?.remove()')&&
+ (await read("assets/js/profile.js")).includes('q(".ui-profile-tab-row-001")?.remove()')&&
+ (await read("assets/js/profile.js")).includes('q("#profile-edit-open")?.remove()')&&
  (await read("assets/js/profile.js")).includes('q(".profile-panels")?.remove()')&&
  (await read("assets/js/profile.js")).includes('const ownHeaderMedia=loadOwnHeaderAvatar(client,ownId,user.email);')&&
  (await read("assets/js/profile.js")).includes('const preloadedMedia=isMine?ownHeaderMedia:')&&
@@ -1186,7 +1190,7 @@ const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
- 'href="assets/css/base.css"','href="assets/css/feed.css"',
+ 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"','href="assets/css/story-editor.css"',
  'href="assets/css/profile.css"','href="assets/css/post-composer.css"','href="assets/css/gifts.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
@@ -1316,7 +1320,7 @@ assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
  storyPreviewMarkup.includes('id="feed-friend-stories"')&&
  storyPreviewMarkup.includes('id="feed-compose-open"')&&
  storyPreviewMarkup.includes('id="feed-compose-form"')&&
- storyPreviewMarkup.includes('id="feed-story-form"')&&
+ storyPreviewMarkup.includes('id="feed-story-dialog"')&&storyPreviewMarkup.includes('assets/js/story-editor.js')&&
  !storyPreviewMarkup.includes("ui-feed-story-preview-001")&&
  !storyPreviewMarkup.includes('data-vatra-coming-soon="stories"'),
  "Feed must show real friend Stories without fabricated previews, then the post composer");
@@ -1352,12 +1356,15 @@ assert.ok(clubMarkup.includes("assets/js/community-core.js")&&clubMarkup.include
 assert.ok(!communityScript.includes("setupClubSocial")&&!clubRuntime.includes("openDirectory"),"Community pages must contain only their own route logic");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
-assert.ok(storyPreviewMarkup.includes('id="feed-story-media"')&&
- storyPreviewMarkup.includes('id="feed-story-media-preview"')&&
+const storyEditorRuntime=await read("assets/js/story-editor.js");
+const storyEditorStyles=await read("assets/css/story-editor.css");
+assert.doesNotThrow(()=>new Function(storyEditorRuntime),"Shared story editor must be valid JavaScript");
+assert.ok(storyPreviewMarkup.includes('assets/js/story-editor.js')&&memberProfileMarkup.includes('assets/js/story-editor.js')&&
+ storyEditorRuntime.includes('canvas.width=W;canvas.height=H')&&storyEditorRuntime.includes('out.width=1080;out.height=1920')&&storyEditorStyles.includes('aspect-ratio:9/16')&&
  storyPreviewMarkup.includes('id="feed-story-view-media"')&&
  !/id="feed-story-text"[^>]*\srequired/.test(storyPreviewMarkup)&&
  memberProfileMarkup.includes('id="profile-story-viewer-media"')&&
- feedScript.includes('VATRA_POST_MEDIA.uploadStory(client,vatraId,file)')&&
+ feedScript.includes('VATRA_STORY_EDITOR.mount(')&&profileScript.includes('VATRA_STORY_EDITOR.mount(')&&storyEditorRuntime.includes('VATRA_POST_MEDIA.uploadStory(client,id,fileToPublish)')&&
  profileScript.includes('VATRA_POST_MEDIA?.renderStory(client,')&&
  postMediaScript.includes('"/stories/"')&&
  postMediaScript.includes('createSignedUrl(path,ttl)'),
@@ -1730,7 +1737,9 @@ assert.ok(
  feedScript.includes('.eq("author_vatra_id",vatraId).select("id").maybeSingle()')&&
  feedScript.includes('String(data?.id)!==String(toDelete.id)')&&
  feedScript.includes('Uploaded media is rolled back only if the database INSERT failed')&&
- feedScript.includes('Once a story is stored, a viewer refresh must not trigger media cleanup')&&
+ storyEditorRuntime.includes('if(insertError)throw insertError;inserted=true;')&&
+ storyEditorRuntime.includes('if(uploaded&&!inserted)')&&
+ storyEditorRuntime.indexOf('if(inserted){dialog.close();reset();try{onPublished?.();}')>storyEditorRuntime.indexOf('if(uploaded&&!inserted)')&&
  interactionsScript.includes("committed=true;")&&
  interactionsScript.includes("if(!committed)"),
  "Feed post, story and comment mutations must confirm persistence before cleanup");
@@ -1980,8 +1989,8 @@ assert.ok(
  memberCss.includes("grid-template-columns:minmax(0,37.5%) minmax(0,1fr)") &&
  memberCss.includes("body.profile-page .profile-posts-overview{"),
  "VATRA sign-in secondary action and balanced About / Posts profile columns must stay visible");
-assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
-assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
+assert.equal(uk.__pages.feed.meta.title,"Стрічка");
+assert.equal(en.__pages.feed.meta.title,"Feed");
 const onboardingJs=await read("assets/js/onboarding.js");
 const ownerAdminGuard=await read("assets/js/account-guard.js");
 const ownerAdminJs=await read("assets/js/admin.js");
@@ -2017,7 +2026,11 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  profileScript.includes('from("profile_media")')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
  profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar")')&&
- profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
+ profileScript.includes('const bucketFor=kind=>kind==="avatar"?"avatars":"covers"')&&
+ profileScript.includes('void startCoverCrop(fileCover.files[0])')&&
+ profileScript.includes('encodeProfileCrop(coverSource,rect,width,height,"profile-cover")')&&
+ profileScript.includes('uploadImage(file,"cover")')&&
+ !profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
  profileScript.includes('"avatars"')&&
  profileScript.includes('"covers"')&&
  feedScript.includes('storage.from("avatars")'),
@@ -2162,7 +2175,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["admin.css","base.css","business.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2179,8 +2192,8 @@ assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the me
 const routerScript=await read("assets/js/not-found.js");
 const languageScript=await read("assets/js/lang.js");
 assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
- routerScript.includes('|notifications|friends|gifts|clips|marketplace|business|vatra-id|club|create-account|')&&
- languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify')&&
+ routerScript.includes('|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|')&&
+ languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify')&&
  (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
@@ -2235,7 +2248,7 @@ assert.ok(
  !authRecovery.includes('"Якщо акаунт із такою адресою існує, лист із кодом надіслано. Введіть код нижче."'),
  "Initial recovery email must reveal the code step without a redundant green notice");
 assert.ok(
- profileScript.includes('document.title=titleName+" · VATRA";')&&
+ profileScript.includes('document.title=titleName;')&&
  socialMotion.includes('const eligible=target=>')&&
  socialMotion.includes('feed|profile|friends|gifts|communities|notifications|')&&
  !socialMotion.includes('new URL(ownProfile?"profile.html":"club.html"')&&
@@ -2468,10 +2481,10 @@ const businessRuntime=await read("assets/js/business.js");
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
-const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","business"].map(name=>read("assets/css/"+name+".css")))).join("\n");
+const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
 for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,businessRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
 for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
-for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"],["business","business"]]){
+for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
  for(const other of ["clips","marketplace","settings","business"].filter(name=>name!==stem)){
@@ -2532,18 +2545,18 @@ for(const table of ["business_followers","business_posts","business_metrics"]){
 assert.ok(businessSQL.includes("grant insert(company_id,body),delete on public.business_posts to authenticated")&&businessSQL.includes("business_private.my_role(company_id) in ('owner','admin','editor')"),"Company publishing is controlled by active business roles");
 assert.ok(businessSQL.includes("follower_count=follower_count+delta")&&businessSQL.includes("post_count=post_count+delta")&&!businessRuntime.includes('from("business_metrics").update'),"Business statistics must be computed on the server");
 
-assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Business company creation must use the bilingual standard taxonomy");
+assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Community business settings must use the bilingual standard taxonomy");
 
 const businessJobs=await read("assets/js/business-jobs.js");
 const jobsSQL=await read("supabase/migrations/20261119080727_business_jobs_and_applications.sql");
 assert.doesNotThrow(()=>new Function(businessJobs.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("business.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
+assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("club.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
 for(const table of ["business_jobs","business_job_applications"]){assert.ok(businessJobs.includes('from("'+table+'")')&&jobsSQL.includes("alter table public."+table+" enable row level security"));}
 
 const businessBookings=await read("assets/js/business-bookings.js");
 const bookingSQL=await read("supabase/migrations/20261119081225_business_booking_slots_and_appointments.sql");
 assert.doesNotThrow(()=>new Function(businessBookings.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("business.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
+assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("club.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
 for(const table of ["business_booking_slots","business_appointments"]){assert.ok(businessBookings.includes('from("'+table+'")')&&bookingSQL.includes("alter table public."+table+" enable row level security"));}
 assert.ok(bookingSQL.includes("business_appointments_one_live_idx")&&bookingSQL.includes("and not reserved and not cancelled and starts_at>now()"),"Server must prevent concurrent reservation of the same slot");
 
@@ -2574,4 +2587,22 @@ const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(sticker
 
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('client.storage.from("avatars").remove([path])'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");
 
-assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&!profileMarkup.includes('ui-profile-edit-icon-001')&&memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs at the right edge of the tabs as a text-only action");
+assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&!profileMarkup.includes('ui-profile-edit-icon-001')&&profileMarkup.includes('class="ui-profile-name-row-001"')&&memberCss.includes('.ui-profile-name-row-001>.profile-edit-open')&&!memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs beside the name as a single styled text action");
+
+assert.ok(memberProfileMarkup.includes('id="profile-cover-edit-dialog"')&&memberProfileMarkup.includes('id="profile-cover-preview-desktop"')&&memberProfileMarkup.includes('id="profile-cover-preview-mobile"')&&profileScript.includes('void startCoverCrop(fileCover.files[0])')&&profileScript.includes('uploadImage(file,"cover")')&&!profileScript.includes('uploadImage(fileCover.files[0],"cover")'),"Cover selection requires crop and device preview before explicit saving");
+
+for(const dirEntry of await readdir(".")){if(!dirEntry.endsWith(".html"))continue;const html=await read(dirEntry);assert.ok(!/<title>[^<]* · VATRA<\/title>/.test(html),dirEntry+": remove the redundant brand suffix from the browser tab");}
+for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))continue;const catalog=JSON.parse(await read("assets/i18n/"+file));assert.ok(Object.values(catalog.__pages||{}).every(page=>!page.meta?.title?.endsWith(" · VATRA")),file+": localized tab title must be suffix-free");}
+
+await import("./maintenance-smoke.mjs");
+
+await assert.rejects(stat("business.html"),{code:"ENOENT"});
+assert.ok(!businessRuntime.includes("VATRA_SECTION_CORE?.start")&&!businessRuntime.includes("requestedFilter"),"Business modules cannot mount as a separate page");
+assert.ok(!(await read("assets/js/not-found.js")).includes("|marketplace|business|"),"Retired business route must not resolve");
+
+const retiredActivitySQL=await read("supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
+assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&retiredActivitySQL.includes("drop table public.business_followers;")&&retiredActivitySQL.includes("alter column club_id set not null")&&!/drop table[^;]*cascade/i.test(retiredActivitySQL),"Legacy business storage is removed safely and community linkage is mandatory");
+
+await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
+assert.ok(communityBannerCSS.includes("body.community-page.vatra-business-page .ui-business-view-001"),"Business tool styling belongs to the existing community stylesheet");
+assert.ok(!(await read("assets/js/club.js")).includes("assets/css/business.css"),"Community tools must not fetch a retired stylesheet");

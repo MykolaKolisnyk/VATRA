@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8">
+    <script src="assets/js/host.js"></script>
+    <script src="assets/js/lang.js"></script>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#f6f8fc">
+    <title>Технічні роботи</title>
+    <link rel="icon" type="image/svg+xml" href="assets/logo/logo_app-icon.svg">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/maintenance.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+    <script defer src="assets/js/maintenance.js"></script>
+  </head>
+  <body class="ui-maintenance-body-001" data-page="maintenance">
+    <header class="ui-maintenance-header-001">
+      <img src="assets/logo/logo.svg" alt="VATRA" class="ui-maintenance-logo-001" width="126" height="40">
+      <button type="button" class="language-trigger vt-maintenance-language-001" data-language-trigger aria-haspopup="dialog" aria-label="Вибрати мову"><svg class="language-flag ui-language-static-flag-001" viewBox="0 0 640 480" aria-hidden="true"><rect class="ui-language-static-top-001" width="640" height="240" fill="#0057B8"/><rect class="ui-language-static-bottom-001" y="240" width="640" height="240" fill="#FFD700"/></svg><span class="vt-language-static-label-001">Українська</span><svg class="language-chevron ui-language-static-chevron-001" viewBox="0 0 24 24" aria-hidden="true"><path class="ui-language-static-chevron-path-001" d="m6 9 6 6 6-6"/></svg></button>
+    </header>
+    <main class="ui-maintenance-main-001" aria-labelledby="maintenance-heading">
+      <img src="assets/vatryk/vatryk_technician.webp" alt="" class="ui-maintenance-vatryk-001" decoding="async" fetchpriority="high" width="340" height="340">
+      <span class="vt-maintenance-kicker-001" data-i18n="maintenance-kicker">ТИМЧАСОВА ПЕРЕРВА</span>
+      <h1 id="maintenance-heading" class="vt-maintenance-heading-001" data-i18n="maintenance-heading">Технічні роботи</h1>
+      <p class="vt-maintenance-copy-001" data-i18n="maintenance-copy">Ватрик працює над покращенням VATRA. Незабаром соціальна мережа знову буде доступна. Дякую за терпіння!</p>
+      <button type="button" id="maintenance-retry" class="vt-maintenance-retry-001" data-i18n="maintenance-retry">Перевірити доступність</button>
+      <p id="maintenance-status" class="vt-maintenance-status-001" role="status" aria-live="polite"></p>
+      <section id="maintenance-owner" class="ui-maintenance-owner-001" hidden aria-label="ADMIN PANEL">
+        <h2 class="vt-maintenance-owner-title-001">ADMIN PANEL</h2>
+        <button type="button" id="maintenance-disable" class="vt-maintenance-disable-001" data-i18n="maintenance-disable">Вимкнути технічні роботи</button>
+      </section>
+      <a id="maintenance-admin-login" href="./?maintenance-admin=1" class="vt-maintenance-admin-link-001" data-i18n="maintenance-admin">Вхід адміністратора</a>
+    </main>
+    <footer class="ui-maintenance-footer-001"><div class="auth-footer-content ui-maintenance-footer-content-001"><span class="vt-maintenance-copyright-001">© 2026 VATRA · </span><span class="vt-maintenance-tagline-001" data-i18n="maintenance-tagline">Ваші люди. Ваші історії. Ваша VATRA.</span></div></footer>
+  </body>
+</html>

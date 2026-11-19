@@ -27,12 +27,55 @@
       "reset",
       "terms",
       "privacy",
-      "cookies"
+      "cookies",
+      "maintenance"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
   },
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Wartungsarbeiten"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "KURZE UNTERBRECHUNG"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Wartungsarbeiten"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk arbeitet daran, VATRA zu verbessern. Das soziale Netzwerk ist bald wieder verfügbar. Danke für deine Geduld!"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Verfügbarkeit prüfen"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Wartungsmodus deaktivieren"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Administrator-Anmeldung"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Deine Menschen. Deine Geschichten. Deine VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Seite nicht gefunden",
@@ -58,7 +101,7 @@
     },
     "index": {
       "meta": {
-        "title": "Anmelden · VATRA",
+        "title": "Anmelden",
         "description": "VATRA ist ein ukrainisches soziales Netzwerk für Kommunikation, Begegnungen, Kreativität, Communitys, Einkäufe und Unternehmen.",
         "og:locale": "de_DE",
         "og:title": "VATRA – ein ukrainisches soziales Netzwerk",
@@ -363,7 +406,7 @@
     },
     "feed": {
       "meta": {
-        "title": "Feed · VATRA",
+        "title": "Feed",
         "description": "Beiträge und Storys auf VATRA."
       },
       "nodes": {
@@ -448,7 +491,7 @@
     },
     "profile": {
       "meta": {
-        "title": "Meine Seite · VATRA",
+        "title": "Meine Seite",
         "description": "Deine Seite auf VATRA."
       },
       "nodes": {
@@ -513,7 +556,7 @@
     },
     "offline": {
       "meta": {
-        "title": "Keine Verbindung · VATRA"
+        "title": "Keine Verbindung"
       },
       "nodes": {
         "n6": {
@@ -545,7 +588,7 @@
     },
     "verify": {
       "meta": {
-        "title": "Bestätigung · VATRA",
+        "title": "Bestätigung",
         "description": "Bestätige deine E-Mail-Adresse."
       },
       "nodes": {
@@ -573,7 +616,7 @@
     },
     "create-account": {
       "meta": {
-        "title": "Konto erstellen · VATRA",
+        "title": "Konto erstellen",
         "description": "Erstelle ein Konto bei VATRA – dem ukrainischen sozialen Netzwerk für Gespräche, Communitys und Kreativität.",
         "og:locale": "de_DE",
         "og:title": "Konto erstellen · VATRA",
@@ -986,7 +1029,7 @@
     },
     "forgot": {
       "meta": {
-        "title": "Passwort wiederherstellen · VATRA",
+        "title": "Passwort wiederherstellen",
         "description": "Stelle den Zugang zu deinem VATRA-Konto wieder her.",
         "og:locale": "de_DE",
         "og:title": "Passwort wiederherstellen · VATRA",
@@ -1162,7 +1205,7 @@
     },
     "reset": {
       "meta": {
-        "title": "Neues Passwort · VATRA",
+        "title": "Neues Passwort",
         "description": "Erstelle ein neues Passwort für das ukrainische soziale Netzwerk VATRA.",
         "og:locale": "de_DE",
         "og:title": "Neues Passwort · VATRA",
@@ -1318,7 +1361,7 @@
     },
     "terms": {
       "meta": {
-        "title": "Nutzungsbedingungen · VATRA",
+        "title": "Nutzungsbedingungen",
         "description": "VATRA-Regeln für Konten, Beiträge, Communitys, Urheberrecht, Marktplatz und Sicherheit.",
         "og:locale": "de_DE",
         "og:title": "Nutzungsbedingungen — VATRA",
@@ -1658,7 +1701,7 @@
     },
     "privacy": {
       "meta": {
-        "title": "Datenschutz · VATRA",
+        "title": "Datenschutz",
         "description": "Datenschutzerklärung von VATRA, dem ukrainischen sozialen Netzwerk. So werden personenbezogene Daten verarbeitet.",
         "og:locale": "de_DE",
         "og:title": "Datenschutz — VATRA",
@@ -2018,7 +2061,7 @@
     },
     "cookies": {
       "meta": {
-        "title": "Cookies und Browserspeicher · VATRA",
+        "title": "Cookies und Browserspeicher",
         "description": "Cookies und Browserdaten bei VATRA: Speicherung von Sitzungen und Einstellungen.",
         "og:locale": "de_DE",
         "og:title": "Cookies und Browserspeicher — VATRA",
@@ -2899,6 +2942,7 @@
   "VATRA — Стрічка": "VATRA — Feed",
   "У розробці": "Demnächst verfügbar",
   "Зараз у мережі": "Jetzt online",
+  "У мережі": "Online",
   "{name} хоче додатися до вас у друзі": "{name} möchte dich als Freund hinzufügen",
   "{name}: вашу заявку в друзі прийнято": "{name} hat deine Freundschaftsanfrage angenommen",
   "{name}: вподобайка вашої публікації": "{name} hat deinen Beitrag mit „Gefällt mir“ markiert",

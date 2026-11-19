@@ -10,13 +10,15 @@
     <meta name="robots" content="noindex,follow">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="description" content="Моя сторінка у VATRA.">
-    <title>Моя сторінка · VATRA</title>
+    <title>Моя сторінка</title>
     <link rel="preconnect" href="https://rjasunoawrxvetwadylh.supabase.co" crossorigin>
     <link rel="icon" type="image/svg+xml" href="assets/logo/logo_app-icon.svg">
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=24be0b14572ab9e5b4892dfd188d63a3a8f8f2f8">
+    <link rel="stylesheet" href="assets/css/guest-view.css?rev=7625ddcfd6fdee4acfe32bdbcb2abc4480c0da6b">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=c0af25124c2981650fa52d06a07a1afc90bf5d82">
+    <link rel="stylesheet" href="assets/css/story-editor.css?rev=ae181ee0ae44b948fc5813e23763c3440b5a49d5">
     <link rel="stylesheet" href="assets/css/profile.css">
     <link rel="stylesheet" href="assets/css/post-composer.css">
     <link rel="stylesheet" href="assets/css/gifts.css">
@@ -25,12 +27,14 @@
   <script defer src="assets/js/public-name-cache.js"></script>
     <script defer src="assets/js/post-media.js"></script>
     <script defer src="assets/js/verified.js"></script>
-    <script defer src="assets/js/post-interactions.js?rev=0318aa835261606eec3e4f5d8755497d6c668cbd"></script>
+    <script defer src="assets/js/post-interactions.js?rev=f7ac05ae068efa67cf42809db2b4c3a38cd55295"></script>
     <script defer src="assets/js/presence.js"></script>
     <script defer src="assets/js/notifications.js"></script>
     <script defer src="assets/js/gift-viewer.js"></script>
     <script defer src="assets/js/post-composer-ui.js"></script>
-    <script defer src="assets/js/profile.js?rev=d0662d004a7f1009872f5d1484ad3e7ddff9a93d"></script>
+    <script defer src="assets/js/guest-view.js?rev=b25fd28b7cd80aa6bf1d02089df1c1b656ada6f2"></script>
+    <script defer src="assets/js/story-editor.js?rev=75e21405c3219bc7b051898565e90e74e1b79b0b"></script>
+    <script defer src="assets/js/profile.js?rev=02eb2d18e35e65902d914277dd4ce9112702ea9e"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -178,9 +182,12 @@
                 </div>
               </div>
               <div class="profile-identity ui-profile-identity-001">
+                <div class="ui-profile-name-row-001">
                 <h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">
                   Моя сторінка
                 </h1>
+                  <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
+                </div>
                 <button id="profile-status" type="button" class="profile-status vt-profile-status-001" hidden><span id="profile-status-text" class="vt-profile-status-text-001"></span></button>
                 <p id="profile-last-seen" class="profile-last-seen vt-profile-last-seen-001" data-social-uk="Статус мережі невідомий" data-social-en="Online status unavailable">Статус мережі невідомий</p>
               </div>
@@ -233,7 +240,6 @@
                 </svg>
               </button>
             </nav>
-            <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
             </div>
           </section>
           <div class="profile-panels ui-profile-panels-001">
@@ -517,6 +523,31 @@
             </div>
           </form>
         </dialog>
+        <dialog id="profile-cover-edit-dialog" class="ui-profile-cover-edit-dialog-001" aria-labelledby="profile-cover-edit-title">
+          <h2 id="profile-cover-edit-title" class="vt-profile-cover-edit-title-001" data-social-uk="Редагування обкладинки" data-social-en="Edit cover">Редагування обкладинки</h2>
+          <button id="profile-cover-edit-close" class="vt-profile-cover-edit-close-001" type="button" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close"><svg class="ui-profile-cover-edit-close-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-cover-edit-close-path-001" d="m6 6 12 12M18 6 6 18"/></svg></button>
+          <section id="profile-cover-crop-panel" class="ui-profile-cover-crop-panel-001">
+            <div class="ui-profile-cover-crop-stage-001"><canvas id="profile-cover-crop-canvas" class="ui-profile-cover-crop-canvas-001" tabindex="0" aria-label="Переміщення області обрізання" data-shell-aria-uk="Переміщення області обрізання" data-shell-aria-en="Move crop area"></canvas></div>
+            <p class="vt-profile-cover-crop-guide-001" data-social-uk="Світла область — комп’ютер, зовнішня рамка — мобільний пристрій. Перемістіть рамку або змініть масштаб." data-social-en="The bright area is for desktop, the outer frame for mobile. Move the frame or change the zoom.">Світла область — комп’ютер, зовнішня рамка — мобільний пристрій. Перемістіть рамку або змініть масштаб.</p>
+            <label class="vt-profile-cover-zoom-label-001" for="profile-cover-crop-zoom" data-social-uk="Масштаб" data-social-en="Zoom">Масштаб</label>
+            <input id="profile-cover-crop-zoom" class="ui-profile-cover-crop-zoom-001" type="range" min="1" max="5" step=".01" value="1">
+          </section>
+          <section id="profile-cover-preview-panel" class="ui-profile-cover-preview-panel-001" hidden>
+            <div class="ui-profile-cover-preview-tabs-001" role="group" aria-label="Пристрій" data-shell-aria-uk="Пристрій" data-shell-aria-en="Device">
+              <button id="profile-cover-preview-desktop" class="vt-profile-cover-preview-desktop-001" type="button" aria-pressed="true" data-social-uk="Комп’ютер" data-social-en="Desktop">Комп’ютер</button>
+              <button id="profile-cover-preview-mobile" class="vt-profile-cover-preview-mobile-001" type="button" aria-pressed="false" data-social-uk="Мобільний пристрій" data-social-en="Mobile device">Мобільний пристрій</button>
+            </div>
+            <div id="profile-cover-preview-card" class="ui-profile-cover-preview-card-001" data-device="desktop">
+              <canvas id="profile-cover-preview-image" class="ui-profile-cover-preview-image-001" aria-label="Попередній перегляд обкладинки" data-shell-aria-uk="Попередній перегляд обкладинки" data-shell-aria-en="Cover preview" role="img"></canvas>
+              <div class="ui-profile-cover-preview-identity-001"><span id="profile-cover-preview-avatar" class="ui-profile-cover-preview-avatar-001" aria-hidden="true"></span><strong id="profile-cover-preview-name" class="vt-profile-cover-preview-name-001"></strong></div>
+            </div>
+          </section>
+          <p id="profile-cover-edit-error" class="vt-profile-cover-edit-error-001" role="status" hidden></p>
+          <div class="ui-profile-cover-edit-actions-001">
+            <button id="profile-cover-edit-step" class="vt-profile-cover-edit-step-001" type="button" data-social-uk="Попередній перегляд" data-social-en="Preview">Попередній перегляд</button>
+            <button id="profile-cover-edit-save" class="vt-profile-cover-edit-save-001" type="button" data-social-uk="Встановити обкладинку" data-social-en="Set cover">Встановити обкладинку</button>
+          </div>
+        </dialog>
         <dialog id="profile-avatar-crop-dialog" class="ui-profile-avatar-crop-dialog-001" aria-labelledby="profile-avatar-crop-title">
   <h2 id="profile-avatar-crop-title" class="vt-profile-avatar-crop-title-001" data-social-uk="Вибір мініатюри" data-social-en="Choose thumbnail">Вибір мініатюри</h2>
   <div class="ui-profile-avatar-crop-stage-001"><canvas id="profile-avatar-crop-canvas" class="ui-profile-avatar-crop-canvas-001" tabindex="0" aria-label="Переміщення області обрізання" data-shell-aria-uk="Переміщення області обрізання" data-shell-aria-en="Move crop area"></canvas></div>
@@ -533,25 +564,7 @@
   <p id="profile-avatar-finish-error" class="vt-profile-avatar-finish-error-001" role="status" hidden></p>
   <div class="ui-profile-avatar-finish-actions-001"><button id="profile-avatar-finish-back" class="vt-profile-avatar-finish-back-001" type="button" data-social-uk="Назад" data-social-en="Back">Назад</button><button id="profile-avatar-finish-save" class="vt-profile-avatar-finish-save-001" type="button" data-social-uk="Зберегти" data-social-en="Save">Зберегти</button></div>
 </dialog>
-        <dialog id="profile-story-compose-dialog" class="profile-story-compose-dialog ui-profile-story-compose-dialog-001" aria-labelledby="profile-story-compose-title">
-          <form id="profile-story-compose-form" class="profile-story-compose-form ui-profile-story-compose-form-001">
-            <h2 id="profile-story-compose-title" class="vt-profile-story-compose-title-001" data-social-uk="Нова історія" data-social-en="New story">Нова історія</h2>
-            <p class="vt-profile-story-compose-tip-001" data-social-uk="Історія зникне через 24 години. Її бачать лише друзі." data-social-en="Your story expires after 24 hours and is visible to friends.">Історія зникне через 24 години. Її бачать лише друзі.</p>
-            <label class="vt-profile-story-compose-label-001" for="profile-story-compose-text" data-social-uk="Текст історії" data-social-en="Story text">Текст історії</label>
-            <textarea id="profile-story-compose-text" class="ui-profile-story-compose-text-001" rows="5" maxlength="260" data-shell-placeholder-uk="Поділіться моментом…" data-shell-placeholder-en="Share a moment…" placeholder="Поділіться моментом…"></textarea>
-            <div class="profile-story-compose-media ui-profile-story-compose-media-001">
-              <input id="profile-story-compose-media-input" class="ui-profile-story-compose-media-input-001" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden>
-              <button id="profile-story-compose-media-choose" type="button" class="vt-profile-story-compose-media-choose-001" data-social-uk="Додати фото або відео" data-social-en="Add photo or video">Додати фото або відео</button>
-              <button id="profile-story-compose-media-remove" type="button" class="vt-profile-story-compose-media-remove-001" data-social-uk="Прибрати файл" data-social-en="Remove file" hidden>Прибрати файл</button>
-            </div>
-            <div id="profile-story-compose-media-preview" class="vatra-compose-media-preview ui-profile-story-compose-media-preview-001" hidden></div>
-            <p id="profile-story-compose-error" class="vt-profile-story-compose-error-001" role="status" hidden></p>
-            <div class="profile-story-compose-actions ui-profile-story-compose-actions-001">
-              <button id="profile-story-compose-cancel" type="button" class="vt-profile-story-compose-cancel-001" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
-              <button id="profile-story-compose-save" type="submit" class="vt-profile-story-compose-save-001" data-social-uk="Опублікувати історію" data-social-en="Publish story">Опублікувати історію</button>
-            </div>
-          </form>
-        </dialog>
+        <dialog id="profile-story-compose-dialog" class="ui-vatra-story-editor-001" aria-labelledby="profile-story-compose-title"></dialog>
         <dialog id="profile-compose-dialog" class="profile-compose-dialog ui-profile-compose-dialog-001" aria-labelledby="profile-compose-title">
           <form id="profile-compose-form" class="ui-profile-compose-form-001">
             <h2 id="profile-compose-title" class="vt-profile-compose-title-001" data-social-uk="Новий допис" data-social-en="New post">
