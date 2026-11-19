@@ -1,5 +1,5 @@
 /* VATRA Business uses the existing social discovery layout, not a separate app. */
-body.vatra-business-page .ui-business-content-001{max-width:1150px}
+body.vatra-business-page .ui-business-content-001{max-width:1180px}
 body.vatra-business-page .ui-business-view-001{display:grid;gap:20px;min-width:0}
 body.vatra-business-page .ui-business-heading-001{display:grid;gap:7px}
 body.vatra-business-page .vt-business-heading-001{margin:0;color:var(--ink);font:var(--section-title);letter-spacing:-.025em}
@@ -19,10 +19,6 @@ body.vatra-business-page .ui-business-selector-001{display:grid;gap:8px;max-widt
 body.vatra-business-page .vt-business-selector-label-001,body.vatra-business-page .vt-business-invite-role-label-001{font:var(--section-control)}
 body.vatra-business-page .ui-business-select-001,body.vatra-business-page .ui-business-directory-search-001{border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:46px;min-width:0;background:white;color:var(--ink);font:var(--section-body)}
 body.vatra-business-page .ui-business-company-profile-001{overflow:hidden}
-body.vatra-business-page .ui-business-company-cover-001{height:220px;background:linear-gradient(120deg,#dbe8fd,#e4e2f9 65%,#f6e2ef)}
-body.vatra-business-page .ui-business-company-profile-info-001{padding:0 28px 26px;display:grid;gap:12px}
-body.vatra-business-page .ui-business-company-profile-avatar-001{width:112px;height:112px;margin-top:-48px;border:5px solid #fff;position:relative;background:#eaf1ff;font-size:44px}
-body.vatra-business-page .vt-business-company-profile-name-001{margin:0;overflow-wrap:anywhere;font:720 27px/1.3 Onest,system-ui,sans-serif;letter-spacing:-.025em}
 body.vatra-business-page .vt-business-company-description-001,body.vatra-business-page .vt-business-company-contact-001{margin:0;font:var(--section-body);overflow-wrap:anywhere;white-space:pre-wrap}
 body.vatra-business-page .vt-business-page-link-001,body.vatra-business-page .vt-business-company-site-001{color:var(--blue);font:var(--section-control);width:fit-content}
 body.vatra-business-page .ui-business-invites-001,body.vatra-business-page .ui-business-team-card-001,body.vatra-business-page .ui-business-module-001{display:grid;gap:16px;padding:24px}
@@ -32,7 +28,6 @@ body.vatra-business-page .ui-business-invite-actions-001{display:flex;gap:8px;fl
 body.vatra-business-page .ui-business-invite-form-001{display:grid;gap:14px;max-width:480px}
 body.vatra-business-page .vt-business-empty-001{padding:28px;margin:0;background:white;border:1px solid var(--line);border-radius:15px;color:var(--soft);font:var(--section-body)}
 body.vatra-business-page .ui-business-module-001>svg{width:32px;height:32px;color:var(--blue)}
-@media(max-width:600px){body.vatra-business-page .ui-business-company-cover-001{height:165px}body.vatra-business-page .ui-business-company-profile-info-001{padding:0 18px 22px}body.vatra-business-page .ui-business-company-card-001{padding:18px}body.vatra-business-page .vt-business-company-profile-name-001{font-size:24px}body.vatra-business-page .ui-business-select-001,body.vatra-business-page .ui-business-directory-search-001{font-size:16px}}
 
 /* Business social tools */
 body.vatra-business-page .ui-business-follow-panel-001{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -45,19 +40,12 @@ body.vatra-business-page .vt-business-post-label-001{font:var(--section-heading)
 body.vatra-business-page .ui-business-post-input-001{width:100%;resize:vertical;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:14px;font:var(--section-body);color:var(--ink);background:#fff}
 body.vatra-business-page .ui-business-post-input-001:focus{outline:3px solid #dce8ff;border-color:var(--blue)}
 body.vatra-business-page .vt-business-post-body-001{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:var(--section-body)}
-body.vatra-business-page .ui-business-metrics-001{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px}
+body.vatra-business-page .ui-business-metrics-001{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 body.vatra-business-page .ui-business-metric-001{display:grid;gap:12px;padding:24px}
 body.vatra-business-page .vt-business-metric-label-001{margin:0;color:var(--soft);font:var(--section-body)}
 body.vatra-business-page .vt-business-metric-value-001{font:720 32px/1.2 Onest,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink)}
 @media(max-width:600px){body.vatra-business-page .ui-business-post-form-001,body.vatra-business-page .ui-business-post-card-001{padding:18px}body.vatra-business-page .ui-business-post-input-001{font-size:16px}}
 
-/* Standard company taxonomy: searchable native select, keyboard-accessible. */
-body.vatra-business-page .ui-business-category-wrap-001{display:grid;gap:8px;min-width:0}
-body.vatra-business-page .vt-business-category-label-001{font:var(--section-control);color:#536b8b}
-body.vatra-business-page .ui-business-category-search-001,body.vatra-business-page .ui-business-category-select-001{width:100%;min-width:0;min-height:46px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font:var(--section-body)}
-body.vatra-business-page .ui-business-category-search-001:focus,body.vatra-business-page .ui-business-category-select-001:focus{outline:3px solid #dce8ff;border-color:var(--blue)}
-body.vatra-business-page .vt-business-category-hint-001{margin:0;color:var(--soft);font:var(--section-caption)}
-@media(max-width:600px){body.vatra-business-page .ui-business-category-search-001,body.vatra-business-page .ui-business-category-select-001{font-size:16px}}
 
 /* Vacancy cards and private application management. */
 body.vatra-business-page .ui-business-jobs-area-001{display:grid;gap:16px;min-width:0}
@@ -72,3 +60,79 @@ body.vatra-business-page .ui-business-booking-card-001{display:grid;gap:12px;pad
 body.vatra-business-page .ui-business-booking-actions-001{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 body.vatra-business-page .ui-business-booking-customer-001{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}
 @media(max-width:600px){body.vatra-business-page .ui-business-booking-card-001{padding:18px}}
+
+/* Business navigation: management, public directory and forthcoming tools. */
+body.vatra-business-page .ui-business-nav-001{display:grid;gap:18px}
+body.vatra-business-page .ui-business-nav-group-001{display:grid;gap:8px;min-width:0}
+body.vatra-business-page .vt-business-nav-caption-001{margin:0 10px;color:var(--soft);font:var(--section-caption);font-weight:650}
+body.vatra-business-page .vt-business-nav-soon-001{margin-left:auto;color:var(--soft);font:var(--section-caption);white-space:nowrap}
+body.vatra-business-page .vt-business-create-001{width:100%}
+body.vatra-business-page .ui-business-dashboard-company-001{display:grid;gap:20px;padding:26px}
+body.vatra-business-page .ui-business-dashboard-head-001{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;min-width:0}
+body.vatra-business-page .ui-business-dashboard-identity-001,body.vatra-business-page .ui-business-profile-identity-001{display:flex;align-items:center;gap:18px;min-width:0}
+body.vatra-business-page .ui-business-dashboard-info-001,body.vatra-business-page .ui-business-profile-copy-001{display:grid;gap:5px;min-width:0}
+body.vatra-business-page .vt-business-dashboard-role-001{margin:0;font:var(--section-caption);color:var(--blue)}
+body.vatra-business-page .vt-business-dashboard-company-name-001{margin:0;font:720 24px/1.3 Onest,system-ui,sans-serif;letter-spacing:-.02em;overflow-wrap:anywhere}
+body.vatra-business-page .ui-business-dashboard-head-001 .ui-business-selector-001{width:min(100%,320px)}
+body.vatra-business-page .ui-business-dashboard-actions-001{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid #e6ebf4;padding-top:18px}
+body.vatra-business-page .vt-business-page-action-001{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+body.vatra-business-page .ui-business-dashboard-tools-001{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+body.vatra-business-page .ui-business-tool-001{display:flex;align-items:center;gap:14px;min-width:0;text-align:left;padding:20px;border:1px solid #e2e9f4;border-radius:15px;background:white;color:var(--ink);cursor:pointer}
+body.vatra-business-page .ui-business-tool-001:hover{background:#f8faff;border-color:#cbdaf4}
+body.vatra-business-page .ui-business-tool-001:focus-visible,body.vatra-business-page .vt-business-secondary-001:focus-visible,body.vatra-business-page .vt-business-primary-001:focus-visible{outline:3px solid #94b8ff;outline-offset:2px}
+body.vatra-business-page .ui-business-tool-icon-001{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:12px;color:var(--blue);background:#edf3ff}
+body.vatra-business-page .ui-business-tool-icon-001 svg{width:22px;height:22px}
+body.vatra-business-page .ui-business-tool-copy-001{display:grid;gap:5px;flex:1;min-width:0}
+body.vatra-business-page .vt-business-tool-title-001{font:var(--section-name)}
+body.vatra-business-page .vt-business-tool-description-001{font:var(--section-caption);color:var(--soft)}
+body.vatra-business-page .ui-business-tool-001>svg{width:18px;height:18px;flex:none;color:var(--soft);transform:rotate(-90deg)}
+body.vatra-business-page .ui-business-welcome-001{display:grid;justify-items:start;gap:14px;padding:30px}
+body.vatra-business-page .ui-business-welcome-001>svg{width:36px;height:36px;color:var(--blue)}
+/* Public presentation is separate from the company administration. */
+body.vatra-business-page .ui-business-public-view-001{max-width:980px;margin:18px auto 0}
+body.vatra-business-page .ui-business-company-profile-info-001{display:grid;gap:22px;padding:28px}
+body.vatra-business-page .ui-business-company-profile-avatar-001{width:88px;height:88px;font-size:36px;flex:none}
+body.vatra-business-page .vt-business-company-profile-name-001{margin:0;font:720 28px/1.3 Onest,system-ui,sans-serif;letter-spacing:-.025em;overflow-wrap:anywhere}
+body.vatra-business-page .ui-business-profile-details-001{display:grid;gap:12px;padding:26px}
+body.vatra-business-page .ui-business-profile-details-001 .vt-business-selector-label-001{margin:4px 0 0;color:var(--soft)}
+/* Company editor: distinct form sections and fixed, always visible actions. */
+body.vatra-business-page .ui-business-editor-001{--section-dialog-width:790px;max-height:min(90dvh,850px)}
+body.vatra-business-page .ui-business-editor-scroll-001{margin:0;scrollbar-gutter:stable}
+body.vatra-business-page .ui-business-editor-form-001{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;padding:24px}
+body.vatra-business-page .ui-business-editor-form-001>.vt-business-form-note-001{grid-column:1/-1}
+body.vatra-business-page .ui-business-editor-section-001{display:grid;align-content:start;gap:16px;min-width:0}
+body.vatra-business-page .vt-business-editor-section-title-001{margin:0 0 2px;font:var(--section-heading);color:var(--ink)}
+body.vatra-business-page .ui-business-editor-footer-001{flex:none;display:grid;gap:10px;padding:16px 24px;border-top:1px solid #e6ebf4;background:#fff}
+body.vatra-business-page .ui-business-editor-actions-001{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+body.vatra-business-page .vt-business-editor-status-001{margin:0;color:#a43a4c;font:var(--section-caption)}
+body.vatra-business-page .vt-business-editor-status-001[hidden],body.vatra-business-page .ui-business-category-popover-001[hidden],body.vatra-business-page .vt-business-category-hint-001[hidden]{display:none}
+body.vatra-business-page .ui-business-editor-form-001 textarea{resize:vertical}
+body.vatra-business-page .ui-business-category-wrap-001{display:grid;gap:6px;min-width:0}
+body.vatra-business-page .vt-business-category-label-001{font:var(--section-control);color:#526b8b}
+body.vatra-business-page .ui-business-category-control-001{display:flex;align-items:center;min-width:0;min-height:46px;border:1px solid #d7ddea;border-radius:13px;background:#fff}
+body.vatra-business-page .ui-business-category-control-001:focus-within{border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
+body.vatra-business-page .ui-business-category-search-001{width:100%;min-width:0;flex:1;border:0;outline:0;padding:10px 0 10px 14px;border-radius:13px;background:transparent;color:var(--ink);font:500 15px/1.4 Onest,Inter,system-ui,sans-serif}
+body.vatra-business-page .vt-business-category-toggle-001{display:grid;place-items:center;flex:0 0 40px;height:42px;border:0;color:var(--soft);background:transparent;cursor:pointer}
+body.vatra-business-page .vt-business-category-toggle-001 svg{width:18px;height:18px}
+body.vatra-business-page .ui-business-category-popover-001{border:1px solid #d7ddea;border-radius:12px;background:#fff;box-shadow:0 6px 20px rgba(36,58,98,.08);overflow:hidden}
+body.vatra-business-page .ui-business-category-list-001{max-height:210px;overflow-y:auto;overscroll-behavior:contain;padding:6px}
+body.vatra-business-page .vt-business-category-group-001{padding:9px 10px 5px;color:var(--soft);font:var(--section-caption);font-weight:650}
+body.vatra-business-page .ui-business-category-option-001{padding:10px;border-radius:8px;font:var(--section-body);cursor:pointer}
+body.vatra-business-page .ui-business-category-option-001:hover,body.vatra-business-page .ui-business-category-option-001.is-highlighted,body.vatra-business-page .ui-business-category-option-001[aria-selected="true"]{background:#edf3ff;color:var(--blue)}
+body.vatra-business-page .vt-business-category-hint-001{margin:0;padding:10px;color:var(--soft);font:var(--section-caption)}
+@media(max-width:700px){
+ body.vatra-business-page .ui-business-dashboard-tools-001{grid-template-columns:minmax(0,1fr)}
+ body.vatra-business-page .ui-business-dashboard-company-001,body.vatra-business-page .ui-business-company-profile-info-001,body.vatra-business-page .ui-business-profile-details-001{padding:18px}
+ body.vatra-business-page .ui-business-dashboard-head-001{gap:16px}
+ body.vatra-business-page .ui-business-dashboard-head-001 .ui-business-selector-001{width:100%}
+ body.vatra-business-page .ui-business-editor-form-001{grid-template-columns:minmax(0,1fr);padding:18px;gap:24px}
+ body.vatra-business-page .ui-business-editor-footer-001{padding:12px 18px}
+ body.vatra-business-page .ui-business-category-search-001{font-size:16px}
+ body.vatra-business-page .ui-business-company-profile-avatar-001{width:72px;height:72px;font-size:30px}
+ body.vatra-business-page .vt-business-company-profile-name-001{font-size:24px}
+ body.vatra-business-page .ui-business-select-001,body.vatra-business-page .ui-business-directory-search-001{font-size:16px}
+ body.vatra-business-page .ui-business-company-card-001{padding:18px}
+ body.vatra-business-page .ui-business-metric-001{padding:17px}
+ body.vatra-business-page .vt-business-metric-value-001{font-size:27px}
+}
+@media(max-width:420px){body.vatra-business-page .vt-business-nav-soon-001{font-size:11px}body.vatra-business-page .ui-business-dashboard-actions-001>*{width:100%}}
