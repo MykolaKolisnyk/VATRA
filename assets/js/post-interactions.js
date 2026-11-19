@@ -1255,9 +1255,9 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   mediaPanels.set(container,side=>{
    if(!shell.isConnected||commentDialog?.open)return null;
    const marker=make("span","ui-vatra-media-actions-origin-001");marker.hidden=true;shell.before(marker);
-   const wasHidden=panel.hidden;side.append(shell);panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");void loadComments(true);
+   const wasHidden=panel.hidden;side.append(shell);panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");side.closest("dialog")?.append(popovers);void loadComments(true);
    const avoidNested=e=>{if(e.target.closest(".vt-vatra-post-comments-toggle-001")){e.preventDefault();e.stopImmediatePropagation();}};side.addEventListener("click",avoidNested,true);
-   return ()=>{side.removeEventListener("click",avoidNested,true);hideMenus();panel.hidden=wasHidden;commentsButton.setAttribute("aria-expanded",String(!wasHidden));if(marker.isConnected)marker.replaceWith(shell);else shell.remove();};
+   return ()=>{side.removeEventListener("click",avoidNested,true);hideMenus();composer.insertBefore(popovers,fileInput);panel.hidden=wasHidden;commentsButton.setAttribute("aria-expanded",String(!wasHidden));if(marker.isConnected)marker.replaceWith(shell);else shell.remove();};
   });
   if(settings.inlineComments)openComments();
  }

@@ -1755,21 +1755,23 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  q("#profile-friends-all")?.addEventListener("click",()=>{
   location.assign(new URL("friends"+(isMine?"":"?member="+targetId),home).href);
  });
+ let giftDialogEpoch=0;
+ q("#profile-gifts-dialog").addEventListener("close",()=>{giftDialogEpoch++;});
  q("#profile-gifts-all")?.addEventListener("click",()=>{
   const dialog=q("#profile-gifts-dialog"),list=q("#profile-gifts-dialog-list"),more=q("#profile-gifts-dialog-more");
-  if(dialog.open)return;dialog.showModal();let offset=0,busy=false,done=false;
+  if(dialog.open)return;const epoch=++giftDialogEpoch;dialog.showModal();let offset=0,busy=false,done=false;
   list.replaceChildren();more.hidden=true;
   async function load(){
    if(busy||done||!dialog.open)return;busy=true;more.disabled=true;
    try{
     const result=await client.from("profile_gifts").select("id,gift_code,created_at",{count:"exact"}).eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).order("id",{ascending:false}).range(offset,offset+29);
-    if(result.error)throw result.error;if(!dialog.open)return;
+    if(result.error)throw result.error;if(!dialog.open||epoch!==giftDialogEpoch)return;
     const rows=result.data||[];offset+=rows.length;done=rows.length<30||(Number.isFinite(result.count)&&offset>=result.count);
     q("#profile-gifts-dialog-count").textContent=Number.isFinite(result.count)?String(result.count):"";
     for(const gift of rows){const info=giftInfo(gift.gift_code);if(!info)continue;const row=node("article","ui-profile-gift-dialog-row-001"),date=node("time","vt-profile-gift-dialog-date-001",dateText(gift.created_at));date.dateTime=gift.created_at;row.append(date,giftCard(gift,false));list.append(row);}
     if(!list.children.length&&done)list.append(node("p","vt-profile-gift-dialog-empty-001",t("Подарунків поки немає.","No gifts yet.")));
     more.hidden=done;
-   }catch(_){list.append(node("p","vt-profile-gift-dialog-empty-001",t("Не вдалося завантажити подарунки.","Could not load gifts.")));more.hidden=false;}finally{busy=false;more.disabled=false;}
+   }catch(_){if(epoch===giftDialogEpoch&&dialog.open){list.append(node("p","vt-profile-gift-dialog-empty-001",t("Не вдалося завантажити подарунки.","Could not load gifts.")));more.hidden=false;}}finally{busy=false;if(epoch===giftDialogEpoch)more.disabled=false;}
   }
   more.onclick=()=>void load();void load();
  });

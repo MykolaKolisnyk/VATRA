@@ -4243,8 +4243,9 @@ try{
    "Open post options must rise above subsequent animated post cards");
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-archive-001").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-delete-001").isVisible(),true);
+  for(const action of ["pin","edit","copy","comments"])assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-"+action+"-001").isVisible(),true);
   await feedProbe.locator(".vatra-post-owner-toggle").click();
-  assert.equal(await feedProbe.locator(".vatra-post-owner-panel").isVisible(),false);
+  await feedProbe.locator(".vatra-post-owner-panel").waitFor({state:"hidden"});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   assert.equal(await feedProbe.locator("#feed-delete-dialog").evaluate(el=>el.open),true);
