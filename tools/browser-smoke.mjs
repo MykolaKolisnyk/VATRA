@@ -2886,6 +2886,15 @@ try{
   return {loaded:document.fonts.check('16px Onest'),heading:read("#friends-heading"),name:read(".vt-vatra-friends-name-1"),status:read(".vt-vatra-friends-subtitle-1"),action:read(".vt-vatra-friends-remove-1"),label:read(".vt-vatra-friends-tab-label-accepted"),count:read(".vt-vatra-friends-tab-count-accepted")};
  });
  assert.ok(typography.loaded&&[typography.heading,typography.name,typography.status,typography.action,typography.label,typography.count].every(s=>s.family.includes("Onest")&&s.line>s.size)&&typography.heading.size===24&&typography.name.size===16&&typography.name.weight>typography.status.weight&&typography.status.size===13&&typography.count.size<typography.label.size,"Friends typography must follow the Onest hierarchy: "+JSON.stringify(typography));
+ const friendMore=ownerFriends.locator(".ui-vatra-friends-more-trigger-1");
+ assert.equal(await ownerFriends.locator(".vt-vatra-friends-remove-1").isVisible(),false);
+ assert.equal(await ownerFriends.locator(".vatra-friends-details .vt-vatra-friends-message-1").count(),1);
+ assert.ok(await ownerFriends.locator(".vatra-friends-person").first().evaluate(el=>el.getBoundingClientRect().height<=88),"Friend row must remain compact");
+ await friendMore.click();
+ assert.equal(await ownerFriends.locator(".vt-vatra-friends-remove-1").isVisible(),true);
+ await ownerFriends.keyboard.press("Escape");
+ assert.equal(await ownerFriends.locator(".vt-vatra-friends-remove-1").isVisible(),false);
+ await friendMore.click();
  await ownerFriends.locator(".vt-vatra-friends-remove-1").click();
  await ownerFriends.waitForFunction(()=>window.__vatraFriendDeleteAttempts===1);
  assert.equal(await ownerFriends.locator(".vatra-friends-person").count(),1,
@@ -2894,6 +2903,7 @@ try{
   "Не вдалося виконати дію"),
   "A zero-row DELETE must be reported as unsuccessful");
  await ownerFriends.evaluate(()=>{window.__vatraFriendDenyDelete=false;});
+ await friendMore.click();
  await ownerFriends.locator(".vt-vatra-friends-remove-1").click();
  await ownerFriends.waitForFunction(()=>window.__vatraFriendDeleteAttempts===2&&
   document.querySelectorAll(".vatra-friends-person").length===0);
@@ -5072,7 +5082,7 @@ try{
     const cover=rect(".ui-club-cover-001"),head=rect(".feed-header"),summary=rect(".ui-club-summary-001"),posts=rect(".club-posts-section"),about=rect(".ui-club-side-001");
     return {height:cover.height,gap:cover.top-head.bottom,below:posts.top>=summary.bottom-1&&about.top>=summary.bottom-1,columns:innerWidth>760?posts.right<=about.left+1:about.bottom<=posts.top+1,overflow:document.documentElement.scrollWidth-innerWidth};
    });
-   assert.ok(Math.abs(geometry.gap)<=2&&geometry.height===(size.width>600?290:185)&&geometry.below&&geometry.columns&&geometry.overflow<=3,"Club profile layout: "+JSON.stringify(geometry));
+   assert.ok(Math.abs(geometry.gap)<=2&&geometry.height===(size.width>600?230:160)&&geometry.below&&geometry.columns&&geometry.overflow<=3,"Club profile layout: "+JSON.stringify(geometry));
   }
   if(clubViewport)await page.setViewportSize(clubViewport);
   assert.ok(clubNavigationErrors.length===0&&

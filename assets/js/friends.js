@@ -119,6 +119,15 @@ async function accept(item){
   .eq("status","pending").select("id");
  if(error||!data?.length)throw error||Error("Request is no longer available");
 }
+function rowIcon(kind,index){
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("class","ui-vatra-friends-"+kind+"-icon-"+index);
+ svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
+ svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
+ if(kind==="more"){for(const x of [5,12,19]){const dot=document.createElementNS(svg.namespaceURI,"circle");dot.setAttribute("class","ui-vatra-friends-more-dot-"+index+"-"+x);dot.setAttribute("cx",x);dot.setAttribute("cy","12");dot.setAttribute("r","1.6");dot.setAttribute("fill","currentColor");dot.setAttribute("stroke","none");svg.append(dot);}}
+ else{const path=document.createElementNS(svg.namespaceURI,"path");path.setAttribute("class","ui-vatra-friends-"+kind+"-path-"+index);path.setAttribute("d",kind==="message"?"M20.5 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-3.7-.8L3 21l1.6-5.1a8.5 8.5 0 1 1 15.9-4.4Z":"M9 9h6m-3-3v6");svg.append(path);}
+ return svg;
+}
 function person(item,index){
  const id=counterpart(item),state=accountStates.get(id);
  const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
@@ -149,8 +158,9 @@ function person(item,index){
  details.append(profile,secondary);
  const actions=make("div","vatra-friends-person-actions ui-vatra-friends-person-actions-"+index);
  if(!state&&stateFor(item)==="accepted"){
-  const message=make("a","vt-vatra-friends-message-"+index,t("Написати","Message"));
-  message.href=new URL("id"+id+"?message=1",root).href;actions.append(message);
+  const message=make("a","vt-vatra-friends-message-"+index);
+  message.href=new URL("id"+id+"?message=1",root).href;
+  message.append(rowIcon("message",index),make("span","vt-vatra-friends-message-label-"+index,t("Написати","Message")));details.append(message);
  }
  if(me&&stateFor(item)==="incoming"){
   actions.append(actionButton(t("Прийняти","Accept"),
@@ -159,7 +169,14 @@ function person(item,index){
  if(me){
   const label=stateFor(item)==="accepted"?t("Видалити з друзів","Remove friend"):
    stateFor(item)==="incoming"?t("Відхилити","Decline"):t("Скасувати запит","Cancel request");
-  actions.append(actionButton(label,"vt-vatra-friends-remove-"+index,()=>removeRow(item)));
+  const menu=make("details","vatra-friends-more ui-vatra-friends-more-"+index);
+  const trigger=make("summary","vatra-friends-more-trigger ui-vatra-friends-more-trigger-"+index);
+  trigger.setAttribute("aria-label",t("Дії","Actions")+": "+name);trigger.append(rowIcon("more",index));
+  const panel=make("div","vatra-friends-menu ui-vatra-friends-menu-"+index);
+  const remove=actionButton(label,"vt-vatra-friends-remove-"+index,()=>removeRow(item));
+  remove.addEventListener("click",()=>{menu.open=false;trigger.focus();});
+  panel.append(remove);menu.append(trigger,panel);actions.append(menu);
+  menu.addEventListener("toggle",()=>{if(menu.open)for(const other of document.querySelectorAll(".vatra-friends-more[open]"))if(other!==menu)other.open=false;});
  }
  article.append(avatar,details,actions);
  return article;
@@ -261,6 +278,14 @@ async function boot(){
    if(input){event.preventDefault();input.focus();input.select();}
   };
   q("#friends-find")?.addEventListener("click",findPeople);
+  document.addEventListener("click",event=>{
+   for(const menu of document.querySelectorAll(".vatra-friends-more[open]"))if(!menu.contains(event.target))menu.open=false;
+  });
+  document.addEventListener("keydown",event=>{
+   if(event.key!=="Escape")return;
+   const menu=q(".vatra-friends-more[open]");if(!menu)return;
+   menu.open=false;menu.querySelector("summary")?.focus();
+  });
   if(!me){
    const empty=q("#friends-empty");
    empty.textContent=t("Списки друзів інших користувачів приватні.",
