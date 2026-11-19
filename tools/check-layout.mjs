@@ -1186,7 +1186,7 @@ const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
- 'href="assets/css/base.css"','href="assets/css/feed.css"','href="assets/css/story-editor.css"',
+ 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"','href="assets/css/story-editor.css"',
  'href="assets/css/profile.css"','href="assets/css/post-composer.css"','href="assets/css/gifts.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
@@ -2165,7 +2165,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["admin.css","base.css","business.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2182,8 +2182,8 @@ assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the me
 const routerScript=await read("assets/js/not-found.js");
 const languageScript=await read("assets/js/lang.js");
 assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
- routerScript.includes('|notifications|friends|gifts|clips|marketplace|business|vatra-id|club|create-account|')&&
- languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify')&&
+ routerScript.includes('|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|')&&
+ languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify')&&
  (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
@@ -2471,10 +2471,10 @@ const businessRuntime=await read("assets/js/business.js");
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
-const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","business"].map(name=>read("assets/css/"+name+".css")))).join("\n");
+const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
 for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,businessRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
 for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
-for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"],["business","business"]]){
+for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
  for(const other of ["clips","marketplace","settings","business"].filter(name=>name!==stem)){
@@ -2535,18 +2535,18 @@ for(const table of ["business_followers","business_posts","business_metrics"]){
 assert.ok(businessSQL.includes("grant insert(company_id,body),delete on public.business_posts to authenticated")&&businessSQL.includes("business_private.my_role(company_id) in ('owner','admin','editor')"),"Company publishing is controlled by active business roles");
 assert.ok(businessSQL.includes("follower_count=follower_count+delta")&&businessSQL.includes("post_count=post_count+delta")&&!businessRuntime.includes('from("business_metrics").update'),"Business statistics must be computed on the server");
 
-assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Business company creation must use the bilingual standard taxonomy");
+assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Community business settings must use the bilingual standard taxonomy");
 
 const businessJobs=await read("assets/js/business-jobs.js");
 const jobsSQL=await read("supabase/migrations/20261119080727_business_jobs_and_applications.sql");
 assert.doesNotThrow(()=>new Function(businessJobs.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("business.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
+assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("club.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
 for(const table of ["business_jobs","business_job_applications"]){assert.ok(businessJobs.includes('from("'+table+'")')&&jobsSQL.includes("alter table public."+table+" enable row level security"));}
 
 const businessBookings=await read("assets/js/business-bookings.js");
 const bookingSQL=await read("supabase/migrations/20261119081225_business_booking_slots_and_appointments.sql");
 assert.doesNotThrow(()=>new Function(businessBookings.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("business.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
+assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("club.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
 for(const table of ["business_booking_slots","business_appointments"]){assert.ok(businessBookings.includes('from("'+table+'")')&&bookingSQL.includes("alter table public."+table+" enable row level security"));}
 assert.ok(bookingSQL.includes("business_appointments_one_live_idx")&&bookingSQL.includes("and not reserved and not cancelled and starts_at>now()"),"Server must prevent concurrent reservation of the same slot");
 
@@ -2585,3 +2585,14 @@ for(const dirEntry of await readdir(".")){if(!dirEntry.endsWith(".html"))continu
 for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))continue;const catalog=JSON.parse(await read("assets/i18n/"+file));assert.ok(Object.values(catalog.__pages||{}).every(page=>!page.meta?.title?.endsWith(" · VATRA")),file+": localized tab title must be suffix-free");}
 
 await import("./maintenance-smoke.mjs");
+
+await assert.rejects(stat("business.html"),{code:"ENOENT"});
+assert.ok(!businessRuntime.includes("VATRA_SECTION_CORE?.start")&&!businessRuntime.includes("requestedFilter"),"Business modules cannot mount as a separate page");
+assert.ok(!(await read("assets/js/not-found.js")).includes("|marketplace|business|"),"Retired business route must not resolve");
+
+const retiredActivitySQL=await read("supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
+assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&retiredActivitySQL.includes("drop table public.business_followers;")&&retiredActivitySQL.includes("alter column club_id set not null")&&!/drop table[^;]*cascade/i.test(retiredActivitySQL),"Legacy business storage is removed safely and community linkage is mandatory");
+
+await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
+assert.ok(communityBannerCSS.includes("body.community-page.vatra-business-page .ui-business-view-001"),"Business tool styling belongs to the existing community stylesheet");
+assert.ok(!(await read("assets/js/club.js")).includes("assets/css/business.css"),"Community tools must not fetch a retired stylesheet");

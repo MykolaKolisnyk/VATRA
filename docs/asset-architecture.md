@@ -2,7 +2,7 @@
 
 Shared social pages retain `base.css`, the existing shared `feed.css` shell and `social-shell.js`. Clips, Marketplace and VATRA ID share only the new section helpers (`core.js` / `core.css`) and load their own feature files; `sections.js` and `sections.css` are removed.
 
-- The community directory and individual club share `community-core.js` but load `communities.js` and `club.js` separately. The directory never imports post media or post interactions.
+- The community directory and individual club share `community-core.js` and `communities.css` but load `communities.js` and `club.js` separately. The directory never imports post media or post interactions. Optional business tools load their JavaScript only inside a club; their active styles live in `communities.css`, scoped to the community tool view. There is no standalone business page or stylesheet.
 - Marketplace's creation form and clip composer are imported on demand.
 - `account-guard.js` checks restrictions for every member. Only a verified owner-role response exposes the ADMIN PANEL entry, and only clicking it imports `admin.js` and `admin.css`. The server RPC/RLS remains the authorization boundary.
 - Marketplace images obtain signed URLs near the viewport. Identical photo paths reuse in-flight requests and a bounded 60-second browser-memory cache cleared on auth changes. No signed URLs or private results go to Redis.

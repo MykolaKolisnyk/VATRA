@@ -234,8 +234,8 @@ async function setupCommunityBusiness(client,number,ownId,userId){
    const resource=(tag,url)=>new Promise((resolve,reject)=>{const el=document.createElement(tag);if(tag==="link"){el.rel="stylesheet";el.href=new URL(url,root).href;}else{el.src=new URL(url,root).href;el.async=false;}el.addEventListener("load",resolve,{once:true});el.addEventListener("error",reject,{once:true});document.head.append(el);});
    try{
     document.body.classList.add("vatra-section-page","vatra-business-page");
-    await Promise.all([resource("link","assets/css/core.css?rev=e54d9ba8c2638618fb5402931fcc95d0bc36b418"),resource("link","assets/css/business.css?rev=0ef7bc4573fb0a8b62579ab0d34f93941c52ac8e"),resource("script","assets/js/core.js?rev=ff66004fe5c797e4335471a7ab34cc4856309a48")]);
-    await resource("script","assets/js/business.js?rev=76f3d3af1e18a64f209c6abbf491b6e401381fcf");
+    await Promise.all([resource("link","assets/css/core.css?rev=e54d9ba8c2638618fb5402931fcc95d0bc36b418"),resource("script","assets/js/core.js?rev=ff66004fe5c797e4335471a7ab34cc4856309a48")]);
+    await resource("script","assets/js/business.js?rev=79ef9f552a7d370890e653860a2931a8d5e28d2d");
     if(!window.VATRA_BUSINESS_TOOLS||!window.VATRA_SECTION_CORE?.embedded)throw Error("tools");
     await window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client,ownId,user:{id:userId},content,notice,t}));
    }catch(_){notice.hidden=false;notice.textContent=t("Не вдалося завантажити бізнес-інструмент. Оновіть сторінку.","Could not load business tools. Refresh the page.");}

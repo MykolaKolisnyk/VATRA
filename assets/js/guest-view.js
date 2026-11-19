@@ -43,7 +43,7 @@ async function profile(client,id){
  // RLS exposes only a display name for an active, explicitly public profile.
  let name=t("Учасник VATRA","VATRA member");
  try{const preview=await client.from("public_profiles").select("display_name").eq("vatra_id",id).maybeSingle();if(!preview.error&&typeof preview.data?.display_name==="string"&&preview.data.display_name.trim())name=preview.data.display_name.trim().slice(0,100);}catch(_){}
- document.title=name+" · VATRA";identity(main,name,true,t("Сторінку приховано","Profile hidden"));
+ document.title=name;identity(main,name,true,t("Сторінку приховано","Profile hidden"));
  main.append(node("section","ui-vatra-guest-note-001",t("Сторінка доступна лише авторизованим користувачам.","This page is available to signed-in members only.")));return true;
 }
 async function club(client,id){
@@ -52,7 +52,7 @@ async function club(client,id){
  if(result.error)return false;
  const main=layout("#community-loading","#community-app");
  if(!result.data){document.title=t("Спільноту не знайдено","Community not found");main.append(node("section","ui-vatra-guest-note-001",document.title));return true;}
- const data=result.data,name=String(data.name);document.title=name+" · VATRA";const {row}=identity(main,name,false,t("Спільнота VATRA","VATRA community"));
+ const data=result.data,name=String(data.name);document.title=name;const {row}=identity(main,name,false,t("Спільнота VATRA","VATRA community"));
  const open=prompt(name),follow=node("button","vt-vatra-guest-follow-001",t("Підписатися","Follow"));follow.type="button";follow.addEventListener("click",open);row.append(follow);
  const columns=node("div","ui-vatra-guest-columns-001"),posts=node("section","ui-vatra-guest-posts-001"),about=node("aside","ui-vatra-guest-about-001"),list=node("div","ui-vatra-guest-post-list-001");
  about.append(node("h2","vt-vatra-guest-about-heading-001",t("Про спільноту","About community")),node("p","vt-vatra-guest-about-text-001",data.description||t("Опису поки немає.","No description yet.")));

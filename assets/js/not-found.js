@@ -23,7 +23,7 @@
       let previous;
       try{previous=new URL(document.referrer);}catch(_){return;}
       if(previous.origin!==location.origin||previous.pathname===location.pathname)return;
-      if(!/^\/VATRA\/(?:index(?:\.html)?|(?:feed|profile|communities|notifications|friends|gifts|clips|marketplace|business|vatra-id|club|create-account|forgot|reset|verify|terms|commerce|privacy|cookies|offline)(?:\.html)?|(?:id|club)[1-9][0-9]{0,18})?\/?$/.test(previous.pathname))return;
+      if(!/^\/VATRA\/(?:index(?:\.html)?|(?:feed|profile|communities|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|forgot|reset|verify|terms|commerce|privacy|cookies|offline)(?:\.html)?|(?:id|club)[1-9][0-9]{0,18})?\/?$/.test(previous.pathname))return;
       link.href=previous.href;
       link.querySelector(".vt-404-home-label-001").hidden=true;
       link.querySelector(".vt-404-back-label-001").hidden=false;
@@ -32,7 +32,7 @@
     else wireReturnLink();
 
     const dynamic=location.pathname.match(/^\/VATRA\/(id|club)([1-9][0-9]{0,18})$/);
-    const staticPage=location.pathname.match(/^\/VATRA\/(feed|profile|communities|notifications|friends|gifts|clips|marketplace|business|vatra-id|club|create-account|forgot|reset|verify|terms|commerce|privacy|cookies|offline)$/);
+    const staticPage=location.pathname.match(/^\/VATRA\/(feed|profile|communities|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|forgot|reset|verify|terms|commerce|privacy|cookies|offline)$/);
     if(dynamic||staticPage){
       document.documentElement.classList.add("vatra-dynamic-route-pending");
 
@@ -82,7 +82,7 @@
       location.replace("/VATRA/create-account"+location.search+location.hash);
       return;
     }
-    const legacy=location.pathname.match(/^\/VATRA\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify|terms|commerce|privacy|cookies|offline)\.html$/);
+    const legacy=location.pathname.match(/^\/VATRA\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|commerce|privacy|cookies|offline)\.html$/);
     if(legacy){
       location.replace("/VATRA/"+legacy[1]+location.search+location.hash);
       return;

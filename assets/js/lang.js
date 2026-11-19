@@ -27,7 +27,7 @@
 
 
   const instantEnglishTitles={
-    index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My page",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace",business:"VATRA Business","vatra-id":"VATRA ID",
+    index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My page",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
     forgot:"Password recovery",reset:"New password",
     "404":"Page not found",
     terms:"Terms of Service",commerce:"Commerce Rules",privacy:"Privacy",
@@ -58,7 +58,7 @@
 
 
   if(location.protocol!=="file:"){
-    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
     if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
   }
   document.documentElement.lang = current === "en" ? "en" : "uk";
@@ -190,7 +190,7 @@
         if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
           target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
-        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
         target.pathname = target.pathname.replace(/\/account(?:\.html)?$/,"/verify");
         target.searchParams.delete("locale");
         link.href = target.href;
@@ -259,7 +259,7 @@
   function applyTranslation(table) {
     const page=pageFromPath();
 
-    const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts"||page==="clips"||page==="marketplace"||page==="business"||page==="vatra-id";
+    const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts"||page==="clips"||page==="marketplace"||page==="vatra-id";
     const entry=table.__pages?.[page]||(communityShell?table.__pages?.feed:null);
     if (!entry) return;
     for (const element of document.querySelectorAll("[data-i18n]")) {
