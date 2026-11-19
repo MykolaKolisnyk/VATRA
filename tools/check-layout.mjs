@@ -2162,7 +2162,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["admin.css","base.css","business.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2464,16 +2464,17 @@ const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
 const settingsRuntime=await read("assets/js/settings.js");
+const businessRuntime=await read("assets/js/business.js");
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
-const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings"].map(name=>read("assets/css/"+name+".css")))).join("\n");
-for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
+const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","business"].map(name=>read("assets/css/"+name+".css")))).join("\n");
+for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,businessRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
 for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
-for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
+for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"],["business","business"]]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
- for(const other of ["clips","marketplace","settings"].filter(name=>name!==stem)){
+ for(const other of ["clips","marketplace","settings","business"].filter(name=>name!==stem)){
   assert.ok(!markup.includes('assets/js/'+other+'.js')&&!markup.includes('assets/css/'+other+'.css'),section+" must not load another section");
  }
  assert.ok(!markup.includes("sections.js")&&!markup.includes("sections.css")&&!markup.includes("marketplace-editor.js")&&!markup.includes("clip-composer.js"));
@@ -2522,3 +2523,11 @@ assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&modera
 
 
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
+
+const businessSQL=await read("supabase/migrations/20261119075320_business_posts_followers_metrics.sql");
+for(const table of ["business_followers","business_posts","business_metrics"]){
+ assert.ok(businessRuntime.includes('from("'+table+'")'),table+" must load actual server data");
+ assert.ok(businessSQL.includes("alter table public."+table+" enable row level security"),table+" must enforce RLS");
+}
+assert.ok(businessSQL.includes("grant insert(company_id,body),delete on public.business_posts to authenticated")&&businessSQL.includes("business_private.my_role(company_id) in ('owner','admin','editor')"),"Company publishing is controlled by active business roles");
+assert.ok(businessSQL.includes("follower_count=follower_count+delta")&&businessSQL.includes("post_count=post_count+delta")&&!businessRuntime.includes('from("business_metrics").update'),"Business statistics must be computed on the server");
