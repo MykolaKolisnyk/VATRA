@@ -1734,6 +1734,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   }
  };
  window.VATRA_PROFILE_SHOW_GIFTS=showGifts;
+ q("#profile-gifts-dialog-close").addEventListener("click",()=>q("#profile-gifts-dialog").close());
  function giftCard(gift,compact){
   const item=node("button",compact?"profile-gift-tile ui-profile-gift-preview-item-001":
    "profile-gift-full ui-profile-gift-full-item-001");
@@ -1748,13 +1749,28 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   art.addEventListener("contextmenu",event=>event.preventDefault());
   const title=node("strong","vt-profile-gift-name-001",t(info.uk,info.en));
   const sub=node("small","vt-profile-gift-caption-001",info.exclusive?t(info.eventUk,info.eventEn):t("За приєднання до VATRA","For joining VATRA"));
-  item.append(art,title,sub);return item;
+  item.append(art);if(!compact)item.append(title,sub);return item;
  }
  q("#profile-friends-all")?.addEventListener("click",()=>{
   location.assign(new URL("friends"+(isMine?"":"?member="+targetId),home).href);
  });
  q("#profile-gifts-all")?.addEventListener("click",()=>{
-  location.assign(new URL("gifts"+(isMine?"":"?member="+targetId),home).href);
+  const dialog=q("#profile-gifts-dialog"),list=q("#profile-gifts-dialog-list"),more=q("#profile-gifts-dialog-more");
+  if(dialog.open)return;dialog.showModal();let offset=0,busy=false,done=false;
+  list.replaceChildren();more.hidden=true;
+  async function load(){
+   if(busy||done||!dialog.open)return;busy=true;more.disabled=true;
+   try{
+    const result=await client.from("profile_gifts").select("id,gift_code,created_at",{count:"exact"}).eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).order("id",{ascending:false}).range(offset,offset+29);
+    if(result.error)throw result.error;if(!dialog.open)return;
+    const rows=result.data||[];offset+=rows.length;done=rows.length<30||(Number.isFinite(result.count)&&offset>=result.count);
+    q("#profile-gifts-dialog-count").textContent=Number.isFinite(result.count)?String(result.count):"";
+    for(const gift of rows){const info=giftInfo(gift.gift_code);if(!info)continue;const row=node("article","ui-profile-gift-dialog-row-001"),date=node("time","vt-profile-gift-dialog-date-001",dateText(gift.created_at));date.dateTime=gift.created_at;row.append(date,giftCard(gift,false));list.append(row);}
+    if(!list.children.length&&done)list.append(node("p","vt-profile-gift-dialog-empty-001",t("Подарунків поки немає.","No gifts yet.")));
+    more.hidden=done;
+   }catch(_){list.append(node("p","vt-profile-gift-dialog-empty-001",t("Не вдалося завантажити подарунки.","Could not load gifts.")));more.hidden=false;}finally{busy=false;more.disabled=false;}
+  }
+  more.onclick=()=>void load();void load();
  });
  window.VATRA_PROFILE_SHOW_COMMUNITIES=async()=>{
   if(communitiesLoaded)return;
@@ -1790,14 +1806,14 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   client.from("friendships").select("requester_id,recipient_id,created_at")
    .eq("status","accepted")
    .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
-   .order("created_at",{ascending:false}).limit(6),
+   .order("created_at",{ascending:false}).limit(4),
   client.from("profile_gifts").select("id,gift_code,created_at")
    .eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).limit(3)
  ]);
  if(jobs[0].status==="fulfilled"&&!jobs[0].value.error){
   cachedFriends=await resolveFriendships(jobs[0].value.data||[]);
   friendsPreview.replaceChildren();
-  for(const friend of cachedFriends.slice(0,6))friendsPreview.append(personCard(friend,true));
+  for(const friend of cachedFriends.slice(0,4))friendsPreview.append(personCard(friend,true));
   toggleFriendActions(cachedFriends.length>0);
   if(!cachedFriends.length)previewEmpty("#profile-friends-preview-empty",t("Друзів поки немає.","No friends yet."));
  }else{
@@ -2873,7 +2889,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const encodeProfileCrop=async(image,rect,width,height,name)=>{const out=document.createElement("canvas");out.width=width;out.height=height;const context=out.getContext("2d");if(!context)throw Error("Canvas unavailable");context.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,width,height);const blob=await new Promise(resolve=>out.toBlob(resolve,"image/webp",.94));if(!blob||!fileTypes[blob.type])throw Error("Image encoding failed");return new File([blob],name+"."+fileTypes[blob.type],{type:blob.type});};
  const constrain=()=>{const max=Math.min(canvas.width,canvas.height);selection.size=clamp(selection.size,max/5,max);selection.x=clamp(selection.x,0,canvas.width-selection.size);selection.y=clamp(selection.y,0,canvas.height-selection.size);zoom.value=String(max/selection.size);};
  const draw=()=>{if(!source||!selection)return;constrain();const ctx=canvas.getContext("2d"),{x,y,size}=selection;
-  ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);ctx.save();ctx.fillStyle="rgba(15,23,42,.58)";ctx.beginPath();ctx.rect(0,0,canvas.width,canvas.height);ctx.arc(x+size/2,y+size/2,size/2,0,Math.PI*2,true);ctx.fill("evenodd");ctx.restore();ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.strokeRect(x,y,size,size);ctx.fillStyle="#fff";
+  ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);ctx.save();ctx.fillStyle="rgba(15,23,42,.58)";ctx.beginPath();ctx.rect(0,0,canvas.width,canvas.height);ctx.arc(x+size/2,y+size/2,size/2,0,Math.PI*2,true);ctx.fill("evenodd");ctx.restore();ctx.fillStyle="#fff";
   for(const [cx,cy] of [[x,y],[x+size,y],[x,y+size],[x+size,y+size]])ctx.fillRect(cx-4,cy-4,8,8);
  };
  const closeStep=(from,to)=>{transitioning=true;from.close();to.showModal();transitioning=false;};
@@ -2884,10 +2900,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  const canvasPoint=(surface,e)=>{const r=surface.getBoundingClientRect();return{x:(e.clientX-r.left)*surface.width/r.width,y:(e.clientY-r.top)*surface.height/r.height};};
  const point=e=>canvasPoint(canvas,e);
- canvas.addEventListener("pointerdown",e=>{if(!selection)return;e.preventDefault();const p=point(e),{x,y,size}=selection,r=canvas.getBoundingClientRect(),hit=14*canvas.width/r.width;const corners=[[x,y,-1,-1],[x+size,y,1,-1],[x,y+size,-1,1],[x+size,y+size,1,1]];const corner=corners.find(([cx,cy])=>Math.hypot(p.x-cx,p.y-cy)<=hit);drag={id:e.pointerId,p,start:{...selection},corner};canvas.setPointerCapture(e.pointerId);});
+ canvas.addEventListener("pointerdown",e=>{if(!selection)return;e.preventDefault();const p=point(e),{x,y,size}=selection,r=canvas.getBoundingClientRect(),hit=14*canvas.width/r.width;const corners=[[x,y,-1,-1],[x+size,y,1,-1],[x,y+size,-1,1],[x+size,y+size,1,1]];const corner=corners.find(([cx,cy])=>Math.hypot(p.x-cx,p.y-cy)<=hit);if(!corner&&(p.x<x||p.x>x+size||p.y<y||p.y>y+size))return;drag={id:e.pointerId,p,start:{...selection},corner};canvas.setPointerCapture(e.pointerId);});
  canvas.addEventListener("pointermove",e=>{if(!drag||drag.id!==e.pointerId)return;const p=point(e),dx=p.x-drag.p.x,dy=p.y-drag.p.y,{x,y,size}=drag.start; if(drag.corner){const [,,sx,sy]=drag.corner,ax=sx<0?x+size:x,ay=sy<0?y+size:y;const available=Math.min(sx<0?ax:canvas.width-ax,sy<0?ay:canvas.height-ay);const next=clamp(size+(dx*sx+dy*sy)/2,Math.min(canvas.width,canvas.height)/5,available);selection={x:sx<0?ax-next:ax,y:sy<0?ay-next:ay,size:next};}else selection={x:x+dx,y:y+dy,size};draw();});
  for(const event of ["pointerup","pointercancel","lostpointercapture"])canvas.addEventListener(event,()=>{drag=null;});
- canvas.addEventListener("keydown",e=>{if(!selection)return;const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!delta)return;e.preventDefault();selection.x+=delta[0]*(e.shiftKey?20:5);selection.y+=delta[1]*(e.shiftKey?20:5);draw();});
+ canvas.addEventListener("keydown",e=>{if(!selection)return;const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(e.key==="+"||e.key==="="||e.key==="-"){e.preventDefault();const old=selection.size,size=clamp(old*(e.key==="-"?1.1:.9),Math.min(canvas.width,canvas.height)/5,Math.min(canvas.width,canvas.height));selection={x:selection.x+(old-size)/2,y:selection.y+(old-size)/2,size};draw();return;}if(!delta)return;e.preventDefault();selection.x+=delta[0]*(e.shiftKey?20:5);selection.y+=delta[1]*(e.shiftKey?20:5);draw();});
  zoom.addEventListener("input",()=>{if(!selection)return;const size=Math.min(canvas.width,canvas.height)/Number(zoom.value),centerX=selection.x+selection.size/2,centerY=selection.y+selection.size/2;selection={x:centerX-size/2,y:centerY-size/2,size};draw();});
  q("#profile-avatar-crop-next").addEventListener("click",async()=>{if(!source||!selection)return;const next=q("#profile-avatar-crop-next");next.disabled=true;
   try{const width=Math.min(1024,Math.max(1,Math.round(selection.size*source.naturalWidth/canvas.width))),rect={x:selection.x*source.naturalWidth/canvas.width,y:selection.y*source.naturalHeight/canvas.height,w:selection.size*source.naturalWidth/canvas.width,h:selection.size*source.naturalHeight/canvas.height};const file=await encodeProfileCrop(source,rect,width,width,"profile-photo");if(!crop.open)return;cropped=file;if(previewURL)URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(cropped);preview.src=previewURL;closeStep(crop,finish);}catch(_){status(t("Не вдалося створити мініатюру.","Could not create thumbnail."),true);}finally{next.disabled=false;}
