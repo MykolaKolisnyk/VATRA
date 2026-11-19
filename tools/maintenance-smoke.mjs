@@ -5,7 +5,11 @@ const read=path=>readFile(path,"utf8");
 const host=await read("assets/js/host.js");
 const page=await read("maintenance.html");
 const panel=await read("assets/js/admin.js");
-assert.ok(page.includes("assets/vatryk/vatryk_technician.webp")&&page.includes("maintenance-admin=1"));
+const maintenanceScript=await read("assets/js/maintenance.js");
+assert.ok(page.includes("assets/vatryk/vatryk_technician.webp")&&
+ page.includes('data-i18n="maintenance-heading"')&&page.includes('data-i18n="maintenance-copy"'));
+assert.doesNotMatch(page,/<(?:header|footer|button|a|section)\b|data-language-trigger|maintenance-admin=1|maintenance-status/);
+assert.ok(host.includes('get("maintenance-admin")==="1"'),"Direct owner recovery route is retained");
 assert.ok(panel.includes('from("site_maintenance").update({enabled:next})')&&panel.includes("maintenance.html?preview=1"));
 async function simulate({enabled,owner=false,path="/VATRA/feed",search="",failure=false}){
  const redirects=[],requests=[],events={},roleChecks=[];
@@ -36,3 +40,25 @@ const recovery=await simulate({enabled:true,path:"/VATRA/",search:"?maintenance-
 const maintenance=await simulate({enabled:true,path:"/VATRA/maintenance.html"});assert.equal(maintenance.redirects.length,0);
 const offline=await simulate({enabled:true,failure:true});assert.equal(offline.redirects.length,0);
 console.log("VATRA maintenance: inactive, active guest, owner bypass, recovery route and network failure verified.");
+async function simulatePage({enabled,preview=false}){
+ const redirects=[],events={},timers=[];let status=enabled,requests=0;
+ const doc={currentScript:{src:"https://mykolakolisnyk.github.io/VATRA/assets/js/maintenance.js"},visibilityState:"visible",addEventListener:(name,fn)=>{events[name]=fn;}};
+ const window={VATRA_HOST_ALLOWED:true,VATRA_MAINTENANCE_STATUS:async()=>{requests++;if(status instanceof Error)throw status;return status;},addEventListener:(name,fn)=>{events[name]=fn;}};
+ runInNewContext(maintenanceScript,{window,document:doc,location:{search:preview?"?preview=1":"",replace:url=>redirects.push(url)},URL,URLSearchParams,setInterval:fn=>{timers.push(fn);}});
+ const settle=()=>new Promise(resolve=>setImmediate(resolve));
+ await settle();
+ return {redirects,events,timers,doc,getRequests:()=>requests,setStatus:v=>{status=v;},settle};
+}
+const activePage=await simulatePage({enabled:true});
+assert.equal(activePage.redirects.length,0);
+assert.equal(activePage.getRequests(),1);
+activePage.setStatus(false);activePage.timers[0]();await activePage.settle();
+assert.deepEqual(activePage.redirects,["https://mykolakolisnyk.github.io/VATRA/"]);
+const endedPage=await simulatePage({enabled:false});
+assert.equal(endedPage.redirects.length,1);
+const previewPage=await simulatePage({enabled:false,preview:true});
+assert.equal(previewPage.redirects.length,0);assert.equal(previewPage.getRequests(),0);
+const offlinePage=await simulatePage({enabled:new Error("offline")});
+assert.equal(offlinePage.redirects.length,0);offlinePage.setStatus(false);
+offlinePage.events.online();await offlinePage.settle();assert.equal(offlinePage.redirects.length,1);
+console.log("VATRA maintenance display: minimal page, automatic recovery, preview and offline retry verified.");

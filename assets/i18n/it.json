@@ -53,26 +53,6 @@
           "text": {
             "0": "Vatryk sta lavorando per migliorare VATRA. Il social network sarà presto di nuovo disponibile. Grazie per la pazienza!"
           }
-        },
-        "maintenance-retry": {
-          "text": {
-            "0": "Verifica disponibilità"
-          }
-        },
-        "maintenance-disable": {
-          "text": {
-            "0": "Disattiva manutenzione"
-          }
-        },
-        "maintenance-admin": {
-          "text": {
-            "0": "Accesso amministratore"
-          }
-        },
-        "maintenance-tagline": {
-          "text": {
-            "0": "Le tue persone. Le tue storie. La tua VATRA."
-          }
         }
       }
     },
