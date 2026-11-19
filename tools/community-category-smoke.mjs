@@ -33,5 +33,5 @@ assert.ok(!src.includes('node("img","ui-community-topic-photo-001")')&&!src.incl
 assert.ok(html.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>'));
 const css=await readFile("assets/css/communities.css","utf8");
 assert.ok(css.includes('../communities-covers/VATRA_communities.webp')&&css.includes('background-size:cover;background-position:center')&&css.includes('pointer-events:none'));
-assert.ok(css.includes('grid-auto-flow:column')&&css.includes('overflow-x:auto')&&css.includes('touch-action:pan-x pan-y pinch-zoom')&&css.includes('.ui-community-topic-grid-001.is-expanded'));
+assert.ok(css.includes('flex-wrap:nowrap')&&css.includes('flex:0 0 var(--topic-width)')&&css.includes('aspect-ratio:1.65')&&css.includes('overflow-x:auto')&&css.includes('touch-action:pan-x pan-y pinch-zoom')&&css.includes('.ui-community-topic-grid-001.is-expanded'));
 console.log("VATRA community categories: forty unique IDs, bilingual labels, required form, exact filters, DB constraints and cache schema agree.");

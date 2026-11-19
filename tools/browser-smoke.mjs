@@ -5112,6 +5112,18 @@ try{
   await page.setViewportSize({width:1440,height:900});
   await topicStrip.scrollIntoViewIfNeeded();
   assert.ok(await topicStrip.evaluate(el=>el.scrollWidth>el.clientWidth&&getComputedStyle(el).overflowX==="auto"));
+  const assertTopicGeometry=async(minWidth,expanded=false)=>{
+   const geometry=await topicStrip.evaluate(el=>({
+    width:el.clientWidth,
+    cards:[...el.querySelectorAll(".ui-community-topic-001")].map(card=>{
+     const r=card.getBoundingClientRect();return {width:r.width,height:r.height,ratio:r.width/r.height};
+    })
+   }));
+   assert.ok(geometry.cards.every(card=>Math.abs(card.ratio-1.65)<.06&&(expanded||card.width>=minWidth)),
+    "Topic cards must preserve their original 1.65:1 proportions without shrinking: "+JSON.stringify(geometry.cards.slice(0,6)));
+  };
+  await assertTopicGeometry(179);
+
   await page.waitForFunction(()=>document.querySelector(".ui-community-topic-arrow-left-001").disabled&&!document.querySelector(".ui-community-topic-arrow-right-001").disabled);
   const expectedTopicScroll=await topicStrip.evaluate(el=>{
    const step=el.firstElementChild.getBoundingClientRect().width+(parseFloat(getComputedStyle(el).columnGap)||0);
@@ -5130,6 +5142,7 @@ try{
   await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft<=1);
   await page.setViewportSize({width:390,height:844});
   assert.ok(await topicStrip.evaluate(el=>el.scrollWidth>el.clientWidth&&getComputedStyle(el).touchAction.includes("pan-x")&&document.documentElement.scrollWidth<=innerWidth+3),"Mobile topics remain horizontally swipeable without page overflow");
+  await assertTopicGeometry(179);
   if(topicViewport)await page.setViewportSize(topicViewport);
   for(const photo of (await topicPhotos.all()).slice(0,6)){
    await photo.scrollIntoViewIfNeeded();
@@ -5152,6 +5165,7 @@ try{
   assert.equal(await topicCards.count(),40,"All topics expand as the same photo cards");
   assert.ok(await topicStrip.evaluate(el=>el.classList.contains("is-expanded")&&el.scrollWidth<=el.clientWidth+2));
   assert.equal(await nextTopic.isVisible(),false);
+  await assertTopicGeometry(0,true);
   assert.equal(await topicCards.evaluateAll(cards=>new Set(cards.map(c=>c.dataset.communityCategory)).size),40);
   assert.equal(await page.locator("#community-topics select").count(),0,"No dropdown in discovery");
   assert.deepEqual(await topicPhotos.evaluateAll(nodes=>Object.fromEntries(nodes.map(el=>[el.closest("button").dataset.communityCategory,el.dataset.topicCover]))),{"music":"music","sport":"sport","travel":"travel","technology":"technology","education":"education","art":"art","gaming":"videogames","business":"business","news":"news","cooking":"food","transport":"transport","cinema":"movies","animals":"animals","photography":"photo-video","regions":"cities","fashion":"fashion","charity":"charity","science":"science"});
