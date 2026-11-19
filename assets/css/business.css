@@ -184,3 +184,24 @@ body.vatra-business-page .ui-business-rating-actions-001:empty{display:none}
 body.vatra-business-page .ui-business-rating-form-001{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 body.vatra-business-page .ui-business-rating-select-001{min-width:158px}
 @media(max-width:700px){body.vatra-business-page .ui-business-rating-card-001{padding:18px}body.vatra-business-page .ui-business-rating-form-001{align-items:stretch;width:100%}body.vatra-business-page .ui-business-rating-form-001 label{width:100%}body.vatra-business-page .ui-business-rating-select-001{flex:1;min-width:0}}
+
+/* Private company inbox — flexible desktop columns and one-column mobile. */
+body.vatra-business-page .ui-business-inbox-body-001{display:grid;gap:18px;min-width:0}
+body.vatra-business-page .ui-business-inbox-shell-001{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.9fr);gap:16px;align-items:start;min-width:0}
+body.vatra-business-page .ui-business-conversation-list-001{display:grid;gap:10px;padding:18px;min-width:0;max-height:680px;overflow:auto}
+body.vatra-business-page .vt-business-conversation-item-001{display:grid;gap:4px;padding:14px 12px;background:#f6f8fc;border:1px solid transparent;border-radius:12px;text-align:left;min-width:0;color:var(--ink);cursor:pointer}
+body.vatra-business-page .vt-business-conversation-item-001[aria-pressed="true"]{color:var(--blue);background:#eaf1ff;border-color:#d6e4fc}
+body.vatra-business-page .vt-business-conversation-name-001{font:var(--section-name);overflow-wrap:anywhere}
+body.vatra-business-page .vt-business-conversation-date-001{font:var(--section-caption);color:var(--soft)}
+body.vatra-business-page .ui-business-conversation-001{display:grid;gap:14px;padding:20px;min-width:0}
+body.vatra-business-page .ui-business-conversation-header-001{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #e2e9f4;padding-bottom:14px}
+body.vatra-business-page .ui-business-conversation-header-001>h3{flex:1;min-width:90px;overflow-wrap:anywhere}
+body.vatra-business-page .ui-business-message-stream-001{display:flex;flex-direction:column;gap:12px;padding:14px;min-height:290px;height:min(43vh,450px);overflow:auto;overscroll-behavior:contain;border:1px solid #e8edf4;border-radius:14px;background:#f7f9fc}
+body.vatra-business-page .ui-business-message-001{width:fit-content;max-width:88%;align-self:flex-start;display:grid;gap:5px;padding:11px 14px;border:1px solid #e1e8f2;border-radius:15px 15px 15px 5px;background:#fff;color:var(--ink)}
+body.vatra-business-page .ui-business-message-001[data-side="mine"]{align-self:flex-end;background:#e5efff;border-color:#d7e5fb;border-radius:15px 15px 5px 15px}
+body.vatra-business-page .vt-business-message-body-001{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:var(--section-body)}
+body.vatra-business-page .vt-business-message-time-001{font:var(--section-caption);color:var(--soft);text-align:right}
+body.vatra-business-page .ui-business-message-compose-001{display:grid;gap:10px;justify-items:end}
+body.vatra-business-page .ui-business-message-compose-001 textarea{min-height:70px;width:100%}
+body.vatra-business-page .vt-business-inbox-note-001{margin:0;font:var(--section-caption);color:var(--soft)}
+@media(max-width:850px){body.vatra-business-page .ui-business-inbox-shell-001{grid-template-columns:minmax(0,1fr)}body.vatra-business-page .ui-business-conversation-list-001{max-height:250px}body.vatra-business-page .ui-business-conversation-001{padding:16px}body.vatra-business-page .ui-business-message-stream-001{padding:12px}}

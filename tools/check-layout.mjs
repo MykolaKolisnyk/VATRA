@@ -2557,3 +2557,8 @@ assert.ok(brandSQL.includes("business_logo_path")&&brandSQL.includes("business_c
 const ratingsSQL=await read("supabase/migrations/20261119084256_business_verified_customer_ratings.sql");
 assert.ok(ratingsSQL.includes("alter table public.business_ratings enable row level security")&&ratingsSQL.includes("a.status='completed'")&&ratingsSQL.includes("business_private.my_role(company) is null"),"Ratings require a completed customer appointment");
 assert.ok(businessRuntime.includes('from("business_ratings")')&&ratingsSQL.includes("rating_total=rating_total+new.stars-old.stars"),"Company rating uses server aggregates");
+
+const inboxSource=await read("assets/js/business-inbox.js"),inboxSQL=await read("supabase/migrations/20261119084730_business_private_customer_inquiries.sql");
+assert.doesNotThrow(()=>new Function(inboxSource.replace(/^export /gm,"")));
+assert.ok(businessRuntime.includes("assets/js/business-inbox.js?rev="));
+assert.ok(inboxSQL.includes("alter table public.business_inquiries enable row level security")&&inboxSQL.includes("alter table public.business_inquiry_messages enable row level security")&&inboxSQL.includes("new.sender_side:='company'")&&inboxSQL.includes("grant select(id,inquiry_id,sender_side,body,created_at),insert(inquiry_id,body)"),"Business correspondence must be private and attributed by the server");

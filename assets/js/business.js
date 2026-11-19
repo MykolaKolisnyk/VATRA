@@ -11,6 +11,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   ["overview",t("Мої компанії","My companies"),"all"],
   ["companies",t("Компанії","Companies"),"briefcase"],
   ["following",t("Мої підписки","Following"),"bookmark"],
+  ["inbox",t("Повідомлення","Messages"),"chat"],
   ["posts",t("Публікації","Posts"),"listings"],
   ["team",t("Команда","Team"),"friends"],
   ["stores",t("Магазини","Stores"),"bag"],
@@ -31,7 +32,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
  const selectionKey="vatra-business-company:"+ownId;
  try{selected=sessionStorage.getItem(selectionKey);}catch(_){}
  function rememberCompany(){try{if(selected)sessionStorage.setItem(selectionKey,selected);else sessionStorage.removeItem(selectionKey);}catch(_){}}
- let categories=[],categoriesPromise=null,jobMode="browse",bookingMode="browse",storeMode="browse";
+ let categories=[],categoriesPromise=null,jobMode="browse",bookingMode="browse",storeMode="browse",inboxMode="mine";
  const workspace=make("div","vatra-discovery-workspace ui-business-workspace-001");
  const sidebar=make("aside","vatra-discovery-sidebar ui-business-sidebar-001"),main=make("section","vatra-discovery-content ui-business-content-001");
  const create=btn(t("Створити компанію","Create company"),"vatra-discovery-primary vt-business-create-001",()=>openEditor());
@@ -45,7 +46,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   jobs:"M4 7h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1ZM8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18m-11 0v2h4v-2"
  };
  function businessIcon(key){const svg=sectionIcon(sections.find(x=>x[0]===key)?.[2]||"all"),path=svg.querySelector("path");svg.setAttribute("class","ui-business-icon-"+key);path?.setAttribute("class","ui-business-icon-path-"+key);if(businessPaths[key])path?.setAttribute("d",businessPaths[key]);return svg;}
- function navigate(key,mode){browseCompany=null;if(key==="jobs")jobMode=mode||"browse";if(key==="booking")bookingMode=mode||"browse";if(key==="stores")storeMode=mode||"browse";setNav(key);void render();}
+ function navigate(key,mode){browseCompany=null;if(key==="jobs")jobMode=mode||"browse";if(key==="booking")bookingMode=mode||"browse";if(key==="stores")storeMode=mode||"browse";if(key==="inbox")inboxMode=mode||"mine";setNav(key);void render();}
  function navGroup(label,keys){
   const group=make("div","ui-business-nav-group-001"),items=sections.filter(x=>keys.includes(x[0])).sort((a,b)=>keys.indexOf(a[0])-keys.indexOf(b[0]));
   group.append(make("p","vt-business-nav-caption-001",label));
@@ -54,7 +55,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   for(const b of bar.children){b.querySelector(".vatra-discovery-nav-icon")?.replaceChildren(businessIcon(b.dataset.tab));if(b.dataset.tab==="ads")b.append(make("span","vt-business-nav-soon-001",t("Скоро","Soon")));}
   group.append(bar);nav.append(group);
  }
- navGroup(t("Керування","Management"),["overview","posts","team","analytics"]);
+ navGroup(t("Керування","Management"),["overview","posts","inbox","team","analytics"]);
  navGroup(t("Каталог","Discover"),["companies","following","stores","jobs","booking"]);
  navGroup(t("У розробці","In development"),["ads"]);
  sidebar.append(make("h1","vatra-discovery-title vt-business-title-001","VATRA Business"),create,nav);
@@ -331,7 +332,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   const tool=(key,label,copy,mode)=>{const b=btn("","ui-business-tool-001",()=>navigate(key,mode)),symbol=make("span","ui-business-tool-icon-001"),body=make("span","ui-business-tool-copy-001");symbol.append(businessIcon(key));body.append(make("strong","vt-business-tool-title-001",label),make("span","vt-business-tool-description-001",copy));b.append(symbol,body,sectionIcon("down"));tools.append(b);};
   if(canEdit)tool("posts",t("Публікації","Posts"),t("Створюйте дописи від імені компанії","Publish on behalf of your company"));
   if(role==="owner")tool("stores",t("Мій магазин","My store"),t("Додавайте схвалені товари до вітрини","Add approved products to your storefront"),"manage");
-  if(canManage){tool("jobs",t("Вакансії компанії","Company jobs"),t("Публікуйте вакансії та розглядайте відгуки","Publish jobs and review applications"),"manage");tool("booking",t("Календар компанії","Company calendar"),t("Додавайте час та керуйте записами","Add times and manage appointments"),"manage");}
+  if(canManage){tool("inbox",t("Звернення клієнтів","Customer inquiries"),t("Відповідайте від імені компанії","Reply on behalf of your company"),"manage");tool("jobs",t("Вакансії компанії","Company jobs"),t("Публікуйте вакансії та розглядайте відгуки","Publish jobs and review applications"),"manage");tool("booking",t("Календар компанії","Company calendar"),t("Додавайте час та керуйте записами","Add times and manage appointments"),"manage");}
   if(["owner","admin"].includes(role))tool("team",t("Команда","Team"),t("Ролі та доступ до компанії","Company roles and access"));
   tool("analytics",t("Аналітика","Analytics"),t("Переглядайте фактичні показники","View actual metrics"));
   target.append(heading(t("Інструменти компанії","Company tools")),tools);
@@ -362,7 +363,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   }
  }
  async function render(){
-  const version=++renderVersion;rememberCompany();const url=new URL(location.href);url.searchParams.delete("company");if(view==="overview")url.searchParams.delete("section");else url.searchParams.set("section",view);if(browseCompany&&["jobs","booking","stores"].includes(view))url.searchParams.set("for",browseCompany);else url.searchParams.delete("for");history.replaceState(history.state,"",url);main.replaceChildren();const target=make("div","ui-business-view-001");main.append(target);
+  const version=++renderVersion;rememberCompany();const url=new URL(location.href);url.searchParams.delete("company");if(view==="overview")url.searchParams.delete("section");else url.searchParams.set("section",view);if(browseCompany&&["jobs","booking","stores","inbox"].includes(view))url.searchParams.set("for",browseCompany);else url.searchParams.delete("for");history.replaceState(history.state,"",url);main.replaceChildren();const target=make("div","ui-business-view-001");main.append(target);
   try{if(view==="overview"){await dashboard(target);
   }else if(view==="companies"){
    target.append(heading(t("Компанії VATRA","VATRA companies")));
@@ -383,6 +384,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   }else if(view==="team"){target.append(heading(t("Команда","Team")));await team(target,version);}
   else if(view==="following")await showFollowing(target);
   else if(view==="analytics")await showAnalytics(target);
+  else if(view==="inbox"){const module=await import(new URL("assets/js/business-inbox.js?rev=6180b3eea03a5c21fdc0af7b29296b4a477382f0",root).href);if(version!==renderVersion)return;await module.renderBusinessInbox({target,client,t,make,link,btn,card,tabs,heading,companySelector,selected,roleOf,ownId,message,err,initialMode:inboxMode,onMode:key=>{inboxMode=key;},browseCompany});}
   else if(view==="stores"){await companyFilterBanner(target);if(version!==renderVersion)return;const module=await import(new URL("assets/js/business-stores.js?rev=e438f64b5f57500577c9d35cc5d9334cb2796eb4",root).href);if(version!==renderVersion)return;await module.renderBusinessStores({target,client,t,make,link,btn,card,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode:storeMode,onMode:key=>{storeMode=key;},browseCompany});}
   else if(view==="booking"){await companyFilterBanner(target);if(version!==renderVersion)return;const module=await import(new URL("assets/js/business-bookings.js?rev=44d0b848d5a9f2d28a6cac2761dbc3d0bcfa824d",root).href);if(version!==renderVersion)return;await module.renderBusinessBookings({target,client,t,make,link,btn,card,field,submit,dialog,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode:bookingMode,onMode:key=>{bookingMode=key;},browseCompany});}
   else if(view==="jobs"){await companyFilterBanner(target);if(version!==renderVersion)return;const module=await import(new URL("assets/js/business-jobs.js?rev=d1fc7858f2ea96f373a30708123c26b842987498",root).href);if(version!==renderVersion)return;await module.renderBusinessJobs({target,client,t,make,link,btn,card,field,submit,dialog,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode:jobMode,onMode:key=>{jobMode=key;},browseCompany});}
@@ -399,10 +401,10 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   if(result.error){main.append(make("p","vt-business-empty-001",err));return;}
   if(!result.data){main.append(make("p","vt-business-empty-001",t("Компанію не знайдено.","Company not found.")));return;}
   const target=make("div","ui-business-view-001 ui-business-public-view-001");main.append(target);const profile=showCompany(result.data,target);
-  const actions=make("div","ui-business-public-actions-001");actions.append(link(t("Магазин компанії","Company store"),"business?section=stores&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"),link(t("Вакансії компанії","Company jobs"),"business?section=jobs&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"),link(t("Запис на послуги","Book services"),"business?section=booking&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"));if(roleOf(id))actions.append(btn(t("Керувати компанією","Manage company"),"vt-business-secondary-001",()=>{selected=id;navigate("overview");}));profile.append(actions);
+  const actions=make("div","ui-business-public-actions-001");if(!roleOf(id))actions.append(link(t("Написати компанії","Message company"),"business?section=inbox&for="+encodeURIComponent(id),"vt-business-primary-001 vt-business-page-action-001"));actions.append(link(t("Магазин компанії","Company store"),"business?section=stores&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"),link(t("Вакансії компанії","Company jobs"),"business?section=jobs&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"),link(t("Запис на послуги","Book services"),"business?section=booking&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"));if(roleOf(id))actions.append(btn(t("Керувати компанією","Manage company"),"vt-business-secondary-001",()=>{selected=id;navigate("overview");}));profile.append(actions);
   await Promise.all([followControls(result.data,profile),renderRating(id,target),renderPosts(id,target,false)]);
  }
  try{await Promise.all([refresh(),loadCategories().catch(()=>[])]);if(requested){if(uuid.test(requested))await showPublic(requested);else main.append(make("p","vt-business-empty-001",t("Компанію не знайдено.","Company not found.")));}
- else {if(sections.some(row=>row[0]===requestedSection))setNav(requestedSection);if(["jobs","booking","stores"].includes(view)&&uuid.test(requestedFilter||""))browseCompany=requestedFilter;await render();}}catch(_){main.replaceChildren(make("p","vt-business-empty-001",err));}
+ else {if(sections.some(row=>row[0]===requestedSection))setNav(requestedSection);if(["jobs","booking","stores","inbox"].includes(view)&&uuid.test(requestedFilter||""))browseCompany=requestedFilter;await render();}}catch(_){main.replaceChildren(make("p","vt-business-empty-001",err));}
 });
 })();
