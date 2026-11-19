@@ -76,13 +76,21 @@ try{
     }};
    window.supabase={createClient:()=>client};
   };
-  const fixtureHTML='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/VATRA/assets/css/feed.css"><link rel="stylesheet" href="/VATRA/assets/css/core.css"><link rel="stylesheet" href="/VATRA/assets/css/business.css"></head><body class="feed-page vatra-section-page vatra-business-page" data-page="business"><div id="feed-loading">Loading</div><div id="feed-app" hidden><main id="vatra-section-main" class="ui-vatra-section-main-001"><header class="ui-vatra-section-heading-001"><h1 id="vatra-section-title">VATRA Business</h1><p id="vatra-section-subtitle"></p><button id="vatra-section-action" hidden></button></header><div id="vatra-section-content" class="ui-vatra-section-content-001"></div><p id="vatra-section-status" hidden></p></main></div><script>('+bootstrap.toString()+')();</script><script defer src="/VATRA/assets/js/core.js"></script><script defer src="/VATRA/assets/js/business.js"></script></body></html>';
+  const fixtureHTML='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/VATRA/assets/css/base.css"><link rel="stylesheet" href="/VATRA/assets/css/feed.css"><link rel="stylesheet" href="/VATRA/assets/css/core.css"><link rel="stylesheet" href="/VATRA/assets/css/business.css"></head><body class="feed-page vatra-section-page vatra-business-page" data-page="business"><div id="feed-loading">Loading</div><div id="feed-app" hidden><main id="vatra-section-main" class="ui-vatra-section-main-001"><header class="ui-vatra-section-heading-001"><h1 id="vatra-section-title">VATRA Business</h1><p id="vatra-section-subtitle"></p><button id="vatra-section-action" hidden></button></header><div id="vatra-section-content" class="ui-vatra-section-content-001"></div><p id="vatra-section-status" hidden></p></main></div><script>('+bootstrap.toString()+')();</script><script defer src="/VATRA/assets/js/core.js"></script><script defer src="/VATRA/assets/js/business.js"></script></body></html>';
   await businessProbe.route(/\/VATRA\/business(?:\?.*)?$/,route=>route.fulfill({status:200,contentType:"text/html",body:fixtureHTML}));
   await businessProbe.goto(base+"business?fixture=1",{waitUntil:"domcontentloaded"});
   await businessProbe.locator(".ui-business-dashboard-company-001").waitFor();
   assert.equal(await businessProbe.locator(".ui-business-company-profile-001").count(),0,"Management must not show a public profile");
   assert.equal(await businessProbe.locator(".ui-business-nav-group-001").count(),3);
   assert.equal(await businessProbe.locator(".ui-business-nav-001 button.is-active").count(),1);
+  await businessProbe.evaluate(()=>document.fonts.ready);
+  const hierarchy=await businessProbe.evaluate(()=>{const get=s=>{const e=document.querySelector(s),c=getComputedStyle(e);return {size:parseFloat(c.fontSize),family:c.fontFamily,weight:Number(c.fontWeight)};};return {title:get(".vt-business-heading-001"),sub:get(".vt-business-subheading-001"),name:get(".vt-business-tool-title-001"),copy:get(".vt-business-tool-description-001"),nav:get(".ui-business-nav-items-001 button"),font:document.fonts.check("15px Onest")};});
+  assert.ok(hierarchy.font&&hierarchy.title.family.includes("Onest"),"Business loads the same Onest font as VATRA");
+  assert.ok(hierarchy.title.size===28&&hierarchy.sub.size===20&&hierarchy.name.size===16&&hierarchy.copy.size===13&&hierarchy.nav.size===15,"Business typography uses distinct, consistent visual levels");
+  assert.ok(hierarchy.title.weight>hierarchy.name.weight&&hierarchy.name.weight>hierarchy.copy.weight,"Heading and body weights must be distinct");
+  assert.equal(await businessProbe.locator(".ui-business-metric-001").count(),3);
+  assert.ok(await businessProbe.locator(".ui-business-dashboard-company-001").evaluate(el=>el.scrollWidth<=el.clientWidth+2),"Company dashboard must fit its card");
+
   await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-metric-value-001")?.textContent==="2");
   const companySelector=businessProbe.locator(".ui-business-dashboard-company-001 select");
   await companySelector.selectOption("8f19579a-199b-4ccf-9dc7-86df85238551");
@@ -100,6 +108,13 @@ try{
   await editor.waitFor({state:"detached"});
   assert.equal(await businessProbe.evaluate(()=>window.businessFixture.writes.at(-1).category_code),"hair");
   await businessProbe.setViewportSize({width:390,height:844});
+  const menu=businessProbe.locator(".vt-business-mobile-nav-001");await menu.waitFor();
+  assert.equal(await menu.getAttribute("aria-expanded"),"false");
+  await menu.click();assert.equal(await menu.getAttribute("aria-expanded"),"true");
+  assert.ok(await businessProbe.locator(".ui-business-nav-001").isVisible());
+  await menu.click();assert.equal(await menu.getAttribute("aria-expanded"),"false");
+  assert.ok(await businessProbe.locator(".ui-business-view-001").evaluate(el=>el.scrollWidth<=el.clientWidth+2),"Business workspace must not overflow on mobile");
+
   await businessProbe.getByRole("button",{name:"Редагувати інформацію"}).click();
   await editor.waitFor();const save=editor.locator(".vt-business-editor-save-001");
   assert.ok(await save.evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.right<=innerWidth;}),"Primary action remains within the mobile viewport");
@@ -109,6 +124,7 @@ try{
   await businessProbe.locator(".ui-business-public-view-001").waitFor();
   assert.equal(await businessProbe.locator(".ui-business-dashboard-company-001").count(),0);
   assert.equal(await businessProbe.locator(".ui-business-profile-details-001").count(),1);
+  assert.equal(await businessProbe.locator(".ui-business-public-columns-001 .ui-business-public-about-001 .ui-business-profile-details-001").count(),1);
   assert.ok((await businessProbe.getByRole("link",{name:"Магазин компанії"}).getAttribute("href")).includes("section=stores&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
   assert.ok((await businessProbe.getByRole("link",{name:"Вакансії компанії"}).getAttribute("href")).includes("section=jobs&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
   assert.ok((await businessProbe.getByRole("link",{name:"Запис на послуги"}).getAttribute("href")).includes("section=booking&for=4f19579a-199b-4ccf-9dc7-86df85238551"));

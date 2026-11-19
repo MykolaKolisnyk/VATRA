@@ -35,7 +35,7 @@ export async function renderBusinessStores({target,client,t,make,link,btn,card,t
     for(const row of linked.data||[]){if(!row.marketplace_listings)continue;const product=row.marketplace_listings;grid.append(makeListing(product,null,actions=>{if(product.status!=="active"||product.moderation_status!=="approved")actions.append(make("span","vt-business-company-meta-001",t("Не відображається покупцям","Hidden from buyers")));
      const b=btn(t("Прибрати з магазину","Remove from store"),"vt-business-secondary-001",async()=>{if(await confirmRemove(t("Прибрати товар із магазину?","Remove product from store?"),t("Оголошення залишиться в маркетплейсі.","The listing will remain in Marketplace."),t("Прибрати","Remove")))void mutate(b,()=>client.from("business_store_listings").delete().eq("listing_id",row.listing_id).eq("company_id",selected));});actions.append(b);}));
     }if(!grid.children.length)grid.append(empty(t("У магазині ще немає товарів.","The store has no products yet.")));
-    const add=make("div","ui-business-store-grid-001");body.append(heading(t("Додати з маркетплейсу","Add from Marketplace")),add);
+    const add=make("div","ui-business-store-grid-001");body.append(heading(t("Додати з маркетплейсу","Add from Marketplace"),null,true),add);
     for(const product of (available.data||[]).filter(row=>!ids.has(row.id))){add.append(makeListing(product,null,actions=>{const b=btn(t("Додати","Add"),"vt-business-primary-001",()=>void mutate(b,()=>client.from("business_store_listings").insert({company_id:selected,listing_id:product.id})));actions.append(b);}));}
     if(!add.children.length)add.append(empty(t("Немає інших схвалених активних оголошень.","No other approved active listings.")));
    }else{
