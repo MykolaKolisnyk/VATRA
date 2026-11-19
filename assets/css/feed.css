@@ -1415,8 +1415,6 @@ body.feed-page.vatra-shell-pending > .vatra-auth-loading:not([data-loading-error
 /* VATRA account actions: clean, lightweight line symbols in soft neutral tiles. */
 
 
-body.feed-page .feed-account-dropdown > a:hover > svg:hover > svg{border-color:#d4e2ff
-}
 body.feed-page #feed-logout > svg{border-color:#f9e5eb
 }
 
@@ -1452,7 +1450,7 @@ body.feed-page .feed-account-dropdown > button > svg > svg{
  border:0;border-radius:0;background:transparent;
  color:#687f9f;stroke-width:1.85;transition:color .16s ease
 }
-body.feed-page .feed-account-dropdown > a:hover > svg:hover > svg{
+body.feed-page .feed-account-dropdown > a:hover > svg{
  border:0;background:transparent;color:#466cea
 }
 body.feed-page #feed-logout > svg{
