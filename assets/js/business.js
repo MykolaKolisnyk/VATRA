@@ -28,7 +28,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   booking:t("Запис клієнтів на послуги.","Customer service appointments.")
  };
  let view="overview",members=[],companies=new Map(),selected=null,renderVersion=0,working=false,openingEditor=false;
- let categories=[],categoriesPromise=null,jobMode="browse";
+ let categories=[],categoriesPromise=null,jobMode="browse",bookingMode="browse";
  const workspace=make("div","vatra-discovery-workspace ui-business-workspace-001");
  const sidebar=make("aside","vatra-discovery-sidebar ui-business-sidebar-001"),main=make("section","vatra-discovery-content ui-business-content-001");
  const create=btn(t("Створити компанію","Create company"),"vatra-discovery-primary vt-business-create-001",()=>openEditor());
@@ -259,6 +259,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   }else if(view==="team"){target.append(heading(t("Команда","Team")));await team(target,version);}
   else if(view==="following")await showFollowing(target);
   else if(view==="analytics")await showAnalytics(target);
+  else if(view==="booking"){const module=await import(new URL("assets/js/business-bookings.js?rev=da94aaa6005dc249128ba0bd527d15adf3e16b7f",root).href);if(version!==renderVersion)return;await module.renderBusinessBookings({target,client,t,make,link,btn,card,field,submit,dialog,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode:bookingMode,onMode:key=>{bookingMode=key;}});}
   else if(view==="jobs"){const module=await import(new URL("assets/js/business-jobs.js?rev=9aaa1591223f8926b7ccab49f9b5f6ed513e03d7",root).href);if(version!==renderVersion)return;await module.renderBusinessJobs({target,client,t,make,link,btn,card,field,submit,dialog,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode:jobMode,onMode:key=>{jobMode=key;}});}
   else if(view==="posts"){if(!selected){target.append(heading(t("Публікації","Posts")),make("p","vt-business-empty-001",t("Спочатку створіть компанію.","Create a company first.")));}else{target.append(companySelector());await renderPosts(selected,target,true);}}
   else{const item=sections.find(x=>x[0]===view);target.append(heading(item[1],moduleCopy[view]));const panel=card("ui-business-module-001");panel.append(sectionIcon(item[2]),make("h3","vt-business-panel-title-001",t("Функція в розробці","In development")),make("p","vt-business-heading-copy-001",t("Цей інструмент ще не доступний. Дані та показники не генеруються.","This tool is not available yet. No data or metrics are generated.")));target.append(panel);}}catch(_){if(version===renderVersion)target.replaceChildren(make("p","vt-business-empty-001",err));}

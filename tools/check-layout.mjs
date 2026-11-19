@@ -2539,3 +2539,10 @@ const jobsSQL=await read("supabase/migrations/20261119080727_business_jobs_and_a
 assert.doesNotThrow(()=>new Function(businessJobs.replace(/^export /gm,"")));
 assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("business.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
 for(const table of ["business_jobs","business_job_applications"]){assert.ok(businessJobs.includes('from("'+table+'")')&&jobsSQL.includes("alter table public."+table+" enable row level security"));}
+
+const businessBookings=await read("assets/js/business-bookings.js");
+const bookingSQL=await read("supabase/migrations/20261119081225_business_booking_slots_and_appointments.sql");
+assert.doesNotThrow(()=>new Function(businessBookings.replace(/^export /gm,"")));
+assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("business.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
+for(const table of ["business_booking_slots","business_appointments"]){assert.ok(businessBookings.includes('from("'+table+'")')&&bookingSQL.includes("alter table public."+table+" enable row level security"));}
+assert.ok(bookingSQL.includes("business_appointments_one_live_idx")&&bookingSQL.includes("and not reserved and not cancelled and starts_at>now()"),"Server must prevent concurrent reservation of the same slot");

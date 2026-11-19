@@ -65,3 +65,10 @@ body.vatra-business-page .ui-business-job-card-001{display:grid;gap:12px;padding
 body.vatra-business-page .ui-business-job-actions-001{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 body.vatra-business-page .vt-business-job-type-label-001{font:var(--section-control);color:#536b8b}
 @media(max-width:600px){body.vatra-business-page .ui-business-job-card-001{padding:18px}}
+
+/* Company appointment calendar and client requests. */
+body.vatra-business-page .ui-business-bookings-area-001{display:grid;gap:16px;min-width:0}
+body.vatra-business-page .ui-business-booking-card-001{display:grid;gap:12px;padding:24px;min-width:0}
+body.vatra-business-page .ui-business-booking-actions-001{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+body.vatra-business-page .ui-business-booking-customer-001{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+@media(max-width:600px){body.vatra-business-page .ui-business-booking-card-001{padding:18px}}
