@@ -374,7 +374,7 @@ assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
  offline.includes('class="offline-brand ui-offline-brand-001"')&&
  offline.includes('class="offline-actions ui-offline-actions-001"')&&
  offline.includes('class="ui-offline-img-001"')&&
- !offline.includes("vatra-logo.svg"),
+ !offline.includes("logo.svg"),
  "Offline page must show only the self-contained V mark at the card top-left");
 assert.ok(offline.includes("ui-offline-path-004")&&offline.includes("ui-offline-dot-001"),
  "Offline Wi-Fi-off icon must use the crisp SVG geometry");
@@ -384,10 +384,10 @@ assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page =
  "Offline screen must keep its own translations when used as a fallback for nested routes");
 assert.ok(
  /const CACHE="vatra-offline-shell-v[1-9][0-9]*"/.test(sw)&&
- sw.includes('ROOT+"assets/logo/vatra-symbol.svg"'),
+ sw.includes('ROOT+"assets/logo/logo_symbol.svg"'),
  "Offline cache must use a versioned name and include the standalone V mark");
 const manifest=JSON.parse(await read("site.webmanifest"));
-const appIcon="assets/logo/vatra-app-icon.svg";
+const appIcon="assets/logo/logo_app-icon.svg";
 assert.ok((await stat(appIcon)).size>1000,"Canonical VATRA SVG app icon must exist");
 assert.ok(manifest.icons.some(icon=>icon.src==="/VATRA/"+appIcon)&&
  !JSON.stringify(manifest).includes("/VATRA/favicon.svg")&&
@@ -446,7 +446,7 @@ for(const page of pages){
  assert.deepEqual(Object.keys(enMap).sort(),bindings.slice().sort(),filename+": English dictionary bindings mismatch");
 }
 const landing=await read("index.html");
-const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/vatra-symbol.svg"');
+const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/logo_symbol.svg"');
 const features=["chat","communities","photos","video","music","marketplace","clips"];
 assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,7,"Seven evenly spaced orbit icons required");
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
@@ -521,7 +521,7 @@ assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
  signInCss.includes(".intro-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
  createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
  !css.includes("vatraCoreBreath")&&
- landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/vatra-symbol.svg"')&&
+ landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/logo_symbol.svg"')&&
  registerHtmlHasBrandedSymbol,
  "Both auth logos must be identical symbols with the same animation and size");
 assert.ok(auth.includes("function wireFloatingHints()")&&
@@ -944,7 +944,7 @@ assert.ok(
  !forgot.includes('class="header-logo vt-forgot-link-02"')&&
  forgot.includes('class="forgot-panel-header ui-forgot-panel-header-001"')&&
  forgot.includes('class="forgot-panel-brand vt-forgot-link-02"')&&
- forgot.includes('src="assets/logo/vatra-symbol.svg"')&&
+ forgot.includes('src="assets/logo/logo_symbol.svg"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header{display:flex;')&&
  !css.includes('.ui-forgot-main-001>.header-logo{')&&
  !forgot.includes('name@example.com')&&
@@ -966,7 +966,7 @@ assert.ok(
  reset.includes('class="forgot-panel-header reset-panel-header ui-reset-panel-header-001"')&&
  reset.includes('class="reset-intro ui-reset-intro-001"')&&
  reset.includes('id="reset-title"')&&
- reset.includes('src="assets/logo/vatra-symbol.svg"')&&
+ reset.includes('src="assets/logo/logo_symbol.svg"')&&
  !reset.includes('class="header-logo vt-reset-link-02"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;')&&
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px)')&&
@@ -1338,7 +1338,7 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
 const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
 assert.ok(communityBannerMarkup.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>')&&
  !communityBannerMarkup.includes('<img class="ui-community-banner-art-001"')&&
- communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../communities-covers/VATRA_communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
+ communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../communities_covers/communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
  communityBannerCSS.includes(".ui-community-discovery-banner-001[hidden]{display:none}")&&
  !(await read("club.html")).includes("ui-community-banner-art-001"),
  "The original Uzhhorod panorama must be exclusively a responsive directory hero");
