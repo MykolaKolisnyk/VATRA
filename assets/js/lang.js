@@ -31,7 +31,7 @@
     forgot:"Password recovery",reset:"New password",
     "404":"Page not found",
     terms:"Terms of Service",commerce:"Commerce Rules",privacy:"Privacy",
-    cookies:"Cookies and browser storage",offline:"No connection"
+    cookies:"Cookies and browser storage",offline:"No connection",maintenance:"Maintenance"
   };
   if(current==="en"){
     const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";

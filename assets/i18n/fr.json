@@ -27,12 +27,55 @@
       "reset",
       "terms",
       "privacy",
-      "cookies"
+      "cookies",
+      "maintenance"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
   },
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Maintenance"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "INTERRUPTION TEMPORAIRE"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Maintenance"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk travaille à améliorer VATRA. Le réseau social sera bientôt de nouveau disponible. Merci de votre patience !"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Vérifier la disponibilité"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Désactiver la maintenance"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Connexion administrateur"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Vos proches. Vos histoires. Votre VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Page introuvable",
@@ -2899,6 +2942,7 @@
   "VATRA — Стрічка": "VATRA — Fil d’actualité",
   "У розробці": "Bientôt disponible",
   "Зараз у мережі": "En ligne",
+  "У мережі": "En ligne",
   "{name} хоче додатися до вас у друзі": "{name} souhaite vous ajouter à ses amis",
   "{name}: вашу заявку в друзі прийнято": "{name} a accepté votre demande d’amitié",
   "{name}: вподобайка вашої публікації": "{name} a aimé votre publication",

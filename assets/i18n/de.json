@@ -27,12 +27,55 @@
       "reset",
       "terms",
       "privacy",
-      "cookies"
+      "cookies",
+      "maintenance"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
   },
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Wartungsarbeiten"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "KURZE UNTERBRECHUNG"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Wartungsarbeiten"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk arbeitet daran, VATRA zu verbessern. Das soziale Netzwerk ist bald wieder verfügbar. Danke für deine Geduld!"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Verfügbarkeit prüfen"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Wartungsmodus deaktivieren"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Administrator-Anmeldung"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Deine Menschen. Deine Geschichten. Deine VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Seite nicht gefunden",
@@ -2899,6 +2942,7 @@
   "VATRA — Стрічка": "VATRA — Feed",
   "У розробці": "Demnächst verfügbar",
   "Зараз у мережі": "Jetzt online",
+  "У мережі": "Online",
   "{name} хоче додатися до вас у друзі": "{name} möchte dich als Freund hinzufügen",
   "{name}: вашу заявку в друзі прийнято": "{name} hat deine Freundschaftsanfrage angenommen",
   "{name}: вподобайка вашої публікації": "{name} hat deinen Beitrag mit „Gefällt mir“ markiert",

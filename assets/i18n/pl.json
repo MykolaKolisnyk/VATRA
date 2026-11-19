@@ -27,12 +27,55 @@
       "reset",
       "terms",
       "privacy",
-      "cookies"
+      "cookies",
+      "maintenance"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
   },
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Prace techniczne"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "PRZERWA TECHNICZNA"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Prace techniczne"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk pracuje nad ulepszeniem VATRA. Sieć społecznościowa będzie wkrótce ponownie dostępna. Dziękuję za cierpliwość!"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Sprawdź dostępność"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Wyłącz tryb konserwacji"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Logowanie administratora"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Twoi ludzie. Twoje historie. Twoja VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Nie znaleziono strony",
@@ -2899,6 +2942,7 @@
   "VATRA — Стрічка": "VATRA — Aktualności",
   "У розробці": "W przygotowaniu",
   "Зараз у мережі": "Teraz online",
+  "У мережі": "Online",
   "{name} хоче додатися до вас у друзі": "{name} chce dodać Cię do znajomych",
   "{name}: вашу заявку в друзі прийнято": "Twoje zaproszenie do znajomych zostało zaakceptowane przez {name}",
   "{name}: вподобайка вашої публікації": "Twój post otrzymał polubienie od {name}",

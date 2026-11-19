@@ -27,12 +27,55 @@
       "reset",
       "terms",
       "privacy",
-      "cookies"
+      "cookies",
+      "maintenance"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
   },
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Manutenzione"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "PAUSA TEMPORANEA"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Manutenzione"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk sta lavorando per migliorare VATRA. Il social network sarà presto di nuovo disponibile. Grazie per la pazienza!"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Verifica disponibilità"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Disattiva manutenzione"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Accesso amministratore"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Le tue persone. Le tue storie. La tua VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Pagina non trovata",
@@ -2899,6 +2942,7 @@
   "VATRA — Стрічка": "VATRA — Feed",
   "У розробці": "Prossimamente",
   "Зараз у мережі": "Online ora",
+  "У мережі": "Online",
   "{name} хоче додатися до вас у друзі": "{name} vuole aggiungerti agli amici",
   "{name}: вашу заявку в друзі прийнято": "{name} ha accettato la tua richiesta di amicizia",
   "{name}: вподобайка вашої публікації": "{name} ha messo Mi piace al tuo post",
