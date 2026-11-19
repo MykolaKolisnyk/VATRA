@@ -44,7 +44,7 @@ assert.equal(owner.styles.length,1);assert.deepEqual(owner.open,["1"]);assert.eq
 await owner.menu[0].click();assert.equal(owner.imports.length,1);assert.equal(owner.styles.length,1);
 owner.window.VATRA_ADMIN_END({}, "1");assert.equal(owner.menu.length,1,"Unrelated session cannot clear owner");
 owner.events[0]("SIGNED_OUT");assert.equal(owner.menu.length,0);assert.equal(owner.open.length,0);
-for(const name of ["clips","marketplace","settings"]){
+for(const name of ["clips","marketplace","settings","business"]){
  const src=await readFile("assets/js/"+name+".js","utf8");
  let registered=0;new Function("window",src)({VATRA_SECTION_CORE:{start(init){assert.equal(typeof init,"function");registered++;}}});
  assert.equal(registered,1,name+" registers only its own initializer");

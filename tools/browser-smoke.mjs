@@ -3032,12 +3032,12 @@ try{
    "Four primary destinations must be centered in the header");
   assert.equal(await feedProbe.locator(".feed-sidebar").count(),0,
    "The old sidebar must be removed, not hidden");
-  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),5,
-   "The centered navigation must show five icon destinations");
+  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),6,
+   "The centered navigation must show six icon destinations");
   if(language==="uk")desktopHeaderCenters=await navCenters(feedProbe);
   assert.deepEqual(await feedProbe.locator(".social-top-link span").allTextContents(),
-   language==="en"?["Feed","Friends","Communities","Clips","Marketplace"]:
-   ["Стрічка","Друзі","Спільноти","Кліпи","Маркетплейс"]);
+   language==="en"?["Feed","Friends","Communities","Clips","Marketplace","Business"]:
+   ["Стрічка","Друзі","Спільноти","Кліпи","Маркетплейс","Бізнес"]);
   assert.equal(await feedProbe.locator(".social-top-link:disabled").count(),0,
    "All VATRA header icons must be interactive, including coming-soon previews");
   assert.equal(await feedProbe.locator(".feed-header-icon-button:disabled").count(),0,

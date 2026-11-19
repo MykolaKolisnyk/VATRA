@@ -31,7 +31,7 @@ async function minify(path){
 await minify(output);
 execFileSync(process.execPath,[join(root,"tools","revision-assets.mjs"),"--write"],{cwd:output,stdio:"inherit"});
 execFileSync(process.execPath,[join(root,"tools","revision-assets.mjs")],{cwd:output,stdio:"inherit"});
-for(const page of ["index.html","feed.html","profile.html","marketplace.html","clips.html","vatra-id.html"]){
+for(const page of ["index.html","feed.html","profile.html","marketplace.html","clips.html","business.html","vatra-id.html"]){
  assert.ok((await stat(join(output,page))).size>0,page+" missing from static build");
 }
 assert.ok(count>10&&after<before,"Expected smaller production assets");
