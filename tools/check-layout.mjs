@@ -1184,7 +1184,7 @@ assert.ok(
  "Locked profiles retain cover and avatar but block viewers; fallback portraits stay centered, routes show content before media");
 const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
-const profileStyles=profileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
+const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
  'href="assets/css/base.css"','href="assets/css/feed.css"',
  'href="assets/css/profile.css"','href="assets/css/post-composer.css"','href="assets/css/gifts.css"'
@@ -1465,7 +1465,7 @@ assert.ok(
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
  "Profile must fetch only six friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
-assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js"/g)||[]).length,1,
+assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
  "Exactly one page-level profile controller must be loaded");
 assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module has invalid JavaScript");
 assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&

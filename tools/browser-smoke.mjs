@@ -3452,7 +3452,7 @@ try{
   await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").isVisible(),true,
    "Emoji picker opens inside the current comment composer");
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-post-comment-emoji-option-001").length>1000);
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vt-vatra-post-comment-emoji-option-001").length>1000);
   await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-sticker-tab-001").click();
   await feedProbe.locator(".vt-vatra-sticker-option-001").first().waitFor();
   assert.equal(await feedProbe.locator(".vt-vatra-sticker-pack-001").count(),9);
