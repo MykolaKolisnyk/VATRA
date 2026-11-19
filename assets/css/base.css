@@ -787,3 +787,16 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 .vt-vatra-service-notice-support-001{color:var(--blue,#2861d8);font:620 14px/1.4 Onest,Inter,system-ui,sans-serif;text-decoration:none;padding:6px}
 .vt-vatra-service-notice-action-001:focus-visible,.vt-vatra-service-notice-support-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:3px}
 @media(max-height:540px){.ui-vatra-service-notice-art-001{width:120px}.ui-vatra-service-notice-001{padding:18px}}
+
+/* Form text areas have a stable layout; long content scrolls inside. */
+textarea{resize:none}
+
+/* Common motion for contextual panels. Keep visibility and position independent. */
+@supports (transition-behavior:allow-discrete){
+ :is(.profile-archive-menu,.vatra-post-comment-attach-menu,.vatra-post-comment-emoji-panel,.ui-profile-photo-emoji-panel-001,.ui-business-category-popover-001){transition:opacity .18s ease,translate .18s ease,display .18s allow-discrete;opacity:1;translate:0 0}
+ :is(.profile-archive-menu,.vatra-post-comment-attach-menu,.vatra-post-comment-emoji-panel,.ui-profile-photo-emoji-panel-001,.ui-business-category-popover-001)[hidden]{opacity:0;translate:0 -5px;pointer-events:none}
+ @starting-style{:is(.profile-archive-menu,.vatra-post-comment-attach-menu,.vatra-post-comment-emoji-panel,.ui-profile-photo-emoji-panel-001,.ui-business-category-popover-001):not([hidden]){opacity:0;translate:0 -5px}}
+ .ui-profile-editor-dropdown-panel-001[popover]{transition:opacity .18s ease,translate .18s ease,display .18s allow-discrete,overlay .18s allow-discrete;opacity:0;translate:0 -5px}
+ .ui-profile-editor-dropdown-panel-001:popover-open{opacity:1;translate:0 0}
+ @starting-style{.ui-profile-editor-dropdown-panel-001:popover-open{opacity:0;translate:0 -5px}}
+}

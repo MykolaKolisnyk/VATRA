@@ -1543,7 +1543,7 @@ const feedLogic=await read("assets/js/feed.js");
 const searchLogic=await read("assets/js/social-shell.js");
 // Native three-dot owner menu in Feed and profiles, never an inline archive/delete toolbar.
 assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
- ownerMenus.includes('tr("Зберегти в архів","Move to archive")')&&
+ ownerMenus.includes('tr("Архівувати","Archive")')&&ownerMenus.includes('vatra_set_post_pin')&&ownerMenus.includes('comments_enabled')&&
  ownerMenus.includes('tr("Видалити","Delete")')&&
  feedLogic.includes('VATRA_POST_INTERACTIONS?.addOwnerMenu(head,')&&
  profileBehavior.includes('VATRA_POST_INTERACTIONS?.addOwnerMenu(header,')&&
@@ -2617,3 +2617,8 @@ assert.ok(profileScript.includes('const photoPath=()=>["avatar","avatar-history"
 assert.ok(settingsRuntime.includes('from("profile_preferences")')&&settingsRuntime.includes('from("member_blocks")')&&settingsRuntime.includes('vatra:notification-display:')&&settingsRuntime.includes('get("view")==="settings"'),"Settings must use existing profile and block records and browser-scoped notification filters");
 const galleryMigration=await read("supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
 assert.ok(galleryMigration.includes("storage.objects")&&galleryMigration.includes("auth.uid()")&&galleryMigration.includes("profile_visibility"),"Only existing gallery images with permitted viewers accept interactions");
+
+assert.ok(memberProfileMarkup.includes('maxlength="80" placeholder="Напишіть статус"')&&profileScript.includes('Array.from(next).length>80'),"Profile status uses a compact 80-character limit");
+assert.ok(memberProfileMarkup.includes('id="profile-photo-emoji-toggle"')&&memberProfileMarkup.includes('id="profile-photo-comment-cancel"')&&profileScript.includes("setRangeText(emoji"),"Photo comments include functional emoji and cancel actions");
+
+assert.ok(profileBehavior.includes("cachedFriends.slice(0,4)")&&profileBehavior.includes('q("#profile-gifts-dialog")')&&profileBehavior.includes('if(!compact)item.append(title,sub)'),"Profile uses four friends and image-only gifts with history dialog");

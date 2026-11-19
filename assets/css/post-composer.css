@@ -96,7 +96,7 @@ body.profile-page .vatra-post-composer-dialog form{
 .vatra-post-composer-text-wrap textarea,
 body.feed-page .vatra-post-composer-dialog textarea,
 body.profile-page .vatra-post-composer-dialog textarea{
- display:block;width:100%;min-height:116px;max-height:185px;resize:vertical;
+ display:block;width:100%;min-height:116px;max-height:185px;resize:none;
  padding:14px 14px 28px;border:1px solid transparent;border-radius:11px;
  background:#fff;box-shadow:none;outline:0;
  color:#304361;font:520 14px/1.65 "Onest",system-ui,sans-serif

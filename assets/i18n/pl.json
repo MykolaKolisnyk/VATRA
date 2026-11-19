@@ -425,11 +425,6 @@
             "0": "Usuń"
           }
         },
-        "n31": {
-          "attrs": {
-            "aria-label": "Wybierz język"
-          }
-        },
         "n42": {
           "text": {
             "0": "Szukaj w VATRA"
@@ -510,11 +505,6 @@
         "n48": {
           "text": {
             "0": "Moja strona"
-          }
-        },
-        "n31": {
-          "attrs": {
-            "aria-label": "Wybierz język"
           }
         },
         "n26": {

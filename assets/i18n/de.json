@@ -425,11 +425,6 @@
             "0": "Löschen"
           }
         },
-        "n31": {
-          "attrs": {
-            "aria-label": "Sprache wählen"
-          }
-        },
         "n42": {
           "text": {
             "0": "VATRA durchsuchen"
@@ -510,11 +505,6 @@
         "n48": {
           "text": {
             "0": "Meine Seite"
-          }
-        },
-        "n31": {
-          "attrs": {
-            "aria-label": "Sprache wählen"
           }
         },
         "n26": {

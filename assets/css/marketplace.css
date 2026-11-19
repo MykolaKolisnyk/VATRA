@@ -86,7 +86,7 @@ body.vatra-section-page .vt-vatra-market-moderation-badge-001[data-state="approv
 body.vatra-section-page .vt-vatra-market-moderation-badge-001[data-state="rejected"]{background:#fbe9eb;color:#a12f39}
 body.vatra-section-page .vt-vatra-market-moderation-reason-001{color:#914b27;font:var(--section-caption);overflow-wrap:anywhere;margin:0}
 body.vatra-section-page .ui-vatra-market-case-form-001{width:100%;box-sizing:border-box;border-top:1px solid var(--line);display:grid;gap:10px;padding-top:14px}
-body.vatra-section-page .ui-vatra-market-case-reason-001{box-sizing:border-box;width:100%;min-width:0;border:1px solid #d7ddea;border-radius:10px;background:#fff;color:var(--ink);padding:12px;font:var(--section-body);resize:vertical;min-height:105px}
+body.vatra-section-page .ui-vatra-market-case-reason-001{box-sizing:border-box;width:100%;min-width:0;border:1px solid #d7ddea;border-radius:10px;background:#fff;color:var(--ink);padding:12px;font:var(--section-body);resize:none;min-height:105px}
 body.vatra-section-page :is(.vt-vatra-market-case-label-001,.vt-vatra-market-case-feedback-001){font:var(--section-caption);color:var(--soft);margin:0;overflow-wrap:anywhere}
 body.vatra-section-page .ui-vatra-market-case-fields-001:not([hidden]){display:grid;gap:10px}
 body.vatra-section-page .ui-vatra-market-mod-screen-001 .ui-vatra-market-screen-body-001{overflow-y:auto;background:#f2f5fa}

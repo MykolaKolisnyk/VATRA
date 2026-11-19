@@ -391,11 +391,6 @@
             "0": "Delete"
           }
         },
-        "n31": {
-          "attrs": {
-            "aria-label": "Choose language"
-          }
-        },
         "n42": {
           "text": {
             "0": "Search VATRA"
@@ -2626,11 +2621,6 @@
         "n48": {
           "text": {
             "0": "My page"
-          }
-        },
-        "n31": {
-          "attrs": {
-            "aria-label": "Choose language"
           }
         },
         "n26": {

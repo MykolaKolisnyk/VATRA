@@ -4,7 +4,7 @@ const root=new URL("../../",document.currentScript.src);
 const t=(uk,en)=>document.documentElement.lang==="en"?en:uk;
 const node=(tag,cls,copy)=>{const el=document.createElement(tag);el.className=cls;if(copy!==undefined)el.textContent=copy;return el;};
 const button=(cls,copy,fn)=>{const b=node("button",cls,copy);b.type="button";b.addEventListener("click",fn);return b;};
-const icon=()=>{const ns="http://www.w3.org/2000/svg",s=document.createElementNS(ns,"svg"),p=document.createElementNS(ns,"path");s.setAttribute("viewBox","0 0 24 24");s.setAttribute("fill","none");s.setAttribute("stroke","currentColor");s.setAttribute("stroke-width","1.8");s.setAttribute("stroke-linejoin","round");s.setAttribute("aria-hidden","true");p.setAttribute("d","M12 2 3 6v6c0 5 4 8 9 10 5-2 9-5 9-10V6L12 2Zm-4 10 3 3 5-6");s.append(p);return s;};
+const icon=()=>{const ns="http://www.w3.org/2000/svg",s=document.createElementNS(ns,"svg"),p=document.createElementNS(ns,"path");s.setAttribute("viewBox","0 0 24 24");s.setAttribute("fill","none");s.setAttribute("stroke","currentColor");s.setAttribute("stroke-width","1.8");s.setAttribute("stroke-linejoin","round");s.setAttribute("stroke-linecap","round");s.setAttribute("class","ui-vatra-owner-admin-icon-001");p.setAttribute("class","ui-vatra-owner-admin-path-001");s.setAttribute("aria-hidden","true");p.setAttribute("d","M12 2 3 6v6c0 5 4 8 9 10 5-2 9-5 9-10V6L12 2Zm-4 10 3 3 5-6");s.append(p);return s;};
 let context=null,epoch=0,subscription=null,blockedDialog=null,adminPromise=null,adminModule=null;
 const valid=id=>/^[1-9][0-9]{0,18}$/.test(String(id||""));
 function clear(){epoch++;document.getElementById("vatra-admin-menu")?.remove();adminModule?.clearPanel();blockedDialog?.remove();blockedDialog=null;subscription?.unsubscribe?.();subscription=null;context=null;}
@@ -25,12 +25,12 @@ async function session(client,id){
   try{const module=await loadAdmin();if(ticket!==epoch||context!==current)return;const menu=support.closest("details");if(menu)menu.open=false;module.openPanel(current,()=>ticket===epoch&&context===current,{root,t,node,button,icon,valid});}
   catch(_){if(ticket===epoch)alert(t("Не вдалося відкрити ADMIN PANEL.","Could not open ADMIN PANEL."));}
   finally{entry.disabled=false;}
- });entry.id="vatra-admin-menu";entry.append(icon(),node("span","vt-vatra-owner-admin-menu-label-001","ADMIN PANEL"));support.before(entry);
+ });entry.id="vatra-admin-menu";entry.append(icon(),node("span","vt-vatra-owner-admin-menu-label-001","ADMIN PANEL"));const logout=document.getElementById("feed-logout");if(logout)logout.before(entry);else support.after(entry);
  }catch(_){}
 }
 function loadAdmin(){
  if(adminPromise)return adminPromise;
- const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=b51e0deef873ad18f6632191cc34e28e1a690c12",root).href;style.dataset.vatraAdminStyle="true";
+ const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=ff277b0f6b4cbf71548149abffcf3a2ff89713c1",root).href;style.dataset.vatraAdminStyle="true";
  const ready=new Promise((resolve,reject)=>{style.onload=resolve;style.onerror=()=>reject(Error("Admin styles unavailable"));});
  document.head.append(style);
  adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=93dc71ccf6a3d45f72f010bd30c09e4779821d76",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});

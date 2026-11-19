@@ -2,17 +2,18 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 const guard=await readFile("assets/js/account-guard.js","utf8");
 function harness(allowed,blocked=false){
- const menu=[],styles=[],imports=[],calls=[],open=[],events=[];
+ const menu=[],styles=[],imports=[],calls=[],open=[],events=[],placements=[];
  function element(tag){return {tag,children:[],dataset:{},disabled:false,open:false,
   append(...children){this.children.push(...children);},
   setAttribute(){},addEventListener(type,fn){this[type]=fn;},
   closest(){return {open:true};},showModal(){this.open=true;},close(){this.open=false;},
   remove(){const i=menu.indexOf(this);if(i>=0)menu.splice(i,1);}
  };}
- const support={closest(){return {open:true};},before(entry){menu.push(entry);}};
+ const support={closest(){return {open:true};},after(entry){placements.push("after-support");menu.push(entry);}};
+ const logout={before(entry){placements.push("before-logout");menu.push(entry);}};
  const document={currentScript:{src:"https://example.com/VATRA/assets/js/account-guard.js"},documentElement:{lang:"uk"},
   querySelector(sel){return sel===".feed-menu-support"?support:null;},
-  getElementById(name){return menu.find(x=>x.id===name);},
+  getElementById(name){return name==="feed-logout"?logout:menu.find(x=>x.id===name);},
   createElement:element,createElementNS(ns,tag){return element(tag);},
   head:{append(style){styles.push(style);style.onload();}},
   body:{append(node){menu.push(node);}}
@@ -26,7 +27,7 @@ function harness(allowed,blocked=false){
  const alerts=[];
  const source=guard.replace(/import\(new URL\("(assets\/js\/admin\.js\?rev=[a-f0-9]{40})",root\)\.href\)/,'loadModule(new URL("$1",root).href)');
  new Function("window","document","location","loadModule","alert","URL",source)(window,document,{replace(){}},loadModule,(x)=>alerts.push(x),URL);
- return {menu,styles,imports,calls,open,events,alerts,window,client};
+ return {menu,styles,imports,calls,open,events,alerts,placements,window,client};
 }
 for(const [id,allowed,blocked] of [["2",true,false],["1",false,false],["1",true,true]]){
  const h=harness(allowed,blocked);await h.window.VATRA_ADMIN_SESSION(h.client,id);
@@ -36,7 +37,7 @@ for(const [id,allowed,blocked] of [["2",true,false],["1",false,false],["1",true,
 }
 const owner=harness(true);
 await owner.window.VATRA_ADMIN_SESSION(owner.client,"1");
-assert.equal(owner.menu.length,1);assert.ok(owner.calls.includes("vatra_admin_access"));
+assert.equal(owner.menu.length,1);assert.ok(owner.calls.includes("vatra_admin_access"));assert.deepEqual(owner.placements,["before-logout"],"Owner entry remains before logout");
 assert.equal(owner.imports.length,0);assert.equal(owner.styles.length,0);
 await owner.menu[0].click();
 assert.equal(owner.imports.length,1);assert.ok(owner.imports[0].includes("/assets/js/admin.js?rev="));
