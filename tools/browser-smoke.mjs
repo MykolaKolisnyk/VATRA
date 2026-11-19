@@ -4059,22 +4059,21 @@ try{
   assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"));
   assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
    "mailto:vatra.support@gmail.com");
-  assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),2);
+  assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),4);
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
    "Account menu contains logout and the tutorial replay action");
   assert.equal(await feedProbe.locator("#vatra-onboarding-replay").count(),1);
   assert.equal(await feedProbe.locator("#vatra-onboarding-tasks").count(),0);
   assert.equal(await feedProbe.locator(".feed-account-dropdown > svg").count(),0);
   assert.equal(await feedProbe.locator(".feed-account-profile > svg").count(),1);
-  assert.equal(await feedProbe.locator(".feed-menu-settings-toggle > svg").count(),1);
+  assert.equal(await feedProbe.locator(".feed-menu-settings-link > svg").count(),1);
   assert.equal(await feedProbe.locator(".feed-menu-support > svg").count(),1);
   assert.equal(await feedProbe.locator("#feed-logout > svg").count(),1,
    "All account actions must have persistent SVG icons in UK and EN");
   assert.equal((await feedProbe.locator(".vt-vatra-account-settings-label-001").textContent()).trim(),
    language==="en"?"Settings":"Налаштування");
-  await feedProbe.locator(".feed-menu-settings-toggle").click();
-  assert.equal(await feedProbe.locator(".feed-language-trigger").isVisible(),true,
-   "Settings must provide real language controls");
+  assert.equal(await feedProbe.locator(".feed-menu-settings-link").getAttribute("href"),"vatra-id?view=settings#general","Settings must navigate directly");
+  assert.equal(await feedProbe.locator(".feed-menu-settings-panel, .feed-account-dropdown [data-language-trigger]").count(),0,"Language controls belong to Settings, not the avatar dropdown");
   // The right account panel must be flush to the common header edge,
   // not a floating card with a 10px gap or a displaced navigation row.
   const navBeforeMenu=await navCenters(feedProbe);

@@ -827,7 +827,7 @@ assert.ok(css.includes("align-items:start")&&css.includes(".signup-form-panel .t
 for(const page of pages.filter(p=>p!=="offline"&&p!=="verify")){
  const html=await read(page+".html");
  if(page==="maintenance")assert.ok(!html.includes("data-language-trigger")&&!/<(?:header|footer|button)\b/.test(html),"Maintenance display must contain no language picker, header, footer or action buttons");
- else if(page!=="404")assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
+ else if(!["404","feed","profile"].includes(page))assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("assets/js/lang.js")&&!html.includes("assets/js/errors.js"),page+": localization runtime required, console toasts forbidden");
  assert.ok(html.includes("assets/css/base.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
@@ -1302,6 +1302,7 @@ for(const page of sharedShellPages){
   header.includes('class="vt-vatra-account-settings-label-001" data-social-uk=')&&
   header.includes('class="vt-vatra-account-profile-label-001" data-i18n="n48"'),
   page+": account avatar menu must preserve SVG icons and live translations");
+ assert.ok(header.includes('href="vatra-id?view=settings#general" class="feed-menu-settings-link')&&!header.includes("feed-menu-settings-panel")&&!header.includes("data-language-trigger"),page+": Settings opens the settings page directly");
  const nav=header.match(/<nav class="social-top-nav[\s\S]*?<\/nav>/)?.[0]||"";
  const controls=header.match(/<div class="feed-header-controls[\s\S]*?<\/header>/)?.[0]||"";
  assert.ok(nav.indexOf("ui-social-top-feed-001")<nav.indexOf("ui-social-top-friends-001")&&

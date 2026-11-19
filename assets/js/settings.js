@@ -81,7 +81,7 @@ async function preferences(){
   const ticket=++renderTicket;panel.replaceChildren();message("");
   for(const b of menu.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
   if(id==="general"){
-   const c=settingsCard(t("Загальні","General")),language=btn(t("Змінити","Change"),"vt-vatra-preferences-action-001",()=>document.querySelector(".feed-menu-settings-panel [data-language-trigger]")?.click());
+   const c=settingsCard(t("Загальні","General")),language=btn(t("Змінити","Change"),"vt-vatra-preferences-action-001",()=>window.VATRA_LANGUAGE?.openPicker?.());
    row(c,t("Мова","Language"),new Intl.DisplayNames([locale],{type:"language"}).of(locale),language);
    row(c,t("VATRA ID","VATRA ID"),t("Особисті дані, безпека та верифікація.","Personal data, security and verification."),link(t("Відкрити","Open"),"vatra-id","vt-vatra-preferences-action-001"));panel.append(c);return;
   }

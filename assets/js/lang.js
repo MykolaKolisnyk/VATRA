@@ -312,7 +312,7 @@
     pickerInitialized=true;
     bindLocalizedLinks();
     const triggers = [...document.querySelectorAll("[data-language-trigger]")];
-    if (!triggers.length) return;
+    if (!triggers.length && !(document.body?.dataset.page==="vatra-id" && new URLSearchParams(location.search).get("view")==="settings")) return;
 
 
     let triggerOrdinal=0;
@@ -544,6 +544,7 @@
       document.body.classList.remove("language-dialog-open");
       if (restoreFocus) restoreFocus.focus();
     }
+    window.VATRA_LANGUAGE.openPicker=()=>open();
     function open(e) {
       restoreFocus = e?.currentTarget || document.activeElement;
       for(const trigger of triggers)trigger.setAttribute("aria-expanded","true");

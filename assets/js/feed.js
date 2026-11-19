@@ -789,10 +789,6 @@
    const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
    window.VATRA_AVATAR?.setHeader({client,email:user.email,name:headerName,initials:initials(displayName),id:vatraId});
    window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
-   const displayedId=vatraId?"VATRA ID "+vatraId:t("VATRA ID наразі недоступний","VATRA ID unavailable");
-
-   q("#feed-header-id").textContent=displayedId;
-   q("#feed-header-id").hidden=!vatraId;
     if(vatraId){
     void loadAvatars([vatraId]);
     void window.VATRA_PRESENCE?.start(client,vatraId,metadata.gender);

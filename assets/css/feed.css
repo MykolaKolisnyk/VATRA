@@ -4,10 +4,9 @@ body.feed-page{min-height:100dvh;}
 .feed-loading{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;background:#f7f9fe;z-index:250}
 @keyframes feedMarkPulse{50%{transform:scale(.94);opacity:.78}}
 .feed-app{min-height:100dvh;display:flex;flex-direction:column}
-.feed-header-id{padding:7px 12px;border:1px solid #dfe8f9;border-radius:999px;background:#f6f9ff;color:#5571ac;font-size:12px;font-weight:750;white-space:nowrap}
-.feed-language-trigger{min-height:39px!important;padding:8px 12px!important;border:1px solid #e0e6f1!important;border-radius:999px!important;background:#fff!important;color:#465670!important}
-.feed-language-trigger:hover{background:#f4f7ff!important;border-color:#ccd9f6!important}
-.feed-language-trigger .language-flag{height:19px;width:26px;border-radius:3px}
+
+
+
 .feed-logout{min-height:39px;padding:8px 16px;border:1px solid #dce5f4;border-radius:999px;background:#fff;color:#536986;font-size:13px;font-weight:700;transition:background .18s,border-color .18s,color .18s}
 .feed-logout:hover{background:#ecf2ff;border-color:#bdcdf0;color:#225bc8}
 .feed-layout{display:grid;align-items:start;justify-content:center;flex:1}
@@ -62,9 +61,8 @@ body.feed-page{min-height:100dvh;}
  .feed-title-row{padding-top:0}
 }
 @media(max-width:480px){
- .feed-header-id{display:none!important}
- .feed-language-trigger{padding:7px 9px!important}
- .feed-language-trigger .vt-feed-language-label-001{display:none}
+
+
  .feed-logout{padding:8px 12px}
  .feed-layout{width:calc(100% - 20px);margin:13px auto 35px}
  .feed-main{gap:15px}
@@ -144,46 +142,19 @@ body.feed-page .feed-app[hidden],
 body.feed-page .feed-main [hidden],
 body.community-page .community-create[hidden]{display:none!important}
 body.feed-page .feed-account-dropdown > a,
-body.feed-page .feed-account-dropdown > button,
-body.feed-page .feed-menu-settings-toggle{
+body.feed-page .feed-account-dropdown > button{
  display:flex;align-items:center;width:100%;
  border:0;border-radius:10px;background:transparent;color:#394862;
  font:680 13px/1.35 "Onest",sans-serif;text-align:left;text-decoration:none;
  transition:color .18s,background .18s
 }
 body.feed-page .feed-account-dropdown > a:hover,
-body.feed-page .feed-account-dropdown > button:hover,
-body.feed-page .feed-menu-settings-toggle:hover{
+body.feed-page .feed-account-dropdown > button:hover:hover{
  background:#f0f5ff;color:#2864d5;text-decoration:none
 }
 body.feed-page .feed-account-dropdown > a:focus-visible,
-body.feed-page .feed-account-dropdown > button:focus-visible,
-body.feed-page .feed-menu-settings-toggle:focus-visible{outline:2px solid #9dbaf2;outline-offset:-2px}
-body.feed-page .feed-menu-settings{width:100%}
-body.feed-page .feed-menu-settings-toggle{position:relative;list-style:none;cursor:pointer}
-body.feed-page .feed-menu-settings-toggle::-webkit-details-marker{display:none}
-body.feed-page .feed-menu-settings-toggle::after{
- content:"";width:7px;height:7px;margin-left:auto;flex:none;
- border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;
- transform:rotate(45deg);transition:transform .2s
-}
-body.feed-page .feed-menu-settings[open] .feed-menu-settings-toggle::after{transform:rotate(225deg)}
-body.feed-page .feed-menu-settings-panel{
- display:flex;flex-direction:column;gap:6px;padding:6px 8px 10px;
- border-bottom:1px solid #edf1f7;background:#fbfcff;border-radius:0 0 10px 10px
-}
-body.feed-page .feed-menu-settings-panel .feed-header-id{
- display:block;margin:2px 3px 5px;padding:0;border:0;background:none;
- color:#8492aa;font-size:11px;font-weight:600
-}
-body.feed-page .feed-menu-settings-panel .feed-language-trigger{
- display:flex;align-items:center;gap:9px;width:100%;min-height:40px;
- justify-content:flex-start;padding:8px 10px!important;border:1px solid #e2e9f6!important;
- border-radius:9px!important;background:#fff!important;color:#475a7a!important;
- font:650 12px/1.35 "Onest",sans-serif!important
-}
-body.feed-page .feed-language-trigger:hover{background:#f0f5ff!important}
-body.feed-page .feed-language-trigger .language-chevron{margin-left:auto}
+body.feed-page .feed-account-dropdown > button:focus-visible:focus-visible{outline:2px solid #9dbaf2;outline-offset:-2px}
+
 body.feed-page .feed-logout{margin-top:4px;border-top:1px solid #edf1f6!important;color:#a34458!important}
 body.feed-page .feed-logout:hover{background:#fff2f4!important;color:#bc3653!important}
 /* Content does not start under the menu and fills the available width neatly. */
@@ -1319,13 +1290,11 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .v
    replace the SVG nodes with plain text. */
 
 body.feed-page .feed-account-dropdown > a > svg,
-body.feed-page .feed-account-dropdown > button > svg,
-body.feed-page .feed-menu-settings-toggle > svg{
+body.feed-page .feed-account-dropdown > button > svg > svg{
  display:block;shape-rendering:geometricPrecision
 }
 body.feed-page .feed-account-dropdown > a > span,
-body.feed-page .feed-account-dropdown > button > span,
-body.feed-page .feed-menu-settings-toggle > span{min-width:0;flex:1}
+body.feed-page .feed-account-dropdown > button > span > span{min-width:0;flex:1}
 body.feed-page .feed-logout > svg{color:#b15166!important}
 
 
@@ -1446,8 +1415,7 @@ body.feed-page.vatra-shell-pending > .vatra-auth-loading:not([data-loading-error
 /* VATRA account actions: clean, lightweight line symbols in soft neutral tiles. */
 
 
-body.feed-page .feed-account-dropdown > a:hover > svg,
-body.feed-page .feed-menu-settings-toggle:hover > svg{border-color:#d4e2ff
+body.feed-page .feed-account-dropdown > a:hover > svg:hover > svg{border-color:#d4e2ff
 }
 body.feed-page #feed-logout > svg{border-color:#f9e5eb
 }
@@ -1475,19 +1443,16 @@ body.feed-page .feed-post-placeholder-line.short{width:62%}
 /* Avatar dropdown: VATRA's lightweight monochrome iconography.
    No outlined square plates competing with the labels or brand mark. */
 body.feed-page .feed-account-dropdown > a,
-body.feed-page .feed-account-dropdown > button,
-body.feed-page .feed-menu-settings-toggle{
+body.feed-page .feed-account-dropdown > button{
  gap:14px;min-height:47px;padding:10px 14px
 }
 body.feed-page .feed-account-dropdown > a > svg,
-body.feed-page .feed-account-dropdown > button > svg,
-body.feed-page .feed-menu-settings-toggle > svg{
+body.feed-page .feed-account-dropdown > button > svg > svg{
  flex:0 0 21px;width:21px;height:21px;padding:0;
  border:0;border-radius:0;background:transparent;
  color:#687f9f;stroke-width:1.85;transition:color .16s ease
 }
-body.feed-page .feed-account-dropdown > a:hover > svg,
-body.feed-page .feed-menu-settings-toggle:hover > svg{
+body.feed-page .feed-account-dropdown > a:hover > svg:hover > svg{
  border:0;background:transparent;color:#466cea
 }
 body.feed-page #feed-logout > svg{
@@ -1615,8 +1580,7 @@ body.feed-page .feed-header .feed-account-menu .feed-account-dropdown{
  box-shadow:0 18px 38px rgba(29,46,87,.14);text-align:left
 }
 body.feed-page .feed-header .feed-account-dropdown > a,
-body.feed-page .feed-header .feed-account-dropdown > button,
-body.feed-page .feed-header .feed-menu-settings-toggle{text-align:left;justify-content:flex-start}
+body.feed-page .feed-header .feed-account-dropdown > button{text-align:left;justify-content:flex-start}
 body.feed-page .vatra-search-panel{
  border:1px solid #e2e9f4;text-align:left;
  animation:vatraDropdownSoftIn .21s cubic-bezier(.22,.72,.22,1) both
@@ -3057,4 +3021,3 @@ body.feed-page .feed-account-dropdown > .vt-vatra-account-manage-001{gap:10px;bo
 body.feed-page .ui-vatra-account-id-brand-001{display:inline-flex;align-items:center;gap:3px;flex:none}
 body.feed-page .ui-vatra-account-id-symbol-001{display:block;width:23px;height:23px;object-fit:contain}
 body.feed-page .vt-vatra-account-id-label-001{font:750 12px/1 Onest,system-ui,sans-serif;color:#30456a}
-body.feed-page .vt-vatra-account-settings-link-001{display:flex;align-items:center;min-height:38px;color:#315fba;text-decoration:none;padding:6px 10px;font:650 13px/1.4 Onest,system-ui,sans-serif}

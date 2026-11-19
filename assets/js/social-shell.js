@@ -69,8 +69,6 @@
    const root=new URL("../../",shellScript||location.href),manage=make("a","vt-vatra-account-manage-001"),brand=make("span","ui-vatra-account-id-brand-001"),symbol=make("img","ui-vatra-account-id-symbol-001");
    manage.href=new URL("vatra-id",root).href;symbol.src=new URL("assets/logo/logo_symbol.svg",root).href;symbol.alt="";brand.append(symbol,make("span","vt-vatra-account-id-label-001","ID"));
    manage.append(make("span","vt-vatra-account-manage-label-001",tr("Керування акаунтом","Manage account")),brand);dropdown.prepend(manage);
-   const pane=dropdown.querySelector(".feed-menu-settings-panel");
-   if(pane){const settings=make("a","vt-vatra-account-settings-link-001",tr("Усі налаштування","All settings"));settings.href=new URL("vatra-id?view=settings#general",root).href;pane.prepend(settings);}
   }
 
 
