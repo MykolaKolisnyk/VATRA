@@ -15,7 +15,8 @@ assert.ok(html.includes('id="community-category" name="category"')&&html.include
 assert.ok(src.includes('if(!categoryNames.has(category))')&&src.includes('.insert({name,description,category})'));
 assert.ok(src.includes('request.eq("category",selectedCategory)')&&src.includes('club.category===selectedCategory'));
 assert.ok(edge.includes('CATEGORY_IDS.has(c.category)')&&edge.includes('vatra:public:communities:v2:latest100'));
-assert.ok(src.includes("topicsExpanded?categories.length:6")&&src.includes('topicGrid.append(tile)')&&src.includes('tile?.remove()'));
+assert.ok(src.includes('for(const [id] of categories)')&&src.includes('topicGrid.append(tile)')&&src.includes('topicGrid.classList.toggle("is-expanded",topicsExpanded)'));
+assert.ok(src.includes('topicGrid.addEventListener("wheel"')&&src.includes('{passive:false}')&&src.includes('if(Math.abs(target-topicGrid.scrollLeft)<1)return;')&&src.includes('topicGrid.scrollBy')&&src.includes('previousTopic.disabled')&&src.includes('nextTopic.disabled'));
 assert.ok(!src.includes('community-topic-filter')&&!src.includes('ui-community-topic-select-001'));
 const covers=JSON.parse(src.match(/const topicCovers=(\{[^\n]+\});/)[1]);
 assert.ok(Object.keys(covers).every(id=>keys.includes(id)));
@@ -32,4 +33,5 @@ assert.ok(!src.includes('node("img","ui-community-topic-photo-001")')&&!src.incl
 assert.ok(html.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>'));
 const css=await readFile("assets/css/communities.css","utf8");
 assert.ok(css.includes('../communities-covers/VATRA_communities.webp')&&css.includes('background-size:cover;background-position:center')&&css.includes('pointer-events:none'));
+assert.ok(css.includes('grid-auto-flow:column')&&css.includes('overflow-x:auto')&&css.includes('touch-action:pan-x pan-y pinch-zoom')&&css.includes('.ui-community-topic-grid-001.is-expanded'));
 console.log("VATRA community categories: forty unique IDs, bilingual labels, required form, exact filters, DB constraints and cache schema agree.");

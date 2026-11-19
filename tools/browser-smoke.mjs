@@ -5097,7 +5097,7 @@ try{
   assert.equal(await page.locator(".ui-community-discovery-sidebar-001").count(),1);
   assert.equal(await page.locator(".vatra-discovery-workspace > .vatra-discovery-sidebar").count(),1);
   assert.equal(await page.locator(".vatra-discovery-tabs .vatra-discovery-nav-icon").count(),3);
-  assert.equal(await page.locator(".ui-community-topic-001").count(),6);
+  assert.equal(await page.locator(".ui-community-topic-001").count(),40,"All topics are reachable from the horizontal strip");
   assert.ok(await page.locator("#community-topics").evaluate(el=>{
    const list=document.querySelector(".ui-community-list-section-001");
    const banner=document.querySelector("#community-discovery-banner");
@@ -5106,8 +5106,27 @@ try{
   const topicCards=page.locator(".ui-community-topic-001");
   const topicPhotos=topicCards.locator(".ui-community-topic-photo-001");
   assert.equal(await topicCards.locator("img,a").count(),0,"Topic artwork must not be a native image or link");
-  assert.deepEqual(await topicPhotos.evaluateAll(images=>images.map(el=>el.dataset.topicCover)),["music","sport","travel","technology","education","art"]);
-  for(const photo of await topicPhotos.all()){
+  assert.deepEqual((await topicPhotos.evaluateAll(images=>images.map(el=>el.dataset.topicCover))).slice(0,6),["music","sport","travel","technology","education","art"]);
+  const topicStrip=page.locator("#community-topic-grid"),nextTopic=page.locator(".ui-community-topic-arrow-right-001"),previousTopic=page.locator(".ui-community-topic-arrow-left-001");
+  const topicViewport=page.viewportSize();
+  await page.setViewportSize({width:1440,height:900});
+  await topicStrip.scrollIntoViewIfNeeded();
+  assert.ok(await topicStrip.evaluate(el=>el.scrollWidth>el.clientWidth&&getComputedStyle(el).overflowX==="auto"));
+  await page.waitForFunction(()=>document.querySelector(".ui-community-topic-arrow-left-001").disabled&&!document.querySelector(".ui-community-topic-arrow-right-001").disabled);
+  await nextTopic.click();
+  await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft>30);
+  await page.waitForFunction(()=>!document.querySelector(".ui-community-topic-arrow-left-001").disabled);
+  await previousTopic.click();
+  await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft<=1);
+  await topicStrip.hover();
+  await page.mouse.wheel(0,400);
+  await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft>30);
+  await page.mouse.wheel(0,-1200);
+  await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft<=1);
+  await page.setViewportSize({width:390,height:844});
+  assert.ok(await topicStrip.evaluate(el=>el.scrollWidth>el.clientWidth&&getComputedStyle(el).touchAction.includes("pan-x")&&document.documentElement.scrollWidth<=innerWidth+3),"Mobile topics remain horizontally swipeable without page overflow");
+  if(topicViewport)await page.setViewportSize(topicViewport);
+  for(const photo of (await topicPhotos.all()).slice(0,6)){
    await photo.scrollIntoViewIfNeeded();
    await page.waitForFunction(()=>[...document.querySelectorAll(".ui-community-topic-photo-001")].some(el=>el.style.backgroundImage));
    const filename=await photo.getAttribute("data-topic-cover");
@@ -5126,6 +5145,8 @@ try{
   await expandTopics.click();
   assert.equal(await expandTopics.getAttribute("aria-expanded"),"true");
   assert.equal(await topicCards.count(),40,"All topics expand as the same photo cards");
+  assert.ok(await topicStrip.evaluate(el=>el.classList.contains("is-expanded")&&el.scrollWidth<=el.clientWidth+2));
+  assert.equal(await nextTopic.isVisible(),false);
   assert.equal(await topicCards.evaluateAll(cards=>new Set(cards.map(c=>c.dataset.communityCategory)).size),40);
   assert.equal(await page.locator("#community-topics select").count(),0,"No dropdown in discovery");
   assert.deepEqual(await topicPhotos.evaluateAll(nodes=>Object.fromEntries(nodes.map(el=>[el.closest("button").dataset.communityCategory,el.dataset.topicCover]))),{"music":"music","sport":"sport","travel":"travel","technology":"technology","education":"education","art":"art","gaming":"videogames","business":"business","news":"news","cooking":"food","transport":"transport","cinema":"movies","animals":"animals","photography":"photo-video","regions":"cities","fashion":"fashion","charity":"charity","science":"science"});
@@ -5136,7 +5157,8 @@ try{
   assert.equal(await page.locator('[data-community-category="business"]').getAttribute("aria-pressed"),"true");
   await expandTopics.click();
   assert.equal(await expandTopics.getAttribute("aria-expanded"),"false");
-  assert.equal(await topicCards.count(),6);
+  assert.equal(await topicCards.count(),40);
+  assert.ok(await topicStrip.evaluate(el=>!el.classList.contains("is-expanded")&&el.scrollWidth>el.clientWidth));
   assert.equal(await page.locator(".vt-community-clear-topic-001").isVisible(),true,"Collapsed category remains clearable");
   await page.locator(".vt-community-clear-topic-001").click();
   await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");

@@ -90,10 +90,50 @@ async function openDirectory(client,ownId,userId){
   const topicHeader=node("div","ui-community-topic-heading-row-001"),topicActions=node("div","ui-community-topic-actions-001");
   const topicsToggle=node("button","vt-community-all-topics-001",t("Усі теми","All topics"));topicsToggle.type="button";topicsToggle.setAttribute("aria-expanded","false");topicsToggle.setAttribute("aria-controls",topicGrid.id);
   const clearTopic=node("button","vt-community-clear-topic-001",t("Скинути тему","Clear topic"));clearTopic.type="button";clearTopic.hidden=true;
-  topicActions.append(clearTopic,topicsToggle);
-  topicHeader.append(node("h2","vt-community-topics-title-001",t("Пошук за темою","Find by topic")),topicActions);
+  const topicHeading=node("h2","vt-community-topics-title-001",t("Пошук за темою","Find by topic"));topicHeading.id="community-topics-heading";
+  topicGrid.setAttribute("role","region");topicGrid.setAttribute("aria-labelledby",topicHeading.id);
+  const topicArrows=node("div","ui-community-topic-arrows-001");
+  const makeArrow=(direction,label)=>{
+   const control=node("button","ui-community-topic-arrow-001 ui-community-topic-arrow-"+direction+"-001");
+   control.type="button";control.setAttribute("aria-label",label);control.setAttribute("aria-controls",topicGrid.id);
+   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg"),path=document.createElementNS(svg.namespaceURI,"path");
+   svg.setAttribute("class","ui-community-topic-arrow-icon-"+direction+"-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("aria-hidden","true");
+   path.setAttribute("class","ui-community-topic-arrow-path-"+direction+"-001");path.setAttribute("d",direction==="left"?"m15 18-6-6 6-6":"m9 18 6-6-6-6");path.setAttribute("stroke","currentColor");path.setAttribute("stroke-width","2");path.setAttribute("stroke-linecap","round");path.setAttribute("stroke-linejoin","round");
+   svg.append(path);control.append(svg);return control;
+  };
+  const previousTopic=makeArrow("left",t("Попередні теми","Previous topics")),nextTopic=makeArrow("right",t("Наступні теми","Next topics"));
+  topicArrows.append(previousTopic,nextTopic);topicActions.append(clearTopic,topicArrows,topicsToggle);
+  topicHeader.append(topicHeading,topicActions);
   topics.append(topicHeader,topicGrid);
-  let topicsExpanded=false;
+  let topicsExpanded=false,collapsedScroll=0;
+  const updateTopicArrows=()=>{
+   const max=topicGrid.scrollWidth-topicGrid.clientWidth;
+   previousTopic.disabled=topicsExpanded||topicGrid.scrollLeft<=1;
+   nextTopic.disabled=topicsExpanded||max-topicGrid.scrollLeft<=1;
+  };
+  const scrollTopics=direction=>{
+   if(topicsExpanded)return;
+   const card=topicGrid.firstElementChild;if(!card)return;
+   const step=card.getBoundingClientRect().width+(parseFloat(getComputedStyle(topicGrid).columnGap)||0);
+   const count=Math.max(1,Math.floor(topicGrid.clientWidth/step)-1);
+   topicGrid.scrollBy({left:direction*step*count,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+  };
+  previousTopic.addEventListener("click",()=>scrollTopics(-1));
+  nextTopic.addEventListener("click",()=>scrollTopics(1));
+  topicGrid.addEventListener("scroll",updateTopicArrows,{passive:true});
+  window.addEventListener("resize",updateTopicArrows,{passive:true});
+  if(typeof ResizeObserver==="function")new ResizeObserver(updateTopicArrows).observe(topicGrid);
+  // Normal mouse wheels browse topics only while horizontal movement is possible.
+  // Trackpads and touch use native scrolling; at either edge the page can scroll again.
+  topicGrid.addEventListener("wheel",event=>{
+   if(topicsExpanded||event.ctrlKey||event.shiftKey||Math.abs(event.deltaX)>=Math.abs(event.deltaY)||!event.deltaY)return;
+   const max=topicGrid.scrollWidth-topicGrid.clientWidth;
+   const scale=event.deltaMode===1?16:event.deltaMode===2?topicGrid.clientWidth:1;
+   const target=Math.max(0,Math.min(max,topicGrid.scrollLeft+event.deltaY*scale));
+   if(Math.abs(target-topicGrid.scrollLeft)<1)return;
+   if(event.cancelable)event.preventDefault();
+   topicGrid.scrollLeft=target;
+  },{passive:false});
   const topicCards=new Map();
   const revealTopicCover=photo=>{
    const filename=photo.dataset.topicCover;
@@ -114,7 +154,7 @@ async function openDirectory(client,ownId,userId){
   const chooseTopic=id=>{if(id&&!categoryNames.has(id))return;selectedCategory=id;term="";if(input)input.value="";syncTopics();clearTimeout(timer);void refresh();};
   clearTopic.addEventListener("click",()=>{chooseTopic("");topicsToggle.focus();});
   const showTopics=()=>{
-   for(const [id] of categories.slice(0,topicsExpanded?categories.length:6)){
+   for(const [id] of categories){
     if(!topicCards.has(id)){
      const b=node("button","ui-community-topic-001");b.type="button";b.dataset.communityCategory=id;
      const filename=topicCovers[id];
@@ -132,14 +172,16 @@ async function openDirectory(client,ownId,userId){
     const photo=tile.querySelector(".ui-community-topic-photo-001");
     if(photo&&!photo.style.backgroundImage){if(coverObserver)coverObserver.observe(photo);else revealTopicCover(photo);}
    }
-   if(!topicsExpanded)for(const [id] of categories.slice(6)){
-    const tile=topicCards.get(id),photo=tile?.querySelector(".ui-community-topic-photo-001");
-    if(photo)coverObserver?.unobserve(photo);tile?.remove();
-   }
+   topicGrid.classList.toggle("is-expanded",topicsExpanded);
+   topicArrows.hidden=topicsExpanded;
    topicsToggle.textContent=topicsExpanded?t("Згорнути","Show less"):t("Усі теми","All topics");
-   topicsToggle.setAttribute("aria-expanded",String(topicsExpanded));syncTopics();
+   topicsToggle.setAttribute("aria-expanded",String(topicsExpanded));syncTopics();updateTopicArrows();
   };
-  topicsToggle.addEventListener("click",()=>{topicsExpanded=!topicsExpanded;showTopics();});
+  topicsToggle.addEventListener("click",()=>{
+   if(!topicsExpanded)collapsedScroll=topicGrid.scrollLeft;
+   topicsExpanded=!topicsExpanded;showTopics();
+   if(!topicsExpanded){topicGrid.scrollLeft=collapsedScroll;updateTopicArrows();}
+  });
   showTopics();
   const renderMemberships=()=>{
    memberships.replaceChildren(node("h2","vt-community-memberships-title-001",t("Мої спільноти","My communities")));
