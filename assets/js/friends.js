@@ -241,7 +241,7 @@ async function boot(){
     el.hidden=true;
    q("#friends-search").disabled=true;
    q("#friends-find").disabled=true;
-   q(".vatra-friends-sidebar").hidden=true;
+   q(".vatra-friends-sidebar").classList.add("is-private");
   }
   document.title=t("Друзі · VATRA","Friends · VATRA");
   q("#feed-app").hidden=false;q("#feed-loading").hidden=true;

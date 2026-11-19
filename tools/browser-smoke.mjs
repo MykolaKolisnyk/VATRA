@@ -5162,7 +5162,8 @@ try{
   await page.mouse.wheel(0,-1200);
   await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft<=1);
   await page.setViewportSize({width:390,height:844});
-  assert.ok(await topicStrip.evaluate(el=>el.scrollWidth>el.clientWidth&&getComputedStyle(el).touchAction.includes("pan-x")&&document.documentElement.scrollWidth<=innerWidth+3),"Mobile topics remain horizontally swipeable without page overflow");
+  const mobileTopics=await topicStrip.evaluate(el=>({strip:el.clientWidth,scroll:el.scrollWidth,touch:getComputedStyle(el).touchAction,overflow:document.documentElement.scrollWidth-innerWidth}));
+  assert.ok(mobileTopics.scroll>mobileTopics.strip&&(mobileTopics.touch.includes("pan-x")||mobileTopics.touch==="manipulation")&&mobileTopics.overflow<=3,"Mobile topics remain horizontally swipeable without page overflow: "+JSON.stringify(mobileTopics));
   await assertTopicGeometry(179);
   if(topicViewport)await page.setViewportSize(topicViewport);
   for(const photo of (await topicPhotos.all()).slice(0,6)){
