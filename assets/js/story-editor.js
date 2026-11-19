@@ -88,7 +88,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   if(!isVideo&&video.hasAttribute("src")){video.pause();video.removeAttribute("src");video.load();}
   if(art&&!isVideo)draw(canvas,true);
   remove.hidden=!state.media;replace.hidden=!art;undo.disabled=!back.length||publishing||loading;redo.disabled=!forward.length||publishing||loading;
-  save.disabled=!art||publishing||loading||stickerBusy;close.disabled=publishing;
+  save.disabled=!art||publishing||loading||stickerBusy;close.disabled=publishing;replace.disabled=remove.disabled=choose.disabled=pickBackground.disabled=publishing||loading;panel.inert=publishing||loading;
   for(const [key,b] of toolButtons){b.disabled=publishing||loading||(isVideo&&!["text","background"].includes(key));b.setAttribute("aria-pressed",String(key===active));}
   canvas.dataset.tool=active;
  }
@@ -107,7 +107,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  }
  function addText(){mutate(()=>{if(state.texts.length>=12)return;if(!hasArt())state.background=backgrounds[0];const a={id:"text-"+(++layerSerial),text:"",x:W/2,y:H/2,width:W*.8,size:48,font:"Onest",color:"#ffffff",align:"center",backing:false};state.texts.push(a);selected=a.id;});setPanel("text");panel.querySelector("textarea")?.focus();}
  function setPanel(key){
-  if(publishing)return;
+  if(publishing||loading)return;
   if(state.kind==="video"&&!["text","background"].includes(key))key="text";
   active=key;panel.replaceChildren();render();
   if(key==="text"){
@@ -159,7 +159,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  async function loadFile(picked){
   if(!picked||publishing||loading)return;const videoType=["video/mp4","video/webm"].includes(picked.type),imageType=["image/jpeg","image/png","image/webp"].includes(picked.type);
   if((!videoType&&!imageType)||!picked.size||picked.size>(videoType?52428800:6291456)){note(tr("Виберіть фото JPEG, PNG, WebP до 6 МБ або відео MP4, WebM до 50 МБ.","Choose JPEG, PNG, WebP up to 6 MB or MP4, WebM up to 50 MB."));file.value="";return;}
-  const epoch=++request;loading=true;note("");render();let url=URL.createObjectURL(picked),img=null;
+  const epoch=++request;stickerBusy=false;loading=true;note("");render();let url=URL.createObjectURL(picked),img=null;
   try{if(imageType){img=new Image();img.src=url;await img.decode();}if(epoch!==request||!dialog.open){URL.revokeObjectURL(url);return;}
    checkpoint();state.media=addAsset(picked,img,url);url=null;state.kind=videoType?"video":"image";state.caption="";state.texts=[];state.stickers=[];state.strokes=[];state.filter=0;state.adjust=fresh().adjust;selected=null;active="text";
   }catch(_){if(url)URL.revokeObjectURL(url);note(tr("Не вдалося відкрити файл.","Could not open the file."));}finally{if(epoch===request){loading=false;file.value="";render();setPanel(active);}}
