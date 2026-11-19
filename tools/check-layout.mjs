@@ -1465,7 +1465,7 @@ assert.ok(
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
  "Profile must fetch only six friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
-assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js"/g)||[]).length,1,
+assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
  "Exactly one page-level profile controller must be loaded");
 assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module has invalid JavaScript");
 assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
@@ -2162,7 +2162,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["admin.css","base.css","business.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2468,7 +2468,7 @@ const businessRuntime=await read("assets/js/business.js");
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
-const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","business"].map(name=>read("assets/css/"+name+".css")))).join("\n");
+const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
 for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,businessRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
 for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
 for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
@@ -2578,3 +2578,7 @@ assert.ok(!(await read("assets/js/not-found.js")).includes("|marketplace|busines
 
 const retiredActivitySQL=await read("supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
 assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&retiredActivitySQL.includes("drop table public.business_followers;")&&retiredActivitySQL.includes("alter column club_id set not null")&&!/drop table[^;]*cascade/i.test(retiredActivitySQL),"Legacy business storage is removed safely and community linkage is mandatory");
+
+await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
+assert.ok(communityBannerCSS.includes("body.community-page.vatra-business-page .ui-business-view-001"),"Business tool styling belongs to the existing community stylesheet");
+assert.ok(!(await read("assets/js/club.js")).includes("assets/css/business.css"),"Community tools must not fetch a retired stylesheet");
