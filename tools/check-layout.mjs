@@ -2609,3 +2609,9 @@ assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&reti
 await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
 assert.ok(communityBannerCSS.includes("body.community-page.vatra-business-page .ui-business-view-001"),"Business tool styling belongs to the existing community stylesheet");
 assert.ok(!(await read("assets/js/club.js")).includes("assets/css/business.css"),"Community tools must not fetch a retired stylesheet");
+
+// Gallery, site settings and shared-account navigation regressions.
+assert.ok(profileScript.includes('const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]')&&profileScript.includes('interaction.hidden=false;activityTicket++')&&!memberCss.includes('body.profile-page .profile-media-viewer[data-kind="avatar-history"][open]{grid-template-columns:minmax(0,1fr)}'),"Historical avatars must retain their own panel");
+assert.ok(settingsRuntime.includes('from("profile_preferences")')&&settingsRuntime.includes('from("member_blocks")')&&settingsRuntime.includes('vatra:notification-display:')&&settingsRuntime.includes('get("view")==="settings"'),"Settings must use existing profile and block records and browser-scoped notification filters");
+const galleryMigration=await read("supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
+assert.ok(galleryMigration.includes("storage.objects")&&galleryMigration.includes("auth.uid()")&&galleryMigration.includes("profile_visibility"),"Only existing gallery images with permitted viewers accept interactions");

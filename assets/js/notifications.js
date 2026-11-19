@@ -98,6 +98,12 @@ async function authorNames(rows){
  }catch(_){}
  return {names,avatars,states};
 }
+function hiddenNotificationKinds(id){
+ try{const value=JSON.parse(localStorage.getItem("vatra:notification-display:"+id)||"[]");return Array.isArray(value)?value.filter(x=>typeof x==="string"&&Object.hasOwn(notificationTemplates,x)):[];}catch(_){return [];}
+}
+function applyDisplayFilter(query,id){
+ const hidden=hiddenNotificationKinds(id);return hidden.length?query.not("kind","in","("+hidden.join(",")+")"):query;
+}
 async function unreadCount(){
  const run=notificationRun;
  if(!run||!badge||!bell)return;
@@ -106,8 +112,8 @@ async function unreadCount(){
  if(refreshBusy){refreshQueued=true;return;}
  refreshBusy=true;
  try{
-  const {count,error}=await run.client.from("member_notifications")
-   .select("id",{count:"exact",head:true}).eq("recipient_vatra_id",run.id).is("read_at",null);
+  const {count,error}=await applyDisplayFilter(run.client.from("member_notifications")
+   .select("id",{count:"exact",head:true}).eq("recipient_vatra_id",run.id).is("read_at",null),run.id);
   if(error)throw error;
   if(run!==notificationRun)return; // Old sessions cannot paint the current badge.
   const n=Number(count||0);
@@ -128,6 +134,7 @@ async function fetchRows({page,size,filter="all",sort="new"}){
  let query=run.client.from("member_notifications").select(
   "id,actor_vatra_id,kind,target_kind,target_id,context_id,avatar_owner_vatra_id,read_at,created_at")
   .eq("recipient_vatra_id",run.id);
+ query=applyDisplayFilter(query,run.id);
  if(filter==="unread")query=query.is("read_at",null);
  if(filter==="read")query=query.not("read_at","is",null);
  const oldest=sort==="old";
@@ -622,6 +629,7 @@ async function pageBoot(){
   const loader=pick("#feed-loading");if(loader){loader.textContent=t("Не вдалося завантажити сповіщення. Оновіть сторінку.","Could not load notifications. Refresh.");}
  }
 }
+window.addEventListener("vatra-notification-display-changed",()=>{void unreadCount();if(document.body?.dataset.page==="notifications")void pageLoad(false);});
 window.VATRA_NOTIFICATIONS={start,pageBoot};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",pageBoot,{once:true});
 else void pageBoot();

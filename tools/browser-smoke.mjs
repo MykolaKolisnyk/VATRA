@@ -4381,6 +4381,8 @@ try{
   await profilePage.locator("#profile-avatar-next").click();
   assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src")).includes("/avatars/654321/avatar/previous-profile.webp"));
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),"2 / 2");
+  assert.equal(await profilePage.locator("#profile-avatar-engagement").isVisible(),true,"Historical avatars retain their own engagement panel");
+  assert.equal(await profilePage.locator("#profile-media-viewer-heading").isVisible(),false,"Avatar gallery has no redundant heading");
   await profilePage.keyboard.press("ArrowLeft");
   assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src")).includes("/avatars/654321/avatar/test-profile.webp"));
   await profilePage.keyboard.press("Escape");
