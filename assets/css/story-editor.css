@@ -35,7 +35,7 @@ body.feed-page .ui-vatra-story-tools-001 button span:first-child{font-size:20px;
 body.feed-page .ui-vatra-story-panel-001{min-width:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;padding:3px 6px 10px}
 body.feed-page .vt-vatra-story-panel-heading-001{margin:0 0 4px;font:700 20px/1.25 Onest,system-ui,sans-serif;color:#f2f6ff}
 body.feed-page :is(.vt-vatra-story-panel-note-001,.vt-vatra-story-stickers-loading-001){margin:0;color:#aebed9;font:500 12px/1.55 Onest,system-ui,sans-serif}
-body.feed-page :is(.ui-vatra-story-text-001,.ui-vatra-story-caption-001){box-sizing:border-box;width:100%;min-height:84px;padding:12px;border:1px solid #576a88;border-radius:10px;background:#1e2a3e;color:#f5f8ff;font:550 15px/1.4 Onest,system-ui,sans-serif;resize:vertical}
+body.feed-page :is(.ui-vatra-story-text-001,.ui-vatra-story-caption-001){box-sizing:border-box;width:100%;min-height:84px;padding:12px;border:1px solid #576a88;border-radius:10px;background:#1e2a3e;color:#f5f8ff;font:550 15px/1.4 Onest,system-ui,sans-serif;resize:none}
 body.feed-page :is(.ui-vatra-story-fonts-001,.ui-vatra-story-text-options-001,.ui-vatra-story-sticker-packs-001){display:flex;flex-wrap:wrap;gap:6px}
 body.feed-page :is(.ui-vatra-story-text-colors-001,.ui-vatra-story-brush-colors-001,.ui-vatra-story-background-colors-001,.ui-vatra-story-backgrounds-001){display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
 body.feed-page :is(.ui-vatra-story-text-colors-001,.ui-vatra-story-brush-colors-001,.ui-vatra-story-background-colors-001,.ui-vatra-story-backgrounds-001) button{aspect-ratio:1;padding:0;min-height:0;border:1px solid #ffffff35;border-radius:8px}

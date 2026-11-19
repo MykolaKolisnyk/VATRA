@@ -2240,7 +2240,7 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  const displayed=q("#profile-status"),statusText=q("#profile-status-text");
  let saved=String(initialStatus||"").slice(0,140);
  const render=()=>{
-  statusText.textContent=saved||(isMine?t("Додайте статус","Add a status"):"");
+  statusText.textContent=saved?(Array.from(saved).length>80?Array.from(saved).slice(0,79).join("")+"…":saved):(isMine?t("Додайте статус","Add a status"):"");
   displayed.hidden=!saved&&!isMine;
   displayed.disabled=!isMine;
   displayed.classList.toggle("is-editable",isMine);
@@ -2251,15 +2251,15 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  const dialog=q("#profile-status-dialog"),input=q("#profile-status-input"),
   count=q("#profile-status-counter"),save=q("#profile-status-save"),note=q("#profile-status-error");
  input.placeholder=t("Напишіть статус","Write a status");
- const counter=()=>{count.textContent=Array.from(input.value).length+" / 140";};
- const openStatus=()=>{input.value=saved;counter();note.hidden=true;dialog.showModal();input.focus();};
+ const counter=()=>{count.textContent=Array.from(input.value).length+" / 80";};
+ const openStatus=()=>{input.value=Array.from(saved).slice(0,80).join("");counter();note.hidden=true;dialog.showModal();input.focus();};
  displayed.addEventListener("click",openStatus);
  input.addEventListener("input",counter);
  q("#profile-status-cancel").addEventListener("click",()=>dialog.close());
  q("#profile-status-form").addEventListener("submit",async event=>{
   event.preventDefault();if(save.disabled)return;
   const next=input.value.trim();
-  if(Array.from(next).length>140){note.textContent=t("Статус надто довгий.","Status is too long.");note.hidden=false;return;}
+  if(Array.from(next).length>80){note.textContent=t("Статус надто довгий.","Status is too long.");note.hidden=false;return;}
   save.disabled=true;note.hidden=true;
   try{
    const {data,error}=await client.from("public_profiles")
@@ -2319,6 +2319,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const visitorStory=q("#profile-visitor-story");
  const prevPhoto=q("#profile-avatar-prev"),nextPhoto=q("#profile-avatar-next"),galleryToolbar=q("#profile-avatar-gallery-toolbar"),galleryCount=q("#profile-avatar-gallery-count"),galleryDelete=q("#profile-avatar-gallery-delete");
  let gallery=[],galleryIndex=0,galleryEpoch=0,menuTimer=null;
+ const galleryDates=new Map();
  window.VATRA_AVATAR?.fallback(avatar,"default");
  avatarWrap.dataset.vatraSystemAvatar="true";
  avatarWrap.dataset.vatraRingKind="default";
@@ -2353,7 +2354,24 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   image.src=url;
  });
  const closeAvatarMenu=()=>{clearTimeout(menuTimer);avatarWrap.classList.remove("is-menu-open");avatarTrigger.setAttribute("aria-expanded","false");plus.setAttribute("aria-expanded","false");};
- const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden)return;avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
+ const positionAvatarMenu=()=>{
+  if(avatarMenu.hidden)return;
+  const anchor=(canEdit?plus:avatarTrigger).getBoundingClientRect(),wrap=avatarWrap.getBoundingClientRect();
+  const viewport=window.visualViewport, left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=top+(viewport?.height||innerHeight);
+  const w=avatarMenu.offsetWidth,h=avatarMenu.offsetHeight,gap=5,padding=12;
+  const above=anchor.top-top-padding,below=bottom-anchor.bottom-padding;
+  const upwards=below<h+gap&&above>below;
+  const room=Math.max(44,(upwards?above:below)-gap);
+  avatarMenu.style.setProperty("--avatar-menu-max-height",Math.floor(room)+"px");
+  const height=Math.min(h,room);
+  const x=Math.max(left+padding,Math.min(anchor.right-w,right-padding-w));
+  const y=upwards?Math.max(top+padding,anchor.top-gap-height):anchor.bottom+gap;
+  avatarMenu.style.setProperty("--avatar-menu-left",Math.round(x-wrap.left)+"px");
+  avatarMenu.style.setProperty("--avatar-menu-top",Math.round(y-wrap.top)+"px");
+ };
+ const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden)return;positionAvatarMenu();avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
+ const repositionAvatarMenu=()=>{if(avatarWrap.classList.contains("is-menu-open"))positionAvatarMenu();};
+ window.addEventListener("resize",repositionAvatarMenu,{passive:true});window.addEventListener("scroll",repositionAvatarMenu,{passive:true});window.visualViewport?.addEventListener("resize",repositionAvatarMenu,{passive:true});
  const scheduleMenuClose=()=>{clearTimeout(menuTimer);menuTimer=setTimeout(()=>{if(!avatarMenu.contains(document.activeElement))closeAvatarMenu();},160);};
  const syncAvatarMenu=()=>{
   const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
@@ -2402,7 +2420,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  async function reloadPhotoActivity(append=false,refreshLikes=true){
   const path=photoPath(),ticket=++activityTicket;
   if(!path)return;
-  if(!append){photoCommentOffset=0;commentList.replaceChildren();photoCommentsMore.hidden=true;}
+  if(!append){photoCommentOffset=0;commentList.replaceChildren();commentList.classList.remove("is-empty");photoCommentsMore.hidden=true;}
   commentList.setAttribute("aria-busy","true");photoCommentsMore.disabled=true;
   if(!append)feedback(t("Завантаження коментарів…","Loading comments…"));
   try{
@@ -2438,8 +2456,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     if(!reaction.error)ownCommentLikes=new Set((reaction.data||[]).map(x=>x.comment_id));
    }
    if(ticket!==activityTicket||path!==photoPath())return;
-   if(!append&&!rows.length)commentList.append(node("p","vt-profile-photo-no-comments-001",
-    t("Коментарів поки немає.","No comments yet.")));
+   commentList.classList.toggle("is-empty",!append&&!rows.length);
+   if(!append&&!rows.length){
+    const placeholder=node("div","ui-profile-photo-empty-state-001"),symbol=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    symbol.setAttribute("class","ui-profile-photo-empty-icon-001");symbol.setAttribute("viewBox","0 0 48 48");symbol.setAttribute("fill","none");symbol.setAttribute("stroke","currentColor");symbol.setAttribute("stroke-width","2.6");symbol.setAttribute("stroke-linecap","round");symbol.setAttribute("stroke-linejoin","round");symbol.setAttribute("aria-hidden","true");p.setAttribute("d","M16 7h22a5 5 0 0 1 5 5v17a5 5 0 0 1-5 5h-4v8l-10-8h-8a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5ZM6 15a5 5 0 0 0-4 5v14a5 5 0 0 0 5 5h5v5l6-5");symbol.append(p);
+    placeholder.append(symbol,node("p","vt-profile-photo-no-comments-001",t("Прокоментуйте першими це фото","Be the first to comment on this photo")));commentList.append(placeholder);
+   }
    for(const item of rows){
     const id=String(item.author_vatra_id);
     const member=names.get(id)||t("Учасник VATRA","VATRA member");
@@ -2457,8 +2479,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     author.href=memberUrl(id);
     if(names.has(id))void window.VATRA_VERIFIED?.attach(client,author,id);
     const stamp=node("time","vt-profile-photo-comment-time-001",dateText(item.created_at));
-    stamp.dateTime=item.created_at;meta.append(author,stamp);head.append(avatar,meta);
-    card.append(head,node("p","vt-profile-photo-comment-body-001",item.body));
+    stamp.dateTime=item.created_at;meta.append(author,node("p","vt-profile-photo-comment-body-001",item.body),stamp);head.append(avatar,meta);
+    card.append(head);
     if(item.moderation_status==="possible_spam")
      card.append(node("small","vt-profile-photo-comment-spam-001",t("Можливий спам","Potential spam")));
     const reaction=node("button","vt-profile-photo-comment-like-001");
@@ -2480,7 +2502,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     let countValue=Number(item.likes)||0,reacted=ownCommentLikes.has(item.id);
     const paint=()=>{
      reactionIcon.setAttribute("fill",reacted?"currentColor":"none");
-     reactionLabel.textContent=t("Подобається","Like")+(countValue?" · "+countValue:"");
+     reactionLabel.textContent=countValue?String(countValue):"";reaction.setAttribute("aria-label",t("Подобається коментар","Like comment"));
      reaction.setAttribute("aria-pressed",String(reacted));
     };
     paint();
@@ -2531,9 +2553,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     owner_vatra_id:targetId,avatar_path:path,author_id:userId,author_vatra_id:ownId,body
    });
    if(error)throw error;
-   if(path===photoPath()&&mediaDialog.open){commentInput.value="";await reloadPhotoActivity();}
+   if(path===photoPath()&&mediaDialog.open){resetPhotoComposer();await reloadPhotoActivity();}
   }catch(_){if(path===photoPath()&&mediaDialog.open)feedback(t("Не вдалося додати коментар.","Could not add comment."),true);}
-  finally{commentBusy=false;commentSend.disabled=false;}
+  finally{commentBusy=false;commentSend.disabled=!commentInput.value.trim();}
  });
  shareButton.addEventListener("click",async()=>{
   const link=new URL("id"+targetId,home);link.searchParams.set("photo","avatar");const path=photoPath();if(path)link.searchParams.set("image",path.split("/").pop());
@@ -2548,17 +2570,26 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  q("#profile-photo-like-label").textContent=t("Подобається","Like");
  q("#profile-photo-share-label").textContent=t("Поділитися","Share");
  q("#profile-photo-comments-heading").textContent=t("Коментарі","Comments");
- q("#profile-photo-comment-text").placeholder=t("Написати коментар…","Write a comment…");
+ q("#profile-photo-comment-text").placeholder=t("Коментувати…","Comment…");
  q("#profile-photo-comment-send").textContent=t("Надіслати","Send");
  q(".vt-profile-photo-comment-label-001").textContent=t("Ваш коментар","Your comment");
- q("#profile-photo-kind").textContent=t("Фото","Photo");
+ const composerAvatar=q("#profile-photo-composer-avatar"),emojiToggle=q("#profile-photo-emoji-toggle"),emojiPanel=q("#profile-photo-emoji-panel"),cancelComment=q("#profile-photo-comment-cancel");
+ const setEmojiOpen=open=>{emojiPanel.hidden=!open;emojiToggle.setAttribute("aria-expanded",String(open));};
+ const resetPhotoComposer=()=>{commentForm.classList.remove("is-expanded");commentInput.value="";setEmojiOpen(false);commentSend.disabled=true;};
+ const expandComposer=()=>{commentForm.classList.add("is-expanded");const headAvatar=q("#feed-header-avatar");if(headAvatar){composerAvatar.style.backgroundImage=headAvatar.style.backgroundImage;composerAvatar.classList.toggle("has-photo",!!headAvatar.style.backgroundImage);}};
+ commentInput.addEventListener("focus",expandComposer);commentInput.addEventListener("input",()=>{commentSend.disabled=commentBusy||!commentInput.value.trim();});
+ cancelComment.addEventListener("click",()=>{resetPhotoComposer();cancelComment.blur();});
+ emojiToggle.addEventListener("click",()=>{expandComposer();setEmojiOpen(emojiPanel.hidden);});
+ for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vt-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>1000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
+ mediaDialog.addEventListener("click",e=>{if(!emojiPanel.hidden&&!emojiPanel.contains(e.target)&&!emojiToggle.contains(e.target))setEmojiOpen(false);});
+ mediaDialog.addEventListener("close",resetPhotoComposer);
  const listAvatarGallery=async()=>{
   const current=saved?.avatar_path,folder=targetId+"/avatar",bucket=client.storage.from("avatars"),files=[];
   if(typeof bucket.list!=="function")return current?[current]:[];
   for(let offset=0;offset<2000;offset+=100){
    const {data,error}=await bucket.list(folder,{limit:100,offset,sortBy:{column:"created_at",order:"desc"}});
    if(error)throw error;if(!Array.isArray(data))break;
-   for(const item of data)if(/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(item.name||""))files.push(folder+"/"+item.name);
+   for(const item of data)if(/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(item.name||"")){const path=folder+"/"+item.name;files.push(path);if(Number.isFinite(Date.parse(item.created_at)))galleryDates.set(path,item.created_at);}
    if(data.length<100)break;
   }
   return [...new Set([...(current?[current]:[]),...files])].filter(path=>getPublicPath(path,"avatar"));
@@ -2575,7 +2606,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   prevPhoto.hidden=nextPhoto.hidden=gallery.length<2;
   prevPhoto.disabled=galleryIndex===0;nextPhoto.disabled=galleryIndex>=gallery.length-1;
   galleryToolbar.hidden=false;galleryCount.textContent=(galleryIndex+1)+" / "+gallery.length;galleryDelete.hidden=!canEdit;
-  q("#profile-photo-owner").textContent=q("#profile-heading").textContent;void reloadPhotoActivity();
+  const owner=q("#profile-photo-owner"),ownerPhoto=q("#profile-photo-owner-avatar"),date=q("#profile-photo-kind");
+  owner.textContent=q("#profile-heading").textContent;owner.href=memberUrl(targetId);
+  ownerPhoto.href=owner.href;ownerPhoto.setAttribute("aria-label",owner.textContent);
+  ownerPhoto.style.backgroundImage=photoURLs.avatar?"url("+JSON.stringify(photoURLs.avatar)+")":"";
+  ownerPhoto.classList.toggle("has-photo",!!photoURLs.avatar);
+  const uploaded=galleryDates.get(path);date.textContent=uploaded?dateText(uploaded):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
+  resetPhotoComposer();void reloadPhotoActivity();
  };
  const stepPhoto=delta=>{const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
  prevPhoto.addEventListener("click",()=>stepPhoto(-1));nextPhoto.addEventListener("click",()=>stepPhoto(1));

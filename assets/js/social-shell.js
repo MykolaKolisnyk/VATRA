@@ -70,6 +70,8 @@
    manage.href=new URL("vatra-id",root).href;symbol.src=new URL("assets/logo/logo_symbol.svg",root).href;symbol.alt="";brand.append(symbol,make("span","vt-vatra-account-id-label-001","ID"));
    manage.append(make("span","vt-vatra-account-manage-label-001",tr("Керування акаунтом","Manage account")),brand);dropdown.prepend(manage);
   }
+  const support=dropdown.querySelector(".feed-menu-support"),settings=dropdown.querySelector(".feed-menu-settings-link");
+  if(support&&settings)settings.before(support);
 
 
 

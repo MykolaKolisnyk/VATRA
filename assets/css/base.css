@@ -787,3 +787,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 .vt-vatra-service-notice-support-001{color:var(--blue,#2861d8);font:620 14px/1.4 Onest,Inter,system-ui,sans-serif;text-decoration:none;padding:6px}
 .vt-vatra-service-notice-action-001:focus-visible,.vt-vatra-service-notice-support-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:3px}
 @media(max-height:540px){.ui-vatra-service-notice-art-001{width:120px}.ui-vatra-service-notice-001{padding:18px}}
+
+/* Form text areas have a stable layout; long content scrolls inside. */
+textarea{resize:none}
