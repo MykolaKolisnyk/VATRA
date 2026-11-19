@@ -67,6 +67,58 @@ async function account(){
  const open=()=>{const id=location.hash.slice(1);return show(["personal","security","verification"].includes(id)?id:"personal");};
  window.addEventListener("hashchange",()=>void open());await open();
 }
-await account();
+async function preferences(){
+ title.textContent=t("Налаштування","Settings");subtitle.textContent="";
+ const layout=make("div","ui-vatra-preferences-layout-001"),panel=make("div","ui-vatra-preferences-content-001"),side=card("ui-vatra-preferences-nav-001");
+ const sections=[["general",t("Загальні","General")],["privacy",t("Приватність","Privacy")],["notifications",t("Сповіщення","Notifications")],["blocked",t("Чорний список","Blocked members")]];
+ const menu=tabs(sections,id=>{if(location.hash==="#"+id)void show(id);else location.hash=id;});
+ side.append(menu,link(t("Безпека акаунта","Account security"),"vatra-id#security","vt-vatra-preferences-id-link-001"),link(t("Керування акаунтом","Manage account"),"vatra-id","vt-vatra-preferences-id-link-001"));layout.append(panel,side);content.append(layout);
+ const prefKey="vatra:notification-display:"+ownId;
+ const notificationKinds=[["friend_request",t("Запити в друзі","Friend requests"),t("Нові заявки у друзі.","New friend requests.")],["friend_accepted",t("Прийняті запити","Accepted requests"),t("Ваш запит у друзі прийняли.","Your friend request was accepted.")],["post_like",t("Вподобання дописів","Post likes"),t("Реакції на ваші публікації.","Reactions to your posts.")],["comment_like",t("Вподобання коментарів","Comment likes"),t("Реакції на ваші коментарі.","Reactions to your comments.")],["avatar_like",t("Вподобання фотографій","Photo likes"),t("Реакції на фотографії профілю.","Reactions to profile photos.")],["avatar_comment_like",t("Вподобання коментарів до фото","Photo comment likes"),t("Реакції на коментарі під фотографіями.","Reactions to photo comments.")]];
+ function settingsCard(heading){const c=card("ui-vatra-preferences-card-001");c.append(make("h2","vt-vatra-preferences-heading-001",heading));return c;}
+ function row(c,heading,description,control,key){const line=make("div","ui-vatra-preferences-row-001"),copy=make("div","ui-vatra-preferences-row-copy-001"),label=make("label","vt-vatra-preferences-label-001",heading);if(key){control.id="vatra-preference-"+key;label.htmlFor=control.id;}copy.append(label);if(description)copy.append(make("p","vt-vatra-preferences-description-001",description));line.append(copy,control);c.append(line);return line;}
+ async function show(id){
+  const ticket=++renderTicket;panel.replaceChildren();message("");
+  for(const b of menu.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
+  if(id==="general"){
+   const c=settingsCard(t("Загальні","General")),language=btn(t("Змінити","Change"),"vt-vatra-preferences-action-001",()=>document.querySelector(".feed-menu-settings-panel [data-language-trigger]")?.click());
+   row(c,t("Мова","Language"),new Intl.DisplayNames([locale],{type:"language"}).of(locale),language);
+   row(c,t("VATRA ID","VATRA ID"),t("Особисті дані, безпека та верифікація.","Personal data, security and verification."),link(t("Відкрити","Open"),"vatra-id","vt-vatra-preferences-action-001"));panel.append(c);return;
+  }
+  if(id==="privacy"){
+   const c=settingsCard(t("Моя сторінка","My profile")),select=make("select","ui-vatra-preferences-select-001");
+   select.append(new Option(t("Відкритий","Public"),"public"),new Option(t("Лише друзі","Friends only"),"friends"));
+   select.disabled=true;row(c,t("Тип профілю","Profile visibility"),t("Кому доступна інформація вашої сторінки.","Who can access information on your profile."),select,"visibility");panel.append(c);
+   const result=await client.from("profile_preferences").select("profile_visibility").eq("vatra_id",ownId).maybeSingle();if(ticket!==renderTicket)return;
+   if(result.error){message(t("Не вдалося завантажити приватність.","Could not load privacy settings."),true);return;}
+   let saved=result.data?.profile_visibility||"public";select.value=saved;select.disabled=false;
+   select.addEventListener("change",async()=>{const desired=select.value;select.disabled=true;message("");
+    try{const result=await client.from("profile_preferences").upsert({vatra_id:ownId,profile_visibility:desired,updated_at:new Date().toISOString()},{onConflict:"vatra_id"}).select("profile_visibility").maybeSingle();if(result.error||result.data?.profile_visibility!==desired)throw Error("Preference not saved");saved=desired;if(ticket===renderTicket)message(t("Зміни збережено.","Changes saved."));}
+    catch(_){select.value=saved;if(ticket===renderTicket)message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}finally{select.disabled=false;}
+   });return;
+  }
+  if(id==="notifications"){
+   const c=settingsCard(t("Сповіщення на сайті","Site notifications"));c.append(make("p","vt-vatra-preferences-description-001",t("Ці параметри визначають, які сповіщення видно в цьому браузері. Вони не видаляють повідомлення з акаунта.","These settings control which notifications appear in this browser. They do not delete account notifications.")));
+   let hidden=[];try{const value=JSON.parse(localStorage.getItem(prefKey)||"[]");if(Array.isArray(value))hidden=value.filter(x=>typeof x==="string");}catch(_){}
+   for(const [key,label,description] of notificationKinds){const control=make("input","ui-vatra-preferences-toggle-001");control.type="checkbox";control.setAttribute("role","switch");control.checked=!hidden.includes(key);row(c,label,description,control,key);
+    control.addEventListener("change",()=>{const before=hidden;const next=control.checked?hidden.filter(x=>x!==key):[...new Set([...hidden,key])];try{localStorage.setItem(prefKey,JSON.stringify(next));hidden=next;window.dispatchEvent(new Event("vatra-notification-display-changed"));message(t("Зміни збережено.","Changes saved."));}catch(_){control.checked=!before.includes(key);message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}});}
+   panel.append(c);return;
+  }
+  const c=settingsCard(t("Чорний список","Blocked members")),form=make("form","ui-vatra-preferences-block-form-001"),idInput=field(form,"blocked-id","VATRA ID","text",19,true);idInput.inputMode="numeric";idInput.pattern="[1-9][0-9]{0,18}";c.append(form);
+  const list=make("div","ui-vatra-preferences-block-list-001");c.append(list);panel.append(c);
+  submit(form,t("Додати до чорного списку","Block member"),async()=>{if(ticket!==renderTicket)return;const value=idInput.value.trim();if(!valid(value)||value===ownId){message(t("Вкажіть VATRA ID іншого користувача.","Enter another member's VATRA ID."),true);return;}if(!await confirmRemove(t("Заблокувати користувача?","Block member?"),t("Спілкування з цим користувачем буде обмежено.","Interactions with this member will be restricted."),t("Заблокувати","Block")))return;const r=await client.from("member_blocks").insert({blocker_vatra_id:ownId,blocked_vatra_id:value});if(r.error)throw r.error;if(ticket===renderTicket){idInput.value="";await readList();}});
+  let generation=0;
+  async function readList(){const n=++generation;list.replaceChildren(empty(t("Завантаження…","Loading…")));const result=await client.from("member_blocks").select("blocked_vatra_id,created_at").eq("blocker_vatra_id",ownId).order("created_at",{ascending:false}).limit(500);if(ticket!==renderTicket||n!==generation)return;
+   if(result.error){list.replaceChildren(empty(t("Не вдалося завантажити чорний список.","Could not load blocked members.")));return;}
+   const items=result.data||[];list.replaceChildren();if(!items.length){list.append(empty(t("Ваш чорний список порожній","Your blocked list is empty")));return;}
+   const names=await Promise.all(items.map(x=>nameOf(String(x.blocked_vatra_id)).catch(()=>t("Учасник VATRA","VATRA member"))));if(ticket!==renderTicket||n!==generation)return;
+   for(const [i,item] of items.entries()){const id=String(item.blocked_vatra_id),line=make("div","ui-vatra-preferences-block-row-001"),info=make("div","ui-vatra-preferences-block-copy-001");info.append(link(names[i],"id"+id,"vt-vatra-preferences-block-name-001"),make("span","vt-vatra-preferences-description-001","VATRA ID "+id));const remove=btn(t("Розблокувати","Unblock"),"vt-vatra-preferences-action-001",async()=>{if(remove.disabled||ticket!==renderTicket)return;remove.disabled=true;try{const r=await client.from("member_blocks").delete().eq("blocker_vatra_id",ownId).eq("blocked_vatra_id",id).select("blocked_vatra_id").maybeSingle();if(r.error||!r.data)throw Error("Not removed");if(ticket===renderTicket)await readList();}catch(_){if(ticket===renderTicket)message(t("Не вдалося розблокувати користувача.","Could not unblock member."),true);}finally{remove.disabled=false;}});line.append(info,remove);list.append(line);}
+  }
+  await readList();
+ }
+ const open=()=>{const id=location.hash.slice(1);return show(sections.some(([key])=>key===id)?id:"general").catch(()=>message(t("Не вдалося завантажити налаштування.","Could not load settings."),true));};
+ window.addEventListener("hashchange",()=>void open());await open();
+}
+if(new URLSearchParams(location.search).get("view")==="settings")await preferences();else await account();
 });
 })();

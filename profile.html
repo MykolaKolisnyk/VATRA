@@ -17,7 +17,7 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=7625ddcfd6fdee4acfe32bdbcb2abc4480c0da6b">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=c0af25124c2981650fa52d06a07a1afc90bf5d82">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=692e6099f1ca2003863e83785b88494edcacaae8">
     <link rel="stylesheet" href="assets/css/story-editor.css?rev=ae181ee0ae44b948fc5813e23763c3440b5a49d5">
     <link rel="stylesheet" href="assets/css/profile.css">
     <link rel="stylesheet" href="assets/css/post-composer.css">
@@ -33,8 +33,8 @@
     <script defer src="assets/js/gift-viewer.js"></script>
     <script defer src="assets/js/post-composer-ui.js"></script>
     <script defer src="assets/js/guest-view.js?rev=b25fd28b7cd80aa6bf1d02089df1c1b656ada6f2"></script>
-    <script defer src="assets/js/story-editor.js?rev=75e21405c3219bc7b051898565e90e74e1b79b0b"></script>
-    <script defer src="assets/js/profile.js?rev=02eb2d18e35e65902d914277dd4ce9112702ea9e"></script>
+    <script defer src="assets/js/story-editor.js?rev=2a44a72a7609a3d4765bd893eab6fcf492a9ddad"></script>
+    <script defer src="assets/js/profile.js?rev=900f1336528a3d348cb5bc37063ab493d613612e"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -450,12 +450,10 @@
             </div>
           </form>
         </dialog>
-        <dialog id="profile-media-viewer" class="profile-media-viewer ui-profile-media-viewer-001" aria-labelledby="profile-media-viewer-heading">
+        <dialog id="profile-media-viewer" class="profile-media-viewer ui-profile-media-viewer-001" aria-label="Перегляд фотографії" data-shell-aria-uk="Перегляд фотографії" data-shell-aria-en="Photo viewer">
           <div class="profile-media-viewer-stage ui-profile-media-viewer-stage-001">
             <button id="profile-media-viewer-close" class="profile-media-viewer-close vt-profile-media-viewer-close-001" type="button" data-shell-aria-uk="Закрити перегляд фото" data-shell-aria-en="Close photo viewer" aria-label="Закрити перегляд фото"><svg class="ui-profile-media-close-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-media-close-path-001" d="M6 6l12 12M18 6 6 18"/></svg></button>
-            <h2 id="profile-media-viewer-heading" class="profile-media-viewer-heading vt-profile-media-viewer-heading-001">
-              Фото профілю
-            </h2>
+            <h2 id="profile-media-viewer-heading" class="profile-media-viewer-heading vt-profile-media-viewer-heading-001" hidden></h2>
             <img id="profile-media-viewer-image" class="profile-media-viewer-image ui-profile-media-viewer-image-001" alt="">
             <button id="profile-avatar-prev" class="vt-profile-avatar-prev-001" type="button" aria-label="Попереднє фото" data-shell-aria-uk="Попереднє фото" data-shell-aria-en="Previous photo" hidden><svg class="ui-profile-avatar-prev-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-prev-path-001" d="m15 5-7 7 7 7"/></svg></button>
             <button id="profile-avatar-next" class="vt-profile-avatar-next-001" type="button" aria-label="Наступне фото" data-shell-aria-uk="Наступне фото" data-shell-aria-en="Next photo" hidden><svg class="ui-profile-avatar-next-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-next-path-001" d="m9 5 7 7-7 7"/></svg></button>

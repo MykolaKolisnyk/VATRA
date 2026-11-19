@@ -5,7 +5,7 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const validId=x=>/^[1-9][0-9]{0,18}$/.test(String(x??""));
 const grammar=gender=>gender==="male"?"masculine":gender==="female"?"feminine":"neutral";
-const activeWindow=240000; // Allow a slow connection and missed heartbeat.
+const activeWindow=90000; // A visible tab renews at 60 seconds; stale presence expires quickly.
 let active=null;
 function stop(){
  const state=active;
@@ -49,7 +49,7 @@ function start(client,ownId,gender){
   {once:true,signal:state.controller.signal});
  state.promise=(async()=>{
   try{
-   if(Date.now()-readTouch()>=120000){
+   if(Date.now()-readTouch()>=60000){
    const {data,error}=await client.from(table).select("vatra_id,form")
     .eq("vatra_id",id).maybeSingle();
    if(active!==state)return false;
@@ -62,15 +62,15 @@ function start(client,ownId,gender){
    }else await update();
    }
    if(active!==state)return false;
-   // A visible tab sends no more than one heartbeat per two minutes.
-   let lastTouch=readTouch()||Date.now();
+   // A visible tab sends no more than one heartbeat per minute.
+   let lastTouch=readTouch()||0;
    const pulse=()=>{
     if(active!==state||document.visibilityState==="hidden"||
-     Date.now()-lastTouch<120000)return;
+     Date.now()-lastTouch<60000)return;
     lastTouch=Date.now();
     void update();
    };
-   state.interval=setInterval(pulse,60000);
+   state.interval=setInterval(pulse,30000);
    document.addEventListener("visibilitychange",pulse,
     {passive:true,signal:state.controller.signal});
    return true;
@@ -83,7 +83,7 @@ function start(client,ownId,gender){
 }
 // RLS-protected presence belongs to a single Supabase client/session.
 // Reuse only overlapping reads and a short snapshot; live status is always
-// recalculated by format(), and profile polling still refreshes every 2 min.
+// recalculated by format(), and profile polling refreshes status every 30 seconds.
 const PRESENCE_READ_TTL_MS=15_000,PRESENCE_MISSING_TTL_MS=5_000,PRESENCE_CACHE_MAX=64;
 const presenceReadCaches=new WeakMap();
 function presenceReadState(client){

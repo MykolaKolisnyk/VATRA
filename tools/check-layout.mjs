@@ -1996,7 +1996,7 @@ const ownerAdminGuard=await read("assets/js/account-guard.js");
 const ownerAdminJs=await read("assets/js/admin.js");
 assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js?rev=')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
 const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
-assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
+assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("marketView(host,")&&!ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
 assert.ok((await read("assets/css/feed.css")).includes(".vt-vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vt-vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
@@ -2477,7 +2477,7 @@ const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
 const settingsRuntime=await read("assets/js/settings.js");
-const businessRuntime=await read("assets/js/business.js");
+const businessRuntime=await read("assets/js/community-business.js");
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
@@ -2526,8 +2526,11 @@ assert.ok(money.marketMatchesPrice({price:10,currency:"USD"},"USD",0,20));
 assert.ok(money.marketMatchesPrice({price:10},"UAH",0,20));
 assert.ok(money.marketMatchesPrice({price:10,currency:"EUR"},"all",null,null));
 assert.ok(sectionsRuntime.includes("price:marketAmount(price.value),currency:currency.value")&&sectionsRuntime.includes("form.prepend(categoryGroup)")&&sectionsRuntime.includes("price,currency,city"),"Persist currency, read it back and show required category first");
-assert.ok(sectionsRuntime.includes('rules_accepted:true')&&sectionsRuntime.includes('eq("moderation_status","approved")')&&sectionsRuntime.includes('eq("moderation_status","pending")'),"Marketplace must submit for moderation and show only approved listings in the public catalog");
-assert.ok(sectionsRuntime.includes('marketplace_cases')&&sectionsRuntime.includes('marketplace_moderators')&&sectionsRuntime.includes('marketplace_suspensions')&&sectionsRuntime.includes('marketplace_moderation_history'),"Moderation, appeals, reports, suspensions and history must use server records");
+assert.ok(sectionsRuntime.includes('rules_accepted:true')&&sectionsRuntime.includes('eq("moderation_status","approved")')&&ownerAdminJs.includes('pending:t("На перевірці"')&&ownerAdminJs.includes('.eq("moderation_status",kind)'),"Marketplace must submit for moderation and show only approved listings in the public catalog");
+assert.ok(sectionsRuntime.includes('marketplace_cases')&&ownerAdminJs.includes('marketplace_moderators')&&sectionsRuntime.includes('marketplace_suspensions')&&ownerAdminJs.includes('marketplace_moderation_history'),"Moderation, appeals, reports, suspensions and history must use server records");
+assert.ok(!marketplaceRuntime.includes("VATRA_OPEN_MARKET_MODERATION")&&!marketplaceRuntime.includes("marketplace_moderators")&&!marketplaceRuntime.includes("marketplace_moderation_history")&&!marketplaceRuntime.includes("modControls"),"Only ADMIN PANEL owns staff marketplace moderation");
+assert.ok(ownerAdminJs.includes('client.rpc("vatra_admin_access")')&&ownerAdminJs.includes('from("marketplace_moderators")')&&ownerAdminJs.includes('from("marketplace_listings").update')&&ownerAdminJs.includes('from("marketplace_cases").update')&&ownerAdminJs.includes('from("marketplace_suspensions").insert')&&ownerAdminJs.includes('from("marketplace_moderation_history")')&&ownerAdminJs.includes('!ready||!check.checked'),"Owner moderation must check server roles and require manual photo review");
+for(const file of ["business","business-bookings","business-brand","business-inbox","business-jobs","business-stores"])await assert.rejects(stat("assets/js/"+file+".js"),{code:"ENOENT"});
 const moderationSQL=await read("supabase/vatra-marketplace-moderation.sql");
 const moderationMediaSQL=await read("supabase/vatra-marketplace-moderation-media.sql");
 assert.ok(moderationSQL.includes("VATRA_MARKET_MODERATOR_REQUIRED")&&moderationSQL.includes("VATRA_MARKET_SUSPENDED")&&moderationSQL.includes("moderation_status='approved'")&&moderationSQL.includes("enable row level security"));
@@ -2547,23 +2550,23 @@ assert.ok(businessSQL.includes("follower_count=follower_count+delta")&&businessS
 
 assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Community business settings must use the bilingual standard taxonomy");
 
-const businessJobs=await read("assets/js/business-jobs.js");
+const businessJobs=await read("assets/js/community-business-jobs.js");
 const jobsSQL=await read("supabase/migrations/20261119080727_business_jobs_and_applications.sql");
 assert.doesNotThrow(()=>new Function(businessJobs.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("club.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
+assert.ok(businessRuntime.includes('assets/js/community-business-jobs.js?rev=')&& !((await read("club.html")).includes("assets/js/community-business-jobs.js")),"Jobs must load only on demand");
 for(const table of ["business_jobs","business_job_applications"]){assert.ok(businessJobs.includes('from("'+table+'")')&&jobsSQL.includes("alter table public."+table+" enable row level security"));}
 
-const businessBookings=await read("assets/js/business-bookings.js");
+const businessBookings=await read("assets/js/community-business-bookings.js");
 const bookingSQL=await read("supabase/migrations/20261119081225_business_booking_slots_and_appointments.sql");
 assert.doesNotThrow(()=>new Function(businessBookings.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("club.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
+assert.ok(businessRuntime.includes('assets/js/community-business-bookings.js?rev=')&&!((await read("club.html")).includes("assets/js/community-business-bookings.js")),"Bookings must load only on demand");
 for(const table of ["business_booking_slots","business_appointments"]){assert.ok(businessBookings.includes('from("'+table+'")')&&bookingSQL.includes("alter table public."+table+" enable row level security"));}
 assert.ok(bookingSQL.includes("business_appointments_one_live_idx")&&bookingSQL.includes("and not reserved and not cancelled and starts_at>now()"),"Server must prevent concurrent reservation of the same slot");
 
-const businessStore=await read("assets/js/business-stores.js"),businessBrand=await read("assets/js/business-brand.js");
+const businessStore=await read("assets/js/community-business-stores.js"),businessBrand=await read("assets/js/community-business-brand.js");
 const brandSQL=await read("supabase/migrations/20261119083718_business_brand_media_and_moderated_store.sql");
 for(const runtime of [businessStore,businessBrand])assert.doesNotThrow(()=>new Function(runtime.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes("assets/js/business-brand.js?rev=")&&businessRuntime.includes("assets/js/business-stores.js?rev="));
+assert.ok(businessRuntime.includes("assets/js/community-business-brand.js?rev=")&&businessRuntime.includes("assets/js/community-business-stores.js?rev="));
 assert.ok(brandSQL.includes("alter table public.business_store_listings enable row level security")&&brandSQL.includes("l.moderation_status='approved'")&&brandSQL.includes("l.seller_vatra_id=(select business_private.current_member())"),"Company storefront requires approved owner listings");
 assert.ok(brandSQL.includes("business_logo_path")&&brandSQL.includes("business_cover_path")&&brandSQL.includes("business_media_add")&&brandSQL.includes("business_media_remove"),"Company media must enforce ownership");
 
@@ -2571,9 +2574,9 @@ const ratingsSQL=await read("supabase/migrations/20261119084256_business_verifie
 assert.ok(ratingsSQL.includes("alter table public.business_ratings enable row level security")&&ratingsSQL.includes("a.status='completed'")&&ratingsSQL.includes("business_private.my_role(company) is null"),"Ratings require a completed customer appointment");
 assert.ok(businessRuntime.includes('from("business_ratings")')&&ratingsSQL.includes("rating_total=rating_total+new.stars-old.stars"),"Company rating uses server aggregates");
 
-const inboxSource=await read("assets/js/business-inbox.js"),inboxSQL=await read("supabase/migrations/20261119084730_business_private_customer_inquiries.sql");
+const inboxSource=await read("assets/js/community-business-inbox.js"),inboxSQL=await read("supabase/migrations/20261119084730_business_private_customer_inquiries.sql");
 assert.doesNotThrow(()=>new Function(inboxSource.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes("assets/js/business-inbox.js?rev="));
+assert.ok(businessRuntime.includes("assets/js/community-business-inbox.js?rev="));
 assert.ok(inboxSQL.includes("alter table public.business_inquiries enable row level security")&&inboxSQL.includes("alter table public.business_inquiry_messages enable row level security")&&inboxSQL.includes("new.sender_side:='company'")&&inboxSQL.includes("grant select(id,inquiry_id,sender_side,body,created_at),insert(inquiry_id,body)"),"Business correspondence must be private and attributed by the server");
 
 const communityBusinessSQL=await read("supabase/migrations/20261119115216_community_business_tools.sql"),communityStatsSQL=await read("supabase/migrations/20261119120101_community_business_shared_statistics.sql");
@@ -2606,3 +2609,9 @@ assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&reti
 await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
 assert.ok(communityBannerCSS.includes("body.community-page.vatra-business-page .ui-business-view-001"),"Business tool styling belongs to the existing community stylesheet");
 assert.ok(!(await read("assets/js/club.js")).includes("assets/css/business.css"),"Community tools must not fetch a retired stylesheet");
+
+// Gallery, site settings and shared-account navigation regressions.
+assert.ok(profileScript.includes('const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]')&&profileScript.includes('interaction.hidden=false;activityTicket++')&&!memberCss.includes('body.profile-page .profile-media-viewer[data-kind="avatar-history"][open]{grid-template-columns:minmax(0,1fr)}'),"Historical avatars must retain their own panel");
+assert.ok(settingsRuntime.includes('from("profile_preferences")')&&settingsRuntime.includes('from("member_blocks")')&&settingsRuntime.includes('vatra:notification-display:')&&settingsRuntime.includes('get("view")==="settings"'),"Settings must use existing profile and block records and browser-scoped notification filters");
+const galleryMigration=await read("supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
+assert.ok(galleryMigration.includes("storage.objects")&&galleryMigration.includes("auth.uid()")&&galleryMigration.includes("profile_visibility"),"Only existing gallery images with permitted viewers accept interactions");

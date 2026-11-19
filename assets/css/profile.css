@@ -543,16 +543,16 @@ body.profile-page .profile-media-viewer-image{
 }
 body.profile-page .profile-avatar-engagement{
  display:flex;flex-direction:column;gap:0;min-width:0;height:100dvh;
- background:#fff;color:#31425d;border-left:0;
+ background:#fff;color:#31425d;border-left:1px solid #e3e9f4;
  font-family:"Onest",system-ui,sans-serif
 }
 body.profile-page .profile-avatar-engagement[hidden]{display:none!important}
 body.profile-page .profile-photo-info{
  flex:none;display:flex;flex-direction:column;gap:4px;
- padding:24px 20px 17px;border-bottom:1px solid #e7edf6
+ padding:22px 20px 18px;border-bottom:1px solid #e7edf6
 }
 body.profile-page .vt-profile-photo-owner-001{
- color:#2a3b58;font:780 16px/1.3 "Onest",system-ui,sans-serif
+ color:#2a3b58;font:750 18px/1.35 "Onest",system-ui,sans-serif
 }
 body.profile-page .vt-profile-photo-kind-001{color:#788ba6;font:540 12px/1.3 "Onest",system-ui,sans-serif}
 body.profile-page .profile-photo-actions{
@@ -561,9 +561,9 @@ body.profile-page .profile-photo-actions{
 }
 body.profile-page .profile-photo-actions button{
  display:flex;align-items:center;justify-content:center;gap:7px;
- min-height:40px;padding:7px 12px;border:1px solid #dfe7f5;border-radius:10px;
- background:#f6f8fd;color:#4d6180;cursor:pointer;
- font:700 12px/1.3 "Onest",system-ui,sans-serif
+ flex:1;min-height:44px;padding:9px 12px;border:1px solid #e1e8f4;border-radius:12px;
+ background:#f5f7fc;color:#4d6180;cursor:pointer;
+ font:650 13px/1.3 "Onest",system-ui,sans-serif
 }
 body.profile-page .profile-photo-actions button:hover{
  border-color:#b9cafa;background:#edf3ff;color:#3568d7
@@ -597,7 +597,7 @@ body.profile-page .ui-profile-photo-comment-sort-001{
  background:#f7f9fd;color:#3e5577;font:650 12px/1.4 "Onest",system-ui,sans-serif
 }
 body.profile-page .vt-profile-photo-comment-sort-note-001{
- grid-column:1/-1;color:#8090a8;font:500 11px/1.4 "Onest",system-ui,sans-serif
+ grid-column:1/-1;color:#75849b;font:500 12px/1.4 "Onest",system-ui,sans-serif
 }
 body.profile-page .profile-photo-comment-head{display:flex;align-items:center;gap:10px;min-width:0}
 body.profile-page .profile-photo-comment-avatar{
@@ -652,8 +652,8 @@ body.profile-page .profile-photo-comment-form{
 }
 body.profile-page .ui-profile-photo-comment-text-001{
  flex:1;min-width:0;max-height:112px;resize:vertical;
- padding:9px 10px;border:1px solid #dbe5f5;border-radius:10px;
- background:#f6f8fc;color:#334863;font:550 13px/1.4 "Onest",system-ui,sans-serif
+ padding:10px 12px;border:1px solid #dbe5f5;border-radius:13px;
+ background:#f6f8fc;color:#334863;font:500 14px/1.5 "Onest",system-ui,sans-serif
 }
 body.profile-page .vt-profile-photo-comment-send-001{
  flex:none;min-height:38px;padding:8px 12px;border:0;border-radius:10px;
@@ -664,10 +664,10 @@ body.profile-page .vt-profile-photo-comment-send-001:disabled{
  opacity:.55;cursor:wait
 }
 @media(max-width:780px){
- body.profile-page .profile-media-viewer[data-kind="avatar"][open]{
+ body.profile-page .profile-media-viewer:is([data-kind="avatar"],[data-kind="avatar-history"])[open]{
   grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,53dvh) minmax(0,47dvh)
  }
- body.profile-page .profile-media-viewer[data-kind="avatar"] .profile-media-viewer-stage{height:53dvh}
+ body.profile-page .profile-media-viewer:is([data-kind="avatar"],[data-kind="avatar-history"]) .profile-media-viewer-stage{height:53dvh}
  body.profile-page .profile-avatar-engagement{height:47dvh;border-left:0;border-top:1px solid #e2e9f3}
  body.profile-page .profile-photo-info{padding:10px 14px}
  body.profile-page .profile-photo-actions{padding:8px 14px}
@@ -2870,7 +2870,6 @@ body.profile-page .is-owner-avatar .profile-avatar-menu button svg{flex:0 0 20px
 body.profile-page .is-owner-avatar .profile-avatar-menu .profile-avatar-menu-delete svg{color:#c04859}
 body.profile-page .profile-last-seen{display:block;margin:0;flex:none;align-self:flex-start;text-align:left;font:520 13px/1.5 "Onest",system-ui,sans-serif;color:#74839a}
 body.profile-page .profile-last-seen[data-online="true"]{color:#74839a}
-body.profile-page .profile-media-viewer[data-kind="avatar-history"][open]{grid-template-columns:minmax(0,1fr)}
 body.profile-page .profile-media-viewer-stage{position:relative}
 body.profile-page :is(.vt-profile-avatar-prev-001,.vt-profile-avatar-next-001){position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:44px;height:44px;display:grid;place-items:center;border:1px solid #ffffff35;border-radius:50%;background:#252c38b8;color:#fff;cursor:pointer;padding:0}
 body.profile-page .vt-profile-avatar-prev-001{left:20px}body.profile-page .vt-profile-avatar-next-001{right:20px}

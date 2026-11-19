@@ -10,7 +10,7 @@ function section(start,end){
  assert.ok(i>=0&&j>i,"Missing live notification function: "+start);
  return code.slice(i,j);
 }
-const unread=section("async function unreadCount(){","async function fetchRows");
+const unread=section("function hiddenNotificationKinds(id){","async function fetchRows");
 const lifecycle=section("function stop(){","async function pageLoad(append=false){");
 const render=section("async function renderRows(","function positionPanel(){");
 assert.ok(render.includes("return rows;"),"The panel must receive the displayed rows");
@@ -21,6 +21,7 @@ const format=(uk,_english,values)=>uk.replace(/\{(name|count|page|id)\}/g,
 const countCalls=[],removedChannels=[],timers=new Map(),cleared=[];
 const listeners=[],guardStarts=[],guardEnds=[];
 let timerId=0;
+const preferences=new Map();
 const bell={attrs:new Map(),setAttribute(k,v){this.attrs.set(k,v);}};
 const badge={hidden:true,textContent:""};
 const panel={hidden:true};
@@ -47,6 +48,7 @@ function clientFor(label){
 }
 const context={
  URL,Date,Promise,AbortController,Map,Set,
+ localStorage:{getItem:key=>preferences.get(key)||null},
  window:{addEventListener(name,fn,opts){listeners.push({name,fn,opts});},VATRA_ADMIN_SESSION(client,id){guardStarts.push([client.label,id]);},VATRA_ADMIN_END(client,id){guardEnds.push([client.label,id]);}},
  document:{hidden:false,addEventListener(name,fn,opts){listeners.push({name,fn,opts});}},
  setInterval(fn){const id=++timerId;timers.set(id,fn);return id;},
@@ -61,11 +63,20 @@ let panel=globalThis.testPanel,panelItems=null;
 let open=false,liveChannel=null,refreshBusy=false,refreshQueued=false;
 let notificationRun=null,panelLoadPending=null,panelLoadQueued=false;
 const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id));
+const notificationTemplates={post_like:[],friend_request:[]};
 ${unread}
 ${lifecycle}
-globalThis.notices={start,stop,unreadCount,run:()=>notificationRun};
+globalThis.notices={start,stop,unreadCount,applyDisplayFilter,run:()=>notificationRun};
 `,Object.assign(context,{testBell:bell,testBadge:badge,testPanel:panel}));
 const notices=context.notices;
+const filters=[];
+const mockQuery={not(...args){filters.push(args);return this;}};
+preferences.set("vatra:notification-display:12",JSON.stringify(["post_like","invalid)"]));
+assert.equal(notices.applyDisplayFilter(mockQuery,"12"),mockQuery);
+assert.deepEqual(filters,[["kind","in","(post_like)"]]);
+assert.equal(notices.applyDisplayFilter(mockQuery,"13"),mockQuery);
+assert.equal(filters.length,1,"Notification preferences must be account-specific");
+preferences.clear();
 const first=clientFor("A"),second=clientFor("B");
 notices.start(first,"12");
 assert.equal(countCalls.length,1);

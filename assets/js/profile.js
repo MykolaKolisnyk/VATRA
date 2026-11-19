@@ -2283,18 +2283,19 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
  if(!caption||!window.VATRA_PRESENCE)return;
  const refresh=async()=>{
   try{
-   if(String(targetId)===String(ownId))await window.VATRA_PRESENCE.start(client,ownId,signupGender);
+   // The session initializes its own heartbeat independently; viewing another profile never touches its timestamp.
    const record=await window.VATRA_PRESENCE.load(client,targetId);
    const state=window.VATRA_PRESENCE.format(record,english);
    caption.textContent=state.online?t("У мережі","Online"):state.text||t("Статус мережі невідомий","Online status unavailable");
    caption.hidden=false;caption.dataset.online=String(state.online);
    if(state.date)caption.setAttribute("title",state.date.toLocaleString(english?"en-GB":"uk-UA"));else caption.removeAttribute("title");
-  }catch(_){/* Keep the last verified presence label. */}
+  }catch(_){caption.textContent=t("Статус мережі невідомий","Online status unavailable");caption.dataset.online="false";caption.removeAttribute("title");}
  };
  void refresh();
 
- const timer=setInterval(()=>{if(!document.hidden)void refresh();},120000);
- window.addEventListener("pagehide",()=>clearInterval(timer),{once:true});
+ const timer=setInterval(()=>{if(!document.hidden)void refresh();},30000);
+ const onVisible=()=>{if(!document.hidden)void refresh();};document.addEventListener("visibilitychange",onVisible);
+ window.addEventListener("pagehide",()=>{clearInterval(timer);document.removeEventListener("visibilitychange",onVisible);},{once:true});
 }
 
 
@@ -2377,7 +2378,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentSort=q("#profile-photo-comment-sort"),photoCommentsMore=q("#profile-photo-comments-more");
  const commentSortNote=q("#profile-photo-comment-sort-note");
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
- const photoPath=()=>saved?.avatar_path||null;
+ const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
  const feedback=(value,bad=false)=>{
   commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
  };
@@ -2416,6 +2417,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
      .eq("owner_vatra_id",targetId).eq("avatar_path",path).eq("liker_id",userId).limit(1)
    ]):Promise.resolve(null);
    const [comments,likeResults]=await Promise.all([commentsPromise,likesPromise]);
+   if(ticket!==activityTicket||path!==photoPath())return;
    if(comments.error)throw comments.error;
    if(likeResults){
     if(likeResults[0].error||likeResults[1].error)throw likeResults[0].error||likeResults[1].error;
@@ -2534,7 +2536,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   finally{commentBusy=false;commentSend.disabled=false;}
  });
  shareButton.addEventListener("click",async()=>{
-  const link=new URL("id"+targetId,home);link.searchParams.set("photo","avatar");
+  const link=new URL("id"+targetId,home);link.searchParams.set("photo","avatar");const path=photoPath();if(path)link.searchParams.set("image",path.split("/").pop());
   try{
    if(navigator.share)await navigator.share({url:link.href});
    else if(navigator.clipboard?.writeText){
@@ -2565,13 +2567,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const path=gallery[galleryIndex],url=getPublicPath(path,"avatar");if(!url)return;
   const current=path===saved?.avatar_path;
   mediaDialog.dataset.kind=current?"avatar":"avatar-history";
-  interaction.hidden=!current;activityTicket++;
-  mediaHeading.textContent=t("Фото профілю","Profile photos");
-  mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;mediaImage.src=url;
+  interaction.hidden=false;activityTicket++;
+  mediaHeading.textContent="";mediaHeading.hidden=true;
+  mediaImage.alt=q("#profile-heading").textContent;mediaImage.src=url;
+  likesCount.textContent="0";likesButton.setAttribute("aria-pressed","false");likesButton.classList.remove("is-liked");
+  commentInput.value="";
   prevPhoto.hidden=nextPhoto.hidden=gallery.length<2;
   prevPhoto.disabled=galleryIndex===0;nextPhoto.disabled=galleryIndex>=gallery.length-1;
   galleryToolbar.hidden=false;galleryCount.textContent=(galleryIndex+1)+" / "+gallery.length;galleryDelete.hidden=!canEdit;
-  if(current){q("#profile-photo-owner").textContent=q("#profile-heading").textContent;void reloadPhotoActivity();}
+  q("#profile-photo-owner").textContent=q("#profile-heading").textContent;void reloadPhotoActivity();
  };
  const stepPhoto=delta=>{const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
  prevPhoto.addEventListener("click",()=>stepPhoto(-1));nextPhoto.addEventListener("click",()=>stepPhoto(1));
@@ -2582,10 +2586,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(!canViewPhoto)return;const url=photoURLs[kind];if(!url)return;
   closeAvatarMenu();const ticket=++galleryEpoch;
   if(kind==="avatar"){gallery=saved?.avatar_path?[saved.avatar_path]:[];galleryIndex=0;if(!gallery.length)return;renderGalleryPhoto();mediaDialog.showModal();
-   void listAvatarGallery().then(paths=>{if(ticket!==galleryEpoch||!mediaDialog.open)return;const selected=gallery[galleryIndex];gallery=paths;galleryIndex=Math.max(0,gallery.indexOf(selected));renderGalleryPhoto();}).catch(()=>{});return;
+   void listAvatarGallery().then(paths=>{if(ticket!==galleryEpoch||!mediaDialog.open)return;const selected=gallery[galleryIndex];gallery=paths;const requested=new URLSearchParams(location.search).get("image");const shared=requested&&/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(requested)?gallery.findIndex(p=>p.endsWith("/"+requested)):-1;galleryIndex=shared>=0?shared:Math.max(0,gallery.indexOf(selected));renderGalleryPhoto();}).catch(()=>{});return;
   }
   gallery=[];prevPhoto.hidden=nextPhoto.hidden=galleryToolbar.hidden=true;
-  mediaHeading.textContent=t("Обкладинка","Cover photo");mediaDialog.dataset.kind=kind;interaction.hidden=kind!=="avatar";activityTicket++;
+  mediaHeading.hidden=false;mediaHeading.textContent=t("Обкладинка","Cover photo");mediaDialog.dataset.kind=kind;interaction.hidden=kind!=="avatar";activityTicket++;
   mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;mediaImage.src=url;mediaDialog.showModal();
  };
  mediaDialog.addEventListener("close",()=>{galleryEpoch++;activityTicket++;});

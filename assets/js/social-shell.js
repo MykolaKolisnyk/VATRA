@@ -65,6 +65,13 @@
   const dropdown=menu?.querySelector(".feed-account-dropdown");
   const header=document.querySelector(".feed-header");
   if(!menu||!dropdown||!header)return;
+  if(!dropdown.querySelector(".vt-vatra-account-manage-001")){
+   const root=new URL("../../",shellScript||location.href),manage=make("a","vt-vatra-account-manage-001"),brand=make("span","ui-vatra-account-id-brand-001"),symbol=make("img","ui-vatra-account-id-symbol-001");
+   manage.href=new URL("vatra-id",root).href;symbol.src=new URL("assets/logo/logo_symbol.svg",root).href;symbol.alt="";brand.append(symbol,make("span","vt-vatra-account-id-label-001","ID"));
+   manage.append(make("span","vt-vatra-account-manage-label-001",tr("Керування акаунтом","Manage account")),brand);dropdown.prepend(manage);
+   const pane=dropdown.querySelector(".feed-menu-settings-panel");
+   if(pane){const settings=make("a","vt-vatra-account-settings-link-001",tr("Усі налаштування","All settings"));settings.href=new URL("vatra-id?view=settings#general",root).href;pane.prepend(settings);}
+  }
 
 
 
@@ -677,7 +684,7 @@
  }
  const shellScript=document.currentScript?.src;
  const boot=()=>{
-  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.src=new URL("account-guard.js?rev=f569fa571d12f0a676dab37ad430be82312922c7",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
+  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.src=new URL("account-guard.js?rev=e6ea9ee0379d2969c1a9d5a76354e1f4cbcbd555",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
   showPendingShell();
   setUpAccountPanel();
   setupRouteMotion();

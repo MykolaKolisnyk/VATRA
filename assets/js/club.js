@@ -235,7 +235,7 @@ async function setupCommunityBusiness(client,number,ownId,userId){
    try{
     document.body.classList.add("vatra-section-page","vatra-business-page");
     await Promise.all([resource("link","assets/css/core.css?rev=e54d9ba8c2638618fb5402931fcc95d0bc36b418"),resource("script","assets/js/core.js?rev=d6e6d62fef2bde0f674a3d7ec1a6dd199aa09d02")]);
-    await resource("script","assets/js/business.js?rev=79ef9f552a7d370890e653860a2931a8d5e28d2d");
+    await resource("script","assets/js/community-business.js?rev=52c6fa60f1a42abb2d6ee49bb6f2260fdbf824c0");
     if(!window.VATRA_BUSINESS_TOOLS||!window.VATRA_SECTION_CORE?.embedded)throw Error("tools");
     await window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client,ownId,user:{id:userId},content,notice,t}));
    }catch(_){notice.hidden=false;notice.textContent=t("Не вдалося завантажити бізнес-інструмент. Оновіть сторінку.","Could not load business tools. Refresh the page.");}

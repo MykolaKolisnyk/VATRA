@@ -353,7 +353,7 @@ body.feed-page .feed-post-body .vt-feed-post-hashtag-001:focus-visible{
 
 body.feed-page .vt-feed-post-media-open-001{
  display:block;width:100%;padding:0;border:0;border-radius:12px;
- background:transparent;cursor:zoom-in;overflow:hidden
+ background:transparent;cursor:pointer;overflow:hidden
 }
 body.feed-page .vt-feed-post-media-open-001:focus-visible{outline:3px solid #6d76eb;outline-offset:-3px}
 /* Media stays entirely local until someone chooses to play a video. */
@@ -469,7 +469,7 @@ body.feed-page .vatra-post-gallery[data-layout="3"] .vatra-post-gallery-tile:fir
 body.feed-page .vatra-post-gallery[data-layout="5"] .vatra-post-gallery-tile:first-child{grid-row:1/-1}
 body.feed-page .vatra-post-gallery-tile{
  position:relative;display:block;min-width:0;min-height:0;padding:0;overflow:hidden;
- border:0;border-radius:0;background:#e8edf5;cursor:zoom-in
+ border:0;border-radius:0;background:#e8edf5;cursor:pointer
 }
 body.feed-page .vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile{max-height:640px}
 body.feed-page .vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind="video"]{aspect-ratio:16/9}
@@ -812,7 +812,7 @@ html:has(body.feed-page){scrollbar-gutter:stable}
 body.feed-page .feed-header{
  position:sticky;top:0;z-index:90;min-height:0;background:rgba(255,255,255,.985);
  border-bottom:1px solid #e9edf7;
- box-shadow:0 4px 18px rgba(30,48,87,.075);
+ box-shadow:0 2px 12px rgba(30,48,87,.065);
  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
  overflow:visible
 }
@@ -2104,7 +2104,7 @@ body.feed-page .vatra-post-media-placeholder{
 body.feed-page .feed-post-media.is-ready-media{background:transparent;border:0}
 body.feed-page .feed-post-media .vt-feed-post-media-open-001{
  display:block;width:100%;max-width:100%;padding:0;border:0;
- border-radius:0;background:transparent;cursor:zoom-in;overflow:hidden
+ border-radius:0;background:transparent;cursor:pointer;overflow:hidden
 }
 body.feed-page .feed-post-media .feed-post-media-image{
  display:block;width:100%;height:auto;max-height:640px;object-fit:contain;
@@ -3051,3 +3051,10 @@ body.feed-page .vt-vatra-sticker-option-001{display:grid;place-items:center;widt
 body.feed-page .vt-vatra-sticker-option-001:hover{background:#f0f4fa}
 body.feed-page .ui-vatra-sticker-art-001{display:block;width:100%;height:100%;background-repeat:no-repeat;pointer-events:none}
 body.feed-page .vt-vatra-picker-loading-001,body.feed-page .vt-vatra-picker-retry-001{font:500 14px/1.5 Onest,Inter,system-ui,sans-serif;color:var(--soft)}
+
+/* Shared VATRA ID entry: one implementation on all signed-in pages. */
+body.feed-page .feed-account-dropdown > .vt-vatra-account-manage-001{gap:10px;border:1px solid #dfe7f5;border-radius:11px;margin-bottom:7px;background:#f6f8fc;justify-content:center}
+body.feed-page .ui-vatra-account-id-brand-001{display:inline-flex;align-items:center;gap:3px;flex:none}
+body.feed-page .ui-vatra-account-id-symbol-001{display:block;width:23px;height:23px;object-fit:contain}
+body.feed-page .vt-vatra-account-id-label-001{font:750 12px/1 Onest,system-ui,sans-serif;color:#30456a}
+body.feed-page .vt-vatra-account-settings-link-001{display:flex;align-items:center;min-height:38px;color:#315fba;text-decoration:none;padding:6px 10px;font:650 13px/1.4 Onest,system-ui,sans-serif}

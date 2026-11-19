@@ -255,7 +255,8 @@
  async function uploadStory(client,id,file){
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
-  const path=id+"/stories/"+crypto.randomUUID()+"."+format.ext;
+  const path=String(id)+"/stories/"+crypto.randomUUID().toLowerCase()+"."+format.ext;
+  if(!storyPathValid(path,format.kind,String(id)))throw Error("Invalid story media path");
   const {error}=await client.storage.from(format.bucket).upload(path,file,{
    contentType:file.type,cacheControl:"300",upsert:false
   });
