@@ -24,22 +24,29 @@
 .vt-community-directory-empty-copy-001{margin:0;max-width:340px;color:var(--soft);font:400 15px/1.65 Onest,Inter,system-ui,sans-serif}
 .vt-community-directory-empty-action-001{margin-top:5px}
 .ui-community-card-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:2px}
+/* Club identity uses the same full-width, flush cover geometry as a member profile. */
+body.feed-page.community-page[data-page="club"] .feed-layout{width:min(calc(100% - 40px),1000px);margin:0 auto 70px}
 body.community-page[data-page="club"] .ui-club-main-001{min-width:0;gap:18px}
-body.community-page .ui-club-hero-001{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 5px 20px #243b6208}
-body.community-page .ui-club-cover-001{height:clamp(160px,20vw,250px);position:relative;overflow:hidden;background:radial-gradient(ellipse at 12% 110%,#5796ef66,transparent 55%),radial-gradient(ellipse at 90% 5%,#b39bf777,transparent 48%),linear-gradient(120deg,#eaf3ff,#e7eaff 53%,#f5eafa)}
+body.community-page .ui-club-hero-001{background:#fff;border:1px solid var(--line);border-top:0;border-radius:0 0 18px 18px;overflow:hidden;box-shadow:0 5px 20px #243b6208}
+body.community-page .ui-club-cover-001{height:290px;position:relative;overflow:hidden;background:radial-gradient(ellipse 48% 95% at 78% 0%,rgba(229,158,217,.52),transparent 80%),radial-gradient(ellipse 40% 88% at 2% 93%,rgba(52,119,222,.48),transparent 90%),linear-gradient(110deg,#daeafc 0%,#cad9f8 39%,#e8d9f8 80%,#f2e4f5 100%)}
 body.community-page .ui-club-cover-001::after{content:"";position:absolute;width:280px;aspect-ratio:1;top:-70px;right:8%;border:48px solid #ffffff40;border-radius:50%;box-shadow:0 0 0 26px #ffffff20}
-body.community-page .ui-club-summary-001{display:grid;grid-template-columns:112px minmax(0,1fr) auto;align-items:center;gap:16px;padding:0 24px 20px;position:relative;min-height:105px}
-body.community-page .vt-club-avatar-001{width:112px;height:112px;display:grid;place-items:center;margin-top:-36px;border:4px solid #fff;border-radius:50%;background:linear-gradient(145deg,#2567e9,#8569e9);color:#fff;font:700 44px/1 Onest,system-ui,sans-serif;box-shadow:0 0 0 1px #dde5f4;position:relative}
-body.community-page .ui-club-identity-001{display:grid;gap:5px;min-width:0;padding-top:14px}
+body.community-page .ui-club-summary-001{display:grid;grid-template-columns:146px minmax(0,1fr) auto;align-items:center;gap:18px;padding:0 28px 20px;position:relative;min-height:122px}
+body.community-page .vt-club-avatar-001{width:146px;height:146px;display:grid;place-items:center;margin-top:-54px;border:5px solid #fff;border-radius:50%;background:linear-gradient(145deg,#2567e9,#8569e9);color:#fff;font:700 48px/1 Onest,system-ui,sans-serif;box-shadow:0 0 0 1px #dde5f4;position:relative}
+body.community-page .ui-club-identity-001{display:grid;gap:5px;min-width:0;padding-top:10px}
 body.community-page .vt-club-name-001{margin:0;color:var(--ink);font:700 clamp(23px,3vw,32px)/1.2 Onest,system-ui,sans-serif;letter-spacing:-.035em;overflow-wrap:anywhere}
 body.community-page .vt-club-public-id-001{font-size:13px;color:var(--soft)}
-body.community-page .ui-club-summary-001 .club-social-actions{padding-top:14px}
-body.community-page .ui-club-info-001{border-top:1px solid var(--line);padding:20px 24px 24px;display:grid;gap:10px}
+body.community-page .ui-club-summary-001 .club-social-actions{padding-top:10px}
+body.community-page .ui-club-content-grid-001{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,295px);align-items:start;gap:18px;min-width:0}
+body.community-page .ui-club-content-grid-001 .club-posts-section{margin-top:0}
+body.community-page .ui-club-content-grid-001 .vt-club-posts-empty-001:not([hidden]){min-height:140px}
+body.community-page .ui-club-side-001{display:grid;gap:10px;min-width:0}
+body.community-page .ui-club-info-001{border:1px solid var(--line);border-radius:16px;background:#fff;padding:19px 20px;display:grid;gap:10px}
 body.community-page .vt-club-about-title-001{margin:0;font:700 18px/1.3 Onest,system-ui,sans-serif;color:var(--ink)}
-body.community-page #club-description{margin:0;font:400 15px/1.65 Onest,system-ui,sans-serif;color:var(--soft);white-space:pre-wrap;overflow-wrap:anywhere}
-body.community-page .vt-club-back-link-001{align-self:flex-start;font-weight:700;font-size:14px;color:var(--blue);text-decoration:none;padding:6px 0}
-@media(max-width:760px){body.community-page .ui-club-summary-001{grid-template-columns:88px minmax(0,1fr);padding:0 16px 16px;gap:12px}body.community-page .vt-club-avatar-001{width:88px;height:88px;margin-top:-26px;font-size:34px}body.community-page .ui-club-summary-001 .club-social-actions{grid-column:1/-1;padding-top:2px;justify-content:flex-start}body.community-page .ui-club-info-001{padding:16px}}
-
+body.community-page #club-description{margin:0;font:400 15px/1.65 Onest,system-ui,sans-serif;color:var(--soft);white-space:pre-wrap;overflow-wrap:anywhere;min-width:0}
+body.community-page .vt-club-back-link-001{display:flex;align-items:center;justify-content:center;min-height:40px;border-radius:10px;background:var(--vatra-action-selected);font-weight:700;font-size:14px;color:var(--blue);text-decoration:none;padding:8px 12px}
+@media(max-width:900px){body.community-page .ui-club-summary-001{grid-template-columns:122px minmax(0,1fr);padding:0 18px 20px;gap:13px}body.community-page .vt-club-avatar-001{width:122px;height:122px;margin-top:-43px;font-size:40px}body.community-page .ui-club-summary-001 .club-social-actions{grid-column:1/-1;padding-top:0;justify-content:flex-end}}
+@media(max-width:760px){body.community-page .ui-club-content-grid-001{grid-template-columns:minmax(0,1fr);gap:12px}body.community-page .ui-club-side-001{grid-row:1}body.community-page .ui-club-info-001{padding:16px}}
+@media(max-width:600px){body.feed-page.community-page[data-page="club"] .feed-layout{width:calc(100% - 16px);margin:0 auto 45px}body.community-page .ui-club-cover-001{height:185px}body.community-page .ui-club-summary-001{grid-template-columns:88px minmax(0,1fr);padding:0 15px 17px;gap:12px}body.community-page .vt-club-avatar-001{width:88px;height:88px;margin-top:-28px;font-size:34px}}
 
 body.community-page .ui-club-post-card-001.is-linked-post{
  border-color:#a9c4f7;box-shadow:0 0 0 3px rgba(84,132,221,.11),0 5px 20px rgba(51,80,130,.07);

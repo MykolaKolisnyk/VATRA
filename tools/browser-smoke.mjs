@@ -2864,6 +2864,16 @@ try{
  const ownerFriends=await feedContext.newPage();
  await ownerFriends.goto(base+"friends.html?friend-action-test=1",{waitUntil:"domcontentloaded"});
  await ownerFriends.locator(".vatra-friends-person").first().waitFor({state:"visible",timeout:14000});
+ const friendViewport=ownerFriends.viewportSize();
+ for(const size of [{width:1440,height:900},{width:390,height:844}]){
+  await ownerFriends.setViewportSize(size);
+  const geometry=await ownerFriends.evaluate(()=>{
+   const sidebar=document.querySelector(".vatra-friends-sidebar").getBoundingClientRect(),content=document.querySelector(".vatra-friends-content").getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();
+   return {gap:sidebar.top-header.bottom,aligned:innerWidth>950?sidebar.right<=content.left+1:sidebar.bottom<=content.top+1,overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  assert.ok(Math.abs(geometry.gap)<=2&&geometry.aligned&&geometry.overflow<=3,"Friends layout: "+JSON.stringify(geometry));
+ }
+ if(friendViewport)await ownerFriends.setViewportSize(friendViewport);
  await ownerFriends.locator(".vt-vatra-friends-remove-1").click();
  await ownerFriends.waitForFunction(()=>window.__vatraFriendDeleteAttempts===1);
  assert.equal(await ownerFriends.locator(".vatra-friends-person").count(),1,
@@ -5042,6 +5052,17 @@ try{
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("vatra-test-clubs"))[0].category),"music","Chosen category must be persisted");
   assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
   assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
+  const clubViewport=page.viewportSize();
+  for(const size of [{width:1440,height:900},{width:390,height:844}]){
+   await page.setViewportSize(size);
+   const geometry=await page.evaluate(()=>{
+    const rect=s=>document.querySelector(s).getBoundingClientRect();
+    const cover=rect(".ui-club-cover-001"),head=rect(".feed-header"),summary=rect(".ui-club-summary-001"),posts=rect(".club-posts-section"),about=rect(".ui-club-side-001");
+    return {height:cover.height,gap:cover.top-head.bottom,below:posts.top>=summary.bottom-1&&about.top>=summary.bottom-1,columns:innerWidth>760?posts.right<=about.left+1:about.bottom<=posts.top+1,overflow:document.documentElement.scrollWidth-innerWidth};
+   });
+   assert.ok(Math.abs(geometry.gap)<=2&&geometry.height===(size.width>600?290:185)&&geometry.below&&geometry.columns&&geometry.overflow<=3,"Club profile layout: "+JSON.stringify(geometry));
+  }
+  if(clubViewport)await page.setViewportSize(clubViewport);
   assert.ok(clubNavigationErrors.length===0&&
    clubNavigations.every(path=>path.startsWith("/VATRA/"))&&
    new URL(page.url()).pathname==="/VATRA/club1",

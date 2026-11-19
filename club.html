@@ -16,7 +16,7 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/feed.css">
-    <link rel="stylesheet" href="assets/css/communities.css?rev=bc2fa5634904cf2996130dc8eb8021a1b19a4fb5">
+    <link rel="stylesheet" href="assets/css/communities.css?rev=4e4d2bfb07b7c7af30f2a1a26739e6554c8ae502">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js"></script>
   <script defer src="assets/js/public-name-cache.js"></script>
@@ -143,15 +143,9 @@
      <button type="button" id="club-compose-open" class="club-compose-open vt-club-compose-open-001" data-community-uk="Допис у спільноту" data-community-en="Post to community" hidden>Допис у спільноту</button>
           </div>
             </div>
-            <div class="ui-club-info-001">
-              <h3 class="vt-club-about-title-001" data-community-uk="Про спільноту" data-community-en="About the community">
-                Про спільноту
-              </h3>
-              <p id="club-description" class="vt-profile-about-text-001">
-              </p>
-            </div>
           </section>
 
+          <div class="ui-club-content-grid-001">
           <section class="club-posts-section ui-club-posts-section-001" aria-labelledby="club-posts-title">
             <h2 id="club-posts-title" class="vt-club-posts-title-001" data-community-uk="Публікації спільноти" data-community-en="Community posts">
               Публікації спільноти
@@ -163,6 +157,17 @@
             <button type="button" id="club-posts-more" class="feed-more vt-club-posts-more-001"
               data-community-uk="Завантажити ще" data-community-en="Load more" hidden>Завантажити ще</button>
           </section>
+          <aside class="ui-club-side-001" aria-labelledby="club-about-title">
+            <div class="ui-club-info-001">
+              <h2 id="club-about-title" class="vt-club-about-title-001" data-community-uk="Про спільноту" data-community-en="About the community">
+                Про спільноту
+              </h2>
+              <p id="club-description" class="vt-profile-about-text-001">
+              </p>
+            </div>
+          <a href="communities" class="profile-back-link vt-club-back-link-001" data-community-uk="Усі спільноти" data-community-en="All communities">Усі спільноти</a>
+          </aside>
+          </div>
           <dialog id="club-compose-dialog" class="club-compose-dialog ui-club-compose-dialog-001" aria-labelledby="club-compose-title">
             <form id="club-compose-form" class="ui-club-compose-form-001">
               <h2 id="club-compose-title" class="vt-club-compose-title-001" data-community-uk="Допис у спільноті" data-community-en="Community post">
@@ -187,7 +192,7 @@
           </dialog>
           <p id="club-status" class="vt-club-status-001" role="status" aria-live="polite" hidden>
           </p>
-          <a href="communities" class="profile-back-link vt-club-back-link-001" data-community-uk="Усі спільноти" data-community-en="All communities">Усі спільноти</a>
+
         </main>
       </div>
     </div>

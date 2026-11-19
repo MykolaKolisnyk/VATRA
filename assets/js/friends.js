@@ -259,7 +259,6 @@ async function boot(){
    if(input){event.preventDefault();input.focus();input.select();}
   };
   q("#friends-find")?.addEventListener("click",findPeople);
-  q(".vt-vatra-friends-side-search-link-001")?.addEventListener("click",findPeople);
   if(!me){
    const empty=q("#friends-empty");
    empty.textContent=t("Списки друзів інших користувачів приватні.",

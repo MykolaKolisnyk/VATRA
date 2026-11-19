@@ -17,7 +17,7 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/feed.css">
-    <link rel="stylesheet" href="assets/css/friends.css">
+    <link rel="stylesheet" href="assets/css/friends.css?rev=b3b4253a4be806aa42b69e578548fe3eeba7c701">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js"></script>
   <script defer src="assets/js/public-name-cache.js"></script>
@@ -129,35 +129,30 @@
         </div>
       </header>
       <main id="friends-main" class="vatra-friends-main ui-vatra-friends-main-001" aria-labelledby="friends-heading">
- <section class="vatra-friends-layout ui-vatra-friends-layout-001">
-  <div class="vatra-friends-primary ui-vatra-friends-primary-001">
-   <header class="vatra-friends-top ui-vatra-friends-top-001">
-    <div class="vatra-friends-heading-wrap ui-vatra-friends-heading-wrap-001">
-
-     <h1 id="friends-heading" class="vt-vatra-friends-heading-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</h1>
-    </div>
-    <button id="friends-find" type="button" class="vt-vatra-friends-find-001" data-social-uk="Знайти друзів" data-social-en="Find friends">Знайти друзів</button>
-   </header>
-   <div class="vatra-friends-tabs ui-vatra-friends-tabs-001" role="group" aria-label="Списки друзів">
+ <section class="vatra-discovery-workspace vatra-friends-layout ui-vatra-friends-layout-001">
+  <aside class="vatra-discovery-sidebar vatra-friends-sidebar ui-vatra-friends-sidebar-001">
+   <h1 id="friends-heading" class="vatra-discovery-title vt-vatra-friends-heading-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</h1>
+   <div class="vatra-discovery-tabs vatra-friends-tabs ui-vatra-friends-tabs-001" role="group" aria-label="Списки друзів">
     <button type="button" class="vt-vatra-friends-tab-accepted-001 is-active" data-friends-tab="accepted" aria-pressed="true" data-social-uk="Усі друзі" data-social-en="All friends">Усі друзі</button>
     <button type="button" class="vt-vatra-friends-tab-online-001" data-friends-tab="online" aria-pressed="false" data-social-uk="Онлайн" data-social-en="Online">Онлайн</button>
     <button type="button" class="vt-vatra-friends-tab-incoming-001" data-friends-tab="incoming" aria-pressed="false" data-social-uk="Вхідні запити" data-social-en="Requests">Вхідні запити</button>
     <button type="button" class="vt-vatra-friends-tab-outgoing-001" data-friends-tab="outgoing" aria-pressed="false" data-social-uk="Вихідні запити" data-social-en="Sent requests">Вихідні запити</button>
    </div>
+  </aside>
+  <section class="vatra-discovery-content vatra-friends-content ui-vatra-friends-content-001">
+   <div class="vatra-friends-primary ui-vatra-friends-primary-001">
+    <div class="vatra-friends-toolbar ui-vatra-friends-toolbar-001">
    <label class="vatra-friends-search ui-vatra-friends-search-001" for="friends-search">
     <svg class="ui-vatra-friends-search-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.8"/><path d="m16 16 5 5"/></svg>
     <input id="friends-search" class="ui-vatra-friends-search-input-001" type="search" autocomplete="off" maxlength="100" data-shell-placeholder-uk="Пошук серед друзів" data-shell-placeholder-en="Search friends" placeholder="Пошук серед друзів">
    </label>
+     <button id="friends-find" type="button" class="vt-vatra-friends-find-001" data-social-uk="Знайти друзів" data-social-en="Find friends">Знайти друзів</button>
+    </div>
    <div id="friends-list" class="vatra-friends-list ui-vatra-friends-list-001" aria-live="polite" aria-busy="true"></div>
    <p id="friends-empty" class="vt-vatra-friends-empty-001" hidden></p>
-  </div>
-  <aside class="vatra-friends-sidebar ui-vatra-friends-sidebar-001">
-   <div class="vatra-friends-side-card ui-vatra-friends-side-card-search-001">
-    <h2 class="vt-vatra-friends-side-search-heading-001" data-social-uk="Ваші люди" data-social-en="Your people">Ваші люди</h2>
-    <p class="vt-vatra-friends-side-copy-001" data-social-uk="Знайдіть знайомих через пошук VATRA та надішліть запит у друзі." data-social-en="Find people through VATRA search and send friend requests.">Знайдіть знайомих через пошук VATRA та надішліть запит у друзі.</p>
-    <a class="vt-vatra-friends-side-search-link-001" href="feed" data-social-uk="Перейти до пошуку" data-social-en="Go to search">Перейти до пошуку</a>
+
    </div>
-  </aside>
+  </section>
  </section>
 </main>
     </div>
