@@ -2625,6 +2625,12 @@ body.feed-page .vatra-post-comment-media img{
  display:block;width:auto;height:auto;max-width:min(100%,340px);max-height:360px;
  object-fit:contain;border-radius:11px
 }
+body.feed-page .vatra-post-comment-media.is-vatra-sticker{border-radius:0;overflow:visible;margin:6px 0 4px}
+body.feed-page .vatra-post-comment-media.is-vatra-sticker img{width:auto;height:auto;max-width:min(100%,144px);max-height:144px;border-radius:0;object-fit:contain}
+body.feed-page .ui-vatra-comment-author-row-001{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0}
+body.feed-page .vt-vatra-post-comment-delete-001{display:grid;place-items:center;flex:none;width:25px;height:25px;border:0;background:transparent;color:#8999b0;cursor:pointer;border-radius:6px;padding:3px}
+body.feed-page .vt-vatra-post-comment-delete-001:hover{background:#edf2f8;color:#c14d5b}
+body.feed-page .vt-vatra-post-comment-delete-001 svg{width:16px;height:16px;display:block}
 body.feed-page .vatra-post-comment-media video{
  display:block;width:min(100%,350px);max-height:360px;
  background:#18212f;border-radius:11px

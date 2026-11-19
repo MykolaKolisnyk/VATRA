@@ -2,7 +2,7 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const pickerURL=new URL("comment-picker.js?rev=cdabd7f8ee9c909a9cba9a9aa44c05904e51d622",document.currentScript?.src||location.href).href;
+ const pickerURL=new URL("comment-picker.js?rev=5412493415722ba0a6065d13f75bc1577c1961d6",document.currentScript?.src||location.href).href;
  let pickerPromise=null;const loadPicker=()=>pickerPromise||(pickerPromise=import(pickerURL).catch(error=>{pickerPromise=null;throw error;}));
  const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
  const validId=value=>/^[1-9]\d{0,18}$/.test(String(value||""));
@@ -629,13 +629,12 @@ function appendAudience(container,level,isGroup=false){
    input.focus();
   };
   async function chooseSticker(catalog,pack,index){
-   if(submitting)return;
+   if(submitting||cropping)return;
    const version=++cropVersion;cropping=true;updateSend();
    try{
     const file=await catalog.stickerFile(pack.id,index);if(version!==cropVersion||!form.isConnected)return;
-    chosenFile={file,kind:"image",ext:"webp"};fileInput.value="";
-    fileLabel.textContent=tr(pack.uk,pack.en)+" · "+(index+1);
-    attachmentPreview.hidden=false;hideMenus();feedback("");
+    cropping=false;hideMenus();feedback("");
+    await publishComment({file,kind:"image",ext:"webp",sticker:true});
    }catch(_){if(version===cropVersion)feedback(tr("Не вдалося підготувати стікер. Спробуйте ще раз.","Could not prepare sticker. Please retry."),true);}
    finally{if(version===cropVersion){cropping=false;updateSend();}}
   }
@@ -713,10 +712,11 @@ function appendAudience(container,level,isGroup=false){
    if(!validId(id)||!["image","video"].includes(kind)||
     !path.startsWith(id+"/comments/"))return;
    const box=make("div","vatra-post-comment-media ui-vatra-post-comment-media-001");
+   if(kind==="image"&&/\/comments\/sticker-[0-9a-f-]+\.webp$/i.test(path))box.classList.add("is-vatra-sticker");
    const media=make(kind==="image"?"img":"video",
     "ui-vatra-post-comment-media-"+kind+"-001");
    if(kind==="image"){
-    media.alt=tr("Фото в коментарі","Comment photo");media.loading="lazy";
+    media.alt=box.classList.contains("is-vatra-sticker")?tr("Стікер","Sticker"):tr("Фото в коментарі","Comment photo");media.loading="lazy";
    }else{media.controls=true;media.preload="metadata";media.playsInline=true;}
    box.append(media);content.append(box);
    const bucket=kind==="image"?"post-images":"videos";
@@ -761,7 +761,18 @@ function appendAudience(container,level,isGroup=false){
      /^[\p{Extended_Pictographic}\uFE0F\u200D\p{Emoji_Modifier}\s]+$/u.test(item.body.trim());
     if(emojiOnly)body.classList.add("is-sticker");
    }
-   content.append(author);
+   const authorRow=make("div","ui-vatra-comment-author-row-001");authorRow.append(author);
+   if(String(item.author_vatra_id)===String(ownId)&&userId){
+    const remove=make("button","vt-vatra-post-comment-delete-001");remove.type="button";remove.setAttribute("aria-label",tr("Видалити","Delete"));remove.title=tr("Видалити","Delete");remove.append(glyph("x"));
+    remove.addEventListener("click",async()=>{if(remove.disabled)return;remove.disabled=true;try{
+     const result=await client.from("post_comments").delete().eq("id",item.id).eq("author_id",userId).select("id").maybeSingle();
+     if(result.error||String(result.data?.id)!==String(item.id))throw result.error||Error("Comment not removed");
+     card.remove();invalidateComments(client);invalidateEngagement(client);
+     if(item.media_path&&String(item.media_path).startsWith(String(ownId)+"/comments/")&&["image","video"].includes(item.media_kind)){try{await client.storage.from(item.media_kind==="image"?"post-images":"videos").remove([item.media_path]);}catch(_){}}
+     if(replyTarget?.id===item.id)stopReply();await loadComments(true);void refreshSocial();feedback(tr("Коментар видалено.","Comment deleted."));
+    }catch(_){feedback(tr("Не вдалося видалити коментар.","Could not delete comment."),true);}finally{remove.disabled=false;}});authorRow.append(remove);
+   }
+   content.append(authorRow);
    if(item.body)content.append(body);
    displayMedia(item,content);
    if(item.moderation_status==="possible_spam")content.append(
@@ -971,11 +982,10 @@ function appendAudience(container,level,isGroup=false){
    queueMicrotask(openComments);
   sort.addEventListener("change",()=>{updateNote();void loadComments(true);});
   more.addEventListener("click",()=>void loadComments(false));
-  form.addEventListener("submit",async event=>{
-   event.preventDefault();
+  async function publishComment(sticker=null){
    hideMenus();
-   const body=input.value.trim(),file=chosenFile;
-   if((!body&&!file)||body.length>1000||send.disabled||!validId(ownId))return;
+   const body=sticker?"":input.value.trim(),file=sticker||chosenFile;
+   if(submitting||cropping||(!body&&!file)||body.length>1000||!validId(ownId))return;
    submitting=true;updateSend();let uploaded=null,committed=false;
    try{
     const payload={post_kind:kind,post_id:post.id,
@@ -984,7 +994,7 @@ function appendAudience(container,level,isGroup=false){
     if(target)payload.parent_comment_id=target.id;
     if(file){
      const bucket=file.kind==="image"?"post-images":"videos";
-     const filename=crypto.randomUUID()+"."+file.ext;
+     const filename=(file.sticker?"sticker-":"")+crypto.randomUUID()+"."+file.ext;
      const path=ownId+"/comments/"+filename;
      const {error}=await client.storage.from(bucket).upload(path,file.file,{
       contentType:file.file.type,cacheControl:"3600",upsert:false
@@ -997,8 +1007,9 @@ function appendAudience(container,level,isGroup=false){
     if(result.error)throw result.error;
     committed=true;
     invalidateEngagement(client);invalidateComments(client);
-    input.value="";chosenFile=null;fileInput.value="";
-    attachmentPreview.hidden=true;stopReply();updateSend();
+    if(!sticker){input.value="";chosenFile=null;fileInput.value="";attachmentPreview.hidden=true;stopReply();}
+    else if(!input.value.trim()&&!chosenFile)stopReply();
+    updateSend();
     if(target&&rootReplies.has(target.id))await rootReplies.get(target.id).expand(true);
     else await loadComments(true);
     void refreshSocial();feedback(tr("Коментар опубліковано.","Comment published."));
@@ -1012,7 +1023,8 @@ function appendAudience(container,level,isGroup=false){
      feedback(tr("Коментар опубліковано.","Comment published."));
     }
    }finally{submitting=false;updateSend();}
-  });
+  }
+  form.addEventListener("submit",event=>{event.preventDefault();void publishComment();});
 
   // A true modal composer, matching VATRA typography: caption, original, friends and link.
   // The original post is referenced by UUID; the share creates a real feed_posts row.

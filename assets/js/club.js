@@ -11,6 +11,8 @@ async function setupClubSocial(client,clubId,ownId,userId){
  const renderedPostIds=new Set();
  const CLUB_PAGE_SIZE=12;
  const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
+ const guestLabel=node("label","ui-club-guest-optin-001"),guestOption=node("input","ui-club-guest-optin-check-001");guestOption.type="checkbox";
+ guestLabel.append(guestOption,node("span","vt-club-guest-optin-label-001",t("Дозволити гостям читати цей текстовий допис","Allow guests to read this text post")));input.after(guestLabel);
  const picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
   input:"#club-compose-media",choose:"#club-compose-media-choose",
   clear:"#club-compose-media-remove",preview:"#club-compose-media-preview",
@@ -150,11 +152,11 @@ async function setupClubSocial(client,clubId,ownId,userId){
   let uploaded=null;
   try{
    if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,files);
-   const {error}=await client.from("community_posts").insert({
-    club_id:clubId,author_vatra_id:ownId,body,media_items:uploaded||[]
-   });
+   const payload={club_id:clubId,author_vatra_id:ownId,body,media_items:uploaded||[]};
+   if(guestOption.checked&&!files.length&&body)payload.guest_visible=true;
+   const {error}=await client.from("community_posts").insert(payload);
    if(error)throw error;
-   input.value="";picker?.reset();dialog.close();
+   input.value="";guestOption.checked=false;picker?.reset();dialog.close();
    await loadClubPosts();
   }catch(error){
    if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}

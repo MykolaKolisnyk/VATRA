@@ -3464,10 +3464,9 @@ try{
   const cropRatio=await feedProbe.locator(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001").first().evaluate(async art=>{const image=new Image();image.src=JSON.parse(art.style.backgroundImage.slice(4,-1));await image.decode();const rect=art.getBoundingClientRect();return {actual:rect.width/rect.height,expected:.25*image.naturalWidth/(.207849*image.naturalHeight)};});
   assert.ok(Math.abs(cropRatio.actual-cropRatio.expected)<.03,"Sticker thumbnails preserve the crop aspect ratio");
   await feedProbe.locator(".vt-vatra-sticker-option-001").first().click();
-  await feedProbe.locator(".vatra-post-comment-file-preview").waitFor({state:"visible"});
-  assert.match(await feedProbe.locator(".vt-vatra-post-comment-file-name-001").textContent(),/(Батя|Dad) · 1/);
+  await feedProbe.waitForFunction(()=>!document.querySelector(".vatra-post-comment-dialog .vt-vatra-post-comment-send-001")?.disabled||!!document.querySelector(".vatra-post-comment-dialog .vatra-post-comment-media.is-vatra-sticker"),{},{timeout:10000}).catch(()=>{});
+  assert.equal(await feedProbe.locator(".vatra-post-comment-file-preview").isVisible(),false,"Sticker sends directly without a file-preview step");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"","Sticker is an independent image, not fake emoji text");
-  await feedProbe.locator(".vt-vatra-post-comment-file-remove-001").click();
   const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-attach-001");
   await attachmentControl.click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
