@@ -1055,6 +1055,7 @@ function missingProfile(state="not-found"){
  q("#profile-last-seen")?.remove();
 
  q(".profile-actions")?.remove();
+ q("#profile-edit-open")?.remove();
  q(".ui-profile-tab-row-001")?.remove();
  q(".profile-panels")?.remove();
  document.title=title;

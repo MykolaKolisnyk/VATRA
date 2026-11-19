@@ -1145,7 +1145,8 @@ assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
 assert.ok(profileMarkup.includes('id="profile-heading"')&&
  !profileMarkup.includes('id="profile-not-found"')&&
  profileMarkup.includes('class="profile-panels ui-profile-panels-001"')&&
- (await read("assets/js/profile.js")).includes('q(".social-profile-tabs")?.remove()')&&
+ (await read("assets/js/profile.js")).includes('q(".ui-profile-tab-row-001")?.remove()')&&
+ (await read("assets/js/profile.js")).includes('q("#profile-edit-open")?.remove()')&&
  (await read("assets/js/profile.js")).includes('q(".profile-panels")?.remove()')&&
  (await read("assets/js/profile.js")).includes('const ownHeaderMedia=loadOwnHeaderAvatar(client,ownId,user.email);')&&
  (await read("assets/js/profile.js")).includes('const preloadedMedia=isMine?ownHeaderMedia:')&&
