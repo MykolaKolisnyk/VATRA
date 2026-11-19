@@ -31,7 +31,7 @@
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
     "404":"Page not found",
     terms:"Terms of Service · VATRA",commerce:"Commerce Rules · VATRA",privacy:"Privacy · VATRA",
-    cookies:"Cookies and browser storage · VATRA",offline:"No connection · VATRA"
+    cookies:"Cookies and browser storage · VATRA",offline:"No connection · VATRA",maintenance:"Maintenance · VATRA"
   };
   if(current==="en"){
     const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";

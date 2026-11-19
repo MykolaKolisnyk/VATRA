@@ -305,6 +305,48 @@
   "Не вдалося завантажити стрічку. Оновіть сторінку.": "Could not load the feed. Refresh the page.",
   "Не вдалося підключитися до VATRA.": "Could not connect to VATRA.",
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Maintenance · VATRA"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "TEMPORARY BREAK"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Maintenance"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk is working to improve VATRA. The social network will be available again soon. Thank you for your patience!"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Check availability"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Disable maintenance"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Administrator sign-in"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Your people. Your stories. Your VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Page not found",
