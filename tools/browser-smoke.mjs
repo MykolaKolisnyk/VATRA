@@ -2874,6 +2874,12 @@ try{
   assert.ok(Math.abs(geometry.gap)<=2&&geometry.aligned&&geometry.overflow<=3,"Friends layout: "+JSON.stringify(geometry));
  }
  if(friendViewport)await ownerFriends.setViewportSize(friendViewport);
+ const typography=await ownerFriends.evaluate(async()=>{
+  await document.fonts.ready;
+  const read=selector=>{const s=getComputedStyle(document.querySelector(selector));return {family:s.fontFamily,size:parseFloat(s.fontSize),weight:Number(s.fontWeight),line:parseFloat(s.lineHeight)};};
+  return {loaded:document.fonts.check('16px Onest'),heading:read("#friends-heading"),name:read(".vt-vatra-friends-name-1"),status:read(".vt-vatra-friends-subtitle-1"),action:read(".vt-vatra-friends-remove-1"),label:read(".vt-vatra-friends-tab-label-accepted"),count:read(".vt-vatra-friends-tab-count-accepted")};
+ });
+ assert.ok(typography.loaded&&[typography.heading,typography.name,typography.status,typography.action,typography.label,typography.count].every(s=>s.family.includes("Onest")&&s.line>s.size)&&typography.heading.size===24&&typography.name.size===16&&typography.name.weight>typography.status.weight&&typography.status.size===13&&typography.count.size<typography.label.size,"Friends typography must follow the Onest hierarchy: "+JSON.stringify(typography));
  await ownerFriends.locator(".vt-vatra-friends-remove-1").click();
  await ownerFriends.waitForFunction(()=>window.__vatraFriendDeleteAttempts===1);
  assert.equal(await ownerFriends.locator(".vatra-friends-person").count(),1,
