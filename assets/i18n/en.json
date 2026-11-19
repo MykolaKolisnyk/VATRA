@@ -2665,11 +2665,6 @@
         "og:locale": "en_US"
       },
       "nodes": {
-        "tab": {
-          "text": {
-            "0": "VATRA Commerce Rules"
-          }
-        },
         "head-overview": {
           "text": {
             "0": "Scope"
@@ -3213,21 +3208,6 @@
         "n7": {
           "text": {
             "0": "Create account"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Document sections"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Privacy"
           }
         },
         "n88": {

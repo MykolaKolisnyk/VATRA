@@ -10,6 +10,8 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
  const sections=[
   ["overview",t("Огляд","Overview"),"all"],
   ["companies",t("Компанії","Companies"),"briefcase"],
+  ["following",t("Мої підписки","Following"),"bookmark"],
+  ["posts",t("Публікації","Posts"),"listings"],
   ["team",t("Команда","Team"),"friends"],
   ["stores",t("Магазини","Stores"),"bag"],
   ["ads",t("Реклама","Advertising"),"share"],
@@ -17,6 +19,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   ["jobs",t("Вакансії","Jobs"),"listings"],
   ["booking",t("Бронювання","Bookings"),"watch"]
  ];
+ const canPublish=id=>["owner","admin","editor"].includes(roleOf(id));
  const moduleCopy={
   stores:t("Каталоги товарів та послуг компаній.","Company product and service catalogues."),
   ads:t("Просування компаній, товарів і публікацій.","Promote companies, products and posts."),
@@ -95,6 +98,82 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
    row.append(copy,buttons);box.append(row);
   }target.append(box);
  }
+ function statusLine(text=""){const status=make("p","vt-business-local-status-001",text);status.setAttribute("role","status");status.hidden=!text;return status;}
+ function setStatus(node,copy,error=false){node.textContent=copy;node.hidden=!copy;node.dataset.kind=error?"error":"info";}
+ async function loadMetrics(id){
+  const {data,error}=await client.from("business_metrics").select("follower_count,post_count").eq("company_id",id).single();
+  if(error||!data)throw Error("metrics");return data;
+ }
+ function metricValue(n){return Number.isFinite(Number(n))?new Intl.NumberFormat(document.documentElement.lang||"uk").format(Number(n)):"—";}
+ async function followControls(c,target){
+  const panel=make("div","ui-business-follow-panel-001"),count=make("span","vt-business-follow-count-001"),status=statusLine();
+  panel.append(count,status);target.append(panel);
+  try{
+   const [metrics,own]=await Promise.all([loadMetrics(c.id),client.from("business_followers").select("company_id").eq("company_id",c.id).eq("member_vatra_id",ownId).maybeSingle()]);
+   if(own.error)throw own.error;if(!panel.isConnected)return;
+   let following=Boolean(own.data);
+   const toggle=btn("","vt-business-primary-001",async()=>{
+    toggle.disabled=true;setStatus(status,"");
+    try{
+     const result=following?await client.from("business_followers").delete().eq("company_id",c.id).eq("member_vatra_id",ownId):await client.from("business_followers").insert({company_id:c.id});
+     if(result.error)throw result.error;
+     following=!following;paint();
+     try{const next=await loadMetrics(c.id);count.textContent=metricValue(next.follower_count)+" "+t("· підписники","· followers");}catch(_){count.textContent=t("Не вдалося оновити статистику.","Could not refresh statistics.");}
+    }catch(_){setStatus(status,err,true);}finally{toggle.disabled=false;}
+   });
+   function paint(){toggle.textContent=following?t("Ви підписані · Відписатися","Following · Unfollow"):t("Підписатися","Follow");toggle.setAttribute("aria-pressed",String(following));}
+   paint();count.textContent=metricValue(metrics.follower_count)+" "+t("· підписники","· followers");panel.prepend(toggle);
+  }catch(_){setStatus(status,err,true);}
+ }
+ async function renderPosts(id,target,editable=false){
+  const container=make("section","ui-business-posts-001");container.append(heading(t("Публікації компанії","Company posts")));target.append(container);
+  const list=make("div","ui-business-post-list-001"),status=statusLine();let ticket=0;
+  async function load(){
+   const version=++ticket;const result=await client.from("business_posts").select("id,body,created_at").eq("company_id",id).order("created_at",{ascending:false}).order("id",{ascending:false}).limit(50);
+   if(version!==ticket||!container.isConnected)return;
+   if(result.error){setStatus(status,err,true);return;}
+   list.replaceChildren();
+   if(!result.data?.length)list.append(make("p","vt-business-empty-001",t("Публікацій поки немає.","No posts yet.")));
+   for(const post of result.data||[]){
+    const item=card("ui-business-post-card-001"),date=make("time","vt-business-post-date-001",new Date(post.created_at).toLocaleString(document.documentElement.lang||"uk"));date.dateTime=post.created_at;
+    item.append(date,make("p","vt-business-post-body-001",post.body));
+    if(editable&&canPublish(id)){const remove=btn(t("Видалити","Delete"),"vt-business-secondary-001",async()=>{
+     remove.disabled=true;try{if(!await confirmRemove(t("Видалити публікацію?","Delete post?"),t("Цю дію неможливо скасувати.","This action cannot be undone."),t("Видалити","Delete")))return;
+      const r=await client.from("business_posts").delete().eq("id",post.id).eq("company_id",id).select("id").single();
+      if(r.error||!r.data)throw Error("delete");await load();
+     }catch(_){setStatus(status,err,true);}finally{remove.disabled=false;}
+    });item.append(remove);}list.append(item);
+   }
+  }
+  if(editable&&canPublish(id)){
+   const form=make("form","ui-business-post-form-001"),lab=make("label","vt-business-post-label-001",t("Нова публікація","New post")),input=make("textarea","ui-business-post-input-001");
+   input.id="business-post-body";lab.htmlFor=input.id;input.rows=4;input.maxLength=3000;input.required=true;input.placeholder=t("Поділіться новинами своєї компанії…","Share company news…");
+   const publish=make("button","vt-business-primary-001",t("Опублікувати","Publish"));publish.type="submit";
+   form.append(lab,input,publish);form.addEventListener("submit",async e=>{e.preventDefault();if(publish.disabled)return;const body=input.value.trim();if(!body)return;
+    publish.disabled=true;setStatus(status,"");
+    try{const r=await client.from("business_posts").insert({company_id:id,body});if(r.error)throw r.error;input.value="";await load();}
+    catch(_){setStatus(status,err,true);}finally{publish.disabled=false;}
+   });container.append(form);
+  }
+  container.append(status,list);await load();
+ }
+ async function showAnalytics(target){
+  target.append(heading(t("Аналітика","Analytics"),t("Поточні показники сторінки компанії.","Current company page metrics.")));
+  if(!selected){target.append(make("p","vt-business-empty-001",t("Спочатку створіть компанію.","Create a company first.")));return;}
+  target.append(companySelector());const metrics=await loadMetrics(selected);if(!target.isConnected)return;
+  const grid=make("div","ui-business-metrics-001");
+  for(const [key,label] of [["follower_count",t("Підписники","Followers")],["post_count",t("Публікації","Posts")]]){const el=card("ui-business-metric-001");el.append(make("p","vt-business-metric-label-001",label),make("strong","vt-business-metric-value-001",metricValue(metrics[key])));grid.append(el);}
+  target.append(grid,make("p","vt-business-heading-copy-001",t("Перегляди й охоплення ще не вимірюються; відображаються лише фактичні підписки та публікації.","Views and reach are not measured yet; only actual followers and posts are shown.")));
+ }
+ async function showFollowing(target){
+  target.append(heading(t("Мої підписки","Following")));
+  const r=await client.from("business_followers").select("company_id").eq("member_vatra_id",ownId).order("created_at",{ascending:false}).limit(100);
+  if(r.error)throw r.error;if(!target.isConnected)return;
+  const ids=(r.data||[]).map(x=>x.company_id);
+  if(!ids.length){target.append(make("p","vt-business-empty-001",t("Ви ще не підписані на компанії.","You do not follow companies yet.")));return;}
+  const result=await client.from("business_companies").select(fields).in("id",ids);if(result.error)throw result.error;if(!target.isConnected)return;
+  const grid=make("div","ui-business-company-grid-001");for(const c of result.data||[])grid.append(tile(c,roleOf(c.id)));target.append(grid);
+ }
  function showCompany(c,target,controls=true){
   const box=card("ui-business-company-profile-001"),cover=make("div","ui-business-company-cover-001"),inner=make("div","ui-business-company-profile-info-001");
   const avatar=make("span","ui-business-company-profile-avatar-001",c.name.trim().slice(0,1).toLocaleUpperCase());
@@ -103,7 +182,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   if(c.contact_email)inner.append(make("p","vt-business-company-contact-001",c.contact_email));
   const url=safeWebsite(c.website);if(url){const a=make("a","vt-business-company-site-001",t("Вебсайт компанії","Company website"));a.href=url;a.target="_blank";a.rel="noopener noreferrer";inner.append(a);}
   const role=roleOf(c.id);if(controls&&["owner","admin","editor"].includes(role))inner.append(btn(t("Редагувати інформацію","Edit information"),"vt-business-secondary-001",()=>openEditor(c)));
-  box.append(cover,inner);target.append(box);
+  box.append(cover,inner);target.append(box);return inner;
  }
  async function team(target,version){
   showInvites(target);if(!selected){target.append(make("p","vt-business-empty-001",t("Спочатку створіть компанію або прийміть запрошення.","Create a company or accept an invitation first.")));return;}
@@ -145,14 +224,18 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
     if(term)q=q.ilike("name","%"+term+"%");const r=await q;if(version!==renderVersion||ownTicket!==ticket)return;grid.replaceChildren();if(r.error){grid.append(make("p","vt-business-empty-001",err));return;}for(const c of r.data||[])grid.append(tile(c,roleOf(c.id)));if(!grid.children.length)grid.append(make("p","vt-business-empty-001",t("Компаній не знайдено.","No companies found.")));
    };filter.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(()=>void load(),250);});await load();
   }else if(view==="team"){target.append(heading(t("Команда","Team")));await team(target,version);}
+  else if(view==="following")await showFollowing(target);
+  else if(view==="analytics")await showAnalytics(target);
+  else if(view==="posts"){if(!selected){target.append(heading(t("Публікації","Posts")),make("p","vt-business-empty-001",t("Спочатку створіть компанію.","Create a company first.")));}else{target.append(companySelector());await renderPosts(selected,target,true);}}
   else{const item=sections.find(x=>x[0]===view);target.append(heading(item[1],moduleCopy[view]));const panel=card("ui-business-module-001");panel.append(sectionIcon(item[2]),make("h3","vt-business-panel-title-001",t("Функція в розробці","In development")),make("p","vt-business-heading-copy-001",t("Цей інструмент ще не доступний. Дані та показники не генеруються.","This tool is not available yet. No data or metrics are generated.")));target.append(panel);}}catch(_){if(version===renderVersion)target.replaceChildren(make("p","vt-business-empty-001",err));}
  }
  async function showPublic(id){
-  const result=await client.from("business_companies").select(fields).eq("id",id).maybeSingle();main.replaceChildren();
+  const version=++renderVersion;const result=await client.from("business_companies").select(fields).eq("id",id).maybeSingle();if(version!==renderVersion)return;main.replaceChildren();
   main.append(link(t("До бізнес-центру","Back to business centre"),"business","vt-business-page-link-001"));
   if(result.error){main.append(make("p","vt-business-empty-001",err));return;}
   if(!result.data){main.append(make("p","vt-business-empty-001",t("Компанію не знайдено.","Company not found.")));return;}
-  showCompany(result.data,main,false);
+  const target=make("div","ui-business-view-001");main.append(target);const profile=showCompany(result.data,target,false);
+  await Promise.all([followControls(result.data,profile),renderPosts(id,target,false)]);
  }
  try{await refresh();if(requested){if(uuid.test(requested))await showPublic(requested);else main.append(make("p","vt-business-empty-001",t("Компанію не знайдено.","Company not found.")));}
  else await render();}catch(_){main.replaceChildren(make("p","vt-business-empty-001",err));}
