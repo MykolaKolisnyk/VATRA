@@ -826,9 +826,10 @@ assert.ok(css.includes("align-items:start")&&css.includes(".signup-form-panel .t
  "Two-column registration inputs must not move when a field shows validation errors");
 for(const page of pages.filter(p=>p!=="offline"&&p!=="verify")){
  const html=await read(page+".html");
- if(page!=="404")assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
+ if(page==="maintenance")assert.ok(!html.includes("data-language-trigger")&&!/<(?:header|footer|button)\b/.test(html),"Maintenance display must contain no language picker, header, footer or action buttons");
+ else if(page!=="404")assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("assets/js/lang.js")&&!html.includes("assets/js/errors.js"),page+": language picker required, console toasts forbidden");
+ assert.ok(html.includes("assets/js/lang.js")&&!html.includes("assets/js/errors.js"),page+": localization runtime required, console toasts forbidden");
  assert.ok(html.includes("assets/css/base.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
@@ -836,7 +837,7 @@ assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger
 // All public pages use the same footer structure; the full-width background
 // remains separate from the centered content. Documents have a working
 // single-row header independent of the former signup header styles.
-const footerNames=pages.filter(p=>!["404","offline","feed","profile","verify"].includes(p));
+const footerNames=pages.filter(p=>!["404","offline","feed","profile","verify","maintenance"].includes(p));
 const feedFooter=await read("feed.html"),profileMarkup=await read("profile.html");
 assert.ok(!feedFooter.includes("<footer")&&!profileMarkup.includes("<footer"),
  "Signed-in VATRA must not show the guest-site footer");

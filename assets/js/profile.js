@@ -2517,8 +2517,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     client.from("avatar_likes").delete().eq("avatar_path",path).eq("liker_id",userId):
     client.from("avatar_likes").insert({owner_vatra_id:targetId,avatar_path:path,liker_id:userId});
    const {error}=await query;if(error)throw error;
-   await reloadPhotoActivity();
-  }catch(_){feedback(t("Не вдалося змінити вподобання.","Could not update like."),true);}
+   if(path===photoPath()&&mediaDialog.open)await reloadPhotoActivity();
+  }catch(_){if(path===photoPath()&&mediaDialog.open)feedback(t("Не вдалося змінити вподобання.","Could not update like."),true);}
   finally{likeBusy=false;likesButton.disabled=false;}
  });
  commentForm.addEventListener("submit",async event=>{
@@ -2531,8 +2531,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     owner_vatra_id:targetId,avatar_path:path,author_id:userId,author_vatra_id:ownId,body
    });
    if(error)throw error;
-   commentInput.value="";await reloadPhotoActivity();
-  }catch(_){feedback(t("Не вдалося додати коментар.","Could not add comment."),true);}
+   if(path===photoPath()&&mediaDialog.open){commentInput.value="";await reloadPhotoActivity();}
+  }catch(_){if(path===photoPath()&&mediaDialog.open)feedback(t("Не вдалося додати коментар.","Could not add comment."),true);}
   finally{commentBusy=false;commentSend.disabled=false;}
  });
  shareButton.addEventListener("click",async()=>{

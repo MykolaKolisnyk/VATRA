@@ -35,7 +35,7 @@
  const storyPathValid=(path,kind,id)=>{
   if(!validId(id)||typeof path!=="string"||!["image","video"].includes(kind))return false;
   const extension=kind==="image"?"(?:jpg|png|webp)":"(?:mp4|webm)";
-  return new RegExp("^"+id+"/stories/[0-9a-f-]{36}\\."+extension+"$").test(path);
+  return new RegExp("^"+id+"/stories/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\."+extension+"$").test(path);
  };
 
  /* Render hashtag anchors as DOM nodes; never parse user-submitted HTML. */
