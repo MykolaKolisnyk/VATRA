@@ -50,7 +50,7 @@ for(const name of ["clips","marketplace","settings"]){
  assert.equal(registered,1,name+" registers only its own initializer");
  new Function("window",src)({VATRA_HOST_ALLOWED:false,VATRA_SECTION_CORE:{start(){throw Error("Forbidden host");}}});
 }
-const businessModule=await readFile("assets/js/business.js","utf8");
+const businessModule=await readFile("assets/js/community-business.js","utf8");
 let businessStarts=0;const businessWindow={VATRA_SECTION_CORE:{start(){businessStarts++;}}};
 new Function("window",businessModule)(businessWindow);
 assert.equal(typeof businessWindow.VATRA_BUSINESS_TOOLS.mount,"function");assert.equal(businessStarts,0,"Community tools may never start a standalone page");

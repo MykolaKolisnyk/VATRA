@@ -31,3 +31,17 @@
 .vt-vatra-admin-status-001:empty{display:none}
 .vt-vatra-admin-status-001[data-error="true"]{color:#a02e40;background:#fbe9eb}
 @media(max-width:720px){.ui-vatra-admin-dialog-001{width:100vw;height:100dvh;border-radius:0}.ui-vatra-admin-header-001{padding:12px}.ui-vatra-admin-body-001{display:flex;flex-direction:column}.ui-vatra-admin-nav-001{flex-direction:row;overflow-x:auto;flex:none;padding:8px;border-right:0;border-bottom:1px solid #e4eaf3}.ui-vatra-admin-nav-001 button{white-space:nowrap}.ui-vatra-admin-content-001{flex:1;padding:12px}.ui-vatra-admin-stats-001{grid-template-columns:repeat(2,minmax(0,1fr))}.ui-vatra-admin-stat-001,.ui-vatra-admin-box-001{padding:13px}.vt-vatra-admin-title-001{font-size:18px}}
+
+/* Marketplace moderation is contained in the owner-only admin panel. */
+.ui-vatra-admin-market-tabs-001{display:flex;flex-wrap:wrap;gap:7px}
+.vt-vatra-admin-market-tab-001{border:1px solid #e0e7f1;border-radius:9px;background:#f5f8fc;color:#455976;padding:9px 12px;font:600 13px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
+.vt-vatra-admin-market-tab-001[aria-pressed="true"]{background:#e8efff;border-color:#dce7fc;color:#245fcf}
+.ui-vatra-admin-market-area-001{display:grid;gap:12px}
+.ui-vatra-admin-market-detail-001{display:grid;gap:12px;min-width:0}
+.ui-vatra-admin-market-detail-001[hidden]{display:none}
+.ui-vatra-admin-market-photos-001{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px}
+.ui-vatra-admin-market-photo-001{display:block;width:100%;height:auto;max-height:460px;object-fit:contain;background:#f4f7fb;border-radius:10px}
+.ui-vatra-admin-market-review-001{display:flex;align-items:flex-start;gap:9px;font:500 14px/1.5 Onest,system-ui,sans-serif}
+.ui-vatra-admin-market-check-001{accent-color:#2865d8;flex:none;width:18px;height:18px}
+.vt-vatra-admin-market-meta-001{font:500 13px/1.5 Onest,system-ui,sans-serif;color:#65768d;align-self:center}
+.vt-vatra-admin-market-description-001{font:400 15px/1.65 Onest,system-ui,sans-serif;color:#34465f;overflow-wrap:anywhere}
