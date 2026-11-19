@@ -2481,7 +2481,7 @@ body.profile-page .vt-profile-quick-media-001{
 }
 body.profile-page .vt-profile-quick-media-001:hover{background:#e8efff}
 body.profile-page .vt-profile-quick-media-001 svg{display:block;width:23px;height:23px}
-body.profile-page :is(.profile-quick-compose,.profile-story-compose-dialog) button:focus-visible{
+body.profile-page .profile-quick-compose button:focus-visible{
  outline:2px solid #608bf0;outline-offset:2px
 }
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
@@ -2509,32 +2509,6 @@ body.profile-page .profile-content-panel :is(#profile-photos-empty,#profile-vide
 body.profile-page .vt-profile-clips-empty-001::before{
  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%222.8%22%20y%3D%225.5%22%20width%3D%2218.4%22%20height%3D%2213.1%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22m10%209.1%205%202.95L10%2015V9.1Z%20M9%2021h6%22%2F%3E%3Cpath%20d%3D%22m8%202.5%204%203%204-3%22%2F%3E%3C%2Fsvg%3E")!important
 }
-body.profile-page .profile-story-compose-dialog{
- width:min(430px,calc(100vw - 28px));max-height:calc(100dvh - 30px);
- padding:0;margin:auto;border:1px solid #dce5f2;border-radius:18px;
- background:#fff;box-shadow:0 28px 80px rgba(25,43,84,.28);overflow:auto
-}
-body.profile-page .profile-story-compose-dialog:not([open]){display:none!important}
-body.profile-page .profile-story-compose-dialog::backdrop{background:rgba(25,40,72,.5);backdrop-filter:blur(4px)}
-body.profile-page .profile-story-compose-form{display:flex;flex-direction:column;gap:12px;padding:23px}
-body.profile-page .vt-profile-story-compose-title-001{margin:0;color:#2b4169;font:800 22px/1.25 "Onest",sans-serif}
-body.profile-page .vt-profile-story-compose-tip-001{margin:0;color:#7084a1;font:510 12.5px/1.55 "Onest",sans-serif}
-body.profile-page .vt-profile-story-compose-label-001{color:#465d7f;font:720 13px/1.4 "Onest",sans-serif}
-body.profile-page .ui-profile-story-compose-text-001{
- min-height:108px;padding:12px;border:1px solid #dfe7f3;border-radius:12px;resize:vertical;
- color:#2e405e;font:520 14px/1.5 "Onest",system-ui,sans-serif
-}
-body.profile-page .profile-story-compose-media,
-body.profile-page .profile-story-compose-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
-body.profile-page .profile-story-compose-media button,
-body.profile-page .profile-story-compose-actions button{
- min-height:40px;padding:9px 13px;border:1px solid #dce4f0;border-radius:10px;
- color:#3c5e96;background:#f3f6fb;cursor:pointer;font:720 12.5px/1.4 "Onest",sans-serif
-}
-body.profile-page .profile-story-compose-actions .vt-profile-story-compose-save-001{
- border-color:#326ee0;background:#326ee0;color:#fff
-}
-body.profile-page .vt-profile-story-compose-error-001:not([hidden]){margin:0;color:#b33e51;font:580 12px/1.5 "Onest",sans-serif}
 @media(max-width:970px){
  body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{margin-top:-30px!important}
 }

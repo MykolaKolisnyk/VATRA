@@ -10,13 +10,14 @@
     <meta name="robots" content="noindex,follow">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="description" content="Моя сторінка у VATRA.">
-    <title>Моя сторінка · VATRA</title>
+    <title>Моя сторінка</title>
     <link rel="preconnect" href="https://rjasunoawrxvetwadylh.supabase.co" crossorigin>
     <link rel="icon" type="image/svg+xml" href="assets/logo/logo_app-icon.svg">
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=24be0b14572ab9e5b4892dfd188d63a3a8f8f2f8">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=171772f49aa048f2bc9f9fa85b4edf846edf6528">
+    <link rel="stylesheet" href="assets/css/story-editor.css?rev=ae181ee0ae44b948fc5813e23763c3440b5a49d5">
     <link rel="stylesheet" href="assets/css/profile.css">
     <link rel="stylesheet" href="assets/css/post-composer.css">
     <link rel="stylesheet" href="assets/css/gifts.css">
@@ -30,7 +31,8 @@
     <script defer src="assets/js/notifications.js"></script>
     <script defer src="assets/js/gift-viewer.js"></script>
     <script defer src="assets/js/post-composer-ui.js"></script>
-    <script defer src="assets/js/profile.js?rev=458da53e19a613867ab3ec2647abf4b136ec1cac"></script>
+    <script defer src="assets/js/story-editor.js?rev=ea5a35f31862acd5e43fff02d513f2259acb83a5"></script>
+    <script defer src="assets/js/profile.js?rev=ce9ec1acffacb88d4f241b9a93ba30e1ba3b3f58"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -560,25 +562,7 @@
   <p id="profile-avatar-finish-error" class="vt-profile-avatar-finish-error-001" role="status" hidden></p>
   <div class="ui-profile-avatar-finish-actions-001"><button id="profile-avatar-finish-back" class="vt-profile-avatar-finish-back-001" type="button" data-social-uk="Назад" data-social-en="Back">Назад</button><button id="profile-avatar-finish-save" class="vt-profile-avatar-finish-save-001" type="button" data-social-uk="Зберегти" data-social-en="Save">Зберегти</button></div>
 </dialog>
-        <dialog id="profile-story-compose-dialog" class="profile-story-compose-dialog ui-profile-story-compose-dialog-001" aria-labelledby="profile-story-compose-title">
-          <form id="profile-story-compose-form" class="profile-story-compose-form ui-profile-story-compose-form-001">
-            <h2 id="profile-story-compose-title" class="vt-profile-story-compose-title-001" data-social-uk="Нова історія" data-social-en="New story">Нова історія</h2>
-            <p class="vt-profile-story-compose-tip-001" data-social-uk="Історія зникне через 24 години. Її бачать лише друзі." data-social-en="Your story expires after 24 hours and is visible to friends.">Історія зникне через 24 години. Її бачать лише друзі.</p>
-            <label class="vt-profile-story-compose-label-001" for="profile-story-compose-text" data-social-uk="Текст історії" data-social-en="Story text">Текст історії</label>
-            <textarea id="profile-story-compose-text" class="ui-profile-story-compose-text-001" rows="5" maxlength="260" data-shell-placeholder-uk="Поділіться моментом…" data-shell-placeholder-en="Share a moment…" placeholder="Поділіться моментом…"></textarea>
-            <div class="profile-story-compose-media ui-profile-story-compose-media-001">
-              <input id="profile-story-compose-media-input" class="ui-profile-story-compose-media-input-001" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden>
-              <button id="profile-story-compose-media-choose" type="button" class="vt-profile-story-compose-media-choose-001" data-social-uk="Додати фото або відео" data-social-en="Add photo or video">Додати фото або відео</button>
-              <button id="profile-story-compose-media-remove" type="button" class="vt-profile-story-compose-media-remove-001" data-social-uk="Прибрати файл" data-social-en="Remove file" hidden>Прибрати файл</button>
-            </div>
-            <div id="profile-story-compose-media-preview" class="vatra-compose-media-preview ui-profile-story-compose-media-preview-001" hidden></div>
-            <p id="profile-story-compose-error" class="vt-profile-story-compose-error-001" role="status" hidden></p>
-            <div class="profile-story-compose-actions ui-profile-story-compose-actions-001">
-              <button id="profile-story-compose-cancel" type="button" class="vt-profile-story-compose-cancel-001" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
-              <button id="profile-story-compose-save" type="submit" class="vt-profile-story-compose-save-001" data-social-uk="Опублікувати історію" data-social-en="Publish story">Опублікувати історію</button>
-            </div>
-          </form>
-        </dialog>
+        <dialog id="profile-story-compose-dialog" class="ui-vatra-story-editor-001" aria-labelledby="profile-story-compose-title"></dialog>
         <dialog id="profile-compose-dialog" class="profile-compose-dialog ui-profile-compose-dialog-001" aria-labelledby="profile-compose-title">
           <form id="profile-compose-form" class="ui-profile-compose-form-001">
             <h2 id="profile-compose-title" class="vt-profile-compose-title-001" data-social-uk="Новий допис" data-social-en="New post">

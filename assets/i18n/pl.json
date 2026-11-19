@@ -58,7 +58,7 @@
     },
     "index": {
       "meta": {
-        "title": "Logowanie · VATRA",
+        "title": "Logowanie",
         "description": "VATRA — ukraińska sieć społecznościowa do komunikacji, poznawania ludzi, twórczości, społeczności, zakupów i biznesu.",
         "og:locale": "pl_PL",
         "og:title": "VATRA — ukraińska sieć społecznościowa",
@@ -363,7 +363,7 @@
     },
     "feed": {
       "meta": {
-        "title": "Aktualności · VATRA",
+        "title": "Aktualności",
         "description": "Posty i historie w VATRA."
       },
       "nodes": {
@@ -448,7 +448,7 @@
     },
     "profile": {
       "meta": {
-        "title": "Moja strona · VATRA",
+        "title": "Moja strona",
         "description": "Twoja strona w VATRA."
       },
       "nodes": {
@@ -513,7 +513,7 @@
     },
     "offline": {
       "meta": {
-        "title": "Brak połączenia · VATRA"
+        "title": "Brak połączenia"
       },
       "nodes": {
         "n6": {
@@ -545,7 +545,7 @@
     },
     "verify": {
       "meta": {
-        "title": "Weryfikacja · VATRA",
+        "title": "Weryfikacja",
         "description": "Potwierdź swój adres e-mail."
       },
       "nodes": {
@@ -573,7 +573,7 @@
     },
     "create-account": {
       "meta": {
-        "title": "Utwórz konto · VATRA",
+        "title": "Utwórz konto",
         "description": "Utwórz konto w VATRA — ukraińskiej sieci społecznościowej do rozmów, społeczności i twórczości.",
         "og:locale": "pl_PL",
         "og:title": "Utwórz konto · VATRA",
@@ -986,7 +986,7 @@
     },
     "forgot": {
       "meta": {
-        "title": "Odzyskiwanie hasła · VATRA",
+        "title": "Odzyskiwanie hasła",
         "description": "Odzyskaj dostęp do konta VATRA — ukraińskiej sieci społecznościowej.",
         "og:locale": "pl_PL",
         "og:title": "Odzyskiwanie hasła · VATRA",
@@ -1162,7 +1162,7 @@
     },
     "reset": {
       "meta": {
-        "title": "Nowe hasło · VATRA",
+        "title": "Nowe hasło",
         "description": "Utwórz nowe hasło do VATRA — ukraińskiej sieci społecznościowej.",
         "og:locale": "pl_PL",
         "og:title": "Nowe hasło · VATRA",
@@ -1318,7 +1318,7 @@
     },
     "terms": {
       "meta": {
-        "title": "Warunki korzystania · VATRA",
+        "title": "Warunki korzystania",
         "description": "Zasady VATRA: konta, publikacje, społeczności, prawa autorskie, marketplace i bezpieczeństwo.",
         "og:locale": "pl_PL",
         "og:title": "Warunki korzystania — VATRA",
@@ -1658,7 +1658,7 @@
     },
     "privacy": {
       "meta": {
-        "title": "Prywatność · VATRA",
+        "title": "Prywatność",
         "description": "Polityka prywatności VATRA, ukraińskiej sieci społecznościowej. Jak przetwarzamy dane osobowe.",
         "og:locale": "pl_PL",
         "og:title": "Prywatność — VATRA",
@@ -2018,7 +2018,7 @@
     },
     "cookies": {
       "meta": {
-        "title": "Pliki cookie i pamięć przeglądarki · VATRA",
+        "title": "Pliki cookie i pamięć przeglądarki",
         "description": "Pliki cookie i dane przeglądarki w VATRA: zapamiętywanie sesji i ustawień.",
         "og:locale": "pl_PL",
         "og:title": "Pliki cookie i pamięć przeglądarki — VATRA",

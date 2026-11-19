@@ -1057,7 +1057,7 @@ function missingProfile(state="not-found"){
  q(".profile-actions")?.remove();
  q(".ui-profile-tab-row-001")?.remove();
  q(".profile-panels")?.remove();
- document.title=title+" · VATRA";
+ document.title=title;
  finish();
 }
 let profilePostsRequest=0;
@@ -1515,45 +1515,7 @@ function setupProfileGallery(client,targetId){
  }
 }
 function bindProfileStoryComposer(client,ownId){
- const trigger=q("#profile-add-story"),dialog=q("#profile-story-compose-dialog");
- const form=q("#profile-story-compose-form"),text=q("#profile-story-compose-text");
- const error=q("#profile-story-compose-error"),submit=q("#profile-story-compose-save");
- if(!trigger||!dialog||!form||!validId(ownId))return;
- const showError=value=>{error.textContent=value;error.hidden=!value;};
- const picker=window.VATRA_POST_MEDIA?.bindPicker({
-  input:"#profile-story-compose-media-input",choose:"#profile-story-compose-media-choose",
-  clear:"#profile-story-compose-media-remove",preview:"#profile-story-compose-media-preview",
-  onError:showError
- });
- const reset=()=>{text.value="";picker?.reset();showError("");};
- trigger.addEventListener("click",()=>{showError("");dialog.showModal();text.focus();});
- q("#profile-story-compose-cancel").addEventListener("click",()=>{reset();dialog.close();});
- dialog.addEventListener("close",()=>{if(!dialog.open)reset();});
- form.addEventListener("submit",async event=>{
-  event.preventDefault();
-  if(submit.disabled)return;
-  const body=text.value.trim(),file=picker?.getFile();
-  if((!body&&!file)||Array.from(body).length>260){
-   showError(t("Додайте текст, фото або відео (до 260 символів).",
-    "Add text, a photo or video (up to 260 characters)."));return;
-  }
-  submit.disabled=true;showError("");
-  let uploaded=null;
-  try{
-   if(file)uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,ownId,file);
-   const {error:insertError}=await client.from("stories").insert({
-    author_vatra_id:ownId,body,theme:Math.floor(Math.random()*5),...(uploaded||{})
-   });
-   if(insertError)throw insertError;
-   reset();dialog.close();
-
-   location.reload();
-  }catch(err){
-   if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
-   showError(err?.message||t("Не вдалося опублікувати історію.",
-    "Could not publish the story."));
-  }finally{submit.disabled=false;}
- });
+ window.VATRA_STORY_EDITOR.mount({dialog:q("#profile-story-compose-dialog"),trigger:q("#profile-add-story"),client,id:ownId,prefix:"profile-story-compose",onPublished:()=>location.reload()});
 }
 function bindPostComposer(client,user,ownId){
  const trigger=q("#profile-write-post");
@@ -3147,7 +3109,7 @@ async function start(){
 
   const titleName=String(publicName||(isMine?cleanOwnName:t("Учасник VATRA","VATRA member")))
    .replace(/\s+/g," ").trim().slice(0,100)||t("Учасник VATRA","VATRA member");
-  document.title=titleName+" · VATRA";
+  document.title=titleName;
 
   const preloadedMedia=isMine?ownHeaderMedia:
    Promise.resolve().then(()=>client.from("profile_media")

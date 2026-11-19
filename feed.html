@@ -10,7 +10,7 @@
     <meta name="robots" content="noindex,follow">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="description" content="Стрічка VATRA — публікації ваших людей.">
-    <title>Стрічка · VATRA</title>
+    <title>Стрічка</title>
     <link rel="preconnect" href="https://rjasunoawrxvetwadylh.supabase.co" crossorigin>
     <meta name="vatra-adsense-client" content="">
     <meta name="vatra-adsense-slot" content="">
@@ -18,7 +18,8 @@
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=24be0b14572ab9e5b4892dfd188d63a3a8f8f2f8">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=171772f49aa048f2bc9f9fa85b4edf846edf6528">
+    <link rel="stylesheet" href="assets/css/story-editor.css?rev=ae181ee0ae44b948fc5813e23763c3440b5a49d5">
     <link rel="stylesheet" href="assets/css/onboarding.css">
     <link rel="stylesheet" href="assets/css/post-composer.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -32,6 +33,7 @@
     <script defer src="assets/js/ads.js"></script>
     <script defer src="assets/js/post-composer-ui.js"></script>
     <script defer src="assets/js/onboarding.js"></script>
+    <script defer src="assets/js/story-editor.js?rev=ea5a35f31862acd5e43fff02d513f2259acb83a5"></script>
     <script defer src="assets/js/feed.js"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
@@ -239,30 +241,7 @@
           </div>
         </form>
       </dialog>
-      <dialog id="feed-story-dialog" class="feed-story-dialog ui-feed-story-dialog-001" aria-labelledby="feed-story-title">
-        <form id="feed-story-form" class="ui-feed-story-form-001">
-          <h2 id="feed-story-title" class="vt-feed-story-title-001" data-social-uk="Нова історія" data-social-en="New story">
-            Нова історія
-          </h2>
-          <p class="vt-feed-story-tip-001" data-social-uk="Історія зникне через 24 години. Її бачать лише друзі." data-social-en="Your story expires after 24 hours and is visible to friends only.">
-            Історія зникне через 24 години. Її бачать лише друзі.
-          </p>
-          <label for="feed-story-text" class="vt-feed-story-label-001" data-social-uk="Текст історії" data-social-en="Story text">Текст історії</label>
-    <textarea id="feed-story-text" class="ui-feed-story-text-001" rows="5" maxlength="260" data-shell-placeholder-uk="Поділіться моментом…" data-shell-placeholder-en="Share a moment…" placeholder="Поділіться моментом…"></textarea>
-          <div class="vatra-compose-media-controls ui-feed-story-media-controls-001">
-            <input id="feed-story-media" class="ui-feed-story-media-input-001" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden>
-            <button id="feed-story-media-choose" type="button" class="vt-feed-story-media-choose-001" data-social-uk="Додати фото або відео" data-social-en="Add photo or video">Додати фото або відео</button>
-            <button id="feed-story-media-remove" type="button" class="vt-feed-story-media-remove-001" data-social-uk="Прибрати файл" data-social-en="Remove file" hidden>Прибрати файл</button>
-          </div>
-          <div id="feed-story-media-preview" class="vatra-compose-media-preview ui-feed-story-media-preview-001" hidden></div>
-          <p id="feed-story-error" class="vt-feed-story-error-001" role="status" hidden>
-          </p>
-          <div class="feed-story-actions ui-feed-story-actions-001">
-            <button id="feed-story-cancel" type="button" class="vt-feed-story-cancel-001" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
-     <button id="feed-story-save" type="submit" class="vt-feed-story-save-001" data-social-uk="Опублікувати історію" data-social-en="Publish story">Опублікувати історію</button>
-          </div>
-        </form>
-      </dialog>
+      <dialog id="feed-story-dialog" class="ui-vatra-story-editor-001" aria-labelledby="feed-story-title"></dialog>
       <dialog id="feed-story-view" class="feed-story-view ui-feed-story-view-001" aria-labelledby="feed-story-view-heading">
         <h2 id="feed-story-view-heading" class="vt-feed-story-view-heading-001">
         </h2>

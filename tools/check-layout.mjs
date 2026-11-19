@@ -85,7 +85,7 @@ const lang=await read("assets/js/lang.js");
 // English browser tab while the asynchronous translation JSON is loading.
 const instantEnglishTitles=lang.slice(lang.indexOf("  const instantEnglishTitles={"),
  lang.indexOf("\n  };",lang.indexOf("  const instantEnglishTitles={")));
-for(const [page,title] of [["friends","Friends · VATRA"],["gifts","Gifts · VATRA"]]){
+for(const [page,title] of [["friends","Friends"],["gifts","Gifts"]]){
  const html=await read(page+".html");
  assert.ok(instantEnglishTitles.includes(page+':"'+title+'"')&&
   html.indexOf('src="assets/js/lang.js"')>=0&&
@@ -590,8 +590,8 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
 assert.ok(css.includes(".signup-confirmation-tips p{margin:0;color:var(--soft);font-size:14px;")&&
  css.includes(".signup-confirmation-signin{display:inline-flex;align-items:center;justify-content:center;margin-top:22px;"),
  "Confirmation secondary typography must use consistent 13–14px rules");
-assert.ok(uk.__pages["create-account"].meta.title==="Створити акаунт · VATRA"&&
- en.__pages["create-account"].meta.title==="Create account · VATRA"&&
+assert.ok(uk.__pages["create-account"].meta.title==="Створити акаунт"&&
+ en.__pages["create-account"].meta.title==="Create account"&&
  !register.includes('href="./" class="vt-create-account-link-10"'),
  "Registration tab and account-creation links must use consistent naming");
 assert.ok(captcha.includes('dispose(scope,state);')&&
@@ -1186,7 +1186,7 @@ const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
- 'href="assets/css/base.css"','href="assets/css/feed.css"',
+ 'href="assets/css/base.css"','href="assets/css/feed.css"','href="assets/css/story-editor.css"',
  'href="assets/css/profile.css"','href="assets/css/post-composer.css"','href="assets/css/gifts.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
@@ -1316,7 +1316,7 @@ assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
  storyPreviewMarkup.includes('id="feed-friend-stories"')&&
  storyPreviewMarkup.includes('id="feed-compose-open"')&&
  storyPreviewMarkup.includes('id="feed-compose-form"')&&
- storyPreviewMarkup.includes('id="feed-story-form"')&&
+ storyPreviewMarkup.includes('id="feed-story-dialog"')&&storyPreviewMarkup.includes('assets/js/story-editor.js')&&
  !storyPreviewMarkup.includes("ui-feed-story-preview-001")&&
  !storyPreviewMarkup.includes('data-vatra-coming-soon="stories"'),
  "Feed must show real friend Stories without fabricated previews, then the post composer");
@@ -1352,12 +1352,15 @@ assert.ok(clubMarkup.includes("assets/js/community-core.js")&&clubMarkup.include
 assert.ok(!communityScript.includes("setupClubSocial")&&!clubRuntime.includes("openDirectory"),"Community pages must contain only their own route logic");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
-assert.ok(storyPreviewMarkup.includes('id="feed-story-media"')&&
- storyPreviewMarkup.includes('id="feed-story-media-preview"')&&
+const storyEditorRuntime=await read("assets/js/story-editor.js");
+const storyEditorStyles=await read("assets/css/story-editor.css");
+assert.doesNotThrow(()=>new Function(storyEditorRuntime),"Shared story editor must be valid JavaScript");
+assert.ok(storyPreviewMarkup.includes('assets/js/story-editor.js')&&memberProfileMarkup.includes('assets/js/story-editor.js')&&
+ storyEditorRuntime.includes('canvas.width=W;canvas.height=H')&&storyEditorRuntime.includes('out.width=1080;out.height=1920')&&storyEditorStyles.includes('aspect-ratio:9/16')&&
  storyPreviewMarkup.includes('id="feed-story-view-media"')&&
  !/id="feed-story-text"[^>]*\srequired/.test(storyPreviewMarkup)&&
  memberProfileMarkup.includes('id="profile-story-viewer-media"')&&
- feedScript.includes('VATRA_POST_MEDIA.uploadStory(client,vatraId,file)')&&
+ feedScript.includes('VATRA_STORY_EDITOR.mount(')&&profileScript.includes('VATRA_STORY_EDITOR.mount(')&&storyEditorRuntime.includes('VATRA_POST_MEDIA.uploadStory(client,id,fileToPublish)')&&
  profileScript.includes('VATRA_POST_MEDIA?.renderStory(client,')&&
  postMediaScript.includes('"/stories/"')&&
  postMediaScript.includes('createSignedUrl(path,ttl)'),
@@ -1980,8 +1983,8 @@ assert.ok(
  memberCss.includes("grid-template-columns:minmax(0,37.5%) minmax(0,1fr)") &&
  memberCss.includes("body.profile-page .profile-posts-overview{"),
  "VATRA sign-in secondary action and balanced About / Posts profile columns must stay visible");
-assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
-assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
+assert.equal(uk.__pages.feed.meta.title,"Стрічка");
+assert.equal(en.__pages.feed.meta.title,"Feed");
 const onboardingJs=await read("assets/js/onboarding.js");
 const ownerAdminGuard=await read("assets/js/account-guard.js");
 const ownerAdminJs=await read("assets/js/admin.js");
@@ -2235,7 +2238,7 @@ assert.ok(
  !authRecovery.includes('"Якщо акаунт із такою адресою існує, лист із кодом надіслано. Введіть код нижче."'),
  "Initial recovery email must reveal the code step without a redundant green notice");
 assert.ok(
- profileScript.includes('document.title=titleName+" · VATRA";')&&
+ profileScript.includes('document.title=titleName;')&&
  socialMotion.includes('const eligible=target=>')&&
  socialMotion.includes('feed|profile|friends|gifts|communities|notifications|')&&
  !socialMotion.includes('new URL(ownProfile?"profile.html":"club.html"')&&
@@ -2577,3 +2580,6 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfil
 assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&!profileMarkup.includes('ui-profile-edit-icon-001')&&profileMarkup.includes('class="ui-profile-name-row-001"')&&memberCss.includes('.ui-profile-name-row-001>.profile-edit-open')&&!memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs beside the name as a single styled text action");
 
 assert.ok(memberProfileMarkup.includes('id="profile-cover-edit-dialog"')&&memberProfileMarkup.includes('id="profile-cover-preview-desktop"')&&memberProfileMarkup.includes('id="profile-cover-preview-mobile"')&&profileScript.includes('void startCoverCrop(fileCover.files[0])')&&profileScript.includes('uploadImage(file,"cover")')&&!profileScript.includes('uploadImage(fileCover.files[0],"cover")'),"Cover selection requires crop and device preview before explicit saving");
+
+for(const dirEntry of await readdir(".")){if(!dirEntry.endsWith(".html"))continue;const html=await read(dirEntry);assert.ok(!/<title>[^<]* · VATRA<\/title>/.test(html),dirEntry+": remove the redundant brand suffix from the browser tab");}
+for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))continue;const catalog=JSON.parse(await read("assets/i18n/"+file));assert.ok(Object.values(catalog.__pages||{}).every(page=>!page.meta?.title?.endsWith(" · VATRA")),file+": localized tab title must be suffix-free");}

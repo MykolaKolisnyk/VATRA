@@ -248,7 +248,7 @@ async function boot(){
    const heading=q("#friends-heading");heading.removeAttribute("data-social-uk");heading.removeAttribute("data-social-en");heading.textContent=t("Друзі: ","Friends: ")+targetName;
    const back=make("a","vt-vatra-friends-owner-link-001",t("До профілю","Back to profile"));back.href=new URL("id"+targetId,root).href;heading.after(back);
   }
-  document.title=(me?t("Друзі","Friends"):t("Друзі: ","Friends: ")+targetName)+" · VATRA";
+  document.title=(me?t("Друзі","Friends"):t("Друзі: ","Friends: ")+targetName);
   q("#feed-app").hidden=false;q("#feed-loading").hidden=true;
   document.body.dataset.authReady="true";document.body.classList.remove("vatra-shell-pending");
   window.VATRA_NOTIFICATIONS?.start(client,ownId);

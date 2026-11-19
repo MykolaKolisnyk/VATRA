@@ -730,61 +730,14 @@
    message(t("Публікацію додано.","Post published."),"success");
    void loadPosts(true);
   });
-  const storyDialog=q("#feed-story-dialog"),storyForm=q("#feed-story-form");
-  const storyText=q("#feed-story-text"),storyError=q("#feed-story-error");
-  const storySave=q("#feed-story-save");
-  const storyPicker=window.VATRA_POST_MEDIA?.bindPicker({
-   input:"#feed-story-media",choose:"#feed-story-media-choose",
-   clear:"#feed-story-media-remove",preview:"#feed-story-media-preview",
-   onError:value=>{storyError.textContent=value;storyError.hidden=!value;}
-  });
-  q("#feed-create-story").addEventListener("click",()=>{
-   storyError.hidden=true;storyDialog.showModal();storyText.focus();
-  });
-  const resetStoryDraft=()=>{
-   storyText.value="";storyPicker?.reset();storyError.hidden=true;
-  };
-  q("#feed-story-cancel").addEventListener("click",()=>{
-   resetStoryDraft();storyDialog.close();
-  });
-  storyDialog.addEventListener("close",()=>{
-   // The close event is queued asynchronously: never erase media added
-   // after a user quickly opens the editor again.
-   if(!storyDialog.open)resetStoryDraft();
-  });
+  window.VATRA_STORY_EDITOR.mount({dialog:q("#feed-story-dialog"),trigger:q("#feed-create-story"),client,id:vatraId,prefix:"feed-story",onPublished:()=>{message(t("Історію опубліковано на 24 години.","Story posted for 24 hours."),"success");void loadStories();}});
   const storyViewer=q("#feed-story-view");
   q("#feed-story-view-close").addEventListener("click",()=>storyViewer.close());
   storyViewer.addEventListener("close",()=>{
    const video=q("#feed-story-view-media video");
    if(video)video.pause();
   });
-  storyForm.addEventListener("submit",async event=>{
-   event.preventDefault();
-   if(storySave.disabled||!validId(vatraId))return;
-   const body=storyText.value.trim(),file=storyPicker?.getFile();
-   if((!body&&!file)||Array.from(body).length>260){
-    storyError.textContent=t("Додайте текст, фото або відео (до 260 символів).",
-     "Add text, a photo or a video (up to 260 characters).");
-    storyError.hidden=false;return;
-   }
-   storySave.disabled=true;storyError.hidden=true;
-   let uploaded=null;
-   try{
-    if(file)uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,vatraId,file);
-    const {error:insertError}=await client.from("stories")
-     .insert({author_vatra_id:vatraId,body,theme:Math.floor(Math.random()*5),...(uploaded||{})});
-    if(insertError)throw insertError;
-   }catch(error){
-    // Once a story is stored, a viewer refresh must not trigger media cleanup.
-    if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
-    storyError.textContent=error?.message||t("Не вдалося додати історію.","Could not publish story.");
-    storyError.hidden=false;storySave.disabled=false;return;
-   }
-   storySave.disabled=false;
-   resetStoryDraft();storyDialog.close();
-   message(t("Історію опубліковано на 24 години.","Story posted for 24 hours."),"success");
-   void loadStories();
-  });
+
  }
  async function deletePost(event){
   event.preventDefault();

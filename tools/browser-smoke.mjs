@@ -2240,7 +2240,7 @@ try{
  }));
  await confirmationPage.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
- assert.equal(await confirmationPage.title(),await confirmationPage.evaluate(()=>document.documentElement.lang==="en"?"Create account · VATRA":"Створити акаунт · VATRA"));
+ assert.equal(await confirmationPage.title(),await confirmationPage.evaluate(()=>document.documentElement.lang==="en"?"Create account":"Створити акаунт"));
  await confirmationPage.locator("#first-name").fill("Тест");
  await confirmationPage.locator("#last-name").fill("Користувач");
  await confirmationPage.evaluate(()=>{
@@ -3089,7 +3089,7 @@ try{
    "A full-route skeleton must disappear once the shell is ready");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockCreateClientCalls),1,
    "Feed uses exactly one Supabase auth client");
-  const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
+  const expectedTitle=language==="en"?"Feed":"Стрічка";
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),0);
@@ -3964,28 +3964,15 @@ try{
   await feedProbe.locator("#feed-story-media").setInputFiles({
    name:"story-test.png",mimeType:"image/png",buffer:onePixelPng
   });
-  const storyMediaState=await feedProbe.evaluate(()=>{
-   const input=document.querySelector("#feed-story-media");
-   const preview=document.querySelector("#feed-story-media-preview");
-   const image=preview?.querySelector("img");
-   return {dialogOpen:document.querySelector("#feed-story-dialog")?.open,
-    inputCount:input?.files?.length,inputMime:input?.files?.[0]?.type,
-    previewHidden:preview?.hidden,previewHTML:preview?.innerHTML?.slice(0,350),
-    previewDisplay:preview?getComputedStyle(preview).display:null,
-    imageRect:image?{width:image.getBoundingClientRect().width,height:image.getBoundingClientRect().height}:null,
-    error:document.querySelector("#feed-story-error")?.textContent,
-    mediaApi:typeof window.VATRA_POST_MEDIA?.bindPicker};
-  });
-  console.log("VATRA story media preview probe: "+JSON.stringify(storyMediaState));
-  // setInputFiles/change creates the image before the browser has decoded its
-  // blob. Wait for intrinsic size rather than one-shot isVisible on a 0x0 node.
-  await feedProbe.waitForFunction(()=>{
-   const img=document.querySelector("#feed-story-media-preview img");
-   return img?.complete===true&&img.naturalWidth>0&&
-    !document.querySelector("#feed-story-media-preview").hidden;
-  },null,{timeout:5000});
-  assert.equal(await feedProbe.locator("#feed-story-media-preview img").isVisible(),true,
-   "A selected story photo must appear after decoding: "+JSON.stringify(storyMediaState));
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-story-media-preview")?.dataset.ready==="true"&&!document.querySelector("#feed-story-media-preview canvas")?.hidden);
+  const storyCanvas=feedProbe.locator("#feed-story-media-preview canvas");
+  assert.ok(await storyCanvas.isVisible(),"Photo must be drawn into the real story canvas");
+  assert.equal(await storyCanvas.evaluate(el=>el.width/el.height),540/960);
+  await feedProbe.locator(".vt-vatra-story-tool-filters-001").click();
+  await feedProbe.locator(".vt-vatra-story-filter-001").nth(1).click();
+  assert.equal(await feedProbe.locator(".vt-vatra-story-filter-001").nth(1).getAttribute("aria-pressed"),"true");
+  await feedProbe.locator(".vt-vatra-story-undo-001").click();
+  assert.equal(await feedProbe.locator(".vt-vatra-story-filter-001").first().getAttribute("aria-pressed"),"true");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.media_kind),"image",
@@ -3993,7 +3980,7 @@ try{
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.body),"",
    "Story captions are optional when media exists");
   await feedProbe.locator("#feed-create-story").click();
-  assert.equal(await feedProbe.locator("#feed-story-media-preview").isVisible(),false,
+  assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();
   const composerFirst=await feedProbe.evaluate(()=>{
