@@ -109,6 +109,15 @@ try{
   await businessProbe.locator(".ui-business-public-view-001").waitFor();
   assert.equal(await businessProbe.locator(".ui-business-dashboard-company-001").count(),0);
   assert.equal(await businessProbe.locator(".ui-business-profile-details-001").count(),1);
+  assert.ok((await businessProbe.getByRole("link",{name:"Вакансії компанії"}).getAttribute("href")).includes("section=jobs&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
+  assert.ok((await businessProbe.getByRole("link",{name:"Запис на послуги"}).getAttribute("href")).includes("section=booking&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
+  await businessProbe.getByRole("button",{name:"Керувати компанією"}).click();
+  await businessProbe.locator(".ui-business-dashboard-company-001").waitFor();
+  await businessProbe.locator(".ui-business-dashboard-company-001 select").selectOption("8f19579a-199b-4ccf-9dc7-86df85238551");
+  await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-dashboard-company-name-001")?.textContent==="STUDIO 2");
+  await businessProbe.reload({waitUntil:"domcontentloaded"});
+  await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-dashboard-company-name-001")?.textContent==="STUDIO 2");
+
  }finally{await businessProbe.close();}
 
  // Simulate previously cached stylesheet/JS content after a deployment.

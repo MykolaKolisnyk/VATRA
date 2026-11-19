@@ -1,5 +1,5 @@
 /* Appointment scheduling is isolated and loaded only when opening Bookings. */
-export async function renderBusinessBookings({target,client,t,make,link,btn,card,field,submit,dialog,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode,onMode}){
+export async function renderBusinessBookings({target,client,t,make,link,btn,card,field,submit,dialog,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode,onMode,browseCompany=null}){
  const slots="id,company_id,service_name,starts_at,reserved,cancelled,business_companies(name)";
  const statusNames={requested:t("Очікує підтвердження","Awaiting confirmation"),confirmed:t("Підтверджено","Confirmed"),declined:t("Відхилено","Declined"),cancelled:t("Скасовано","Cancelled"),completed:t("Завершено","Completed")};
  const manager=["owner","admin","manager"].includes(roleOf(selected));let mode=["browse","mine","manage"].includes(initialMode)?initialMode:"browse",ticket=0;
@@ -66,7 +66,7 @@ export async function renderBusinessBookings({target,client,t,make,link,btn,card
     }
    }else{
     const search=make("input","ui-business-directory-search-001");search.type="search";search.maxLength=120;search.placeholder=t("Пошук послуг","Search services");search.setAttribute("aria-label",search.placeholder);const list=make("div","ui-business-bookings-area-001");body.append(search,list);let seq=0,timer;
-    async function browse(){const key=++seq,term=search.value.trim().replace(/[%_]/g,"");let q=client.from("business_booking_slots").select(slots).eq("reserved",false).eq("cancelled",false).gt("starts_at",new Date().toISOString()).order("starts_at").limit(80);if(term)q=q.ilike("service_name","%"+term+"%");const r=await q;
+    async function browse(){const key=++seq,term=search.value.trim().replace(/[%_]/g,"");let q=client.from("business_booking_slots").select(slots).eq("reserved",false).eq("cancelled",false).gt("starts_at",new Date().toISOString()).order("starts_at").limit(80);if(browseCompany)q=q.eq("company_id",browseCompany);if(term)q=q.ilike("service_name","%"+term+"%");const r=await q;
      if(key!==seq||token!==ticket||!list.isConnected)return;list.replaceChildren();if(r.error){list.append(empty(err));return;}if(!r.data?.length)list.append(empty(t("Вільного часу не знайдено.","No available times found.")));
      for(const slot of r.data||[]){const {box,actions}=slotCard(slot);if(!roleOf(slot.company_id))actions.append(btn(t("Записатися","Book"),"vt-business-primary-001",()=>book(slot)));list.append(box);}
     }search.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(()=>void browse(),250);});await browse();

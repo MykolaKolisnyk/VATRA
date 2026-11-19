@@ -136,3 +136,17 @@ body.vatra-business-page .vt-business-category-hint-001{margin:0;padding:10px;co
  body.vatra-business-page .vt-business-metric-value-001{font-size:27px}
 }
 @media(max-width:420px){body.vatra-business-page .vt-business-nav-soon-001{font-size:11px}body.vatra-business-page .ui-business-dashboard-actions-001>*{width:100%}}
+
+/* Directory filters and company-specific navigation */
+body.vatra-business-page .ui-business-directory-filters-001{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,1fr));gap:14px;padding:22px;align-items:end}
+body.vatra-business-page .ui-business-directory-field-001{display:grid;gap:8px;min-width:0}
+body.vatra-business-page .ui-business-directory-field-001 input,body.vatra-business-page .ui-business-directory-field-001 select{width:100%;min-width:0}
+body.vatra-business-page .ui-business-directory-city-001{border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:46px;background:#fff;color:var(--ink);font:var(--section-body)}
+body.vatra-business-page .ui-business-directory-filters-001>.vt-business-secondary-001{grid-column:1/-1;justify-self:end}
+body.vatra-business-page .vt-business-directory-status-001{margin:0;color:var(--soft);font:var(--section-caption)}
+body.vatra-business-page .ui-business-directory-pager-001,body.vatra-business-page .ui-business-public-actions-001{display:flex;gap:10px;flex-wrap:wrap}
+body.vatra-business-page .ui-business-directory-pager-001{justify-content:center}
+body.vatra-business-page .ui-business-filter-banner-001{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 20px}
+body.vatra-business-page .vt-business-filter-banner-label-001{flex:1;min-width:160px;overflow-wrap:anywhere;font:var(--section-control)}
+body.vatra-business-page .vt-business-secondary-001:disabled{opacity:.5;cursor:default}
+@media(max-width:700px){body.vatra-business-page .ui-business-directory-filters-001{grid-template-columns:minmax(0,1fr);padding:18px}body.vatra-business-page .ui-business-directory-city-001{font-size:16px}}
