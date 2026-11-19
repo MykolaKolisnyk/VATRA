@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline"];
+const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline","maintenance"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
 const authBaseCss=await read("assets/css/base.css");
 const signInCss=await read("assets/css/sign-in.css");
@@ -436,7 +436,7 @@ for(const page of pages){
  assert.ok(!/\/VATRA\/(?:ua|en)\//.test(html),filename+": stale locale-folder route");
  assert.ok(html.includes("data-i18n="),filename+": localized data nodes missing");
  assert.ok(html.includes("assets/js/lang.js"),filename+": shared language module missing");
- if(page!=="offline")assert.ok(html.includes("assets/css/base.css"),filename+": central stylesheet missing");
+ if(!["offline","maintenance"].includes(page))assert.ok(html.includes("assets/css/base.css"),filename+": central stylesheet missing");
  total+=inspect(filename,html);
  const bindings=[...html.matchAll(/\bdata-i18n="([^"]+)"/g)].map(x=>x[1]);
  assert.equal(new Set(bindings).size,bindings.length,filename+": duplicate translation keys");

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
 const BASE="https://mykolakolisnyk.github.io/VATRA/";
-const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline"];
+const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline","maintenance"];
 const publicPages=new Set(["index","terms","privacy","cookies","commerce"]);
 const sensitive=new Set(["404","create-account","forgot","reset","verify","feed","profile"]);
 const css=await read("assets/css/base.css");
@@ -31,6 +31,7 @@ for(const page of pages){
   assert.ok(html.includes('href="'+url+'"'),filename+": canonical URL should be unique");
   assert.ok(sitemap.includes('<loc>'+url+'</loc>'),filename+": missing sitemap URL");
  }
+ if(page==="maintenance")assert.ok(html.includes('name="robots" content="noindex,nofollow"'),"Maintenance must not be indexed");
  if(sensitive.has(page))assert.ok(html.includes('name="robots" content="noindex,follow"'),filename+": sensitive page should not be indexed");
  if(page==="index")assert.ok(html.includes('type="application/ld+json"'),"Missing website structured data");
  const ukMeta=uk.__pages[page].meta,enMeta=en.__pages[page].meta;
