@@ -4114,8 +4114,12 @@ try{
   await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),false,
    "Escape must close the account dropdown");
-  assert.equal(await feedProbe.locator("footer").count(),0,
-   "Signed-in VATRA Feed must not show a footer");
+  assert.equal(await feedProbe.locator("footer:not(dialog footer), .auth-footer-content").count(),0,
+   "Signed-in VATRA Feed must not have a page footer");
+  assert.equal(await feedProbe.locator("#feed-story-dialog footer.ui-vatra-story-footer-001").count(),1,
+   "The story editor must retain its own publication controls");
+  assert.equal(await feedProbe.locator("#feed-story-dialog footer.ui-vatra-story-footer-001").isVisible(),false,
+   "Story editor controls must be hidden when its dialog is closed");
   assert.ok(new URL(feedProbe.url()).pathname.endsWith("/VATRA/feed"),
    "Feed must use an extensionless public URL");
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0);
