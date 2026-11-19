@@ -130,7 +130,7 @@ async function openDirectory(client,ownId,userId){
    const max=topicGrid.scrollWidth-topicGrid.clientWidth;
    const scale=event.deltaMode===1?16:event.deltaMode===2?topicGrid.clientWidth:1;
    const target=Math.max(0,Math.min(max,topicGrid.scrollLeft+event.deltaY*scale));
-   if(Math.abs(target-topicGrid.scrollLeft)<1)return;
+   if(Math.abs(target-topicGrid.scrollLeft)<=1)return;
    if(event.cancelable)event.preventDefault();
    topicGrid.scrollLeft=target;
   },{passive:false});

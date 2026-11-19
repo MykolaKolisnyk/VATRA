@@ -16,7 +16,7 @@ assert.ok(src.includes('if(!categoryNames.has(category))')&&src.includes('.inser
 assert.ok(src.includes('request.eq("category",selectedCategory)')&&src.includes('club.category===selectedCategory'));
 assert.ok(edge.includes('CATEGORY_IDS.has(c.category)')&&edge.includes('vatra:public:communities:v2:latest100'));
 assert.ok(src.includes('for(const [id] of categories)')&&src.includes('topicGrid.append(tile)')&&src.includes('topicGrid.classList.toggle("is-expanded",topicsExpanded)'));
-assert.ok(src.includes('topicGrid.addEventListener("wheel"')&&src.includes('{passive:false}')&&src.includes('if(Math.abs(target-topicGrid.scrollLeft)<1)return;')&&src.includes('topicGrid.scrollBy')&&src.includes('previousTopic.disabled')&&src.includes('nextTopic.disabled'));
+assert.ok(src.includes('topicGrid.addEventListener("wheel"')&&src.includes('{passive:false}')&&src.includes('if(Math.abs(target-topicGrid.scrollLeft)<=1)return;')&&src.includes('topicGrid.scrollBy')&&src.includes('previousTopic.disabled')&&src.includes('nextTopic.disabled'));
 assert.ok(!src.includes('community-topic-filter')&&!src.includes('ui-community-topic-select-001'));
 const covers=JSON.parse(src.match(/const topicCovers=(\{[^\n]+\});/)[1]);
 assert.ok(Object.keys(covers).every(id=>keys.includes(id)));
