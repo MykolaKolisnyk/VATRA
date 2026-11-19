@@ -4338,10 +4338,10 @@ try{
   assert.ok(activeRing.gradient.includes("conic-gradient")&&
    activeRing.border==="rgb(255, 255, 255)",
    "Only real avatars with a story get the colored story gradient");
-  await profilePage.locator("#profile-avatar-trigger").hover();
-  assert.equal(await profilePage.locator("#profile-avatar-menu").isVisible(),true);
+  await profilePage.locator("#profile-avatar-plus").hover();
+  await profilePage.locator("#profile-avatar-menu").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
-  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0);
   const avatarMenuRect=await profilePage.locator("#profile-avatar-menu").boundingBox();
   assert.ok(avatarMenuRect&&avatarMenuRect.width>=200,
    "Avatar hover actions must not be clipped by the profile card");
@@ -4350,15 +4350,15 @@ try{
   assert.equal((await profilePage.locator("#profile-story-viewer-text").textContent()).trim(),
    "Моя тестова історія");
   await profilePage.locator("#profile-story-viewer-close").click();
-  await profilePage.locator("#profile-avatar-trigger").hover();
-  await profilePage.locator("#profile-avatar-photo").click();
+  await profilePage.locator("#profile-avatar-plus").hover();
+  await profilePage.locator("#profile-avatar-trigger").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
   assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src"))
    .includes("/avatars/654321/avatar/test-profile.webp"));
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape should close the fullscreen avatar viewer");
-  await profilePage.locator("#profile-avatar-trigger").hover();
+  await profilePage.locator("#profile-avatar-plus").hover();
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
    "The profile owner must be able to delete the active story");
   await profilePage.locator("#profile-avatar-story-delete").click();
@@ -4431,7 +4431,7 @@ try{
   assert.equal(await profilePage.locator("#profile-cover-change").evaluate(el=>getComputedStyle(el).opacity),"0","Cover edit is hidden at rest");
   await profilePage.locator("#profile-cover-image").hover();
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
-  await profilePage.locator("#profile-avatar-trigger").hover();
+  await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-avatar-remove").isVisible(),true);
@@ -4443,7 +4443,7 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-publish-story").isChecked(),false);
   await profilePage.locator("#profile-avatar-finish-back").click();
   await profilePage.locator("#profile-avatar-crop-cancel").click();
-  await profilePage.locator("#profile-avatar-trigger").hover();
+  await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").click();
   assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),true,
    "Story composer must open in the profile itself");
@@ -4488,8 +4488,8 @@ try{
    "About and publications should be two balanced columns on desktop: "+JSON.stringify(profileColumns));
   assert.equal(await profilePage.locator("#profile-about-card").evaluate(el=>getComputedStyle(el).position),"static",
    "Information must not follow a reader scrolling long profile posts");
-  assert.equal(await profilePage.locator("#profile-last-seen").isVisible(),false,
-   "Textual online label must never appear while profile is online");
+  await profilePage.locator("#profile-last-seen").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-online-dot").count(),0,"Online status is textual, not a green badge");
   await profilePage.locator("#profile-status").click();
   assert.equal(await profilePage.locator("#profile-status-dialog").evaluate(el=>el.open),true,
    "Clicking status opens a dedicated status editor");
@@ -4960,8 +4960,7 @@ try{
    getComputedStyle(el).borderTopColor);
   assert.equal(defaultBorder,"rgb(255, 255, 255)",
    "Default avatar must retain a visible white circular frame");
-  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
-   "Without an uploaded photo the system portrait must never open in a viewer");
+  assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0,"No redundant open photo menu item");
   const defaultSvg=await profilePage.locator("#profile-avatar").evaluate(el=>({
    rendered:getComputedStyle(el).backgroundImage,
    expected:window.VATRA_AVATAR?.asset?.("default")
