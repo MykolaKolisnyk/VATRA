@@ -2179,8 +2179,8 @@ assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the me
 const routerScript=await read("assets/js/not-found.js");
 const languageScript=await read("assets/js/lang.js");
 assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
- routerScript.includes('|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|')&&
- languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify')&&
+ routerScript.includes('|notifications|friends|gifts|clips|marketplace|business|vatra-id|club|create-account|')&&
+ languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify')&&
  (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
@@ -2531,3 +2531,5 @@ for(const table of ["business_followers","business_posts","business_metrics"]){
 }
 assert.ok(businessSQL.includes("grant insert(company_id,body),delete on public.business_posts to authenticated")&&businessSQL.includes("business_private.my_role(company_id) in ('owner','admin','editor')"),"Company publishing is controlled by active business roles");
 assert.ok(businessSQL.includes("follower_count=follower_count+delta")&&businessSQL.includes("post_count=post_count+delta")&&!businessRuntime.includes('from("business_metrics").update'),"Business statistics must be computed on the server");
+
+assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Business company creation must use the bilingual standard taxonomy");
