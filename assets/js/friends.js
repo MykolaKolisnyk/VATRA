@@ -18,7 +18,7 @@ const make=(tag,cls,label)=>{
  if(label!==undefined)node.textContent=label;return node;
 };
 let client=null,ownId=null,targetId=null,rows=[],names=new Map(),photos=new Map(),accountStates=new Map();
-let current="accepted",search="",busy=false,me=true;
+let current="accepted",search="",busy=false,me=true,targetName="",ownRelations=new Map();
 let presence=new Map(),presenceBusy=false,presenceAvailable=false;
 function stateFor(item){
  if(item.status==="accepted")return "accepted";
@@ -30,12 +30,12 @@ function counterpart(item){
   String(item.recipient_id):String(item.requester_id);
 }
 async function data(){
- const result=await client.from("friendships")
-  .select("id,requester_id,recipient_id,status,created_at")
-  .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
-  .order("created_at",{ascending:false}).limit(350);
+ let query=client.from("friendships").select("id,requester_id,recipient_id,status,created_at").or("requester_id.eq."+targetId+",recipient_id.eq."+targetId);
+ if(!me)query=query.eq("status","accepted");
+ const result=await query.order("created_at",{ascending:false}).limit(350);
  if(result.error)throw result.error;
  rows=result.data||[];
+ if(!me){const own=await client.from("friendships").select("requester_id,recipient_id,status").or("requester_id.eq."+ownId+",recipient_id.eq."+ownId).limit(350);if(own.error)throw own.error;ownRelations=new Map((own.data||[]).map(x=>[String(String(x.requester_id)===ownId?x.recipient_id:x.requester_id),x.status]));}
  const ids=[...new Set(rows.map(counterpart).filter(validId))];
 
  const batches=[];
@@ -69,7 +69,7 @@ async function data(){
   }
 }
 async function refreshPresence(){
- if(!me||presenceBusy||!client)return;
+ if(presenceBusy||!client)return;
  presenceBusy=true;
  try{
   const ids=[...new Set(rows.filter(item=>stateFor(item)==="accepted").map(counterpart).filter(validId))];
@@ -156,6 +156,11 @@ function person(item,index){
   actions.append(actionButton(t("Прийняти","Accept"),
    "vt-vatra-friends-accept-"+index,()=>accept(item)));
  }
+ if(!me&&!state&&id!==ownId){
+  const relation=ownRelations.get(id);
+  if(!relation)actions.append(actionButton(t("Додати в друзі","Add friend"),"vt-vatra-friends-accept-"+index,async()=>{const r=await client.from("friendships").insert({requester_id:ownId,recipient_id:id}).select("id").maybeSingle();if(r.error||!r.data?.id)throw Error("Request failed");}));
+  else actions.append(make("span","vt-vatra-friends-relation-001",relation==="accepted"?t("У друзях","Friends"):t("Запит","Request")));
+ }
  if(me){
   const label=stateFor(item)==="accepted"?t("Видалити з друзів","Remove friend"):
    stateFor(item)==="incoming"?t("Відхилити","Decline"):t("Скасувати запит","Cancel request");
@@ -166,7 +171,7 @@ function person(item,index){
 }
 function switchTo(mode){
  if(!["accepted","online","incoming","outgoing"].includes(mode))return;
- if(!me&&mode!=="accepted")return;
+ if(!me&&!["accepted","online"].includes(mode))return;
  current=mode;
  for(const tab of document.querySelectorAll("[data-friends-tab]")){
   const active=tab.dataset.friendsTab===mode;
@@ -193,7 +198,7 @@ function render(){
   empty.hidden=false;
  }
  const heading=q("#friends-heading");if(heading)
-  heading.textContent=t("Друзі","Friends");
+  heading.textContent=me?t("Друзі","Friends"):t("Друзі: ","Friends: ")+targetName;
  for(const tab of document.querySelectorAll("[data-friends-tab]")){
   const mode=tab.dataset.friendsTab;
   const count=rows.filter(item=>mode==="online"?stateFor(item)==="accepted"&&online(counterpart(item)):stateFor(item)===mode).length;
@@ -237,15 +242,13 @@ async function boot(){
    location.assign(new URL("feed"+(term?"?q="+encodeURIComponent(term):""),root).href);
   });
   if(!me){
-
-
-   for(const el of document.querySelectorAll("[data-friends-tab]"))
-    el.hidden=true;
-   q("#friends-search").disabled=true;
-   q("#friends-find").disabled=true;
-   q(".vatra-friends-sidebar").classList.add("is-private");
+   for(const el of document.querySelectorAll("[data-friends-tab]"))el.hidden=["incoming","outgoing"].includes(el.dataset.friendsTab);
+   const identity=await (window.VATRA_PUBLIC_NAMES?.get?.(client,[targetId])||client.from("public_profiles").select("vatra_id,display_name").eq("vatra_id",targetId));
+   targetName=identity.data?.[0]?.display_name||t("Учасник VATRA","VATRA member");
+   const heading=q("#friends-heading");heading.removeAttribute("data-social-uk");heading.removeAttribute("data-social-en");heading.textContent=t("Друзі: ","Friends: ")+targetName;
+   const back=make("a","vt-vatra-friends-owner-link-001",t("До профілю","Back to profile"));back.href=new URL("id"+targetId,root).href;heading.after(back);
   }
-  document.title=t("Друзі · VATRA","Friends · VATRA");
+  document.title=(me?t("Друзі","Friends"):t("Друзі: ","Friends: ")+targetName)+" · VATRA";
   q("#feed-app").hidden=false;q("#feed-loading").hidden=true;
   document.body.dataset.authReady="true";document.body.classList.remove("vatra-shell-pending");
   window.VATRA_NOTIFICATIONS?.start(client,ownId);
@@ -262,12 +265,10 @@ async function boot(){
   };
   q("#friends-find")?.addEventListener("click",findPeople);
   if(!me){
-   const empty=q("#friends-empty");
-   empty.textContent=t("Списки друзів інших користувачів приватні.",
-    "Other members' friend lists are private.");
-   empty.hidden=false;
-   q("#friends-list").setAttribute("aria-busy","false");
-   return;
+   const [pref,blocked]=await Promise.all([client.from("profile_preferences").select("profile_visibility").eq("vatra_id",targetId).maybeSingle(),client.from("member_blocks").select("blocker_vatra_id,blocked_vatra_id").or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")").limit(2)]);
+   if(pref.error||blocked.error||(blocked.data||[]).length>0||pref.data?.profile_visibility==="friends"){
+    const empty=q("#friends-empty");empty.textContent=t("Список друзів цього профілю закритий.","This profile's friends list is private.");empty.hidden=false;q("#friends-list").setAttribute("aria-busy","false");q("#friends-search").disabled=true;return;
+   }
   }
   try{await data();await refreshPresence();render();
    const clock=setInterval(async()=>{if(!document.hidden){try{await refreshPresence();render();}catch(_){}}},60000);

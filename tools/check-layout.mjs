@@ -1752,13 +1752,13 @@ const friendshipPrivacyJs=await read("assets/js/friends.js");
 const friendshipPrivacySql=await read("supabase/migrations/20261114154237_private_friendship_rows_to_participants.sql");
 assert.ok(
  friendshipPrivacyJs.includes('if(!me){')&&
- friendshipPrivacyJs.includes('Списки друзів інших користувачів приватні.')&&
+ friendshipPrivacyJs.includes('Список друзів цього профілю закритий.')&&
  friendshipPrivacyJs.includes('if(error||String(data?.id)!==String(item.id))')&&
  friendshipPrivacyJs.includes('.select("id").maybeSingle()')&&
  friendshipPrivacySql.includes('DROP POLICY IF EXISTS "vatra_friends_read_accepted_or_own"')&&
  friendshipPrivacySql.includes('a.vatra_id = ANY(')&&
  !friendshipPrivacySql.includes("status = 'accepted'"),
- "Friends lists must be private to relationship participants, and removals confirmed");
+ "Private lists and pending requests must remain protected, and removals confirmed");
 assert.ok(
  profileBehavior.includes('String(changed?.id)!==String(item.id)')&&
  profileBehavior.includes('Member was not unblocked')&&
@@ -2568,3 +2568,6 @@ assert.ok(communityBusinessSQL.includes("add column business_enabled boolean not
 assert.ok(communityStatsSQL.includes("business_shared_follow_metrics")&&communityStatsSQL.includes("business_shared_post_metrics")&&businessRuntime.includes("community_follower_count,community_post_count"),"Community stats use the actual shared follows and posts");
 assert.ok(!businessRuntime.includes('from("business_followers")')&&!businessRuntime.includes('from("business_posts")'),"No second social graph or feed");
 assert.ok((await read("assets/js/club.js")).includes("VATRA_BUSINESS_TOOLS.mount")&&businessRuntime.includes("VATRA_BUSINESS_TOOLS=Object.freeze")&&!(await read("assets/js/social-shell.js")).includes("setUpBusinessNav"),"Business tools only open inside a community");
+
+const publicFriendSQL=await read("supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
+const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");

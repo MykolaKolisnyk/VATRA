@@ -2,6 +2,8 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
+ const pickerURL=new URL("comment-picker.js?rev=10984ee9002189bc0e357e33317b1111301f1831",document.currentScript?.src||location.href).href;
+ let pickerPromise=null;const loadPicker=()=>pickerPromise||(pickerPromise=import(pickerURL).catch(error=>{pickerPromise=null;throw error;}));
  const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
  const validId=value=>/^[1-9]\d{0,18}$/.test(String(value||""));
  const validUUID=value=>/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(String(value||""));
@@ -529,7 +531,7 @@ function appendAudience(container,level,isGroup=false){
   emojisTab.type="button";stickerTab.type="button";
   emojiTabs.append(emojisTab,stickerTab);
   const emojiContent=make("div","vatra-post-comment-emoji-scroll ui-vatra-post-comment-emoji-scroll-001");
-  emojiPanel.append(emojiTabs,emojiContent);
+  emojiPanel.append(emojiContent,emojiTabs);
   popovers.append(attachmentMenu,emojiPanel);
   const attachmentPreview=make("div","vatra-post-comment-file-preview ui-vatra-post-comment-file-preview-001");
   attachmentPreview.hidden=true;
@@ -542,13 +544,13 @@ function appendAudience(container,level,isGroup=false){
   panel.append(entries,more,form);shell.append(panel,status);
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
   const replySize=3;
-  let commentOffset=0,busy=false,ticket=0,pendingReset=false,replyTarget=null,chosenFile=null,emojiMode="emoji";
+  let commentOffset=0,busy=false,ticket=0,pendingReset=false,replyTarget=null,chosenFile=null,emojiMode="emoji",pickerVersion=0,activePack="vatryk",cropVersion=0,cropping=false,submitting=false;
   const rootReplies=new Map();
   const stopReply=()=>{
    replyTarget=null;replying.hidden=true;replyingText.textContent="";
   };
   cancelReply.addEventListener("click",()=>{stopReply();input.focus();});
-  const updateSend=()=>{send.disabled=!input.value.trim()&&!chosenFile;};
+  const updateSend=()=>{send.disabled=submitting||cropping||(!input.value.trim()&&!chosenFile);};
   let activeMenu=null,menuCloseTimer=0;
   const clearMenuClose=()=>{
    if(menuCloseTimer){clearTimeout(menuCloseTimer);menuCloseTimer=0;}
@@ -569,9 +571,9 @@ function appendAudience(container,level,isGroup=false){
    const right=Math.min(vx+vw-8,(bounds?.right??vx+vw)-8);
    const top=vy+8,bottom=vy+vh-8,gap=6;
    if(anchor.bottom<=top||anchor.top>=bottom||(bounds&&(anchor.bottom<=bounds.top||anchor.top>=bounds.bottom))){hideMenus();return;}
-   const desiredWidth=element===attachmentMenu?218:350;
+   const desiredWidth=element===attachmentMenu?218:440;
    const width=Math.max(0,Math.min(desiredWidth,right-left));
-   const desiredHeight=element===attachmentMenu?160:310;
+   const desiredHeight=element===attachmentMenu?160:450;
    const above=Math.max(0,anchor.top-top-gap),below=Math.max(0,bottom-anchor.bottom-gap);
    const upward=above>=desiredHeight||above>=below;
    const available=Math.max(0,upward?above:below);
@@ -587,6 +589,7 @@ function appendAudience(container,level,isGroup=false){
   const openMenu=(element,trigger)=>{
    hideMenus();
    activeMenu=element;element.hidden=false;trigger.setAttribute("aria-expanded","true");
+   if(element===emojiPanel&&!emojiContent.children.length)void renderEmoji();
    positionPopover(element);
   };
   const hoverPointer=event=>event.pointerType==="mouse"||(event.pointerType==="pen"&&window.matchMedia("(any-hover:hover)").matches);
@@ -619,40 +622,48 @@ function appendAudience(container,level,isGroup=false){
   };
   bindMenu(attachmentMenu,attach);
   bindMenu(emojiPanel,emoji);
-  const emojiGroups=[
-   [tr("Емоції","Emotions"),
-    ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","🙂","😉","😍","🥰","😘","😎","🤩","🥳","😢","😭","😡","😱","🤔","😴","😇","🙃","🫶","❤️","💙","💛","🔥","✨","🎉"]],
-   [tr("Жести й люди","Gestures and people"),
-    ["👍","👎","👌","✌️","🤞","🤟","🤘","👏","🙌","🙏","🤝","👋","💪","👀","💯","💐","🎂","💌"]]
-  ];
-  const stickers=["🔥","🥳","😍","🤣","🤯","😎","🤝","🥹","😼","🐱","🐶","🦊","🐻","🐼","🦄","💖","🎉","🎁","🌈","🌻"];
   const addEmoji=value=>{
    const start=input.selectionStart,end=input.selectionEnd;
+   if(input.value.length-(end-start)+value.length>input.maxLength)return;
    input.setRangeText(value,start,end,"end");input.dispatchEvent(new Event("input",{bubbles:true}));
    input.focus();
   };
-  const renderEmoji=()=>{
-   emojiContent.replaceChildren();
-   for(const [title,values] of emojiMode==="sticker"?[[tr("Великі емодзі","Large emoji"),stickers]]:emojiGroups){
-    emojiContent.append(make("h4","vt-vatra-post-comment-emoji-heading-001",title));
-    const grid=make("div","vatra-post-comment-emoji-grid ui-vatra-post-comment-emoji-grid-001");
-    for(const value of values){
-     const button=make("button","vt-vatra-post-comment-emoji-option-001",value);
-     button.type="button";button.setAttribute("aria-label",value);
-     if(emojiMode==="sticker")button.classList.add("is-sticker");
-     button.addEventListener("click",()=>{
-      addEmoji(value);hideMenus();
-     });
-     grid.append(button);
+  async function chooseSticker(catalog,pack,index){
+   if(submitting)return;
+   const version=++cropVersion;cropping=true;updateSend();
+   try{
+    const file=await catalog.stickerFile(pack.id,index);if(version!==cropVersion||!form.isConnected)return;
+    chosenFile={file,kind:"image",ext:"webp"};fileInput.value="";
+    fileLabel.textContent=tr(pack.uk,pack.en)+" · "+(index+1);
+    attachmentPreview.hidden=false;hideMenus();feedback("");
+   }catch(_){if(version===cropVersion)feedback(tr("Не вдалося підготувати стікер. Спробуйте ще раз.","Could not prepare sticker. Please retry."),true);}
+   finally{if(version===cropVersion){cropping=false;updateSend();}}
+  }
+  async function renderEmoji(){
+   const version=++pickerVersion;emojiContent.replaceChildren(make("p","vt-vatra-picker-loading-001",tr("Завантаження…","Loading…")));
+   emojisTab.setAttribute("aria-selected",String(emojiMode==="emoji"));stickerTab.setAttribute("aria-selected",String(emojiMode==="sticker"));
+   try{
+    const catalog=await loadPicker();if(version!==pickerVersion||!form.isConnected)return;
+    emojiContent.replaceChildren();emojiContent.scrollTop=0;
+    if(emojiMode==="sticker"){
+     const pack=catalog.packs.find(x=>x.id===activePack)||catalog.packs[0];
+     const packNav=make("div","ui-vatra-sticker-packs-001");
+     for(const item of catalog.packs){const button=make("button","vt-vatra-sticker-pack-001",tr(item.uk,item.en));button.type="button";button.setAttribute("aria-pressed",String(item.id===pack.id));button.addEventListener("click",()=>{activePack=item.id;void renderEmoji();});packNav.append(button);}
+     emojiContent.append(packNav,make("h4","vt-vatra-post-comment-emoji-heading-001",tr(pack.uk,pack.en)));
+     const grid=make("div","ui-vatra-sticker-grid-001");
+     pack.rects.forEach((r,index)=>{const button=make("button","vt-vatra-sticker-option-001");button.type="button";button.setAttribute("aria-label",tr(pack.uk,pack.en)+" · "+(index+1));button.append(catalog.stickerArt(pack,index));button.addEventListener("click",()=>void chooseSticker(catalog,pack,index));grid.append(button);});emojiContent.append(grid);
+    }else{
+     const fragment=document.createDocumentFragment();
+     for(const group of catalog.emojiGroups){fragment.append(make("h4","vt-vatra-post-comment-emoji-heading-001",tr(group.uk,group.en)));
+      const grid=make("div","vatra-post-comment-emoji-grid ui-vatra-post-comment-emoji-grid-001");
+      for(const value of group.values){const button=make("button","vt-vatra-post-comment-emoji-option-001",value);button.type="button";button.setAttribute("aria-label",value);button.addEventListener("click",()=>addEmoji(value));grid.append(button);}fragment.append(grid);
+     }emojiContent.append(fragment);
     }
-    emojiContent.append(grid);
-   }
-   emojisTab.setAttribute("aria-selected",String(emojiMode==="emoji"));
-   stickerTab.setAttribute("aria-selected",String(emojiMode==="sticker"));
-  };
-  emojisTab.addEventListener("click",()=>{emojiMode="emoji";renderEmoji();});
-  stickerTab.addEventListener("click",()=>{emojiMode="sticker";renderEmoji();});
-  renderEmoji();
+    if(activeMenu===emojiPanel)positionPopover(emojiPanel);
+   }catch(_){if(version===pickerVersion){const retry=make("button","vt-vatra-picker-retry-001",tr("Повторити","Retry"));retry.type="button";retry.addEventListener("click",()=>void renderEmoji());emojiContent.replaceChildren(retry);}}
+  }
+  emojisTab.addEventListener("click",()=>{emojiMode="emoji";void renderEmoji();});
+  stickerTab.addEventListener("click",()=>{emojiMode="sticker";void renderEmoji();});
   document.addEventListener("pointerdown",event=>{
    if(!form.isConnected)return;
    if(!attach.contains(event.target)&&!emoji.contains(event.target)&&!popovers.contains(event.target))hideMenus();
@@ -664,6 +675,7 @@ function appendAudience(container,level,isGroup=false){
    }
   });
   fileInput.addEventListener("change",()=>{
+   ++cropVersion;cropping=false;
    const file=fileInput.files?.[0];
    if(!file)return;
    const allowed={
@@ -682,7 +694,7 @@ function appendAudience(container,level,isGroup=false){
    attachmentPreview.hidden=false;feedback("");updateSend();
   });
   removeFile.addEventListener("click",()=>{
-   chosenFile=null;fileInput.value="";attachmentPreview.hidden=true;updateSend();
+   ++cropVersion;cropping=false;chosenFile=null;fileInput.value="";attachmentPreview.hidden=true;updateSend();
   });
   input.addEventListener("input",updateSend);updateSend();
   const startReply=(rootId,name)=>{
@@ -964,7 +976,7 @@ function appendAudience(container,level,isGroup=false){
    hideMenus();
    const body=input.value.trim(),file=chosenFile;
    if((!body&&!file)||body.length>1000||send.disabled||!validId(ownId))return;
-   send.disabled=true;let uploaded=null,committed=false;
+   submitting=true;updateSend();let uploaded=null,committed=false;
    try{
     const payload={post_kind:kind,post_id:post.id,
      author_id:userId,author_vatra_id:ownId,body};
@@ -999,7 +1011,7 @@ function appendAudience(container,level,isGroup=false){
      // DB write succeeded even if a subsequent comment-view refresh failed.
      feedback(tr("Коментар опубліковано.","Comment published."));
     }
-   }finally{updateSend();}
+   }finally{submitting=false;updateSend();}
   });
 
   // A true modal composer, matching VATRA typography: caption, original, friends and link.

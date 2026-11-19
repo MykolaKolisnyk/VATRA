@@ -1646,8 +1646,8 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  };
  const allFriendsButton=q("#profile-friends-all"),findFriendsButton=q("#profile-friends-find");
  const toggleFriendActions=hasFriends=>{
-  if(allFriendsButton)allFriendsButton.hidden=!hasFriends;
-  if(findFriendsButton)findFriendsButton.hidden=!!hasFriends;
+  if(allFriendsButton)allFriendsButton.hidden=isMine&&!hasFriends;
+  if(findFriendsButton)findFriendsButton.hidden=!isMine||!!hasFriends;
  };
  toggleFriendActions(true);
  findFriendsButton?.addEventListener("click",()=>{
@@ -2205,7 +2205,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  loadFriends=async()=>{
   friends.replaceChildren();friendsEmpty.hidden=true;
   if(!isMine){
-   show(friendsEmpty,t("Списки друзів інших користувачів приватні.","Other members' friend lists are private."));
+   location.assign(new URL("friends?member="+targetId,home).href);
    return;
   }
   try{

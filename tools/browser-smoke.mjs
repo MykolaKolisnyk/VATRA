@@ -2903,18 +2903,26 @@ try{
  assert.equal(await friendsProbe.locator(".ui-social-top-friends-001").getAttribute("aria-current"),"page",
   "Friends page should mark its own navigation tab active");
  await friendsProbe.close();
- // A public profile must not expose their accepted friends through the
- // standalone friends route, even when the old server RLS did.
+ // A private profile must not expose its friend list through the standalone route.
  const privateFriends=await feedContext.newPage();
- await privateFriends.goto(base+"friends.html?member=789012",{waitUntil:"domcontentloaded"});
+ await privateFriends.goto(base+"friends.html?member=789012&locked-test=1",{waitUntil:"domcontentloaded"});
  await privateFriends.locator("#friends-empty").waitFor({state:"visible",timeout:14000});
  assert.ok((await privateFriends.locator("#friends-empty").textContent()).includes(
-  "Списки друзів інших користувачів приватні"),
+  "Список друзів цього профілю закритий"),
   "Another member's friend list must be private");
  assert.equal(await privateFriends.locator(".vatra-friends-person").count(),0);
  assert.equal(await privateFriends.evaluate(()=>window.__vatraFriendLimitCalls.length),0,
   "A third-party friends route must not query someone else's relationships");
  await privateFriends.close();
+ const publicFriends=await feedContext.newPage();
+ await publicFriends.goto(base+"friends.html?member=789012&friend-action-test=1",{waitUntil:"domcontentloaded"});
+ await publicFriends.locator(".vatra-friends-person").first().waitFor({state:"visible",timeout:14000});
+ assert.match(await publicFriends.locator("#friends-heading").textContent(),/^Друзі: /);
+ assert.equal(await publicFriends.locator('[data-friends-tab="incoming"]').isVisible(),false);
+ assert.equal(await publicFriends.locator('[data-friends-tab="outgoing"]').isVisible(),false);
+ assert.equal(await publicFriends.locator("#friends-search").isEnabled(),true);
+ await publicFriends.close();
+
 
  // Confirm a zero-row DELETE does not pretend it removed a friend.
  const ownerFriends=await feedContext.newPage();
@@ -3444,11 +3452,17 @@ try{
   await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").isVisible(),true,
    "Emoji picker opens inside the current comment composer");
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-post-comment-emoji-option-001").length>1000);
   await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-sticker-tab-001").click();
-  assert.ok(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-emoji-option-001.is-sticker").count()>=10);
-  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-emoji-option-001.is-sticker").first().click();
-  assert.notEqual(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"",
-   "Choosing an emoji sticker inserts it into the draft");
+  await feedProbe.locator(".vt-vatra-sticker-option-001").first().waitFor();
+  assert.equal(await feedProbe.locator(".vt-vatra-sticker-pack-001").count(),9);
+  await feedProbe.getByRole("button",{name:"Батя",exact:true}).click().catch(async()=>{await feedProbe.getByRole("button",{name:"Dad",exact:true}).click();});
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vt-vatra-sticker-option-001").length===20);
+  await feedProbe.locator(".vt-vatra-sticker-option-001").first().click();
+  await feedProbe.locator(".vatra-post-comment-file-preview").waitFor({state:"visible"});
+  assert.match(await feedProbe.locator(".vt-vatra-post-comment-file-name-001").textContent(),/(Батя|Dad) · 1/);
+  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"","Sticker is an independent image, not fake emoji text");
+  await feedProbe.locator(".vt-vatra-post-comment-file-remove-001").click();
   const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-attach-001");
   await attachmentControl.click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);

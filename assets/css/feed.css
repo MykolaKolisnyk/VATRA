@@ -2727,11 +2727,11 @@ body.feed-page .vatra-post-comment-emoji-panel{
  display:flex;flex-direction:column;overflow:hidden
 }
 body.feed-page .vatra-post-comment-emoji-tabs{
- display:flex;gap:4px;padding:9px 11px 5px;border-bottom:1px solid #edf1f8
+ display:flex;gap:4px;padding:9px 11px;border-top:1px solid #edf1f8
 }
 body.feed-page .vatra-post-comment-emoji-tabs>button{
  min-height:34px;padding:7px 13px;border:0;border-radius:8px;background:transparent;
- color:#7389a9;font:720 12px/1.25 "Onest",sans-serif
+ color:#7389a9;font:680 14px/1.35 "Onest",sans-serif
 }
 body.feed-page .vatra-post-comment-emoji-tabs>button[aria-selected="true"]{
  background:#eaf1ff;color:#366fd4
@@ -2741,7 +2741,7 @@ body.feed-page .vatra-post-comment-emoji-scroll{
  
 }
 body.feed-page .vt-vatra-post-comment-emoji-heading-001{
- margin:9px 0;color:#73869f;font:700 11px/1.35 "Onest",sans-serif
+ margin:14px 0 8px;color:var(--soft);font:650 14px/1.4 "Onest",sans-serif
 }
 body.feed-page .vatra-post-comment-emoji-grid{
  display:grid;}
@@ -3047,3 +3047,13 @@ body.feed-page .vatra-post-comment-dialog .feed-post-card>.feed-post-media .feed
 .ui-vatra-admin-blocked-001[open]{display:grid;gap:14px}
 .ui-vatra-admin-blocked-001 h2,.ui-vatra-admin-blocked-001 p{margin:0}
 .vt-vatra-admin-primary-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#2863d8;color:white}
+
+/* The shared comment picker renders a single selected pack and crops its original artwork. */
+body.feed-page .ui-vatra-sticker-packs-001{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:thin}
+body.feed-page .vt-vatra-sticker-pack-001{flex:none;border:0;border-radius:9px;padding:8px 12px;background:#f0f4fa;color:var(--ink);font:600 13px/1.4 Onest,Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+body.feed-page .vt-vatra-sticker-pack-001[aria-pressed="true"]{background:var(--vatra-action-selected);color:var(--vatra-action-ink)}
+body.feed-page .ui-vatra-sticker-grid-001{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+body.feed-page .vt-vatra-sticker-option-001{display:grid;place-items:center;width:100%;min-width:0;aspect-ratio:1;border:0;padding:3px;border-radius:10px;background:transparent;cursor:pointer;overflow:hidden}
+body.feed-page .vt-vatra-sticker-option-001:hover{background:#f0f4fa}
+body.feed-page .ui-vatra-sticker-art-001{display:block;width:100%;height:100%;background-repeat:no-repeat;pointer-events:none}
+body.feed-page .vt-vatra-picker-loading-001,body.feed-page .vt-vatra-picker-retry-001{font:500 14px/1.5 Onest,Inter,system-ui,sans-serif;color:var(--soft)}
