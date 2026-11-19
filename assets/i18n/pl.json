@@ -1,4 +1,17 @@
 {
+  "Доступ заборонено": "Odmowa dostępu",
+  "Ви не маєте дозволу на виконання цієї дії.": "Nie masz uprawnień do wykonania tej czynności.",
+  "Забагато запитів": "Zbyt wiele żądań",
+  "Спробуйте виконати цю дію трохи пізніше.": "Spróbuj wykonać tę czynność nieco później.",
+  "Щось пішло не так": "Coś poszło nie tak",
+  "Виникла неочікувана помилка. Спробуйте ще раз.": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
+  "Сервіс тимчасово недоступний": "Usługa tymczasowo niedostępna",
+  "Спробуйте ще раз трохи пізніше.": "Spróbuj ponownie nieco później.",
+  "Доступ до Вашого акаунта обмежено.": "Dostęp do Twojego konta został ograniczony.",
+  "Зверніться до підтримки VATRA.": "Skontaktuj się z pomocą VATRA.",
+  "Сеанс завершено": "Sesja zakończona",
+  "Увійдіть у свій акаунт, щоб продовжити користуватися VATRA.": "Zaloguj się na swoje konto, aby nadal korzystać z VATRA.",
+  "Повторити спробу": "Spróbuj ponownie",
   "__translation_status": {
     "dynamic_strings_complete": false,
     "email_templates_complete": false,
@@ -14,12 +27,55 @@
       "reset",
       "terms",
       "privacy",
-      "cookies"
+      "cookies",
+      "maintenance"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
   },
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Prace techniczne · VATRA"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "PRZERWA TECHNICZNA"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Prace techniczne"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk pracuje nad ulepszeniem VATRA. Sieć społecznościowa będzie wkrótce ponownie dostępna. Dziękuję za cierpliwość!"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Sprawdź dostępność"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Wyłącz tryb konserwacji"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Logowanie administratora"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Twoi ludzie. Twoje historie. Twoja VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Nie znaleziono strony",

@@ -230,7 +230,7 @@
     content.className="vatra-auth-loading-content ui-static-locale-content-001";
     const symbol=document.createElement("img");
     symbol.className="vatra-auth-loading-symbol ui-static-locale-symbol-001";
-    symbol.src=ROOT+"assets/logo/vatra-symbol.svg";
+    symbol.src=ROOT+"assets/logo/logo_symbol.svg";
     symbol.alt="";
     symbol.width=68;symbol.height=68;
     const title=document.createElement("span");

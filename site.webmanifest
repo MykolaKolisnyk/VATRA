@@ -10,13 +10,13 @@
   "lang": "uk",
   "icons": [
     {
-      "src": "/VATRA/assets/logo/vatra-app-icon.webp",
+      "src": "/VATRA/assets/logo/logo_app-icon.webp",
       "sizes": "2048x2048",
       "type": "image/webp",
       "purpose": "any maskable"
     },
     {
-      "src": "/VATRA/assets/logo/vatra-app-icon.svg",
+      "src": "/VATRA/assets/logo/logo_app-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

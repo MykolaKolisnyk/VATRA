@@ -1,4 +1,17 @@
 {
+  "Доступ заборонено": "Accès refusé",
+  "Ви не маєте дозволу на виконання цієї дії.": "Vous n’avez pas l’autorisation d’effectuer cette action.",
+  "Забагато запитів": "Trop de requêtes",
+  "Спробуйте виконати цю дію трохи пізніше.": "Veuillez réessayer cette action un peu plus tard.",
+  "Щось пішло не так": "Une erreur est survenue",
+  "Виникла неочікувана помилка. Спробуйте ще раз.": "Une erreur inattendue est survenue. Veuillez réessayer.",
+  "Сервіс тимчасово недоступний": "Service temporairement indisponible",
+  "Спробуйте ще раз трохи пізніше.": "Veuillez réessayer un peu plus tard.",
+  "Доступ до Вашого акаунта обмежено.": "L’accès à votre compte est restreint.",
+  "Зверніться до підтримки VATRA.": "Contactez l’assistance VATRA.",
+  "Сеанс завершено": "Session terminée",
+  "Увійдіть у свій акаунт, щоб продовжити користуватися VATRA.": "Connectez-vous à votre compte pour continuer à utiliser VATRA.",
+  "Повторити спробу": "Réessayer",
   "__translation_status": {
     "dynamic_strings_complete": false,
     "email_templates_complete": false,
@@ -14,12 +27,55 @@
       "reset",
       "terms",
       "privacy",
-      "cookies"
+      "cookies",
+      "maintenance"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
   },
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Maintenance · VATRA"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "INTERRUPTION TEMPORAIRE"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Maintenance"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk travaille à améliorer VATRA. Le réseau social sera bientôt de nouveau disponible. Merci de votre patience !"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Vérifier la disponibilité"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Désactiver la maintenance"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Connexion administrateur"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Vos proches. Vos histoires. Votre VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Page introuvable",

@@ -1,4 +1,17 @@
 {
+  "Доступ заборонено": "Zugriff verweigert",
+  "Ви не маєте дозволу на виконання цієї дії.": "Sie haben keine Berechtigung, diese Aktion auszuführen.",
+  "Забагато запитів": "Zu viele Anfragen",
+  "Спробуйте виконати цю дію трохи пізніше.": "Bitte versuchen Sie es etwas später erneut.",
+  "Щось пішло не так": "Etwas ist schiefgelaufen",
+  "Виникла неочікувана помилка. Спробуйте ще раз.": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+  "Сервіс тимчасово недоступний": "Dienst vorübergehend nicht verfügbar",
+  "Спробуйте ще раз трохи пізніше.": "Bitte versuchen Sie es etwas später erneut.",
+  "Доступ до Вашого акаунта обмежено.": "Der Zugriff auf Ihr Konto wurde eingeschränkt.",
+  "Зверніться до підтримки VATRA.": "Wenden Sie sich an den VATRA-Support.",
+  "Сеанс завершено": "Sitzung beendet",
+  "Увійдіть у свій акаунт, щоб продовжити користуватися VATRA.": "Melden Sie sich an, um VATRA weiter zu nutzen.",
+  "Повторити спробу": "Erneut versuchen",
   "__translation_status": {
     "dynamic_strings_complete": false,
     "email_templates_complete": false,
@@ -14,12 +27,55 @@
       "reset",
       "terms",
       "privacy",
-      "cookies"
+      "cookies",
+      "maintenance"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
   },
   "__pages": {
+    "maintenance": {
+      "meta": {
+        "title": "Wartungsarbeiten · VATRA"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "KURZE UNTERBRECHUNG"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Wartungsarbeiten"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk arbeitet daran, VATRA zu verbessern. Das soziale Netzwerk ist bald wieder verfügbar. Danke für deine Geduld!"
+          }
+        },
+        "maintenance-retry": {
+          "text": {
+            "0": "Verfügbarkeit prüfen"
+          }
+        },
+        "maintenance-disable": {
+          "text": {
+            "0": "Wartungsmodus deaktivieren"
+          }
+        },
+        "maintenance-admin": {
+          "text": {
+            "0": "Administrator-Anmeldung"
+          }
+        },
+        "maintenance-tagline": {
+          "text": {
+            "0": "Deine Menschen. Deine Geschichten. Deine VATRA."
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "Seite nicht gefunden",

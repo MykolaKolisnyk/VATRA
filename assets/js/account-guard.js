@@ -37,7 +37,11 @@ function loadAdmin(){
  return adminPromise;
 }
 function showBlocked(client,state){
- if(blockedDialog)return;const d=node("dialog","ui-vatra-admin-blocked-001");blockedDialog=d;d.append(node("h2","vt-vatra-admin-blocked-title-001",t("Доступ до VATRA обмежено","Access to VATRA is restricted")),node("p","vt-vatra-admin-blocked-copy-001",state.blocked_until?t("Обмеження до: ","Restricted until: ")+new Date(state.blocked_until).toLocaleString():t("Зверніться до підтримки VATRA.","Contact VATRA support.")));
+ if(blockedDialog)return;
+ const signOut=async()=>{await client.auth.signOut({scope:"local"});location.replace(root.href);};
+ const service=window.VATRA_SERVICE_NOTICE?.show(state.state==="deleted"?"deleted":"blocked",{locked:true,support:true,actionLabel:t("Вийти","Sign out"),onAction:signOut,description:state.blocked_until?t("Обмеження до: ","Restricted until: ")+new Date(state.blocked_until).toLocaleString():undefined});
+ if(service){blockedDialog=service;return;}
+ const d=node("dialog","ui-vatra-admin-blocked-001");blockedDialog=d;d.append(node("h2","vt-vatra-admin-blocked-title-001",t("Доступ до VATRA обмежено","Access to VATRA is restricted")),node("p","vt-vatra-admin-blocked-copy-001",state.blocked_until?t("Обмеження до: ","Restricted until: ")+new Date(state.blocked_until).toLocaleString():t("Зверніться до підтримки VATRA.","Contact VATRA support.")));
  const support=node("a","vt-vatra-admin-blocked-support-001",t("Техпідтримка","Support"));support.href="mailto:vatra.support@gmail.com";d.append(support,button("vt-vatra-admin-primary-001",t("Вийти","Sign out"),async()=>{await client.auth.signOut({scope:"local"});location.replace(root.href);}));d.addEventListener("cancel",e=>e.preventDefault());document.body.append(d);d.showModal();
 }
 window.VATRA_ADMIN_SESSION=session;

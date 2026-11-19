@@ -1707,7 +1707,7 @@ try{
     brandMid:(mark.top+mark.bottom)/2,logos:visibleLogos.length,
     symbol:visibleLogos[0]?.getAttribute("src")};
   });
-  assert.ok(alignment.logos===1&&alignment.symbol==="assets/logo/vatra-symbol.svg"&&
+  assert.ok(alignment.logos===1&&alignment.symbol==="assets/logo/logo_symbol.svg"&&
    alignment.brandRight<alignment.backRight&&alignment.brandRight<=width+1&&
    Math.abs(alignment.backMid-alignment.brandMid)<=2,
    "Small V logo must be inside the recovery card, opposite the back link: "+JSON.stringify(alignment));
@@ -2875,6 +2875,7 @@ try{
    storage:{from:bucket=>({getPublicUrl:path=>({
     data:{publicUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/public/"+bucket+"/"+path}
    }),
+   list:async(folder,options)=>({data:bucket==="avatars"&&folder==="654321/avatar"&&!new URLSearchParams(location.search).has("no-avatar-test")&&!options?.offset?[{name:"test-profile.webp"},{name:"previous-profile.webp"}]:[],error:null}),
    upload:async()=>({error:null}),
    remove:async()=>{window.__feedMockMediaRemovals++;return {data:[],error:null};},
    createSignedUrl:async path=>({data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/"+bucket+"/"+path+"?token=mock"},error:null})
@@ -2982,7 +2983,7 @@ try{
  assert.ok(giftMetrics.open&&giftMetrics.width>=giftMetrics.screenWidth-2&&
   giftMetrics.height>=giftMetrics.screenHeight-2,
   "Gift must occupy the whole viewport, not a small modal: "+JSON.stringify(giftMetrics));
- assert.ok(giftMetrics.background.includes("first-flame.webp")&&
+ assert.ok(giftMetrics.background.includes("gift_first-flame.webp")&&
   giftMetrics.artTag==="SPAN"&&
   giftMetrics.effects===20&&giftMetrics.ember&&giftMetrics.spark,
   "First flame PNG must appear as decorative art with floating flame sparks");
@@ -3108,7 +3109,7 @@ try{
    "Right header controls must not be inert");
   assert.equal((await feedProbe.locator(".vt-shell-nav-label-feed-001").textContent()).trim(),
    language==="en"?"Feed":"Стрічка");
-  assert.ok((await feedProbe.locator(".feed-header-brand img").getAttribute("src")).endsWith("vatra-symbol.svg"),
+  assert.ok((await feedProbe.locator(".feed-header-brand img").getAttribute("src")).endsWith("logo_symbol.svg"),
    "The VATRA V symbol, not the full wordmark, belongs at the left edge");
   assert.equal(await feedProbe.locator(".feed-aside").count(),0,
    "The Feed must not contain the New Communities rail");
@@ -3452,7 +3453,7 @@ try{
   await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").isVisible(),true,
    "Emoji picker opens inside the current comment composer");
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-post-comment-emoji-option-001").length>1000);
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vt-vatra-post-comment-emoji-option-001").length>1000);
   await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-sticker-tab-001").click();
   await feedProbe.locator(".vt-vatra-sticker-option-001").first().waitFor();
   assert.equal(await feedProbe.locator(".vt-vatra-sticker-pack-001").count(),9);
@@ -4338,10 +4339,10 @@ try{
   assert.ok(activeRing.gradient.includes("conic-gradient")&&
    activeRing.border==="rgb(255, 255, 255)",
    "Only real avatars with a story get the colored story gradient");
-  await profilePage.locator("#profile-avatar-trigger").hover();
-  assert.equal(await profilePage.locator("#profile-avatar-menu").isVisible(),true);
+  await profilePage.locator("#profile-avatar-plus").hover();
+  await profilePage.locator("#profile-avatar-menu").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
-  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0);
   const avatarMenuRect=await profilePage.locator("#profile-avatar-menu").boundingBox();
   assert.ok(avatarMenuRect&&avatarMenuRect.width>=200,
    "Avatar hover actions must not be clipped by the profile card");
@@ -4350,15 +4351,21 @@ try{
   assert.equal((await profilePage.locator("#profile-story-viewer-text").textContent()).trim(),
    "Моя тестова історія");
   await profilePage.locator("#profile-story-viewer-close").click();
-  await profilePage.locator("#profile-avatar-trigger").hover();
-  await profilePage.locator("#profile-avatar-photo").click();
+  await profilePage.locator("#profile-avatar-plus").hover();
+  await profilePage.locator("#profile-avatar-trigger").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
   assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src"))
    .includes("/avatars/654321/avatar/test-profile.webp"));
+  await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
+  await profilePage.locator("#profile-avatar-next").click();
+  assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src")).includes("/avatars/654321/avatar/previous-profile.webp"));
+  assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),"2 / 2");
+  await profilePage.keyboard.press("ArrowLeft");
+  assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src")).includes("/avatars/654321/avatar/test-profile.webp"));
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape should close the fullscreen avatar viewer");
-  await profilePage.locator("#profile-avatar-trigger").hover();
+  await profilePage.locator("#profile-avatar-plus").hover();
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
    "The profile owner must be able to delete the active story");
   await profilePage.locator("#profile-avatar-story-delete").click();
@@ -4426,39 +4433,34 @@ try{
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
    language==="en"?"Write a post":"Додати публікацію");
-  assert.equal(await profilePage.locator("#profile-add-story").isVisible(),true,
-   "The profile header now creates Stories rather than posts");
-  const ownerActionAlignment=await profilePage.evaluate(()=>{
-   const story=document.querySelector("#profile-add-story");
-   const edit=document.querySelector("#profile-edit-open");
-   const bounds=button=>{
-    const rect=button.getBoundingClientRect();
-    const svg=button.querySelector("svg")?.getBoundingClientRect();
-    const style=getComputedStyle(button);
-    return {
-     top:rect.top,bottom:rect.bottom,height:rect.height,
-     iconY:svg?svg.top+svg.height/2:null,
-     topMargin:parseFloat(style.marginTop),lineHeight:style.lineHeight
-    };
-   };
-   return {story:bounds(story),edit:bounds(edit)};
-  });
-  assert.ok(
-   Math.abs(ownerActionAlignment.story.top-ownerActionAlignment.edit.top)<=1&&
-   Math.abs(ownerActionAlignment.story.bottom-ownerActionAlignment.edit.bottom)<=1&&
-   Math.abs(ownerActionAlignment.story.height-ownerActionAlignment.edit.height)<=1&&
-   Math.abs(ownerActionAlignment.story.iconY-ownerActionAlignment.edit.iconY)<=1&&
-   ownerActionAlignment.story.topMargin===0&&ownerActionAlignment.edit.topMargin===0&&
-   ownerActionAlignment.story.lineHeight===ownerActionAlignment.edit.lineHeight,
-   "Profile story and edit actions must align vertically, including SVG centers: "+
-    JSON.stringify(ownerActionAlignment));
+  assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
+  await profilePage.locator("#profile-edit-open").hover();
+  assert.equal(await profilePage.locator("#profile-cover-change").evaluate(el=>getComputedStyle(el).opacity),"0","Cover edit is hidden at rest");
+  await profilePage.locator("#profile-cover-image").hover();
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
+  await profilePage.locator("#profile-avatar-plus").hover();
+  await profilePage.locator("#profile-add-story").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar-remove").isVisible(),true);
+  await profilePage.locator("#profile-avatar-file").setInputFiles({name:"avatar-preview.png",mimeType:"image/png",buffer:onePixelPng});
+  await profilePage.locator("#profile-avatar-crop-dialog").waitFor({state:"visible"});
+  await profilePage.locator("#profile-avatar-crop-next").click();
+  await profilePage.locator("#profile-avatar-finish-dialog").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-avatar-publish-post").isChecked(),false,"Sharing must be opt-in");
+  assert.equal(await profilePage.locator("#profile-avatar-publish-story").isChecked(),false);
+  await profilePage.locator("#profile-avatar-finish-back").click();
+  await profilePage.locator("#profile-avatar-crop-cancel").click();
+  await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").click();
   assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),true,
    "Story composer must open in the profile itself");
   await profilePage.locator("#profile-story-compose-cancel").click();
   assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),false);
-  assert.equal(await profilePage.locator("#profile-edit-open svg").count(),1,
-   "Owner's edit action must preserve its VATRA icon after localization");
+  assert.equal(await profilePage.locator("#profile-edit-open svg").count(),0,
+   "Owner's edit action is text-only");
+  assert.equal(await profilePage.locator("#profile-status svg").count(),0,"Status has no pencil");
+  const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,nav=row.querySelector(".social-profile-tabs");return {inRow:row.classList.contains("ui-profile-tab-row-001"),outsideTabs:!nav.contains(edit),rightGap:row.getBoundingClientRect().right-edit.getBoundingClientRect().right,background:getComputedStyle(edit).backgroundColor};});
+  assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=30&&editAlignment.background==="rgba(0, 0, 0, 0)","Edit action is text at the right edge of profile navigation");
   assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
    "Inline post composer has a media action icon like Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
@@ -4496,8 +4498,8 @@ try{
    "About and publications should be two balanced columns on desktop: "+JSON.stringify(profileColumns));
   assert.equal(await profilePage.locator("#profile-about-card").evaluate(el=>getComputedStyle(el).position),"static",
    "Information must not follow a reader scrolling long profile posts");
-  assert.equal(await profilePage.locator("#profile-last-seen").isVisible(),false,
-   "Textual online label must never appear while profile is online");
+  await profilePage.locator("#profile-last-seen").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-online-dot").count(),0,"Online status is textual, not a green badge");
   await profilePage.locator("#profile-status").click();
   assert.equal(await profilePage.locator("#profile-status-dialog").evaluate(el=>el.open),true,
    "Clicking status opens a dedicated status editor");
@@ -4968,8 +4970,7 @@ try{
    getComputedStyle(el).borderTopColor);
   assert.equal(defaultBorder,"rgb(255, 255, 255)",
    "Default avatar must retain a visible white circular frame");
-  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
-   "Without an uploaded photo the system portrait must never open in a viewer");
+  assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0,"No redundant open photo menu item");
   const defaultSvg=await profilePage.locator("#profile-avatar").evaluate(el=>({
    rendered:getComputedStyle(el).backgroundImage,
    expected:window.VATRA_AVATAR?.asset?.("default")
@@ -5076,7 +5077,7 @@ try{
    const img=new Image();img.src=url;await img.decode();
    return {width:img.naturalWidth,height:img.naturalHeight,filename:new URL(url).pathname.split("/").pop()};
   });
-  assert.deepEqual(dimensions,{width:2000,height:580,filename:"VATRA_communities.webp"});
+  assert.deepEqual(dimensions,{width:2000,height:580,filename:"communities.webp"});
   assert.equal(await hero.evaluate(el=>el.dispatchEvent(new MouseEvent("contextmenu",{bubbles:true,cancelable:true}))),false);
   assert.equal(await hero.locator("h2").textContent(),language==="en"?"Find your people":"Знайдіть своїх людей");
   const savedViewport=page.viewportSize();
