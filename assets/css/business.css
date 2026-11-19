@@ -58,3 +58,10 @@ body.vatra-business-page .ui-business-category-search-001,body.vatra-business-pa
 body.vatra-business-page .ui-business-category-search-001:focus,body.vatra-business-page .ui-business-category-select-001:focus{outline:3px solid #dce8ff;border-color:var(--blue)}
 body.vatra-business-page .vt-business-category-hint-001{margin:0;color:var(--soft);font:var(--section-caption)}
 @media(max-width:600px){body.vatra-business-page .ui-business-category-search-001,body.vatra-business-page .ui-business-category-select-001{font-size:16px}}
+
+/* Vacancy cards and private application management. */
+body.vatra-business-page .ui-business-jobs-area-001{display:grid;gap:16px;min-width:0}
+body.vatra-business-page .ui-business-job-card-001{display:grid;gap:12px;padding:24px;min-width:0}
+body.vatra-business-page .ui-business-job-actions-001{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+body.vatra-business-page .vt-business-job-type-label-001{font:var(--section-control);color:#536b8b}
+@media(max-width:600px){body.vatra-business-page .ui-business-job-card-001{padding:18px}}

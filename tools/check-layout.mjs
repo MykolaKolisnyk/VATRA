@@ -2533,3 +2533,9 @@ assert.ok(businessSQL.includes("grant insert(company_id,body),delete on public.b
 assert.ok(businessSQL.includes("follower_count=follower_count+delta")&&businessSQL.includes("post_count=post_count+delta")&&!businessRuntime.includes('from("business_metrics").update'),"Business statistics must be computed on the server");
 
 assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Business company creation must use the bilingual standard taxonomy");
+
+const businessJobs=await read("assets/js/business-jobs.js");
+const jobsSQL=await read("supabase/migrations/20261119080727_business_jobs_and_applications.sql");
+assert.doesNotThrow(()=>new Function(businessJobs.replace(/^export /gm,"")));
+assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("business.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
+for(const table of ["business_jobs","business_job_applications"]){assert.ok(businessJobs.includes('from("'+table+'")')&&jobsSQL.includes("alter table public."+table+" enable row level security"));}
