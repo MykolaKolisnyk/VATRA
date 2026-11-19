@@ -14,15 +14,16 @@ async function openDirectory(client,ownId,userId){
  addCategoryOptions(categoryInput,t("Оберіть категорію","Choose a category"));
 
  const form=$("#community-create-form"),button=$("#community-create-submit");
- const panel=$("#community-create-panel"),toggle=$("#community-create-toggle");
- toggle?.addEventListener("click",()=>{
-  if(!panel)return;
-  const opening=panel.hidden;
-  panel.hidden=!opening;
-  toggle.setAttribute("aria-expanded",String(opening));
-  if(opening)$("#community-name")?.focus();
-  else toggle.focus();
- });
+ const panel=$("#community-create-panel"),toggle=$("#community-create-toggle"),nameInput=$("#community-name"),count=$("#community-name-count");
+ const businessInput=$("#community-business-enabled");
+ function showForm(){if(panel.open)return;panel.hidden=false;panel.showModal();toggle.setAttribute("aria-expanded","true");nameInput.focus();}
+ function closeForm(){if(!button.disabled&&panel.open)panel.close();}
+ toggle.addEventListener("click",showForm);
+ $("#community-create-cancel").addEventListener("click",closeForm);
+ $("#community-create-close").addEventListener("click",closeForm);
+ panel.addEventListener("cancel",event=>{if(button.disabled)event.preventDefault();});
+ panel.addEventListener("close",()=>{panel.hidden=true;toggle.setAttribute("aria-expanded","false");toggle.focus();});
+ nameInput.addEventListener("input",()=>{count.textContent=Array.from(nameInput.value).length+" / 80";});
  form.addEventListener("submit",async event=>{
   event.preventDefault();
   if(button.disabled)return;
@@ -39,7 +40,7 @@ async function openDirectory(client,ownId,userId){
   status("#community-create-status",t("Створення спільноти…","Creating community…"));
   try{
 
-   const {data,error}=await client.from("communities").insert({name,description,category})
+   const {data,error}=await client.from("communities").insert({name,description,category,business_enabled:businessInput.checked})
     .select("club_id").single();
    if(error||!data?.club_id)throw error||new Error("missing club ID");
    const number=String(data.club_id);

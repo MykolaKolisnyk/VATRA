@@ -1,9 +1,9 @@
 /* Appointment scheduling is isolated and loaded only when opening Bookings. */
 export async function renderBusinessBookings({target,client,t,make,link,btn,card,field,submit,dialog,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode,onMode,browseCompany=null}){
- const slots="id,company_id,service_name,starts_at,reserved,cancelled,business_companies(name)";
+ const slots="id,company_id,service_name,starts_at,reserved,cancelled,business_companies(name,club_id)";
  const statusNames={requested:t("Очікує підтвердження","Awaiting confirmation"),confirmed:t("Підтверджено","Confirmed"),declined:t("Відхилено","Declined"),cancelled:t("Скасовано","Cancelled"),completed:t("Завершено","Completed")};
  const manager=["owner","admin","manager"].includes(roleOf(selected));let mode=["browse","mine","manage"].includes(initialMode)?initialMode:"browse",ticket=0;
- const area=make("div","ui-business-bookings-area-001"),nav=tabs([["browse",t("Вільний час","Available times")],["mine",t("Мої записи","My appointments")],["manage",t("Календар компанії","Company calendar")]],key=>{mode=key;onMode(key);void load();});
+ const area=make("div","ui-business-bookings-area-001"),nav=tabs([["browse",t("Вільний час","Available times")],["mine",t("Мої записи","My appointments")],...(manager?[["manage",t("Календар спільноти","Community calendar")]]:[])],key=>{mode=key;onMode(key);void load();});
  for(const b of nav.children){const active=b.dataset.tab===mode;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));}
  const zone=Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC";
  target.append(heading(t("Бронювання","Bookings"),t("Онлайн-запис до компаній на доступний час.","Book available appointment times with companies.")),make("p","vt-business-heading-copy-001",t("Час показано у вашому часовому поясі: ","Times are shown in your time zone: ")+zone),nav,area);
@@ -12,7 +12,7 @@ export async function renderBusinessBookings({target,client,t,make,link,btn,card
  const empty=text=>make("p","vt-business-empty-001",text);
  function slotCard(slot){
   const box=card("ui-business-booking-card-001"),actions=make("div","ui-business-booking-actions-001");
-  box.append(make("h3","vt-business-panel-title-001",slot.service_name),link(slot.business_companies?.name||t("Компанія","Company"),"business?company="+encodeURIComponent(slot.company_id),"vt-business-company-link-001"),make("p","vt-business-company-meta-001",format(slot.starts_at)+" · "+t("30 хв","30 min")),actions);return {box,actions};
+  box.append(make("h3","vt-business-panel-title-001",slot.service_name),link(slot.business_companies?.name||t("Компанія","Company"),"club"+slot.business_companies?.club_id,"vt-business-company-link-001"),make("p","vt-business-company-meta-001",format(slot.starts_at)+" · "+t("30 хв","30 min")),actions);return {box,actions};
  }
  function editor(){
   if(!selected||!manager)return;
@@ -59,7 +59,7 @@ export async function renderBusinessBookings({target,client,t,make,link,btn,card
      }body.append(box);
     }
    }else if(mode==="mine"){
-    const r=await client.from("business_appointments").select("id,status,created_at,business_booking_slots("+slots+")").eq("customer_vatra_id",ownId).order("created_at",{ascending:false}).limit(100);
+    let q=client.from("business_appointments").select("id,status,created_at,business_booking_slots!inner("+slots+")").eq("customer_vatra_id",ownId).order("created_at",{ascending:false}).limit(100);if(browseCompany)q=q.eq("business_booking_slots.company_id",browseCompany);const r=await q;
     if(r.error)throw r.error;if(token!==ticket||!body.isConnected)return;if(!r.data?.length)body.append(empty(t("Ви ще не маєте записів.","You have no appointments yet.")));
     for(const row of r.data||[]){const slot=row.business_booking_slots;if(!slot)continue;const {box,actions}=slotCard(slot);actions.append(make("span","vt-business-company-meta-001",statusNames[row.status]||row.status));
      if(future(slot)&&["requested","confirmed"].includes(row.status)){const b=btn(t("Скасувати запис","Cancel appointment"),"vt-business-secondary-001",async()=>{if(await confirmRemove(t("Скасувати запис?","Cancel appointment?"),t("Час знову стане доступним для інших клієнтів.","The time will become available to other customers."),t("Скасувати","Cancel")))void mutate("business_appointments",row.id,{status:"cancelled"},b);});actions.append(b);}body.append(box);

@@ -60,12 +60,12 @@ try{
   await businessProbe.setViewportSize({width:1440,height:900});
   const bootstrap=()=>{
    const id="4f19579a-199b-4ccf-9dc7-86df85238551",secondId="8f19579a-199b-4ccf-9dc7-86df85238551";
-   const companies=[{id,name:"BARBER STUDIO",category:"Барбершоп",category_code:"barber",city:"Ужгород",description:"Стрижки",contact_email:"",website:""},{id:secondId,name:"STUDIO 2",category:"Ресторан",category_code:"restaurant",city:"Київ",description:"",contact_email:"",website:""}];
+   const companies=[{id,club_id:101,name:"BARBER STUDIO",category:"Барбершоп",category_code:"barber",city:"Ужгород",description:"Стрижки",contact_email:"",website:""},{id:secondId,club_id:102,name:"STUDIO 2",category:"Ресторан",category_code:"restaurant",city:"Київ",description:"",contact_email:"",website:""}];
    const tables={accounts:[{vatra_id:17,user_id:"fixture"}],profile_media:[],business_companies:companies,business_members:companies.map(c=>({company_id:c.id,member_vatra_id:17,role:"owner",status:"active"})),business_categories:[
     {code:"barber",group_code:"beauty",group_uk:"Краса та догляд",group_en:"Beauty",name_uk:"Барбершоп",name_en:"Barbershop",sort_order:1},
     {code:"hair",group_code:"beauty",group_uk:"Краса та догляд",group_en:"Beauty",name_uk:"Перукарня",name_en:"Hair salon",sort_order:2},
     {code:"restaurant",group_code:"food",group_uk:"Їжа та напої",group_en:"Food",name_uk:"Ресторан",name_en:"Restaurant",sort_order:3}],
-    business_metrics:companies.map(c=>({company_id:c.id,follower_count:2,post_count:0})),business_posts:[],business_followers:[]};
+    business_metrics:companies.map(c=>({company_id:c.id,community_follower_count:2,community_post_count:0,rating_count:0,rating_total:0})),business_posts:[],business_followers:[]};
    window.businessFixture={writes:[]};
    const client={auth:{getUser:async()=>({data:{user:{id:"fixture",email_confirmed_at:"2026-01-01T00:00:00Z",user_metadata:{}}},error:null})},
     from(table){let filters=[],payload=null,method="select";
@@ -76,26 +76,14 @@ try{
     }};
    window.supabase={createClient:()=>client};
   };
-  const fixtureHTML='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/VATRA/assets/css/base.css"><link rel="stylesheet" href="/VATRA/assets/css/feed.css"><link rel="stylesheet" href="/VATRA/assets/css/core.css"><link rel="stylesheet" href="/VATRA/assets/css/business.css"></head><body class="feed-page vatra-section-page vatra-business-page" data-page="business"><div id="feed-loading">Loading</div><div id="feed-app" hidden><main id="vatra-section-main" class="ui-vatra-section-main-001"><header class="ui-vatra-section-heading-001"><h1 id="vatra-section-title">VATRA Business</h1><p id="vatra-section-subtitle"></p><button id="vatra-section-action" hidden></button></header><div id="vatra-section-content" class="ui-vatra-section-content-001"></div><p id="vatra-section-status" hidden></p></main></div><script>('+bootstrap.toString()+')();</script><script defer src="/VATRA/assets/js/core.js"></script><script defer src="/VATRA/assets/js/business.js"></script></body></html>';
-  await businessProbe.route(/\/VATRA\/business(?:\?.*)?$/,route=>route.fulfill({status:200,contentType:"text/html",body:fixtureHTML}));
-  await businessProbe.goto(base+"business?fixture=1",{waitUntil:"domcontentloaded"});
+  const fixtureHTML='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/VATRA/assets/css/base.css"><link rel="stylesheet" href="/VATRA/assets/css/feed.css"><link rel="stylesheet" href="/VATRA/assets/css/core.css"><link rel="stylesheet" href="/VATRA/assets/css/business.css"><link rel="stylesheet" href="/VATRA/assets/css/communities.css"></head><body class="feed-page community-page vatra-section-page vatra-business-page" data-page="club"><div id="feed-loading" hidden>Loading</div><div id="feed-app"><main id="vatra-section-main" class="ui-vatra-section-main-001"><header class="ui-vatra-section-heading-001"><h1 id="vatra-section-title">VATRA Business</h1><p id="vatra-section-subtitle"></p><button id="vatra-section-action" hidden></button></header><div id="vatra-section-content" class="ui-vatra-section-content-001"></div><p id="vatra-section-status" hidden></p></main></div><script>('+bootstrap.toString()+')();</script><script defer src="/VATRA/assets/js/core.js"></script><script defer src="/VATRA/assets/js/business.js"></script><script>document.addEventListener("DOMContentLoaded",()=>window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client:window.supabase.createClient(),ownId:17,user:{id:"fixture"},content:document.querySelector("#vatra-section-content"),notice:document.querySelector("#vatra-section-status")})));</script></body></html>';
+  await businessProbe.route(/\/VATRA\/club10[12](?:\?.*)?$/,route=>route.fulfill({status:200,contentType:"text/html",body:fixtureHTML}));
+  await businessProbe.goto(base+"club101?tools=overview",{waitUntil:"domcontentloaded"});
   await businessProbe.locator(".ui-business-dashboard-company-001").waitFor();
-  assert.equal(await businessProbe.locator(".ui-business-company-profile-001").count(),0,"Management must not show a public profile");
-  assert.equal(await businessProbe.locator(".ui-business-nav-group-001").count(),3);
-  assert.equal(await businessProbe.locator(".ui-business-nav-001 button.is-active").count(),1);
-  await businessProbe.evaluate(()=>document.fonts.ready);
-  const hierarchy=await businessProbe.evaluate(()=>{const get=s=>{const e=document.querySelector(s),c=getComputedStyle(e);return {size:parseFloat(c.fontSize),family:c.fontFamily,weight:Number(c.fontWeight)};};return {title:get(".vt-business-heading-001"),sub:get(".vt-business-subheading-001"),name:get(".vt-business-tool-title-001"),copy:get(".vt-business-tool-description-001"),nav:get(".ui-business-nav-items-001 button"),font:document.fonts.check("15px Onest")};});
-  assert.ok(hierarchy.font&&hierarchy.title.family.includes("Onest"),"Business loads the same Onest font as VATRA");
-  assert.ok(hierarchy.title.size===28&&hierarchy.sub.size===20&&hierarchy.name.size===16&&hierarchy.copy.size===13&&hierarchy.nav.size===15,"Business typography uses distinct, consistent visual levels");
-  assert.ok(hierarchy.title.weight>hierarchy.name.weight&&hierarchy.name.weight>hierarchy.copy.weight,"Heading and body weights must be distinct");
-  assert.equal(await businessProbe.locator(".ui-business-metric-001").count(),3);
-  assert.ok(await businessProbe.locator(".ui-business-dashboard-company-001").evaluate(el=>el.scrollWidth<=el.clientWidth+2),"Company dashboard must fit its card");
-
-  await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-metric-value-001")?.textContent==="2");
-  const companySelector=businessProbe.locator(".ui-business-dashboard-company-001 select");
-  await companySelector.selectOption("8f19579a-199b-4ccf-9dc7-86df85238551");
-  await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-dashboard-company-name-001")?.textContent==="STUDIO 2");
-  await companySelector.selectOption("4f19579a-199b-4ccf-9dc7-86df85238551");
+  assert.equal(await businessProbe.locator(".ui-business-company-profile-001").count(),0,"Business tools must not create a second public profile");
+  assert.equal(await businessProbe.locator(".ui-business-nav-001").count(),0,"Tools belong to the community, not an independent navigation");
+  assert.equal(await businessProbe.locator(".ui-business-dashboard-company-001 select").count(),0,"There is no separate company switcher");
+  assert.equal(await businessProbe.locator(".vt-business-dashboard-company-name-001").textContent(),"BARBER STUDIO");
   await businessProbe.getByRole("button",{name:"Редагувати інформацію"}).click();
   const editor=businessProbe.locator(".ui-business-editor-001[open]");await editor.waitFor();
   assert.equal(await editor.locator('[role="combobox"]').count(),1);
@@ -108,33 +96,17 @@ try{
   await editor.waitFor({state:"detached"});
   assert.equal(await businessProbe.evaluate(()=>window.businessFixture.writes.at(-1).category_code),"hair");
   await businessProbe.setViewportSize({width:390,height:844});
-  const menu=businessProbe.locator(".vt-business-mobile-nav-001");await menu.waitFor();
-  assert.equal(await menu.getAttribute("aria-expanded"),"false");
-  await menu.click();assert.equal(await menu.getAttribute("aria-expanded"),"true");
-  assert.ok(await businessProbe.locator(".ui-business-nav-001").isVisible());
-  await menu.click();assert.equal(await menu.getAttribute("aria-expanded"),"false");
-  assert.ok(await businessProbe.locator(".ui-business-view-001").evaluate(el=>el.scrollWidth<=el.clientWidth+2),"Business workspace must not overflow on mobile");
-
+  assert.ok(await businessProbe.locator(".ui-business-view-001").evaluate(el=>el.scrollWidth<=el.clientWidth+2),"Community tools must not overflow on mobile");
   await businessProbe.getByRole("button",{name:"Редагувати інформацію"}).click();
   await editor.waitFor();const save=editor.locator(".vt-business-editor-save-001");
   assert.ok(await save.evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.right<=innerWidth;}),"Primary action remains within the mobile viewport");
   assert.ok(await editor.evaluate(el=>el.scrollWidth<=el.clientWidth+2),"Editor must not overflow horizontally");
   await editor.getByRole("button",{name:"Скасувати"}).click();await editor.waitFor({state:"detached"});
-  await businessProbe.getByRole("link",{name:"Публічна сторінка"}).click();
-  await businessProbe.locator(".ui-business-public-view-001").waitFor();
-  assert.equal(await businessProbe.locator(".ui-business-dashboard-company-001").count(),0);
-  assert.equal(await businessProbe.locator(".ui-business-profile-details-001").count(),1);
-  assert.equal(await businessProbe.locator(".ui-business-public-columns-001 .ui-business-public-about-001 .ui-business-profile-details-001").count(),1);
-  assert.ok((await businessProbe.getByRole("link",{name:"Магазин компанії"}).getAttribute("href")).includes("section=stores&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
-  assert.ok((await businessProbe.getByRole("link",{name:"Вакансії компанії"}).getAttribute("href")).includes("section=jobs&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
-  assert.ok((await businessProbe.getByRole("link",{name:"Запис на послуги"}).getAttribute("href")).includes("section=booking&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
-  await businessProbe.getByRole("button",{name:"Керувати компанією"}).click();
-  await businessProbe.locator(".ui-business-dashboard-company-001").waitFor();
-  await businessProbe.locator(".ui-business-dashboard-company-001 select").selectOption("8f19579a-199b-4ccf-9dc7-86df85238551");
+  await businessProbe.goto(base+"club101?tools=analytics",{waitUntil:"domcontentloaded"});
+  await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-metric-value-001")?.textContent==="2");
+  assert.equal(await businessProbe.locator(".ui-business-metric-001").count(),3);
+  await businessProbe.goto(base+"club102?tools=overview",{waitUntil:"domcontentloaded"});
   await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-dashboard-company-name-001")?.textContent==="STUDIO 2");
-  await businessProbe.reload({waitUntil:"domcontentloaded"});
-  await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-dashboard-company-name-001")?.textContent==="STUDIO 2");
-
  }finally{await businessProbe.close();}
 
  // Simulate previously cached stylesheet/JS content after a deployment.
@@ -3116,12 +3088,12 @@ try{
    "Four primary destinations must be centered in the header");
   assert.equal(await feedProbe.locator(".feed-sidebar").count(),0,
    "The old sidebar must be removed, not hidden");
-  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),6,
-   "The centered navigation must show six icon destinations");
+  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),5,
+   "The centered navigation must show five icon destinations");
   if(language==="uk")desktopHeaderCenters=await navCenters(feedProbe);
   assert.deepEqual(await feedProbe.locator(".social-top-link span").allTextContents(),
-   language==="en"?["Feed","Friends","Communities","Clips","Marketplace","Business"]:
-   ["Стрічка","Друзі","Спільноти","Кліпи","Маркетплейс","Бізнес"]);
+   language==="en"?["Feed","Friends","Communities","Clips","Marketplace"]:
+   ["Стрічка","Друзі","Спільноти","Кліпи","Маркетплейс"]);
   assert.equal(await feedProbe.locator(".social-top-link:disabled").count(),0,
    "All VATRA header icons must be interactive, including coming-soon previews");
   assert.equal(await feedProbe.locator(".feed-header-icon-button:disabled").count(),0,
@@ -5123,6 +5095,7 @@ try{
   await page.locator("#community-create-toggle").click();
   assert.equal(await page.locator("#community-create-toggle").getAttribute("aria-expanded"),"true");
   assert.equal(await page.locator("#community-create-panel").isVisible(),true);
+  const businessToggle=page.locator("#community-business-enabled");assert.equal(await businessToggle.isChecked(),false,"Ordinary communities remain the default");await businessToggle.check();assert.equal(await businessToggle.isChecked(),true);await businessToggle.uncheck();
   await page.locator("#community-name").fill("Спільнота тесту");
   await page.locator("#community-description").fill("Опис перевірки");
   const categoryInput=page.locator("#community-category");
@@ -5147,6 +5120,7 @@ try{
   assert.equal((await page.locator("#club-heading").textContent()).trim(),"Спільнота тесту");
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("vatra-test-clubs"))[0].category),"music","Chosen category must be persisted");
   assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("vatra-test-clubs"))[0].business_enabled),false,"Ordinary community must not enable business tools");
   assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
   const clubViewport=page.viewportSize();
   for(const size of [{width:1440,height:900},{width:390,height:844}]){

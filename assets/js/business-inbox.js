@@ -1,11 +1,11 @@
 /* Private business correspondence, separated from personal conversations. */
 export async function renderBusinessInbox({target,client,t,make,link,btn,card,tabs,heading,companySelector,selected,roleOf,ownId,message,err,initialMode,onMode,browseCompany}){
  let mode=initialMode==="manage"?"manage":"mine",thread=null,seq=0,loading=false;let displayCompany=browseCompany||null;const allowed=["owner","admin","manager"].includes(roleOf(selected));
- const body=make("div","ui-business-inbox-body-001"),nav=tabs([["mine",t("Мої звернення","My inquiries")],["manage",t("Звернення до компанії","Company inbox")]],key=>{mode=key;thread=null;displayCompany=null;onMode(key);void load();});
+ const body=make("div","ui-business-inbox-body-001"),nav=tabs([["mine",t("Мої звернення","My inquiries")],...(allowed?[["manage",t("Звернення до спільноти","Community inbox")]]:[])],key=>{mode=key;thread=null;displayCompany=key==="mine"?browseCompany:null;onMode(key);void load();});
  for(const b of nav.children){const active=b.dataset.tab===mode;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));}
  target.append(heading(t("Повідомлення","Messages"),t("Приватне спілкування клієнтів із компаніями VATRA.","Private correspondence between customers and VATRA companies.")),nav,body);
  const empty=copy=>make("p","vt-business-empty-001",copy),format=time=>new Intl.DateTimeFormat(document.documentElement.lang||"uk",{dateStyle:"short",timeStyle:"short"}).format(new Date(time));
- const columns="id,company_id,customer_vatra_id,last_activity_at,business_companies(id,name)";
+ const columns="id,company_id,customer_vatra_id,last_activity_at,business_companies(id,name,club_id)";
  async function load(){
   const token=++seq;body.replaceChildren();const shell=make("div","ui-business-inbox-shell-001"),list=card("ui-business-conversation-list-001"),pane=card("ui-business-conversation-001");
   if(mode==="manage"){if(!selected){body.append(empty(t("Спочатку створіть компанію.","Create a company first.")));return;}body.append(companySelector());if(!allowed){body.append(empty(t("Скринька доступна власнику, адміністратору та менеджеру.","The inbox is available to owners, administrators and managers.")));return;}}
@@ -13,11 +13,11 @@ export async function renderBusinessInbox({target,client,t,make,link,btn,card,ta
   list.append(make("h3","vt-business-panel-title-001",t("Діалоги","Conversations")),btn(t("Оновити","Refresh"),"vt-business-secondary-001",()=>void load()));
   pane.append(empty(t("Виберіть діалог або відкрийте сторінку компанії, щоб написати їй.","Choose a conversation or open a company page to send a message.")));
   try{
-   let q=client.from("business_inquiries").select(columns).order("last_activity_at",{ascending:false}).limit(100);q=mode==="manage"?q.eq("company_id",selected):q.eq("customer_vatra_id",ownId);
+   let q=client.from("business_inquiries").select(columns).order("last_activity_at",{ascending:false}).limit(100);q=mode==="manage"?q.eq("company_id",selected):q.eq("customer_vatra_id",ownId);if(browseCompany)q=q.eq("company_id",browseCompany);
    const r=await q;if(token!==seq||!shell.isConnected)return;if(r.error)throw r.error;const rows=r.data||[];
    if(mode==="mine"&&displayCompany&&!rows.some(row=>row.company_id===displayCompany)){
     const existing=await client.from("business_inquiries").select(columns).eq("company_id",displayCompany).eq("customer_vatra_id",ownId).maybeSingle();if(existing.error)throw existing.error;
-    if(token!==seq)return;if(existing.data)rows.unshift(existing.data);else if(!roleOf(displayCompany)){const c=await client.from("business_companies").select("id,name").eq("id",displayCompany).maybeSingle();if(token!==seq)return;if(c.data)rows.unshift({id:null,company_id:c.data.id,business_companies:c.data});}
+    if(token!==seq)return;if(existing.data)rows.unshift(existing.data);else if(!roleOf(displayCompany)){const c=await client.from("business_companies").select("id,name,club_id").eq("id",displayCompany).maybeSingle();if(token!==seq)return;if(c.data)rows.unshift({id:null,company_id:c.data.id,business_companies:c.data});}
    }
    if(!rows.length)list.append(make("p","vt-business-heading-copy-001",t("Діалогів поки немає.","No conversations yet.")));
    const openRow=row=>{thread=row.id;displayCompany=mode==="mine"?row.company_id:null;for(const b of list.querySelectorAll("[data-thread]"))b.setAttribute("aria-pressed",String(b.dataset.thread===(row.id||row.company_id)));void open(row,pane,token);};
@@ -28,7 +28,7 @@ export async function renderBusinessInbox({target,client,t,make,link,btn,card,ta
  async function open(row,pane,token){
   const generation=(Number(pane.dataset.generation)||0)+1;pane.dataset.generation=String(generation);
   const current=()=>token===seq&&pane.isConnected&&pane.dataset.generation===String(generation);
-  pane.replaceChildren();const header=make("header","ui-business-conversation-header-001"),name=mode==="manage"?"VATRA ID "+row.customer_vatra_id:row.business_companies?.name||t("Компанія","Company"),label=make("h3","vt-business-panel-title-001",name);header.append(label,link(t("Профіль","Profile"),mode==="manage"?"id"+row.customer_vatra_id:"business?company="+encodeURIComponent(row.company_id),"vt-business-page-link-001"));
+  pane.replaceChildren();const header=make("header","ui-business-conversation-header-001"),name=mode==="manage"?"VATRA ID "+row.customer_vatra_id:row.business_companies?.name||t("Компанія","Company"),label=make("h3","vt-business-panel-title-001",name);header.append(label,link(t("Профіль","Profile"),mode==="manage"?"id"+row.customer_vatra_id:"club"+row.business_companies?.club_id,"vt-business-page-link-001"));
   const stream=make("div","ui-business-message-stream-001"),status=make("p","vt-business-local-status-001"),form=make("form","ui-business-message-compose-001"),input=make("textarea","ui-business-post-input-001"),send=make("button","vt-business-primary-001",t("Надіслати","Send"));
   status.setAttribute("role","status");status.hidden=true;input.rows=2;input.maxLength=2000;input.required=true;input.placeholder=t("Напишіть повідомлення…","Write a message…");input.setAttribute("aria-label",input.placeholder);send.type="submit";form.append(input,send);pane.append(header,stream,make("p","vt-business-inbox-note-001",t("Не надсилайте паролі, платіжні реквізити або документи.","Do not send passwords, payment details or identity documents.")),status,form);
   function showStatus(copy,error=false){status.hidden=!copy;status.dataset.kind=error?"error":"info";status.textContent=copy;}

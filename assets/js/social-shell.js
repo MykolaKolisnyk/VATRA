@@ -102,19 +102,6 @@
   window.visualViewport?.addEventListener("resize",afterLayout,{passive:true});
   window.visualViewport?.addEventListener("scroll",afterLayout,{passive:true});
  }
- function setUpBusinessNav(){
-  const nav=document.querySelector(".social-top-nav");
-  if(!nav||nav.querySelector(".ui-social-top-business-001"))return;
-  const active=document.body.dataset.page==="business";
-  const a=make("a","social-top-link ui-social-top-business-001"+(active?" social-top-active":""));
-  a.href=new URL("business",new URL("./",location.href)).href;
-  a.dataset.vatraTooltipUk="Бізнес";a.dataset.vatraTooltipEn="Business";
-  a.setAttribute("aria-label",tr("Бізнес","Business"));if(active)a.setAttribute("aria-current","page");
-  const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
-  svg.setAttribute("class","ui-vatra-nav-business-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("width","26");svg.setAttribute("height","26");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
-  path.setAttribute("class","ui-vatra-nav-business-path-001");path.setAttribute("d","M5 7h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2ZM8.5 7V5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2");svg.append(path);
-  const label=make("span","vt-shell-nav-label-business-001",tr("Бізнес","Business"));label.dataset.socialUk="Бізнес";label.dataset.socialEn="Business";a.append(svg,label);nav.append(a);
- }
  function setUpTooltip(){
   const accountMenu=document.querySelector(".feed-account-menu");
   accountMenu?.addEventListener("toggle",()=>{
@@ -693,7 +680,6 @@
   if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.src=new URL("account-guard.js?rev=f89b8424411ca23d6999bbabe30c52099af1dfe6",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
   showPendingShell();
   setUpAccountPanel();
-  setUpBusinessNav();
   setupRouteMotion();
   setUpTooltip();
   setUpComingSoon();

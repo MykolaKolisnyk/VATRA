@@ -2,7 +2,7 @@
 export async function renderBusinessStores({target,client,t,make,link,btn,card,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode,onMode,browseCompany}){
  const cols="id,seller_vatra_id,title,description,price,currency,image_path,status,moderation_status";
  const owner=roleOf(selected)==="owner";let mode=initialMode==="manage"?"manage":"browse",ticket=0;
- const area=make("div","ui-business-store-area-001"),nav=tabs([["browse",t("Каталог товарів","Product catalogue")],["manage",t("Мій магазин","My store")]],key=>{mode=key;onMode(key);void load();});
+ const area=make("div","ui-business-store-area-001"),nav=tabs([["browse",t("Товари спільноти","Community products")],...(owner?[["manage",t("Керування товарами","Manage products")]]:[])],key=>{mode=key;onMode(key);void load();});
  for(const b of nav.children){const active=b.dataset.tab===mode;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));}
  target.append(heading(t("Магазини","Stores"),t("Товари компаній, які пройшли перевірку маркетплейсу VATRA.","Company products approved by VATRA Marketplace.")),nav,area);
  const empty=copy=>make("p","vt-business-empty-001",copy);
@@ -15,7 +15,7 @@ export async function renderBusinessStores({target,client,t,make,link,btn,card,t
    void (async()=>{try{const {data,error}=await client.storage.from("marketplace-images").createSignedUrl(row.image_path,900);if(error||!data?.signedUrl||!media.isConnected)return;const img=make("img","ui-business-store-image-001");img.alt=row.title;img.loading="lazy";img.addEventListener("error",()=>img.remove(),{once:true});img.src=data.signedUrl;media.append(img);}catch(_){}})();
   }
   info.append(make("strong","vt-business-store-price-001",price),make("h3","vt-business-store-title-001",row.title));
-  if(company?.name)info.append(link(company.name,"business?company="+encodeURIComponent(company.id),"vt-business-company-link-001"));
+  if(company?.name)info.append(link(company.name,"club"+company.club_id,"vt-business-company-link-001"));
   info.append(make("p","vt-business-store-description-001",row.description));
   const actions=make("div","ui-business-store-actions-001");actions.append(link(t("Переглянути оголошення","View listing"),"marketplace?item="+encodeURIComponent(row.id),"vt-business-secondary-001 vt-business-page-action-001"));
   if(controls)controls(actions);info.append(actions);box.append(media,info);return box;
@@ -40,7 +40,7 @@ export async function renderBusinessStores({target,client,t,make,link,btn,card,t
     if(!add.children.length)add.append(empty(t("Немає інших схвалених активних оголошень.","No other approved active listings.")));
    }else{
     const search=make("input","ui-business-directory-search-001");search.type="search";search.maxLength=100;search.placeholder=t("Пошук товарів у магазинах","Search store products");search.setAttribute("aria-label",search.placeholder);body.append(search,grid);
-    let seq=0,timer;const browse=async()=>{const key=++seq;let q=client.from("business_store_listings").select("listing_id,company_id,business_companies(id,name),marketplace_listings!inner("+cols+")").eq("marketplace_listings.status","active").eq("marketplace_listings.moderation_status","approved").order("created_at",{ascending:false}).limit(60);if(browseCompany)q=q.eq("company_id",browseCompany);const term=search.value.trim().replace(/[%_]/g,"");if(term)q=q.ilike("marketplace_listings.title","%"+term+"%");const r=await q;if(key!==seq||token!==ticket||!body.isConnected)return;grid.replaceChildren();if(r.error){grid.append(empty(err));return;}for(const row of r.data||[]){if(row.marketplace_listings)grid.append(makeListing(row.marketplace_listings,row.business_companies));}if(!grid.children.length)grid.append(empty(t("Товарів не знайдено.","No products found.")));};
+    let seq=0,timer;const browse=async()=>{const key=++seq;let q=client.from("business_store_listings").select("listing_id,company_id,business_companies(id,name,club_id),marketplace_listings!inner("+cols+")").eq("marketplace_listings.status","active").eq("marketplace_listings.moderation_status","approved").order("created_at",{ascending:false}).limit(60);if(browseCompany)q=q.eq("company_id",browseCompany);const term=search.value.trim().replace(/[%_]/g,"");if(term)q=q.ilike("marketplace_listings.title","%"+term+"%");const r=await q;if(key!==seq||token!==ticket||!body.isConnected)return;grid.replaceChildren();if(r.error){grid.append(empty(err));return;}for(const row of r.data||[]){if(row.marketplace_listings)grid.append(makeListing(row.marketplace_listings,row.business_companies));}if(!grid.children.length)grid.append(empty(t("Товарів не знайдено.","No products found.")));};
     search.addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(()=>void browse(),250);});await browse();
    }
   }catch(_){if(token===ticket&&body.isConnected)body.replaceChildren(empty(err));}

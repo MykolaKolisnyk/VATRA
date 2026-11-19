@@ -11,7 +11,7 @@ const btn=(label,cls,fn)=>{const el=make("button",cls,label);el.type="button";el
 const valid=id=>/^[1-9][0-9]{0,18}$/.test(String(id??""));
 const title=$("#vatra-section-title"),subtitle=$("#vatra-section-subtitle"),action=$("#vatra-section-action"),content=$("#vatra-section-content"),notice=$("#vatra-section-status");
 let client,user,ownId;
-const message=(text,error=false)=>{notice.hidden=!text;notice.dataset.kind=error?"error":"info";notice.textContent=text;
+const message=(text,error=false)=>{const target=notice||document.querySelector("#club-business-status");if(target){target.hidden=!text;target.dataset.kind=error?"error":"info";target.textContent=text;}
  const local=document.querySelector("dialog[open] .vt-vatra-section-dialog-status-001");if(local){local.hidden=!text;local.dataset.kind=error?"error":"info";local.textContent=text;}};
 const empty=(text)=>make("p","vt-vatra-section-empty-001",text);
 const card=(cls)=>make("section","ui-vatra-section-card-001 "+cls);
@@ -58,7 +58,11 @@ async function boot(init){
  }catch(_){const loader=$("#feed-loading");if(loader&&!loader.hidden)loader.textContent=t("Не вдалося відкрити VATRA. Оновіть сторінку.","Could not open VATRA. Refresh the page.");else message(t("Не вдалося завантажити розділ.","Could not load section."),true);}
 }
 let started=false;
-window.VATRA_SECTION_CORE=Object.freeze({start(init){
+window.VATRA_SECTION_CORE=Object.freeze({embedded({client:activeClient,ownId:memberId,user:activeUser,content:host,notice:statusHost,t:translate}){
+ client=activeClient;ownId=String(memberId);user=activeUser;
+ const report=(copy,error=false)=>{if(statusHost){statusHost.hidden=!copy;statusHost.dataset.kind=error?"error":"info";statusHost.textContent=copy;}const local=document.querySelector("dialog[open] .vt-vatra-section-dialog-status-001");if(local){local.hidden=!copy;local.dataset.kind=error?"error":"info";local.textContent=copy;}};
+ return {root,locale,t:translate||t,$,make,link,btn,valid,title:make("span","vt-club-tools-title-001"),subtitle:make("span","vt-club-tools-subtitle-001"),content:host,notice:statusHost,client,user,ownId,message:report,empty,card,field,submit,confirmRemove,tabs,dialog,nameOf,sectionIcon,sectionIconButton,discoveryIcons,embedded:true};
+ },start(init){
  if(started||typeof init!=="function")return;started=true;
  const ready=()=>void boot(init);
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready,{once:true});else ready();

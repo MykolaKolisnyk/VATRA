@@ -12,7 +12,7 @@ assert.ok(categories.every(row=>row.length===3&&row.every(Boolean)));
 assert.deepEqual(JSON.parse(edge.match(/const CATEGORY_IDS = new Set\((\[.*?\])\);/)[1]),keys);
 assert.deepEqual([...sql.match(/check \(category in \((.*?)\)\)/)[1].matchAll(/'([^']+)'/g)].map(m=>m[1]),keys);
 assert.ok(html.includes('id="community-category" name="category"')&&html.includes('class="ui-community-category-input-001" required'));
-assert.ok(src.includes('if(!categoryNames.has(category))')&&src.includes('.insert({name,description,category})'));
+assert.ok(src.includes('if(!categoryNames.has(category))')&&src.includes('.insert({name,description,category,business_enabled:businessInput.checked})'));
 assert.ok(src.includes('request.eq("category",selectedCategory)')&&src.includes('club.category===selectedCategory'));
 assert.ok(edge.includes('CATEGORY_IDS.has(c.category)')&&edge.includes('vatra:public:communities:v2:latest100'));
 assert.ok(src.includes('for(const [id] of categories)')&&src.includes('topicGrid.append(tile)')&&src.includes('topicGrid.classList.toggle("is-expanded",topicsExpanded)'));
@@ -35,3 +35,5 @@ const css=await readFile("assets/css/communities.css","utf8");
 assert.ok(css.includes('../communities-covers/VATRA_communities.webp')&&css.includes('background-size:cover;background-position:center')&&css.includes('pointer-events:none'));
 assert.ok(css.includes('flex-wrap:nowrap')&&css.includes('flex:0 0 var(--topic-width)')&&css.includes('aspect-ratio:1.65')&&css.includes('overflow-x:auto')&&css.includes('touch-action:pan-x pan-y pinch-zoom')&&css.includes('.ui-community-topic-grid-001.is-expanded'));
 console.log("VATRA community categories: forty unique IDs, bilingual labels, required form, exact filters, DB constraints and cache schema agree.");
+
+assert.ok(html.includes('id="community-business-enabled"')&&html.includes('role="switch"')&&html.includes('<dialog id="community-create-panel"')&&src.includes("panel.showModal()"),"Business tools are opt-in in the community creation dialog");

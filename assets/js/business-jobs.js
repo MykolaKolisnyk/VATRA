@@ -1,10 +1,10 @@
 /* Company vacancy and candidate workflow, loaded only in the Jobs section. */
 export async function renderBusinessJobs({target,client,t,make,link,btn,card,field,submit,dialog,tabs,heading,companySelector,selected,roleOf,ownId,message,confirmRemove,err,initialMode,onMode,browseCompany=null}){
- const jobFields="id,company_id,title,description,city,employment_type,status,created_at,business_companies(name)";
+ const jobFields="id,company_id,title,description,city,employment_type,status,created_at,business_companies(name,club_id)";
  const types=[["full-time",t("Повна зайнятість","Full-time")],["part-time",t("Часткова зайнятість","Part-time")],["contract",t("Проєктна робота","Contract")],["internship",t("Стажування","Internship")],["remote",t("Дистанційна робота","Remote")]];
  const statuses={submitted:t("Надіслано","Submitted"),reviewed:t("Переглянуто","Reviewed"),shortlisted:t("У списку кандидатів","Shortlisted"),declined:t("Відхилено","Declined"),withdrawn:t("Відкликано","Withdrawn")};
  const employer=["owner","admin","manager"].includes(roleOf(selected));let mode=["browse","applications","manage"].includes(initialMode)?initialMode:"browse",ticket=0;
- const area=make("div","ui-business-jobs-area-001"),nav=tabs([["browse",t("Усі вакансії","All jobs")],["applications",t("Мої відгуки","My applications")],["manage",t("Вакансії компанії","Company jobs")]],key=>{mode=key;onMode(key);void load();});
+ const area=make("div","ui-business-jobs-area-001"),nav=tabs([["browse",t("Вакансії спільноти","Community jobs")],["applications",t("Мої відгуки","My applications")],...(employer?[["manage",t("Керування вакансіями","Manage jobs")]]:[])],key=>{mode=key;onMode(key);void load();});
  for(const b of nav.children){const active=b.dataset.tab===mode;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));}
  target.append(heading(t("Вакансії","Jobs"),t("Знаходьте роботу та працівників у VATRA.","Find jobs and employees in VATRA.")),nav,area);
  const empty=text=>make("p","vt-business-empty-001",text);
@@ -33,7 +33,7 @@ export async function renderBusinessJobs({target,client,t,make,link,btn,card,fie
  }
  function jobCard(job){
   const box=card("ui-business-job-card-001"),actions=make("div","ui-business-job-actions-001");
-  box.append(make("h3","vt-business-panel-title-001",job.title),link(job.business_companies?.name||t("Компанія","Company"),"business?company="+encodeURIComponent(job.company_id),"vt-business-company-link-001"),make("p","vt-business-company-meta-001",[types.find(x=>x[0]===job.employment_type)?.[1],job.city,job.status==="closed"?t("Закрито","Closed"):t("Відкрита","Open")].filter(Boolean).join(" · ")),make("p","vt-business-post-body-001",job.description),actions);return {box,actions};
+  box.append(make("h3","vt-business-panel-title-001",job.title),link(job.business_companies?.name||t("Компанія","Company"),"club"+job.business_companies?.club_id,"vt-business-company-link-001"),make("p","vt-business-company-meta-001",[types.find(x=>x[0]===job.employment_type)?.[1],job.city,job.status==="closed"?t("Закрито","Closed"):t("Відкрита","Open")].filter(Boolean).join(" · ")),make("p","vt-business-post-body-001",job.description),actions);return {box,actions};
  }
  async function updateStatus(table,id,status,button,after){
   button.disabled=true;message("");
@@ -65,7 +65,7 @@ export async function renderBusinessJobs({target,client,t,make,link,btn,card,fie
      const state=job.status==="open"?"closed":"open",b=btn(state==="closed"?t("Закрити","Close"):t("Відкрити знову","Reopen"),"vt-business-secondary-001",()=>void updateStatus("business_jobs",job.id,state,b,load));actions.append(b);body.append(box);
     }
    }else if(mode==="applications"){
-    const r=await client.from("business_job_applications").select("id,job_id,status,note,created_at,business_jobs("+jobFields+")").eq("member_vatra_id",ownId).order("created_at",{ascending:false}).limit(100);
+    let q=client.from("business_job_applications").select("id,job_id,status,note,created_at,business_jobs!inner("+jobFields+")").eq("member_vatra_id",ownId).order("created_at",{ascending:false}).limit(100);if(browseCompany)q=q.eq("business_jobs.company_id",browseCompany);const r=await q;
     if(r.error)throw r.error;if(token!==ticket||!body.isConnected)return;if(!r.data?.length)body.append(empty(t("Ви ще не відгукувалися на вакансії.","You have not applied for any jobs.")));
     for(const row of r.data||[]){if(!row.business_jobs)continue;const {box,actions}=jobCard(row.business_jobs);box.append(make("p","vt-business-company-meta-001",statuses[row.status]||row.status));if(["submitted","reviewed","shortlisted"].includes(row.status)){const b=btn(t("Відкликати відгук","Withdraw application"),"vt-business-secondary-001",async()=>{if(await confirmRemove(t("Відкликати відгук?","Withdraw application?"),t("Відгук буде відкликано.","The application will be withdrawn."),t("Відкликати","Withdraw")))void updateStatus("business_job_applications",row.id,"withdrawn",b,load);});actions.append(b);}body.append(box);}
    }else{

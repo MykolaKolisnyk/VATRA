@@ -16,7 +16,7 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/feed.css?rev=42c681be1a1b8373e987e5b09f7b0700dbb7fa71">
-    <link rel="stylesheet" href="assets/css/communities.css?rev=c61614a76131b91106ff3c28ce5337c089a0de57">
+    <link rel="stylesheet" href="assets/css/communities.css?rev=04bf65af9450b7dedc58572ca21aa15ea8bd24ed">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js"></script>
   <script defer src="assets/js/public-name-cache.js"></script>
@@ -24,7 +24,7 @@
     <script defer src="assets/js/presence.js"></script>
     <script defer src="assets/js/notifications.js"></script>
     <script defer src="assets/js/community-core.js?rev=1ca7f2cde5bd4c4804b75e5751684596a58465e9"></script>
-    <script defer src="assets/js/communities.js?rev=b0509ced450abe0a140fa31d6bd91efb3c5357e3"></script>
+    <script defer src="assets/js/communities.js?rev=fa8861871c907b98121af829d411a90950ec75d1"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -139,22 +139,28 @@
    <div class="ui-community-banner-copy-001"><h2 id="community-banner-title" class="vt-community-banner-title-001" data-community-uk="Знайдіть своїх людей" data-community-en="Find your people">Знайдіть своїх людей</h2><p class="vt-community-banner-text-001" data-community-uk="Відкривайте спільноти за інтересами та створюйте власні." data-community-en="Discover communities around your interests and create your own.">Відкривайте спільноти за інтересами та створюйте власні.</p></div>
   </section>
  <div class="vatra-discovery-content ui-community-discovery-main-001">
-  <section id="community-create-panel" class="community-create ui-community-create-001" aria-labelledby="community-create-heading" hidden>
-            <h2 id="community-create-heading" class="vt-community-create-heading-001" data-community-uk="Створити спільноту" data-community-en="Create a community">
-              Створити спільноту
-            </h2>
-            <form id="community-create-form" class="ui-community-create-form-001">
-              <label class="vt-community-name-label-001" for="community-name" data-community-uk="Назва спільноти" data-community-en="Community name">Назва спільноти</label>
-      <input id="community-name" class="ui-community-name-input-001" name="name" type="text" minlength="3" maxlength="80" required autocomplete="off" placeholder="Наприклад, Українська музика">
-      <label class="vt-community-description-label-001" for="community-description" data-community-uk="Опис (необов’язково)" data-community-en="Description (optional)">Опис (необов’язково)</label>
-      <textarea id="community-description" class="ui-community-description-input-001" name="description" rows="3" maxlength="1200" placeholder="Про що ваша спільнота?"></textarea>
-      <label class="vt-community-category-label-001" for="community-category" data-community-uk="Категорія" data-community-en="Category">Категорія</label>
-      <select id="community-category" name="category" class="ui-community-category-input-001" required></select>
-      <button id="community-create-submit" class="feed-submit vt-community-create-submit-001" type="submit" data-community-uk="Створити" data-community-en="Create">Створити</button>
-            </form>
-            <p id="community-create-status" class="vt-community-create-status-001" role="status" aria-live="polite" hidden>
-            </p>
-          </section>
+  <dialog id="community-create-panel" class="community-create ui-community-create-001" aria-labelledby="community-create-heading" hidden>
+    <header class="ui-community-create-header-001">
+      <h2 id="community-create-heading" class="vt-community-create-heading-001" data-community-uk="Створення спільноти" data-community-en="Create a community">Створення спільноти</h2>
+      <button id="community-create-close" class="vt-community-create-close-001" type="button" aria-label="Закрити"><svg class="ui-community-create-close-icon-001" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-community-create-close-path-001" d="m6 6 12 12M18 6 6 18"/></svg></button>
+    </header>
+    <form id="community-create-form" class="ui-community-create-form-001">
+      <div class="ui-community-create-fields-001">
+        <div class="ui-community-name-row-001"><label class="vt-community-name-label-001" for="community-name" data-community-uk="Назва спільноти" data-community-en="Community name">Назва спільноти</label><span id="community-name-count" class="vt-community-name-count-001">0 / 80</span></div>
+        <input id="community-name" class="ui-community-name-input-001" name="name" type="text" minlength="3" maxlength="80" required autocomplete="off" placeholder="Наприклад, Українська музика">
+        <label class="vt-community-category-label-001" for="community-category" data-community-uk="Тематика" data-community-en="Topic">Тематика</label>
+        <select id="community-category" name="category" class="ui-community-category-input-001" required></select>
+        <label class="vt-community-description-label-001" for="community-description" data-community-uk="Опис (необов’язково)" data-community-en="Description (optional)">Опис (необов’язково)</label>
+        <textarea id="community-description" class="ui-community-description-input-001" name="description" rows="3" maxlength="1200" placeholder="Про що ваша спільнота?"></textarea>
+        <label class="ui-community-business-option-001" for="community-business-enabled">
+          <span class="ui-community-business-copy-001"><span class="vt-community-business-title-001" data-community-uk="Бізнес-інструменти" data-community-en="Business tools">Бізнес-інструменти</span><span id="community-business-help" class="vt-community-business-description-001" data-community-uk="Додайте до спільноти товари, запис на послуги, вакансії та звернення клієнтів." data-community-en="Add products, service bookings, jobs and customer inquiries to your community.">Додайте до спільноти товари, запис на послуги, вакансії та звернення клієнтів.</span></span>
+          <input type="checkbox" id="community-business-enabled" class="ui-community-business-switch-001" role="switch" aria-describedby="community-business-help">
+        </label>
+        <p id="community-create-status" class="vt-community-create-status-001" role="status" aria-live="polite" hidden></p>
+      </div>
+      <div class="ui-community-create-actions-001"><button id="community-create-cancel" class="vt-community-create-cancel-001" type="button" data-community-uk="Скасувати" data-community-en="Cancel">Скасувати</button><button id="community-create-submit" class="feed-submit vt-community-create-submit-001" type="submit" data-community-uk="Створити спільноту" data-community-en="Create community">Створити спільноту</button></div>
+    </form>
+  </dialog>
   <section id="community-topics" class="ui-community-topics-001"></section>
   <section class="ui-community-list-section-001" aria-labelledby="community-list-heading"><h2 id="community-list-heading" class="vt-community-list-heading-001">Нові спільноти</h2><div id="community-list" class="ui-community-list-001" aria-live="polite" aria-busy="true">
             </div><p id="community-list-status" class="vt-community-list-status-001" role="status">

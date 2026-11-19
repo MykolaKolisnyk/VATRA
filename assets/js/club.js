@@ -189,6 +189,70 @@ async function fetchPublicClub(client,number){
   .select("club_id,name,description,created_at").eq("club_id",number).maybeSingle();
 }
 
+async function setupCommunityBusiness(client,number,ownId,userId){
+ const host=$("#club-business-tools");if(!host||!ownId)return;
+ try{
+  const flags=await client.from("communities").select("club_id,owner_id,business_enabled,name,description").eq("club_id",number).maybeSingle();
+  if(flags.error||!flags.data)return;
+  const isOwner=flags.data.owner_id===userId;
+  const action=(label,fn)=>{const button=node("button","vt-club-business-enable-001",label);button.type="button";button.addEventListener("click",fn);return button;};
+  if(!flags.data.business_enabled){
+   if(!isOwner)return;
+   const toggle=action(t("Увімкнути бізнес-інструменти","Enable business tools"),async()=>{
+    if(!window.confirm(t("Увімкнути товари, бронювання, вакансії та звернення клієнтів для цієї спільноти?","Enable products, bookings, jobs and customer inquiries for this community?")))return;
+    toggle.disabled=true;try{const r=await client.from("communities").update({business_enabled:true}).eq("club_id",number).select("club_id").single();if(r.error||!r.data)throw Error("enable");location.reload();}catch(_){status("#club-status",t("Не вдалося увімкнути бізнес-інструменти.","Could not enable business tools."),"error");toggle.disabled=false;}
+   });
+   host.append(node("h2","vt-club-business-heading-001",t("Бізнес-інструменти","Business tools")),node("p","vt-club-business-description-001",t("Ви можете оформити цю спільноту для свого бізнесу.","You can set up this community for your business.")),toggle);host.hidden=false;return;
+  }
+  const result=await client.from("business_companies").select("id,club_id,name,description,city,contact_email,website,logo_path,cover_path").eq("club_id",number).maybeSingle();
+  if(result.error||!result.data)return;const company=result.data;
+  const [membership,metrics]=await Promise.all([client.from("business_members").select("role,status").eq("company_id",company.id).eq("member_vatra_id",ownId).maybeSingle(),client.from("business_metrics").select("rating_count,rating_total").eq("company_id",company.id).maybeSingle()]);
+  const role=membership.data?.status==="active"?membership.data.role:null,pending=membership.data?.status==="pending",manage=Boolean(role);
+  // The public club is the only public identity; live linked data avoids a stale directory cache.
+  $("#club-heading").textContent=flags.data.name;$("#club-description").textContent=flags.data.description||t("Опису поки немає.","No description yet.");document.title=flags.data.name+" · VATRA";
+  const identity=$("#club-identity-extra");if(identity){
+   if(company.city)identity.append(node("span","vt-club-business-city-001",company.city));
+   const n=Number(metrics.data?.rating_count),total=Number(metrics.data?.rating_total);
+   const rating=node("span","vt-club-business-rating-001",n>0&&Number.isFinite(total)?"★ "+new Intl.NumberFormat(locale,{minimumFractionDigits:1,maximumFractionDigits:1}).format(total/n)+" · "+n+" "+t("оцінок","ratings"):t("Оцінок ще немає","No ratings yet"));
+   identity.append(rating);identity.hidden=false;
+  }
+  async function image(path,kind,selector){
+   if(typeof path!=="string"||!path.startsWith(company.id+"/"+kind+"/"))return;
+   try{const {data,error}=await client.storage.from("business-media").createSignedUrl(path,900);if(error||!data?.signedUrl)return;const target=$(selector);if(!target)return;const img=node("img","ui-club-business-"+kind+"-001");img.alt="";img.addEventListener("error",()=>{img.remove();target.classList.remove("has-business-media");},{once:true});img.src=data.signedUrl;target.append(img);target.classList.add("has-business-media");}catch(_){}
+  }
+  void image(company.logo_path,"logo","#club-avatar");void image(company.cover_path,"cover",".ui-club-cover-001");
+  const tools=(section,mode)=>clubURL(number)+"?tools="+encodeURIComponent(section)+(mode?"&mode="+encodeURIComponent(mode):"");
+  const selectedTool=new URLSearchParams(location.search).get("tools");
+  const selectedMode=new URLSearchParams(location.search).get("mode");
+  const allowedTools=["stores","booking","jobs","ratings","inbox",...((manage||pending)?["overview","team","analytics"]:[])];
+  if(allowedTools.includes(selectedTool)){
+   const panel=node("section","ui-club-business-tool-panel-001"),header=node("header","ui-club-business-tool-header-001"),back=node("a","vt-club-business-back-001",t("До публікацій спільноти","Back to community posts")),notice=node("p","vt-vatra-section-status-001"),content=node("div","ui-club-business-tool-content-001");
+   back.href=clubURL(number);notice.id="club-business-status";notice.hidden=true;notice.setAttribute("role","status");header.append(back);panel.append(header,notice,content);
+   const posts=$(".club-posts-section");if(posts){posts.before(panel);posts.hidden=true;}
+   const resource=(tag,url)=>new Promise((resolve,reject)=>{const el=document.createElement(tag);if(tag==="link"){el.rel="stylesheet";el.href=new URL(url,root).href;}else{el.src=new URL(url,root).href;el.async=false;}el.addEventListener("load",resolve,{once:true});el.addEventListener("error",reject,{once:true});document.head.append(el);});
+   try{
+    document.body.classList.add("vatra-section-page","vatra-business-page");
+    await Promise.all([resource("link","assets/css/core.css?rev=e54d9ba8c2638618fb5402931fcc95d0bc36b418"),resource("link","assets/css/business.css?rev=0ef7bc4573fb0a8b62579ab0d34f93941c52ac8e"),resource("script","assets/js/core.js?rev=6ae6273e38c53b06b9ccc78e6ebb03a627262090")]);
+    await resource("script","assets/js/business.js?rev=76f3d3af1e18a64f209c6abbf491b6e401381fcf");
+    if(!window.VATRA_BUSINESS_TOOLS||!window.VATRA_SECTION_CORE?.embedded)throw Error("tools");
+    await window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client,ownId,user:{id:userId},content,notice,t}));
+   }catch(_){notice.hidden=false;notice.textContent=t("Не вдалося завантажити бізнес-інструмент. Оновіть сторінку.","Could not load business tools. Refresh the page.");}
+  }
+  const icons={stores:"M4 7h16l1 14H3L4 7Zm4 0V5a4 4 0 0 1 8 0v2",booking:"M4 5h16v16H4zM7 3v4m10-4v4M4 10h16m-12 4h3m3 0h3m-9 3h3",jobs:"M3 7h18v14H3zM8 7V3h8v4M3 12h18M10 11v3h4v-3",inbox:"M4 4h16v13H9l-5 4zM8 9h8m-8 4h5",overview:"M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z",ratings:"m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z",analytics:"M4 4v16h16M8 16v-5m5 5V7m5 9v-7",team:"M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 21v-2c0-3 3-5 6-5s6 2 6 5v2M16 5a3 3 0 0 1 0 6m2 3c2 1 3 3 3 5v2"};
+  function menuRow(key,label,mode){const a=node("a","vt-club-business-link-001");a.href=tools(key,mode);if(selectedTool===key&&((selectedMode==="manage")===(mode==="manage")))a.setAttribute("aria-current","page");const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");svg.setAttribute("class","ui-club-business-icon-"+key);svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");path.setAttribute("d",icons[key]);path.setAttribute("class","ui-club-business-path-"+key);svg.append(path);a.append(svg,node("span","vt-club-business-link-label-001",label));return a;}
+  host.append(node("h2","vt-club-business-heading-001",t("Бізнес-інструменти","Business tools")));
+  const publicMenu=node("nav","ui-club-business-menu-001");publicMenu.setAttribute("aria-label",t("Послуги спільноти","Community services"));
+  publicMenu.append(menuRow("stores",t("Товари","Products")),menuRow("booking",t("Запис на послуги","Book services")),menuRow("jobs",t("Вакансії","Jobs")),menuRow("ratings",t("Оцінки клієнтів","Customer ratings")));
+  if(!manage)publicMenu.append(menuRow("inbox",t("Написати спільноті","Message community")));
+  host.append(publicMenu);
+  if(manage||pending){const admin=node("nav","ui-club-business-management-001");admin.setAttribute("aria-label",t("Керування спільнотою","Community management"));admin.append(node("h3","vt-club-business-heading-001",t("Керування","Management")),menuRow("overview",pending?t("Запрошення до команди","Team invitation"):t("Налаштування й оформлення","Settings and branding"),"manage"));
+   if(manage){if(["owner","admin","manager"].includes(role))admin.append(menuRow("inbox",t("Звернення клієнтів","Customer inquiries"),"manage"),menuRow("booking",t("Календар записів","Appointment calendar"),"manage"),menuRow("jobs",t("Керування вакансіями","Manage jobs"),"manage"));if(role==="owner")admin.append(menuRow("stores",t("Керування товарами","Manage products"),"manage"));if(["owner","admin"].includes(role))admin.append(menuRow("team",t("Команда","Team"),"manage"));admin.append(menuRow("analytics",t("Статистика","Statistics"),"manage"));}
+   host.append(admin);
+  }
+  const contacts=$("#club-business-contacts");if(contacts){if(company.contact_email)contacts.append(node("p","vt-club-business-contact-001",company.contact_email));if(company.website){try{const u=new URL(company.website);if(["https:","http:"].includes(u.protocol)){const a=node("a","vt-club-business-contact-link-001",t("Вебсайт","Website"));a.href=u.href;a.target="_blank";a.rel="noopener noreferrer";contacts.append(a);}}catch(_){}}contacts.hidden=!contacts.children.length;}
+  host.hidden=false;
+ }catch(_){/* A failed optional business lookup must not interrupt the regular club. */}
+}
 async function openClub(client,ownId,userId){
  const query=new URLSearchParams(location.search);
  const number=query.get("club_id")||location.pathname.match(/\/club([1-9][0-9]{0,18})$/)?.[1]||"";
@@ -212,9 +276,9 @@ async function openClub(client,ownId,userId){
  $("#club-description").textContent=data.description||
   t("Опису поки немає.","No description yet.");
  document.title=data.name+" · VATRA";
- await setupClubSocial(client,String(data.club_id),ownId,userId);
+ await Promise.all([setupClubSocial(client,String(data.club_id),ownId,userId),setupCommunityBusiness(client,String(data.club_id),ownId,userId)]);
  const linkedId=query.get("post");
- const suffix=postPattern.test(linkedId||"")?"?post="+encodeURIComponent(linkedId):"";
+ const params=new URLSearchParams();const activeTools=new URLSearchParams(location.search).get("tools"),activeMode=new URLSearchParams(location.search).get("mode");if(["overview","team","analytics","stores","booking","jobs","ratings","inbox"].includes(activeTools)){params.set("tools",activeTools);if(activeMode==="manage")params.set("mode","manage");}else if(postPattern.test(linkedId||""))params.set("post",linkedId);const suffix=params.size?"?"+params.toString():"";
  const canonical=clubURL(String(data.club_id))+suffix;
  if(location.pathname!==new URL(canonical).pathname||location.search!==suffix||location.hash){
   history.replaceState(history.state,"",canonical);

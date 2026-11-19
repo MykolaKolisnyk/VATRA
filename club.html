@@ -16,7 +16,7 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/feed.css">
-    <link rel="stylesheet" href="assets/css/communities.css?rev=c61614a76131b91106ff3c28ce5337c089a0de57">
+    <link rel="stylesheet" href="assets/css/communities.css?rev=04bf65af9450b7dedc58572ca21aa15ea8bd24ed">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js"></script>
   <script defer src="assets/js/public-name-cache.js"></script>
@@ -26,7 +26,7 @@
     <script defer src="assets/js/presence.js"></script>
     <script defer src="assets/js/notifications.js"></script>
     <script defer src="assets/js/community-core.js?rev=1ca7f2cde5bd4c4804b75e5751684596a58465e9"></script>
-    <script defer src="assets/js/club.js?rev=8270f585d7b1ed7517ab6060d204d4dfef34f2da"></script>
+    <script defer src="assets/js/club.js?rev=018dd6503a00acf139c4b64e2a0300d47eab91d5"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -136,7 +136,7 @@
               <span id="club-avatar" class="vt-club-avatar-001" aria-hidden="true"></span>
               <div class="ui-club-identity-001">
                 <h1 id="club-heading" class="vt-club-name-001" data-community-uk="Спільнота" data-community-en="Community">Спільнота</h1>
-                <span id="club-public-id" class="vt-club-public-id-001"></span>
+                <span id="club-public-id" class="vt-club-public-id-001"></span><div id="club-identity-extra" class="ui-club-business-identity-001" hidden></div>
               </div>
               <div class="club-social-actions ui-club-social-actions-001">
             <button type="button" id="club-follow" class="club-follow vt-club-follow-001" data-community-uk="Підписатися" data-community-en="Follow" hidden>Підписатися</button>
@@ -163,8 +163,9 @@
                 Про спільноту
               </h2>
               <p id="club-description" class="vt-profile-about-text-001">
-              </p>
+              </p><div id="club-business-contacts" class="ui-club-business-contacts-001" hidden></div>
             </div>
+          <section id="club-business-tools" class="ui-club-business-tools-001" hidden></section>
           <a href="communities" class="profile-back-link vt-club-back-link-001" data-community-uk="Усі спільноти" data-community-en="All communities">Усі спільноти</a>
           </aside>
           </div>

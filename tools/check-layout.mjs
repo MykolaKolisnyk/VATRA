@@ -2526,7 +2526,7 @@ assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(coun
 
 const businessSQL=await read("supabase/migrations/20261119075320_business_posts_followers_metrics.sql");
 for(const table of ["business_followers","business_posts","business_metrics"]){
- assert.ok(businessRuntime.includes('from("'+table+'")'),table+" must load actual server data");
+ if(table==="business_metrics")assert.ok(businessRuntime.includes('from("'+table+'")'),table+" must load actual server data");
  assert.ok(businessSQL.includes("alter table public."+table+" enable row level security"),table+" must enforce RLS");
 }
 assert.ok(businessSQL.includes("grant insert(company_id,body),delete on public.business_posts to authenticated")&&businessSQL.includes("business_private.my_role(company_id) in ('owner','admin','editor')"),"Company publishing is controlled by active business roles");
@@ -2562,3 +2562,9 @@ const inboxSource=await read("assets/js/business-inbox.js"),inboxSQL=await read(
 assert.doesNotThrow(()=>new Function(inboxSource.replace(/^export /gm,"")));
 assert.ok(businessRuntime.includes("assets/js/business-inbox.js?rev="));
 assert.ok(inboxSQL.includes("alter table public.business_inquiries enable row level security")&&inboxSQL.includes("alter table public.business_inquiry_messages enable row level security")&&inboxSQL.includes("new.sender_side:='company'")&&inboxSQL.includes("grant select(id,inquiry_id,sender_side,body,created_at),insert(inquiry_id,body)"),"Business correspondence must be private and attributed by the server");
+
+const communityBusinessSQL=await read("supabase/migrations/20261119115216_community_business_tools.sql"),communityStatsSQL=await read("supabase/migrations/20261119120101_community_business_shared_statistics.sql");
+assert.ok(communityBusinessSQL.includes("add column business_enabled boolean not null default false")&&communityBusinessSQL.includes("community_enable_business")&&communityBusinessSQL.includes("revoke insert(name,category,category_code,description,city,contact_email,website)"),"Business is an opt-in community extension, not a separate identity");
+assert.ok(communityStatsSQL.includes("business_shared_follow_metrics")&&communityStatsSQL.includes("business_shared_post_metrics")&&businessRuntime.includes("community_follower_count,community_post_count"),"Community stats use the actual shared follows and posts");
+assert.ok(!businessRuntime.includes('from("business_followers")')&&!businessRuntime.includes('from("business_posts")'),"No second social graph or feed");
+assert.ok((await read("assets/js/club.js")).includes("VATRA_BUSINESS_TOOLS.mount")&&businessRuntime.includes("VATRA_BUSINESS_TOOLS=Object.freeze")&&!(await read("assets/js/social-shell.js")).includes("setUpBusinessNav"),"Business tools only open inside a community");
