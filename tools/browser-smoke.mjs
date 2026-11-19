@@ -2913,6 +2913,8 @@ try{
  assert.equal(await privateFriends.locator(".vatra-friends-person").count(),0);
  assert.equal(await privateFriends.evaluate(()=>window.__vatraFriendLimitCalls.length),0,
   "A third-party friends route must not query someone else's relationships");
+ assert.equal(await privateFriends.locator('[data-friends-tab="online"]').isDisabled(),true,"Locked lists must not switch to an empty online view");
+ assert.equal(await privateFriends.locator("#friends-search").isDisabled(),true);
  await privateFriends.close();
  const publicFriends=await feedContext.newPage();
  await publicFriends.goto(base+"friends.html?member=789012&friend-action-test=1",{waitUntil:"domcontentloaded"});
@@ -3458,6 +3460,9 @@ try{
   assert.equal(await feedProbe.locator(".vt-vatra-sticker-pack-001").count(),9);
   await feedProbe.getByRole("button",{name:"Батя",exact:true}).click().catch(async()=>{await feedProbe.getByRole("button",{name:"Dad",exact:true}).click();});
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".vt-vatra-sticker-option-001").length===20);
+  await feedProbe.waitForFunction(()=>{const art=document.querySelector(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001");return art&&art.style.width&&art.style.visibility!=="hidden";});
+  const cropRatio=await feedProbe.locator(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001").first().evaluate(async art=>{const image=new Image();image.src=JSON.parse(art.style.backgroundImage.slice(4,-1));await image.decode();const rect=art.getBoundingClientRect();return {actual:rect.width/rect.height,expected:.25*image.naturalWidth/(.207849*image.naturalHeight)};});
+  assert.ok(Math.abs(cropRatio.actual-cropRatio.expected)<.03,"Sticker thumbnails preserve the crop aspect ratio");
   await feedProbe.locator(".vt-vatra-sticker-option-001").first().click();
   await feedProbe.locator(".vatra-post-comment-file-preview").waitFor({state:"visible"});
   assert.match(await feedProbe.locator(".vt-vatra-post-comment-file-name-001").textContent(),/(Батя|Dad) · 1/);

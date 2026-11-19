@@ -2,7 +2,7 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const pickerURL=new URL("comment-picker.js?rev=10984ee9002189bc0e357e33317b1111301f1831",document.currentScript?.src||location.href).href;
+ const pickerURL=new URL("comment-picker.js?rev=cdabd7f8ee9c909a9cba9a9aa44c05904e51d622",document.currentScript?.src||location.href).href;
  let pickerPromise=null;const loadPicker=()=>pickerPromise||(pickerPromise=import(pickerURL).catch(error=>{pickerPromise=null;throw error;}));
  const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
  const validId=value=>/^[1-9]\d{0,18}$/.test(String(value||""));

@@ -19,7 +19,7 @@ const make=(tag,cls,label)=>{
 };
 let client=null,ownId=null,targetId=null,rows=[],names=new Map(),photos=new Map(),accountStates=new Map();
 let current="accepted",search="",busy=false,me=true,targetName="",ownRelations=new Map();
-let presence=new Map(),presenceBusy=false,presenceAvailable=false;
+let presence=new Map(),presenceBusy=false,presenceAvailable=false,listRestricted=false;
 function stateFor(item){
  if(item.status==="accepted")return "accepted";
  if(String(item.recipient_id)===String(targetId))return "incoming";
@@ -148,7 +148,7 @@ function person(item,index){
   t("Запит надіслано","Request sent"));
  details.append(profile,secondary);
  const actions=make("div","vatra-friends-person-actions ui-vatra-friends-person-actions-"+index);
- if(!state&&stateFor(item)==="accepted"){
+ if(!state&&stateFor(item)==="accepted"&&id!==ownId){
   const message=make("a","vt-vatra-friends-message-"+index,t("Написати","Message"));
   message.href=new URL("id"+id+"?message=1",root).href;actions.append(message);
  }
@@ -170,6 +170,7 @@ function person(item,index){
  return article;
 }
 function switchTo(mode){
+ if(listRestricted)return;
  if(!["accepted","online","incoming","outgoing"].includes(mode))return;
  if(!me&&!["accepted","online"].includes(mode))return;
  current=mode;
@@ -182,6 +183,7 @@ function switchTo(mode){
  render();
 }
 function render(){
+ if(listRestricted)return;
  const list=q("#friends-list"),empty=q("#friends-empty");
  list.replaceChildren();empty.hidden=true;list.setAttribute("aria-busy","true");
  const visible=rows.filter(item=>current==="online"?stateFor(item)==="accepted"&&online(counterpart(item)):stateFor(item)===current).filter(item=>{
@@ -267,6 +269,8 @@ async function boot(){
   if(!me){
    const [pref,blocked]=await Promise.all([client.from("profile_preferences").select("profile_visibility").eq("vatra_id",targetId).maybeSingle(),client.from("member_blocks").select("blocker_vatra_id,blocked_vatra_id").or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")").limit(2)]);
    if(pref.error||blocked.error||(blocked.data||[]).length>0||pref.data?.profile_visibility==="friends"){
+    listRestricted=true;
+    for(const tab of document.querySelectorAll("[data-friends-tab]"))tab.disabled=true;
     const empty=q("#friends-empty");empty.textContent=t("Список друзів цього профілю закритий.","This profile's friends list is private.");empty.hidden=false;q("#friends-list").setAttribute("aria-busy","false");q("#friends-search").disabled=true;return;
    }
   }
