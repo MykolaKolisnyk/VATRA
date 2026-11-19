@@ -376,8 +376,11 @@ assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
  offline.includes('class="ui-offline-img-001"')&&
  !offline.includes("logo.svg"),
  "Offline page must show only the self-contained V mark at the card top-left");
-assert.ok(offline.includes("ui-offline-path-004")&&offline.includes("ui-offline-dot-001"),
- "Offline Wi-Fi-off icon must use the crisp SVG geometry");
+assert.ok(offline.includes('class="ui-offline-vatryk-001" src="assets/vatryk/vatryk_offline.webp"')&&
+ offlineStyles.includes(".ui-offline-vatryk-001")&&!offlineStyles.includes(".offline-icon")&&
+ !offline.includes("ui-offline-path-004")&&sw.includes('ROOT+"assets/vatryk/vatryk_offline.webp"')&&
+ (await stat("assets/vatryk/vatryk_offline.webp")).size>0,
+ "Offline mascot replaces the old icon and is available through the offline cache");
 assert.ok(offline.includes("controller?.scriptURL")&&offline.includes('href="./" data-i18n="n9"'),
  "Offline fallback must resolve assets and home link at nested routes and localhost");
 assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page === "offline"'),
@@ -1734,7 +1737,9 @@ assert.ok(
  feedScript.includes('.eq("author_vatra_id",vatraId).select("id").maybeSingle()')&&
  feedScript.includes('String(data?.id)!==String(toDelete.id)')&&
  feedScript.includes('Uploaded media is rolled back only if the database INSERT failed')&&
- feedScript.includes('Once a story is stored, a viewer refresh must not trigger media cleanup')&&
+ storyEditorRuntime.includes('if(insertError)throw insertError;inserted=true;')&&
+ storyEditorRuntime.includes('if(uploaded&&!inserted)')&&
+ storyEditorRuntime.indexOf('if(inserted){dialog.close();reset();try{onPublished?.();}')>storyEditorRuntime.indexOf('if(uploaded&&!inserted)')&&
  interactionsScript.includes("committed=true;")&&
  interactionsScript.includes("if(!committed)"),
  "Feed post, story and comment mutations must confirm persistence before cleanup");

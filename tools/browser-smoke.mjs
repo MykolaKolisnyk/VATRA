@@ -151,8 +151,13 @@ try{
    (await fetch("/VATRA/assets/css/base.css")).text());
   assert.ok(offlineStyle.includes("--vatra-default-avatar"),
    "After revalidation, CSS must remain available while offline");
-  await swContext.setOffline(false);
+  const cachedMascot=await swProbe.evaluate(async()=>{const response=await fetch("/VATRA/assets/vatryk/vatryk_offline.webp");return {ok:response.ok,bytes:(await response.arrayBuffer()).byteLength};});
+  assert.ok(cachedMascot.ok&&cachedMascot.bytes>0,"Vatryk must be served from the offline cache with the connection disabled");
+  await swProbe.goto(base+"offline.html",{waitUntil:"load"});
+  await swProbe.locator(".ui-offline-vatryk-001").evaluate(img=>img.decode());
+  assert.ok(await swProbe.locator(".ui-offline-vatryk-001").evaluate(img=>img.naturalWidth>0),"Cached offline page must display Vatryk with no network");
   await swProbe.close();
+  await swContext.setOffline(false);
   console.log("VATRA Service Worker: current UI assets plus offline fallback verified");
  }finally{await swContext.close();}
  // Verify actual image pixels: a neutral cover must be visually separated from
@@ -989,14 +994,17 @@ try{
   await page.setViewportSize({width,height});
   await page.goto(base+"offline.html",{waitUntil:"domcontentloaded"});
   await page.evaluate(()=>document.fonts.ready);
+  await page.locator(".ui-offline-vatryk-001").evaluate(img=>img.decode());
   const metrics=await page.evaluate(()=>{
    const rect=sel=>document.querySelector(sel).getBoundingClientRect();
-   const card=rect("main"),logo=rect(".offline-brand img"),icon=rect(".offline-icon");
+   const card=rect("main"),logo=rect(".offline-brand img"),icon=rect(".ui-offline-vatryk-001");
    const actions=[...document.querySelectorAll(".offline-actions>*")].map(x=>x.getBoundingClientRect().height);
    return {overflow:document.documentElement.scrollWidth-innerWidth,
     cardCenter:Math.abs((card.left+card.right)/2-innerWidth/2),
     logoLeft:logo.left-card.left,logoTop:logo.top-card.top,
     logoRight:logo.right-card.left,iconTop:icon.top-card.top,
+    mascotLoaded:document.querySelector(".ui-offline-vatryk-001").naturalWidth>0,
+    mascotInside:icon.left>=card.left&&icon.right<=card.right,
     titleSize:parseFloat(getComputedStyle(document.querySelector("h1")).fontSize),
     font:getComputedStyle(document.querySelector("h1")).fontFamily,
     isStandaloneV:document.querySelector(".offline-brand img").getAttribute("src").startsWith("data:image/svg+xml"),
@@ -1007,6 +1015,7 @@ try{
   assert.ok(metrics.isStandaloneV&&metrics.logoLeft>=15&&metrics.logoRight<260&&
    metrics.logoTop<metrics.iconTop,
    "Standalone V must sit at the top-left of the offline card at "+width+": "+JSON.stringify(metrics));
+  assert.ok(metrics.mascotLoaded&&metrics.mascotInside,"Offline mascot must load and fit at "+width);
   assert.ok(metrics.font.includes("Onest")&&metrics.titleSize>=27&&
    metrics.buttonCount===2&&metrics.actionHeights.every(h=>h>=48),
    "Offline typography and touch targets must remain legible at "+width+": "+JSON.stringify(metrics));
