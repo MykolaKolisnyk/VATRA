@@ -5202,8 +5202,14 @@ try{
   await assertTopicGeometry(0,true);
   assert.equal(await topicCards.evaluateAll(cards=>new Set(cards.map(c=>c.dataset.communityCategory)).size),40);
   assert.equal(await page.locator("#community-topics select").count(),0,"No dropdown in discovery");
-  assert.deepEqual(await topicPhotos.evaluateAll(nodes=>Object.fromEntries(nodes.map(el=>[el.closest("button").dataset.communityCategory,el.dataset.topicCover]))),{"music":"music","sport":"sport","travel":"travel","technology":"technology","education":"education","art":"art","gaming":"videogames","business":"business","news":"news","cooking":"food","transport":"transport","cinema":"movies","animals":"animals","photography":"photo-video","regions":"cities","fashion":"fashion","charity":"charity","science":"science"});
-  assert.equal(await page.locator('[data-community-category="nature"] .ui-community-topic-photo-001').count(),0,"Not-yet-uploaded topics retain their gradient");
+  assert.deepEqual(await topicPhotos.evaluateAll(nodes=>Object.fromEntries(nodes.map(el=>[el.closest("button").dataset.communityCategory,el.dataset.topicCover]))),{"music":"music","sport":"sport","travel":"travel","technology":"technology","education":"education","art":"art","gaming":"videogames","business":"business","news":"news","cooking":"food","transport":"transport","cinema":"movies","animals":"animals","photography":"photo-video","regions":"cities","fashion":"fashion","charity":"charity","science":"science","nature":"nature","books":"books","health":"health","fitness":"fitness","family":"family","home":"home","culture":"culture","history":"history","humor":"humor","shopping":"shopping","finance":"finance","crafts":"hobbies","beauty":"beauty","career":"career","events":"events","psychology":"psychology","politics":"politics","military":"military","spirituality":"religion","ai":"ai","social":"dating","other":"other"});
+  assert.equal(await topicPhotos.count(),40,"All forty topics have individual WebP artwork");
+  for(const id of ["nature","crafts","spirituality","social","other"]){
+   const photo=page.locator('[data-community-category="'+id+'"] .ui-community-topic-photo-001');
+   await photo.scrollIntoViewIfNeeded();
+   await page.waitForFunction(category=>!!document.querySelector('[data-community-category="'+category+'"] .ui-community-topic-photo-001')?.style.backgroundImage,id);
+   assert.ok(await photo.evaluate(async el=>{const url=getComputedStyle(el).backgroundImage.slice(4,-1).replace(/^["']|["']$/g,"");const img=new Image();img.src=url;await img.decode();return img.naturalWidth>0&&img.naturalHeight>0;}),"Uploaded cover must decode: "+id);
+  }
   await page.locator('[data-community-category="business"]').click();
   await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
   assert.equal(await page.locator(".ui-community-card-001").count(),0);

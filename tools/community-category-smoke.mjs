@@ -19,7 +19,7 @@ assert.ok(src.includes('for(const [id] of categories)')&&src.includes('topicGrid
 assert.ok(src.includes('topicGrid.addEventListener("wheel"')&&src.includes('{passive:false}')&&src.includes('if(Math.abs(target-topicGrid.scrollLeft)<=1)return;')&&src.includes('topicGrid.scrollBy')&&src.includes('previousTopic.disabled')&&src.includes('nextTopic.disabled'));
 assert.ok(!src.includes('community-topic-filter')&&!src.includes('ui-community-topic-select-001'));
 const covers=JSON.parse(src.match(/const topicCovers=(\{[^\n]+\});/)[1]);
-assert.ok(Object.keys(covers).every(id=>keys.includes(id)));
+assert.deepEqual(Object.keys(covers).sort(),keys.slice().sort(),"Every topic must have a dedicated cover");
 assert.equal(new Set(Object.values(covers)).size,Object.keys(covers).length);
 const folder="assets/communities-covers/";
 const files=(await readdir(folder)).filter(name=>name.endsWith(".webp")&&name!=="VATRA_communities.webp").sort();
