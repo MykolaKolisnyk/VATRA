@@ -279,14 +279,14 @@
   head.append(avatar,identity);
   if(mine){
    window.VATRA_POST_INTERACTIONS?.addOwnerMenu(head,{
-    source:"feed",
+    source:"feed",client,post,ownId:vatraId,onChange:()=>{invalidateFeedPages(client);void loadPosts(true);},
     onDelete:()=>{
      pendingDelete={id:post.id,kind:post.kind,media_kind:post.media_kind,media_path:post.media_path,media_items:post.media_items};
      deleteDialog?.showModal();q("#feed-delete-cancel")?.focus();
     },
     onArchive:post.kind==="person"?async()=>{
      const {data,error}=await client.from("feed_posts")
-      .update({archived_at:new Date().toISOString()}).eq("id",post.id)
+      .update({archived_at:new Date().toISOString(),pinned_at:null}).eq("id",post.id)
       .eq("author_vatra_id",vatraId).select("id").maybeSingle();
      if(error||!data){message(t("Не вдалося архівувати публікацію.","Could not archive post."));return;}
      invalidateFeedPages(client);void loadPosts(true);
@@ -471,7 +471,7 @@
   person:{kind:"person",offset:0,done:!searchTerm&&feedFilter==="communities",queue:[]},
   group:{kind:"group",offset:0,done:!searchTerm&&feedFilter==="friends",queue:[]}
  });
- const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip";
+ const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip,pinned_at,comments_enabled";
  const clubFields="id,club_id,author_vatra_id,body,created_at,media_kind,media_path,media_items";
  const comparePosts=(a,b)=>
   Date.parse(b.created_at)-Date.parse(a.created_at)||String(b.id).localeCompare(String(a.id));

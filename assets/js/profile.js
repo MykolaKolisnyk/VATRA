@@ -1080,7 +1080,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  if(more)more.disabled=true;
  try{
   let query=client.from("feed_posts")
-   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id")
+   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,pinned_at,comments_enabled")
    .eq("author_vatra_id",targetId).eq("is_clip",false);
   if(typeof query.is==="function")query=query.is("archived_at",null);
 
@@ -1091,7 +1091,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    query=query.gte("created_at",start.toISOString())
     .lt("created_at",end.toISOString());
   }
-  const {data,error}=await query.order("created_at",{ascending:false})
+  const {data,error}=await query.order("pinned_at",{ascending:false,nullsFirst:false}).order("created_at",{ascending:false})
    .order("id",{ascending:false}).range(offset,offset+11);
   if(ticket!==profilePostsRequest)return;
   if(error)throw error;
@@ -1127,10 +1127,10 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    header.append(avatar,identity);
    if(String(ownId)===String(targetId)){
     window.VATRA_POST_INTERACTIONS?.addOwnerMenu(header,{
-     source:"profile",
+     source:"profile",client,post:{...post,kind:"person"},ownId,onChange:()=>void loadPosts(client,targetId,ownId,userId),
      onArchive:async()=>{
       const {data,error}=await client.from("feed_posts")
-       .update({archived_at:new Date().toISOString()})
+       .update({archived_at:new Date().toISOString(),pinned_at:null})
        .eq("id",post.id).eq("author_vatra_id",ownId).select("id").maybeSingle();
       if(error||!data)return;
       void loadPosts(client,targetId,ownId,userId);
@@ -1152,6 +1152,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
     });
    }
    article.append(header);
+   if(post.pinned_at)article.append(node("div","vt-vatra-profile-post-pinned-001",t("Закріплена публікація","Pinned post")));
    if(post.body){
     const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
     window.VATRA_POST_MEDIA?.linkifyHashtags(body);

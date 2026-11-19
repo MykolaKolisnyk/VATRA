@@ -34,6 +34,12 @@
   if(type==="video")path("M4 5h13v14H4zM17 9l4-3v12l-4-3");
   if(type==="file")path("M6 3h9l4 4v14H6V3ZM15 3v5h4");
   if(type==="x")path("M5 5 19 19M19 5 5 19");
+  if(type==="pin")path("m16 3 5 5-4 1-3 5v3l-2 2-7-7 2-2h3l5-3 1-4ZM8 16l-5 5");
+  if(type==="edit")path("m4 16-1 5 5-1L21 7l-4-4Zm10-10 4 4");
+  if(type==="copy")path("M8 8h13v13H8zM16 8V3H3v13h5");
+  if(type==="archive")path("M3 5h18v4H3zM5 9v12h14V9m-9 4h4");
+  if(type==="delete")path("M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7");
+  if(type==="closed-comments")path("M4 4l16 16M9 4h10a2 2 0 0 1 2 2v10M4 9v7a2 2 0 0 0 2 2h3v3l4-3h3");
 
   if(type==="share")path("M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z");
   return svg;
@@ -249,7 +255,7 @@ function appendAudience(container,level,isGroup=false){
  // A single accessible owner menu replaces the two large buttons in each post.
  // Database ownership and RLS checks remain in the original action callbacks.
  let ownerMenuListenersBound=false;
- function addOwnerMenu(header,{source="feed",onArchive=null,onDelete}={}){
+ function addOwnerMenu(header,{source="feed",onArchive=null,onDelete,client,post,ownId,onChange}={}){
   if(!header||typeof onDelete!=="function")return null;
   const details=make("details","vatra-post-owner-menu ui-vatra-post-owner-menu-001");
   details.dataset.vatraPostOwnerMenu="";
@@ -271,20 +277,28 @@ function appendAudience(container,level,isGroup=false){
   panel.setAttribute("role","group");
   panel.setAttribute("aria-label",tr("Керування публікацією","Manage post"));
   const option=(kind,text,handler)=>{
-   const extra=source==="profile"?
-    (kind==="archive"?"vt-profile-post-archive-001":"vt-profile-post-remove-001"):
-    (kind==="archive"?"vt-feed-post-archive-001":"feed-post-delete vt-feed-post-delete-001");
-   const button=make("button","vatra-post-owner-action vt-vatra-post-owner-"+kind+"-001 "+extra,text);
+   const extra=kind==="archive"?(source==="profile"?"vt-profile-post-archive-001":"vt-feed-post-archive-001"):kind==="delete"?(source==="profile"?"vt-profile-post-remove-001":"feed-post-delete vt-feed-post-delete-001"):"";
+   const button=make("button","vatra-post-owner-action vt-vatra-post-owner-"+kind+"-001 "+extra);button.append(glyph(kind==="comments"?"closed-comments":kind),make("span","vt-vatra-post-owner-action-label-001",text));
    button.type="button";
    button.addEventListener("click",()=>{
     details.open=false;
     if(button.disabled)return;
-    void handler();
+    button.disabled=true;Promise.resolve().then(handler).catch(()=>window.alert(tr("Не вдалося виконати дію. Спробуйте ще раз.","Could not complete this action. Please retry."))).finally(()=>{button.disabled=false;});
    });
    panel.append(button);
   };
+  if(client&&post&&validUUID(post.id)&&post.kind!=="group"&&String(post.author_vatra_id)===String(ownId)){
+   const update=async changes=>{const {data,error}=await client.from("feed_posts").update(changes).eq("id",post.id).eq("author_vatra_id",ownId).select("id").maybeSingle();if(error||!data)throw Error("Not saved");onChange?.();};
+   option("pin",post.pinned_at?tr("Відкріпити","Unpin"):tr("Закріпити","Pin"),async()=>{const {data,error}=await client.rpc("vatra_set_post_pin",{p_post_id:post.id,p_pin:!post.pinned_at});if(error||data!==true)throw Error("Not pinned");onChange?.();});
+   option("edit",tr("Редагувати","Edit"),()=>{
+    const dialog=make("dialog","ui-vatra-post-edit-dialog-001"),form=make("form","ui-vatra-post-edit-form-001"),heading=make("h2","vt-vatra-post-edit-heading-001",tr("Редагувати публікацію","Edit post")),input=make("textarea","ui-vatra-post-edit-text-001"),actions=make("div","ui-vatra-post-edit-actions-001"),cancel=make("button","vt-vatra-post-edit-cancel-001",tr("Скасувати","Cancel")),save=make("button","vt-vatra-post-edit-save-001",tr("Зберегти","Save")),note=make("p","vt-vatra-post-edit-note-001");
+    dialog.setAttribute("aria-label",heading.textContent);input.value=post.body||"";input.maxLength=2000;input.rows=5;input.setAttribute("aria-label",tr("Текст публікації","Post text"));cancel.type="button";save.type="submit";note.setAttribute("role","status");actions.append(cancel,save);form.append(heading,input,note,actions);dialog.append(form);document.body.append(dialog);dialog.addEventListener("close",()=>dialog.remove(),{once:true});cancel.onclick=()=>dialog.close();form.onsubmit=async e=>{e.preventDefault();if(save.disabled)return;const body=input.value.trim();if(!body&&!post.media_path&&!post.media_items?.length){note.textContent=tr("Додайте текст.","Add text.");return;}save.disabled=true;cancel.disabled=true;try{await update({body});dialog.close();}catch(_){note.textContent=tr("Не вдалося зберегти.","Could not save.");}finally{save.disabled=false;cancel.disabled=false;}};dialog.showModal();
+   });
+   option("copy",tr("Скопіювати посилання","Copy link"),async()=>{await navigator.clipboard.writeText(permalink(post));});
+   option("comments",post.comments_enabled===false?tr("Увімкнути коментарі","Enable comments"):tr("Вимкнути коментарі","Disable comments"),()=>update({comments_enabled:post.comments_enabled===false}));
+  }
   if(typeof onArchive==="function")
-   option("archive",tr("Зберегти в архів","Move to archive"),onArchive);
+   option("archive",tr("Архівувати","Archive"),onArchive);
   option("delete",tr("Видалити","Delete"),onDelete);
   details.append(summary,panel);
   details.addEventListener("toggle",()=>{
@@ -310,6 +324,7 @@ function appendAudience(container,level,isGroup=false){
   header.append(details);
   return details;
  }
+ const mediaPanels=new WeakMap();
  function mount(client,post,container,settings={}){
   const kind=post?.kind==="group"?"group":"person";
   if(!validUUID(post?.id)||!client||!container)return;
@@ -542,6 +557,8 @@ function appendAudience(container,level,isGroup=false){
   form.append(ownPortrait,composer);
   // Reaction errors must remain visible even while the comment drawer is closed.
   panel.append(entries,more,form);shell.append(panel,status);
+  const commentsLocked=kind==="person"&&post.comments_enabled===false;
+  if(commentsLocked){form.hidden=true;panel.append(make("p","vt-vatra-post-comments-locked-001",tr("Коментування цієї публікації вимкнено.","Comments on this post are disabled.")));}
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
   const replySize=3;
   let commentOffset=0,busy=false,ticket=0,pendingReset=false,replyTarget=null,chosenFile=null,emojiMode="emoji",pickerVersion=0,activePack="vatryk",cropVersion=0,cropping=false,submitting=false;
@@ -985,7 +1002,7 @@ function appendAudience(container,level,isGroup=false){
   async function publishComment(sticker=null){
    hideMenus();
    const body=sticker?"":input.value.trim(),file=sticker||chosenFile;
-   if(submitting||cropping||(!body&&!file)||body.length>1000||!validId(ownId))return;
+   if(commentsLocked||submitting||cropping||(!body&&!file)||body.length>1000||!validId(ownId))return;
    submitting=true;updateSend();let uploaded=null,committed=false;
    try{
     const payload={post_kind:kind,post_id:post.id,
@@ -1235,6 +1252,13 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    }catch(_){showShareError(tr("Не вдалося скопіювати. Скопіюйте посилання з адресного рядка.","Could not copy the link."));}
   });
   container.append(shell);
+  mediaPanels.set(container,side=>{
+   if(!shell.isConnected||commentDialog?.open)return null;
+   const marker=make("span","ui-vatra-media-actions-origin-001");marker.hidden=true;shell.before(marker);
+   const wasHidden=panel.hidden;side.append(shell);panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");void loadComments(true);
+   const avoidNested=e=>{if(e.target.closest(".vt-vatra-post-comments-toggle-001")){e.preventDefault();e.stopImmediatePropagation();}};side.addEventListener("click",avoidNested,true);
+   return ()=>{side.removeEventListener("click",avoidNested,true);hideMenus();panel.hidden=wasHidden;commentsButton.setAttribute("aria-expanded",String(!wasHidden));if(marker.isConnected)marker.replaceWith(shell);else shell.remove();};
+  });
   if(settings.inlineComments)openComments();
  }
  async function renderSharedPreview(client,post,container){
@@ -1279,5 +1303,5 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     tr("Ця публікація недоступна.","This post is unavailable.")));
   }
  }
- window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,prefetchEngagement,appendAudience,addOwnerMenu};
+ window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,prefetchEngagement,appendAudience,addOwnerMenu,attachMediaPanel:(container,side)=>mediaPanels.get(container)?.(side)};
 })();

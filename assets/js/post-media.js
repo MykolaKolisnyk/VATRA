@@ -405,8 +405,8 @@
   update();
  }
  /* One accessible fullscreen dialog is reused by every post and upload. */
- let mediaDialog=null,mediaDialogContent=null;
- function openFullMedia(url,kind){
+ let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null;
+ function openFullMedia(url,kind,container){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
    mediaDialog.id="vatra-post-media-viewer";
@@ -430,12 +430,12 @@
    close.addEventListener("click",()=>mediaDialog.close());
    mediaDialogContent=document.createElement("div");
    mediaDialogContent.className="ui-vatra-post-media-viewer-content-001";
-   frame.append(close,mediaDialogContent);mediaDialog.append(frame);
+   frame.append(close,mediaDialogContent);mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001";mediaDialog.append(frame,mediaSide);
    mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
-    mediaDialogContent.replaceChildren();
+    mediaDialogContent.replaceChildren();restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
    });
    document.body.append(mediaDialog);
   }
@@ -444,6 +444,11 @@
   if(kind==="video"){element.controls=true;element.autoplay=true;element.playsInline=true;}
   else element.alt=tr("Фото публікації","Post photo");
   element.src=url;mediaDialogContent.replaceChildren(element);
+  restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
+  const head=container?.querySelector(".feed-post-header"),identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
+  if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
+  restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
+  mediaSide.hidden=!restoreMediaPanel;
   mediaDialog.showModal();
  }
 
@@ -578,7 +583,7 @@
    try{
     const initial=await signed(client,current.media_kind,current.media_path);
     if(!slot.isConnected)return;
-    openFullMedia(initial,current.media_kind);
+    openFullMedia(initial,current.media_kind,container);
    }catch(_){return;}
    const controller=new AbortController();
    mediaDialog.addEventListener("close",()=>{active=false;controller.abort();},{once:true});
@@ -673,7 +678,7 @@
      const expand=document.createElement("button");expand.type="button";
      expand.className="vt-feed-post-video-expand-001";
      expand.textContent=tr("На весь екран","Fullscreen");
-     expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video");});
+     expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video",container);});
      video.src=src;
      slot.replaceChildren(video,expand);
      // A deferred signature may consume the gesture; native controls remain usable.
@@ -707,7 +712,7 @@
     const frame=document.createElement("button");
     frame.className="vt-feed-post-media-open-001";frame.type="button";
     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
-    frame.addEventListener("click",()=>openFullMedia(src,"image"));
+    frame.addEventListener("click",()=>openFullMedia(src,"image",container));
     frame.append(image);
     slot.replaceChildren(frame);slot.classList.remove("is-loading-media");
     slot.classList.add("is-ready-media");
