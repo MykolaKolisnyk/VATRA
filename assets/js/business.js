@@ -204,10 +204,36 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
  function statusLine(text=""){const status=make("p","vt-business-local-status-001",text);status.setAttribute("role","status");status.hidden=!text;return status;}
  function setStatus(node,copy,error=false){node.textContent=copy;node.hidden=!copy;node.dataset.kind=error?"error":"info";}
  async function loadMetrics(id){
-  const {data,error}=await client.from("business_metrics").select("follower_count,post_count").eq("company_id",id).single();
+  const {data,error}=await client.from("business_metrics").select("follower_count,post_count,rating_count,rating_total").eq("company_id",id).single();
   if(error||!data)throw Error("metrics");return data;
  }
- function metricValue(n){return Number.isFinite(Number(n))?new Intl.NumberFormat(document.documentElement.lang||"uk").format(Number(n)):"—";}
+ function metricValue(n){return n!=null&&Number.isFinite(Number(n))?new Intl.NumberFormat(document.documentElement.lang||"uk").format(Number(n)):"—";}
+ function ratingValue(metrics){const n=Number(metrics.rating_count),total=Number(metrics.rating_total);return Number.isFinite(n)&&n>0&&Number.isFinite(total)?new Intl.NumberFormat(document.documentElement.lang||"uk",{minimumFractionDigits:1,maximumFractionDigits:1}).format(total/n)+" / 5":"—";}
+ async function renderRating(id,target){
+  const panel=card("ui-business-rating-card-001"),summary=make("div","ui-business-rating-summary-001"),star=make("span","ui-business-rating-star-001","★"),score=make("strong","vt-business-rating-score-001","—"),count=make("p","vt-business-company-meta-001"),status=statusLine(),actions=make("div","ui-business-rating-actions-001");
+  const text=make("div","ui-business-rating-copy-001");text.append(score,count);summary.append(star,text);panel.append(make("h3","vt-business-panel-title-001",t("Оцінки клієнтів","Customer ratings")),summary,make("p","vt-business-heading-copy-001",t("Оцінити компанію можна після завершеного запису на послугу.","You can rate a company after a completed appointment.")),status,actions);target.append(panel);
+  async function load(){
+   setStatus(status,"");actions.replaceChildren();
+   try{
+    const metrics=await loadMetrics(id);if(!panel.isConnected)return;score.textContent=ratingValue(metrics);
+    count.textContent=Number(metrics.rating_count)>0?metricValue(metrics.rating_count)+" · "+t("оцінок","ratings"):t("Оцінок ще немає","No ratings yet");
+    if(roleOf(id))return;
+    const own=await client.from("business_ratings").select("appointment_id,stars").eq("company_id",id).eq("customer_vatra_id",ownId).maybeSingle();if(own.error)throw own.error;if(!panel.isConnected)return;
+    let appointment=own.data?.appointment_id;
+    if(!appointment){const r=await client.from("business_appointments").select("id,business_booking_slots!inner(company_id)").eq("customer_vatra_id",ownId).eq("status","completed").eq("business_booking_slots.company_id",id).limit(1);if(r.error)throw r.error;appointment=r.data?.[0]?.id;}
+    if(!appointment||!panel.isConnected)return;
+    const form=make("form","ui-business-rating-form-001"),label=make("label","vt-business-selector-label-001",t("Ваша оцінка","Your rating")),select=make("select","ui-business-select-001 ui-business-rating-select-001");select.id="business-customer-rating";label.htmlFor=select.id;select.required=true;
+    const placeholder=make("option","vt-business-rating-option-001",t("Оберіть оцінку","Select a rating"));placeholder.value="";select.append(placeholder);
+    for(let n=5;n>=1;n--){const o=make("option","vt-business-rating-option-001","★".repeat(n)+" · "+n+"/5");o.value=String(n);select.append(o);}select.value=own.data?String(own.data.stars):"";
+    const save=make("button","vt-business-primary-001",own.data?t("Оновити оцінку","Update rating"):t("Оцінити","Rate"));save.type="submit";form.append(label,select,save);
+    form.addEventListener("submit",async e=>{e.preventDefault();if(save.disabled||!select.value)return;save.disabled=true;setStatus(status,"");
+     try{const p=own.data?client.from("business_ratings").update({stars:Number(select.value)}).eq("appointment_id",appointment).select("appointment_id").single():client.from("business_ratings").insert({appointment_id:appointment,company_id:id,stars:Number(select.value)}).select("appointment_id").single();const result=await p;if(result.error||!result.data)throw Error("rating");await load();setStatus(status,t("Оцінку збережено.","Rating saved."));}catch(_){setStatus(status,err,true);}finally{save.disabled=false;}
+    });actions.append(form);
+    if(own.data){const remove=btn(t("Видалити оцінку","Remove rating"),"vt-business-secondary-001",async()=>{if(!await confirmRemove(t("Видалити оцінку?","Remove rating?"),t("Ваша оцінка не враховуватиметься у рейтингу.","Your rating will no longer count."),t("Видалити","Remove")))return;remove.disabled=true;try{const r=await client.from("business_ratings").delete().eq("appointment_id",appointment).select("appointment_id").single();if(r.error||!r.data)throw Error("delete");await load();}catch(_){setStatus(status,err,true);}finally{remove.disabled=false;}});actions.append(remove);}
+   }catch(_){setStatus(status,err,true);}
+  }
+  await load();
+ }
  async function followControls(c,target){
   const panel=make("div","ui-business-follow-panel-001"),count=make("span","vt-business-follow-count-001"),status=statusLine();
   panel.append(count,status);target.append(panel);
@@ -266,7 +292,8 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   target.append(companySelector());const metrics=await loadMetrics(selected);if(!target.isConnected)return;
   const grid=make("div","ui-business-metrics-001");
   for(const [key,label] of [["follower_count",t("Підписники","Followers")],["post_count",t("Публікації","Posts")]]){const el=card("ui-business-metric-001");el.append(make("p","vt-business-metric-label-001",label),make("strong","vt-business-metric-value-001",metricValue(metrics[key])));grid.append(el);}
-  target.append(grid,make("p","vt-business-heading-copy-001",t("Перегляди й охоплення ще не вимірюються; відображаються лише фактичні підписки та публікації.","Views and reach are not measured yet; only actual followers and posts are shown.")));
+  const rating=card("ui-business-metric-001");rating.append(make("p","vt-business-metric-label-001",t("Рейтинг клієнтів","Customer rating")),make("strong","vt-business-metric-value-001",ratingValue(metrics)),make("p","vt-business-company-meta-001",metricValue(metrics.rating_count)+" · "+t("оцінок","ratings")));grid.append(rating);
+  target.append(grid,make("p","vt-business-heading-copy-001",t("Перегляди й охоплення ще не вимірюються. Рейтинг розраховується за оцінками після завершених записів.","Views and reach are not measured yet. Ratings are based on completed appointments.")));
  }
  async function showFollowing(target){
   target.append(heading(t("Мої підписки","Following")));
@@ -373,7 +400,7 @@ window.VATRA_SECTION_CORE?.start(async ({root,t,make,link,btn,valid,title,subtit
   if(!result.data){main.append(make("p","vt-business-empty-001",t("Компанію не знайдено.","Company not found.")));return;}
   const target=make("div","ui-business-view-001 ui-business-public-view-001");main.append(target);const profile=showCompany(result.data,target);
   const actions=make("div","ui-business-public-actions-001");actions.append(link(t("Магазин компанії","Company store"),"business?section=stores&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"),link(t("Вакансії компанії","Company jobs"),"business?section=jobs&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"),link(t("Запис на послуги","Book services"),"business?section=booking&for="+encodeURIComponent(id),"vt-business-secondary-001 vt-business-page-action-001"));if(roleOf(id))actions.append(btn(t("Керувати компанією","Manage company"),"vt-business-secondary-001",()=>{selected=id;navigate("overview");}));profile.append(actions);
-  await Promise.all([followControls(result.data,profile),renderPosts(id,target,false)]);
+  await Promise.all([followControls(result.data,profile),renderRating(id,target),renderPosts(id,target,false)]);
  }
  try{await Promise.all([refresh(),loadCategories().catch(()=>[])]);if(requested){if(uuid.test(requested))await showPublic(requested);else main.append(make("p","vt-business-empty-001",t("Компанію не знайдено.","Company not found.")));}
  else {if(sections.some(row=>row[0]===requestedSection))setNav(requestedSection);if(["jobs","booking","stores"].includes(view)&&uuid.test(requestedFilter||""))browseCompany=requestedFilter;await render();}}catch(_){main.replaceChildren(make("p","vt-business-empty-001",err));}

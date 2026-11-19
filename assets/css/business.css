@@ -173,3 +173,14 @@ body.vatra-business-page .vt-business-store-title-001{margin:0;font:var(--sectio
 body.vatra-business-page .vt-business-store-description-001{margin:0;color:var(--soft);font:var(--section-body);overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
 body.vatra-business-page .ui-business-store-actions-001{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 @media(max-width:700px){body.vatra-business-page .ui-business-brand-field-001{padding:12px}body.vatra-business-page .ui-business-store-info-001{padding:16px}}
+
+body.vatra-business-page .ui-business-rating-card-001{display:grid;gap:20px;padding:26px}
+body.vatra-business-page .ui-business-rating-summary-001{display:flex;align-items:center;gap:16px}
+body.vatra-business-page .ui-business-rating-star-001{display:grid;place-items:center;width:60px;height:60px;flex:none;background:#fff5df;color:#b87a12;border-radius:14px;font:650 32px/1 Onest,system-ui,sans-serif}
+body.vatra-business-page .ui-business-rating-copy-001{display:grid;gap:5px}
+body.vatra-business-page .vt-business-rating-score-001{font:720 28px/1.2 Onest,system-ui,sans-serif;color:var(--ink);letter-spacing:-.02em}
+body.vatra-business-page .ui-business-rating-actions-001{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+body.vatra-business-page .ui-business-rating-actions-001:empty{display:none}
+body.vatra-business-page .ui-business-rating-form-001{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+body.vatra-business-page .ui-business-rating-select-001{min-width:158px}
+@media(max-width:700px){body.vatra-business-page .ui-business-rating-card-001{padding:18px}body.vatra-business-page .ui-business-rating-form-001{align-items:stretch;width:100%}body.vatra-business-page .ui-business-rating-form-001 label{width:100%}body.vatra-business-page .ui-business-rating-select-001{flex:1;min-width:0}}

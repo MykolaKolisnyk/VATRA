@@ -2553,3 +2553,7 @@ for(const runtime of [businessStore,businessBrand])assert.doesNotThrow(()=>new F
 assert.ok(businessRuntime.includes("assets/js/business-brand.js?rev=")&&businessRuntime.includes("assets/js/business-stores.js?rev="));
 assert.ok(brandSQL.includes("alter table public.business_store_listings enable row level security")&&brandSQL.includes("l.moderation_status='approved'")&&brandSQL.includes("l.seller_vatra_id=(select business_private.current_member())"),"Company storefront requires approved owner listings");
 assert.ok(brandSQL.includes("business_logo_path")&&brandSQL.includes("business_cover_path")&&brandSQL.includes("business_media_add")&&brandSQL.includes("business_media_remove"),"Company media must enforce ownership");
+
+const ratingsSQL=await read("supabase/migrations/20261119084256_business_verified_customer_ratings.sql");
+assert.ok(ratingsSQL.includes("alter table public.business_ratings enable row level security")&&ratingsSQL.includes("a.status='completed'")&&ratingsSQL.includes("business_private.my_role(company) is null"),"Ratings require a completed customer appointment");
+assert.ok(businessRuntime.includes('from("business_ratings")')&&ratingsSQL.includes("rating_total=rating_total+new.stars-old.stars"),"Company rating uses server aggregates");
