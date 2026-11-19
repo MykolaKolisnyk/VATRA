@@ -50,7 +50,7 @@ const client={
 };
 const context={
  client,window:cached,URL,Promise,Map,Set,String,
- rows:[],targetId:"999",names:new Map(),photos:new Map(),accountStates:new Map(),
+ rows:[],targetId:"999",ownId:"999",me:true,ownRelations:new Map(),names:new Map(),photos:new Map(),accountStates:new Map(),
  counterpart:item=>String(item.recipient_id),
  validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id))
 };

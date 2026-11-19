@@ -622,7 +622,7 @@
 
  
  function setupRouteMotion(){
-  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
+  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
   let navigating=false;
   const to=destination=>{
    let next;

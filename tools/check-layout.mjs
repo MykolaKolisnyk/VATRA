@@ -2179,8 +2179,8 @@ assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the me
 const routerScript=await read("assets/js/not-found.js");
 const languageScript=await read("assets/js/lang.js");
 assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
- routerScript.includes('|notifications|friends|gifts|clips|marketplace|business|vatra-id|club|create-account|')&&
- languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|business|vatra-id|club|verify')&&
+ routerScript.includes('|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|')&&
+ languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify')&&
  (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
@@ -2471,7 +2471,7 @@ const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipCompose
 const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","business"].map(name=>read("assets/css/"+name+".css")))).join("\n");
 for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,businessRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
 for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
-for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"],["business","business"]]){
+for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
  for(const other of ["clips","marketplace","settings","business"].filter(name=>name!==stem)){
@@ -2532,18 +2532,18 @@ for(const table of ["business_followers","business_posts","business_metrics"]){
 assert.ok(businessSQL.includes("grant insert(company_id,body),delete on public.business_posts to authenticated")&&businessSQL.includes("business_private.my_role(company_id) in ('owner','admin','editor')"),"Company publishing is controlled by active business roles");
 assert.ok(businessSQL.includes("follower_count=follower_count+delta")&&businessSQL.includes("post_count=post_count+delta")&&!businessRuntime.includes('from("business_metrics").update'),"Business statistics must be computed on the server");
 
-assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Business company creation must use the bilingual standard taxonomy");
+assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Community business settings must use the bilingual standard taxonomy");
 
 const businessJobs=await read("assets/js/business-jobs.js");
 const jobsSQL=await read("supabase/migrations/20261119080727_business_jobs_and_applications.sql");
 assert.doesNotThrow(()=>new Function(businessJobs.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("business.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
+assert.ok(businessRuntime.includes('assets/js/business-jobs.js?rev=')&& !((await read("club.html")).includes("assets/js/business-jobs.js")),"Jobs must load only on demand");
 for(const table of ["business_jobs","business_job_applications"]){assert.ok(businessJobs.includes('from("'+table+'")')&&jobsSQL.includes("alter table public."+table+" enable row level security"));}
 
 const businessBookings=await read("assets/js/business-bookings.js");
 const bookingSQL=await read("supabase/migrations/20261119081225_business_booking_slots_and_appointments.sql");
 assert.doesNotThrow(()=>new Function(businessBookings.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("business.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
+assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("club.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
 for(const table of ["business_booking_slots","business_appointments"]){assert.ok(businessBookings.includes('from("'+table+'")')&&bookingSQL.includes("alter table public."+table+" enable row level security"));}
 assert.ok(bookingSQL.includes("business_appointments_one_live_idx")&&bookingSQL.includes("and not reserved and not cancelled and starts_at>now()"),"Server must prevent concurrent reservation of the same slot");
 
@@ -2571,3 +2571,7 @@ assert.ok((await read("assets/js/club.js")).includes("VATRA_BUSINESS_TOOLS.mount
 
 const publicFriendSQL=await read("supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
 const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
+
+await assert.rejects(stat("business.html"),{code:"ENOENT"});
+assert.ok(!businessRuntime.includes("VATRA_SECTION_CORE?.start")&&!businessRuntime.includes("requestedFilter"),"Business modules cannot mount as a separate page");
+assert.ok(!(await read("assets/js/not-found.js")).includes("|marketplace|business|"),"Retired business route must not resolve");
