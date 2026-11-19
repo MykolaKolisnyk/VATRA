@@ -17,14 +17,14 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/feed.css">
-    <link rel="stylesheet" href="assets/css/friends.css?rev=ed227e9818ced938f2ace8c2e34a8e93d1c8eead">
+    <link rel="stylesheet" href="assets/css/friends.css?rev=4e9a0f1f197145351cdebedfef398ae5ed8e36c9">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js"></script>
   <script defer src="assets/js/public-name-cache.js"></script>
     <script defer src="assets/js/verified.js"></script>
     <script defer src="assets/js/presence.js"></script>
     <script defer src="assets/js/notifications.js"></script>
-    <script defer src="assets/js/friends.js?rev=5e5fbf8c0003562b3836bbe7c2e8556db9e7ff30"></script>
+    <script defer src="assets/js/friends.js?rev=d8e4f63ae5bb1405fd183b77aa5149ad159312a3"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -133,10 +133,10 @@
   <aside class="vatra-discovery-sidebar vatra-friends-sidebar ui-vatra-friends-sidebar-001">
    <h1 id="friends-heading" class="vatra-discovery-title vt-vatra-friends-heading-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</h1>
    <div class="vatra-discovery-tabs vatra-friends-tabs ui-vatra-friends-tabs-001" role="group" aria-label="Списки друзів">
-    <button type="button" class="vt-vatra-friends-tab-accepted-001 is-active" data-friends-tab="accepted" aria-pressed="true" data-social-uk="Усі друзі" data-social-en="All friends">Усі друзі</button>
-    <button type="button" class="vt-vatra-friends-tab-online-001" data-friends-tab="online" aria-pressed="false" data-social-uk="Онлайн" data-social-en="Online">Онлайн</button>
-    <button type="button" class="vt-vatra-friends-tab-incoming-001" data-friends-tab="incoming" aria-pressed="false" data-social-uk="Вхідні запити" data-social-en="Requests">Вхідні запити</button>
-    <button type="button" class="vt-vatra-friends-tab-outgoing-001" data-friends-tab="outgoing" aria-pressed="false" data-social-uk="Вихідні запити" data-social-en="Sent requests">Вихідні запити</button>
+    <button type="button" class="vt-vatra-friends-tab-accepted-001 is-active" data-friends-tab="accepted" aria-pressed="true"><span class="vatra-discovery-nav-icon ui-vatra-friends-nav-accepted-001" aria-hidden="true"><svg class="ui-vatra-friends-nav-accepted-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path class="ui-vatra-friends-nav-accepted-shape-1-001" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle class="ui-vatra-friends-nav-accepted-shape-2-001" cx="9" cy="7" r="4"/><path class="ui-vatra-friends-nav-accepted-shape-3-001" d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="vt-vatra-friends-tab-label-accepted" data-social-uk="Усі друзі" data-social-en="All friends">Усі друзі</span><span class="vt-vatra-friends-tab-count-accepted">—</span></button>
+    <button type="button" class="vt-vatra-friends-tab-online-001" data-friends-tab="online" aria-pressed="false"><span class="vatra-discovery-nav-icon ui-vatra-friends-nav-online-001" aria-hidden="true"><svg class="ui-vatra-friends-nav-online-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle class="ui-vatra-friends-nav-online-shape-1-001" cx="9" cy="7" r="4"/><path class="ui-vatra-friends-nav-online-shape-2-001" d="M2 21v-2a4 4 0 0 1 4-4h5"/><path class="ui-vatra-friends-nav-online-shape-3-001" d="m15 18 2.5 2.5L22 16"/></svg></span><span class="vt-vatra-friends-tab-label-online" data-social-uk="Онлайн" data-social-en="Online">Онлайн</span><span class="vt-vatra-friends-tab-count-online">—</span></button>
+    <button type="button" class="vt-vatra-friends-tab-incoming-001" data-friends-tab="incoming" aria-pressed="false"><span class="vatra-discovery-nav-icon ui-vatra-friends-nav-incoming-001" aria-hidden="true"><svg class="ui-vatra-friends-nav-incoming-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle class="ui-vatra-friends-nav-incoming-shape-1-001" cx="9" cy="7" r="4"/><path class="ui-vatra-friends-nav-incoming-shape-2-001" d="M2 21v-2a4 4 0 0 1 4-4h5M18 14v8m-4-4h8"/></svg></span><span class="vt-vatra-friends-tab-label-incoming" data-social-uk="Вхідні запити" data-social-en="Requests">Вхідні запити</span><span class="vt-vatra-friends-tab-count-incoming">—</span></button>
+    <button type="button" class="vt-vatra-friends-tab-outgoing-001" data-friends-tab="outgoing" aria-pressed="false"><span class="vatra-discovery-nav-icon ui-vatra-friends-nav-outgoing-001" aria-hidden="true"><svg class="ui-vatra-friends-nav-outgoing-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle class="ui-vatra-friends-nav-outgoing-shape-1-001" cx="9" cy="7" r="4"/><path class="ui-vatra-friends-nav-outgoing-shape-2-001" d="M2 21v-2a4 4 0 0 1 4-4h5m3 3h8m-3-3 3 3-3 3"/></svg></span><span class="vt-vatra-friends-tab-label-outgoing" data-social-uk="Вихідні запити" data-social-en="Sent requests">Вихідні запити</span><span class="vt-vatra-friends-tab-count-outgoing">—</span></button>
    </div>
   </aside>
   <section class="vatra-discovery-content vatra-friends-content ui-vatra-friends-content-001">

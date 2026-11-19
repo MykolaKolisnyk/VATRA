@@ -2864,6 +2864,12 @@ try{
  const ownerFriends=await feedContext.newPage();
  await ownerFriends.goto(base+"friends.html?friend-action-test=1",{waitUntil:"domcontentloaded"});
  await ownerFriends.locator(".vatra-friends-person").first().waitFor({state:"visible",timeout:14000});
+ const friendIcons=ownerFriends.locator(".vatra-friends-tabs .vatra-discovery-nav-icon svg");
+ assert.equal(await friendIcons.count(),4,"Friends tabs use the same inline SVG containers as the community directory");
+ const friendIconMarkup=await friendIcons.evaluateAll(nodes=>nodes.map(el=>el.outerHTML));
+ await ownerFriends.locator('[data-friends-tab="incoming"]').click();
+ await ownerFriends.locator('[data-friends-tab="accepted"]').click();
+ assert.deepEqual(await friendIcons.evaluateAll(nodes=>nodes.map(el=>el.outerHTML)),friendIconMarkup,"Filtering must preserve all four SVG icons");
  const friendViewport=ownerFriends.viewportSize();
  for(const size of [{width:1440,height:900},{width:390,height:844}]){
   await ownerFriends.setViewportSize(size);

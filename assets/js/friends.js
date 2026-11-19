@@ -197,7 +197,9 @@ function render(){
  for(const tab of document.querySelectorAll("[data-friends-tab]")){
   const mode=tab.dataset.friendsTab;
   const count=rows.filter(item=>mode==="online"?stateFor(item)==="accepted"&&online(counterpart(item)):stateFor(item)===mode).length;
-  tab.replaceChildren(make("span","vt-vatra-friends-tab-label-"+mode,t(tab.dataset.socialUk,tab.dataset.socialEn)),make("span","vt-vatra-friends-tab-count-"+mode,mode==="online"&&!presenceAvailable?"—":count));
+  const label=tab.querySelector(".vt-vatra-friends-tab-label-"+mode),counter=tab.querySelector(".vt-vatra-friends-tab-count-"+mode);
+  if(label)label.textContent=t(label.dataset.socialUk,label.dataset.socialEn);
+  if(counter)counter.textContent=mode==="online"&&!presenceAvailable?"—":String(count);
  }
  list.setAttribute("aria-busy","false");
 }
