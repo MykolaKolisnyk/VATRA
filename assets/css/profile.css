@@ -414,7 +414,7 @@ body.profile-page .profile-avatar-menu{
  background:#fff;box-shadow:0 18px 42px rgba(25,42,81,.16)
 }
 body.profile-page .profile-avatar-menu::before{
- content:"";position:absolute;top:-7px;left:42px;width:12px;height:12px;
+ content:"";position:absolute;top:-7px;left:calc(100% - 58px);width:12px;height:12px;
  background:#fff;border-top:1px solid #e2e8f3;border-left:1px solid #e2e8f3;
  transform:rotate(45deg);pointer-events:none
 }
@@ -787,10 +787,6 @@ body.profile-page .profile-posts-section .feed-post-placeholder{
  }
 
 body.profile-page.feed-page:not(.community-page) .profile-info{position:static;top:auto;align-self:start}
-body.profile-page .profile-last-seen{
- display:block;color:#8190a8;
- font:520 12px/1.55 "Onest",system-ui,sans-serif
-}
 body.profile-page .profile-last-seen[hidden]{display:none!important}
 body.profile-page .profile-actions{
  display:flex;align-self:center;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px;margin:0
@@ -2270,9 +2266,6 @@ body.profile-page.feed-page:not(.community-page) .profile-name{
  margin:0;line-height:1.18
 }
 body.profile-page .profile-status{margin:0;flex:none;min-height:0}
-body.profile-page .profile-last-seen{
- margin:0;flex:none;align-self:flex-start;text-align:left;line-height:1.5
-}
 @media(max-width:970px){
  body.profile-page.feed-page:not(.community-page) .profile-summary{
   grid-template-columns:122px minmax(0,1fr);column-gap:13px
@@ -2852,7 +2845,6 @@ body.profile-page .vt-profile-cover-change-001[hidden],body.profile-page .vt-pro
 body.profile-page .profile-cover:hover .vt-profile-cover-change-001,body.profile-page .profile-cover:focus-within .vt-profile-cover-change-001,body.profile-page .vt-profile-cover-change-001:focus-visible{opacity:1;pointer-events:auto}
 body.profile-page .vt-profile-avatar-plus-001{position:absolute;z-index:9;right:4px;bottom:4px;width:33px;height:33px;display:grid;place-items:center;padding:0;border:3px solid #fff;border-radius:50%;background:var(--vatra-action-primary,#376de8);color:#fff;cursor:pointer;box-shadow:0 1px 4px #172b5020}
 body.profile-page .profile-avatar-wrap.is-owner-avatar .profile-avatar-trigger{cursor:pointer}
-body.profile-page .is-owner-avatar .profile-avatar-menu{top:100%;min-width:218px}
 body.profile-page .ui-profile-avatar-crop-dialog-001,body.profile-page .ui-profile-avatar-finish-dialog-001,body.profile-page .ui-profile-cover-edit-dialog-001{box-sizing:border-box;width:min(680px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:26px;border:1px solid #e1e7f1;border-radius:20px;background:#fff;color:#293951;box-shadow:0 24px 70px #172b5033;margin:auto}
 body.profile-page .ui-profile-avatar-crop-dialog-001::backdrop,body.profile-page .ui-profile-avatar-finish-dialog-001::backdrop,body.profile-page .ui-profile-cover-edit-dialog-001::backdrop{background:rgba(21,31,49,.62)}
 body.profile-page .vt-profile-avatar-crop-title-001,body.profile-page .vt-profile-avatar-finish-title-001,body.profile-page .vt-profile-cover-edit-title-001{margin:0 0 22px;font:720 23px/1.3 Onest,system-ui,sans-serif;text-align:center}
@@ -2876,8 +2868,7 @@ body.profile-page .is-owner-avatar .profile-avatar-menu{top:100%;left:0;min-widt
 body.profile-page .is-owner-avatar .profile-avatar-menu button{display:flex;align-items:center;gap:11px;min-height:42px;padding:9px 11px;font:550 14px/1.4 Onest,system-ui,sans-serif}
 body.profile-page .is-owner-avatar .profile-avatar-menu button svg{flex:0 0 20px;width:20px;height:20px;stroke-width:1.7;color:#3d6eae}
 body.profile-page .is-owner-avatar .profile-avatar-menu .profile-avatar-menu-delete svg{color:#c04859}
-body.profile-page .profile-avatar-menu::before{left:calc(100% - 58px)}
-body.profile-page .profile-last-seen{display:block;font-size:13px;color:#74839a;line-height:1.5}
+body.profile-page .profile-last-seen{display:block;margin:0;flex:none;align-self:flex-start;text-align:left;font:520 13px/1.5 "Onest",system-ui,sans-serif;color:#74839a}
 body.profile-page .profile-last-seen[data-online="true"]{color:#74839a}
 body.profile-page .profile-media-viewer[data-kind="avatar-history"][open]{grid-template-columns:minmax(0,1fr)}
 body.profile-page .profile-media-viewer-stage{position:relative}
