@@ -2026,7 +2026,11 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  profileScript.includes('from("profile_media")')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
  profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar")')&&
- profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
+ profileScript.includes('const bucketFor=kind=>kind==="avatar"?"avatars":"covers"')&&
+ profileScript.includes('void startCoverCrop(fileCover.files[0])')&&
+ profileScript.includes('encodeProfileCrop(coverSource,rect,width,height,"profile-cover")')&&
+ profileScript.includes('uploadImage(file,"cover")')&&
+ !profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
  profileScript.includes('"avatars"')&&
  profileScript.includes('"covers"')&&
  feedScript.includes('storage.from("avatars")'),
