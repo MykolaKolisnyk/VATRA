@@ -148,18 +148,6 @@ body.profile-page .profile-status.is-editable{cursor:pointer}
 body.profile-page .profile-status.is-editable:hover .vt-profile-status-text-001{
  color:var(--vatra-action-ink);text-decoration:underline;text-underline-offset:3px
 }
-body.profile-page .profile-status .ui-profile-status-pencil-icon-001{display:none}
-body.profile-page .profile-status.is-editable .ui-profile-status-pencil-icon-001{
- display:block;flex:none;width:15px;height:15px;color:#7389a7
-}
-
-body.profile-page .profile-edit-open{
- display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;
- margin:0;padding:9px 18px;border:1px solid #dce6f5;border-radius:10px;
- background:#eef3fc;color:#345b98;font:730 13px/1.3 "Onest",system-ui,sans-serif;
- cursor:pointer
-}
-body.profile-page .profile-edit-open:hover{background:#e4eeff;color:#2455bc}
 body.profile-page .profile-edit-media-actions .profile-cover-upload-button{
  position:static;display:inline-flex;align-items:center;justify-content:center;
  min-height:42px;padding:9px 14px;border:1px solid #dce5f2;
@@ -824,7 +812,6 @@ body.profile-page .profile-actions .social-profile-create:hover:not(:disabled),
 body.profile-page .profile-actions .profile-friend-button:hover:not(:disabled){
  background:var(--vatra-action-primary-hover)
 }
-body.profile-page .profile-actions .profile-edit-open,
 body.profile-page .profile-actions .profile-message-button{
  background:#edf2fb;border:1px solid #dce5f6;color:#3f628f
 }
@@ -2561,7 +2548,7 @@ body.profile-page .vt-profile-story-compose-error-001:not([hidden]){margin:0;col
 
 
 
-body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open){
+body.profile-page.feed-page:not(.community-page) .profile-actions > #profile-add-story{
  display:inline-flex;
  flex:0 0 auto;
  align-self:center;
@@ -2579,18 +2566,18 @@ body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile
  vertical-align:middle;
  white-space:nowrap;
 }
-body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open) > svg{
+body.profile-page.feed-page:not(.community-page) .profile-actions > #profile-add-story > svg{
  display:block;
  flex:0 0 19px;
  width:19px;
  height:19px;
  margin:0;
 }
-body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open):hover{
+body.profile-page.feed-page:not(.community-page) .profile-actions > #profile-add-story:hover{
  transform:none;
 }
 @media(max-width:650px){
- body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open){
+ body.profile-page.feed-page:not(.community-page) .profile-actions > #profile-add-story{
   flex:1 1 auto;
   min-width:0;
   white-space:normal;
@@ -2932,3 +2919,14 @@ body.profile-page :is(.vt-profile-avatar-prev-001,.vt-profile-avatar-next-001,.u
 
 body.profile-page .vt-profile-visitor-story-001{position:absolute;z-index:9;right:4px;bottom:4px;width:33px;height:33px;display:grid;place-items:center;padding:0;border:3px solid #fff;border-radius:50%;background:#376de8;color:#fff;cursor:pointer}
 body.profile-page .vt-profile-visitor-story-001[hidden]{display:none!important}
+
+/* Profile navigation and owner-only text edit action. */
+body.profile-page.feed-page:not(.community-page) .ui-profile-tab-row-001{display:flex;align-items:center;min-width:0;border-top:1px solid #edf0f6;padding-right:28px;gap:12px}
+body.profile-page.feed-page:not(.community-page) .ui-profile-tab-row-001>.social-profile-tabs{flex:1 1 auto;min-width:0;border-top:0}
+body.profile-page .ui-profile-tab-row-001:has(>.social-profile-tabs[hidden]):not(:has(>#profile-edit-open:not([hidden]))){display:none}
+body.profile-page .profile-actions:not(:has(>button:not([hidden]))){display:none}
+body.profile-page .ui-profile-tab-row-001>.profile-edit-open{flex:0 0 auto;align-self:center;display:inline-flex;align-items:center;justify-content:flex-end;min-height:44px;max-width:100%;margin:0;padding:8px 0;border:0;border-radius:0;background:transparent;color:#536e95;font:570 14px/1.55 "Onest",system-ui,sans-serif;text-align:right;cursor:pointer}
+body.profile-page .ui-profile-tab-row-001>.profile-edit-open[hidden]{display:none!important}
+body.profile-page .ui-profile-tab-row-001>.profile-edit-open:hover .vt-profile-edit-label-001{color:var(--vatra-action-ink);text-decoration:underline;text-underline-offset:3px}
+body.profile-page .ui-profile-tab-row-001>.profile-edit-open:focus-visible{outline:2px solid #608bf0;outline-offset:3px;border-radius:4px}
+@media(max-width:650px){body.profile-page.feed-page:not(.community-page) .ui-profile-tab-row-001{gap:8px;padding-right:12px}body.profile-page .ui-profile-tab-row-001>.profile-edit-open{font-size:12px;max-width:108px;line-height:1.35;white-space:normal}}

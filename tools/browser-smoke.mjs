@@ -4456,8 +4456,11 @@ try{
    "Story composer must open in the profile itself");
   await profilePage.locator("#profile-story-compose-cancel").click();
   assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),false);
-  assert.equal(await profilePage.locator("#profile-edit-open svg").count(),1,
-   "Owner's edit action must preserve its VATRA icon after localization");
+  assert.equal(await profilePage.locator("#profile-edit-open svg").count(),0,
+   "Owner's edit action is text-only");
+  assert.equal(await profilePage.locator("#profile-status svg").count(),0,"Status has no pencil");
+  const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,nav=row.querySelector(".social-profile-tabs");return {inRow:row.classList.contains("ui-profile-tab-row-001"),outsideTabs:!nav.contains(edit),rightGap:row.getBoundingClientRect().right-edit.getBoundingClientRect().right,background:getComputedStyle(edit).backgroundColor};});
+  assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=30&&editAlignment.background==="rgba(0, 0, 0, 0)","Edit action is text at the right edge of profile navigation");
   assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
    "Inline post composer has a media action icon like Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);

@@ -30,7 +30,7 @@
     <script defer src="assets/js/notifications.js"></script>
     <script defer src="assets/js/gift-viewer.js"></script>
     <script defer src="assets/js/post-composer-ui.js"></script>
-    <script defer src="assets/js/profile.js?rev=059d79b85cc1413356d608a76e9d81ac9be18641"></script>
+    <script defer src="assets/js/profile.js?rev=d0662d004a7f1009872f5d1484ad3e7ddff9a93d"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -181,12 +181,12 @@
                 <h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">
                   Моя сторінка
                 </h1>
-                <button id="profile-status" type="button" class="profile-status vt-profile-status-001" hidden><span id="profile-status-text" class="vt-profile-status-text-001"></span><svg class="ui-profile-status-pencil-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-status-pencil-icon-001-part-1" d="m5 19 3.7-.8L19 7.8 16.2 5 5.8 15.4 5 19Z"/></svg></button>
+                <button id="profile-status" type="button" class="profile-status vt-profile-status-001" hidden><span id="profile-status-text" class="vt-profile-status-text-001"></span></button>
                 <p id="profile-last-seen" class="profile-last-seen vt-profile-last-seen-001" data-social-uk="Статус мережі невідомий" data-social-en="Online status unavailable">Статус мережі невідомий</p>
               </div>
               <div class="profile-actions ui-profile-actions-001">
                 
-       <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><svg class="ui-profile-edit-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-edit-icon-001-part-1" d="M13.7 5.7 18.3 10.3M4 20l4.5-1 10.3-10.4a2.3 2.3 0 0 0-3.3-3.2L5.2 15.8 4 20Z"/></svg><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
+       
        
        <input id="profile-avatar-file" class="ui-profile-avatar-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити фото профілю" hidden>
        <input id="profile-cover-file" class="ui-profile-cover-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити обкладинку" hidden>
@@ -199,6 +199,7 @@
             </p>
             <p id="profile-action-status" class="profile-action-status vt-profile-action-status-001" role="status" aria-live="polite" hidden>
             </p>
+            <div class="ui-profile-tab-row-001">
             <nav class="social-profile-tabs ui-social-profile-tabs-001" role="tablist" aria-label="Розділи профілю">
               <button type="button" id="profile-tab-posts" class="social-profile-tab ui-social-profile-posts-tab-001 social-profile-tab-active" data-profile-tab="posts" role="tab" aria-controls="profile-posts-section" aria-selected="true"><span class="vt-social-profile-posts-tab-label-001" data-social-uk="Головна" data-social-en="Home">Головна</span></button>
       <button type="button" id="profile-tab-photos" class="social-profile-tab ui-social-profile-photos-tab-001" data-profile-tab="photos" role="tab" aria-controls="profile-photos-section" aria-selected="false"><span class="vt-social-profile-photos-tab-label-001" data-social-uk="Фотографії" data-social-en="Photos">Фотографії</span></button>
@@ -232,6 +233,8 @@
                 </svg>
               </button>
             </nav>
+            <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
+            </div>
           </section>
           <div class="profile-panels ui-profile-panels-001">
             <section id="profile-posts-section" class="profile-posts-section ui-profile-posts-section-001" data-profile-panel="posts" role="tabpanel" aria-labelledby="profile-tab-posts">
