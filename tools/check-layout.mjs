@@ -1184,7 +1184,7 @@ assert.ok(
  "Locked profiles retain cover and avatar but block viewers; fallback portraits stay centered, routes show content before media");
 const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
-const profileStyles=profileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
+const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
  'href="assets/css/base.css"','href="assets/css/feed.css"',
  'href="assets/css/profile.css"','href="assets/css/post-composer.css"','href="assets/css/gifts.css"'
@@ -2575,3 +2575,6 @@ const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(sticker
 await assert.rejects(stat("business.html"),{code:"ENOENT"});
 assert.ok(!businessRuntime.includes("VATRA_SECTION_CORE?.start")&&!businessRuntime.includes("requestedFilter"),"Business modules cannot mount as a separate page");
 assert.ok(!(await read("assets/js/not-found.js")).includes("|marketplace|business|"),"Retired business route must not resolve");
+
+const retiredActivitySQL=await read("supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
+assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&retiredActivitySQL.includes("drop table public.business_followers;")&&retiredActivitySQL.includes("alter column club_id set not null")&&!/drop table[^;]*cascade/i.test(retiredActivitySQL),"Legacy business storage is removed safely and community linkage is mandatory");
