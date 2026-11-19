@@ -1,7 +1,5 @@
-@font-face{font-family:Onest;src:url("../fonts/Onest-Variable.ttf") format("truetype");font-weight:100 900;font-display:swap}
-:root{font-family:Onest,system-ui,sans-serif;color:#2c3850;color-scheme:light}
-.ui-maintenance-body-001{margin:0;box-sizing:border-box;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:clamp(18px,4vw,44px) 18px 22px;background:radial-gradient(ellipse at 50% 20%,#e9effc 0%,#f8f9fc 65%,#fff 100%);text-align:center}
-.ui-maintenance-header-001{width:min(100%,1040px);display:flex;justify-content:center}
+.ui-maintenance-body-001{font-family:Onest,system-ui,sans-serif;color:#2c3850;color-scheme:light;margin:0;box-sizing:border-box;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:clamp(18px,4vw,44px) 18px 22px;background:radial-gradient(ellipse at 50% 20%,#e9effc 0%,#f8f9fc 65%,#fff 100%);text-align:center}
+.ui-maintenance-header-001{width:min(100%,1040px);display:flex;align-items:center;justify-content:space-between;gap:12px}
 .ui-maintenance-logo-001{height:40px;max-width:142px;object-fit:contain}
 .ui-maintenance-main-001{box-sizing:border-box;width:min(100%,620px);padding:12px clamp(12px,4vw,36px) 24px;display:flex;flex-direction:column;align-items:center}
 .ui-maintenance-vatryk-001{display:block;width:min(100%,320px);height:auto;max-height:36dvh;object-fit:contain;margin:0 auto 14px}
@@ -15,5 +13,6 @@
 .vt-maintenance-admin-link-001:hover{text-decoration:underline}
 .ui-maintenance-owner-001{padding:16px 22px;border:1px solid #dce5f2;border-radius:14px;background:#fff;margin:5px 0 12px}
 .ui-maintenance-owner-001[hidden]{display:none}.vt-maintenance-owner-title-001{font-size:14px;letter-spacing:.04em;margin:0 0 10px}
-.ui-maintenance-footer-001{color:#7a899d;font-size:12px;line-height:1.6}
+.ui-maintenance-footer-001{width:min(100%,1040px)}
+.ui-maintenance-footer-content-001{justify-content:center;gap:0 4px;text-align:center}
 @media(max-width:480px){.ui-maintenance-vatryk-001{width:min(100%,255px);max-height:34dvh}.ui-maintenance-body-001{padding-top:20px}.vt-maintenance-retry-001{width:min(100%,320px)}}
