@@ -178,9 +178,12 @@
                 </div>
               </div>
               <div class="profile-identity ui-profile-identity-001">
+                <div class="ui-profile-name-row-001">
                 <h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">
                   Моя сторінка
                 </h1>
+                  <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
+                </div>
                 <button id="profile-status" type="button" class="profile-status vt-profile-status-001" hidden><span id="profile-status-text" class="vt-profile-status-text-001"></span></button>
                 <p id="profile-last-seen" class="profile-last-seen vt-profile-last-seen-001" data-social-uk="Статус мережі невідомий" data-social-en="Online status unavailable">Статус мережі невідомий</p>
               </div>
@@ -233,7 +236,6 @@
                 </svg>
               </button>
             </nav>
-            <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
             </div>
           </section>
           <div class="profile-panels ui-profile-panels-001">
@@ -516,6 +518,31 @@
               <button id="profile-message-refresh" class="vt-profile-message-refresh-001" type="button" data-social-uk="Оновити" data-social-en="Refresh">Оновити</button><button id="profile-message-send" class="vt-profile-message-send-001" type="submit" data-social-uk="Надіслати" data-social-en="Send">Надіслати</button>
             </div>
           </form>
+        </dialog>
+        <dialog id="profile-cover-edit-dialog" class="ui-profile-cover-edit-dialog-001" aria-labelledby="profile-cover-edit-title">
+          <h2 id="profile-cover-edit-title" class="vt-profile-cover-edit-title-001" data-social-uk="Редагування обкладинки" data-social-en="Edit cover">Редагування обкладинки</h2>
+          <button id="profile-cover-edit-close" class="vt-profile-cover-edit-close-001" type="button" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close"><svg class="ui-profile-cover-edit-close-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-cover-edit-close-path-001" d="m6 6 12 12M18 6 6 18"/></svg></button>
+          <section id="profile-cover-crop-panel" class="ui-profile-cover-crop-panel-001">
+            <div class="ui-profile-cover-crop-stage-001"><canvas id="profile-cover-crop-canvas" class="ui-profile-cover-crop-canvas-001" tabindex="0" aria-label="Переміщення області обрізання" data-shell-aria-uk="Переміщення області обрізання" data-shell-aria-en="Move crop area"></canvas></div>
+            <p class="vt-profile-cover-crop-guide-001" data-social-uk="Світла область — комп’ютер, ширша область — мобільний пристрій. Перемістіть рамку або змініть масштаб." data-social-en="The bright area is for desktop, the larger area for mobile. Move the frame or change the zoom.">Світла область — комп’ютер, ширша область — мобільний пристрій. Перемістіть рамку або змініть масштаб.</p>
+            <label class="vt-profile-cover-zoom-label-001" for="profile-cover-crop-zoom" data-social-uk="Масштаб" data-social-en="Zoom">Масштаб</label>
+            <input id="profile-cover-crop-zoom" class="ui-profile-cover-crop-zoom-001" type="range" min="1" max="5" step=".01" value="1">
+          </section>
+          <section id="profile-cover-preview-panel" class="ui-profile-cover-preview-panel-001" hidden>
+            <div class="ui-profile-cover-preview-tabs-001" role="group" aria-label="Пристрій" data-shell-aria-uk="Пристрій" data-shell-aria-en="Device">
+              <button id="profile-cover-preview-desktop" class="vt-profile-cover-preview-desktop-001" type="button" aria-pressed="true" data-social-uk="Комп’ютер" data-social-en="Desktop">Комп’ютер</button>
+              <button id="profile-cover-preview-mobile" class="vt-profile-cover-preview-mobile-001" type="button" aria-pressed="false" data-social-uk="Мобільний пристрій" data-social-en="Mobile device">Мобільний пристрій</button>
+            </div>
+            <div id="profile-cover-preview-card" class="ui-profile-cover-preview-card-001" data-device="desktop">
+              <canvas id="profile-cover-preview-image" class="ui-profile-cover-preview-image-001" aria-label="Попередній перегляд обкладинки" data-shell-aria-uk="Попередній перегляд обкладинки" data-shell-aria-en="Cover preview" role="img"></canvas>
+              <div class="ui-profile-cover-preview-identity-001"><span id="profile-cover-preview-avatar" class="ui-profile-cover-preview-avatar-001" aria-hidden="true"></span><strong id="profile-cover-preview-name" class="vt-profile-cover-preview-name-001"></strong></div>
+            </div>
+          </section>
+          <p id="profile-cover-edit-error" class="vt-profile-cover-edit-error-001" role="status" hidden></p>
+          <div class="ui-profile-cover-edit-actions-001">
+            <button id="profile-cover-edit-step" class="vt-profile-cover-edit-step-001" type="button" data-social-uk="Попередній перегляд" data-social-en="Preview">Попередній перегляд</button>
+            <button id="profile-cover-edit-save" class="vt-profile-cover-edit-save-001" type="button" data-social-uk="Встановити обкладинку" data-social-en="Set cover">Встановити обкладинку</button>
+          </div>
         </dialog>
         <dialog id="profile-avatar-crop-dialog" class="ui-profile-avatar-crop-dialog-001" aria-labelledby="profile-avatar-crop-title">
   <h2 id="profile-avatar-crop-title" class="vt-profile-avatar-crop-title-001" data-social-uk="Вибір мініатюри" data-social-en="Choose thumbnail">Вибір мініатюри</h2>
