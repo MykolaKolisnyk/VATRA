@@ -4438,6 +4438,23 @@ try{
   assert.equal(await profilePage.locator("#profile-cover-change").evaluate(el=>getComputedStyle(el).opacity),"0","Cover edit is hidden at rest");
   await profilePage.locator("#profile-cover-image").hover();
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
+  const initialCover=await profilePage.locator("#profile-cover-photo").getAttribute("src");
+  const coverFixture=await profilePage.evaluate(()=>{const c=document.createElement("canvas");c.width=960;c.height=640;const ctx=c.getContext("2d");ctx.fillStyle="#927fe4";ctx.fillRect(0,0,960,640);ctx.fillStyle="#fff";ctx.fillRect(0,240,960,160);return c.toDataURL("image/png").split(",")[1];});
+  await profilePage.locator("#profile-cover-file").setInputFiles({name:"cover-preview.png",mimeType:"image/png",buffer:Buffer.from(coverFixture,"base64")});
+  await profilePage.locator("#profile-cover-edit-dialog").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-cover-crop-panel").isVisible(),true);
+  await profilePage.locator("#profile-cover-crop-zoom").evaluate(el=>{el.value="1.5";el.dispatchEvent(new Event("input",{bubbles:true}));});
+  await profilePage.locator("#profile-cover-edit-step").click();
+  await profilePage.locator("#profile-cover-preview-panel").waitFor({state:"visible"});
+  const previewRatio=()=>profilePage.locator("#profile-cover-preview-image").evaluate(el=>el.width/el.height);
+  assert.ok(Math.abs(await previewRatio()-960/290)<.01,"Desktop preview uses a wide crop");
+  await profilePage.locator("#profile-cover-preview-mobile").click();
+  assert.ok(Math.abs(await previewRatio()-390/185)<.01,"Mobile preview shows the outer crop");
+  await profilePage.locator("#profile-cover-edit-step").click();
+  assert.equal(await profilePage.locator("#profile-cover-crop-zoom").inputValue(),"1.5","Returning to cropping preserves zoom");
+  await profilePage.locator("#profile-cover-edit-close").click();
+  assert.equal(await profilePage.locator("#profile-cover-edit-dialog").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-cover-photo").getAttribute("src"),initialCover,"Cancel never changes the existing cover");
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),true);
@@ -4459,8 +4476,9 @@ try{
   assert.equal(await profilePage.locator("#profile-edit-open svg").count(),0,
    "Owner's edit action is text-only");
   assert.equal(await profilePage.locator("#profile-status svg").count(),0,"Status has no pencil");
-  const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,nav=row.querySelector(".social-profile-tabs");return {inRow:row.classList.contains("ui-profile-tab-row-001"),outsideTabs:!nav.contains(edit),rightGap:row.getBoundingClientRect().right-edit.getBoundingClientRect().right,background:getComputedStyle(edit).backgroundColor};});
-  assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=30&&editAlignment.background==="rgba(0, 0, 0, 0)","Edit action is text at the right edge of profile navigation");
+  const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,name=document.querySelector("#profile-heading"),er=edit.getBoundingClientRect(),nr=name.getBoundingClientRect();return {inRow:row.classList.contains("ui-profile-name-row-001")&&name.parentElement===row,outsideTabs:!document.querySelector(".social-profile-tabs").contains(edit),rightGap:Math.abs(row.getBoundingClientRect().right-er.right),sameLine:Math.abs((er.top+er.bottom-nr.top-nr.bottom)/2)<=5,background:getComputedStyle(edit).backgroundColor};});
+  assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=2&&editAlignment.background!=="rgba(0, 0, 0, 0)","Edit action has a VATRA background and sits at the right edge beside the name");
+  if((await profilePage.viewportSize()).width>970)assert.ok(editAlignment.sameLine,"Desktop edit action aligns with the name");
   assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
    "Inline post composer has a media action icon like Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
