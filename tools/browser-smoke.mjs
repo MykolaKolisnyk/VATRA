@@ -4245,12 +4245,15 @@ try{
   assert.equal((await feedProbe.locator("#feed-filter-summary").textContent()).trim(),
    language==="en"?"Posts from your communities":"Дописи ваших спільнот");
   await feedProbe.locator('[data-feed-filter="all"]').click();
-  await feedProbe.waitForFunction(()=>document.querySelectorAll("#feed-posts .feed-post-card").length===1);
+  await feedProbe.waitForFunction(()=>
+   document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
+   document.querySelectorAll("#feed-posts .feed-post-card").length===1);
   assert.equal(await feedProbe.locator('[data-feed-filter="all"]').getAttribute("aria-pressed"),"true",
    "All Feed restores the previously visible own post after Friends/Communities filters");
   assert.equal(await feedProbe.locator(".vatra-post-owner-toggle").count(),1);
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel").isVisible(),false);
   await feedProbe.locator(".vatra-post-owner-toggle").click();
+  await feedProbe.locator(".vatra-post-owner-panel").waitFor({state:"visible",timeout:5000});
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel").isVisible(),true);
   assert.equal(await feedProbe.locator(".feed-post-card:has(.vatra-post-owner-menu[open])").evaluate(
    el=>getComputedStyle(el).zIndex),"35",
