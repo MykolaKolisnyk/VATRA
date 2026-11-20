@@ -22,12 +22,11 @@
   const update=()=>{
    pending=false;
    const edge=layout?.getBoundingClientRect();
-   const available=edge&&edge.width>0?Math.max(0,Math.floor(edge.left)-12):0;
-   const width=Math.min(190,available);
-   if(header)side.style.setProperty("--vatra-rail-top",Math.max(0,Math.ceil(header.getBoundingClientRect().bottom))+"px");
-   side.style.setProperty("--vatra-rail-width",width+"px");
-   side.classList.toggle("is-compact",width<105);
-   side.hidden=width<56||scrollY<350||document.documentElement.scrollHeight-innerHeight<500;
+   const gutter=edge&&edge.width>0?edge.left:0;
+   // A floating control must never occupy the entire viewport gutter.
+   const left=gutter>=78?Math.round(gutter-62):16;
+   side.style.left=Math.max(12,Math.min(innerWidth-60,left))+"px";
+   side.hidden=window.scrollY<350||document.documentElement.scrollHeight-innerHeight<500;
   };
   const scheduled=()=>{if(pending)return;pending=true;requestAnimationFrame(update);};
   if(typeof ResizeObserver==="function"){
@@ -35,7 +34,7 @@
    if(header)observer.observe(header);
    if(layout)observer.observe(layout);
   }
-  side.addEventListener("click",()=>scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"}));
+  side.addEventListener("click",()=>scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}));
   window.addEventListener("scroll",scheduled,{passive:true});
   window.addEventListener("resize",scheduled,{passive:true});
   update();
