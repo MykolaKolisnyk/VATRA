@@ -4,7 +4,7 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const KEY="vatra-remembered-account";
 const HEADER_KEY="vatra-authenticated-header-v1";
-const ORIGIN="https://rjasunoawrxvetwadylh.supabase.co";
+const ORIGIN="https://cxrcycxrlkufozomsxcs.supabase.co";
 // The artwork is defined once, as inline SVG data URIs in CSS.
 // Preserve the existing asset()/coverAsset() API for any integrations.
 const SYSTEM_STATES=new Set(["default","deleted","blocked","not-found"]);
