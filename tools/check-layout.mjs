@@ -2030,7 +2030,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar")')&&
  profileScript.includes('const bucketFor=kind=>kind==="avatar"?"avatars":"covers"')&&
  profileScript.includes('void startCoverCrop(fileCover.files[0])')&&
- profileScript.includes('encodeProfileCrop(coverSource,rect,width,height,"profile-cover")')&&
+ profileScript.includes('encodeProfileCrop(coverSource,rect,width,height,"profile-cover",coverSourceMime)')&&
  profileScript.includes('uploadImage(file,"cover")')&&
  !profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
  profileScript.includes('"avatars"')&&
@@ -2043,6 +2043,16 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-story-delete"')&&
  !profileScript.includes('remove([previous])')&&
  !sharedCss.includes('border-radius:0 14px 14px 14px'),
  "Only the owner deletes a story; previous profile photos are preserved");
+assert.ok(memberProfileMarkup.includes('id="profile-photo-footer"')&&
+ memberProfileMarkup.includes('id="profile-photo-footer-more"')&&
+ memberProfileMarkup.includes('id="profile-photo-tag-picker"')&&
+ profileScript.includes('client.from("avatar_photo_tags")')&&
+ profileScript.includes('out.toBlob(resolve,fileTypes[mime]?mime:"image/webp",.94)')&&
+ memberCss.includes('.ui-profile-photo-footer-menu-001.is-open')&&
+ css.includes('body.feed-page .vatra-scroll-rail')&&
+ scrollRailScript.includes('side.style.left=')&&
+ !(await read("assets/js/network.js")).includes('.showModal()'),
+ "Avatar photo viewer needs accessible footer, correct PNG/JPEG files and nonmodal Vatryk errors");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  memberProfileMarkup.includes('id="profile-photo-like"')&&
  memberProfileMarkup.includes('id="profile-photo-comments"')&&
