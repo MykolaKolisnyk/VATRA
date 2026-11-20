@@ -1441,7 +1441,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip"')&&
+ feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip,pinned_at,comments_enabled"')&&
  feedScript.includes('query.eq("is_clip",false)')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
