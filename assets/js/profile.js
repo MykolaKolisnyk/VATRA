@@ -2448,6 +2448,120 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentSortNote=q("#profile-photo-comment-sort-note");
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
+
+ const tagFailure=(error,fallback,retry)=>{
+  if(!window.VATRA_SERVICE_NOTICE?.report(error,{retry}))reportTag(fallback);
+ };
+ const loadTags=async()=>{
+  const selected=photoPath(),ticket=++tagEpoch;
+  tagMarkers.replaceChildren();
+  if(!selected)return;
+  const {data,error}=await client.from("avatar_photo_tags")
+   .select("id,tagged_vatra_id,x_pct,y_pct").eq("owner_vatra_id",targetId)
+   .eq("avatar_path",selected).order("created_at",{ascending:true});
+  if(ticket!==tagEpoch||selected!==photoPath())return;
+  if(error){tagFailure(error,t("Не вдалося завантажити позначки.","Could not load tags."),loadTags);return;}
+  if(!data?.length)return;
+  const ids=[...new Set(data.map(item=>item.tagged_vatra_id))];
+  const result=await client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids);
+  if(ticket!==tagEpoch||selected!==photoPath())return;
+  const names=new Map((result.data||[]).map(item=>[String(item.vatra_id),item.display_name]));
+  for(const tag of data){
+   const id=String(tag.tagged_vatra_id),label=names.get(id)||"VATRA ID "+id;
+   const wrapper=document.createElement("div");wrapper.className="ui-profile-photo-tag-group-001";
+   wrapper.style.left=Number(tag.x_pct)+"%";wrapper.style.top=Number(tag.y_pct)+"%";
+   const anchor=document.createElement("a");anchor.className="vt-profile-photo-tag-marker-001";
+   anchor.href=memberUrl(id);anchor.setAttribute("aria-label",t("Перейти до профілю: ","View profile: ")+label);
+   anchor.textContent="•";
+   const tooltip=document.createElement("span");tooltip.className="vt-profile-photo-tag-name-001";tooltip.textContent=label;
+   anchor.append(tooltip);wrapper.append(anchor);
+   if(canEdit||id===String(ownId)){
+    const remove=document.createElement("button");remove.className="vt-profile-photo-tag-remove-001";
+    remove.type="button";remove.textContent="×";
+    remove.setAttribute("aria-label",t("Прибрати позначку: ","Remove tag: ")+label);
+    remove.addEventListener("click",async()=>{
+     remove.disabled=true;
+     const {error:deleteError}=await client.from("avatar_photo_tags").delete().eq("id",tag.id);
+     if(deleteError){remove.disabled=false;tagFailure(deleteError,t("Не вдалося прибрати позначку.","Could not remove tag."),loadTags);}
+     else void loadTags();
+    });
+    wrapper.append(remove);
+   }
+   tagMarkers.append(wrapper);
+  }
+ };
+ let searchTimerId=0;
+ const searchPeople=async()=>{
+  const term=tagSearch.value.trim().replace(/[%_\\]/g,"").slice(0,50),ticket=++searchEpoch;
+  tagResults.replaceChildren();
+  if(term.length<2){
+   const hint=document.createElement("p");hint.className="vt-profile-photo-tag-message-001";
+   hint.textContent=t("Введіть щонайменше 2 символи.","Enter at least 2 characters.");
+   tagResults.append(hint);return;
+  }
+  const {data,error}=await client.from("public_profiles").select("vatra_id,display_name")
+   .ilike("display_name","%"+term+"%").limit(8);
+  if(ticket!==searchEpoch||tagPicker.hidden)return;
+  if(error){tagFailure(error,t("Пошук недоступний.","Search unavailable."),searchPeople);return;}
+  if(!data?.length){
+   const hint=document.createElement("p");hint.className="vt-profile-photo-tag-message-001";
+   hint.textContent=t("Нікого не знайдено.","No members found.");tagResults.append(hint);return;
+  }
+  for(const member of data){
+   const button=document.createElement("button");button.type="button";
+   button.className="vt-profile-photo-tag-result-001";button.setAttribute("role","option");
+   button.textContent=String(member.display_name||"VATRA")+" · VATRA ID "+member.vatra_id;
+   button.addEventListener("click",async()=>{
+    const selected=photoPath(),point=tagPosition;
+    if(!selected||!point||!canEdit)return;
+    button.disabled=true;
+    const {error:insertError}=await client.from("avatar_photo_tags").insert({
+     owner_vatra_id:Number(targetId),avatar_path:selected,tagged_vatra_id:Number(member.vatra_id),
+     x_pct:point.x,y_pct:point.y,created_by:userId
+    });
+    if(insertError){button.disabled=false;tagFailure(insertError,t("Не вдалося позначити людину або вона вже позначена.","Could not tag this member or they are already tagged."),loadTags);return;}
+    closeTagPicker();resetTagMode();reportTag("");void loadTags();
+   });
+   tagResults.append(button);
+  }
+ };
+ footerTag.addEventListener("click",()=>{
+  if(!canEdit)return;
+  tagMode=!tagMode;footerTag.setAttribute("aria-pressed",String(tagMode));
+  photoCanvas.classList.toggle("is-tagging",tagMode);
+  closeTagPicker();closeMore();reportTag("");
+ });
+ photoCanvas.addEventListener("click",event=>{
+  if(!canEdit||!tagMode||event.target!==mediaImage||!photoPath())return;
+  const rect=mediaImage.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  tagPosition={x:Math.max(0,Math.min(100,Math.round((event.clientX-rect.left)/rect.width*10000)/100)),
+   y:Math.max(0,Math.min(100,Math.round((event.clientY-rect.top)/rect.height*10000)/100))};
+  tagPicker.hidden=false;tagSearch.value="";tagResults.replaceChildren();
+  reportTag("");tagSearch.focus();void searchPeople();
+ });
+ tagSearch.addEventListener("input",()=>{
+  clearTimeout(searchTimerId);searchTimerId=setTimeout(searchPeople,240);
+ });
+ tagCancel.addEventListener("click",closeTagPicker);
+ setCurrent.addEventListener("click",async()=>{
+  if(!canEdit||!photoPath()||photoPath()===saved?.avatar_path)return;
+  const path=photoPath();closeMore();setCurrent.disabled=true;
+  const result=await client.from("profile_media")
+   .update({avatar_path:path,updated_at:new Date().toISOString()})
+   .eq("vatra_id",ownId).select("avatar_path").maybeSingle();
+  setCurrent.disabled=false;
+  if(result.error||result.data?.avatar_path!==path){
+   tagFailure(result.error||{status:500},t("Не вдалося змінити фото профілю.","Could not update profile photo."),()=>setCurrent.click());
+   return;
+  }
+  saved={...saved,avatar_path:path};
+  window.VATRA_AVATAR?.invalidatePath?.(client,ownId);
+  window.VATRA_AVATAR?.fromPath?.(client,ownerEmail,ownId,path);
+  await display(saved);renderGalleryPhoto();
+  status(t("Фотографію профілю оновлено.","Profile photo updated."));
+ });
+
  const feedback=(value,bad=false)=>{
   commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
  };
@@ -2679,7 +2793,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   ownerPhoto.style.backgroundImage=photoURLs.avatar?"url("+JSON.stringify(photoURLs.avatar)+")":"";
   ownerPhoto.classList.toggle("has-photo",!!photoURLs.avatar);
   const uploaded=galleryDates.get(path);const elapsed=uploaded?Math.max(0,Date.now()-Date.parse(uploaded)):Infinity;date.textContent=uploaded?(elapsed<60000?t("Щойно","Just now"):elapsed<86400000?new Intl.RelativeTimeFormat(locale,{numeric:"auto"}).format(-Math.floor(elapsed/(elapsed<3600000?60000:3600000)),elapsed<3600000?"minute":"hour"):dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
-  resetPhotoComposer();syncComposerAvatar();void reloadPhotoActivity();
+  resetPhotoComposer();syncComposerAvatar();void reloadPhotoActivity();void loadTags();
  };
  const stepPhoto=delta=>{const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
  prevPhoto.addEventListener("click",()=>stepPhoto(-1));nextPhoto.addEventListener("click",()=>stepPhoto(1));
@@ -2976,6 +3090,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   try{
    if(path===previous){const paths=await listAvatarGallery();const next=paths.find(p=>p!==path)||null;await updateCurrent(next);changed=true;}
    const result=await client.storage.from("avatars").remove([path]);if(result.error)throw result.error;
+   void client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId).eq("avatar_path",path).then(()=>{});
    if(changed){window.VATRA_AVATAR?.invalidatePath?.(client,ownId);await display(saved);}
    gallery=gallery.filter(p=>p!==path);galleryIndex=Math.max(0,Math.min(galleryIndex,gallery.length-1));
    if(mediaDialog.open){if(gallery.length)renderGalleryPhoto();else mediaDialog.close();}
