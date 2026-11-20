@@ -2358,11 +2358,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
   if(roomW<=0||roomH<=0)return;
   const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
-  // Display avatar photos at a comfortable size rather than stretching them
-  // across the entire stage. Never enlarge beyond the source resolution.
+  // Match the VK-style image stage: even a small original can scale up to
+  // nearly fill the available space, without cropping or distorting its ratio.
+  // The cover viewer retains its separate full-viewport sizing behavior.
   const scale=avatarPhoto?
-   Math.min(1,roomW*.84/mediaImage.naturalWidth,roomH*.84/mediaImage.naturalHeight,
-    680/mediaImage.naturalWidth,620/mediaImage.naturalHeight):
+   Math.min(roomW*.96/mediaImage.naturalWidth,roomH*.96/mediaImage.naturalHeight):
    Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
   photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
   photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
@@ -2741,7 +2741,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  q("#profile-photo-like-label").textContent=t("Подобається","Like");
  q("#profile-photo-share-label").textContent=t("Поділитися","Share");
- q("#profile-photo-comments-heading").textContent=t("Коментарі","Comments");
  q("#profile-photo-comment-text").placeholder=t("Коментувати…","Comment…");
  q("#profile-photo-comment-send").textContent=t("Надіслати","Send");
  q(".vt-profile-photo-comment-label-001").textContent=t("Ваш коментар","Your comment");
