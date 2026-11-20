@@ -2939,7 +2939,7 @@ body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer
  transition:opacity .2s ease
 }
 body.profile-page .profile-media-viewer[data-cover-opening="true"] .profile-media-viewer-image{
- opacity:0
+ opacity:0;transition:none
 }
 body.profile-page .ui-profile-cover-flight-001{
  position:fixed;z-index:5;pointer-events:none;object-fit:cover;max-width:none;max-height:none;
