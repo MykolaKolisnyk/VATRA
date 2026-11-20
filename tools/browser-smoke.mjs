@@ -4305,8 +4305,18 @@ try{
    const dialog=document.querySelector("#profile-media-viewer");
    const image=document.querySelector("#profile-media-viewer-image");
    return {width:dialog.getBoundingClientRect().width,height:dialog.getBoundingClientRect().height,
-    viewportWidth:innerWidth,viewportHeight:innerHeight,source:image.src};
+    viewportWidth:innerWidth,viewportHeight:innerHeight,source:image.src,
+    kind:dialog.dataset.kind,opening:dialog.dataset.coverOpening==="true",
+    flight:!!dialog.querySelector(".ui-profile-cover-flight-001"),
+    imageOpacity:getComputedStyle(image).opacity};
   });
+  assert.equal(coverViewer.kind,"cover","Cover click must not leave the gallery in avatar mode");
+  assert.ok(!/\\/avatars\\//.test(coverViewer.source),
+   "The opening cover must never display a previously viewed avatar");
+  assert.ok(coverViewer.flight||!coverViewer.opening,
+   "Cover opening must retain the animated thumbnail until the new image is ready");
+  if(coverViewer.opening)assert.equal(coverViewer.imageOpacity,"0",
+   "The previous shared viewer image stays hidden while the cover opens");
   assert.ok(Math.abs(coverViewer.width-coverViewer.viewportWidth)<=2&&
    Math.abs(coverViewer.height-coverViewer.viewportHeight)<=2&&
    /\/covers\/654321\/cover\/test-cover(?:-original)?\.webp/.test(coverViewer.source),
