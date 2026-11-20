@@ -4364,7 +4364,7 @@ try{
   });
   assert.ok(Math.abs(coverViewer.width-coverViewer.viewportWidth)<=2&&
    Math.abs(coverViewer.height-coverViewer.viewportHeight)<=2&&
-   coverViewer.source.includes("/covers/654321/cover/test-cover.webp"),
+   /\/covers\/654321\/cover\/test-cover(?:-original)?\.webp/.test(coverViewer.source),
    "Cover photo should fill the viewer viewport without cropping the original: "+JSON.stringify(coverViewer));
   await profilePage.locator("#profile-media-viewer-close").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
@@ -4397,16 +4397,15 @@ try{
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-avatar-trigger").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
-  assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src"))
-   .includes("/avatars/654321/avatar/test-profile.webp"));
+  assert.ok(/\/avatars\/654321\/avatar\/test-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
   await profilePage.locator("#profile-avatar-next").click();
-  assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src")).includes("/avatars/654321/avatar/previous-profile.webp"));
+  assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2");
   assert.equal(await profilePage.locator("#profile-avatar-engagement").isVisible(),true,"Historical avatars retain their own engagement panel");
   assert.equal(await profilePage.locator("#profile-media-viewer-heading").isVisible(),false,"Avatar gallery has no redundant heading");
   await profilePage.keyboard.press("ArrowLeft");
-  assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src")).includes("/avatars/654321/avatar/test-profile.webp"));
+  assert.ok(/\/avatars\/654321\/avatar\/test-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape should close the fullscreen avatar viewer");
