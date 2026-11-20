@@ -445,10 +445,38 @@
           <div class="profile-media-viewer-stage ui-profile-media-viewer-stage-001">
             <button id="profile-media-viewer-close" class="profile-media-viewer-close vt-profile-media-viewer-close-001" type="button" data-shell-aria-uk="Закрити перегляд фото" data-shell-aria-en="Close photo viewer" aria-label="Закрити перегляд фото"><svg class="ui-profile-media-close-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-media-close-path-001" d="M6 6l12 12M18 6 6 18"/></svg></button>
             <h2 id="profile-media-viewer-heading" class="profile-media-viewer-heading vt-profile-media-viewer-heading-001" hidden></h2>
-            <img id="profile-media-viewer-image" class="profile-media-viewer-image ui-profile-media-viewer-image-001" alt="">
+            <div id="profile-photo-content" class="ui-profile-photo-content-001">
+              <div id="profile-photo-canvas" class="ui-profile-photo-canvas-001">
+                <img id="profile-media-viewer-image" class="profile-media-viewer-image ui-profile-media-viewer-image-001" alt="">
+                <div id="profile-photo-tag-markers" class="ui-profile-photo-tag-markers-001" aria-live="polite"></div>
+              </div>
+              <div id="profile-photo-tag-picker" class="ui-profile-photo-tag-picker-001" hidden>
+                <label class="vt-profile-photo-tag-picker-label-001" for="profile-photo-tag-search">Кого позначити?</label>
+                <input id="profile-photo-tag-search" class="ui-profile-photo-tag-search-001" type="search" maxlength="50" autocomplete="off" placeholder="Пошук людини за ім’ям">
+                <div id="profile-photo-tag-results" class="ui-profile-photo-tag-results-001" role="listbox" aria-label="Знайдені люди"></div>
+                <button id="profile-photo-tag-cancel" class="vt-profile-photo-tag-cancel-001" type="button">Скасувати</button>
+              </div>
+            </div>
             <button id="profile-avatar-prev" class="vt-profile-avatar-prev-001" type="button" aria-label="Попереднє фото" data-shell-aria-uk="Попереднє фото" data-shell-aria-en="Previous photo" hidden><svg class="ui-profile-avatar-prev-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-prev-path-001" d="m15 5-7 7 7 7"/></svg></button>
             <button id="profile-avatar-next" class="vt-profile-avatar-next-001" type="button" aria-label="Наступне фото" data-shell-aria-uk="Наступне фото" data-shell-aria-en="Next photo" hidden><svg class="ui-profile-avatar-next-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-next-path-001" d="m9 5 7 7-7 7"/></svg></button>
-            <div id="profile-avatar-gallery-toolbar" class="ui-profile-avatar-gallery-toolbar-001" hidden><span id="profile-avatar-gallery-count" class="vt-profile-avatar-gallery-count-001" aria-live="polite"></span><button id="profile-avatar-gallery-delete" class="vt-profile-avatar-gallery-delete-001" type="button" aria-label="Видалити фото" data-shell-aria-uk="Видалити фото" data-shell-aria-en="Delete photo" hidden><svg class="ui-profile-gallery-delete-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-gallery-delete-path-001" d="M3.5 6h17M9 6V3.5h6V6M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button></div>
+            <footer id="profile-photo-footer" class="ui-profile-photo-footer-001" hidden>
+              <div id="profile-avatar-gallery-toolbar" class="ui-profile-avatar-gallery-toolbar-001" hidden>
+                <span id="profile-avatar-gallery-count" class="vt-profile-avatar-gallery-count-001" aria-live="polite"></span>
+              </div>
+              <nav class="ui-profile-photo-footer-actions-001" aria-label="Дії з фотографією">
+                <button id="profile-photo-footer-share" class="vt-profile-photo-footer-share-001" type="button">Поділитися</button>
+                <button id="profile-photo-footer-tag" class="vt-profile-photo-footer-tag-001" type="button" aria-pressed="false" hidden>Позначити людину</button>
+                <button id="profile-avatar-gallery-delete" class="vt-profile-avatar-gallery-delete-001" type="button" hidden>Видалити</button>
+                <div class="ui-profile-photo-more-wrap-001">
+                  <button id="profile-photo-footer-more" class="vt-profile-photo-footer-more-001" type="button" aria-expanded="false" aria-controls="profile-photo-footer-menu">Більше <span aria-hidden="true">⌄</span></button>
+                  <div id="profile-photo-footer-menu" class="ui-profile-photo-footer-menu-001" role="menu" aria-label="Додаткові дії">
+                    <button id="profile-photo-set-current" class="vt-profile-photo-set-current-001" type="button" role="menuitem" hidden>Зробити фотографією профілю</button>
+                    <a id="profile-photo-original" class="vt-profile-photo-original-001" target="_blank" rel="noopener noreferrer" role="menuitem">Відкрити оригінал</a>
+                  </div>
+                </div>
+              </nav>
+              <span id="profile-photo-tag-status" class="vt-profile-photo-tag-status-001" role="status" aria-live="polite" hidden></span>
+            </footer>
           </div>
           <aside id="profile-avatar-engagement" class="profile-avatar-engagement ui-profile-avatar-engagement-001" aria-label="Взаємодії з фото" hidden>
             <header class="profile-photo-info ui-profile-photo-info-001">
