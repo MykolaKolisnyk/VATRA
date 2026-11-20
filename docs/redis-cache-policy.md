@@ -20,6 +20,8 @@ VATRA's Redis caches contain only minimal public data:
 - **Avatar metadata in the browser**: Feed, friend lists and notifications reuse `profile_media` avatar paths for 15 seconds (missing paths for 5 seconds), deduplicate overlapping reads and cap the LRU at 256 entries per Supabase client. Account transitions invalidate cached and in-flight results; failed reads are never cached. The friend lists split larger ID sets into 100-ID batches to avoid truncating results. The short-lived 10-second account-state cache is also invalidated after auth transitions and rejects stale in-flight results. These RLS-scoped values are never sent to Redis.
 - **Comment and Feed cursor caches**: repeated RLS-scoped comment thread pages reuse a bounded 4-second browser-memory cache (32 pages). Feed source cursors are reused for 3 seconds (16 pages), keyed by viewer-specific filters and follow/friend lists. Both combine simultaneous requests, reject stale auth-session responses and clear after successful relevant local writes; network/SQL failures are never cached. Comment likes invalidate comment pages, and new comments invalidate both comment pages and engagement. These are **not** Redis caches; changes made by other users may remain invisible for at most their short TTL.
 - **Browser-only short caches**: public names for 90 seconds per Supabase client (missing names for 15 seconds, overlapping requests deduplicated and cleared on sign-in/sign-out); per-viewer
+  with a session-local 5-minute circuit breaker after a failed Redis Edge request
+  (only a retry timestamp is stored, not private data); per-viewer
   post engagement for 3 seconds with write invalidation; Storage signed
   media URLs in limited memory until shortly before expiry. The authenticated
   site-wide live-search also reuses identical queries for 8 seconds (maximum
@@ -30,30 +32,36 @@ VATRA's Redis caches contain only minimal public data:
   private messages are **never** put into a shared Redis cache
 - Cache only rows readable under the `anon` RLS policy. Never use service-role
   credentials for cached queries.
-- Redis cache was enabled for the public, unfiltered community directory
-  after the authenticated Edge test returned `X-VATRA-Cache: hit` on 2026-11-13.
-  Search requests and cache failures always use direct Supabase PostgREST.
+- The **old** Supabase project returned `X-VATRA-Cache: hit` on 2026-11-13.
+  Do not assume Redis credentials were transferred to VATRA-DE. On 2026-11-20,
+  the new project's `public-profile-names` endpoint returned HTTP 503, so the
+  browser fell back to RLS PostgREST. The community directory returned 200,
+  which by itself does **not** prove a Redis cache hit. Confirm live `hit`/`miss`
+  headers before describing Redis as enabled in VATRA-DE. Search requests and
+  cache failures always use direct Supabase PostgREST.
 
-## Opt in on Redis Cloud Free (development only)
+## Configure Redis in VATRA-DE (server side only)
 
-Free Redis Cloud currently has 30 MB storage, 30 connections and a limited
-throughput budget; its endpoint does not support TLS. There is also no
-Redis Cloud REST API on Free. The Edge Function uses TCP from a server-side
-runtime, not from the browser.
+Redis is optional. Prefer a provider with TLS (`rediss://`) and measured
+low-latency access from Supabase Frankfurt. Do not copy plaintext connection
+credentials into public GitHub Pages files or use Redis for private data.
 
-1. In Redis Cloud, note the **database endpoint, port and password**.
-2. In **Supabase → Edge Functions → Secrets** for project `rjasunoawrxvetwadylh`,
-   set:
-   - `REDIS_URL=redis://default:<URL_ENCODED_PASSWORD>@<HOST>:<PORT>`
+1. In your Redis provider, obtain the **host, port and password**.
+2. In **VATRA-DE → Supabase → Edge Functions → Secrets** for project
+   `cxrcycxrlkufozomsxcs`, configure the following **only when validated**:
+   - `REDIS_URL=rediss://default:<URL_ENCODED_PASSWORD>@<HOST>:<PORT>`
    - `REDIS_ENABLED=true`
-   - `REDIS_ALLOW_PLAINTEXT_DEV=true`
+   - `REDIS_ALLOW_PLAINTEXT_DEV=false`
+   If the provider offers only plaintext `redis://`, do not use it for
+   production without a separate security review. Keep Redis disabled instead.
 3. Never commit these secrets, expose them in frontend JavaScript, or share a
    Redis password in a chat. With plaintext Redis, use **public data only**.
-4. Deploy `supabase/functions/public-community-directory` with
-   JWT verification enabled (default). Test misses, hits, 15-second expiry,
+4. Deploy `public-community-directory` and `public-profile-names` with
+   JWT verification enabled (default). Test misses, hits, 15/120-second expiry,
    unavailable Redis, and any Cache-Control headers.
-5. `PUBLIC_DIRECTORY_CACHE_ENABLED=true` is enabled for the public
-   community listing after a confirmed Redis hit. The public club detail page
+5. `PUBLIC_DIRECTORY_CACHE_ENABLED=true` permits the public
+   community listing to attempt its Edge cache endpoint. This flag does not
+   guarantee the remote Redis is configured or active. The public club detail page
    also opts into the same Edge Function's POST mode. Search always bypasses
    Redis; direct PostgREST is the fallback. Monitor **p50/p95 latency**,
    hit rate and errors; revert the new detail lookup if the Edge hop
@@ -62,7 +70,7 @@ runtime, not from the browser.
 ## Upgrade to paid Redis Cloud
 
 Enable TLS in Redis Cloud and update `REDIS_URL` to `rediss://...`.
-Set `REDIS_ALLOW_PLAINTEXT_DEV=false`. Do not add the credentials to GitHub
+Keep `REDIS_ALLOW_PLAINTEXT_DEV=false`. Do not add the credentials to GitHub
 Pages. Additional caches must be separately reviewed for visibility/RLS and
 invalidation semantics.
 

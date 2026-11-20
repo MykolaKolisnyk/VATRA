@@ -209,24 +209,54 @@
  // untouched and remains available in full quality inside the private bucket.
  // Gracefully skip previews when the browser cannot encode a smaller WebP.
  async function makeImagePreview(file){
-  if(file.size<256*1024||typeof createImageBitmap!=="function")return null;
-  let bitmap;
+  // Small files should not incur a second Storage object or extra encoding work.
+  if(!file||file.size<256*1024)return null;
+  let image=null,release=()=>{};
   try{
-   bitmap=await createImageBitmap(file);
-   if(!bitmap.width||!bitmap.height)return null;
-   const scale=Math.min(1,960/Math.max(bitmap.width,bitmap.height));
-   const canvas=document.createElement("canvas");
-   canvas.width=Math.max(1,Math.round(bitmap.width*scale));
-   canvas.height=Math.max(1,Math.round(bitmap.height*scale));
-   const context=canvas.getContext("2d");
-   if(!context)return null;
-   context.drawImage(bitmap,0,0,canvas.width,canvas.height);
-   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.76));
-   if(!blob||blob.type!=="image/webp"||blob.size>400*1024||blob.size>=file.size*0.8)
-    return null;
-   return blob;
+   if(typeof createImageBitmap==="function"){
+    try{
+     image=await createImageBitmap(file);
+     if(!image?.width||!image?.height){image?.close?.();image=null;}
+     else release=()=>image.close?.();
+    }catch(_){/* Fallback to <img> for browsers without reliable bitmap decoding. */}
+   }
+   if(!image){
+    if(typeof Image!=="function"||typeof URL==="undefined"||
+       typeof URL.createObjectURL!=="function")return null;
+    const objectURL=URL.createObjectURL(file),fallback=new Image();
+    try{
+     if(typeof fallback.decode==="function"){
+      fallback.src=objectURL;
+      await fallback.decode();
+     }else{
+      await new Promise((resolve,reject)=>{
+       fallback.onload=resolve;fallback.onerror=reject;fallback.src=objectURL;
+      });
+     }
+     image=fallback;release=()=>URL.revokeObjectURL(objectURL);
+    }catch(_){URL.revokeObjectURL(objectURL);return null;}
+   }
+   const width=image.naturalWidth||image.width,height=image.naturalHeight||image.height;
+   if(!width||!height)return null;
+   // Try progressively smaller previews when complex photographs exceed 400 KiB.
+   // Preserve the original unchanged for full-size viewing.
+   for(const [longEdge,quality] of [[960,0.75],[768,0.66],[640,0.58],[480,0.5]]){
+    const scale=Math.min(1,longEdge/Math.max(width,height));
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.max(1,Math.round(width*scale));
+    canvas.height=Math.max(1,Math.round(height*scale));
+    const context=canvas.getContext("2d");
+    if(!context)return null;
+    context.drawImage(image,0,0,canvas.width,canvas.height);
+    let blob;
+    try{blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",quality));}
+    catch(_){continue;}
+    if(blob?.type==="image/webp"&&blob.size<=400*1024&&blob.size<file.size*0.8)
+     return blob;
+   }
+   return null;
   }catch(_){return null;}
-  finally{bitmap?.close?.();}
+  finally{release();}
  }
  async function upload(client,id,file){
   const format=formatFor(file);

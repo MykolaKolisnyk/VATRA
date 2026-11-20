@@ -4,6 +4,19 @@
  "use strict";
  const caches=new WeakMap();
  const TTL=90_000,MISSING_TTL=15_000,MAX_ENTRIES=256,MAX_BATCH=48;
+ // Redis is optional. A failed Edge lookup should not be repeated on each page
+ // navigation; this only persists an availability timestamp, never user data.
+ const EDGE_COOLDOWN_KEY="vatra-public-names-edge-retry-at-v1";
+ const edgeRetryAt=()=>{
+  try{
+   const time=Number(sessionStorage.getItem(EDGE_COOLDOWN_KEY));
+   return Number.isFinite(time)&&time>Date.now()&&time<Date.now()+600_000?time:0;
+  }catch(_){return 0;}
+ };
+ const pauseEdge=state=>{
+  state.retryRemoteAt=Date.now()+300_000;
+  try{sessionStorage.setItem(EDGE_COOLDOWN_KEY,String(state.retryRemoteAt));}catch(_){}
+ };
  const validId=value=>{
   const text=String(value??""),number=Number(text);
   return /^[1-9][0-9]{0,15}$/.test(text)&&Number.isSafeInteger(number)?String(number):null;
@@ -13,7 +26,7 @@
  const stateFor=client=>{
   let state=caches.get(client);
   if(state)return state;
-  state={rows:new Map(),pending:new Map(),generation:0,retryRemoteAt:0};
+  state={rows:new Map(),pending:new Map(),generation:0,retryRemoteAt:edgeRetryAt()};
   caches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
@@ -23,7 +36,7 @@
     state.generation++;
     state.rows.clear();
     state.pending.clear();
-    state.retryRemoteAt=0;
+    state.retryRemoteAt=edgeRetryAt();
    });
   }
   return state;
@@ -56,7 +69,7 @@
     return data.data.filter(validName).filter(row=>allowed.has(validId(row.vatra_id)));
    }catch(_){
     // Avoid a wave of repeated failed Edge calls; use normal PostgREST RLS.
-    state.retryRemoteAt=Date.now()+60_000;
+    pauseEdge(state);
    }
   }
   const {data,error}=await client.from("public_profiles")
