@@ -234,7 +234,7 @@ async function setupCommunityBusiness(client,number,ownId,userId){
    const resource=(tag,url)=>new Promise((resolve,reject)=>{const el=document.createElement(tag);if(tag==="link"){el.rel="stylesheet";el.href=new URL(url,root).href;}else{el.src=new URL(url,root).href;el.async=false;}el.addEventListener("load",resolve,{once:true});el.addEventListener("error",reject,{once:true});document.head.append(el);});
    try{
     document.body.classList.add("vatra-section-page","vatra-business-page");
-    await Promise.all([resource("link","assets/css/core.css?rev=e54d9ba8c2638618fb5402931fcc95d0bc36b418"),resource("script","assets/js/core.js?rev=d6e6d62fef2bde0f674a3d7ec1a6dd199aa09d02")]);
+    await Promise.all([resource("link","assets/css/core.css?rev=e54d9ba8c2638618fb5402931fcc95d0bc36b418"),resource("script","assets/js/core.js?rev=6769a3f3708557db6afa48baea247ee1575c13fa")]);
     await resource("script","assets/js/community-business.js?rev=52c6fa60f1a42abb2d6ee49bb6f2260fdbf824c0");
     if(!window.VATRA_BUSINESS_TOOLS||!window.VATRA_SECTION_CORE?.embedded)throw Error("tools");
     await window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client,ownId,user:{id:userId},content,notice,t}));
