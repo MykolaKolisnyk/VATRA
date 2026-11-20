@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=7625ddcfd6fdee4acfe32bdbcb2abc4480c0da6b">
     <link rel="stylesheet" href="assets/css/feed.css?rev=87f36f734305a3472db45f46badb4c7bd9b2c7a2">
     <link rel="stylesheet" href="assets/css/story-editor.css?rev=b6b39f00ee238008a679816b281887a1366e7c12">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=e6cb92981d28aa944f2b99c08dc2320337173771">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=0d8855b557a27f09a0b409476b8a47b0ba991ef7">
     <link rel="stylesheet" href="assets/css/post-composer.css">
     <link rel="stylesheet" href="assets/css/gifts.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -34,7 +34,7 @@
     <script defer src="assets/js/post-composer-ui.js"></script>
     <script defer src="assets/js/guest-view.js?rev=b25fd28b7cd80aa6bf1d02089df1c1b656ada6f2"></script>
     <script defer src="assets/js/story-editor.js?rev=2a44a72a7609a3d4765bd893eab6fcf492a9ddad"></script>
-    <script defer src="assets/js/profile.js?rev=854611824432aa3ae8b43a68e8b2257ffe389c0e"></script>
+    <script defer src="assets/js/profile.js?rev=058b6eda348e85ab00c4a7ee297d2d38b9647c63"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -483,12 +483,9 @@
               <a id="profile-photo-owner-avatar" class="ui-profile-photo-owner-avatar-001" href="profile"></a><div class="ui-profile-photo-owner-copy-001"><a id="profile-photo-owner" class="vt-profile-photo-owner-001" href="profile"></a><time id="profile-photo-kind" class="vt-profile-photo-kind-001" hidden></time></div>
             </header>
             <div class="profile-photo-actions ui-profile-photo-actions-001">
-              <button id="profile-photo-like" class="vt-profile-photo-like-001" type="button" aria-pressed="false"><svg class="ui-profile-photo-like-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-photo-like-path-001" d="M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z"/></svg><span id="profile-photo-like-label" class="vt-profile-photo-like-label-001">Подобається</span><span id="profile-photo-like-count" class="vt-profile-photo-like-count-001">0</span></button>
-      <button id="profile-photo-share" class="vt-profile-photo-share-001" type="button"><svg class="ui-profile-photo-share-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-photo-share-path-a-001" d="M8.6 11.2 16 6.7M8.6 13 16 17.3"/><circle class="ui-profile-photo-share-point-a-001" cx="5.3" cy="12.2" r="2.5"/><circle class="ui-profile-photo-share-point-b-001" cx="18" cy="5.5" r="2.5"/><circle class="ui-profile-photo-share-point-c-001" cx="18" cy="18.5" r="2.5"/></svg><span id="profile-photo-share-label" class="vt-profile-photo-share-label-001">Поділитися</span></button>
+              <button id="profile-photo-like" class="vt-profile-photo-like-001" type="button" aria-pressed="false"><svg class="ui-profile-photo-like-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-photo-like-path-001" d="M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z"/></svg><span id="profile-photo-like-label" class="vt-profile-photo-like-label-001">Подобається</span><span id="profile-photo-like-count" class="vt-profile-photo-like-count-001">0</span></button>
+      <button id="profile-photo-share" class="vt-profile-photo-share-001" type="button"><svg class="ui-profile-photo-share-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-photo-share-path-001" d="M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z"/></svg><span id="profile-photo-share-label" class="vt-profile-photo-share-label-001">Поділитися</span></button>
             </div>
-            <h3 id="profile-photo-comments-heading" class="vt-profile-photo-comments-heading-001">
-              Коментарі
-            </h3>
             <div class="profile-photo-comment-filters ui-profile-photo-comment-filters-001" hidden>
               <label class="vt-profile-photo-sort-label-001" for="profile-photo-comment-sort">Показувати:</label>
       <select id="profile-photo-comment-sort" class="ui-profile-photo-comment-sort-001">
