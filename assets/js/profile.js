@@ -3049,10 +3049,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }
  }
  const crop=q("#profile-avatar-crop-dialog"),finish=q("#profile-avatar-finish-dialog"),canvas=q("#profile-avatar-crop-canvas"),zoom=q("#profile-avatar-crop-zoom"),preview=q("#profile-avatar-finish-preview"),save=q("#profile-avatar-finish-save"),finishError=q("#profile-avatar-finish-error");
- let source=null,sourceURL=null,previewURL=null,cropped=null,selection=null,drag=null,transitioning=false,finishing=false;
+ let source=null,sourceURL=null,previewURL=null,cropped=null,selection=null,drag=null,transitioning=false,finishing=false,sourceMime="image/webp",coverSourceMime="image/webp";
  const release=()=>{if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
- const encodeProfileCrop=async(image,rect,width,height,name)=>{const out=document.createElement("canvas");out.width=width;out.height=height;const context=out.getContext("2d");if(!context)throw Error("Canvas unavailable");context.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,width,height);const blob=await new Promise(resolve=>out.toBlob(resolve,"image/webp",.94));if(!blob||!fileTypes[blob.type])throw Error("Image encoding failed");return new File([blob],name+"."+fileTypes[blob.type],{type:blob.type});};
+ const encodeProfileCrop=async(image,rect,width,height,name,mime="image/webp")=>{const out=document.createElement("canvas");out.width=width;out.height=height;const context=out.getContext("2d");if(!context)throw Error("Canvas unavailable");context.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,width,height);const blob=await new Promise(resolve=>out.toBlob(resolve,fileTypes[mime]?mime:"image/webp",.94));if(!blob||!fileTypes[blob.type])throw Error("Image encoding failed");return new File([blob],name+"."+fileTypes[blob.type],{type:blob.type});};
  const constrain=()=>{const max=Math.min(canvas.width,canvas.height);selection.size=clamp(selection.size,max/5,max);selection.x=clamp(selection.x,0,canvas.width-selection.size);selection.y=clamp(selection.y,0,canvas.height-selection.size);zoom.value=String(max/selection.size);};
  const draw=()=>{if(!source||!selection)return;constrain();const ctx=canvas.getContext("2d"),{x,y,size}=selection;
   ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);ctx.save();ctx.fillStyle="rgba(15,23,42,.58)";ctx.beginPath();ctx.rect(0,0,canvas.width,canvas.height);ctx.arc(x+size/2,y+size/2,size/2,0,Math.PI*2,true);ctx.fill("evenodd");ctx.restore();ctx.fillStyle="#fff";
@@ -3061,7 +3061,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const closeStep=(from,to)=>{transitioning=true;from.close();to.showModal();transitioning=false;};
  const startCrop=async file=>{if(uploading||finishing||crop.open||finish.open||coverLoading||coverSaving||coverDialog.open)return;
   if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileAvatar.value="";return;}
-  release();const img=new Image();const url=URL.createObjectURL(file);sourceURL=url;
+  release();sourceMime=file.type;const img=new Image();const url=URL.createObjectURL(file);sourceURL=url;
   try{img.src=url;await img.decode();if(sourceURL!==url)return;source=img;const ratio=Math.min(1,720/Math.max(img.naturalWidth,img.naturalHeight));canvas.width=Math.max(1,Math.round(img.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(img.naturalHeight*ratio));const size=Math.min(canvas.width,canvas.height);selection={x:(canvas.width-size)/2,y:(canvas.height-size)/2,size};zoom.value="1";q("#profile-avatar-publish-post").checked=false;q("#profile-avatar-publish-story").checked=false;finishError.hidden=true;draw();crop.showModal();}catch(_){release();status(t("Не вдалося відкрити фото.","Could not open photo."),true);}
  };
  const canvasPoint=(surface,e)=>{const r=surface.getBoundingClientRect();return{x:(e.clientX-r.left)*surface.width/r.width,y:(e.clientY-r.top)*surface.height/r.height};};
@@ -3072,7 +3072,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  canvas.addEventListener("keydown",e=>{if(!selection)return;const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(e.key==="+"||e.key==="="||e.key==="-"){e.preventDefault();const old=selection.size,size=clamp(old*(e.key==="-"?1.1:.9),Math.min(canvas.width,canvas.height)/5,Math.min(canvas.width,canvas.height));selection={x:selection.x+(old-size)/2,y:selection.y+(old-size)/2,size};draw();return;}if(!delta)return;e.preventDefault();selection.x+=delta[0]*(e.shiftKey?20:5);selection.y+=delta[1]*(e.shiftKey?20:5);draw();});
  zoom.addEventListener("input",()=>{if(!selection)return;const size=Math.min(canvas.width,canvas.height)/Number(zoom.value),centerX=selection.x+selection.size/2,centerY=selection.y+selection.size/2;selection={x:centerX-size/2,y:centerY-size/2,size};draw();});
  q("#profile-avatar-crop-next").addEventListener("click",async()=>{if(!source||!selection)return;const next=q("#profile-avatar-crop-next");next.disabled=true;
-  try{const width=Math.min(1024,Math.max(1,Math.round(selection.size*source.naturalWidth/canvas.width))),rect={x:selection.x*source.naturalWidth/canvas.width,y:selection.y*source.naturalHeight/canvas.height,w:selection.size*source.naturalWidth/canvas.width,h:selection.size*source.naturalHeight/canvas.height};const file=await encodeProfileCrop(source,rect,width,width,"profile-photo");if(!crop.open)return;cropped=file;if(previewURL)URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(cropped);preview.src=previewURL;closeStep(crop,finish);}catch(_){status(t("Не вдалося створити мініатюру.","Could not create thumbnail."),true);}finally{next.disabled=false;}
+  try{const width=Math.min(1024,Math.max(1,Math.round(selection.size*source.naturalWidth/canvas.width))),rect={x:selection.x*source.naturalWidth/canvas.width,y:selection.y*source.naturalHeight/canvas.height,w:selection.size*source.naturalWidth/canvas.width,h:selection.size*source.naturalHeight/canvas.height};const file=await encodeProfileCrop(source,rect,width,width,"profile-photo",sourceMime);if(!crop.open)return;cropped=file;if(previewURL)URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(cropped);preview.src=previewURL;closeStep(crop,finish);}catch(_){status(t("Не вдалося створити мініатюру.","Could not create thumbnail."),true);}finally{next.disabled=false;}
  });
  q("#profile-avatar-crop-cancel").addEventListener("click",()=>crop.close());q("#profile-avatar-finish-back").addEventListener("click",()=>{if(!finishing)closeStep(finish,crop);});
  for(const d of [crop,finish]){d.addEventListener("close",()=>{if(!transitioning&&!crop.open&&!finish.open&&!finishing)release();});d.addEventListener("cancel",e=>{if(finishing)e.preventDefault();});}
@@ -3148,7 +3148,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const startCoverCrop=async file=>{
   if(uploading||finishing||coverLoading||coverSaving||coverDialog.open||crop.open||finish.open)return;
   if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileCover.value="";return;}
-  coverRelease();coverLoading=true;const img=new Image(),url=URL.createObjectURL(file);coverSourceURL=url;
+  coverRelease();coverSourceMime=file.type;coverLoading=true;const img=new Image(),url=URL.createObjectURL(file);coverSourceURL=url;
   try{img.src=url;await img.decode();if(coverSourceURL!==url)return;coverSource=img;const scale=Math.min(1,900/Math.max(img.naturalWidth,img.naturalHeight));
    coverCanvas.width=Math.max(1,Math.round(img.naturalWidth*scale));coverCanvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
    const w=cropLimit();coverSelection={width:w,x:(coverCanvas.width-w)/2,y:(coverCanvas.height-w/mobileRatio)/2};coverZoom.value="1";coverNote("");showCoverStep(false);coverDialog.showModal();drawCover();
@@ -3173,7 +3173,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  coverSave.addEventListener("click",async()=>{
   if(!coverSource||!coverSelection||coverSaving||uploading)return;coverSaving=true;coverSave.disabled=coverStep.disabled=coverClose.disabled=true;coverNote("");
   try{const rect=readCoverRect(),width=Math.max(1,Math.min(1920,Math.round(rect.w))),height=Math.max(1,Math.round(width/mobileRatio));
-   const file=await encodeProfileCrop(coverSource,rect,width,height,"profile-cover");
+   const file=await encodeProfileCrop(coverSource,rect,width,height,"profile-cover",coverSourceMime);
    if(!await uploadImage(file,"cover"))throw Error("Cover upload failed");
    coverDialog.close();coverRelease();
   }catch(_){coverNote(t("Не вдалося зберегти обкладинку. Спробуйте ще раз.","Could not save cover. Try again."));}
