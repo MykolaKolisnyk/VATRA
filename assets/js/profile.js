@@ -933,8 +933,8 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
-const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
+const PROJECT_URL="https://cxrcycxrlkufozomsxcs.supabase.co";
+const PUBLIC_KEY="sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i";
 const q=selector=>document.querySelector(selector);
 const activeLocale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
 const english=activeLocale==="en";
@@ -2354,7 +2354,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const url=result?.data?.publicUrl;
    if(!url)return null;
    const parsed=new URL(url);
-   if(parsed.protocol!=="https:"||parsed.hostname!=="rjasunoawrxvetwadylh.supabase.co")return null;
+   if(parsed.protocol!=="https:"||parsed.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")return null;
    return url;
   }catch(_){return null;}
  };
