@@ -4145,7 +4145,7 @@ try{
    "Avatar menu must target the signed-in member's numeric ID");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
   await feedProbe.evaluate(text=>{
-   window.__feedTestPosts.unshift({id:"feed-manual-post-1",author_id:"feed-mock-user",
+   window.__feedTestPosts.unshift({id:"11111111-1111-4111-8111-111111111119",author_id:"feed-mock-user",
     author_vatra_id:654321,body:text,created_at:new Date().toISOString()});
   },injectionText);
   // Header search now expands global results, not Feed. Refresh the real
