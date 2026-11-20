@@ -92,7 +92,7 @@ async function authorNames(rows){
    if(!url)continue;
    try{
     const parsed=new URL(url);
-    if(parsed.protocol==="https:"&&parsed.hostname==="rjasunoawrxvetwadylh.supabase.co")avatars.set(id,parsed.href);
+    if(parsed.protocol==="https:"&&parsed.hostname==="cxrcycxrlkufozomsxcs.supabase.co")avatars.set(id,parsed.href);
    }catch(_){}
   }
  }catch(_){}
@@ -589,8 +589,8 @@ async function pageBoot(){
  if(document.body?.dataset.page!=="notifications")return;
  await window.VATRA_LANGUAGE?.ready;
  if(!window.supabase?.createClient)return;
- const clientRef=window.supabase.createClient("https://rjasunoawrxvetwadylh.supabase.co",
-  "sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-",
+ const clientRef=window.supabase.createClient("https://cxrcycxrlkufozomsxcs.supabase.co",
+  "sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i",
   {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
  try{
   const {data,error}=await clientRef.auth.getUser();
