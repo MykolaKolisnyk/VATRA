@@ -1172,7 +1172,7 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-story-viewer"')&&
  profileBehavior.includes('client.from("stories")')&&
  profileBehavior.includes('avatarWrap.classList.toggle("has-active-story",hasStory)')&&
- profileBehavior.includes('coverView.addEventListener("click",()=>openMedia("cover"))')&&
+ profileBehavior.includes('coverView.addEventListener("click",openCover)')&&
  profileBehavior.includes('mediaDialog.showModal()'),
  "Avatar story ring and original photo/cover viewer must be backed by real profile media and stories");
 const preflightMemberCss=await read("assets/css/profile.css");
