@@ -2,8 +2,8 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
-const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
+const PROJECT_URL="https://cxrcycxrlkufozomsxcs.supabase.co";
+const PUBLIC_KEY="sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i";
 const page=document.body.dataset.page||"login";
 // Capture the original callback URL before the Supabase SDK consumes the query.
 // An older PKCE link opened on a new device must show an explanation, not a silent redirect.
