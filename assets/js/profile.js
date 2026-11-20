@@ -2816,80 +2816,105 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  document.addEventListener("keydown",event=>{if(!mediaDialog.open||!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches?.("input,textarea,select,[contenteditable]")||document.querySelector("dialog[open]:not(#profile-media-viewer)"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
  let swipeStart=null;mediaImage.addEventListener("touchstart",event=>{swipeStart=event.touches[0]?.clientX??null;},{passive:true});
  mediaImage.addEventListener("touchend",event=>{if(swipeStart===null)return;const dx=(event.changedTouches[0]?.clientX??swipeStart)-swipeStart;swipeStart=null;if(Math.abs(dx)>55&&["avatar","avatar-history"].includes(mediaDialog.dataset.kind))stepPhoto(dx<0?1:-1);},{passive:true});
- // Animate a visual duplicate of the displayed 2000 x 580 cover.
- // The shared viewer image stays hidden until the requested cover is ready.
- let coverFlight=null,coverFlightAnimation=null,coverReady=false,coverArrived=false;
+ // Covers use their own dialog and the already-rendered banner, never avatar data.
+ // Legacy square uploads keep the same crop in the profile and in the viewer.
+ const coverDialog=q("#profile-cover-viewer"),coverStage=q("#profile-cover-viewer-stage");
+ const coverImage=q("#profile-cover-viewer-image"),coverOriginal=q("#profile-cover-viewer-original");
+ let coverEpoch=0,coverFlight=null,coverAnimation=null,coverFadeTimer=null;
  const clearCoverFlight=()=>{
-  coverFlightAnimation?.cancel();coverFlightAnimation=null;
+  if(coverFadeTimer!==null){clearTimeout(coverFadeTimer);coverFadeTimer=null;}
+  coverAnimation?.cancel();coverAnimation=null;
   coverFlight?.remove();coverFlight=null;
-  mediaDialog.removeAttribute("data-cover-opening");mediaImage.onload=null;
  };
- const revealCover=()=>{
-  if(!coverReady||!coverArrived||!mediaDialog.open||mediaDialog.dataset.kind!=="cover")return;
-  mediaDialog.removeAttribute("data-cover-opening");
-  if(coverFlight){
-   const flight=coverFlight;flight.classList.add("is-fading");
-   setTimeout(()=>{if(coverFlight===flight){flight.remove();coverFlight=null;coverFlightAnimation=null;}},220);
-  }
- };
- const animateCoverToCenter=(ticket,rect,url)=>{
-  // Match the center and width of the actual viewer, including its paddings.
-  const space=photoContent.getBoundingClientRect(),insets=getComputedStyle(photoContent);
-  const padTop=parseFloat(insets.paddingTop)||0,padBottom=parseFloat(insets.paddingBottom)||0;
-  const padLeft=parseFloat(insets.paddingLeft)||0,padRight=parseFloat(insets.paddingRight)||0;
-  const roomW=Math.max(1,space.width-padLeft-padRight);
-  const roomH=Math.max(1,space.height-padTop-padBottom);
-  const width=Math.max(1,Math.floor(Math.min(1140,roomW,Math.min(roomH*.76,680)*2000/580)));
-  const height=width*580/2000,left=space.left+(space.width-width)/2;
-  const top=space.top+padTop+(roomH-height)/2;
-  const flight=document.createElement("img");
+ const openCover=()=>{
+  const url=photoURLs.cover;
+  if(!canViewPhoto||!url||!coverPhoto.complete||!coverPhoto.naturalWidth||coverDialog.open)return;
+  closeAvatarMenu();
+  const ticket=++coverEpoch,source=coverPhoto.currentSrc||url;
+  const origin=coverPhoto.getBoundingClientRect();
+  clearCoverFlight();coverDialog.classList.remove("is-ready");
+  coverOriginal.hidden=true;coverOriginal.removeAttribute("href");
+  coverImage.alt=t("Обкладинка профілю","Profile cover photo");
+  let ready=false,arrived=false;
+  const finish=()=>{
+   if(ticket!==coverEpoch||!coverDialog.open||!ready||!arrived)return;
+   coverDialog.classList.add("is-ready");
+   if(coverFlight){
+    const flight=coverFlight;flight.classList.add("is-fading");
+    coverFadeTimer=setTimeout(()=>{
+     if(coverFlight===flight){flight.remove();coverFlight=null;coverAnimation=null;}
+     coverFadeTimer=null;
+    },190);
+   }
+  };
+  coverImage.onload=()=>{if(ticket!==coverEpoch)return;ready=coverImage.naturalWidth>0;finish();};
+  coverImage.onerror=()=>{if(ticket!==coverEpoch)return;coverImage.onload=null;coverDialog.close();};
+  coverImage.src=source;
+  coverDialog.showModal();
+  const destination=coverStage.getBoundingClientRect();
+  const flight=coverPhoto.cloneNode(false);
+  flight.removeAttribute("id");flight.removeAttribute("hidden");
   flight.className="ui-profile-cover-flight-001";
   flight.alt="";flight.setAttribute("aria-hidden","true");
-  flight.src=coverPhoto.currentSrc||url;
-  flight.style.left=rect.left+"px";flight.style.top=rect.top+"px";
-  flight.style.width=rect.width+"px";flight.style.height=rect.height+"px";
-  mediaDialog.append(flight);coverFlight=flight;
-  const arrived=()=>{if(ticket!==galleryEpoch||!mediaDialog.open)return;coverArrived=true;revealCover();};
+  flight.style.left=origin.left+"px";flight.style.top=origin.top+"px";
+  flight.style.width=origin.width+"px";flight.style.height=origin.height+"px";
+  coverDialog.append(flight);coverFlight=flight;
+  const arrivedAtCenter=()=>{if(ticket!==coverEpoch||!coverDialog.open)return;arrived=true;finish();};
   if(matchMedia("(prefers-reduced-motion: reduce)").matches||typeof flight.animate!=="function"){
-   flight.style.left=left+"px";flight.style.top=top+"px";
-   flight.style.width=width+"px";flight.style.height=height+"px";
-   arrived();return;
+   flight.style.left=destination.left+"px";flight.style.top=destination.top+"px";
+   flight.style.width=destination.width+"px";flight.style.height=destination.height+"px";
+   arrivedAtCenter();
+  }else{
+   coverAnimation=flight.animate([
+    {transform:"translate(0px,0px) scale(1,1)",borderRadius:"0px"},
+    {transform:"translate("+(destination.left-origin.left)+"px,"+
+     (destination.top-origin.top)+"px) scale("+
+     (destination.width/Math.max(1,origin.width))+","+
+     (destination.height/Math.max(1,origin.height))+")",
+     borderRadius:"12px"}
+   ],{duration:460,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
+   void coverAnimation.finished.then(arrivedAtCenter).catch(()=>{});
   }
-  coverFlightAnimation=flight.animate([
-   {left:rect.left+"px",top:rect.top+"px",width:rect.width+"px",height:rect.height+"px",borderRadius:"0px"},
-   {left:left+"px",top:top+"px",width:width+"px",height:height+"px",borderRadius:"14px"}
-  ],{duration:440,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
-  void coverFlightAnimation.finished.then(arrived).catch(()=>{});
+  if(coverImage.complete&&coverImage.naturalWidth)queueMicrotask(()=>{
+   if(ticket===coverEpoch){ready=true;finish();}
+  });
+  // Opening a cover never switches to an unverified -original image.
+  // New uploads can still open their real, separately saved full original.
+  const originalPath=saved?.cover_path?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
+  const originalUrl=originalPath?getPublicPath(originalPath,"cover"):null;
+  if(originalUrl&&originalUrl!==source){
+   const probe=new Image();
+   probe.onload=()=>{if(ticket!==coverEpoch||!coverDialog.open)return;
+    coverOriginal.href=originalUrl;coverOriginal.hidden=false;};
+   probe.src=originalUrl;
+  }
  };
  const openMedia=kind=>{
-  if(!canViewPhoto)return;const url=photoURLs[kind];if(!url)return;
+  if(kind!=="avatar"||!canViewPhoto)return;
+  const url=photoURLs.avatar;if(!url)return;
   closeAvatarMenu();const ticket=++galleryEpoch;
-  if(kind==="avatar"){gallery=saved?.avatar_path?[saved.avatar_path]:[];galleryIndex=0;if(!gallery.length)return;renderGalleryPhoto();mediaDialog.showModal();
-   void listAvatarGallery().then(paths=>{if(ticket!==galleryEpoch||!mediaDialog.open)return;const selected=gallery[galleryIndex];gallery=paths;const requested=new URLSearchParams(location.search).get("image");const shared=requested&&/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(requested)?gallery.findIndex(p=>p.endsWith("/"+requested)):-1;galleryIndex=shared>=0?shared:Math.max(0,gallery.indexOf(selected));renderGalleryPhoto();}).catch(()=>{});return;
-  }
-  clearCoverFlight();
-  gallery=[];prevPhoto.hidden=nextPhoto.hidden=galleryToolbar.hidden=true;photoFooter.hidden=true;resetTagMode();closeMore();tagMarkers.replaceChildren();
-  mediaHeading.hidden=false;mediaHeading.textContent=t("Обкладинка","Cover photo");mediaDialog.dataset.kind=kind;interaction.hidden=kind!=="avatar";activityTicket++;
-  mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(url)?"png":"jpeg";
-  photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
-  const sourcePath=saved?.cover_path?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
-  const sourceUrl=sourcePath?getPublicPath(sourcePath,"cover"):null;
-  const rect=coverPhoto.getBoundingClientRect();
-  coverReady=false;coverArrived=false;
-  mediaDialog.dataset.coverOpening="true";
-  mediaImage.removeAttribute("src"); // Never display pixels from the previous avatar.
-  mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;
-  mediaImage.onload=()=>{if(ticket!==galleryEpoch||mediaDialog.dataset.kind!=="cover")return;coverReady=!!mediaImage.naturalWidth;revealCover();};
-  mediaImage.onerror=()=>{
-   if(ticket!==galleryEpoch||mediaDialog.dataset.kind!=="cover")return;
-   if(sourceUrl&&mediaImage.src===sourceUrl&&sourceUrl!==url)mediaImage.src=url;
-  };
-  mediaDialog.showModal();
-  animateCoverToCenter(ticket,rect,url);
-  mediaImage.src=sourceUrl||url;
-  if(mediaImage.complete&&mediaImage.naturalWidth)queueMicrotask(()=>{if(ticket===galleryEpoch){coverReady=true;revealCover();}});
+  gallery=saved?.avatar_path?[saved.avatar_path]:[];galleryIndex=0;
+  if(!gallery.length)return;
+  renderGalleryPhoto();mediaDialog.showModal();
+  void listAvatarGallery().then(paths=>{
+   if(ticket!==galleryEpoch||!mediaDialog.open)return;
+   const selected=gallery[galleryIndex];gallery=paths;
+   const requested=new URLSearchParams(location.search).get("image");
+   const shared=requested&&/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(requested)?
+    gallery.findIndex(p=>p.endsWith("/"+requested)):-1;
+   galleryIndex=shared>=0?shared:Math.max(0,gallery.indexOf(selected));
+   renderGalleryPhoto();
+  }).catch(()=>{});
  };
- mediaDialog.addEventListener("close",()=>{galleryEpoch++;activityTicket++;tagEpoch++;clearCoverFlight();resetTagMode();closeMore();});
+ coverView.addEventListener("click",openCover);
+ q("#profile-cover-viewer-close").addEventListener("click",()=>coverDialog.close());
+ coverDialog.addEventListener("click",event=>{if(event.target===coverDialog)coverDialog.close();});
+ coverDialog.addEventListener("close",()=>{
+  coverEpoch++;clearCoverFlight();coverDialog.classList.remove("is-ready");
+  coverImage.onload=coverImage.onerror=null;coverImage.removeAttribute("src");
+  coverOriginal.hidden=true;coverOriginal.removeAttribute("href");
+ });
+ mediaDialog.addEventListener("close",()=>{galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();});
  window.VATRA_OPEN_PROFILE_AVATAR=()=>{if(canViewPhoto)openMedia("avatar");};
  const openStory=()=>{
   if(!canViewPhoto||!activeStory)return;
@@ -2905,7 +2930,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   void window.VATRA_POST_MEDIA?.renderStory(client,
    {...activeStory,author_vatra_id:targetId},storyMedia);
  };
- coverView.addEventListener("click",()=>openMedia("cover"));
  storyButton.addEventListener("click",openStory);
  visitorStory.addEventListener("click",openStory);
  deleteStoryButton.addEventListener("click",async()=>{
