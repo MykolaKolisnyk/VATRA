@@ -2060,6 +2060,18 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-footer"')&&
  scrollRailScript.includes('side.style.left=')&&
  !(await read("assets/js/network.js")).includes('.showModal()'),
  "Avatar photo viewer needs accessible footer, correct PNG/JPEG files and nonmodal Vatryk errors");
+
+const feedPhotoActions=await read("assets/js/post-interactions.js");
+const photoLikeGlyph='M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z';
+const photoShareGlyph='M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10 10-10.8V5Z';
+assert.ok(feedPhotoActions.includes(photoLikeGlyph)&&feedPhotoActions.includes(photoShareGlyph)&&
+ memberProfileMarkup.includes(photoLikeGlyph)&&memberProfileMarkup.includes(photoShareGlyph)&&
+ !memberProfileMarkup.includes('id="profile-photo-comments-heading"')&&
+ !profileScript.includes('q("#profile-photo-comments-heading")')&&
+ profileScript.includes('Math.min(roomW*.96/mediaImage.naturalWidth,roomH*.96/mediaImage.naturalHeight)')&&
+ !profileScript.includes('Math.min(1,roomW*.84/')&&
+ memberCss.includes('.profile-photo-comments.is-empty{display:flex;align-items:center;justify-content:center'),
+ "Photo viewer uses original VATRA feed like/share SVGs, no comments heading, and uncropped responsive photo scaling");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  memberProfileMarkup.includes('id="profile-photo-like"')&&
  memberProfileMarkup.includes('id="profile-photo-comments"')&&
