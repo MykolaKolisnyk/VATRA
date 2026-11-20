@@ -895,11 +895,6 @@ body.profile-page .profile-avatar-trigger:focus-visible .profile-avatar.has-phot
  transform:scale(1.035);filter:brightness(.965)
 }
 
-body.profile-page .profile-cover.has-photo:hover .ui-profile-cover-photo-001,
-body.profile-page .profile-cover.has-photo:focus-within .ui-profile-cover-photo-001{
- transform:scale(1.014);filter:brightness(.97)
-}
-
 body.feed-page .profile-person-avatar:not(.has-photo),
 body.feed-page .profile-photo-comment-avatar:not(.has-photo){
  background-image:var(--vatra-default-avatar)!important;background-color:#edf2f9!important;
@@ -944,21 +939,19 @@ body.profile-page .profile-avatar.has-photo::after{
  pointer-events:none;transform:scale(1);filter:brightness(1);
  transition:transform .62s cubic-bezier(.25,.78,.2,1),filter .62s ease
 }
+/* The visible banner never scales or fades when clicked or focus returns.
+   Only its separate lightbox copy moves during cover viewing. */
 body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001{
- transform:scale(1);filter:brightness(1);
- transition:transform .62s cubic-bezier(.25,.78,.2,1),filter .62s ease
+ transform:none;filter:none;transition:none
 }
-body.profile-page .profile-avatar-trigger:hover .profile-avatar.has-photo::after,
-body.profile-page .profile-cover.has-photo:hover .ui-profile-cover-photo-001{
+body.profile-page .profile-avatar-trigger:hover .profile-avatar.has-photo::after{
  transform:scale(1.027);filter:brightness(.963)
 }
-body.profile-page .profile-avatar-trigger:focus-visible:not(:hover) .profile-avatar.has-photo::after,
-body.profile-page .profile-cover.has-photo:focus-within:not(:hover) .ui-profile-cover-photo-001{
+body.profile-page .profile-avatar-trigger:focus-visible:not(:hover) .profile-avatar.has-photo::after{
  transform:scale(1);filter:brightness(1)
 }
 @media(prefers-reduced-motion:reduce){
- body.profile-page .profile-avatar.has-photo::after,
- body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001{transition:none!important}}
+ body.profile-page .profile-avatar.has-photo::after{transition:none!important}}
 
 
 body.profile-page > .vatra-auth-loading:not([data-loading-error="true"]){width:100%!important;max-width:none!important}
