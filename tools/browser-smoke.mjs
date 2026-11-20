@@ -42,7 +42,7 @@ try{
  // Browser gallery fixtures must never request the live Supabase Storage API.
  // In this context, respond to the fictional signed image with an in-memory PNG;
  // fail closed for any other unexpected requests to the production project.
- await context.route("https://rjasunoawrxvetwadylh.supabase.co/**",route=>{
+ await context.route("https://cxrcycxrlkufozomsxcs.supabase.co/**",route=>{
   const pathname=new URL(route.request().url()).pathname;
   if(pathname==="/storage/v1/object/sign/example")
    return route.fulfill({status:200,contentType:"image/png",
@@ -2892,12 +2892,12 @@ try{
        then(resolve,reject){return this.maybeSingle().then(resolve,reject);}
       })},
    storage:{from:bucket=>({getPublicUrl:path=>({
-    data:{publicUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/public/"+bucket+"/"+path}
+    data:{publicUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/"+bucket+"/"+path}
    }),
    list:async(folder,options)=>({data:bucket==="avatars"&&folder==="654321/avatar"&&!new URLSearchParams(location.search).has("no-avatar-test")&&!options?.offset?[{name:"test-profile.webp"},{name:"previous-profile.webp"}]:[],error:null}),
    upload:async()=>({error:null}),
    remove:async()=>{window.__feedMockMediaRemovals++;return {data:[],error:null};},
-   createSignedUrl:async path=>({data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/"+bucket+"/"+path+"?token=mock"},error:null})
+   createSignedUrl:async path=>({data:{signedUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/sign/"+bucket+"/"+path+"?token=mock"},error:null})
    })}
   })};
   // Count all client constructors in this browser tab, on the Feed.
@@ -3217,7 +3217,7 @@ try{
     media_kind:"image",media_path:"12/posts/"+String(i).padStart(8,"0")+"-1234-4567-abcd-0123456789ab.jpg"
    }));
    void window.VATRA_POST_MEDIA.mount({storage:{from:()=>({
-    createSignedUrl:async()=>({data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/example"}})
+    createSignedUrl:async()=>({data:{signedUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/sign/example"}})
    })}},{author_vatra_id:"12",media_items},host);
    return {tooMany,tooManyVideos};
   });
@@ -3236,7 +3236,7 @@ try{
    window.__vatraVideoSmoke={signed:0,batched:0};
    const client={storage:{from:()=>({
     async createSignedUrl(){window.__vatraVideoSmoke.signed++;return {
-     data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/videos/"+path+"?token=mock"},
+     data:{signedUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/sign/videos/"+path+"?token=mock"},
      error:null
     };},
     async createSignedUrls(){window.__vatraVideoSmoke.batched++;return {data:[],error:null};}
@@ -3296,7 +3296,7 @@ try{
     },
     async createSignedUrl(path){
      calls.signed.push(path);
-     return {data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/post-images/"+path+"?token=local-preview"},error:null};
+     return {data:{signedUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/sign/post-images/"+path+"?token=local-preview"},error:null};
     },
     async remove(paths){calls.removes.push({bucket,paths});return {error:null};}
    })}};
