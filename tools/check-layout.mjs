@@ -2049,7 +2049,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-footer"')&&
  profileScript.includes('client.from("avatar_photo_tags")')&&
  profileScript.includes('out.toBlob(resolve,fileTypes[mime]?mime:"image/webp",.94)')&&
  memberCss.includes('.ui-profile-photo-footer-menu-001.is-open')&&
- css.includes('body.feed-page .vatra-scroll-rail')&&
+ (await read("assets/css/feed.css")).includes('body.feed-page .vatra-scroll-rail')&&
  scrollRailScript.includes('side.style.left=')&&
  !(await read("assets/js/network.js")).includes('.showModal()'),
  "Avatar photo viewer needs accessible footer, correct PNG/JPEG files and nonmodal Vatryk errors");
