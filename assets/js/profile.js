@@ -2860,7 +2860,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }
   clearCoverFlight();
   gallery=[];prevPhoto.hidden=nextPhoto.hidden=galleryToolbar.hidden=true;photoFooter.hidden=true;resetTagMode();closeMore();tagMarkers.replaceChildren();
-  mediaHeading.hidden=false;mediaHeading.textContent=t("Обкладинка","Cover photo");mediaDialog.dataset.kind=kind;interaction.hidden=true;activityTicket++;
+  mediaHeading.hidden=false;mediaHeading.textContent=t("Обкладинка","Cover photo");mediaDialog.dataset.kind=kind;interaction.hidden=kind!=="avatar";activityTicket++;
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(url)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
   const sourcePath=saved?.cover_path?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
