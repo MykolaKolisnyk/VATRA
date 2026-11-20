@@ -3142,12 +3142,14 @@ try{
    const portrait=document.querySelector(".feed-account-toggle .feed-header-avatar").getBoundingClientRect();
    const adStyle=getComputedStyle(document.querySelector(".feed-ad-sidebar"));
    const rail=document.querySelector(".vatra-scroll-rail");
+   const railStyle=getComputedStyle(rail);
    return {underlineBottom:nav.bottom-parseFloat(line.bottom||"0"),
     headerBottom:header.bottom,underlineColor:line.backgroundColor,
     underlineHeight:parseFloat(line.height),
     portrait:portrait.width,adBorder:adStyle.borderTopWidth,
     adShadow:adStyle.boxShadow,adBackground:adStyle.backgroundColor,
-    railTop:Number.parseFloat(rail.style.getPropertyValue("--vatra-rail-top"))};
+    railWidth:parseFloat(railStyle.width),railHeight:parseFloat(railStyle.height),
+    railPosition:railStyle.position,railHidden:rail.hidden};
   });
   assert.ok(Math.abs(shellPolish.underlineBottom-shellPolish.headerBottom)<=2&&
    shellPolish.underlineColor==="rgb(36, 100, 215)"&&
@@ -3155,8 +3157,9 @@ try{
    shellPolish.portrait<=35&&shellPolish.adBorder==="0px"&&
    shellPolish.adShadow==="none"&&
    shellPolish.adBackground==="rgba(0, 0, 0, 0)"&&
-   Math.abs(shellPolish.railTop-shellPolish.headerBottom)<=2,
-   "Header avatar, flush muted line, unboxed ads and flush rail: "+JSON.stringify(shellPolish));
+   shellPolish.railWidth===50&&shellPolish.railHeight===50&&
+   shellPolish.railPosition==="fixed"&&shellPolish.railHidden,
+   "Header avatar, flush muted line, unboxed ads and compact scroll control: "+JSON.stringify(shellPolish));
   if(language==="uk"){
    const geometry=await feedProbe.evaluate(()=>{
     const r=selector=>document.querySelector(selector).getBoundingClientRect();
@@ -4142,7 +4145,7 @@ try{
    "Avatar menu must target the signed-in member's numeric ID");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
   await feedProbe.evaluate(text=>{
-   window.__feedTestPosts.unshift({id:"feed-manual-post-1",author_id:"feed-mock-user",
+   window.__feedTestPosts.unshift({id:"11111111-1111-4111-8111-111111111119",author_id:"feed-mock-user",
     author_vatra_id:654321,body:text,created_at:new Date().toISOString()});
   },injectionText);
   // Header search now expands global results, not Feed. Refresh the real
@@ -4323,7 +4326,7 @@ try{
    "The profile must have a structural skeleton instead of the VATRA loading logo");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   await profilePage.waitForTimeout(900);
-  await profilePage.waitForFunction(()=>window.__vatraFriendLimitCalls?.includes(6)&&
+  await profilePage.waitForFunction(()=>window.__vatraFriendLimitCalls?.includes(4)&&
    window.__vatraGiftLimitCalls?.includes(3),null,{timeout:12000});
   assert.equal(await profilePage.evaluate(()=>window.__vatraFriendLimitCalls.includes(300)),false,
    "Opening a profile must not fetch 300 friendships without opening the Friends tab");
@@ -4399,7 +4402,7 @@ try{
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
   await profilePage.locator("#profile-avatar-next").click();
   assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src")).includes("/avatars/654321/avatar/previous-profile.webp"));
-  assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),"2 / 2");
+  assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2");
   assert.equal(await profilePage.locator("#profile-avatar-engagement").isVisible(),true,"Historical avatars retain their own engagement panel");
   assert.equal(await profilePage.locator("#profile-media-viewer-heading").isVisible(),false,"Avatar gallery has no redundant heading");
   await profilePage.keyboard.press("ArrowLeft");
@@ -4431,7 +4434,7 @@ try{
   const profileCoverGap=await profilePage.evaluate(()=>{
    const header=document.querySelector(".feed-header").getBoundingClientRect();
    const cover=document.querySelector(".profile-cover").getBoundingClientRect();
-   return cover.top-header.bottom;
+   return cover.top+window.scrollY-header.bottom;
   });
   assert.ok(Math.abs(profileCoverGap)<=2,
    "Member cover must begin directly below the header without a top gap: "+profileCoverGap);

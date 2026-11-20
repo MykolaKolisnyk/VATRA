@@ -2339,6 +2339,44 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const prevPhoto=q("#profile-avatar-prev"),nextPhoto=q("#profile-avatar-next"),galleryToolbar=q("#profile-avatar-gallery-toolbar"),galleryCount=q("#profile-avatar-gallery-count"),galleryDelete=q("#profile-avatar-gallery-delete");
  let gallery=[],galleryIndex=0,galleryEpoch=0,menuTimer=null;
  const galleryDates=new Map();
+ const photoContent=q("#profile-photo-content"),photoCanvas=q("#profile-photo-canvas");
+ const photoFooter=q("#profile-photo-footer"),footerShare=q("#profile-photo-footer-share");
+ const footerTag=q("#profile-photo-footer-tag"),footerMore=q("#profile-photo-footer-more");
+ const footerMenu=q("#profile-photo-footer-menu"),originalLink=q("#profile-photo-original");
+ const setCurrent=q("#profile-photo-set-current"),tagMarkers=q("#profile-photo-tag-markers");
+ const tagPicker=q("#profile-photo-tag-picker"),tagSearch=q("#profile-photo-tag-search");
+ const tagResults=q("#profile-photo-tag-results"),tagCancel=q("#profile-photo-tag-cancel"),tagStatus=q("#profile-photo-tag-status");
+ let tagMode=false,tagPosition=null,tagEpoch=0,searchEpoch=0,searchTimer=null;
+ const reportTag=message=>{tagStatus.textContent=message||"";tagStatus.hidden=!message;};
+ const closeMore=()=>{footerMenu.classList.remove("is-open");footerMore.setAttribute("aria-expanded","false");};
+ const closeTagPicker=()=>{tagPicker.hidden=true;tagPosition=null;tagSearch.value="";tagResults.replaceChildren();searchEpoch++;};
+ const resetTagMode=()=>{tagMode=false;footerTag.setAttribute("aria-pressed","false");photoCanvas.classList.remove("is-tagging");closeTagPicker();};
+ const fitPhoto=()=>{
+  if(!mediaImage.complete||!mediaImage.naturalWidth||!mediaImage.naturalHeight)return;
+  const style=getComputedStyle(photoContent);
+  const roomW=photoContent.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
+  const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
+  if(roomW<=0||roomH<=0)return;
+  const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
+  // Display avatar photos at a comfortable size rather than stretching them
+  // across the entire stage. Never enlarge beyond the source resolution.
+  const scale=avatarPhoto?
+   Math.min(1,roomW*.84/mediaImage.naturalWidth,roomH*.84/mediaImage.naturalHeight,
+    680/mediaImage.naturalWidth,620/mediaImage.naturalHeight):
+   Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
+  photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
+  photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
+ };
+ mediaImage.addEventListener("load",fitPhoto);
+ const photoResizeObserver=typeof ResizeObserver==="function"?new ResizeObserver(fitPhoto):null;
+ photoResizeObserver?.observe(photoContent);
+ window.addEventListener("resize",fitPhoto,{passive:true});
+ footerMore.addEventListener("click",()=>{const open=!footerMenu.classList.contains("is-open");closeMore();footerMenu.classList.toggle("is-open",open);footerMore.setAttribute("aria-expanded",String(open));});
+ mediaDialog.addEventListener("click",event=>{if(!event.target.closest?.(".ui-profile-photo-more-wrap-001"))closeMore();});
+ footerShare.addEventListener("click",()=>{closeMore();q("#profile-photo-share").click();});
+ originalLink.addEventListener("click",closeMore);
+ document.addEventListener("keydown",event=>{if(event.key==="Escape"){closeMore();closeTagPicker();}});
+
  window.VATRA_AVATAR?.fallback(avatar,"default");
  avatarWrap.dataset.vatraSystemAvatar="true";
  avatarWrap.dataset.vatraRingKind="default";
@@ -2416,6 +2454,120 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentSortNote=q("#profile-photo-comment-sort-note");
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
+
+ const tagFailure=(error,fallback,retry)=>{
+  if(!window.VATRA_SERVICE_NOTICE?.report(error,{retry}))reportTag(fallback);
+ };
+ const loadTags=async()=>{
+  const selected=photoPath(),ticket=++tagEpoch;
+  tagMarkers.replaceChildren();
+  if(!selected)return;
+  const {data,error}=await client.from("avatar_photo_tags")
+   .select("id,tagged_vatra_id,x_pct,y_pct").eq("owner_vatra_id",targetId)
+   .eq("avatar_path",selected).order("created_at",{ascending:true});
+  if(ticket!==tagEpoch||selected!==photoPath())return;
+  if(error){tagFailure(error,t("Не вдалося завантажити позначки.","Could not load tags."),loadTags);return;}
+  if(!data?.length)return;
+  const ids=[...new Set(data.map(item=>item.tagged_vatra_id))];
+  const result=await client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids);
+  if(ticket!==tagEpoch||selected!==photoPath())return;
+  const names=new Map((result.data||[]).map(item=>[String(item.vatra_id),item.display_name]));
+  for(const tag of data){
+   const id=String(tag.tagged_vatra_id),label=names.get(id)||"VATRA ID "+id;
+   const wrapper=document.createElement("div");wrapper.className="ui-profile-photo-tag-group-001";
+   wrapper.style.left=Number(tag.x_pct)+"%";wrapper.style.top=Number(tag.y_pct)+"%";
+   const anchor=document.createElement("a");anchor.className="vt-profile-photo-tag-marker-001";
+   anchor.href=memberUrl(id);anchor.setAttribute("aria-label",t("Перейти до профілю: ","View profile: ")+label);
+   anchor.textContent="•";
+   const tooltip=document.createElement("span");tooltip.className="vt-profile-photo-tag-name-001";tooltip.textContent=label;
+   anchor.append(tooltip);wrapper.append(anchor);
+   if(canEdit||id===String(ownId)){
+    const remove=document.createElement("button");remove.className="vt-profile-photo-tag-remove-001";
+    remove.type="button";remove.textContent="×";
+    remove.setAttribute("aria-label",t("Прибрати позначку: ","Remove tag: ")+label);
+    remove.addEventListener("click",async()=>{
+     remove.disabled=true;
+     const {error:deleteError}=await client.from("avatar_photo_tags").delete().eq("id",tag.id);
+     if(deleteError){remove.disabled=false;tagFailure(deleteError,t("Не вдалося прибрати позначку.","Could not remove tag."),loadTags);}
+     else void loadTags();
+    });
+    wrapper.append(remove);
+   }
+   tagMarkers.append(wrapper);
+  }
+ };
+ let searchTimerId=0;
+ const searchPeople=async()=>{
+  const term=tagSearch.value.trim().replace(/[%_\\]/g,"").slice(0,50),ticket=++searchEpoch;
+  tagResults.replaceChildren();
+  if(term.length<2){
+   const hint=document.createElement("p");hint.className="vt-profile-photo-tag-message-001";
+   hint.textContent=t("Введіть щонайменше 2 символи.","Enter at least 2 characters.");
+   tagResults.append(hint);return;
+  }
+  const {data,error}=await client.from("public_profiles").select("vatra_id,display_name")
+   .ilike("display_name","%"+term+"%").limit(8);
+  if(ticket!==searchEpoch||tagPicker.hidden)return;
+  if(error){tagFailure(error,t("Пошук недоступний.","Search unavailable."),searchPeople);return;}
+  if(!data?.length){
+   const hint=document.createElement("p");hint.className="vt-profile-photo-tag-message-001";
+   hint.textContent=t("Нікого не знайдено.","No members found.");tagResults.append(hint);return;
+  }
+  for(const member of data){
+   const button=document.createElement("button");button.type="button";
+   button.className="vt-profile-photo-tag-result-001";button.setAttribute("role","option");
+   button.textContent=String(member.display_name||"VATRA")+" · VATRA ID "+member.vatra_id;
+   button.addEventListener("click",async()=>{
+    const selected=photoPath(),point=tagPosition;
+    if(!selected||!point||!canEdit)return;
+    button.disabled=true;
+    const {error:insertError}=await client.from("avatar_photo_tags").insert({
+     owner_vatra_id:Number(targetId),avatar_path:selected,tagged_vatra_id:Number(member.vatra_id),
+     x_pct:point.x,y_pct:point.y,created_by:userId
+    });
+    if(insertError){button.disabled=false;tagFailure(insertError,t("Не вдалося позначити людину або вона вже позначена.","Could not tag this member or they are already tagged."),loadTags);return;}
+    closeTagPicker();resetTagMode();reportTag("");void loadTags();
+   });
+   tagResults.append(button);
+  }
+ };
+ footerTag.addEventListener("click",()=>{
+  if(!canEdit)return;
+  tagMode=!tagMode;footerTag.setAttribute("aria-pressed",String(tagMode));
+  photoCanvas.classList.toggle("is-tagging",tagMode);
+  closeTagPicker();closeMore();reportTag("");
+ });
+ photoCanvas.addEventListener("click",event=>{
+  if(!canEdit||!tagMode||event.target!==mediaImage||!photoPath())return;
+  const rect=mediaImage.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  tagPosition={x:Math.max(0,Math.min(100,Math.round((event.clientX-rect.left)/rect.width*10000)/100)),
+   y:Math.max(0,Math.min(100,Math.round((event.clientY-rect.top)/rect.height*10000)/100))};
+  tagPicker.hidden=false;tagSearch.value="";tagResults.replaceChildren();
+  reportTag("");tagSearch.focus();void searchPeople();
+ });
+ tagSearch.addEventListener("input",()=>{
+  clearTimeout(searchTimerId);searchTimerId=setTimeout(searchPeople,240);
+ });
+ tagCancel.addEventListener("click",closeTagPicker);
+ setCurrent.addEventListener("click",async()=>{
+  if(!canEdit||!photoPath()||photoPath()===saved?.avatar_path)return;
+  const path=photoPath();closeMore();setCurrent.disabled=true;
+  const result=await client.from("profile_media")
+   .update({avatar_path:path,updated_at:new Date().toISOString()})
+   .eq("vatra_id",ownId).select("avatar_path").maybeSingle();
+  setCurrent.disabled=false;
+  if(result.error||result.data?.avatar_path!==path){
+   tagFailure(result.error||{status:500},t("Не вдалося змінити фото профілю.","Could not update profile photo."),()=>setCurrent.click());
+   return;
+  }
+  saved={...saved,avatar_path:path};
+  window.VATRA_AVATAR?.invalidatePath?.(client,ownId);
+  window.VATRA_AVATAR?.fromPath?.(client,ownerEmail,ownId,path);
+  await display(saved);renderGalleryPhoto();
+  status(t("Фотографію профілю оновлено.","Profile photo updated."));
+ });
+
  const feedback=(value,bad=false)=>{
   commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
  };
@@ -2620,23 +2772,38 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   mediaDialog.dataset.kind=current?"avatar":"avatar-history";
   interaction.hidden=false;activityTicket++;
   mediaHeading.textContent="";mediaHeading.hidden=true;
+  mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
+  photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
   mediaImage.alt=q("#profile-heading").textContent;mediaImage.src=url;
+  if(mediaImage.complete)queueMicrotask(fitPhoto);
+  originalLink.href=url;photoFooter.hidden=false;
+  resetTagMode();closeMore();reportTag("");tagMarkers.replaceChildren();tagEpoch++;
   likesCount.textContent="0";likesButton.setAttribute("aria-pressed","false");likesButton.classList.remove("is-liked");
   commentInput.value="";
   prevPhoto.hidden=nextPhoto.hidden=gallery.length<2;
   prevPhoto.disabled=galleryIndex===0;nextPhoto.disabled=galleryIndex>=gallery.length-1;
-  galleryToolbar.hidden=false;galleryCount.textContent=(galleryIndex+1)+" / "+gallery.length;galleryDelete.hidden=!canEdit;
+  galleryToolbar.hidden=false;
+  galleryCount.textContent=gallery.length===1?t("Фото профілю","Profile photo"):
+   t("Фото профілю ","Profile photo ")+(galleryIndex+1)+t(" із "," of ")+gallery.length;
+  galleryDelete.hidden=!canEdit;footerTag.hidden=!canEdit;
+  setCurrent.hidden=!canEdit||current;
+  footerShare.textContent=t("Поділитися","Share");
+  footerTag.textContent=t("Позначити людину","Tag person");
+  galleryDelete.textContent=t("Видалити","Delete");
+  footerMore.firstChild.textContent=t("Більше ","More ");
+  setCurrent.textContent=t("Зробити фотографією профілю","Make profile photo");
+  originalLink.textContent=t("Відкрити оригінал","Open original");
   const owner=q("#profile-photo-owner"),ownerPhoto=q("#profile-photo-owner-avatar"),date=q("#profile-photo-kind");
   owner.textContent=q("#profile-heading").textContent;owner.href=memberUrl(targetId);
   ownerPhoto.href=owner.href;ownerPhoto.setAttribute("aria-label",owner.textContent);
   ownerPhoto.style.backgroundImage=photoURLs.avatar?"url("+JSON.stringify(photoURLs.avatar)+")":"";
   ownerPhoto.classList.toggle("has-photo",!!photoURLs.avatar);
   const uploaded=galleryDates.get(path);const elapsed=uploaded?Math.max(0,Date.now()-Date.parse(uploaded)):Infinity;date.textContent=uploaded?(elapsed<60000?t("Щойно","Just now"):elapsed<86400000?new Intl.RelativeTimeFormat(locale,{numeric:"auto"}).format(-Math.floor(elapsed/(elapsed<3600000?60000:3600000)),elapsed<3600000?"minute":"hour"):dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
-  resetPhotoComposer();syncComposerAvatar();void reloadPhotoActivity();
+  resetPhotoComposer();syncComposerAvatar();void reloadPhotoActivity();void loadTags();
  };
  const stepPhoto=delta=>{const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
  prevPhoto.addEventListener("click",()=>stepPhoto(-1));nextPhoto.addEventListener("click",()=>stepPhoto(1));
- mediaDialog.addEventListener("keydown",event=>{if(!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches("input,textarea,select,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
+ document.addEventListener("keydown",event=>{if(!mediaDialog.open||!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches?.("input,textarea,select,[contenteditable]")||document.querySelector("dialog[open]:not(#profile-media-viewer)"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
  let swipeStart=null;mediaImage.addEventListener("touchstart",event=>{swipeStart=event.touches[0]?.clientX??null;},{passive:true});
  mediaImage.addEventListener("touchend",event=>{if(swipeStart===null)return;const dx=(event.changedTouches[0]?.clientX??swipeStart)-swipeStart;swipeStart=null;if(Math.abs(dx)>55&&["avatar","avatar-history"].includes(mediaDialog.dataset.kind))stepPhoto(dx<0?1:-1);},{passive:true});
  const openMedia=kind=>{
@@ -2645,11 +2812,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(kind==="avatar"){gallery=saved?.avatar_path?[saved.avatar_path]:[];galleryIndex=0;if(!gallery.length)return;renderGalleryPhoto();mediaDialog.showModal();
    void listAvatarGallery().then(paths=>{if(ticket!==galleryEpoch||!mediaDialog.open)return;const selected=gallery[galleryIndex];gallery=paths;const requested=new URLSearchParams(location.search).get("image");const shared=requested&&/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(requested)?gallery.findIndex(p=>p.endsWith("/"+requested)):-1;galleryIndex=shared>=0?shared:Math.max(0,gallery.indexOf(selected));renderGalleryPhoto();}).catch(()=>{});return;
   }
-  gallery=[];prevPhoto.hidden=nextPhoto.hidden=galleryToolbar.hidden=true;
+  gallery=[];prevPhoto.hidden=nextPhoto.hidden=galleryToolbar.hidden=true;photoFooter.hidden=true;resetTagMode();closeMore();tagMarkers.replaceChildren();
   mediaHeading.hidden=false;mediaHeading.textContent=t("Обкладинка","Cover photo");mediaDialog.dataset.kind=kind;interaction.hidden=kind!=="avatar";activityTicket++;
+  mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(url)?"png":"jpeg";
+  photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
   mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;mediaImage.src=url;mediaDialog.showModal();
  };
- mediaDialog.addEventListener("close",()=>{galleryEpoch++;activityTicket++;});
+ mediaDialog.addEventListener("close",()=>{galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();});
  window.VATRA_OPEN_PROFILE_AVATAR=()=>{if(canViewPhoto)openMedia("avatar");};
  const openStory=()=>{
   if(!canViewPhoto||!activeStory)return;
@@ -2886,10 +3055,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }
  }
  const crop=q("#profile-avatar-crop-dialog"),finish=q("#profile-avatar-finish-dialog"),canvas=q("#profile-avatar-crop-canvas"),zoom=q("#profile-avatar-crop-zoom"),preview=q("#profile-avatar-finish-preview"),save=q("#profile-avatar-finish-save"),finishError=q("#profile-avatar-finish-error");
- let source=null,sourceURL=null,previewURL=null,cropped=null,selection=null,drag=null,transitioning=false,finishing=false;
+ let source=null,sourceURL=null,previewURL=null,cropped=null,selection=null,drag=null,transitioning=false,finishing=false,sourceMime="image/webp",coverSourceMime="image/webp";
  const release=()=>{if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
- const encodeProfileCrop=async(image,rect,width,height,name)=>{const out=document.createElement("canvas");out.width=width;out.height=height;const context=out.getContext("2d");if(!context)throw Error("Canvas unavailable");context.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,width,height);const blob=await new Promise(resolve=>out.toBlob(resolve,"image/webp",.94));if(!blob||!fileTypes[blob.type])throw Error("Image encoding failed");return new File([blob],name+"."+fileTypes[blob.type],{type:blob.type});};
+ const encodeProfileCrop=async(image,rect,width,height,name,mime="image/webp")=>{const out=document.createElement("canvas");out.width=width;out.height=height;const context=out.getContext("2d");if(!context)throw Error("Canvas unavailable");context.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,width,height);const blob=await new Promise(resolve=>out.toBlob(resolve,fileTypes[mime]?mime:"image/webp",.94));if(!blob||!fileTypes[blob.type])throw Error("Image encoding failed");return new File([blob],name+"."+fileTypes[blob.type],{type:blob.type});};
  const constrain=()=>{const max=Math.min(canvas.width,canvas.height);selection.size=clamp(selection.size,max/5,max);selection.x=clamp(selection.x,0,canvas.width-selection.size);selection.y=clamp(selection.y,0,canvas.height-selection.size);zoom.value=String(max/selection.size);};
  const draw=()=>{if(!source||!selection)return;constrain();const ctx=canvas.getContext("2d"),{x,y,size}=selection;
   ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);ctx.save();ctx.fillStyle="rgba(15,23,42,.58)";ctx.beginPath();ctx.rect(0,0,canvas.width,canvas.height);ctx.arc(x+size/2,y+size/2,size/2,0,Math.PI*2,true);ctx.fill("evenodd");ctx.restore();ctx.fillStyle="#fff";
@@ -2898,7 +3067,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const closeStep=(from,to)=>{transitioning=true;from.close();to.showModal();transitioning=false;};
  const startCrop=async file=>{if(uploading||finishing||crop.open||finish.open||coverLoading||coverSaving||coverDialog.open)return;
   if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileAvatar.value="";return;}
-  release();const img=new Image();const url=URL.createObjectURL(file);sourceURL=url;
+  release();sourceMime=file.type;const img=new Image();const url=URL.createObjectURL(file);sourceURL=url;
   try{img.src=url;await img.decode();if(sourceURL!==url)return;source=img;const ratio=Math.min(1,720/Math.max(img.naturalWidth,img.naturalHeight));canvas.width=Math.max(1,Math.round(img.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(img.naturalHeight*ratio));const size=Math.min(canvas.width,canvas.height);selection={x:(canvas.width-size)/2,y:(canvas.height-size)/2,size};zoom.value="1";q("#profile-avatar-publish-post").checked=false;q("#profile-avatar-publish-story").checked=false;finishError.hidden=true;draw();crop.showModal();}catch(_){release();status(t("Не вдалося відкрити фото.","Could not open photo."),true);}
  };
  const canvasPoint=(surface,e)=>{const r=surface.getBoundingClientRect();return{x:(e.clientX-r.left)*surface.width/r.width,y:(e.clientY-r.top)*surface.height/r.height};};
@@ -2909,7 +3078,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  canvas.addEventListener("keydown",e=>{if(!selection)return;const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(e.key==="+"||e.key==="="||e.key==="-"){e.preventDefault();const old=selection.size,size=clamp(old*(e.key==="-"?1.1:.9),Math.min(canvas.width,canvas.height)/5,Math.min(canvas.width,canvas.height));selection={x:selection.x+(old-size)/2,y:selection.y+(old-size)/2,size};draw();return;}if(!delta)return;e.preventDefault();selection.x+=delta[0]*(e.shiftKey?20:5);selection.y+=delta[1]*(e.shiftKey?20:5);draw();});
  zoom.addEventListener("input",()=>{if(!selection)return;const size=Math.min(canvas.width,canvas.height)/Number(zoom.value),centerX=selection.x+selection.size/2,centerY=selection.y+selection.size/2;selection={x:centerX-size/2,y:centerY-size/2,size};draw();});
  q("#profile-avatar-crop-next").addEventListener("click",async()=>{if(!source||!selection)return;const next=q("#profile-avatar-crop-next");next.disabled=true;
-  try{const width=Math.min(1024,Math.max(1,Math.round(selection.size*source.naturalWidth/canvas.width))),rect={x:selection.x*source.naturalWidth/canvas.width,y:selection.y*source.naturalHeight/canvas.height,w:selection.size*source.naturalWidth/canvas.width,h:selection.size*source.naturalHeight/canvas.height};const file=await encodeProfileCrop(source,rect,width,width,"profile-photo");if(!crop.open)return;cropped=file;if(previewURL)URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(cropped);preview.src=previewURL;closeStep(crop,finish);}catch(_){status(t("Не вдалося створити мініатюру.","Could not create thumbnail."),true);}finally{next.disabled=false;}
+  try{const width=Math.min(1024,Math.max(1,Math.round(selection.size*source.naturalWidth/canvas.width))),rect={x:selection.x*source.naturalWidth/canvas.width,y:selection.y*source.naturalHeight/canvas.height,w:selection.size*source.naturalWidth/canvas.width,h:selection.size*source.naturalHeight/canvas.height};const file=await encodeProfileCrop(source,rect,width,width,"profile-photo",sourceMime);if(!crop.open)return;cropped=file;if(previewURL)URL.revokeObjectURL(previewURL);previewURL=URL.createObjectURL(cropped);preview.src=previewURL;closeStep(crop,finish);}catch(_){status(t("Не вдалося створити мініатюру.","Could not create thumbnail."),true);}finally{next.disabled=false;}
  });
  q("#profile-avatar-crop-cancel").addEventListener("click",()=>crop.close());q("#profile-avatar-finish-back").addEventListener("click",()=>{if(!finishing)closeStep(finish,crop);});
  for(const d of [crop,finish]){d.addEventListener("close",()=>{if(!transitioning&&!crop.open&&!finish.open&&!finishing)release();});d.addEventListener("cancel",e=>{if(finishing)e.preventDefault();});}
@@ -2927,6 +3096,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   try{
    if(path===previous){const paths=await listAvatarGallery();const next=paths.find(p=>p!==path)||null;await updateCurrent(next);changed=true;}
    const result=await client.storage.from("avatars").remove([path]);if(result.error)throw result.error;
+   void client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId).eq("avatar_path",path).then(()=>{});
    if(changed){window.VATRA_AVATAR?.invalidatePath?.(client,ownId);await display(saved);}
    gallery=gallery.filter(p=>p!==path);galleryIndex=Math.max(0,Math.min(galleryIndex,gallery.length-1));
    if(mediaDialog.open){if(gallery.length)renderGalleryPhoto();else mediaDialog.close();}
@@ -2984,7 +3154,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const startCoverCrop=async file=>{
   if(uploading||finishing||coverLoading||coverSaving||coverDialog.open||crop.open||finish.open)return;
   if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileCover.value="";return;}
-  coverRelease();coverLoading=true;const img=new Image(),url=URL.createObjectURL(file);coverSourceURL=url;
+  coverRelease();coverSourceMime=file.type;coverLoading=true;const img=new Image(),url=URL.createObjectURL(file);coverSourceURL=url;
   try{img.src=url;await img.decode();if(coverSourceURL!==url)return;coverSource=img;const scale=Math.min(1,900/Math.max(img.naturalWidth,img.naturalHeight));
    coverCanvas.width=Math.max(1,Math.round(img.naturalWidth*scale));coverCanvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
    const w=cropLimit();coverSelection={width:w,x:(coverCanvas.width-w)/2,y:(coverCanvas.height-w/mobileRatio)/2};coverZoom.value="1";coverNote("");showCoverStep(false);coverDialog.showModal();drawCover();
@@ -3009,7 +3179,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  coverSave.addEventListener("click",async()=>{
   if(!coverSource||!coverSelection||coverSaving||uploading)return;coverSaving=true;coverSave.disabled=coverStep.disabled=coverClose.disabled=true;coverNote("");
   try{const rect=readCoverRect(),width=Math.max(1,Math.min(1920,Math.round(rect.w))),height=Math.max(1,Math.round(width/mobileRatio));
-   const file=await encodeProfileCrop(coverSource,rect,width,height,"profile-cover");
+   const file=await encodeProfileCrop(coverSource,rect,width,height,"profile-cover",coverSourceMime);
    if(!await uploadImage(file,"cover"))throw Error("Cover upload failed");
    coverDialog.close();coverRelease();
   }catch(_){coverNote(t("Не вдалося зберегти обкладинку. Спробуйте ще раз.","Could not save cover. Try again."));}

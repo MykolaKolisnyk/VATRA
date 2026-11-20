@@ -2030,7 +2030,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar")')&&
  profileScript.includes('const bucketFor=kind=>kind==="avatar"?"avatars":"covers"')&&
  profileScript.includes('void startCoverCrop(fileCover.files[0])')&&
- profileScript.includes('encodeProfileCrop(coverSource,rect,width,height,"profile-cover")')&&
+ profileScript.includes('encodeProfileCrop(coverSource,rect,width,height,"profile-cover",coverSourceMime)')&&
  profileScript.includes('uploadImage(file,"cover")')&&
  !profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
  profileScript.includes('"avatars"')&&
@@ -2043,6 +2043,16 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-story-delete"')&&
  !profileScript.includes('remove([previous])')&&
  !sharedCss.includes('border-radius:0 14px 14px 14px'),
  "Only the owner deletes a story; previous profile photos are preserved");
+assert.ok(memberProfileMarkup.includes('id="profile-photo-footer"')&&
+ memberProfileMarkup.includes('id="profile-photo-footer-more"')&&
+ memberProfileMarkup.includes('id="profile-photo-tag-picker"')&&
+ profileScript.includes('client.from("avatar_photo_tags")')&&
+ profileScript.includes('out.toBlob(resolve,fileTypes[mime]?mime:"image/webp",.94)')&&
+ memberCss.includes('.ui-profile-photo-footer-menu-001.is-open')&&
+ (await read("assets/css/feed.css")).includes('body.feed-page .vatra-scroll-rail')&&
+ scrollRailScript.includes('side.style.left=')&&
+ !(await read("assets/js/network.js")).includes('.showModal()'),
+ "Avatar photo viewer needs accessible footer, correct PNG/JPEG files and nonmodal Vatryk errors");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  memberProfileMarkup.includes('id="profile-photo-like"')&&
  memberProfileMarkup.includes('id="profile-photo-comments"')&&
@@ -2182,14 +2192,17 @@ const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
 const consolidatedFeed=await read("assets/css/feed.css");
-assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the measured sticky header.')&&
+assert.ok(consolidatedFeed.includes('/* A compact return-to-top control, never a full-height gutter overlay. */')&&
+ consolidatedFeed.includes('width:50px;height:50px;')&&
+ !consolidatedFeed.includes('width:var(--vatra-rail-width')&&
  !consolidatedFeed.includes('/* Spacious VK-like edge affordance')&&
  !consolidatedFeed.includes('/* Quiet VATRA left gutter:')&&
  consolidatedFeed.includes('bottom:-1px;left:13px;right:13px;z-index:2;')&&
  consolidatedFeed.includes('height:3px;border-radius:3px 3px 0 0;background:var(--vatra-action-ink)')&&
  consolidatedFeed.includes('padding:12px 0;border:0;border-radius:0;background:transparent;box-shadow:none')&&
  !consolidatedFeed.includes('.feed-account-toggle .feed-header-avatar{')&&
- scrollRailScript.includes('header.getBoundingClientRect().bottom'),
+ scrollRailScript.includes('side.style.left=')&&
+ scrollRailScript.includes('side.hidden=window.scrollY<350'),
  "One compact social header, no overlapping rail styles and no boxed AdSense placeholder");
 const routerScript=await read("assets/js/not-found.js");
 const languageScript=await read("assets/js/lang.js");
