@@ -2797,7 +2797,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  const stepPhoto=delta=>{const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
  prevPhoto.addEventListener("click",()=>stepPhoto(-1));nextPhoto.addEventListener("click",()=>stepPhoto(1));
- mediaDialog.addEventListener("keydown",event=>{if(!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches("input,textarea,select,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
+ document.addEventListener("keydown",event=>{if(!mediaDialog.open||!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches?.("input,textarea,select,[contenteditable]")||document.querySelector("dialog[open]:not(#profile-media-viewer)"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
  let swipeStart=null;mediaImage.addEventListener("touchstart",event=>{swipeStart=event.touches[0]?.clientX??null;},{passive:true});
  mediaImage.addEventListener("touchend",event=>{if(swipeStart===null)return;const dx=(event.changedTouches[0]?.clientX??swipeStart)-swipeStart;swipeStart=null;if(Math.abs(dx)>55&&["avatar","avatar-history"].includes(mediaDialog.dataset.kind))stepPhoto(dx<0?1:-1);},{passive:true});
  const openMedia=kind=>{
