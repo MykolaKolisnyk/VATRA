@@ -2357,7 +2357,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const roomW=photoContent.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
   const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
   if(roomW<=0||roomH<=0)return;
-  const scale=Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
+  const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
+  // Display avatar photos at a comfortable size rather than stretching them
+  // across the entire stage. Never enlarge beyond the source resolution.
+  const scale=avatarPhoto?
+   Math.min(1,roomW*.84/mediaImage.naturalWidth,roomH*.84/mediaImage.naturalHeight,
+    680/mediaImage.naturalWidth,620/mediaImage.naturalHeight):
+   Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
   photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
   photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
  };
