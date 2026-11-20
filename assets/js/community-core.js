@@ -139,7 +139,8 @@ async function start(init){
    window.VATRA_NOTIFICATIONS?.start(client,ownId);
   }
    if(ownId)void loadHeaderPhoto(client,ownId,user.email);
-  $("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
+  const headerId=$("#feed-header-id");
+  if(headerId)headerId.textContent=ownId?"VATRA ID "+ownId:"";
   for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
    if(ownId&&idPattern.test(ownId))link.href=root+"id"+ownId;
   }
