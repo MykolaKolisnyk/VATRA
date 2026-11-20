@@ -2027,16 +2027,23 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-file"')&&
  profileScript.includes('from("profile_media")')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
- profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar")')&&
+ profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar",sourceFile)')&&
  profileScript.includes('const bucketFor=kind=>kind==="avatar"?"avatars":"covers"')&&
  profileScript.includes('void startCoverCrop(fileCover.files[0])')&&
- profileScript.includes('encodeProfileCrop(coverSource,rect,width,height,"profile-cover",coverSourceMime)')&&
- profileScript.includes('uploadImage(file,"cover")')&&
+ profileScript.includes('encodeProfileCrop(coverSource,rect,2000,580,"profile-cover",coverSourceMime)')&&
+ profileScript.includes('uploadImage(file,"cover",coverSourceFile)')&&
  !profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
  profileScript.includes('"avatars"')&&
  profileScript.includes('"covers"')&&
  feedScript.includes('storage.from("avatars")'),
  "Profile photos and cover images must be uploaded to their dedicated storage buckets");
+assert.ok(profileScript.includes('const originalPath=originalExt?')&&
+ profileScript.includes('upload(originalPath,originalFile')&&
+ profileScript.includes('mediaImage.src=sourceUrl||url')&&
+ profileScript.includes('!/-original\\.(?:jpe?g|png|webp)$/i.test')&&
+ profileScript.includes('coverPreviewCanvas.width=mobile?390:1000')&&
+ memberCss.includes('aspect-ratio:2000/580'),
+ "Profile media keeps full originals separate from selected avatar and 2000x580 cover thumbnails");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-story-delete"')&&
  profileScript.includes('client.from("stories").delete()')&&
  profileScript.includes('deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;')&&
