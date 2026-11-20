@@ -3142,12 +3142,14 @@ try{
    const portrait=document.querySelector(".feed-account-toggle .feed-header-avatar").getBoundingClientRect();
    const adStyle=getComputedStyle(document.querySelector(".feed-ad-sidebar"));
    const rail=document.querySelector(".vatra-scroll-rail");
+   const railStyle=getComputedStyle(rail);
    return {underlineBottom:nav.bottom-parseFloat(line.bottom||"0"),
     headerBottom:header.bottom,underlineColor:line.backgroundColor,
     underlineHeight:parseFloat(line.height),
     portrait:portrait.width,adBorder:adStyle.borderTopWidth,
     adShadow:adStyle.boxShadow,adBackground:adStyle.backgroundColor,
-    railTop:Number.parseFloat(rail.style.getPropertyValue("--vatra-rail-top"))};
+    railWidth:parseFloat(railStyle.width),railHeight:parseFloat(railStyle.height),
+    railPosition:railStyle.position,railHidden:rail.hidden};
   });
   assert.ok(Math.abs(shellPolish.underlineBottom-shellPolish.headerBottom)<=2&&
    shellPolish.underlineColor==="rgb(36, 100, 215)"&&
@@ -3155,8 +3157,9 @@ try{
    shellPolish.portrait<=35&&shellPolish.adBorder==="0px"&&
    shellPolish.adShadow==="none"&&
    shellPolish.adBackground==="rgba(0, 0, 0, 0)"&&
-   Math.abs(shellPolish.railTop-shellPolish.headerBottom)<=2,
-   "Header avatar, flush muted line, unboxed ads and flush rail: "+JSON.stringify(shellPolish));
+   shellPolish.railWidth===50&&shellPolish.railHeight===50&&
+   shellPolish.railPosition==="fixed"&&shellPolish.railHidden,
+   "Header avatar, flush muted line, unboxed ads and compact scroll control: "+JSON.stringify(shellPolish));
   if(language==="uk"){
    const geometry=await feedProbe.evaluate(()=>{
     const r=selector=>document.querySelector(selector).getBoundingClientRect();
