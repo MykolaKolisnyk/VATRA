@@ -83,7 +83,7 @@
    const url=client.storage.from("avatars").getPublicUrl(path)?.data?.publicUrl;
    if(url)try{
     const validated=new URL(url);
-    if(validated.protocol==="https:"&&validated.hostname==="rjasunoawrxvetwadylh.supabase.co")
+    if(validated.protocol==="https:"&&validated.hostname==="cxrcycxrlkufozomsxcs.supabase.co")
      images.set(id,validated.href);
    }catch(_){}
   }
@@ -751,7 +751,7 @@ function appendAudience(container,level,isGroup=false){
      }
      if(!signedUrl||!box.isConnected)return;
      const url=new URL(signedUrl,location.origin);
-     if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
+     if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")return;
      media.src=url.href;
     }catch(_){}
    })();
