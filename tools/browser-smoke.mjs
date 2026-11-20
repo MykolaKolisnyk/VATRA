@@ -4055,7 +4055,11 @@ try{
   assert.ok(await friendsNav.locator("#friends-heading").count()===1,
    "Header Friends must navigate to VATRA's dedicated friends directory");
   await friendsNav.close();
+  // Prior UI scenarios may have left <details> open. Start with a known closed
+  // menu so clicking the avatar verifies opening rather than accidentally closing it.
+  await feedProbe.locator(".feed-account-menu").evaluate(menu=>{menu.open=false;});
   await feedProbe.locator(".feed-account-toggle").click();
+  await feedProbe.locator(".feed-account-dropdown").waitFor({state:"visible",timeout:5000});
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),true,
    "Avatar must reveal the account menu");
   // Open details can leave the cursor over the avatar. Repeated pointer motion
