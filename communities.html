@@ -16,7 +16,7 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/feed.css?rev=87f36f734305a3472db45f46badb4c7bd9b2c7a2">
-    <link rel="stylesheet" href="assets/css/communities.css?rev=32a7f0c6a9d8d373f108379ee89c66954de62530">
+    <link rel="stylesheet" href="assets/css/communities.css?rev=5cf2f1d4bcec88d05160124b121fdeab97e2a3b6">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js"></script>
   <script defer src="assets/js/public-name-cache.js?rev=e81f618123176b4c74142e6515ca2698422d3aa2"></script>
@@ -24,7 +24,7 @@
     <script defer src="assets/js/presence.js"></script>
     <script defer src="assets/js/notifications.js"></script>
     <script defer src="assets/js/community-core.js?rev=2355b405b86c74586ca3cdf40f977677f12c67e2"></script>
-    <script defer src="assets/js/communities.js?rev=aba9ef661e7ed99903fe13477a066a561ac1aa04"></script>
+    <script defer src="assets/js/communities.js?rev=25c8eecdf41824d8bad4e96620b2dcc9f5be40ab"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -142,10 +142,6 @@
         <select id="community-category" name="category" class="ui-community-category-input-001" required></select>
         <label class="vt-community-description-label-001" for="community-description" data-community-uk="Опис (необов’язково)" data-community-en="Description (optional)">Опис (необов’язково)</label>
         <textarea id="community-description" class="ui-community-description-input-001" name="description" rows="3" maxlength="1200" placeholder="Про що ваша спільнота?"></textarea>
-        <label class="ui-community-business-option-001" for="community-business-enabled">
-          <span class="ui-community-business-copy-001"><span class="vt-community-business-title-001" data-community-uk="Бізнес-інструменти" data-community-en="Business tools">Бізнес-інструменти</span><span id="community-business-help" class="vt-community-business-description-001" data-community-uk="Додайте до спільноти товари, запис на послуги, вакансії та звернення клієнтів." data-community-en="Add products, service bookings, jobs and customer inquiries to your community.">Додайте до спільноти товари, запис на послуги, вакансії та звернення клієнтів.</span></span>
-          <input type="checkbox" id="community-business-enabled" class="ui-community-business-switch-001" role="switch" aria-describedby="community-business-help">
-        </label>
         <p id="community-create-status" class="vt-community-create-status-001" role="status" aria-live="polite" hidden></p>
       </div>
       <div class="ui-community-create-actions-001"><button id="community-create-cancel" class="vt-community-create-cancel-001" type="button" data-community-uk="Скасувати" data-community-en="Cancel">Скасувати</button><button id="community-create-submit" class="feed-submit vt-community-create-submit-001" type="submit" data-community-uk="Створити спільноту" data-community-en="Create community">Створити спільноту</button></div>

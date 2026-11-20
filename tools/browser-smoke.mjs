@@ -54,61 +54,6 @@ try{
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
 
- // Business uses the actual core and section scripts with isolated in-memory fixtures.
- const businessProbe=await context.newPage();
- try{
-  await businessProbe.setViewportSize({width:1440,height:900});
-  const bootstrap=()=>{
-   const id="4f19579a-199b-4ccf-9dc7-86df85238551",secondId="8f19579a-199b-4ccf-9dc7-86df85238551";
-   const companies=[{id,club_id:101,name:"BARBER STUDIO",category:"Барбершоп",category_code:"barber",city:"Ужгород",description:"Стрижки",contact_email:"",website:""},{id:secondId,club_id:102,name:"STUDIO 2",category:"Ресторан",category_code:"restaurant",city:"Київ",description:"",contact_email:"",website:""}];
-   const tables={accounts:[{vatra_id:17,user_id:"fixture"}],profile_media:[],business_companies:companies,business_members:companies.map(c=>({company_id:c.id,member_vatra_id:17,role:"owner",status:"active"})),business_categories:[
-    {code:"barber",group_code:"beauty",group_uk:"Краса та догляд",group_en:"Beauty",name_uk:"Барбершоп",name_en:"Barbershop",sort_order:1},
-    {code:"hair",group_code:"beauty",group_uk:"Краса та догляд",group_en:"Beauty",name_uk:"Перукарня",name_en:"Hair salon",sort_order:2},
-    {code:"restaurant",group_code:"food",group_uk:"Їжа та напої",group_en:"Food",name_uk:"Ресторан",name_en:"Restaurant",sort_order:3}],
-    business_metrics:companies.map(c=>({company_id:c.id,community_follower_count:2,community_post_count:0,rating_count:0,rating_total:0})),business_posts:[],business_followers:[]};
-   window.businessFixture={writes:[]};
-   const client={auth:{getUser:async()=>({data:{user:{id:"fixture",email_confirmed_at:"2026-01-01T00:00:00Z",user_metadata:{}}},error:null})},
-    from(table){let filters=[],payload=null,method="select";
-     const q={select(){return q;},eq(k,v){filters.push(row=>String(row[k])===String(v));return q;},in(k,vs){filters.push(row=>vs.includes(row[k]));return q;},order(){return q;},limit(){return q;},update(p){payload=p;method="update";return q;},
-      result(){const rows=(tables[table]||[]).filter(row=>filters.every(fn=>fn(row)));if(method==="update"){window.businessFixture.writes.push(payload);rows.forEach(row=>Object.assign(row,payload));}return {data:rows,error:null};},
-      async single(){const r=q.result();return {data:r.data[0]||null,error:null};},async maybeSingle(){return q.single();},then(ok,fail){return Promise.resolve(q.result()).then(ok,fail);}};
-     return q;
-    }};
-   window.supabase={createClient:()=>client};
-  };
-  const fixtureHTML='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/VATRA/assets/css/base.css"><link rel="stylesheet" href="/VATRA/assets/css/feed.css"><link rel="stylesheet" href="/VATRA/assets/css/core.css"><link rel="stylesheet" href="/VATRA/assets/css/communities.css"></head><body class="feed-page community-page vatra-section-page vatra-business-page" data-page="club"><div id="feed-loading" hidden>Loading</div><div id="feed-app"><main id="vatra-section-main" class="ui-vatra-section-main-001"><header class="ui-vatra-section-heading-001"><h1 id="vatra-section-title">VATRA Business</h1><p id="vatra-section-subtitle"></p><button id="vatra-section-action" hidden></button></header><div id="vatra-section-content" class="ui-vatra-section-content-001"></div><p id="vatra-section-status" hidden></p></main></div><script>('+bootstrap.toString()+')();</script><script defer src="/VATRA/assets/js/core.js"></script><script defer src="/VATRA/assets/js/community-business.js"></script><script>document.addEventListener("DOMContentLoaded",()=>window.VATRA_BUSINESS_TOOLS.mount(window.VATRA_SECTION_CORE.embedded({client:window.supabase.createClient(),ownId:17,user:{id:"fixture"},content:document.querySelector("#vatra-section-content"),notice:document.querySelector("#vatra-section-status")})));</script></body></html>';
-  await businessProbe.route(/\/VATRA\/club10[12](?:\?.*)?$/,route=>route.fulfill({status:200,contentType:"text/html",body:fixtureHTML}));
-  await businessProbe.goto(base+"club101?tools=overview",{waitUntil:"domcontentloaded"});
-  await businessProbe.locator(".ui-business-dashboard-company-001").waitFor();
-  assert.equal(await businessProbe.locator(".ui-business-company-profile-001").count(),0,"Business tools must not create a second public profile");
-  assert.equal(await businessProbe.locator(".ui-business-nav-001").count(),0,"Tools belong to the community, not an independent navigation");
-  assert.equal(await businessProbe.locator(".ui-business-dashboard-company-001 select").count(),0,"There is no separate company switcher");
-  assert.equal(await businessProbe.locator(".vt-business-dashboard-company-name-001").textContent(),"BARBER STUDIO");
-  await businessProbe.getByRole("button",{name:"Редагувати інформацію"}).click();
-  const editor=businessProbe.locator(".ui-business-editor-001[open]");await editor.waitFor();
-  assert.equal(await editor.locator('[role="combobox"]').count(),1);
-  assert.equal(await editor.locator("#business-category-search").inputValue(),"Барбершоп");
-  await editor.locator("#business-category-search").fill("перук");
-  await editor.locator('[role="option"]').filter({hasText:"Перукарня"}).click();
-  assert.equal(await editor.locator("#business-category-search").inputValue(),"Перукарня");
-  assert.equal(await editor.locator("#business-category").inputValue(),"hair");
-  await editor.getByRole("button",{name:"Зберегти зміни"}).click();
-  await editor.waitFor({state:"detached"});
-  assert.equal(await businessProbe.evaluate(()=>window.businessFixture.writes.at(-1).category_code),"hair");
-  await businessProbe.setViewportSize({width:390,height:844});
-  assert.ok(await businessProbe.locator(".ui-business-view-001").evaluate(el=>el.scrollWidth<=el.clientWidth+2),"Community tools must not overflow on mobile");
-  await businessProbe.getByRole("button",{name:"Редагувати інформацію"}).click();
-  await editor.waitFor();const save=editor.locator(".vt-business-editor-save-001");
-  assert.ok(await save.evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.right<=innerWidth;}),"Primary action remains within the mobile viewport");
-  assert.ok(await editor.evaluate(el=>el.scrollWidth<=el.clientWidth+2),"Editor must not overflow horizontally");
-  await editor.getByRole("button",{name:"Скасувати"}).click();await editor.waitFor({state:"detached"});
-  await businessProbe.goto(base+"club101?tools=analytics",{waitUntil:"domcontentloaded"});
-  await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-metric-value-001")?.textContent==="2");
-  assert.equal(await businessProbe.locator(".ui-business-metric-001").count(),3);
-  await businessProbe.goto(base+"club102?tools=overview",{waitUntil:"domcontentloaded"});
-  await businessProbe.waitForFunction(()=>document.querySelector(".vt-business-dashboard-company-name-001")?.textContent==="STUDIO 2");
- }finally{await businessProbe.close();}
-
  // Simulate previously cached stylesheet/JS content after a deployment.
  // This isolated context enables the actual Service Worker (other tests block it).
  const swContext=await browser.newContext({serviceWorkers:"allow"});
@@ -5172,7 +5117,7 @@ try{
   await page.locator("#community-create-toggle").click();
   assert.equal(await page.locator("#community-create-toggle").getAttribute("aria-expanded"),"true");
   assert.equal(await page.locator("#community-create-panel").isVisible(),true);
-  const businessToggle=page.locator("#community-business-enabled");assert.equal(await businessToggle.isChecked(),false,"Ordinary communities remain the default");await businessToggle.check();assert.equal(await businessToggle.isChecked(),true);await businessToggle.uncheck();
+  assert.equal(await page.locator("#community-business-enabled").count(),0,"Retired business option must not appear");
   await page.locator("#community-name").fill("Спільнота тесту");
   await page.locator("#community-description").fill("Опис перевірки");
   const categoryInput=page.locator("#community-category");
@@ -5197,7 +5142,7 @@ try{
   assert.equal((await page.locator("#club-heading").textContent()).trim(),"Спільнота тесту");
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("vatra-test-clubs"))[0].category),"music","Chosen category must be persisted");
   assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
-  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("vatra-test-clubs"))[0].business_enabled),false,"Ordinary community must not enable business tools");
+  assert.equal(await page.evaluate(()=>"business_enabled" in JSON.parse(localStorage.getItem("vatra-test-clubs"))[0]),false,"Community creation no longer stores business flags");
   assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
   const clubViewport=page.viewportSize();
   for(const size of [{width:1440,height:900},{width:390,height:844}]){

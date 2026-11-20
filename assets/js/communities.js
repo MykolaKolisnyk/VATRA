@@ -15,7 +15,6 @@ async function openDirectory(client,ownId,userId){
 
  const form=$("#community-create-form"),button=$("#community-create-submit");
  const panel=$("#community-create-panel"),toggle=$("#community-create-toggle"),nameInput=$("#community-name"),count=$("#community-name-count");
- const businessInput=$("#community-business-enabled");
  function showForm(){if(panel.open)return;panel.hidden=false;panel.showModal();toggle.setAttribute("aria-expanded","true");nameInput.focus();}
  function closeForm(){if(!button.disabled&&panel.open)panel.close();}
  toggle.addEventListener("click",showForm);
@@ -40,7 +39,7 @@ async function openDirectory(client,ownId,userId){
   status("#community-create-status",t("Створення спільноти…","Creating community…"));
   try{
 
-   const {data,error}=await client.from("communities").insert({name,description,category,business_enabled:businessInput.checked})
+   const {data,error}=await client.from("communities").insert({name,description,category})
     .select("club_id").single();
    if(error||!data?.club_id)throw error||new Error("missing club ID");
    const number=String(data.club_id);
