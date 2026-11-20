@@ -2918,7 +2918,7 @@ body.profile-page .profile-media-viewer[open]{
  background:#20242c;box-shadow:0 30px 90px rgba(8,15,29,.3)
 }
 body.profile-page .profile-media-viewer::backdrop{background:rgba(14,19,27,.78)}
-body.profile-page .profile-media-viewer[data-kind="cover"][open]{grid-template-columns:minmax(0,1fr)}
+body.profile-page .profile-media-viewer[data-kind="cover"][open]{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;border-radius:0;grid-template-columns:minmax(0,1fr)}
 body.profile-page .profile-media-viewer-stage{
  display:flex;flex-direction:column;box-sizing:border-box;height:100%;
  padding:0;min-width:0;min-height:0;overflow:hidden;background:#20242c
