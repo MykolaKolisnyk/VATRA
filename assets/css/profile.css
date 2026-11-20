@@ -2846,8 +2846,6 @@ body.profile-page :is(.vt-profile-avatar-prev-001,.vt-profile-avatar-next-001){p
 body.profile-page .vt-profile-avatar-prev-001{left:20px}body.profile-page .vt-profile-avatar-next-001{right:20px}
 body.profile-page :is(.vt-profile-avatar-prev-001,.vt-profile-avatar-next-001):disabled{opacity:.32;cursor:default}
 body.profile-page .ui-profile-avatar-gallery-toolbar-001{position:static;display:flex;flex:1 1 auto;min-width:0;align-items:center;transform:none;padding:0;margin:0;border-radius:0;background:none;box-shadow:none;color:#f5f5f6;font:540 12px/1.4 Onest,system-ui,sans-serif}
-body.profile-page .vt-profile-avatar-gallery-delete-001{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:50%;color:#fff;background:transparent;cursor:pointer}
-body.profile-page .vt-profile-avatar-gallery-delete-001:hover{background:#ffffff26}
 body.profile-page :is(.vt-profile-avatar-prev-001,.vt-profile-avatar-next-001,.ui-profile-avatar-gallery-toolbar-001,.vt-profile-avatar-gallery-delete-001)[hidden]{display:none!important}
 @media(max-width:600px){body.profile-page .vt-profile-avatar-prev-001{left:8px}body.profile-page .vt-profile-avatar-next-001{right:8px}body.profile-page :is(.vt-profile-avatar-prev-001,.vt-profile-avatar-next-001){width:36px;height:36px}}
 @media(prefers-reduced-motion:reduce){body.profile-page .profile-avatar-menu{transition:none}}
