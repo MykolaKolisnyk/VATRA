@@ -4,7 +4,7 @@ import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 
 const code=await readFile("assets/js/avatar.js","utf8");
-const origin="https://rjasunoawrxvetwadylh.supabase.co";
+const origin="https://cxrcycxrlkufozomsxcs.supabase.co";
 const oldUrl=origin+"/storage/v1/object/public/avatars/21/avatar/old.webp";
 const newUrl=origin+"/storage/v1/object/public/avatars/21/avatar/new.webp";
 const email="member@example.com";
