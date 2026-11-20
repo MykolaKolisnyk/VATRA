@@ -14,8 +14,8 @@
     const path=location.pathname;
     const maintenancePage=/^\/VATRA\/maintenance(?:\.html)?$/.test(path);
     const ownerLogin=/^\/VATRA\/(?:index\.html)?$/.test(path)&&new URLSearchParams(location.search).get("maintenance-admin")==="1";
-    const endpoint="https://rjasunoawrxvetwadylh.supabase.co";
-    const key="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
+    const endpoint="https://cxrcycxrlkufozomsxcs.supabase.co";
+    const key="sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i";
     let pending=null;
     function getStatus(){
       if(pending)return pending;
