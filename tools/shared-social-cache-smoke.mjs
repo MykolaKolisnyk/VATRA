@@ -12,7 +12,7 @@ const actorStart=notification.indexOf("async function authorNames(rows){");
 const actorEnd=notification.indexOf("async function unreadCount(){",actorStart);
 assert.ok(actorStart>=0&&actorEnd>actorStart,"Find real notification author loader");
 
-const avatarUrl=path=>"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/public/avatars/"+path;
+const avatarUrl=path=>"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/"+path;
 const friendIds=Array.from({length:205},(_,i)=>String(1201+i));
 const namesCalls=[],pathsCalls=[],statesCalls=[];
 const cached={
