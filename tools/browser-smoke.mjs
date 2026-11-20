@@ -4326,7 +4326,7 @@ try{
    "The profile must have a structural skeleton instead of the VATRA loading logo");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   await profilePage.waitForTimeout(900);
-  await profilePage.waitForFunction(()=>window.__vatraFriendLimitCalls?.includes(6)&&
+  await profilePage.waitForFunction(()=>window.__vatraFriendLimitCalls?.includes(4)&&
    window.__vatraGiftLimitCalls?.includes(3),null,{timeout:12000});
   assert.equal(await profilePage.evaluate(()=>window.__vatraFriendLimitCalls.includes(300)),false,
    "Opening a profile must not fetch 300 friendships without opening the Friends tab");
