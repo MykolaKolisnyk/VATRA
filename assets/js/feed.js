@@ -2,8 +2,8 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
- const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
+ const PROJECT_URL="https://cxrcycxrlkufozomsxcs.supabase.co";
+ const PUBLIC_KEY="sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i";
  const q=selector=>document.querySelector(selector);
  const activeLocale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
  const english=activeLocale==="en";
@@ -104,7 +104,7 @@
    const value=client.storage.from("avatars").getPublicUrl(path)?.data?.publicUrl;
    if(!value)return null;
    const url=new URL(value);
-   return url.protocol==="https:"&&url.hostname==="rjasunoawrxvetwadylh.supabase.co"?value:null;
+   return url.protocol==="https:"&&url.hostname==="cxrcycxrlkufozomsxcs.supabase.co"?value:null;
   }catch(_){return null;}
  };
  const applyAvatar=(element,id)=>{
