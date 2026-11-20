@@ -2959,7 +2959,7 @@ body.profile-page .profile-media-viewer-stage{
  display:flex;flex-direction:column;box-sizing:border-box;height:100%;
  padding:0;min-width:0;min-height:0;overflow:hidden;background:#20242c
 }
-body.profile-page .profile-media-viewer[data-image-format="png"] .profile-media-viewer-stage{background:#fff}
+body.profile-page .profile-media-viewer[data-image-format="png"]:is([data-kind="avatar"],[data-kind="avatar-history"]) .profile-media-viewer-stage{background:#fff}
 /* Cover previews must not inherit the white PNG backdrop used by avatar photos. */
 body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-stage{background:transparent}
 body.profile-page .ui-profile-photo-content-001{
