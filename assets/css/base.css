@@ -782,7 +782,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  border-radius:18px;background:#fff;color:var(--ink,#293951);
  box-shadow:0 7px 28px rgba(31,49,76,.07);text-align:center
 }
-.ui-vatra-service-notice-001[data-locked="true"]{
+.ui-vatra-service-notice-001:is([data-locked="true"],[data-fullpage="true"]){
  position:fixed;inset:0;z-index:2147483000;box-sizing:border-box;
  width:100%;height:100dvh;max-width:none;max-height:none;margin:0;
  padding:32px 20px;overflow:auto;border:0;border-radius:0;box-shadow:none;
