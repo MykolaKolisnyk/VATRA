@@ -106,9 +106,9 @@ function userClient(author){
  };
  assert.equal((await names.get(client,[3])).data[0].display_name,"З бази");
  assert.equal((await names.get(client,[4])).data[0].display_name,"З бази");
- assert.equal(edgeCalls,1,"Redis outage must trigger 60s cooldown");
+ assert.equal(edgeCalls,1,"Redis outage must trigger a five-minute cooldown");
  assert.equal(directCalls,2);
- now+=61_000;
+ now+=301_000;
  await names.get(client,[5]);
  assert.equal(edgeCalls,2,"Edge may be retried after cooldown");
 }
