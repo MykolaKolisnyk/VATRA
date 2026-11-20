@@ -2818,7 +2818,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  mediaImage.addEventListener("touchend",event=>{if(swipeStart===null)return;const dx=(event.changedTouches[0]?.clientX??swipeStart)-swipeStart;swipeStart=null;if(Math.abs(dx)>55&&["avatar","avatar-history"].includes(mediaDialog.dataset.kind))stepPhoto(dx<0?1:-1);},{passive:true});
  // Covers use their own dialog and the already-rendered banner, never avatar data.
  // Legacy square uploads keep the same crop in the profile and in the viewer.
- const coverDialog=q("#profile-cover-viewer"),coverStage=q("#profile-cover-viewer-stage");
+ const coverViewerDialog=q("#profile-cover-viewer"),coverStage=q("#profile-cover-viewer-stage");
  const coverImage=q("#profile-cover-viewer-image"),coverOriginal=q("#profile-cover-viewer-original");
  let coverEpoch=0,coverFlight=null,coverAnimation=null,coverFadeTimer=null;
  const clearCoverFlight=()=>{
@@ -2828,17 +2828,17 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  const openCover=()=>{
   const url=photoURLs.cover;
-  if(!canViewPhoto||!url||!coverPhoto.complete||!coverPhoto.naturalWidth||coverDialog.open)return;
+  if(!canViewPhoto||!url||!coverPhoto.complete||!coverPhoto.naturalWidth||coverViewerDialog.open)return;
   closeAvatarMenu();
   const ticket=++coverEpoch,source=coverPhoto.currentSrc||url;
   const origin=coverPhoto.getBoundingClientRect();
-  clearCoverFlight();coverDialog.classList.remove("is-ready");
+  clearCoverFlight();coverViewerDialog.classList.remove("is-ready");
   coverOriginal.hidden=true;coverOriginal.removeAttribute("href");
   coverImage.alt=t("Обкладинка профілю","Profile cover photo");
   let ready=false,arrived=false;
   const finish=()=>{
-   if(ticket!==coverEpoch||!coverDialog.open||!ready||!arrived)return;
-   coverDialog.classList.add("is-ready");
+   if(ticket!==coverEpoch||!coverViewerDialog.open||!ready||!arrived)return;
+   coverViewerDialog.classList.add("is-ready");
    if(coverFlight){
     const flight=coverFlight;flight.classList.add("is-fading");
     coverFadeTimer=setTimeout(()=>{
@@ -2848,9 +2848,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
   };
   coverImage.onload=()=>{if(ticket!==coverEpoch)return;ready=coverImage.naturalWidth>0;finish();};
-  coverImage.onerror=()=>{if(ticket!==coverEpoch)return;coverImage.onload=null;coverDialog.close();};
+  coverImage.onerror=()=>{if(ticket!==coverEpoch)return;coverImage.onload=null;coverViewerDialog.close();};
   coverImage.src=source;
-  coverDialog.showModal();
+  coverViewerDialog.showModal();
   const destination=coverStage.getBoundingClientRect();
   const flight=coverPhoto.cloneNode(false);
   flight.removeAttribute("id");flight.removeAttribute("hidden");
@@ -2858,8 +2858,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   flight.alt="";flight.setAttribute("aria-hidden","true");
   flight.style.left=origin.left+"px";flight.style.top=origin.top+"px";
   flight.style.width=origin.width+"px";flight.style.height=origin.height+"px";
-  coverDialog.append(flight);coverFlight=flight;
-  const arrivedAtCenter=()=>{if(ticket!==coverEpoch||!coverDialog.open)return;arrived=true;finish();};
+  coverViewerDialog.append(flight);coverFlight=flight;
+  const arrivedAtCenter=()=>{if(ticket!==coverEpoch||!coverViewerDialog.open)return;arrived=true;finish();};
   if(matchMedia("(prefers-reduced-motion: reduce)").matches||typeof flight.animate!=="function"){
    flight.style.left=destination.left+"px";flight.style.top=destination.top+"px";
    flight.style.width=destination.width+"px";flight.style.height=destination.height+"px";
@@ -2884,7 +2884,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const originalUrl=originalPath?getPublicPath(originalPath,"cover"):null;
   if(originalUrl&&originalUrl!==source){
    const probe=new Image();
-   probe.onload=()=>{if(ticket!==coverEpoch||!coverDialog.open)return;
+   probe.onload=()=>{if(ticket!==coverEpoch||!coverViewerDialog.open)return;
     coverOriginal.href=originalUrl;coverOriginal.hidden=false;};
    probe.src=originalUrl;
   }
@@ -2907,10 +2907,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }).catch(()=>{});
  };
  coverView.addEventListener("click",openCover);
- q("#profile-cover-viewer-close").addEventListener("click",()=>coverDialog.close());
- coverDialog.addEventListener("click",event=>{if(event.target===coverDialog)coverDialog.close();});
- coverDialog.addEventListener("close",()=>{
-  coverEpoch++;clearCoverFlight();coverDialog.classList.remove("is-ready");
+ q("#profile-cover-viewer-close").addEventListener("click",()=>coverViewerDialog.close());
+ coverViewerDialog.addEventListener("click",event=>{if(event.target===coverViewerDialog)coverViewerDialog.close();});
+ coverViewerDialog.addEventListener("close",()=>{
+  coverEpoch++;clearCoverFlight();coverViewerDialog.classList.remove("is-ready");
   coverImage.onload=coverImage.onerror=null;coverImage.removeAttribute("src");
   coverOriginal.hidden=true;coverOriginal.removeAttribute("href");
  });
