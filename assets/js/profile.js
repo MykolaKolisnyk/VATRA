@@ -2814,23 +2814,73 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  document.addEventListener("keydown",event=>{if(!mediaDialog.open||!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches?.("input,textarea,select,[contenteditable]")||document.querySelector("dialog[open]:not(#profile-media-viewer)"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
  let swipeStart=null;mediaImage.addEventListener("touchstart",event=>{swipeStart=event.touches[0]?.clientX??null;},{passive:true});
  mediaImage.addEventListener("touchend",event=>{if(swipeStart===null)return;const dx=(event.changedTouches[0]?.clientX??swipeStart)-swipeStart;swipeStart=null;if(Math.abs(dx)>55&&["avatar","avatar-history"].includes(mediaDialog.dataset.kind))stepPhoto(dx<0?1:-1);},{passive:true});
+ // Animate a visual duplicate of the displayed 2000 x 580 cover.
+ // The shared viewer image stays hidden until the requested cover is ready.
+ let coverFlight=null,coverFlightAnimation=null,coverReady=false,coverArrived=false;
+ const clearCoverFlight=()=>{
+  coverFlightAnimation?.cancel();coverFlightAnimation=null;
+  coverFlight?.remove();coverFlight=null;
+  mediaDialog.removeAttribute("data-cover-opening");mediaImage.onload=null;
+ };
+ const revealCover=()=>{
+  if(!coverReady||!coverArrived||!mediaDialog.open||mediaDialog.dataset.kind!=="cover")return;
+  mediaDialog.removeAttribute("data-cover-opening");
+  if(coverFlight){
+   const flight=coverFlight;flight.classList.add("is-fading");
+   setTimeout(()=>{if(coverFlight===flight){flight.remove();coverFlight=null;coverFlightAnimation=null;}},220);
+  }
+ };
+ const animateCoverToCenter=(ticket,rect,url)=>{
+  const width=Math.max(1,Math.min(innerWidth-28,1200,Math.max(1,innerHeight-100)*2000/580));
+  const height=width*580/2000,left=(innerWidth-width)/2,top=(innerHeight-height)/2;
+  const flight=document.createElement("img");
+  flight.className="ui-profile-cover-flight-001";
+  flight.alt="";flight.setAttribute("aria-hidden","true");
+  flight.src=coverPhoto.currentSrc||url;
+  flight.style.left=rect.left+"px";flight.style.top=rect.top+"px";
+  flight.style.width=rect.width+"px";flight.style.height=rect.height+"px";
+  mediaDialog.append(flight);coverFlight=flight;
+  const arrived=()=>{if(ticket!==galleryEpoch||!mediaDialog.open)return;coverArrived=true;revealCover();};
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches||typeof flight.animate!=="function"){
+   flight.style.left=left+"px";flight.style.top=top+"px";
+   flight.style.width=width+"px";flight.style.height=height+"px";
+   arrived();return;
+  }
+  coverFlightAnimation=flight.animate([
+   {left:rect.left+"px",top:rect.top+"px",width:rect.width+"px",height:rect.height+"px",borderRadius:"0px"},
+   {left:left+"px",top:top+"px",width:width+"px",height:height+"px",borderRadius:"14px"}
+  ],{duration:440,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
+  void coverFlightAnimation.finished.then(arrived).catch(()=>{});
+ };
  const openMedia=kind=>{
   if(!canViewPhoto)return;const url=photoURLs[kind];if(!url)return;
   closeAvatarMenu();const ticket=++galleryEpoch;
   if(kind==="avatar"){gallery=saved?.avatar_path?[saved.avatar_path]:[];galleryIndex=0;if(!gallery.length)return;renderGalleryPhoto();mediaDialog.showModal();
    void listAvatarGallery().then(paths=>{if(ticket!==galleryEpoch||!mediaDialog.open)return;const selected=gallery[galleryIndex];gallery=paths;const requested=new URLSearchParams(location.search).get("image");const shared=requested&&/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(requested)?gallery.findIndex(p=>p.endsWith("/"+requested)):-1;galleryIndex=shared>=0?shared:Math.max(0,gallery.indexOf(selected));renderGalleryPhoto();}).catch(()=>{});return;
   }
+  clearCoverFlight();
   gallery=[];prevPhoto.hidden=nextPhoto.hidden=galleryToolbar.hidden=true;photoFooter.hidden=true;resetTagMode();closeMore();tagMarkers.replaceChildren();
   mediaHeading.hidden=false;mediaHeading.textContent=t("Обкладинка","Cover photo");mediaDialog.dataset.kind=kind;interaction.hidden=kind!=="avatar";activityTicket++;
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(url)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
   const sourcePath=saved?.cover_path?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
   const sourceUrl=sourcePath?getPublicPath(sourcePath,"cover"):null;
-  mediaImage.onerror=()=>{if(mediaImage.src!==sourceUrl)return;mediaImage.onerror=null;mediaImage.src=url;};
+  const rect=coverPhoto.getBoundingClientRect();
+  coverReady=false;coverArrived=false;
+  mediaDialog.dataset.coverOpening="true";
+  mediaImage.removeAttribute("src"); // Never display pixels from the previous avatar.
   mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;
-  mediaImage.src=sourceUrl||url;mediaDialog.showModal();
+  mediaImage.onload=()=>{if(ticket!==galleryEpoch||mediaDialog.dataset.kind!=="cover")return;coverReady=!!mediaImage.naturalWidth;revealCover();};
+  mediaImage.onerror=()=>{
+   if(ticket!==galleryEpoch||mediaDialog.dataset.kind!=="cover")return;
+   if(sourceUrl&&mediaImage.src===sourceUrl&&sourceUrl!==url)mediaImage.src=url;
+  };
+  mediaDialog.showModal();
+  animateCoverToCenter(ticket,rect,url);
+  mediaImage.src=sourceUrl||url;
+  if(mediaImage.complete&&mediaImage.naturalWidth)queueMicrotask(()=>{if(ticket===galleryEpoch){coverReady=true;revealCover();}});
  };
- mediaDialog.addEventListener("close",()=>{galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();});
+ mediaDialog.addEventListener("close",()=>{galleryEpoch++;activityTicket++;tagEpoch++;clearCoverFlight();resetTagMode();closeMore();});
  window.VATRA_OPEN_PROFILE_AVATAR=()=>{if(canViewPhoto)openMedia("avatar");};
  const openStory=()=>{
   if(!canViewPhoto||!activeStory)return;

@@ -2916,6 +2916,45 @@ body.profile-page .profile-media-viewer[open]{
 }
 body.profile-page .profile-media-viewer::backdrop{background:rgba(14,19,27,.78)}
 body.profile-page .profile-media-viewer[data-kind="cover"][open]{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;border-radius:0;grid-template-columns:minmax(0,1fr)}
+
+/* The actual banner flies to the center while the underlying page gently dims. */
+@keyframes vatra-cover-stage-in{
+ from{background-color:rgba(10,15,24,0)}
+ to{background-color:rgba(10,15,24,.96)}
+}
+@keyframes vatra-cover-backdrop-in{
+ from{background-color:rgba(10,15,24,0)}
+ to{background-color:rgba(10,15,24,.74)}
+}
+body.profile-page .profile-media-viewer[data-kind="cover"][open]{
+ animation:vatra-cover-stage-in .44s ease both
+}
+body.profile-page .profile-media-viewer[data-kind="cover"]::backdrop{
+ animation:vatra-cover-backdrop-in .44s ease both
+}
+body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-stage{
+ background:transparent
+}
+body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-image{
+ transition:opacity .2s ease
+}
+body.profile-page .profile-media-viewer[data-cover-opening="true"] .profile-media-viewer-image{
+ opacity:0
+}
+body.profile-page .ui-profile-cover-flight-001{
+ position:fixed;z-index:5;pointer-events:none;object-fit:cover;max-width:none;max-height:none;
+ border-radius:0;box-shadow:0 16px 52px rgba(0,0,0,.25);
+ will-change:left,top,width,height;transition:opacity .2s ease
+}
+body.profile-page .ui-profile-cover-flight-001.is-fading{opacity:0}
+body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-close{z-index:7}
+@media(prefers-reduced-motion:reduce){
+ body.profile-page .profile-media-viewer[data-kind="cover"][open],
+ body.profile-page .profile-media-viewer[data-kind="cover"]::backdrop{animation:none}
+ body.profile-page .ui-profile-cover-flight-001,
+ body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-image{transition:none}
+}
+
 body.profile-page .profile-media-viewer-stage{
  display:flex;flex-direction:column;box-sizing:border-box;height:100%;
  padding:0;min-width:0;min-height:0;overflow:hidden;background:#20242c
