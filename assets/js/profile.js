@@ -2451,7 +2451,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentSend=q("#profile-photo-comment-send"),commentStatus=q("#profile-photo-status");
  const shareButton=q("#profile-photo-share");
  const commentSort=q("#profile-photo-comment-sort"),photoCommentsMore=q("#profile-photo-comments-more");
- const commentSortNote=q("#profile-photo-comment-sort-note");
+ const commentSortNote=q("#profile-photo-comment-sort-note"),commentFilters=q(".ui-profile-photo-comment-filters-001");
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
 
@@ -2591,7 +2591,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  async function reloadPhotoActivity(append=false,refreshLikes=true){
   const path=photoPath(),ticket=++activityTicket;
   if(!path)return;
-  if(!append){photoCommentOffset=0;commentList.replaceChildren();commentList.classList.remove("is-empty");photoCommentsMore.hidden=true;}
+  if(!append){photoCommentOffset=0;commentList.replaceChildren();commentList.classList.remove("is-empty");photoCommentsMore.hidden=true;commentFilters.hidden=true;}
   commentList.setAttribute("aria-busy","true");photoCommentsMore.disabled=true;
   if(!append)feedback(t("Завантаження коментарів…","Loading comments…"));
   try{
@@ -2631,7 +2631,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(!append&&!rows.length){
     const placeholder=node("div","ui-profile-photo-empty-state-001"),symbol=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS("http://www.w3.org/2000/svg","path");
     symbol.setAttribute("class","ui-profile-photo-empty-icon-001");symbol.setAttribute("viewBox","0 0 48 48");symbol.setAttribute("fill","none");symbol.setAttribute("stroke","currentColor");symbol.setAttribute("stroke-width","2.6");symbol.setAttribute("stroke-linecap","round");symbol.setAttribute("stroke-linejoin","round");symbol.setAttribute("aria-hidden","true");p.setAttribute("d","M16 7h22a5 5 0 0 1 5 5v17a5 5 0 0 1-5 5h-4v8l-10-8h-8a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5ZM6 15a5 5 0 0 0-4 5v14a5 5 0 0 0 5 5h5v5l6-5");symbol.append(p);
-    placeholder.append(symbol,node("p","vt-profile-photo-no-comments-001",t("Прокоментуйте першими це фото","Be the first to comment on this photo")));commentList.append(placeholder);
+    placeholder.append(symbol,node("p","vt-profile-photo-no-comments-001",t("Коментарів поки немає. Будьте першими!","No comments yet. Be the first!")));commentList.append(placeholder);
    }
    for(const item of rows){
     const id=String(item.author_vatra_id);
@@ -2693,6 +2693,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     card.append(reaction);commentList.append(card);
    }
    photoCommentOffset+=rows.length;
+   commentFilters.hidden=photoCommentOffset===0;
    photoCommentsMore.hidden=rows.length<12;feedback("");
   }catch(_){
    if(ticket===activityTicket)feedback(t("Коментарі поки недоступні.","Comments are temporarily unavailable."),true);
@@ -2761,7 +2762,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   for(let offset=0;offset<2000;offset+=100){
    const {data,error}=await bucket.list(folder,{limit:100,offset,sortBy:{column:"created_at",order:"desc"}});
    if(error)throw error;if(!Array.isArray(data))break;
-   for(const item of data)if(/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(item.name||"")){const path=folder+"/"+item.name;files.push(path);if(Number.isFinite(Date.parse(item.created_at)))galleryDates.set(path,item.created_at);}
+   for(const item of data)if(/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(item.name||"")&&!/-original\.(?:jpe?g|png|webp)$/i.test(item.name||"")){const path=folder+"/"+item.name;files.push(path);if(Number.isFinite(Date.parse(item.created_at)))galleryDates.set(path,item.created_at);}
    if(data.length<100)break;
   }
   return [...new Set([...(current?[current]:[]),...files])].filter(path=>getPublicPath(path,"avatar"));
@@ -2774,9 +2775,17 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   mediaHeading.textContent="";mediaHeading.hidden=true;
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
-  mediaImage.alt=q("#profile-heading").textContent;mediaImage.src=url;
+  // A gallery entry is the circular thumbnail; -original is the full photo.
+  // Legacy images without a companion still open their existing file.
+  const sourcePath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
+  const sourceUrl=getPublicPath(sourcePath,"avatar");
+  mediaImage.onerror=()=>{
+   if(mediaImage.src!==sourceUrl||gallery[galleryIndex]!==path)return;
+   mediaImage.onerror=null;mediaImage.src=url;originalLink.href=url;
+  };
+  mediaImage.alt=q("#profile-heading").textContent;mediaImage.src=sourceUrl||url;
   if(mediaImage.complete)queueMicrotask(fitPhoto);
-  originalLink.href=url;photoFooter.hidden=false;
+  originalLink.href=sourceUrl||url;photoFooter.hidden=false;
   resetTagMode();closeMore();reportTag("");tagMarkers.replaceChildren();tagEpoch++;
   likesCount.textContent="0";likesButton.setAttribute("aria-pressed","false");likesButton.classList.remove("is-liked");
   commentInput.value="";
@@ -2816,7 +2825,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   mediaHeading.hidden=false;mediaHeading.textContent=t("Обкладинка","Cover photo");mediaDialog.dataset.kind=kind;interaction.hidden=kind!=="avatar";activityTicket++;
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(url)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
-  mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;mediaImage.src=url;mediaDialog.showModal();
+  const sourcePath=saved?.cover_path?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
+  const sourceUrl=sourcePath?getPublicPath(sourcePath,"cover"):null;
+  mediaImage.onerror=()=>{if(mediaImage.src!==sourceUrl)return;mediaImage.onerror=null;mediaImage.src=url;};
+  mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;
+  mediaImage.src=sourceUrl||url;mediaDialog.showModal();
  };
  mediaDialog.addEventListener("close",()=>{galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();});
  window.VATRA_OPEN_PROFILE_AVATAR=()=>{if(canViewPhoto)openMedia("avatar");};
@@ -3007,7 +3020,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  buttonAvatar.hidden=false;buttonCover.hidden=false;
  const fileTypes={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
  let uploading=false;
- async function uploadImage(file,kind){
+ async function uploadImage(file,kind,originalFile=null){
   if(uploading)return false;
   const ext=fileTypes[file?.type];
   if(!ext||!file?.size||file.size>6291456){
@@ -3019,11 +3032,23 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),
     value=>value.toString(16).padStart(2,"0")).join("");
   const path=ownId+"/"+kind+"/"+filename+"."+ext;
+  const originalExt=fileTypes[originalFile?.type];
+  const originalPath=originalExt?ownId+"/"+kind+"/"+filename+"-original."+originalExt:null;
+  const uploadedPaths=[];let committed=false;
   try{
+   if(originalFile&&!originalPath)throw Error("Unsupported source format");
+   if(originalPath){
+    const {error:originalError}=await client.storage.from(bucketFor(kind)).upload(originalPath,originalFile,{
+     contentType:originalFile.type,cacheControl:"3600",upsert:false
+    });
+    if(originalError)throw originalError;
+    uploadedPaths.push(originalPath);
+   }
    const {error:uploadError}=await client.storage.from(bucketFor(kind)).upload(path,file,{
     contentType:file.type,cacheControl:"3600",upsert:false
    });
    if(uploadError)throw uploadError;
+   uploadedPaths.push(path);
    const column=kind==="avatar"?"avatar_path":"cover_path";
    const values={[column]:path,updated_at:new Date().toISOString()};
    const operation=saved?
@@ -3040,6 +3065,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
 
 
+   committed=true;
    saved={...saved,...values};
    await display(saved);
    if(kind==="avatar"){
@@ -3047,16 +3073,18 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     window.VATRA_AVATAR?.fromPath(client,ownerEmail,ownId,path);
    }
    status(t("Зображення збережено.","Image saved."));return true;
-  }catch(_){status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
-   "Could not upload the image. Please retry."),true);return false;}
+  }catch(_){
+   if(!committed&&uploadedPaths.length)try{await client.storage.from(bucketFor(kind)).remove(uploadedPaths);}catch(_){}
+   status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
+    "Could not upload the image. Please retry."),true);return false;}
   finally{
    uploading=false;buttonAvatar.disabled=false;buttonCover.disabled=false;coverChange.disabled=false;changePhoto.disabled=false;removePhoto.disabled=false;
    fileAvatar.value="";fileCover.value="";
   }
  }
  const crop=q("#profile-avatar-crop-dialog"),finish=q("#profile-avatar-finish-dialog"),canvas=q("#profile-avatar-crop-canvas"),zoom=q("#profile-avatar-crop-zoom"),preview=q("#profile-avatar-finish-preview"),save=q("#profile-avatar-finish-save"),finishError=q("#profile-avatar-finish-error");
- let source=null,sourceURL=null,previewURL=null,cropped=null,selection=null,drag=null,transitioning=false,finishing=false,sourceMime="image/webp",coverSourceMime="image/webp";
- const release=()=>{if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
+ let source=null,sourceFile=null,sourceURL=null,previewURL=null,cropped=null,selection=null,drag=null,transitioning=false,finishing=false,sourceMime="image/webp",coverSourceMime="image/webp";
+ const release=()=>{if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=sourceFile=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
  const encodeProfileCrop=async(image,rect,width,height,name,mime="image/webp")=>{const out=document.createElement("canvas");out.width=width;out.height=height;const context=out.getContext("2d");if(!context)throw Error("Canvas unavailable");context.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,width,height);const blob=await new Promise(resolve=>out.toBlob(resolve,fileTypes[mime]?mime:"image/webp",.94));if(!blob||!fileTypes[blob.type])throw Error("Image encoding failed");return new File([blob],name+"."+fileTypes[blob.type],{type:blob.type});};
  const constrain=()=>{const max=Math.min(canvas.width,canvas.height);selection.size=clamp(selection.size,max/5,max);selection.x=clamp(selection.x,0,canvas.width-selection.size);selection.y=clamp(selection.y,0,canvas.height-selection.size);zoom.value=String(max/selection.size);};
@@ -3067,7 +3095,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const closeStep=(from,to)=>{transitioning=true;from.close();to.showModal();transitioning=false;};
  const startCrop=async file=>{if(uploading||finishing||crop.open||finish.open||coverLoading||coverSaving||coverDialog.open)return;
   if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileAvatar.value="";return;}
-  release();sourceMime=file.type;const img=new Image();const url=URL.createObjectURL(file);sourceURL=url;
+  release();sourceFile=file;sourceMime=file.type;const img=new Image();const url=URL.createObjectURL(file);sourceURL=url;
   try{img.src=url;await img.decode();if(sourceURL!==url)return;source=img;const ratio=Math.min(1,720/Math.max(img.naturalWidth,img.naturalHeight));canvas.width=Math.max(1,Math.round(img.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(img.naturalHeight*ratio));const size=Math.min(canvas.width,canvas.height);selection={x:(canvas.width-size)/2,y:(canvas.height-size)/2,size};zoom.value="1";q("#profile-avatar-publish-post").checked=false;q("#profile-avatar-publish-story").checked=false;finishError.hidden=true;draw();crop.showModal();}catch(_){release();status(t("Не вдалося відкрити фото.","Could not open photo."),true);}
  };
  const canvasPoint=(surface,e)=>{const r=surface.getBoundingClientRect();return{x:(e.clientX-r.left)*surface.width/r.width,y:(e.clientY-r.top)*surface.height/r.height};};
@@ -3083,7 +3111,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  q("#profile-avatar-crop-cancel").addEventListener("click",()=>crop.close());q("#profile-avatar-finish-back").addEventListener("click",()=>{if(!finishing)closeStep(finish,crop);});
  for(const d of [crop,finish]){d.addEventListener("close",()=>{if(!transitioning&&!crop.open&&!finish.open&&!finishing)release();});d.addEventListener("cancel",e=>{if(finishing)e.preventDefault();});}
  save.addEventListener("click",async()=>{if(!cropped||finishing)return;finishing=true;save.disabled=true;q("#profile-avatar-finish-back").disabled=true;finishError.hidden=true;const photo=cropped,wantPost=q("#profile-avatar-publish-post").checked,wantStory=q("#profile-avatar-publish-story").checked;try{
-  if(!await uploadImage(photo,"avatar")){finishError.textContent=t("Не вдалося зберегти фото. Повторіть спробу.","Could not save photo. Try again.");finishError.hidden=false;return;}
+  if(!await uploadImage(photo,"avatar",sourceFile)){finishError.textContent=t("Не вдалося зберегти фото. Повторіть спробу.","Could not save photo. Try again.");finishError.hidden=false;return;}
   const failures=[];if(wantPost){let uploaded=null;try{uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,[photo]);const r=await client.from("feed_posts").insert({author_id:userId,author_vatra_id:ownId,body:"",visibility:"friends",media_items:uploaded});if(r.error)throw r.error;}catch(_){if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}failures.push(t("допис","post"));}}
   if(wantStory){let uploaded=null;try{uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,ownId,photo);const r=await client.from("stories").insert({author_vatra_id:ownId,body:"",theme:0,...uploaded});if(r.error)throw r.error;}catch(_){if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}failures.push(t("історію","story"));}}
   finish.close();release();if(failures.length){status(t("Фото збережено, але не вдалося опублікувати: ","Photo saved, but could not publish: ")+failures.join(", "),true);}else if(wantPost||wantStory)location.reload();
@@ -3096,6 +3124,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   try{
    if(path===previous){const paths=await listAvatarGallery();const next=paths.find(p=>p!==path)||null;await updateCurrent(next);changed=true;}
    const result=await client.storage.from("avatars").remove([path]);if(result.error)throw result.error;
+   const originalPath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
+   if(originalPath!==path)void client.storage.from("avatars").remove([originalPath]).then(()=>{}).catch(()=>{});
    void client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId).eq("avatar_path",path).then(()=>{});
    if(changed){window.VATRA_AVATAR?.invalidatePath?.(client,ownId);await display(saved);}
    gallery=gallery.filter(p=>p!==path);galleryIndex=Math.max(0,Math.min(galleryIndex,gallery.length-1));
@@ -3110,39 +3140,58 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  buttonCover.addEventListener("click",()=>fileCover.click());coverChange.addEventListener("click",()=>fileCover.click());
  fileAvatar.addEventListener("change",()=>{if(fileAvatar.files?.[0])void startCrop(fileAvatar.files[0]);});
 
- // Cover cropping uses the existing owner-only upload path. Save the larger mobile
- // crop; the desktop cover renders its central band via the existing object-fit.
+ // Cover thumbnail is exactly 2000 × 580; preserve the unedited source for fullscreen.
  const coverDialog=q("#profile-cover-edit-dialog"),coverCanvas=q("#profile-cover-crop-canvas"),coverZoom=q("#profile-cover-crop-zoom");
  const coverCropPanel=q("#profile-cover-crop-panel"),coverPreviewPanel=q("#profile-cover-preview-panel"),coverPreviewCanvas=q("#profile-cover-preview-image");
  const coverStep=q("#profile-cover-edit-step"),coverSave=q("#profile-cover-edit-save"),coverClose=q("#profile-cover-edit-close"),coverError=q("#profile-cover-edit-error");
  const coverDesktop=q("#profile-cover-preview-desktop"),coverMobile=q("#profile-cover-preview-mobile"),coverCard=q("#profile-cover-preview-card");
- const desktopRatio=960/290,mobileRatio=390/185;
- let coverSource=null,coverSourceURL=null,coverSelection=null,coverDrag=null,coverLoading=false,coverSaving=false,coverPreviewing=false;
+ const desktopRatio=2000/580,mobileRatio=390/185;
+ let coverSource=null,coverSourceFile=null,coverSourceURL=null,coverSelection=null,coverDrag=null,coverLoading=false,coverSaving=false,coverPreviewing=false;
  const coverNote=text=>{coverError.textContent=text;coverError.hidden=!text;};
- const coverRelease=()=>{if(coverSourceURL)URL.revokeObjectURL(coverSourceURL);coverSourceURL=null;coverSource=coverSelection=coverDrag=null;fileCover.value="";coverCanvas.width=coverCanvas.height=1;coverPreviewCanvas.width=coverPreviewCanvas.height=1;};
- const cropLimit=()=>Math.min(coverCanvas.width,coverCanvas.height*mobileRatio);
- const constrainCover=()=>{if(!coverSelection)return;const max=cropLimit();coverSelection.width=clamp(coverSelection.width,max/5,max);const height=coverSelection.width/mobileRatio;coverSelection.x=clamp(coverSelection.x,0,coverCanvas.width-coverSelection.width);coverSelection.y=clamp(coverSelection.y,0,coverCanvas.height-height);coverZoom.value=String(max/coverSelection.width);};
+ const coverRelease=()=>{if(coverSourceURL)URL.revokeObjectURL(coverSourceURL);coverSourceURL=null;coverSource=coverSourceFile=coverSelection=coverDrag=null;fileCover.value="";coverCanvas.width=coverCanvas.height=1;coverPreviewCanvas.width=coverPreviewCanvas.height=1;};
+ const cropLimit=()=>Math.min(coverCanvas.width,coverCanvas.height*desktopRatio);
+ const constrainCover=()=>{if(!coverSelection)return;const max=cropLimit();coverSelection.width=clamp(coverSelection.width,max/5,max);const height=coverSelection.width/desktopRatio;coverSelection.x=clamp(coverSelection.x,0,coverCanvas.width-coverSelection.width);coverSelection.y=clamp(coverSelection.y,0,coverCanvas.height-height);coverZoom.value=String(max/coverSelection.width);};
  const drawCover=()=>{
   if(!coverSource||!coverSelection)return;
-  constrainCover();const ctx=coverCanvas.getContext("2d"),{x,y,width:w}=coverSelection,h=w/mobileRatio,desktopH=w/desktopRatio,dy=y+(h-desktopH)/2;
-  ctx.clearRect(0,0,coverCanvas.width,coverCanvas.height);ctx.drawImage(coverSource,0,0,coverCanvas.width,coverCanvas.height);
-  ctx.save();ctx.fillStyle="rgba(15,23,42,.68)";ctx.beginPath();ctx.rect(0,0,coverCanvas.width,coverCanvas.height);ctx.rect(x,y,w,h);ctx.fill("evenodd");
-  ctx.fillStyle="rgba(15,23,42,.25)";ctx.fillRect(x,y,w,dy-y);ctx.fillRect(x,dy+desktopH,w,y+h-dy-desktopH);
+  constrainCover();
+  const ctx=coverCanvas.getContext("2d"),{x,y,width:w}=coverSelection;
+  const h=w/desktopRatio,mobileW=h*mobileRatio,mobileX=x+(w-mobileW)/2;
+  ctx.clearRect(0,0,coverCanvas.width,coverCanvas.height);
+  ctx.drawImage(coverSource,0,0,coverCanvas.width,coverCanvas.height);
+  ctx.save();
+  ctx.fillStyle="rgba(15,23,42,.68)";
+  ctx.beginPath();ctx.rect(0,0,coverCanvas.width,coverCanvas.height);ctx.rect(x,y,w,h);ctx.fill("evenodd");
+  // Desktop displays all of the 2000×580 crop; mobile displays its center.
+  ctx.fillStyle="rgba(15,23,42,.25)";
+  ctx.fillRect(x,y,mobileX-x,h);
+  ctx.fillRect(mobileX+mobileW,y,x+w-mobileX-mobileW,h);
   const scale=coverCanvas.width/Math.max(1,coverCanvas.getBoundingClientRect().width);
-  ctx.strokeStyle="#fff";ctx.lineWidth=Math.max(1,scale);ctx.strokeRect(x,y,w,h);ctx.strokeRect(x,dy,w,desktopH);
-  const handle=Math.max(3,4*scale);ctx.fillStyle="#fff";for(const [cx,cy] of [[x,y],[x+w,y],[x,y+h],[x+w,y+h]])ctx.fillRect(cx-handle/2,cy-handle/2,handle,handle);
-  const font=Math.max(10,12*scale),pad=5*scale;ctx.font="600 "+font+"px Onest,system-ui,sans-serif";
-  for(const [label,top,band] of [[t("Мобільний пристрій","Mobile device"),y,dy-y],[t("Комп’ютер","Desktop"),dy,desktopH]]){
-   const tw=ctx.measureText(label).width+pad*2;if(tw>w-pad||font+pad*2>band)continue;ctx.fillStyle="rgba(26,37,57,.78)";ctx.fillRect(x+pad,top+pad,tw,font+pad*2);ctx.fillStyle="#fff";ctx.fillText(label,x+pad*2,top+font+pad*2);
-  }ctx.restore();
+  ctx.lineWidth=Math.max(1,scale);ctx.strokeStyle="#fff";ctx.strokeRect(x,y,w,h);
+  ctx.strokeStyle="#b9d6ff";ctx.strokeRect(mobileX,y,mobileW,h);
+  const handle=Math.max(3,4*scale);ctx.fillStyle="#fff";
+  for(const [cx,cy] of [[x,y],[x+w,y],[x,y+h],[x+w,y+h]])ctx.fillRect(cx-handle/2,cy-handle/2,handle,handle);
+  ctx.restore();
  };
- const readCoverRect=(ratio=mobileRatio)=>{constrainCover();const {x,y,width:w}=coverSelection,h=w/mobileRatio,visibleH=w/ratio;return{x:x*coverSource.naturalWidth/coverCanvas.width,y:(y+(h-visibleH)/2)*coverSource.naturalHeight/coverCanvas.height,w:w*coverSource.naturalWidth/coverCanvas.width,h:visibleH*coverSource.naturalHeight/coverCanvas.height};};
+ const readCoverRect=()=>{
+  constrainCover();const {x,y,width:w}=coverSelection,h=w/desktopRatio;
+  return{x:x*coverSource.naturalWidth/coverCanvas.width,
+   y:y*coverSource.naturalHeight/coverCanvas.height,
+   w:w*coverSource.naturalWidth/coverCanvas.width,
+   h:h*coverSource.naturalHeight/coverCanvas.height};
+ };
  const paintCoverPreview=()=>{
-  if(!coverSource||!coverSelection)return;const mobile=coverCard.dataset.device==="mobile",ratio=mobile?mobileRatio:desktopRatio,rect=readCoverRect(ratio);
-  coverPreviewCanvas.width=mobile?390:960;coverPreviewCanvas.height=mobile?185:290;
+  if(!coverSource||!coverSelection)return;
+  const mobile=coverCard.dataset.device==="mobile",selected=readCoverRect();
+  const visibleWidth=selected.h*mobileRatio;
+  const rect=mobile?
+   {x:selected.x+(selected.w-visibleWidth)/2,y:selected.y,w:visibleWidth,h:selected.h}:selected;
+  coverPreviewCanvas.width=mobile?390:1000;
+  coverPreviewCanvas.height=mobile?185:290;
   coverPreviewCanvas.getContext("2d").drawImage(coverSource,rect.x,rect.y,rect.w,rect.h,0,0,coverPreviewCanvas.width,coverPreviewCanvas.height);
-  const previewAvatar=q("#profile-cover-preview-avatar");previewAvatar.style.backgroundImage=photoURLs.avatar?"url("+JSON.stringify(photoURLs.avatar)+")":"";
-  const heading=q("#profile-heading");q("#profile-cover-preview-name").textContent=heading.querySelector(".vatra-verified-name-text")?.textContent||heading.textContent.trim();
+  const previewAvatar=q("#profile-cover-preview-avatar");
+  previewAvatar.style.backgroundImage=photoURLs.avatar?"url("+JSON.stringify(photoURLs.avatar)+")":"";
+  const heading=q("#profile-heading");
+  q("#profile-cover-preview-name").textContent=heading.querySelector(".vatra-verified-name-text")?.textContent||heading.textContent.trim();
  };
  const selectCoverDevice=mobile=>{coverCard.dataset.device=mobile?"mobile":"desktop";coverDesktop.setAttribute("aria-pressed",String(!mobile));coverMobile.setAttribute("aria-pressed",String(mobile));paintCoverPreview();};
  const showCoverStep=show=>{
@@ -3154,10 +3203,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const startCoverCrop=async file=>{
   if(uploading||finishing||coverLoading||coverSaving||coverDialog.open||crop.open||finish.open)return;
   if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileCover.value="";return;}
-  coverRelease();coverSourceMime=file.type;coverLoading=true;const img=new Image(),url=URL.createObjectURL(file);coverSourceURL=url;
+  coverRelease();coverSourceFile=file;coverSourceMime=file.type;coverLoading=true;const img=new Image(),url=URL.createObjectURL(file);coverSourceURL=url;
   try{img.src=url;await img.decode();if(coverSourceURL!==url)return;coverSource=img;const scale=Math.min(1,900/Math.max(img.naturalWidth,img.naturalHeight));
    coverCanvas.width=Math.max(1,Math.round(img.naturalWidth*scale));coverCanvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
-   const w=cropLimit();coverSelection={width:w,x:(coverCanvas.width-w)/2,y:(coverCanvas.height-w/mobileRatio)/2};coverZoom.value="1";coverNote("");showCoverStep(false);coverDialog.showModal();drawCover();
+   const w=cropLimit();coverSelection={width:w,x:(coverCanvas.width-w)/2,y:(coverCanvas.height-w/desktopRatio)/2};coverZoom.value="1";coverNote("");showCoverStep(false);coverDialog.showModal();drawCover();
   }catch(_){coverRelease();status(t("Не вдалося відкрити обкладинку.","Could not open cover image."),true);}finally{coverLoading=false;}
  };
  coverStep.addEventListener("click",()=>{if(!coverSaving)showCoverStep(!coverPreviewing);});
@@ -3165,22 +3214,22 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  coverClose.addEventListener("click",()=>{if(!coverSaving)coverDialog.close();});
  coverDialog.addEventListener("cancel",e=>{if(coverSaving)e.preventDefault();});
  coverDialog.addEventListener("close",()=>{if(!coverDialog.open&&!coverSaving)coverRelease();});
- coverZoom.addEventListener("input",()=>{if(!coverSelection)return;const w=cropLimit()/Number(coverZoom.value),old=coverSelection.width;coverSelection={width:w,x:coverSelection.x+(old-w)/2,y:coverSelection.y+(old-w)/(2*mobileRatio)};drawCover();});
- coverCanvas.addEventListener("pointerdown",e=>{if(!coverSelection||!e.isPrimary||e.button!==0)return;e.preventDefault();const p=canvasPoint(coverCanvas,e),{x,y,width:w}=coverSelection,h=w/mobileRatio,hit=15*coverCanvas.width/Math.max(1,coverCanvas.getBoundingClientRect().width);
+ coverZoom.addEventListener("input",()=>{if(!coverSelection)return;const w=cropLimit()/Number(coverZoom.value),old=coverSelection.width;coverSelection={width:w,x:coverSelection.x+(old-w)/2,y:coverSelection.y+(old-w)/(2*desktopRatio)};drawCover();});
+ coverCanvas.addEventListener("pointerdown",e=>{if(!coverSelection||!e.isPrimary||e.button!==0)return;e.preventDefault();const p=canvasPoint(coverCanvas,e),{x,y,width:w}=coverSelection,h=w/desktopRatio,hit=15*coverCanvas.width/Math.max(1,coverCanvas.getBoundingClientRect().width);
   const corner=[[x,y,-1,-1],[x+w,y,1,-1],[x,y+h,-1,1],[x+w,y+h,1,1]].find(([cx,cy])=>Math.hypot(p.x-cx,p.y-cy)<=hit);
   coverDrag={id:e.pointerId,p,start:{...coverSelection},corner};coverCanvas.setPointerCapture(e.pointerId);
  });
  coverCanvas.addEventListener("pointermove",e=>{if(!coverDrag||coverDrag.id!==e.pointerId)return;const p=canvasPoint(coverCanvas,e),dx=p.x-coverDrag.p.x,dy=p.y-coverDrag.p.y,{x,y,width:w}=coverDrag.start;
-  if(coverDrag.corner){const [,,sx,sy]=coverDrag.corner,ax=sx<0?x+w:x,ay=sy<0?y+w/mobileRatio:y,available=Math.min(sx<0?ax:coverCanvas.width-ax,(sy<0?ay:coverCanvas.height-ay)*mobileRatio),next=clamp(w+(dx*sx+dy*sy/mobileRatio)/(1+1/(mobileRatio*mobileRatio)),Math.min(cropLimit()/5,available),available);coverSelection={width:next,x:sx<0?ax-next:ax,y:sy<0?ay-next/mobileRatio:ay};}
+  if(coverDrag.corner){const [,,sx,sy]=coverDrag.corner,ax=sx<0?x+w:x,ay=sy<0?y+w/desktopRatio:y,available=Math.min(sx<0?ax:coverCanvas.width-ax,(sy<0?ay:coverCanvas.height-ay)*desktopRatio),next=clamp(w+(dx*sx+dy*sy/desktopRatio)/(1+1/(desktopRatio*desktopRatio)),Math.min(cropLimit()/5,available),available);coverSelection={width:next,x:sx<0?ax-next:ax,y:sy<0?ay-next/desktopRatio:ay};}
   else coverSelection={width:w,x:x+dx,y:y+dy};drawCover();
  });
  for(const event of ["pointerup","pointercancel","lostpointercapture"])coverCanvas.addEventListener(event,()=>{coverDrag=null;});
  coverCanvas.addEventListener("keydown",e=>{if(!coverSelection)return;const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!delta)return;e.preventDefault();coverSelection.x+=delta[0]*(e.shiftKey?20:5);coverSelection.y+=delta[1]*(e.shiftKey?20:5);drawCover();});
  coverSave.addEventListener("click",async()=>{
   if(!coverSource||!coverSelection||coverSaving||uploading)return;coverSaving=true;coverSave.disabled=coverStep.disabled=coverClose.disabled=true;coverNote("");
-  try{const rect=readCoverRect(),width=Math.max(1,Math.min(1920,Math.round(rect.w))),height=Math.max(1,Math.round(width/mobileRatio));
-   const file=await encodeProfileCrop(coverSource,rect,width,height,"profile-cover",coverSourceMime);
-   if(!await uploadImage(file,"cover"))throw Error("Cover upload failed");
+  try{const rect=readCoverRect();
+   const file=await encodeProfileCrop(coverSource,rect,2000,580,"profile-cover",coverSourceMime);
+   if(!await uploadImage(file,"cover",coverSourceFile))throw Error("Cover upload failed");
    coverDialog.close();coverRelease();
   }catch(_){coverNote(t("Не вдалося зберегти обкладинку. Спробуйте ще раз.","Could not save cover. Try again."));}
   finally{coverSaving=false;coverSave.disabled=coverStep.disabled=coverClose.disabled=false;}

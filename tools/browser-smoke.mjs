@@ -4492,7 +4492,7 @@ try{
   await profilePage.locator("#profile-cover-edit-step").click();
   await profilePage.locator("#profile-cover-preview-panel").waitFor({state:"visible"});
   const previewRatio=()=>profilePage.locator("#profile-cover-preview-image").evaluate(el=>el.width/el.height);
-  assert.ok(Math.abs(await previewRatio()-960/290)<.01,"Desktop preview uses a wide crop");
+  assert.ok(Math.abs(await previewRatio()-2000/580)<.01,"Desktop preview matches the 2000×580 cover crop");
   await profilePage.locator("#profile-cover-preview-mobile").click();
   assert.ok(Math.abs(await previewRatio()-390/185)<.01,"Mobile preview shows the outer crop");
   await profilePage.locator("#profile-cover-edit-step").click();
