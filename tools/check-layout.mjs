@@ -1466,13 +1466,13 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
 
 assert.ok(
  profileScript.includes("async function resolveFriendships(friendships)")&&
- profileScript.includes(".order(\"created_at\",{ascending:false}).limit(6)")&&
+ profileScript.includes(".order(\"created_at\",{ascending:false}).limit(4)")&&
  profileScript.includes(".eq(\"recipient_vatra_id\",targetId).order(\"created_at\",{ascending:false}).limit(3)")&&
  profileScript.includes("allFriendsPending=(async()=>{")&&
  profileScript.includes("allGiftsPending=(async()=>{")&&
  profileScript.includes("window.VATRA_PROFILE_SHOW_FRIENDS=showFriends")&&
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
- "Profile must fetch only six friends and three gifts initially, loading full lists on demand");
+ "Profile must fetch only four friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
 assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
  "Exactly one page-level profile controller must be loaded");
