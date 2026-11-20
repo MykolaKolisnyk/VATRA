@@ -72,8 +72,12 @@
   // Locked accounts get a dedicated full-page state; recoverable errors are inline.
   let host=document.body;
   if(!locked){
-   const possible=[document.querySelector(".feed-main"),document.querySelector("main"),document.querySelector(".feed-app")];
-   host=possible.find(element=>element&&!element.closest("[hidden]"))||document.body;
+   const feed=document.querySelector(".feed-main");
+   if(feed&&!feed.closest("[hidden]"))host=feed;
+  }
+  if(host===document.body){
+   panel.dataset.fullpage="true";
+   for(const loader of document.querySelectorAll(".vatra-auth-loading:not([hidden])"))loader.hidden=true;
   }
   host.prepend(panel);servicePanel=panel;return panel;
  }
