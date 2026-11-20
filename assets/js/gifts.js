@@ -54,8 +54,8 @@ async function boot(){
  if(document.body?.dataset.page!=="gifts")return;
  await window.VATRA_LANGUAGE?.ready;
  if(!window.supabase?.createClient)return;
- const client=window.supabase.createClient("https://rjasunoawrxvetwadylh.supabase.co",
-  "sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-",
+ const client=window.supabase.createClient("https://cxrcycxrlkufozomsxcs.supabase.co",
+  "sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i",
   {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
  try{
   const {data,error}=await client.auth.getUser();
