@@ -2358,12 +2358,14 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
   if(roomW<=0||roomH<=0)return;
   const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
-  // Match the VK-style image stage: even a small original can scale up to
-  // nearly fill the available space, without cropping or distorting its ratio.
-  // The cover viewer retains its separate full-viewport sizing behavior.
+  // Avatars preserve their existing VK-style scale; covers are centered
+  // at a comfortable size instead of filling the entire browser width.
   const scale=avatarPhoto?
    Math.min(roomW*.96/mediaImage.naturalWidth,roomH*.96/mediaImage.naturalHeight):
-   Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
+   mediaDialog.dataset.kind==="cover"?
+    Math.min(Math.min(roomW,1140)/mediaImage.naturalWidth,
+     Math.min(roomH*.76,680)/mediaImage.naturalHeight):
+    Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
   photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
   photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
  };
@@ -2831,8 +2833,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }
  };
  const animateCoverToCenter=(ticket,rect,url)=>{
-  const width=Math.max(1,Math.min(innerWidth-28,1200,Math.max(1,innerHeight-100)*2000/580));
-  const height=width*580/2000,left=(innerWidth-width)/2,top=(innerHeight-height)/2;
+  // Match the center and width of the actual viewer, including its paddings.
+  const space=photoContent.getBoundingClientRect(),insets=getComputedStyle(photoContent);
+  const padTop=parseFloat(insets.paddingTop)||0,padBottom=parseFloat(insets.paddingBottom)||0;
+  const padLeft=parseFloat(insets.paddingLeft)||0,padRight=parseFloat(insets.paddingRight)||0;
+  const roomW=Math.max(1,space.width-padLeft-padRight);
+  const roomH=Math.max(1,space.height-padTop-padBottom);
+  const width=Math.max(1,Math.floor(Math.min(1140,roomW,Math.min(roomH*.76,680)*2000/580)));
+  const height=width*580/2000,left=space.left+(space.width-width)/2;
+  const top=space.top+padTop+(roomH-height)/2;
   const flight=document.createElement("img");
   flight.className="ui-profile-cover-flight-001";
   flight.alt="";flight.setAttribute("aria-hidden","true");

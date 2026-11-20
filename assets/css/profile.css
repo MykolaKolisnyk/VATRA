@@ -2919,27 +2919,27 @@ body.profile-page .profile-media-viewer[data-kind="cover"][open]{width:100vw;hei
 
 /* The actual banner flies to the center while the underlying page gently dims. */
 @keyframes vatra-cover-stage-in{
- from{background-color:rgba(10,15,24,0)}
- to{background-color:rgba(10,15,24,.96)}
+ from{background-color:rgba(12,18,30,0)}
+ to{background-color:rgba(12,18,30,.38)}
 }
 @keyframes vatra-cover-backdrop-in{
- from{background-color:rgba(10,15,24,0)}
- to{background-color:rgba(10,15,24,.74)}
+ from{background-color:rgba(6,9,18,0)}
+ to{background-color:rgba(6,9,18,.54)}
 }
 body.profile-page .profile-media-viewer[data-kind="cover"][open]{
+ background:rgba(12,18,30,.38);
  animation:vatra-cover-stage-in .44s ease both
 }
 body.profile-page .profile-media-viewer[data-kind="cover"]::backdrop{
+ background:rgba(6,9,18,.54);
+ backdrop-filter:blur(1.5px);
  animation:vatra-cover-backdrop-in .44s ease both
-}
-body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-stage{
- background:transparent
 }
 body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-image{
  transition:opacity .2s ease
 }
 body.profile-page .profile-media-viewer[data-cover-opening="true"] .profile-media-viewer-image{
- opacity:0
+ opacity:0;transition:none
 }
 body.profile-page .ui-profile-cover-flight-001{
  position:fixed;z-index:5;pointer-events:none;object-fit:cover;max-width:none;max-height:none;
@@ -2959,13 +2959,23 @@ body.profile-page .profile-media-viewer-stage{
  display:flex;flex-direction:column;box-sizing:border-box;height:100%;
  padding:0;min-width:0;min-height:0;overflow:hidden;background:#20242c
 }
-body.profile-page .profile-media-viewer[data-image-format="png"] .profile-media-viewer-stage{background:#fff}
+body.profile-page .profile-media-viewer[data-image-format="png"]:is([data-kind="avatar"],[data-kind="avatar-history"]) .profile-media-viewer-stage{background:#fff}
+/* Cover previews must not inherit the white PNG backdrop used by avatar photos. */
+body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-stage{background:transparent}
 body.profile-page .ui-profile-photo-content-001{
  position:relative;display:grid;place-items:center;box-sizing:border-box;flex:1;
  width:100%;min-width:0;min-height:0;overflow:hidden;padding:58px 16px 18px
 }
 body.profile-page .ui-profile-photo-canvas-001{position:relative;display:block;flex:none;max-width:100%;max-height:100%;min-width:0;min-height:0}
+/* Center the open cover within the dark veil rather than stretching it edge to edge. */
+body.profile-page .profile-media-viewer[data-kind="cover"] .ui-profile-photo-content-001{
+ padding:clamp(60px,8vh,85px) clamp(22px,5vw,90px) clamp(30px,5vh,70px)
+}
+body.profile-page .profile-media-viewer[data-kind="cover"] .ui-profile-photo-canvas-001{
+ border-radius:14px;overflow:hidden;box-shadow:0 26px 78px rgba(0,0,0,.38)
+}
 body.profile-page .profile-media-viewer-image{grid-area:auto;display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:fill}
+body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-image{object-fit:contain}
 body.profile-page .profile-media-viewer[data-image-format="png"] .profile-media-viewer-close{background:#374154bd}
 body.profile-page .profile-avatar-engagement{height:100%;min-height:0}
 body.profile-page .ui-profile-photo-footer-001{

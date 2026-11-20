@@ -4296,8 +4296,8 @@ try{
   }))));
   await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
   await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
-  // A saved cover should open the original image in a genuine full-viewport
-  // modal, not remain trapped as a tiny background behind the profile header.
+  // The overlay fills the viewport, but the actual cover stays centered
+  // with generous margins on a dark backdrop, including for PNG/WebP files.
   assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),true);
   await profilePage.locator("#profile-cover-view").click({position:{x:80,y:80}});
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
@@ -4320,7 +4320,29 @@ try{
   assert.ok(Math.abs(coverViewer.width-coverViewer.viewportWidth)<=2&&
    Math.abs(coverViewer.height-coverViewer.viewportHeight)<=2&&
    /\/covers\/654321\/cover\/test-cover(?:-original)?\.webp/.test(coverViewer.source),
-   "Cover photo should fill the viewer viewport without cropping the original: "+JSON.stringify(coverViewer));
+   "Cover dialog must span the viewport while preserving the original: "+JSON.stringify(coverViewer));
+  await profilePage.waitForFunction(()=>{
+   const image=document.querySelector("#profile-media-viewer-image");
+   const canvas=document.querySelector("#profile-photo-canvas");
+   return image?.naturalWidth>0&&canvas?.getBoundingClientRect().width>0;
+  },null,{timeout:6000});
+  const coverLayout=await profilePage.evaluate(()=>{
+   const dialog=document.querySelector("#profile-media-viewer");
+   const canvas=document.querySelector("#profile-photo-canvas");
+   const stage=dialog.querySelector(".profile-media-viewer-stage");
+   const rect=canvas.getBoundingClientRect();
+   const currentFormat=dialog.dataset.imageFormat;
+   dialog.dataset.imageFormat="png";
+   const pngBackground=getComputedStyle(stage).backgroundColor;
+   dialog.dataset.imageFormat=currentFormat;
+   return {imageWidth:rect.width,imageHeight:rect.height,
+    centeredX:Math.abs(rect.left-(innerWidth-rect.width)/2),
+    pngBackground};
+  });
+  assert.ok(coverLayout.imageWidth<=1141&&coverLayout.centeredX<=4,
+   "Cover must stay centered and below the comfortable maximum width: "+JSON.stringify(coverLayout));
+  assert.equal(coverLayout.pngBackground,"rgba(0, 0, 0, 0)",
+   "PNG/WebP covers must keep a transparent stage over the dark veil, never white");
   await profilePage.locator("#profile-media-viewer-close").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
   const storyAvatar=profilePage.locator("#profile-avatar-wrap");
