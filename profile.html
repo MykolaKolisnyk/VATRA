@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=7625ddcfd6fdee4acfe32bdbcb2abc4480c0da6b">
     <link rel="stylesheet" href="assets/css/feed.css?rev=87f36f734305a3472db45f46badb4c7bd9b2c7a2">
     <link rel="stylesheet" href="assets/css/story-editor.css?rev=b6b39f00ee238008a679816b281887a1366e7c12">
-    <link rel="stylesheet" href="assets/css/profile.css">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=e6cb92981d28aa944f2b99c08dc2320337173771">
     <link rel="stylesheet" href="assets/css/post-composer.css">
     <link rel="stylesheet" href="assets/css/gifts.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -34,7 +34,7 @@
     <script defer src="assets/js/post-composer-ui.js"></script>
     <script defer src="assets/js/guest-view.js?rev=b25fd28b7cd80aa6bf1d02089df1c1b656ada6f2"></script>
     <script defer src="assets/js/story-editor.js?rev=2a44a72a7609a3d4765bd893eab6fcf492a9ddad"></script>
-    <script defer src="assets/js/profile.js?rev=633bfdeca5b48b31f940c837f1e0859001dc6817"></script>
+    <script defer src="assets/js/profile.js?rev=854611824432aa3ae8b43a68e8b2257ffe389c0e"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -489,7 +489,7 @@
             <h3 id="profile-photo-comments-heading" class="vt-profile-photo-comments-heading-001">
               Коментарі
             </h3>
-            <div class="profile-photo-comment-filters ui-profile-photo-comment-filters-001">
+            <div class="profile-photo-comment-filters ui-profile-photo-comment-filters-001" hidden>
               <label class="vt-profile-photo-sort-label-001" for="profile-photo-comment-sort">Показувати:</label>
       <select id="profile-photo-comment-sort" class="ui-profile-photo-comment-sort-001">
        <option class="vt-profile-photo-sort-relevant-001" value="relevant">Найактуальніші</option>
@@ -543,7 +543,7 @@
           <button id="profile-cover-edit-close" class="vt-profile-cover-edit-close-001" type="button" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close"><svg class="ui-profile-cover-edit-close-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-cover-edit-close-path-001" d="m6 6 12 12M18 6 6 18"/></svg></button>
           <section id="profile-cover-crop-panel" class="ui-profile-cover-crop-panel-001">
             <div class="ui-profile-cover-crop-stage-001"><canvas id="profile-cover-crop-canvas" class="ui-profile-cover-crop-canvas-001" tabindex="0" aria-label="Переміщення області обрізання" data-shell-aria-uk="Переміщення області обрізання" data-shell-aria-en="Move crop area"></canvas></div>
-            <p class="vt-profile-cover-crop-guide-001" data-social-uk="Світла область — комп’ютер, зовнішня рамка — мобільний пристрій. Перемістіть рамку або змініть масштаб." data-social-en="The bright area is for desktop, the outer frame for mobile. Move the frame or change the zoom.">Світла область — комп’ютер, зовнішня рамка — мобільний пристрій. Перемістіть рамку або змініть масштаб.</p>
+            <p class="vt-profile-cover-crop-guide-001" data-social-uk="Біла рамка — обкладинка 2000 × 580 px. Блакитна рамка показує видиму область на телефоні. Перемістіть рамку або змініть масштаб." data-social-en="The white frame is the 2000 × 580 px cover. The blue frame shows what is visible on mobile. Move the frame or adjust the zoom.">Біла рамка — обкладинка 2000 × 580 px. Блакитна рамка показує видиму область на телефоні. Перемістіть рамку або змініть масштаб.</p>
             <label class="vt-profile-cover-zoom-label-001" for="profile-cover-crop-zoom" data-social-uk="Масштаб" data-social-en="Zoom">Масштаб</label>
             <input id="profile-cover-crop-zoom" class="ui-profile-cover-crop-zoom-001" type="range" min="1" max="5" step=".01" value="1">
           </section>
