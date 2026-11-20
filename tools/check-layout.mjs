@@ -2302,7 +2302,8 @@ assert.doesNotThrow(()=>new Function(publicNameBrowser),
 assert.ok(
  publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get}')&&
  publicNameBrowser.includes('client.functions.invoke("public-profile-names"')&&
- publicNameBrowser.includes('retryRemoteAt=Date.now()+60_000')&&
+ publicNameBrowser.includes('pauseEdge(state);')&&
+ publicNameBrowser.includes('sessionStorage.setItem(EDGE_COOLDOWN_KEY')&&
  publicNameBrowser.includes('const caches=new WeakMap()')&&
  publicNameBrowser.includes('MISSING_TTL=15_000')&&
  publicNameBrowser.includes('state.pending.set(id,task)')&&
