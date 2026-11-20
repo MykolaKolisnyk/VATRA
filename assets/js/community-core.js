@@ -2,8 +2,8 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
-const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
+const PROJECT_URL="https://cxrcycxrlkufozomsxcs.supabase.co";
+const PUBLIC_KEY="sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i";
 const root=new URL("../../",document.currentScript.src).href;
 const activeLocale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
 const dateLocales={uk:"uk-UA",en:"en-US",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
@@ -55,7 +55,7 @@ async function loadHeaderPhoto(client,id,email){
   const image=client.storage.from("avatars").getPublicUrl(data.avatar_path)?.data?.publicUrl;
   if(!image)return;
   const url=new URL(image);
-  if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
+  if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")return;
   const target=$("#feed-header-avatar");
   if(target){target.style.backgroundImage="url("+JSON.stringify(image)+")";
    target.classList.add("has-photo");target.textContent="";}
