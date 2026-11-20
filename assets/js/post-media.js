@@ -320,7 +320,7 @@
     if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
     try{
      const url=new URL(item.signedUrl,location.origin);
-     if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")continue;
+     if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
      signedURLs.set(ttl+":"+kind+":"+paths[i],{
       expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)
      });
@@ -339,7 +339,7 @@
    if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
    const url=new URL(data.signedUrl);
-   if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")
+   if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")
     throw Error("Unexpected signed asset URL");
    return url.href;
   }).catch(error=>{
