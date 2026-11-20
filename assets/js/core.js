@@ -38,7 +38,7 @@ function sectionIconButton(key,label,cls,fn){const b=btn("",cls,fn);b.title=labe
 function discoveryIcons(bar,keys){for(const button of bar.children){const icon=make("span","vatra-discovery-nav-icon ui-vatra-discovery-icon-"+button.dataset.tab);icon.append(sectionIcon(keys[button.dataset.tab]||"catalog"));const label=make("span","vt-vatra-discovery-label-"+button.dataset.tab,button.textContent);button.replaceChildren(icon,label);}}
 async function boot(init){
  try{await window.VATRA_LANGUAGE?.ready;locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
- client=window.supabase?.createClient("https://rjasunoawrxvetwadylh.supabase.co","sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
+ client=window.supabase?.createClient("https://cxrcycxrlkufozomsxcs.supabase.co","sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
  if(!client)throw Error("client");
  const result=await client.auth.getUser();user=result.data?.user;
  if(result.error||!user?.id||!user.email_confirmed_at){if(result.error&&window.VATRA_SERVICE_NOTICE?.report(result,{session:true,access:false,retry:()=>location.reload()})){const loader=$("#feed-loading");if(loader)loader.textContent=t("Не вдалося підключитися до VATRA.","Could not connect to VATRA.");return;}location.replace(root.href);return;}
