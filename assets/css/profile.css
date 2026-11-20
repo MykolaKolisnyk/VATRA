@@ -2915,67 +2915,100 @@ body.profile-page .profile-media-viewer[open]{
  background:#20242c;box-shadow:0 30px 90px rgba(8,15,29,.3)
 }
 body.profile-page .profile-media-viewer::backdrop{background:rgba(14,19,27,.78)}
-body.profile-page .profile-media-viewer[data-kind="cover"][open]{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;border-radius:0;grid-template-columns:minmax(0,1fr)}
-
-/* The actual banner flies to the center while the underlying page gently dims. */
-@keyframes vatra-cover-stage-in{
- from{background-color:rgba(12,18,30,0)}
- to{background-color:rgba(12,18,30,.38)}
+/* Standalone cover lightbox: the profile remains fixed behind an opaque dimmer.
+   Only the displayed 2000:580 cover animates; avatar gallery stays independent. */
+@keyframes vatra-cover-veil-in{
+ from{background-color:rgba(9,14,24,.18)}
+ to{background-color:rgba(9,14,24,.86)}
 }
-@keyframes vatra-cover-backdrop-in{
- from{background-color:rgba(6,9,18,0)}
- to{background-color:rgba(6,9,18,.54)}
+@keyframes vatra-cover-shadow-in{
+ from{background-color:rgba(9,14,24,0)}
+ to{background-color:rgba(9,14,24,.3)}
 }
-body.profile-page .profile-media-viewer[data-kind="cover"][open]{
- background:rgba(12,18,30,.38);
- animation:vatra-cover-stage-in .44s ease both
+body.profile-page .ui-profile-cover-viewer-001{
+ box-sizing:border-box;position:fixed;inset:0;
+ display:grid;place-items:center;width:100vw;height:100dvh;
+ max-width:none;max-height:none;min-height:0;
+ margin:0;padding:0;border:0;border-radius:0;overflow:hidden;
+ background:rgba(9,14,24,.86);color:#f5f7fc;
+ font-family:"Onest",system-ui,sans-serif
 }
-body.profile-page .profile-media-viewer[data-kind="cover"]::backdrop{
- background:rgba(6,9,18,.54);
- backdrop-filter:blur(1.5px);
- animation:vatra-cover-backdrop-in .44s ease both
+body.profile-page .ui-profile-cover-viewer-001:not([open]){display:none!important}
+body.profile-page .ui-profile-cover-viewer-001[open]{
+ animation:vatra-cover-veil-in .42s cubic-bezier(.22,1,.36,1) both
 }
-body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-image{
- transition:opacity .2s ease
+body.profile-page .ui-profile-cover-viewer-001::backdrop{
+ background:rgba(9,14,24,.3);
+ animation:vatra-cover-shadow-in .42s ease both
 }
-body.profile-page .profile-media-viewer[data-cover-opening="true"] .profile-media-viewer-image{
- opacity:0;transition:none
+body.profile-page .vt-profile-cover-viewer-close-001{
+ position:fixed;z-index:7;top:clamp(14px,3vh,24px);left:clamp(14px,3vw,24px);
+ display:grid;place-items:center;width:44px;height:44px;padding:0;
+ border:1px solid rgba(255,255,255,.28);border-radius:50%;
+ background:rgba(27,37,56,.78);color:#fff;cursor:pointer
+}
+body.profile-page .vt-profile-cover-viewer-close-001:hover{background:rgba(54,66,87,.9)}
+body.profile-page .vt-profile-cover-viewer-close-001:focus-visible,
+body.profile-page .vt-profile-cover-viewer-original-001:focus-visible{
+ outline:3px solid #9bb9ff;outline-offset:3px
+}
+body.profile-page .vt-profile-cover-viewer-title-001{
+ position:fixed;top:clamp(23px,4vh,34px);left:clamp(75px,7vw,88px);
+ margin:0;color:#f8f9fc;font:700 15px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .ui-profile-cover-viewer-stage-001{
+ box-sizing:border-box;position:relative;display:block;
+ width:min(1120px,calc(100vw - 52px));aspect-ratio:2000 / 580;
+ max-width:100%;margin:auto;border-radius:12px;overflow:hidden;
+ background:#172031;box-shadow:0 22px 72px rgba(0,0,0,.4);
+ opacity:0;transition:opacity .2s ease
+}
+body.profile-page .ui-profile-cover-viewer-001.is-ready .ui-profile-cover-viewer-stage-001{
+ opacity:1
+}
+body.profile-page .ui-profile-cover-viewer-image-001{
+ display:block;width:100%;height:100%;max-width:none;max-height:none;
+ object-fit:cover;object-position:center
 }
 body.profile-page .ui-profile-cover-flight-001{
- position:fixed;z-index:5;pointer-events:none;object-fit:cover;max-width:none;max-height:none;
- border-radius:0;box-shadow:0 16px 52px rgba(0,0,0,.25);
- will-change:left,top,width,height;transition:opacity .2s ease
+ position:fixed;z-index:5;display:block;pointer-events:none;
+ object-fit:cover;object-position:center;
+ border-radius:0;max-width:none;max-height:none;transform-origin:top left;
+ will-change:transform;box-shadow:0 14px 50px rgba(0,0,0,.27);
+ transition:opacity .18s ease
 }
 body.profile-page .ui-profile-cover-flight-001.is-fading{opacity:0}
-body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-close{z-index:7}
+body.profile-page .vt-profile-cover-viewer-original-001{
+ position:fixed;bottom:clamp(20px,4vh,38px);left:50%;
+ transform:translateX(-50%);z-index:6;
+ padding:8px 13px;border:1px solid rgba(255,255,255,.22);
+ border-radius:10px;background:rgba(22,31,47,.74);
+ color:#eaf0fc;text-decoration:none;font:600 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-cover-viewer-original-001:hover{background:#34415d;color:#fff}
+body.profile-page .vt-profile-cover-viewer-original-001[hidden]{display:none!important}
+@media(max-width:600px){
+ body.profile-page .ui-profile-cover-viewer-stage-001{width:calc(100vw - 24px);border-radius:9px}
+ body.profile-page .vt-profile-cover-viewer-title-001{font-size:13px}
+}
 @media(prefers-reduced-motion:reduce){
- body.profile-page .profile-media-viewer[data-kind="cover"][open],
- body.profile-page .profile-media-viewer[data-kind="cover"]::backdrop{animation:none}
- body.profile-page .ui-profile-cover-flight-001,
- body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-image{transition:none}
+ body.profile-page .ui-profile-cover-viewer-001[open],
+ body.profile-page .ui-profile-cover-viewer-001::backdrop{animation:none}
+ body.profile-page .ui-profile-cover-viewer-stage-001,
+ body.profile-page .ui-profile-cover-flight-001{transition:none}
 }
 
 body.profile-page .profile-media-viewer-stage{
  display:flex;flex-direction:column;box-sizing:border-box;height:100%;
  padding:0;min-width:0;min-height:0;overflow:hidden;background:#20242c
 }
-body.profile-page .profile-media-viewer[data-image-format="png"]:is([data-kind="avatar"],[data-kind="avatar-history"]) .profile-media-viewer-stage{background:#fff}
-/* Cover previews must not inherit the white PNG backdrop used by avatar photos. */
-body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-stage{background:transparent}
+body.profile-page .profile-media-viewer[data-image-format="png"] .profile-media-viewer-stage{background:#fff}
 body.profile-page .ui-profile-photo-content-001{
  position:relative;display:grid;place-items:center;box-sizing:border-box;flex:1;
  width:100%;min-width:0;min-height:0;overflow:hidden;padding:58px 16px 18px
 }
 body.profile-page .ui-profile-photo-canvas-001{position:relative;display:block;flex:none;max-width:100%;max-height:100%;min-width:0;min-height:0}
-/* Center the open cover within the dark veil rather than stretching it edge to edge. */
-body.profile-page .profile-media-viewer[data-kind="cover"] .ui-profile-photo-content-001{
- padding:clamp(60px,8vh,85px) clamp(22px,5vw,90px) clamp(30px,5vh,70px)
-}
-body.profile-page .profile-media-viewer[data-kind="cover"] .ui-profile-photo-canvas-001{
- border-radius:14px;overflow:hidden;box-shadow:0 26px 78px rgba(0,0,0,.38)
-}
 body.profile-page .profile-media-viewer-image{grid-area:auto;display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:fill}
-body.profile-page .profile-media-viewer[data-kind="cover"] .profile-media-viewer-image{object-fit:contain}
 body.profile-page .profile-media-viewer[data-image-format="png"] .profile-media-viewer-close{background:#374154bd}
 body.profile-page .profile-avatar-engagement{height:100%;min-height:0}
 body.profile-page .ui-profile-photo-footer-001{
@@ -3057,7 +3090,6 @@ body.profile-page .vt-profile-gifts-dialog-more-001[hidden]{display:none}
  body.profile-page .ui-profile-photo-footer-actions-001 :is(button,a){font-size:11px;padding:5px 5px}
  body.profile-page .vt-profile-avatar-prev-001{left:8px}
  body.profile-page .vt-profile-avatar-next-001{right:8px}
- body.profile-page .profile-media-viewer[data-kind="cover"][open]{grid-template-rows:minmax(0,1fr)}
 }
 @media(max-width:450px){
  body.profile-page .ui-profile-photo-footer-001{flex-wrap:wrap;justify-content:space-between}
