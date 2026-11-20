@@ -4254,10 +4254,14 @@ try{
   });
   profilePage.on("pageerror",error=>console.log("VATRA browser pageerror:",error.message));
   // The public cover is a real image now; serve a deterministic pixel in mocks.
-  await profilePage.route("**/storage/v1/object/public/covers/**",route=>route.fulfill({
-   status:200,contentType:"image/gif",
-   body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")
-  }));
+  await profilePage.route("**/storage/v1/object/public/covers/**",route=>{
+   // The visitor's legacy cover is present, but its optional -original is absent.
+   // The viewer must never request a square original as its primary image.
+   if(/-original\.(?:jpe?g|png|webp)(?:\?|$)/.test(route.request().url()))
+    return route.fulfill({status:404,contentType:"text/plain",body:"Not found"});
+   return route.fulfill({status:200,contentType:"image/gif",
+    body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")});
+  });
   // New canonical Storage buckets start empty. Supply the sample uploaded
   // avatar locally instead of depending on legacy objects in Supabase.
   await profilePage.route("**/storage/v1/object/public/avatars/**",route=>route.fulfill({
@@ -4296,55 +4300,58 @@ try{
   }))));
   await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
   await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
-  // The overlay fills the viewport, but the actual cover stays centered
-  // with generous margins on a dark backdrop, including for PNG/WebP files.
+  // Both the owner's and a friend's legacy square source must open as the
+  // same 2000:580 banner; the shared avatar viewer is never activated.
   assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),true);
+  const profileBeforeCover=await profilePage.evaluate(()=>({
+   cover:document.querySelector("#profile-cover-photo").getBoundingClientRect().toJSON(),
+   avatar:document.querySelector("#profile-avatar-wrap").getBoundingClientRect().toJSON(),
+   name:document.querySelector("#profile-heading").getBoundingClientRect().toJSON()
+  }));
   await profilePage.locator("#profile-cover-view").click({position:{x:80,y:80}});
-  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
-  const coverViewer=await profilePage.evaluate(()=>{
-   const dialog=document.querySelector("#profile-media-viewer");
-   const image=document.querySelector("#profile-media-viewer-image");
-   return {width:dialog.getBoundingClientRect().width,height:dialog.getBoundingClientRect().height,
-    viewportWidth:innerWidth,viewportHeight:innerHeight,source:image.src,
-    kind:dialog.dataset.kind,opening:dialog.dataset.coverOpening==="true",
-    flight:!!dialog.querySelector(".ui-profile-cover-flight-001"),
-    imageOpacity:getComputedStyle(image).opacity};
-  });
-  assert.equal(coverViewer.kind,"cover","Cover click must not leave the gallery in avatar mode");
-  assert.ok(!/\/avatars\//.test(coverViewer.source),
-   "The opening cover must never display a previously viewed avatar");
-  assert.ok(coverViewer.flight||!coverViewer.opening,
-   "Cover opening must retain the animated thumbnail until the new image is ready");
-  if(coverViewer.opening)assert.equal(coverViewer.imageOpacity,"0",
-   "The previous shared viewer image stays hidden while the cover opens");
-  assert.ok(Math.abs(coverViewer.width-coverViewer.viewportWidth)<=2&&
-   Math.abs(coverViewer.height-coverViewer.viewportHeight)<=2&&
-   /\/covers\/654321\/cover\/test-cover(?:-original)?\.webp/.test(coverViewer.source),
-   "Cover dialog must span the viewport while preserving the original: "+JSON.stringify(coverViewer));
-  await profilePage.waitForFunction(()=>{
-   const image=document.querySelector("#profile-media-viewer-image");
-   const canvas=document.querySelector("#profile-photo-canvas");
-   return image?.naturalWidth>0&&canvas?.getBoundingClientRect().width>0;
-  },null,{timeout:6000});
+  assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),true);
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
+   "Opening a cover must not activate the avatar photo dialog");
+  await profilePage.locator("#profile-cover-viewer.is-ready").waitFor({state:"visible",timeout:8000});
   const coverLayout=await profilePage.evaluate(()=>{
-   const dialog=document.querySelector("#profile-media-viewer");
-   const canvas=document.querySelector("#profile-photo-canvas");
-   const stage=dialog.querySelector(".profile-media-viewer-stage");
-   const rect=canvas.getBoundingClientRect();
-   const currentFormat=dialog.dataset.imageFormat;
-   dialog.dataset.imageFormat="png";
-   const pngBackground=getComputedStyle(stage).backgroundColor;
-   dialog.dataset.imageFormat=currentFormat;
-   return {imageWidth:rect.width,imageHeight:rect.height,
+   const modal=document.querySelector("#profile-cover-viewer");
+   const stage=document.querySelector("#profile-cover-viewer-stage");
+   const image=document.querySelector("#profile-cover-viewer-image");
+   const cover=document.querySelector("#profile-cover-photo");
+   const avatar=document.querySelector("#profile-avatar-wrap").getBoundingClientRect();
+   const name=document.querySelector("#profile-heading").getBoundingClientRect();
+   const rect=stage.getBoundingClientRect();
+   return {
+    modalWidth:modal.getBoundingClientRect().width,
+    backdrop:getComputedStyle(modal).backgroundColor,
+    aspect:rect.width/rect.height,
     centeredX:Math.abs(rect.left-(innerWidth-rect.width)/2),
-    pngBackground};
+    centeredY:Math.abs(rect.top-(innerHeight-rect.height)/2),
+    width:rect.width,
+    source:image.currentSrc||image.src,profileCover:cover.currentSrc||cover.src,
+    fit:getComputedStyle(image).objectFit,
+    avatarX:avatar.x,avatarY:avatar.y,nameX:name.x,nameY:name.y,
+    originalHidden:document.querySelector("#profile-cover-viewer-original").hidden
+   };
   });
-  assert.ok(coverLayout.imageWidth<=1141&&coverLayout.centeredX<=4,
-   "Cover must stay centered and below the comfortable maximum width: "+JSON.stringify(coverLayout));
-  assert.equal(coverLayout.pngBackground,"rgba(0, 0, 0, 0)",
-   "PNG/WebP covers must keep a transparent stage over the dark veil, never white");
-  await profilePage.locator("#profile-media-viewer-close").click();
-  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
+  assert.equal(coverLayout.source,coverLayout.profileCover,
+   "Cover stays on the exact visible banner image; it must never switch to an avatar or original");
+  assert.equal(coverLayout.fit,"cover",
+   "Legacy square uploads must show the same landscape crop in the viewer");
+  assert.ok(Math.abs(coverLayout.aspect-2000/580)<.02&&
+   coverLayout.centeredX<=3&&coverLayout.centeredY<=3&&coverLayout.width<=1122,
+   "Expanded cover must keep its 2000:580 ratio and remain centered: "+JSON.stringify(coverLayout));
+  assert.ok(coverLayout.backdrop.startsWith("rgba(9, 14, 24,"),
+   "The new cover has a dark full-window backdrop: "+JSON.stringify(coverLayout));
+  assert.equal(coverLayout.originalHidden,true,
+   "A legacy cover without an original must not expose a broken image link");
+  assert.ok(Math.abs(coverLayout.avatarX-profileBeforeCover.avatar.x)<2&&
+   Math.abs(coverLayout.avatarY-profileBeforeCover.avatar.y)<2&&
+   Math.abs(coverLayout.nameX-profileBeforeCover.name.x)<2&&
+   Math.abs(coverLayout.nameY-profileBeforeCover.name.y)<2,
+   "Avatar and profile heading must not jump when opening the cover");
+  await profilePage.locator("#profile-cover-viewer-close").click();
+  assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),false);
   const storyAvatar=profilePage.locator("#profile-avatar-wrap");
   assert.equal(await storyAvatar.evaluate(el=>el.classList.contains("has-active-story")),true,
    "Only a visible active story should create a colored avatar ring");
@@ -4386,6 +4393,16 @@ try{
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape should close the fullscreen avatar viewer");
+  // After viewing avatars, the next cover opening must still contain only
+  // the cover photo: never reuse a stale avatar frame from the shared gallery.
+  await profilePage.locator("#profile-cover-view").click({position:{x:80,y:80}});
+  assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),true);
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
+  assert.equal(await profilePage.locator("#profile-cover-viewer-image").evaluate(el=>el.src),
+   await profilePage.locator("#profile-cover-photo").evaluate(el=>el.src));
+  await profilePage.keyboard.press("Escape");
+  assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),false);
+
   await profilePage.locator("#profile-avatar-plus").hover();
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
    "The profile owner must be able to delete the active story");
