@@ -1172,7 +1172,7 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-story-viewer"')&&
  profileBehavior.includes('client.from("stories")')&&
  profileBehavior.includes('avatarWrap.classList.toggle("has-active-story",hasStory)')&&
- profileBehavior.includes('coverView.addEventListener("click",()=>openMedia("cover"))')&&
+ profileBehavior.includes('coverView.addEventListener("click",openCover)')&&
  profileBehavior.includes('mediaDialog.showModal()'),
  "Avatar story ring and original photo/cover viewer must be backed by real profile media and stories");
 const preflightMemberCss=await read("assets/css/profile.css");
@@ -2061,6 +2061,18 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-footer"')&&
  !(await read("assets/js/network.js")).includes('.showModal()'),
  "Avatar photo viewer needs accessible footer, correct PNG/JPEG files and nonmodal Vatryk errors");
 
+assert.ok(memberProfileMarkup.includes('id="profile-cover-viewer"')&&
+ memberProfileMarkup.includes('id="profile-cover-viewer-image"')&&
+ memberProfileMarkup.includes('id="profile-cover-viewer-stage"')&&
+ profileScript.includes('const openCover=()=>{')&&
+ profileScript.includes('coverView.addEventListener("click",openCover)')&&
+ profileScript.includes('const flight=coverPhoto.cloneNode(false)')&&
+ !profileScript.includes('openMedia("cover")')&&
+ !memberCss.includes('.profile-media-viewer[data-kind="cover"]')&&
+ memberCss.includes('aspect-ratio:2000 / 580')&&
+ memberCss.includes('.ui-profile-cover-viewer-image-001'),
+ "Cover uses an independent dark viewer and animates the existing 2000x580 thumbnail without avatar mode");
+
 const feedPhotoActions=await read("assets/js/post-interactions.js");
 const photoLikeGlyph='M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z';
 const photoShareGlyph='M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z';
@@ -2078,10 +2090,10 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  memberProfileMarkup.includes('id="profile-photo-share"')&&
  profileScript.includes('from("avatar_likes")')&&
  profileScript.includes('from("avatar_comments")')&&
- profileScript.includes('interaction.hidden=kind!=="avatar"')&&
+ profileScript.includes('if(kind!=="avatar"||!canViewPhoto)return;')&&
  !memberCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
  css.includes(".profile-photo-comments")&&
- memberCss.includes('body.profile-page .profile-media-viewer[data-kind="cover"][open]')&&
+ memberCss.includes('body.profile-page .ui-profile-cover-viewer-001[open]')&&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-posts-section{'),
  "Original avatar viewer needs real likes/comments/share and matching Feed posts; cover viewer does not");
 assert.ok(["feed.html","profile.html","communities.html","club.html"].every(Boolean)&&

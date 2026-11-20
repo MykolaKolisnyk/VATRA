@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=7625ddcfd6fdee4acfe32bdbcb2abc4480c0da6b">
     <link rel="stylesheet" href="assets/css/feed.css?rev=87f36f734305a3472db45f46badb4c7bd9b2c7a2">
     <link rel="stylesheet" href="assets/css/story-editor.css?rev=b6b39f00ee238008a679816b281887a1366e7c12">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=4cc044b5333858c9e1a1c2ee832672739f176264">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=ab4ca7b4dc6a625b4389be5bd17769cdd2f7aec7">
     <link rel="stylesheet" href="assets/css/post-composer.css">
     <link rel="stylesheet" href="assets/css/gifts.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -34,7 +34,7 @@
     <script defer src="assets/js/post-composer-ui.js"></script>
     <script defer src="assets/js/guest-view.js?rev=b25fd28b7cd80aa6bf1d02089df1c1b656ada6f2"></script>
     <script defer src="assets/js/story-editor.js?rev=2a44a72a7609a3d4765bd893eab6fcf492a9ddad"></script>
-    <script defer src="assets/js/profile.js?rev=ea31a25200b2264a57e19d8a504eddb37b5e9853"></script>
+    <script defer src="assets/js/profile.js?rev=4c0db86099f6c9ee9103d9115420e58853edb9f4"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -441,6 +441,14 @@
           </form>
         </dialog>
         <dialog id="profile-gifts-dialog" class="ui-profile-gifts-dialog-001" aria-labelledby="profile-gifts-dialog-title"><header class="ui-profile-gifts-dialog-header-001"><h2 id="profile-gifts-dialog-title" class="vt-profile-gifts-dialog-title-001" data-social-uk="Подарунки" data-social-en="Gifts">Подарунки</h2><span id="profile-gifts-dialog-count" class="vt-profile-gifts-dialog-count-001"></span><button id="profile-gifts-dialog-close" class="vt-profile-gifts-dialog-close-001" type="button" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close">×</button></header><div id="profile-gifts-dialog-list" class="ui-profile-gifts-dialog-list-001" aria-live="polite"></div><button id="profile-gifts-dialog-more" class="vt-profile-gifts-dialog-more-001" type="button" data-social-uk="Показати ще" data-social-en="Show more" hidden>Показати ще</button></dialog>
+        <dialog id="profile-cover-viewer" class="ui-profile-cover-viewer-001" aria-labelledby="profile-cover-viewer-title">
+          <button id="profile-cover-viewer-close" class="vt-profile-cover-viewer-close-001" type="button" aria-label="Закрити обкладинку" data-shell-aria-uk="Закрити обкладинку" data-shell-aria-en="Close cover photo"><svg class="ui-profile-cover-viewer-close-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-cover-viewer-close-path-001" d="m6 6 12 12M18 6 6 18"/></svg></button>
+          <h2 id="profile-cover-viewer-title" class="vt-profile-cover-viewer-title-001" data-social-uk="Обкладинка" data-social-en="Cover photo">Обкладинка</h2>
+          <div id="profile-cover-viewer-stage" class="ui-profile-cover-viewer-stage-001">
+            <img id="profile-cover-viewer-image" class="ui-profile-cover-viewer-image-001" alt="" decoding="async">
+          </div>
+          <a id="profile-cover-viewer-original" class="vt-profile-cover-viewer-original-001" target="_blank" rel="noopener noreferrer" data-social-uk="Відкрити оригінал" data-social-en="Open original" hidden>Відкрити оригінал</a>
+        </dialog>
         <dialog id="profile-media-viewer" class="profile-media-viewer ui-profile-media-viewer-001" aria-label="Перегляд фотографії" data-shell-aria-uk="Перегляд фотографії" data-shell-aria-en="Photo viewer">
           <div class="profile-media-viewer-stage ui-profile-media-viewer-stage-001">
             <button id="profile-media-viewer-close" class="profile-media-viewer-close vt-profile-media-viewer-close-001" type="button" data-shell-aria-uk="Закрити перегляд фото" data-shell-aria-en="Close photo viewer" aria-label="Закрити перегляд фото"><svg class="ui-profile-media-close-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-media-close-path-001" d="M6 6l12 12M18 6 6 18"/></svg></button>
