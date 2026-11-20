@@ -4434,7 +4434,7 @@ try{
   const profileCoverGap=await profilePage.evaluate(()=>{
    const header=document.querySelector(".feed-header").getBoundingClientRect();
    const cover=document.querySelector(".profile-cover").getBoundingClientRect();
-   return cover.top-header.bottom;
+   return cover.top+window.scrollY-header.bottom;
   });
   assert.ok(Math.abs(profileCoverGap)<=2,
    "Member cover must begin directly below the header without a top gap: "+profileCoverGap);
