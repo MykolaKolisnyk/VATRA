@@ -2512,17 +2512,16 @@ const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
 const settingsRuntime=await read("assets/js/settings.js");
-const businessRuntime=await read("assets/js/community-business.js");
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
 const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
-for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,businessRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
+for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
 for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
 for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
- for(const other of ["clips","marketplace","settings","business"].filter(name=>name!==stem)){
+ for(const other of ["clips","marketplace","settings"].filter(name=>name!==stem)){
   assert.ok(!markup.includes('assets/js/'+other+'.js')&&!markup.includes('assets/css/'+other+'.css'),section+" must not load another section");
  }
  assert.ok(!markup.includes("sections.js")&&!markup.includes("sections.css")&&!markup.includes("marketplace-editor.js")&&!markup.includes("clip-composer.js"));
@@ -2575,51 +2574,6 @@ assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&modera
 
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
 
-const businessSQL=await read("supabase/migrations/20261119075320_business_posts_followers_metrics.sql");
-for(const table of ["business_followers","business_posts","business_metrics"]){
- if(table==="business_metrics")assert.ok(businessRuntime.includes('from("'+table+'")'),table+" must load actual server data");
- assert.ok(businessSQL.includes("alter table public."+table+" enable row level security"),table+" must enforce RLS");
-}
-assert.ok(businessSQL.includes("grant insert(company_id,body),delete on public.business_posts to authenticated")&&businessSQL.includes("business_private.my_role(company_id) in ('owner','admin','editor')"),"Company publishing is controlled by active business roles");
-assert.ok(businessSQL.includes("follower_count=follower_count+delta")&&businessSQL.includes("post_count=post_count+delta")&&!businessRuntime.includes('from("business_metrics").update'),"Business statistics must be computed on the server");
-
-assert.ok(businessRuntime.includes('from("business_categories")')&&businessRuntime.includes("categoryPicker(form,existing)")&&businessRuntime.includes("category_code:chosen?.code"),"Community business settings must use the bilingual standard taxonomy");
-
-const businessJobs=await read("assets/js/community-business-jobs.js");
-const jobsSQL=await read("supabase/migrations/20261119080727_business_jobs_and_applications.sql");
-assert.doesNotThrow(()=>new Function(businessJobs.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/community-business-jobs.js?rev=')&& !((await read("club.html")).includes("assets/js/community-business-jobs.js")),"Jobs must load only on demand");
-for(const table of ["business_jobs","business_job_applications"]){assert.ok(businessJobs.includes('from("'+table+'")')&&jobsSQL.includes("alter table public."+table+" enable row level security"));}
-
-const businessBookings=await read("assets/js/community-business-bookings.js");
-const bookingSQL=await read("supabase/migrations/20261119081225_business_booking_slots_and_appointments.sql");
-assert.doesNotThrow(()=>new Function(businessBookings.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes('assets/js/community-business-bookings.js?rev=')&&!((await read("club.html")).includes("assets/js/community-business-bookings.js")),"Bookings must load only on demand");
-for(const table of ["business_booking_slots","business_appointments"]){assert.ok(businessBookings.includes('from("'+table+'")')&&bookingSQL.includes("alter table public."+table+" enable row level security"));}
-assert.ok(bookingSQL.includes("business_appointments_one_live_idx")&&bookingSQL.includes("and not reserved and not cancelled and starts_at>now()"),"Server must prevent concurrent reservation of the same slot");
-
-const businessStore=await read("assets/js/community-business-stores.js"),businessBrand=await read("assets/js/community-business-brand.js");
-const brandSQL=await read("supabase/migrations/20261119083718_business_brand_media_and_moderated_store.sql");
-for(const runtime of [businessStore,businessBrand])assert.doesNotThrow(()=>new Function(runtime.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes("assets/js/community-business-brand.js?rev=")&&businessRuntime.includes("assets/js/community-business-stores.js?rev="));
-assert.ok(brandSQL.includes("alter table public.business_store_listings enable row level security")&&brandSQL.includes("l.moderation_status='approved'")&&brandSQL.includes("l.seller_vatra_id=(select business_private.current_member())"),"Company storefront requires approved owner listings");
-assert.ok(brandSQL.includes("business_logo_path")&&brandSQL.includes("business_cover_path")&&brandSQL.includes("business_media_add")&&brandSQL.includes("business_media_remove"),"Company media must enforce ownership");
-
-const ratingsSQL=await read("supabase/migrations/20261119084256_business_verified_customer_ratings.sql");
-assert.ok(ratingsSQL.includes("alter table public.business_ratings enable row level security")&&ratingsSQL.includes("a.status='completed'")&&ratingsSQL.includes("business_private.my_role(company) is null"),"Ratings require a completed customer appointment");
-assert.ok(businessRuntime.includes('from("business_ratings")')&&ratingsSQL.includes("rating_total=rating_total+new.stars-old.stars"),"Company rating uses server aggregates");
-
-const inboxSource=await read("assets/js/community-business-inbox.js"),inboxSQL=await read("supabase/migrations/20261119084730_business_private_customer_inquiries.sql");
-assert.doesNotThrow(()=>new Function(inboxSource.replace(/^export /gm,"")));
-assert.ok(businessRuntime.includes("assets/js/community-business-inbox.js?rev="));
-assert.ok(inboxSQL.includes("alter table public.business_inquiries enable row level security")&&inboxSQL.includes("alter table public.business_inquiry_messages enable row level security")&&inboxSQL.includes("new.sender_side:='company'")&&inboxSQL.includes("grant select(id,inquiry_id,sender_side,body,created_at),insert(inquiry_id,body)"),"Business correspondence must be private and attributed by the server");
-
-const communityBusinessSQL=await read("supabase/migrations/20261119115216_community_business_tools.sql"),communityStatsSQL=await read("supabase/migrations/20261119120101_community_business_shared_statistics.sql");
-assert.ok(communityBusinessSQL.includes("add column business_enabled boolean not null default false")&&communityBusinessSQL.includes("community_enable_business")&&communityBusinessSQL.includes("revoke insert(name,category,category_code,description,city,contact_email,website)"),"Business is an opt-in community extension, not a separate identity");
-assert.ok(communityStatsSQL.includes("business_shared_follow_metrics")&&communityStatsSQL.includes("business_shared_post_metrics")&&businessRuntime.includes("community_follower_count,community_post_count"),"Community stats use the actual shared follows and posts");
-assert.ok(!businessRuntime.includes('from("business_followers")')&&!businessRuntime.includes('from("business_posts")'),"No second social graph or feed");
-assert.ok((await read("assets/js/club.js")).includes("VATRA_BUSINESS_TOOLS.mount")&&businessRuntime.includes("VATRA_BUSINESS_TOOLS=Object.freeze")&&!(await read("assets/js/social-shell.js")).includes("setUpBusinessNav"),"Business tools only open inside a community");
-
 const publicFriendSQL=await read("supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
 const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
 
@@ -2635,15 +2589,30 @@ for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))conti
 await import("./maintenance-smoke.mjs");
 
 await assert.rejects(stat("business.html"),{code:"ENOENT"});
-assert.ok(!businessRuntime.includes("VATRA_SECTION_CORE?.start")&&!businessRuntime.includes("requestedFilter"),"Business modules cannot mount as a separate page");
+assert.ok(!(await read("assets/js/club.js")).includes("setupCommunityBusiness")&&
+ !(await read("assets/js/communities.js")).includes("business_enabled")&&
+ !(await read("communities.html")).includes("community-business-enabled")&&
+ !(await read("club.html")).includes("club-business-tools"),
+ "Retired business tools must be absent from both community pages");
 assert.ok(!(await read("assets/js/not-found.js")).includes("|marketplace|business|"),"Retired business route must not resolve");
 
 const retiredActivitySQL=await read("supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
 assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&retiredActivitySQL.includes("drop table public.business_followers;")&&retiredActivitySQL.includes("alter column club_id set not null")&&!/drop table[^;]*cascade/i.test(retiredActivitySQL),"Legacy business storage is removed safely and community linkage is mandatory");
 
 await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
-assert.ok(communityBannerCSS.includes("body.community-page.vatra-business-page .ui-business-view-001"),"Business tool styling belongs to the existing community stylesheet");
+assert.ok(!communityBannerCSS.includes("vatra-business-page")&&!communityBannerCSS.includes("ui-club-business-tools-001"),"Retired business styles must be absent");
 assert.ok(!(await read("assets/js/club.js")).includes("assets/css/business.css"),"Community tools must not fetch a retired stylesheet");
+for(const asset of ["community-business","community-business-brand","community-business-bookings",
+ "community-business-jobs","community-business-inbox","community-business-stores"]){
+ await assert.rejects(stat("assets/js/"+asset+".js"),{code:"ENOENT"});
+}
+const businessResetSQL=await read("supabase/migrations/20261120163311_reset_created_communities_retire_business_tools.sql");
+assert.ok(businessResetSQL.includes("delete from public.communities;")&&
+ businessResetSQL.includes("drop schema if exists business_private cascade;")&&
+ businessResetSQL.includes("drop column if exists business_enabled;")&&
+ businessResetSQL.includes("public.business_companies")&&
+ !businessResetSQL.includes("drop table public.marketplace_listings"),
+ "Community reset must retire business tables but preserve independent marketplace listings");
 
 // Gallery, site settings and shared-account navigation regressions.
 assert.ok(profileScript.includes('const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]')&&profileScript.includes('interaction.hidden=false;activityTicket++')&&!memberCss.includes('body.profile-page .profile-media-viewer[data-kind="avatar-history"][open]{grid-template-columns:minmax(0,1fr)}'),"Historical avatars must retain their own panel");
