@@ -19,7 +19,7 @@ const context={Map,WeakMap,Set,Date,URL,Promise,Number,
 runInNewContext(source.slice(start,end)+
  "\nglobalThis.mediaCacheTest={signed,preSignGallery};",context);
 const {signed,preSignGallery}=context.mediaCacheTest;
-const host="https://rjasunoawrxvetwadylh.supabase.co";
+const host="https://cxrcycxrlkufozomsxcs.supabase.co";
 const path="7/comments/example.png";
 function makeClient(owner){
  let calls=0,bulkCalls=0,authHandler=null;
