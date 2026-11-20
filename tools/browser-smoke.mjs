@@ -252,22 +252,32 @@ try{
    };
    const measure=list=>Array.from(list.children,el=>{const r=el.getBoundingClientRect(),a=el.firstElementChild.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,center:a.left+a.width/2,bottom:r.bottom,avatarW:a.width,avatarH:a.height};});
    const cases=[];
-   for(const count of [1,2,3,6]){
+   for(const count of [1,2,3,4,6]){
     friends.replaceChildren(...Array.from({length:count},(_,i)=>tile(false,i)));
     gifts.replaceChildren(...Array.from({length:3},(_,i)=>tile(true,i)));
     cases.push({count,friends:measure(friends),gifts:measure(gifts),width:friends.getBoundingClientRect().width});
    }
    return cases;
   });
+  // Current layout intentionally shows four friends per row and three gifts.
+  // Neither grid should shift when fewer cards are present.
+  const fourFriendTracks=geometry.find(c=>c.count===4).friends;
   for(const c of geometry){
-   const row=c.friends.slice(0,3);
-   assert.ok(row.every((p,i)=>nearly(p.x,c.gifts[i].x)&&nearly(p.w,c.gifts[i].w)&&nearly(p.center,c.gifts[i].center)&&nearly(p.y,row[0].y)&&nearly(p.avatarW,p.avatarH))&&
-    nearly(row[0].w,geometry[0].friends[0].w)&&
-    (c.count!==6||nearly(c.friends[3].x,row[0].x)&&c.friends[3].y>=row[0].bottom),
-    "Friends must fill the same three left-aligned tracks as gifts at "+width+"px: "+JSON.stringify(c));
+   const row=c.friends.slice(0,4);
+   assert.ok(row.every((p,i)=>
+    nearly(p.x,fourFriendTracks[i].x)&&
+    nearly(p.w,fourFriendTracks[i].w)&&
+    nearly(p.y,row[0].y)&&nearly(p.avatarW,p.avatarH))&&
+    c.gifts.length===3&&
+    c.gifts.every((p,i)=>nearly(p.y,c.gifts[0].y)&&
+     nearly(p.w,c.gifts[0].w)&&nearly(p.avatarW,p.avatarH)&&
+     (i===0||p.x>c.gifts[i-1].x))&&
+    (c.count!==6||(nearly(c.friends[4].x,row[0].x)&&
+     c.friends[4].y>=row[0].bottom)),
+    "Friend (4 tracks) and gift (3 tracks) previews must stay stable at "+width+"px: "+JSON.stringify(c));
   }
  }
- console.log("VATRA profile friend and gift preview columns remain aligned with one to six friends: OK");
+ console.log("VATRA profile friend and gift preview grids stay aligned with one to six friends: OK");
 
  for(const width of [1366,420]){
   await spacingProbe.setViewportSize({width,height:900});
