@@ -2980,6 +2980,10 @@ body.profile-page .ui-profile-photo-footer-actions-001 .ui-profile-photo-footer-
 body.profile-page .vt-profile-photo-tag-status-001{position:absolute;right:12px;bottom:100%;padding:6px 10px;border-radius:8px;background:#fff;color:#b44258;box-shadow:0 3px 18px #1d263738;font-size:12px}
 body.profile-page .vt-profile-photo-tag-status-001[hidden]{display:none}
 body.profile-page .ui-profile-photo-tag-markers-001{position:absolute;inset:0;pointer-events:none}
+body.profile-page .ui-profile-photo-tag-group-001{position:absolute;transform:translate(-50%,-50%);pointer-events:auto}
+body.profile-page .ui-profile-photo-tag-group-001 .vt-profile-photo-tag-marker-001{position:relative;transform:none;text-decoration:none}
+body.profile-page .vt-profile-photo-tag-remove-001{position:absolute;right:-10px;top:-10px;z-index:2;display:grid;place-items:center;width:20px;height:20px;padding:0;border:1px solid #fff;border-radius:50%;background:#b7415b;color:#fff;cursor:pointer;font:700 15px/1 Onest,system-ui,sans-serif}
+body.profile-page .ui-profile-photo-canvas-001.is-tagging .profile-media-viewer-image{cursor:crosshair}
 body.profile-page .vt-profile-photo-tag-marker-001{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;display:grid;place-items:center;width:30px;height:30px;border:2px solid white;border-radius:50%;background:#2a6feaab;color:#fff;box-shadow:0 2px 8px #10172277;cursor:pointer}
 body.profile-page .vt-profile-photo-tag-name-001{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);max-width:220px;white-space:nowrap;padding:5px 9px;border-radius:6px;background:#172232e8;color:#fff;font:650 12px "Onest",system-ui,sans-serif;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s}
 body.profile-page .vt-profile-photo-tag-marker-001:hover .vt-profile-photo-tag-name-001,
