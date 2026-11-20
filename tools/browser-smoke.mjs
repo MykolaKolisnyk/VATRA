@@ -4311,7 +4311,7 @@ try{
     imageOpacity:getComputedStyle(image).opacity};
   });
   assert.equal(coverViewer.kind,"cover","Cover click must not leave the gallery in avatar mode");
-  assert.ok(!/\\/avatars\\//.test(coverViewer.source),
+  assert.ok(!/\/avatars\//.test(coverViewer.source),
    "The opening cover must never display a previously viewed avatar");
   assert.ok(coverViewer.flight||!coverViewer.opening,
    "Cover opening must retain the animated thumbnail until the new image is ready");
