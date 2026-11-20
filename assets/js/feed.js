@@ -908,8 +908,9 @@
    window.VATRA_ONBOARDING?.start({client,memberId:vatraId,authUserId:user.id,createdAt:user.created_at});
    void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()]);
   }catch(error){
-   window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>location.reload()});
-   if(document.body.dataset.authReady==="true"){
+   const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>location.reload()});
+   if(illustrated)clearMessage();
+   else if(document.body.dataset.authReady==="true"){
     message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
      "Could not load the feed. Refresh the page."));
    }else showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));
