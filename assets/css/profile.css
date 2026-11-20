@@ -537,10 +537,10 @@ body.profile-page .profile-photo-actions{
  border-bottom:1px solid #e7edf6
 }
 body.profile-page .profile-photo-actions button{
- display:flex;align-items:center;justify-content:center;gap:7px;
- flex:0 0 auto;min-height:42px;padding:8px 10px;border:0;border-radius:10px;
- background:transparent;color:#8291a7;cursor:pointer;
- font:650 13px/1.3 "Onest",system-ui,sans-serif
+ display:inline-flex;align-items:center;justify-content:center;gap:5px;
+ flex:0 0 auto;min-width:42px;min-height:39px;padding:7px 11px;border:0;border-radius:10px;
+ background:transparent;color:#778aa7;cursor:pointer;
+ font:650 13px/1.3 "Onest",system-ui,sans-serif;transition:background .18s,color .18s
 }
 body.profile-page .profile-photo-actions button:hover{
  border-color:#b9cafa;background:#edf3ff;color:#3568d7
@@ -549,13 +549,10 @@ body.profile-page .profile-photo-actions button.is-liked,
 body.profile-page .profile-photo-actions button[aria-pressed="true"]{
  border-color:#b9cafc;background:#eef3ff;color:#3465d6
 }
-body.profile-page .profile-photo-actions svg{width:24px;height:24px;flex:none}
+body.profile-page .profile-photo-actions svg{display:block;width:22px;height:22px;flex:none}
 body.profile-page .vt-profile-photo-like-count-001{
- min-width:0;padding:0;background:none;text-align:center;font-size:13px
-}
-body.profile-page .vt-profile-photo-comments-heading-001{
- flex:none;margin:0;padding:14px 16px 10px;color:#2d405e;
- font:750 14px/1.35 "Onest",system-ui,sans-serif
+ display:inline-block;min-width:1ch;padding:0;margin:0;background:transparent;
+ color:#687992;text-align:center;font:650 12px/1.2 "Onest",system-ui,sans-serif
 }
 body.profile-page .vt-profile-message-post-link-001{
  display:inline-flex;margin:4px 0;padding:5px 9px;border-radius:7px;
@@ -648,7 +645,6 @@ body.profile-page .vt-profile-photo-comment-send-001:disabled{
  body.profile-page .profile-avatar-engagement{height:100%;border-left:0;border-top:1px solid #e4e9f2}
  body.profile-page .profile-photo-info{padding:10px 14px}
  body.profile-page .profile-photo-actions{padding:8px 14px}
- body.profile-page .vt-profile-photo-comments-heading-001{padding:8px 14px}
  body.profile-page .profile-photo-comment-form{padding:8px 12px}}
 @media(prefers-reduced-motion:reduce){
  body.profile-page .profile-avatar-trigger .profile-avatar.has-photo{transition:none}}
@@ -2894,7 +2890,7 @@ body.profile-page :is(.vt-profile-cover-edit-step-001,.vt-profile-cover-edit-sav
 body.profile-page .ui-profile-photo-owner-avatar-001,body.profile-page .ui-profile-photo-composer-avatar-001{display:block;flex:0 0 40px;width:40px;height:40px;border-radius:50%;background:var(--vatra-default-avatar) center/cover}
 body.profile-page .ui-profile-photo-owner-copy-001{display:grid;gap:3px;min-width:0}
 body.profile-page .profile-photo-actions :is(#profile-photo-like-label,#profile-photo-share-label){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-body.profile-page .profile-photo-comments.is-empty{display:flex;align-items:flex-start;justify-content:center;padding:30px 14px 12px}
+body.profile-page .profile-photo-comments.is-empty{display:flex;align-items:center;justify-content:center;padding:16px 14px}
 body.profile-page .ui-profile-photo-empty-state-001{display:grid;justify-items:center;gap:10px;max-width:270px;text-align:center;color:#96a5b9;padding:12px 6px}
 body.profile-page .ui-profile-photo-empty-icon-001{width:42px;height:42px}
 body.profile-page .ui-profile-photo-composer-row-001{display:flex;align-items:flex-start;gap:8px}
