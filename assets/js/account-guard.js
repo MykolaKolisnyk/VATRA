@@ -35,10 +35,10 @@ function loadAnnouncements(){
 }
 function loadAdmin(){
  if(adminPromise)return adminPromise;
- const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=35b47ed2550d330c0b2be73a03bd0def52f11c53",root).href;style.dataset.vatraAdminStyle="true";
+ const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=21c1d822a8a5d8ccf984b29cc8e21dfb8c54d6a7",root).href;style.dataset.vatraAdminStyle="true";
  const ready=new Promise((resolve,reject)=>{style.onload=resolve;style.onerror=()=>reject(Error("Admin styles unavailable"));});
  document.head.append(style);
- adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=8a2f75231da4a22424295cbf159cf9a96e28f305",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
+ adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=24e74d0ab3649d2de60d767b930a6adb85b8e0ae",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
  return adminPromise;
 }
 function showBlocked(client,state){
