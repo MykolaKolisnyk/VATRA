@@ -1230,8 +1230,16 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    if(!friendsLoaded||!validId(recipient)||recipient===ownId||sendDM.disabled)return;
    // Drafts are encrypted in Messenger, never stored as plaintext in direct_messages.
    const body=tr("Поглянь на цей допис: ","Check out this post: ")+permalink(post);
+   // No plaintext drafts in URLs, browser history, network logs, or Referer headers.
+   // Use short-lived same-tab storage only while navigating to Messenger.
+   try{
+    sessionStorage.setItem("vatra:messenger:draft-v1",JSON.stringify({to:recipient,body,at:Date.now()}));
+   }catch(_){
+    showShareError(tr("Не вдалося передати чернетку безпечно. Скопіюйте посилання.","Cannot securely transfer draft. Copy the link instead."));
+    return;
+   }
    const link=new URL("messenger.html",relativeRoot());
-   link.searchParams.set("to",recipient);link.searchParams.set("draft",body);
+   link.searchParams.set("to",recipient);
    if(shareMenu.open)shareMenu.close();
    location.assign(link.href);
   });
