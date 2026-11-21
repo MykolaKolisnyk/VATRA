@@ -1208,6 +1208,7 @@ try{
     hintText:hint?.textContent.trim(),hintTop:hr?.top,hintBottom:hr?.bottom,
     inputTop:ir.top,inputBottom:ir.bottom,inputMid:(ir.top+ir.bottom)/2,
     errorTop:er?.top,errorText:error?.textContent.trim(),
+    errorHidden:error?getComputedStyle(error).display==="none":false,
     invalid:el.getAttribute("aria-invalid")};
   });
   const empty=await metrics();
@@ -1222,12 +1223,12 @@ try{
   await probe.locator(action).click();
   await probe.waitForTimeout(240);
   const error=await metrics();
-  assert.ok(error.invalid==="true"&&error.errorText&&
+  assert.ok(error.invalid==="true"&&error.errorText&&error.errorHidden&&
    error.hintCount===1&&error.placeholder===" "&&
    (error.floating?error.hintBottom<=error.inputTop+24:
-    Math.abs((error.hintTop+error.hintBottom)/2-error.inputMid)<=3)&&
-   error.errorTop>=error.inputBottom+2,
-   "Validation must not overlap a floating hint or the error message: "+route+" "+JSON.stringify(error));
+    Math.abs((error.hintTop+error.hintBottom)/2-error.inputMid)<=3),
+   "Validation must keep the field intact while hiding inline error text: "+route+" "+JSON.stringify(error));
+  await probe.locator(".vatra-toast-item--error.is-visible").first().waitFor({state:"visible"});
   await probe.waitForTimeout(5800);
   assert.equal(await field.getAttribute("aria-invalid"),null,
    "Validation error must expire without typing: "+route);
@@ -1272,22 +1273,16 @@ try{
   await consentProbe.locator("#password").fill("VeryStrong@12345");
   await consentProbe.locator("#password-confirm").fill("VeryStrong@12345");
   await consentProbe.locator('#signup-form button[type="submit"]').click();
-  const geometry=await consentProbe.locator(".check-terms").evaluate(label=>{
-   const copy=label.querySelector(":scope > span");
-   const checkbox=label.querySelector(":scope > input");
+  const consentFeedback=await consentProbe.locator(".check-terms").evaluate(label=>{
    const error=label.querySelector(":scope > .field-error");
-   if(!error)return null;
-   const cr=checkbox.getBoundingClientRect(),sr=copy.getBoundingClientRect(),er=error.getBoundingClientRect();
-   const gap=parseFloat(getComputedStyle(error).columnGap);
-   const iconWidth=parseFloat(getComputedStyle(error,"::before").width);
-   return {inside:error.parentElement===label,checkboxX:cr.left,iconX:er.left,
-    copyX:sr.left,messageX:er.left+gap+iconWidth,below:er.top-sr.bottom,
-    errorRight:er.right,viewport:innerWidth,message:error.textContent.trim()};
+   const checkbox=label.querySelector(":scope > input");
+   return {errorText:error?.textContent.trim(),
+    inlineHidden:error?getComputedStyle(error).display==="none":false,
+    invalid:checkbox?.getAttribute("aria-invalid")};
   });
-  assert.ok(geometry?.inside&&Math.abs(geometry.checkboxX-geometry.iconX)<3&&
-   Math.abs(geometry.copyX-geometry.messageX)<3&&geometry.below>=0&&
-   geometry.errorRight<=geometry.viewport+1,
-   "Consent error icon and text must align at "+width+" "+language+": "+JSON.stringify(geometry));
+  assert.ok(consentFeedback.errorText&&consentFeedback.inlineHidden&&consentFeedback.invalid==="true",
+   "Consent validation must be attached to the checkbox but never occupy the form");
+  await consentProbe.locator(".vatra-toast-item--error.is-visible").last().waitFor({state:"visible"});
   await consentProbe.close();
  }
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
