@@ -4468,7 +4468,8 @@ try{
    arrowLayout.right.left>=arrowLayout.photo.right-2,
    "VK-style chevrons remain outside the photo even when its aspect ratio changes: "+
    JSON.stringify(arrowLayout));
-  assert.equal(arrowLayout.background,"rgb(32, 36, 44)");
+  assert.equal(arrowLayout.background,"rgb(17, 20, 25)",
+   "Photo viewer must use the shared dark workspace background");
   assert.ok(!arrowLayout.leftRadius.includes("50%"),
    "Navigation must use unframed chevrons, not round floating buttons");
   await profilePage.locator("#profile-avatar-gallery-delete").click();
