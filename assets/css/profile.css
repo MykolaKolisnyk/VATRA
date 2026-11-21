@@ -1834,6 +1834,10 @@ body.profile-page .profile-report-review small{
 body.profile-page .profile-report-review strong{
  margin-bottom:7px;color:#2e415f;font:730 14px/1.45 "Onest",system-ui,sans-serif
 }
+body.profile-page .ui-profile-report-photo-preview-001{
+ display:block;max-width:190px;max-height:140px;width:auto;height:auto;
+ margin:9px 0 2px;border-radius:9px;object-fit:contain;background:#e4eaf4
+}
 body.profile-page .vt-profile-report-details-label-001{
  display:block;margin:15px 0 8px;color:#3b4d67;font:650 13px/1.35 "Onest",system-ui,sans-serif
 }
@@ -2989,7 +2993,7 @@ body.profile-page .ui-profile-photo-content-001{
  width:100%;min-width:0;min-height:0;overflow:hidden;padding:58px 16px 18px
 }
 body.profile-page .ui-profile-photo-canvas-001{position:relative;display:block;flex:none;max-width:100%;max-height:100%;min-width:0;min-height:0}
-body.profile-page .profile-media-viewer-image{grid-area:auto;display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:fill}
+body.profile-page .profile-media-viewer-image{grid-area:auto;display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}
 body.profile-page .profile-media-viewer[data-image-format="png"] .profile-media-viewer-close{background:#374154bd}
 body.profile-page .profile-avatar-engagement{height:100%;min-height:0}
 body.profile-page .ui-profile-photo-footer-001{
@@ -3000,9 +3004,9 @@ body.profile-page .ui-profile-photo-footer-001{
 body.profile-page .ui-profile-photo-footer-001[hidden],
 body.profile-page .ui-profile-avatar-gallery-toolbar-001[hidden],
 body.profile-page .vt-profile-avatar-gallery-delete-001[hidden],
-body.profile-page .vt-profile-photo-footer-tag-001[hidden],
 body.profile-page .vt-profile-photo-set-current-001[hidden]{display:none!important}
-body.profile-page .vt-profile-avatar-gallery-count-001{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.profile-page .vt-profile-avatar-gallery-count-001{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(50vw,460px)}
+body.profile-page .vt-profile-photo-report-001[hidden]{display:none!important}
 body.profile-page .ui-profile-photo-footer-actions-001{display:flex;flex:0 0 auto;align-items:center;gap:2px}
 body.profile-page .ui-profile-photo-footer-actions-001 :is(button,a){
  display:inline-flex;justify-content:center;align-items:center;gap:4px;

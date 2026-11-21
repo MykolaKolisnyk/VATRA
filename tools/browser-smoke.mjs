@@ -4413,7 +4413,16 @@ try{
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
   await profilePage.locator("#profile-avatar-next").click();
   assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
-  assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2");
+  const avatarOwner=(await profilePage.locator("#profile-heading").textContent()).trim();
+  assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
+   (language==="en"?"Profile photo · ":"Фото профілю · ")+avatarOwner+
+   (language==="en"?" · 2 of 2":" · 2 із 2"));
+  assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
+   "Person tagging was removed from the photo viewer altogether");
+  assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
+   "Members cannot report their own avatar photo");
+  assert.equal(await profilePage.locator("#profile-media-viewer-image").evaluate(el=>getComputedStyle(el).objectFit),"contain",
+   "Portrait and landscape profile photos must preserve their aspect ratio");
   assert.equal(await profilePage.locator("#profile-avatar-engagement").isVisible(),true,"Historical avatars retain their own engagement panel");
   assert.equal(await profilePage.locator("#profile-media-viewer-heading").isVisible(),false,"Avatar gallery has no redundant heading");
   await profilePage.keyboard.press("ArrowLeft");
@@ -4783,6 +4792,21 @@ try{
    "Visitors can open a report dialog for another member");
   assert.equal(await profilePage.locator("#profile-report-open svg").count(),1,
    "Report must be one accessible SVG icon without a text label");
+  // A photo-specific report can open above the existing avatar viewer and
+  // binds to a concrete profile-owned avatar path without submitting it.
+  const reportTarget="789012/avatar/test-visitor-photo.webp";
+  await profilePage.evaluate(path=>window.VATRA_REPORT_PROFILE_PHOTO?.(path),reportTarget);
+  assert.equal(await profilePage.locator("#profile-report-dialog").evaluate(el=>el.open),true,
+   "Visitors should be able to report a specific profile photo");
+  assert.ok((await profilePage.locator("#profile-report-content").textContent()).includes(
+   language==="en"?"Why are you reporting this photo?":"Чому ви скаржитеся на цю фотографію?"));
+  await profilePage.locator(".ui-profile-report-option-001").first().click();
+  assert.ok((await profilePage.locator("#profile-report-content").textContent()).includes(
+   language==="en"?"Profile photo":"Фотографія профілю"));
+  assert.ok((await profilePage.locator(".ui-profile-report-photo-preview-001").getAttribute("src")).includes(reportTarget));
+  await profilePage.locator("#profile-report-close").click();
+  assert.equal(await profilePage.locator("#profile-report-dialog").evaluate(el=>el.open),false);
+
   assert.equal(await profilePage.locator("#profile-block-toggle").isVisible(),true,
    "Block icon must appear immediately to the left of Report");
   assert.equal(await profilePage.locator("#profile-block-toggle svg").count(),1);
