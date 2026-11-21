@@ -1103,7 +1103,7 @@ const normalizedSocialHeader=html=>{
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
 /* profileMarkup already loaded during the footer audit. */
 assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
- (profileMarkup.match(/data-profile-panel="/g)||[]).length===11&&
+ (profileMarkup.match(/data-profile-panel="/g)||[]).length===10&&
  profileMarkup.includes('id="profile-friends-preview"')&&
  profileMarkup.includes('id="profile-gifts-preview"')&&
  profileMarkup.includes('id="profile-tab-clips"')&&
