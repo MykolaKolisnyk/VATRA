@@ -1,0 +1,34 @@
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+const sql=await readFile("_development/supabase/migrations/20261121_admin_console_reporting.sql","utf8");
+const js=await readFile("assets/js/admin.js","utf8");
+const css=await readFile("assets/css/admin.css","utf8");
+assert.equal((sql.match(/create or replace function vatra_admin_private\.console_read\(/g)||[]).length,1,"Private reporting function must be defined exactly once");
+assert.equal((sql.match(/create or replace function public\.admin_console_read\(/g)||[]).length,1,"Public read wrapper must be defined exactly once");
+assert.equal((sql.match(/\$fn\$/g)||[]).length,4,"Function dollar quotes must be balanced and complete");
+assert.ok(sql.trim().endsWith("grant execute on function public.admin_console_read(text,jsonb) to authenticated;"),"Migration must end with the validated wrapper grant");
+assert.match(sql,/function vatra_admin_private\.console_read\(/i);
+assert.match(sql,/security definer\s+set search_path to ''/i);
+assert.match(sql,/if not vatra_admin_private\.is_owner\(\)/);
+assert.match(sql,/function public\.admin_console_read\(/);
+assert.match(sql,/security invoker\s+set search_path to ''/i);
+assert.match(sql,/revoke all on function public\.admin_console_read\(text,jsonb\) from (public|anon)/);
+assert.match(sql,/grant execute on function public\.admin_console_read\(text,jsonb\) to authenticated/);
+assert.doesNotMatch(sql,/create\s+table|drop\s+table|delete\s+from|truncate\s+table/i);
+for(const action of ["members_page","member_detail","analytics","health","requests_history","reports_history","audit_page"]){
+ assert.ok(sql.includes("p_action='"+action+"'"),"SQL read branch missing: "+action);
+ assert.ok(js.includes('"'+action+'"'),"Admin panel read usage missing: "+action);
+}
+assert.match(sql,/limit v_limit offset v_page\*v_limit/i);
+assert.match(sql,/pg_trgm/);
+assert.match(sql,/admin_profiles_name_search_idx/);
+assert.doesNotMatch(sql,/raw_user_meta_data|auth\.users|password|email/i,"Never expose private identity credentials to admins");
+assert.match(js,/confirmDecision/);
+assert.match(js,/approve\.disabled=input\.value\.trim\(\)!==String\(params\.p_id\)/);
+assert.match(js,/vatra-admin-announcement-starts-001/);
+assert.match(js,/vatra-admin-announcement-ends-001/);
+assert.match(css,/ui-vatra-admin-analytics-cards-001/);
+assert.match(css,/ui-vatra-admin-chart-001/);
+assert.match(css,/ui-vatra-admin-confirm-dialog-001/);
+assert.match(css,/ui-vatra-admin-directory-pagination-001/);
+console.log("VATRA admin security: owner guard, private definer, invoker wrapper, restricted RPC, paginated search, analytics and typed confirmation checked.");

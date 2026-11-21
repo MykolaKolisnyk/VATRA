@@ -14,7 +14,7 @@ const events=[];
 class ElementMock{
  constructor(tag="div"){
   this.tagName=tag.toUpperCase();this.children=[];this.parentNode=null;this.className="";this._text="";
-  this.dataset={};this.attributes={};this.listeners={};this.hidden=false;this.disabled=false;this.value="";this.open=false;
+  this.dataset={};this.attributes={};this.listeners={};this.style={};this.hidden=false;this.disabled=false;this.value="";this.open=false;
  }
  set textContent(value){this._text=String(value??"");this.replaceChildren();}
  get textContent(){return this._text+this.children.map(child=>child.textContent).join("");}
@@ -47,15 +47,31 @@ globalThis.confirm=()=>false;
 const node=(tag,cls,copy)=>{const el=document.createElement(tag);el.className=cls;if(copy!==undefined)el.textContent=copy;return el;};
 const button=(cls,copy,fn)=>{const el=node("button",cls,copy);el.type="button";el.addEventListener("click",fn);return el;};
 const ui={root:new URL("https://vatra.example/"),t:(uk)=>uk,node,button,icon:()=>node("svg","shield-icon"),valid:id=>/^[1-9][0-9]{0,18}$/.test(String(id))};
-const seen=[],account={vatra_id:25,name:"Тестовий учасник",created_at:"2026-11-21T12:00:00Z",verified:false,state:"active",blocked_until:null};
+const seen=[],readCalls=[],account={vatra_id:25,name:"Тестовий учасник",created_at:"2026-11-21T12:00:00Z",verified:false,state:"active",blocked_until:null};
+const daily=Array.from({length:14},(_,i)=>({date:"2026-11-"+String(i+8).padStart(2,"0"),signups:i%3,posts:i%5,comments:i%4}));
 const client={
  rpc:async(name,parameters)=>{
+  if(name==="admin_console_read"){
+   readCalls.push({action:parameters.p_action,payload:parameters.p_payload});
+   switch(parameters.p_action){
+    case "members_page":return {data:{total:37,items:[account],page:parameters.p_payload?.page||0,page_size:25},error:null};
+    case "member_detail":return {data:{posts:3,comments:7,stories:2,reports:0,last_seen_at:"2026-11-21T15:00:00Z",recent_actions:[]},error:null};
+    case "analytics":return {data:{daily,active_24h:4,active_7d:19,posts_7d:12,comments_7d:24},error:null};
+    case "health":return {data:{checked_at:"2026-11-21T18:00:00Z",db_connections:4,database_size_bytes:10485760,storage_buckets:[{name:"avatars",limit_bytes:31457280}],maintenance:false,moderation_pending:0,audit_24h:0},error:null};
+    case "requests_history":return {data:[{vatra_id:11,reason:"Перевірено",status:"approved",created_at:"2026-11-20T12:00:00Z"}],error:null};
+    case "reports_history":return {data:[],error:null};
+    case "audit_page":return {data:{items:[{id:1,target_vatra_id:11,event:"verify",reason:"Перевірено",created_at:"2026-11-21T18:00:00Z"}],total:1,page:0,page_size:25},error:null};
+    default:throw Error("Unknown read action: "+parameters.p_action);
+   }
+  }
   assert.equal(name,"vatra_admin_manage");
   seen.push(parameters.p_action);
   switch(parameters.p_action){
    case "dashboard":return {data:{accounts:37,verified:1,posts:14,communities:0,verification_pending:2,reports_pending:1,market_pending:3,blocked:0},error:null};
-   case "members":return {data:{total:37,items:[account]},error:null};
    case "lookup":return {data:account,error:null};
+   case "requests":return {data:[],error:null};
+   case "reports":return {data:[],error:null};
+   case "block":return {data:{ok:true},error:null};
    default:return {data:[],error:null};
   }
  },
@@ -76,15 +92,48 @@ assert.equal(walk(document.body).filter(el=>el.className==="ui-vatra-admin-queue
 const usersNav=walk(document.body).find(el=>el.dataset.adminTab==="users");
 assert.ok(usersNav,"Members sidebar item missing");
 usersNav.click();await tick();
-assert.ok(seen.includes("members"),"Members directory RPC not called");
+assert.ok(readCalls.some(x=>x.action==="members_page"),"Server paging not called");
 const rows=walk(document.body).filter(el=>el.className==="ui-vatra-admin-directory-row-001");
 assert.equal(rows.length,1,"Members directory must show users without manually searching");
 rows[0].click();await tick();
 assert.ok(seen.includes("lookup"),"Click on member must fetch detail");
+assert.ok(readCalls.some(x=>x.action==="member_detail"),"Member detail stats RPC is missing");
+assert.ok(walk(document.body).some(el=>el.className==="vatra-admin-member-stat-number-001"&&el.textContent==="3"),"Member post count missing");
 assert.ok(walk(document.body).some(el=>el.className==="ui-vatra-admin-member-tools-001"),"Member administration tools missing");
+const reasonInput=walk(document.body).find(el=>el.className==="ui-vatra-admin-reason-001");
+reasonInput.value="Підтверджена причина для тесту";
+const blockButton=walk(document.body).find(el=>el.className==="vatra-admin-danger-001"&&el.textContent.includes("Заблокувати"));
+assert.ok(blockButton,"Block account action missing");
+blockButton.click();await tick();
+const confirmation=walk(document.body).find(el=>el.className==="ui-vatra-admin-confirm-dialog-001");
+assert.ok(confirmation?.open,"Typed confirmation dialog is missing");
+const approve=walk(confirmation).find(el=>el.className==="vatra-admin-danger-001");
+assert.equal(approve.disabled,true,"Blocking must require explicit VATRA ID");
+const confirmationId=walk(confirmation).find(el=>el.className==="vatra-admin-confirm-id-input-001");
+confirmationId.value="25";confirmationId.input();
+assert.equal(approve.disabled,false,"Matching VATRA ID must unlock confirmation");
+approve.click();await tick();
+assert.ok(seen.includes("block"),"Blocking action should only run after confirmation");
+const searchInput=walk(document.body).find(el=>el.className==="ui-vatra-admin-id-input-001");
+searchInput.value="Тестовий";
+walk(document.body).find(el=>el.className==="ui-vatra-admin-lookup-001").submit();await tick();
+assert.ok(readCalls.some(x=>x.action==="members_page"&&x.payload.query==="Тестовий"),"Search must use server");
+walk(document.body).find(el=>el.dataset.adminTab==="analytics").click();await tick();
+assert.ok(readCalls.some(x=>x.action==="analytics"),"Analytics RPC missing");
+assert.equal(walk(document.body).filter(el=>el.className==="ui-vatra-admin-chart-day-001").length,14,"14-day chart missing");
+walk(document.body).find(el=>el.dataset.adminTab==="monitor").click();await tick();
+assert.ok(readCalls.some(x=>x.action==="health"),"Health RPC missing");
+assert.ok(walk(document.body).some(el=>el.className==="vatra-admin-monitor-headline-001"),"Health status missing");
+walk(document.body).find(el=>el.dataset.adminTab==="requests").click();await tick();
+walk(document.body).find(el=>el.dataset.adminMode==="resolved").click();await tick();
+assert.ok(readCalls.some(x=>x.action==="requests_history"),"Moderation history missing");
+walk(document.body).find(el=>el.dataset.adminTab==="history").click();await tick();
+assert.ok(readCalls.some(x=>x.action==="audit_page"),"Audit pagination missing");
 const announcementsNav=walk(document.body).find(el=>el.dataset.adminTab==="announcements");
 announcementsNav.click();await tick();
 assert.ok(walk(document.body).some(el=>el.className==="vatra-admin-empty-001"&&el.textContent.includes("Оголошень")),"Announcement empty state missing");
+assert.ok(walk(document.body).some(el=>el.className==="vatra-admin-announcement-starts-001"),"Announcement start time missing");
+assert.ok(walk(document.body).some(el=>el.className==="vatra-admin-announcement-ends-001"),"Announcement end time missing");
 clearPanel();
 assert.equal(document.body.children.length,0,"Close should remove admin dialog");
-console.log("VATRA professional admin: live KPIs, grouped navigation, member list, member detail and announcement names verified.");
+console.log("VATRA admin: dashboard, paging, search, account stats, analytics, monitoring, moderation history, audit and announcement scheduling verified.");
