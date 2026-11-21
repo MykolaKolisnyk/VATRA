@@ -48,9 +48,10 @@ function show(value,kind="info",source){
  return node;
 }
 function inspect(el){
- if(!(el instanceof Element)||!el.matches(selector)||!el.isConnected||el.hidden)return;
+ if(!(el instanceof Element)||!el.matches(selector)||!el.isConnected)return;
  const text=(el.textContent||"").replace(/\s+/g," ").trim();
- if(!text||loading(text)||seen.get(el)===text)return;
+ if(el.hidden||!text){seen.delete(el);return;}
+ if(loading(text)||seen.get(el)===text)return;
  seen.set(el,text);show(text,"info",el);
 }
 function visit(node){if(!(node instanceof Element))return;if(node.matches(selector))inspect(node);node.querySelectorAll(selector).forEach(inspect);}
