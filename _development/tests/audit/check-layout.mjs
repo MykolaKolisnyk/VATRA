@@ -698,7 +698,7 @@ assert.ok(homeMarkup.includes('vatra-home-saved-field-title-001 vatra-sr-only')&
 assert.ok(!css.includes('.footer nav>a[href="create-account.html"]{')&&
  !css.includes('.create-account-page .footer nav>.vatra-create-account-footer-signin{'),
  "Footer sign-in and create-account links must use the same shared link typography");
-const allTemplates=await readdir("email-templates");
+const allTemplates=await readdir("_development/email-templates");
 assert.deepEqual(allTemplates.filter(f=>f.endsWith(".html")).sort(),
  emailNames.map(n=>n+".html").sort(),
  "Email templates must have exactly one canonical HTML per purpose");
