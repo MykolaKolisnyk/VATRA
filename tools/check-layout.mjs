@@ -1183,6 +1183,9 @@ assert.ok(
  messengerRuntime.includes('if(event.persisted)location.reload()')&&
  messengerRuntime.includes('state.terminating=true;state.refreshVersion++;state.chatVersion++')&&
  messengerRuntime.includes('if(state.terminating||version!==state.refreshVersion)return;')&&
+ messengerRuntime.includes('const request=++state.peerRequestVersion')&&
+ messengerRuntime.includes('const candidateKey=data.public_key')&&
+ messengerRuntime.includes('state.selected&&!state.peerKey&&!state.peerLoading&&!state.locked')&&
  messengerRuntime.includes('Passphrases do not match.')&&
  messengerRuntime.includes('const saved=await cryptoBox().loadRecord(state.own)')&&
  !messengerRuntime.includes('from("direct_messages")')&&
