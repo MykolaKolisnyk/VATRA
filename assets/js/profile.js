@@ -1069,12 +1069,17 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  const offset=append?Number(list.dataset.offset||0):0;
  const year=Number(q("#profile-post-filter-year")?.value||0);
  const month=Number(q("#profile-post-filter-month")?.value||0);
+ const scope=String(targetId)+"|"+year+"|"+month;
+ const oldCards=!append&&list.dataset.profileScope===scope?
+  new Map([...list.querySelectorAll(".feed-post-card[data-post-id]")]
+   .map(card=>[card.dataset.postId,card])):new Map();
  list.dataset.loading="true";list.setAttribute("aria-busy","true");
  if(!append){
-  list.replaceChildren();
-  empty.textContent=t("Завантаження публікацій…","Loading posts…");
-  empty.hidden=false;
-  list.dataset.offset="0";
+  // Do not remove existing posts, comments or media while requesting changes.
+  if(!list.querySelector(".feed-post-card")){
+   empty.textContent=t("Завантаження публікацій…","Loading posts…");
+   empty.hidden=false;
+  }
   if(more)more.hidden=true;
  }
  if(more)more.disabled=true;
@@ -1099,10 +1104,14 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   const engagement=await (window.VATRA_POST_INTERACTIONS?.prefetchEngagement(
    client,rows.map(post=>({...post,kind:"person"})))||Promise.resolve(new Map()));
   if(ticket!==profilePostsRequest)return;
-  if(!append)list.replaceChildren();
   const batch=document.createDocumentFragment();
   for(const post of rows){
+   const fingerprint=JSON.stringify([post.id,post.body,post.visibility,post.media_kind,
+    post.media_path,post.media_items,post.pinned_at,post.comments_enabled]);
+   const cached=oldCards.get(String(post.id));
+   if(cached?._vatraPostFingerprint===fingerprint){batch.append(cached);continue;}
    const article=node("article","feed-post-card ui-profile-post-card-001");
+   article._vatraPostFingerprint=fingerprint;
    article.dataset.postId=post.id;
    const header=node("div","feed-post-header ui-profile-post-header-001");
    const identity=node("div","feed-post-author ui-profile-post-author-001");
@@ -1168,7 +1177,8 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    });
    batch.append(article);
   }
-  list.append(batch);
+  if(append)list.append(batch);else list.replaceChildren(batch);
+  list.dataset.profileScope=scope;
   list.dataset.offset=String(offset+rows.length);
   empty.hidden=list.querySelector(".feed-post-card")!==null;
   if(!empty.hidden)empty.textContent=year?
@@ -1193,10 +1203,10 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   }
  }catch(_){
   if(ticket!==profilePostsRequest)return;
-  if(!append)list.replaceChildren();
+  // On transient failure preserve already visible cards and their interactions.
   empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
    "Could not load posts. Try refreshing this page.");
-  empty.hidden=false;
+  empty.hidden=!!list.querySelector(".feed-post-card");
  }finally{
   if(ticket===profilePostsRequest){
    list.dataset.loading="false";list.setAttribute("aria-busy","false");
