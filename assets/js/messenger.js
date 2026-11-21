@@ -390,7 +390,20 @@
    .on("postgres_changes",{event:"*",schema:"public",table:"messenger_messages",filter:"recipient_id=eq."+state.own},onChange)
    .subscribe();
   state.poll=setInterval(()=>{if(document.visibilityState==="visible")void refresh();},25000);
-  window.addEventListener("pagehide",()=>{clearInterval(state.poll);if(state.subscription)void client.removeChannel(state.subscription);});
+  window.addEventListener("pagehide",()=>{
+   // A restored back-forward-cache page must never retain decrypted DOM or
+   // a stale unlocked UI after Web Crypto has dropped its in-memory key.
+   cryptoBox().lock();
+   state.locked=true;state.peerKey=null;
+   $("#messenger-messages").replaceChildren();
+   $("#messenger-compose-text").value="";
+   syncSend();
+   clearInterval(state.poll);
+   if(state.subscription)void client.removeChannel(state.subscription);
+  });
+  window.addEventListener("pageshow",event=>{
+   if(event.persisted)location.reload(); // Re-authenticate and require key unlock.
+  });
   document.addEventListener("visibilitychange",onChange);
  }
  void init().catch(()=>status(t("Не вдалося запустити месенджер. Оновіть сторінку.","Messenger startup failed. Reload."),true));
