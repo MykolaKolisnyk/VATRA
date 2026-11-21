@@ -802,18 +802,15 @@ textarea{resize:none}
 }
 
 .vatra-toast-stack-001{position:fixed;z-index:22000;left:clamp(14px,2vw,28px);bottom:clamp(16px,2.8vh,28px);width:min(400px,calc(100vw - 28px));display:flex;flex-direction:column;gap:9px;pointer-events:none;font-family:"Onest",system-ui,sans-serif}
-.vatra-toast-item-001{box-sizing:border-box;display:flex;align-items:center;gap:11px;min-height:52px;width:100%;padding:13px 14px;border:1px solid #444954;border-left:3px solid #7694d8;border-radius:14px;background:#303238;color:#f6f7fb;box-shadow:0 15px 40px rgba(14,20,31,.32);pointer-events:auto;opacity:0;transform:translate3d(-14px,12px,0) scale(.975);transition:opacity .28s ease,transform .28s cubic-bezier(.2,.7,.2,1)}
+.vatra-toast-item-001{box-sizing:border-box;display:flex;align-items:center;gap:11px;min-height:52px;width:100%;padding:13px 14px;border:0;border-radius:15px;background:#2e3138;color:#f5f7fb;box-shadow:0 16px 40px rgba(14,20,31,.25);pointer-events:auto;opacity:0;transform:translate3d(-14px,12px,0) scale(.975);transition:opacity .28s ease,transform .28s cubic-bezier(.2,.7,.2,1)}
 .vatra-toast-item-001.is-visible{opacity:1;transform:translate3d(0,0,0) scale(1)}
 .vatra-toast-item-001.is-leaving{opacity:0;transform:translate3d(-11px,10px,0) scale(.985)}
-.vatra-toast-item--error{border-left-color:#ec5a71}
-.vatra-toast-item--success{border-left-color:#58c893}
-.vatra-toast-item--warning{border-left-color:#e4b04e}
 .vatra-toast-icon-001{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:9px;background:#424b60;color:#c8d9ff;font:800 17px/1 system-ui,sans-serif}
 .vatra-toast-item--error .vatra-toast-icon-001{background:#533841;color:#ff9da9}
 .vatra-toast-item--success .vatra-toast-icon-001{background:#29483d;color:#9ee5c0}
 .vatra-toast-item--warning .vatra-toast-icon-001{background:#51432d;color:#f5cb77}
-.vatra-toast-text-001{flex:1;min-width:0;margin:0;font:560 13px/1.45 "Onest",system-ui,sans-serif;overflow-wrap:anywhere}
-.vatra-toast-close-001{flex:none;display:grid;place-items:center;width:29px;height:29px;padding:0;border:0;border-radius:8px;background:transparent;color:#c3cad7;cursor:pointer;font:500 22px/1 system-ui,sans-serif}
+.vatra-toast-item-001 .vatra-toast-text-001{flex:1;min-width:0;margin:0;color:#f5f7fb;font:590 13px/1.5 "Onest",system-ui,sans-serif;overflow-wrap:anywhere}
+.vatra-toast-close-001{flex:none;display:grid;place-items:center;width:29px;height:29px;padding:0;border:0;border-radius:8px;background:transparent;color:#d3d9e5;cursor:pointer;font:500 22px/1 system-ui,sans-serif}
 .vatra-toast-close-001:hover,.vatra-toast-close-001:focus-visible{background:#ffffff20;color:#fff}
 html.vatra-toast-enabled :is(#profile-media-status,#profile-action-status,#profile-photo-status,#profile-status-error,#profile-edit-message,#profile-report-error,#profile-avatar-finish-error,#profile-cover-edit-error,#profile-compose-status,#profile-photo-tag-status,#feed-status,#feed-compose-error,#club-status,#club-compose-error,#community-create-status,#community-list-status,#profile-message-status,#messenger-send-status,#messenger-key-error,#messenger-new-error,#messenger-delete-error,.vatra-section-dialog-status-001,.vatra-post-interactions-status-001,.vatra-profile-photo-comment-status-001){display:none!important}
 @media(prefers-reduced-motion:reduce){.vatra-toast-item-001{transition:none;transform:none}}
