@@ -4312,7 +4312,29 @@ try{
   assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),true);
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Opening a cover must not activate the avatar photo dialog");
+  const transitionState=await profilePage.evaluate(()=>{
+   const modal=document.querySelector("#profile-cover-viewer");
+   const stage=document.querySelector("#profile-cover-viewer-stage");
+   const flight=modal.querySelector(".ui-profile-cover-flight-001");
+   return {ready:modal.classList.contains("is-ready"),flight:!!flight,
+    flightSource:flight?.currentSrc||flight?.src,
+    source:document.querySelector("#profile-cover-photo").currentSrc,
+    stageVisibility:getComputedStyle(stage).visibility,
+    stageOpacity:getComputedStyle(stage).opacity};
+  });
+  if(!transitionState.ready){
+   assert.equal(transitionState.flight,true,
+    "The exact displayed cover must stay visible while the zoom runs or the image decodes");
+   assert.equal(transitionState.flightSource,transitionState.source,
+    "Never animate a stale avatar or different cover source");
+   assert.equal(transitionState.stageVisibility,"hidden",
+    "The destination image must not overlap the flying thumbnail mid-animation");
+   assert.equal(transitionState.stageOpacity,"0",
+    "Do not crossfade two photos during opening");
+  }
   await profilePage.locator("#profile-cover-viewer.is-ready").waitFor({state:"visible",timeout:8000});
+  await profilePage.waitForFunction(()=>
+   !document.querySelector("#profile-cover-viewer .ui-profile-cover-flight-001"));
   const coverLayout=await profilePage.evaluate(()=>{
    const modal=document.querySelector("#profile-cover-viewer");
    const stage=document.querySelector("#profile-cover-viewer-stage");
@@ -4323,7 +4345,9 @@ try{
    const rect=stage.getBoundingClientRect();
    return {
     modalWidth:modal.getBoundingClientRect().width,
-    backdrop:getComputedStyle(modal).backgroundColor,
+    backdrop:getComputedStyle(modal,"::backdrop").backgroundColor,
+    dialogBackground:getComputedStyle(modal).backgroundColor,
+    stageVisibility:getComputedStyle(stage).visibility,
     aspect:rect.width/rect.height,
     centeredX:Math.abs(rect.left-(innerWidth-rect.width)/2),
     centeredY:Math.abs(rect.top-(innerHeight-rect.height)/2),
@@ -4341,8 +4365,12 @@ try{
   assert.ok(Math.abs(coverLayout.aspect-2000/580)<.02&&
    coverLayout.centeredX<=3&&coverLayout.centeredY<=3&&coverLayout.width<=1122,
    "Expanded cover must keep its 2000:580 ratio and remain centered: "+JSON.stringify(coverLayout));
-  assert.ok(coverLayout.backdrop.startsWith("rgba(9, 14, 24,"),
-   "The new cover has a dark full-window backdrop: "+JSON.stringify(coverLayout));
+  assert.equal(coverLayout.backdrop,"rgba(9, 14, 24, 0.9)",
+   "Only the backdrop should darken the page, without animating the profile itself");
+  assert.equal(coverLayout.dialogBackground,"rgba(0, 0, 0, 0)",
+   "The dialog must not paint a second translucent layer over the background");
+  assert.equal(coverLayout.stageVisibility,"visible",
+   "The final photo must appear fully opaque after its decode completes");
   assert.equal(coverLayout.originalHidden,true,
    "A legacy cover without an original must not expose a broken image link");
   assert.ok(Math.abs(coverLayout.avatarX-profileBeforeCover.avatar.x)<2&&
