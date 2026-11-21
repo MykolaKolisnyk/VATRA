@@ -1642,7 +1642,7 @@ assert.ok(
  postMediaScript.includes("async function mountGallery(client,post,container)")&&
  interactionsScript.includes("panel.hidden=true;")&&
  interactionsScript.includes('const openComments=()=>{')&&
- interactionsScript.includes('dialog.showModal();close.focus(')&&
+ interactionsScript.includes('dialog.showModal();content.scrollTop=0;close.focus(')&&
  !interactionsScript.includes('summaryObserver.disconnect();void refreshSocial();void loadComments(true);')&&
  (await read("assets/js/feed.js")).includes("media_items:uploaded||[]")&&
  profileExtraScript.includes("media_items:uploaded||[]")&&
