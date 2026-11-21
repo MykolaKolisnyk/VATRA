@@ -31,7 +31,6 @@ function wireHoverHelp(){
   const side=availableRight>=355?"right":availableLeft>=355?"left":"below";
   help.dataset.side=side;
   panel.style.top="";panel.style.bottom="";
-  // Keep the complete help bubble within the visible viewport.
   requestAnimationFrame(()=>{
    if(!help.open)return;
    const bounds=panel.getBoundingClientRect();
@@ -61,7 +60,6 @@ function wireHoverHelp(){
   });
   summary?.addEventListener("click",event=>{
    event.preventDefault();
-   // Touch devices have no hover: retaining tap access keeps the hint usable.
    if(matchMedia("(hover: none)").matches){
     if(!help.open)reveal(help);
    }
@@ -87,7 +85,6 @@ function wireCreateAccountWizard(){
    header.hidden=Number(header.dataset.stepHeading)!==step;
   progress.setAttribute("aria-valuenow",String(step));
   if(animate)replayAuthContent(q(".signup-form-panel .narrow-form"));
-  // Previous input values and any inline errors are retained when going back.
  }
  next.addEventListener("click",()=>{
   if(!validateCreateAccountStep(first))return;
@@ -162,15 +159,10 @@ function wireSelects(){
   list.hidden=true;
   list.setAttribute("role","listbox");
   list.setAttribute("aria-label",select.getAttribute("aria-label")||"");
-  // Keep the rounded popup shell static and inset only the scrolling content.
-  // This prevents scrollbar thumbs running into its top/bottom corners.
   const scrollArea=document.createElement("div");
   scrollArea.className="vatra-select-scroll-area ui-select-scroll-"+select.id;
   scrollArea.setAttribute("role","presentation");
   list.append(scrollArea);
-  // The native rail has browser-specific arrows. Use a small themed thumb that
-  // follows the real scroll position; the content itself remains natively
-  // scrollable by wheel, touch and keyboard.
   const rail=document.createElement("div");
   rail.className="vatra-select-scroll-rail ui-select-rail-"+select.id;
   rail.hidden=true;
@@ -187,7 +179,6 @@ function wireSelects(){
   function updateRail(){
    if(list.hidden)return;
    const overflow=scrollArea.scrollHeight-scrollArea.clientHeight;
-   // Measure after revealing: hidden rails report clientHeight=0.
    if(overflow<=1){rail.hidden=true;rail.classList.remove("is-visible");return;}
    rail.hidden=false;
    const height=rail.clientHeight;
@@ -270,7 +261,6 @@ function wireSelects(){
    scrollArea.append(item);
   }
   root.append(trigger,list);
-  // The visible registration caption also opens the custom gender selector.
   const caption=document.querySelector('label[for="'+select.id+'"]');
   if(caption){
     caption.addEventListener("click",event=>{
@@ -306,8 +296,6 @@ function wireSelects(){
    opened={trigger,list,root,select,choices,resetRail};
    const active=list.querySelector('[aria-selected="true"]');
    if(active)active.scrollIntoView({block:"nearest"});
-   // Layout is now measurable. Keep the thumb visible if the pointer opened
-   // the list and already happens to rest over its content.
    requestAnimationFrame(()=>{
     if(opened?.list!==list)return;
     updateRail();
@@ -361,8 +349,6 @@ const SIGNUP_PENDING_KEY="vatra-signup-confirmation";
 const SIGNUP_AUTH_CHANNEL="vatra-auth-verified";
 let signupAuthWatchStarted=false,signupVerificationBusy=false,signupAccountNavigating=false;
 
-// Never accept a cross-tab message as proof of identity. Only the Auth server
-// can confirm that this browser holds a session for the expected email.
 function isExpectedConfirmedSignup(user){
  return !!(signupPending?.email&&user?.id&&user?.email_confirmed_at&&
   typeof user.email==="string"&&
@@ -381,7 +367,6 @@ async function verifyPendingSignupSession(){
   try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
   goToFeed();
  }catch(_){
-  // Transient network errors keep the waiting screen available for retries.
  }finally{signupVerificationBusy=false;}
 }
 function watchSignupConfirmation(){
@@ -430,8 +415,6 @@ function announceVerifiedAccount(){
 }
 
 const SIGNUP_RESEND_COOLDOWN_MS=60000;
-// VATRA Supabase Email OTP Expiration: 900 seconds (confirmed in Auth settings).
-// The client counts from the successful server response; network latency can affect seconds shown.
 const SIGNUP_LINK_VALIDITY_MS=900000;
 let signupPending=null,signupSending=false,signupTickTimer=null;
 function maskSignupEmail(email){
