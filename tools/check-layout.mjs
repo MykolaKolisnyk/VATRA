@@ -2073,6 +2073,18 @@ assert.ok(memberProfileMarkup.includes('id="profile-cover-viewer"')&&
  memberCss.includes('.ui-profile-cover-viewer-image-001'),
  "Cover uses an independent dark viewer and animates the existing 2000x580 thumbnail without avatar mode");
 
+assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
+ memberProfileMarkup.includes('id="profile-photo-restore"')&&
+ profileScript.includes('pendingAvatarUndo={path,previous')&&
+ profileScript.includes('storage.download(path)')&&
+ profileScript.includes('restoreAvatarButton.addEventListener("click"')&&
+ memberCss.includes('.profile-media-viewer.is-photo-deleted')&&
+ memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
+ !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
+ memberCss.includes('padding:58px 76px 18px')&&
+ memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
+ "Avatar deletions preserve a restorable backup and chevrons stay outside the image");
+
 const photoReportMigration=await read("supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
 const photoReportNotNull=await read("supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
 assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
@@ -2603,7 +2615,8 @@ assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(coun
 const publicFriendSQL=await read("supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
 const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
 
-assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('client.storage.from("avatars").remove([path])'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");
+assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])])')&&
+ profileScript.includes('storage.upload(undo.path,undo.thumbnail'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");
 
 assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&!profileMarkup.includes('ui-profile-edit-icon-001')&&profileMarkup.includes('class="ui-profile-name-row-001"')&&memberCss.includes('.ui-profile-name-row-001>.profile-edit-open')&&!memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs beside the name as a single styled text action");
 
