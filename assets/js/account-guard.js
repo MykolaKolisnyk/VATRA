@@ -19,13 +19,13 @@ async function session(client,id){
  if(id!=="1")return;
  const role=await client.rpc("vatra_admin_access");if(ticket!==epoch||role.error||role.data!==true)return;
  const support=document.querySelector(".feed-menu-support");if(!support)return;
- const entry=button("vt-vatra-owner-admin-menu-001","",async()=>{
+ const entry=button("vatra-owner-admin-menu-001","",async()=>{
   if(entry.disabled||ticket!==epoch||context!==current)return;
   entry.disabled=true;
   try{const module=await loadAdmin();if(ticket!==epoch||context!==current)return;const menu=support.closest("details");if(menu)menu.open=false;module.openPanel(current,()=>ticket===epoch&&context===current,{root,t,node,button,icon,valid});}
   catch(_){if(ticket===epoch)alert(t("Не вдалося відкрити ADMIN PANEL.","Could not open ADMIN PANEL."));}
   finally{entry.disabled=false;}
- });entry.id="vatra-admin-menu";entry.append(icon(),node("span","vt-vatra-owner-admin-menu-label-001","ADMIN PANEL"));const logout=document.getElementById("feed-logout");if(logout)logout.before(entry);else support.after(entry);
+ });entry.id="vatra-admin-menu";entry.append(icon(),node("span","vatra-owner-admin-menu-label-001","ADMIN PANEL"));const logout=document.getElementById("feed-logout");if(logout)logout.before(entry);else support.after(entry);
  }catch(_){}
 }
 function loadAdmin(){
@@ -41,8 +41,8 @@ function showBlocked(client,state){
  const signOut=async()=>{await client.auth.signOut({scope:"local"});location.replace(root.href);};
  const service=window.VATRA_SERVICE_NOTICE?.show(state.state==="deleted"?"deleted":"blocked",{locked:true,support:true,actionLabel:t("Вийти","Sign out"),onAction:signOut,description:state.blocked_until?t("Обмеження до: ","Restricted until: ")+new Date(state.blocked_until).toLocaleString():undefined});
  if(service){blockedDialog=service;return;}
- const d=node("dialog","ui-vatra-admin-blocked-001");blockedDialog=d;d.append(node("h2","vt-vatra-admin-blocked-title-001",t("Доступ до VATRA обмежено","Access to VATRA is restricted")),node("p","vt-vatra-admin-blocked-copy-001",state.blocked_until?t("Обмеження до: ","Restricted until: ")+new Date(state.blocked_until).toLocaleString():t("Зверніться до підтримки VATRA.","Contact VATRA support.")));
- const support=node("a","vt-vatra-admin-blocked-support-001",t("Техпідтримка","Support"));support.href="mailto:vatra.support@gmail.com";d.append(support,button("vt-vatra-admin-primary-001",t("Вийти","Sign out"),async()=>{await client.auth.signOut({scope:"local"});location.replace(root.href);}));d.addEventListener("cancel",e=>e.preventDefault());document.body.append(d);d.showModal();
+ const d=node("dialog","ui-vatra-admin-blocked-001");blockedDialog=d;d.append(node("h2","vatra-admin-blocked-title-001",t("Доступ до VATRA обмежено","Access to VATRA is restricted")),node("p","vatra-admin-blocked-copy-001",state.blocked_until?t("Обмеження до: ","Restricted until: ")+new Date(state.blocked_until).toLocaleString():t("Зверніться до підтримки VATRA.","Contact VATRA support.")));
+ const support=node("a","vatra-admin-blocked-support-001",t("Техпідтримка","Support"));support.href="mailto:vatra.support@gmail.com";d.append(support,button("vatra-admin-primary-001",t("Вийти","Sign out"),async()=>{await client.auth.signOut({scope:"local"});location.replace(root.href);}));d.addEventListener("cancel",e=>e.preventDefault());document.body.append(d);d.showModal();
 }
 window.VATRA_ADMIN_SESSION=session;
 window.VATRA_ADMIN_END=(client,id)=>{if(context?.client===client&&context.id===String(id))clear();};

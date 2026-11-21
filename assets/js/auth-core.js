@@ -111,7 +111,7 @@ function showFieldError(control,message){
  if(message){
   if(!error){
    error=document.createElement("small");
-   error.className="field-error vt-field-error-"+control.id;
+   error.className="field-error vatra-field-error-"+control.id;
    error.id="vatra-error-"+control.id;
    error.setAttribute("role","alert");
    // Consent validation occupies a dedicated row below the whole label,
