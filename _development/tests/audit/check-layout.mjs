@@ -153,8 +153,9 @@ assert.ok(auth.includes('function passwordIssue(value){')&&
  auth.includes('if(control.type==="password"&&form.id!=="login-form")return passwordIssue(value);')&&
  (auth.match(/const passwordProblem=passwordIssue\(password\);/g)||[]).length===2&&
  auth.includes('code==="same_password"')&&
- auth.includes('if(status&&heading)heading.after(status);')&&
- auth.includes('if(status&&step.contains(status))form.before(status);'),
+ !auth.includes('if(status&&heading)heading.after(status);')&&
+ !auth.includes('if(status&&step.contains(status))form.before(status);')&&
+ authShared.includes('window.VATRA_TOAST.show(message,type)'),
  "Signup and both reset flows must share a specific password validator and aligned error placement");
 for(const [page,key,id] of [
  ["create-account","n260","create-account-password-policy"],["forgot","n60","forgot-password-policy"],
