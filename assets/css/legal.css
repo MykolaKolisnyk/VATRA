@@ -1,4 +1,4 @@
-/* VATRA • public documents. One layout for desktop, tablet and phone. */
+
 .policy-page{background:#fafbfe;color:var(--ink)}
 .policy-skip{position:fixed;top:-90px;left:16px;z-index:100;display:block;background:#2865D8;color:#fff;padding:12px 20px;border-radius:12px;font-weight:700}
 .policy-skip:focus{top:12px}
@@ -64,7 +64,7 @@
 .policy-table tr:last-child td{border-bottom:0}
 .policy-page .footer{min-height:70px;padding-inline:0}
 .policy-page .auth-footer-content{width:min(calc(100% - 52px),1100px)}
-/* Адаптивність юридичних сторінок: один набір правил для кожної ширини екрана. */
+
 @media(min-width:1025px) and (max-width:1199px){.policy-main{padding:32px 0 32px}}
 @media(max-width:1024px){.policy-main{padding:32px 0 32px}.policy-main,.policy-top-inner,.policy-tabs,.policy-page .auth-footer-content{width:min(calc(100% - 44px),1100px)}.policy-tabs{justify-content:center;padding:9px 0;gap:7px}.policy-tabs a{padding:11px 14px;min-width:0;font-size:13px}.policy-grid{grid-template-columns:205px minmax(0,1fr);gap:18px}.policy-copy{padding:26px 26px 17px}}
 @media(min-width:768px) and (max-width:950px){.policy-grid{display:block}
