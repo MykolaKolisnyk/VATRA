@@ -6,6 +6,14 @@ const pages=["index","404","create-account","forgot","reset","verify","feed","pr
 const publicPages=new Set(["index","terms","privacy","cookies","commerce"]);
 const sensitive=new Set(["404","create-account","forgot","reset","verify","feed","profile"]);
 const css=await read("assets/css/base.css");
+const privateMessenger=await read("messenger.html");
+assert.ok(privateMessenger.includes('name="robots" content="noindex,nofollow"')&&
+ privateMessenger.includes('src="assets/js/host.js"')&&
+ privateMessenger.includes('src="assets/js/lang.js"')&&
+ privateMessenger.includes('assets/js/messenger-crypto.js')&&
+ !privateMessenger.includes('rel="canonical"'),
+ "Private messenger must remain unindexed and load verified host, locale and crypto modules");
+
 assert.ok(css.includes("@font-face")&&css.includes("../fonts/Onest-Variable.ttf"),"Local Onest font missing");
 assert.ok((await stat("assets/fonts/Onest-Variable.ttf")).size>100000,"Missing local font");
 assert.ok(!css.includes("fonts.googleapis.com"),"No Google Fonts dependencies");
