@@ -3021,6 +3021,7 @@ body.profile-page .vt-profile-photo-restore-001{
 body.profile-page .vt-profile-photo-restore-001:hover{background:#515760}
 body.profile-page .vt-profile-photo-restore-001:focus-visible{outline:2px solid #94b8ff;outline-offset:2px}
 body.profile-page .vt-profile-photo-restore-001:disabled{opacity:.62;cursor:wait}
+body.profile-page .profile-media-viewer.is-photo-deleted .profile-media-viewer-close{z-index:8}
 body.profile-page .profile-media-viewer.is-photo-deleted .ui-profile-photo-content-001{padding-top:116px}
 body.profile-page .profile-media-viewer.is-photo-deleted .ui-profile-photo-canvas-001{opacity:.72}
 body.profile-page .profile-media-viewer.is-photo-deleted .profile-avatar-engagement{opacity:.35;pointer-events:none}
