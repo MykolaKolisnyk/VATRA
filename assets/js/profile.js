@@ -1,7 +1,3 @@
-
-
-
-
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -1075,7 +1071,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    .map(card=>[card.dataset.postId,card])):new Map();
  list.dataset.loading="true";list.setAttribute("aria-busy","true");
  if(!append){
-  // Do not remove existing posts, comments or media while requesting changes.
+
   if(!list.querySelector(".feed-post-card")){
    empty.textContent=t("Завантаження публікацій…","Loading posts…");
    empty.hidden=false;
@@ -1203,7 +1199,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   }
  }catch(_){
   if(ticket!==profilePostsRequest)return;
-  // On transient failure preserve already visible cards and their interactions.
+
   empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
    "Could not load posts. Try refreshing this page.");
   empty.hidden=!!list.querySelector(".feed-post-card");
@@ -2095,7 +2091,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 
  if(isMine&&location.hash==="#profile-messages-section")choose("messages");
  if(!validId(ownId))return;
- // The retired profile popup never sends plaintext again.
+
  const openConversation=peer=>{
   if(validPeer(peer))location.assign(new URL("messenger.html?to="+encodeURIComponent(peer),new URL("./",location.href)).href);
  };
@@ -2243,7 +2239,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
  if(!caption||!window.VATRA_PRESENCE)return;
  const refresh=async()=>{
   try{
-   // The session initializes its own heartbeat independently; viewing another profile never touches its timestamp.
+
    const record=await window.VATRA_PRESENCE.load(client,targetId);
    const state=window.VATRA_PRESENCE.format(record,english);
    caption.textContent=state.online?t("У мережі","Online"):state.text||t("Статус мережі невідомий","Online status unavailable");
@@ -2286,7 +2282,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const backup=pendingAvatarUndo;if(!backup)return;
   pendingAvatarUndo=null;
   if(backup.previewUrl)URL.revokeObjectURL(backup.previewUrl);
-  // Only a finalized deletion loses person tags; an undo preserves them.
+
   void client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId)
    .eq("avatar_path",backup.path).then(()=>{}).catch(()=>{});
  };
@@ -2314,8 +2310,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
   if(roomW<=0||roomH<=0)return;
   const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
-  // Avatars preserve their existing VK-style scale; covers are centered
-  // at a comfortable size instead of filling the entire browser width.
+
+
   const scale=avatarPhoto?
    Math.min(roomW*.96/mediaImage.naturalWidth,roomH*.96/mediaImage.naturalHeight):
    mediaDialog.dataset.kind==="cover"?
@@ -2547,8 +2543,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   photoCommentsMore.textContent=t("Показати ще","Show more");
  };
  updatePhotoSortCopy();
- // Small RLS-scoped, per-viewer avatar comment cache. Only server-confirmed rows
- // are stored; writes and account changes clear them. Never persist to storage.
+
+
  const avatarCommentPages=new Map(),AVATAR_COMMENT_TTL=12_000,AVATAR_COMMENT_MAX=12;
  client.auth?.onAuthStateChange?.(event=>{
   if(event!=="INITIAL_SESSION"&&event!=="TOKEN_REFRESHED")avatarCommentPages.clear();
@@ -2699,7 +2695,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(!append&&reuse&&rows.length){
     const received=new Set(rows.map(item=>String(item.id)));
     const older=[...existing].filter(([id])=>!received.has(id)).map(([,node])=>node);
-    // Single-frame DOM reconciliation: no empty panel, scroll jump or comment flash.
+
     commentList.replaceChildren(...fresh,...older);
    }else if(fresh.length){
     if(append){
@@ -2750,7 +2746,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    avatarCommentPages.clear();
    if(path===photoPath()&&mediaDialog.open){
     resetPhotoComposer();
-    // Refresh only this thread; existing comments never disappear while it loads.
+
     void reloadPhotoActivity(false,false,true);
    }
   }catch(_){if(path===photoPath()&&mediaDialog.open)feedback(t("Не вдалося додати коментар.","Could not add comment."),true);}
@@ -2805,8 +2801,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   mediaDialog.setAttribute("aria-label",photoTitle);
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
-  // A gallery entry is the circular thumbnail; -original is the full photo.
-  // Legacy images without a companion still open their existing file.
+
+
   const sourcePath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
   const sourceUrl=getPublicPath(sourcePath,"avatar");
   mediaImage.onerror=()=>{
@@ -2848,8 +2844,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  document.addEventListener("keydown",event=>{if(!mediaDialog.open||!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches?.("input,textarea,select,[contenteditable]")||document.querySelector("dialog[open]:not(#profile-media-viewer)"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
  let swipeStart=null;mediaImage.addEventListener("touchstart",event=>{swipeStart=event.touches[0]?.clientX??null;},{passive:true});
  mediaImage.addEventListener("touchend",event=>{if(swipeStart===null)return;const dx=(event.changedTouches[0]?.clientX??swipeStart)-swipeStart;swipeStart=null;if(Math.abs(dx)>55&&["avatar","avatar-history"].includes(mediaDialog.dataset.kind))stepPhoto(dx<0?1:-1);},{passive:true});
- // Covers use their own dialog and the already-rendered banner, never avatar data.
- // Legacy square uploads keep the same crop in the profile and in the viewer.
+
+
  const coverViewerDialog=q("#profile-cover-viewer"),coverStage=q("#profile-cover-viewer-stage");
  const coverImage=q("#profile-cover-viewer-image"),coverOriginal=q("#profile-cover-viewer-original");
  let coverEpoch=0,coverFlight=null,coverAnimation=null;
@@ -2870,8 +2866,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const finish=()=>{
    if(finished||ticket!==coverEpoch||!coverViewerDialog.open||!decoded||!arrived)return;
    finished=true;
-   // An atomic handoff avoids two semi-transparent pictures overlapping
-   // and prevents a delayed image decode from flashing a blank frame.
+
+
    coverViewerDialog.classList.add("is-ready");
    clearCoverFlight();
   };
@@ -2917,8 +2913,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    void coverAnimation.finished.then(arrivedAtCenter).catch(()=>{});
   }
   if(coverImage.complete&&coverImage.naturalWidth)queueMicrotask(prepareImage);
-  // Opening a cover never switches to an unverified -original image.
-  // New uploads can still open their real, separately saved full original.
+
+
   const originalPath=saved?.cover_path?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
   const originalUrl=originalPath?getPublicPath(originalPath,"cover"):null;
   if(originalUrl&&originalUrl!==source){
@@ -3270,7 +3266,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   let changed=false,previewUrl=null;
   try{
    const storage=client.storage.from("avatars");
-   // Download before removing; never offer an Undo that cannot re-upload.
+
    const thumb=await storage.download(path);
    if(thumb.error||!(thumb.data instanceof Blob))throw Error("Could not back up avatar");
    const originalPath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
@@ -3302,7 +3298,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    previewUrl=null;
    if(changed){
     window.VATRA_AVATAR?.invalidatePath?.(client,ownId);
-    try{await display(saved);}catch(_){/* The deleted photo remains safely recoverable. */}
+    try{await display(saved);}catch(_){ }
    }
    deletedMessage.textContent=t("Фотографію видалено.","Photo deleted.");
    restoreAvatarButton.textContent=t("Відновити","Restore");
@@ -3362,7 +3358,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  buttonCover.addEventListener("click",()=>fileCover.click());coverChange.addEventListener("click",()=>fileCover.click());
  fileAvatar.addEventListener("change",()=>{if(fileAvatar.files?.[0])void startCrop(fileAvatar.files[0]);});
 
- // Cover thumbnail is exactly 2000 × 580; preserve the unedited source for fullscreen.
+
  const coverDialog=q("#profile-cover-edit-dialog"),coverCanvas=q("#profile-cover-crop-canvas"),coverZoom=q("#profile-cover-crop-zoom");
  const coverCropPanel=q("#profile-cover-crop-panel"),coverPreviewPanel=q("#profile-cover-preview-panel"),coverPreviewCanvas=q("#profile-cover-preview-image");
  const coverStep=q("#profile-cover-edit-step"),coverSave=q("#profile-cover-edit-save"),coverClose=q("#profile-cover-edit-close"),coverError=q("#profile-cover-edit-error");
@@ -3383,7 +3379,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   ctx.save();
   ctx.fillStyle="rgba(15,23,42,.68)";
   ctx.beginPath();ctx.rect(0,0,coverCanvas.width,coverCanvas.height);ctx.rect(x,y,w,h);ctx.fill("evenodd");
-  // Desktop displays all of the 2000×580 crop; mobile displays its center.
+
   ctx.fillStyle="rgba(15,23,42,.25)";
   ctx.fillRect(x,y,mobileX-x,h);
   ctx.fillRect(mobileX+mobileW,y,x+w-mobileX-mobileW,h);
@@ -3600,7 +3596,7 @@ async function start(){
     publicName.trim().split(/\s+/).filter(Boolean).map(x=>Array.from(x)[0]).slice(0,2).join("").toLocaleUpperCase(locale)
    ):"V");
   setupProfileEdit(client,targetId,isMine,publicStatus,metadata.gender);
- 
+
   if(isMine){
    q("#profile-about-text").textContent=t(
     "Інформацію про себе поки не додано.",

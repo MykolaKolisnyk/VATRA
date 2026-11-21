@@ -1,4 +1,3 @@
-/* VATRA Feed — authenticated text posts. No passwords, email, or auth UUIDs are displayed publicly. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -166,7 +165,7 @@
    }
    applyAvatar(q("#feed-header-avatar"),vatraId);
    applyAvatar(q("#feed-composer-avatar"),vatraId);
-  }catch(_){/* Use initials if media lookup is unavailable. */}
+  }catch(_){ }
  }
  const memberName=id=>{
   const state=avatarStates.get(String(id));
@@ -183,7 +182,7 @@
     client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",needed.slice(0,100)));
    if(error)throw error;
    for(const profile of data||[])publicNames.set(String(profile.vatra_id),profile.display_name);
-  }catch(_){/* Keep the ID visible when a member has not shared a public name. */}
+  }catch(_){ }
  }
  async function loadSubscriptions(){
   const viewerId=vatraId;
@@ -200,12 +199,12 @@
    connectionQuery=query.or("requester_id.eq."+viewerId+",recipient_id.eq."+viewerId)
     .eq("status","accepted").limit(500);
    connectionsAvailable=true;
-  }catch(_){/* Missing optional APIs in offline mocks must not blank Feed. */}
+  }catch(_){ }
   try{
    const query=client.from("community_follows").select("club_id");
    followedQuery=query.eq("member_vatra_id",viewerId).limit(500);
    followsAvailable=true;
-  }catch(_){/* Missing optional APIs in offline mocks must not blank Feed. */}
+  }catch(_){ }
   const [connections,subscriptions]=await Promise.allSettled([connectionQuery,followedQuery]);
   const hasRows=result=>result.status==="fulfilled"&&!result.value?.error&&
    Array.isArray(result.value?.data);
