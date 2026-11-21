@@ -1,4 +1,3 @@
-/* VATRA Email confirmation: page-specific behavior; shared utilities are in auth-core.js. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -22,7 +21,7 @@ async function acceptEmailConfirmation(){
  if(!token)return {cameFromLink,failed:initialAccountCallbackError||query.has("error")||hash.has("error")};
  history.replaceState(history.state,"",location.pathname);
  const type=query.get("type");
- // Reject arbitrary query types: only Supabase Auth's documented email actions.
+
  const allowed=new Set(["email","magiclink","invite","email_change"]);
  if(!allowed.has(type)||token.length>2048)return {cameFromLink:true,failed:true};
  try{
@@ -45,10 +44,10 @@ async function wireAccount(cameFromLink=false){
   const name=String(user.user_metadata?.first_name||"").trim();
   title.textContent=name?translate("Вітаємо, {name}!").replace("{name}",name):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
-  // Notify other tabs after Supabase verifies the user, then enter the network.
+
   if(user.email_confirmed_at)announceVerifiedAccount();
   if(page==="verify"){goToFeed();return;}
-  /* VATRA ID — permanent sequential public number, assigned only by the database. */
+
   const idBox=q("#vatra-id");
   if(idBox){
    const {data:profile,error:profileError}=await auth

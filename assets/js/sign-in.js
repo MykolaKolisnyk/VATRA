@@ -1,4 +1,3 @@
-/* VATRA Sign in: page-specific behavior; shared utilities are in auth-core.js. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -31,7 +30,7 @@ function wireOrbitTooltips(){
  for(const icon of icons){
   const tip=icon.querySelector(".orbit-tooltip");
   if(!tip)continue;
-  // Move the one existing tooltip outside the rotating orbit transforms.
+
   panel.append(tip);
   const hide=()=>tip.classList.remove("is-visible");
   const place=()=>{
@@ -59,8 +58,8 @@ function wireOrbitTooltips(){
   const reveal=()=>{place();tip.classList.add("is-visible");};
   icon.addEventListener("mouseenter",reveal);
   icon.addEventListener("focus",reveal);
-  // Mouse exit always closes the tooltip, including after pointer focus.
-  // Keyboard focus still opens the tooltip and closes on blur.
+
+
   icon.addEventListener("mouseleave",hide);
   icon.addEventListener("blur",hide);
   icon.addEventListener("pointerdown",()=>{hide();icon.blur();});
@@ -69,7 +68,7 @@ function wireOrbitTooltips(){
   document.addEventListener("scroll",()=>{if(tip.classList.contains("is-visible"))place();},{passive:true,capture:true});
  }
 }
-/* Hover/focus help is mutually exclusive and not a click-to-toggle drawer. */
+
 
 async function authenticatePassword(email,password,form){
  const options=await captchaOptions(form);
@@ -83,8 +82,8 @@ async function authenticatePassword(email,password,form){
  rememberAccount(data.user);
  goToFeed();
 }
-/* The saved-account hint is portalled to the viewport, so transformed cards and
-   small screens cannot clip it. Other controls keep their own existing help. */
+
+
 function wireSavedAccountTooltip(button){
  if(!button)return;
  const tip=document.createElement("span");
@@ -95,8 +94,8 @@ function wireSavedAccountTooltip(button){
  document.body.append(tip);
  let suppressRestore=false;
  const hide=()=>{tip.classList.remove("is-visible");tip.hidden=true;};
- // Closing a native dialog restores focus to its opener; do not treat that
- // automatic restoration as a request to reveal the tooltip.
+
+
  const suppress=()=>{suppressRestore=true;hide();};
  const position=()=>{
   if(tip.hidden)return;
@@ -127,7 +126,7 @@ function wireSavedAccountTooltip(button){
  };
  button.addEventListener("pointerenter",reveal);
  button.addEventListener("pointermove",event=>{
-  // Actual movement over the button is a new hover intention after cancelling.
+
   if(suppressRestore&&event.isTrusted&&event.pointerType!=="touch"&&
    (event.movementX||event.movementY)){
    suppressRestore=false;
@@ -180,7 +179,7 @@ function wireRememberedAccount(){
   savedForm.reset();password.value="";password.dispatchEvent(new Event("input",{bubbles:true}));
   message.hidden=true;message.textContent="";
  };
- // One content-level reveal on every saved-account view; the card itself stays still.
+
  const revealSavedContents=()=>{
   content.classList.remove("is-revealing");
   void content.offsetWidth;
@@ -212,7 +211,7 @@ function wireRememberedAccount(){
   removeTooltip?.suppress();
   dialog?.showModal?.();
  });
- // Also covers Escape, native dialog close, and browser focus restoration.
+
  dialog?.addEventListener("close",()=>removeTooltip?.suppress());
  q("#saved-remove-cancel")?.addEventListener("click",()=>{
   removeTooltip?.suppress();
@@ -247,7 +246,7 @@ function wireRememberedAccount(){
 function wireLogin(){
  const form=q("#login-form");
  if(!form)return;
- // Clear secrets before any back/forward-cache snapshot or navigation.
+
  window.addEventListener("pagehide",()=>{
   for(const id of ["#password","#saved-password"]){
    const input=q(id);if(input)input.value="";

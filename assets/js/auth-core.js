@@ -1,4 +1,3 @@
-/* VATRA • shared authentication. Public publishable key only; never embed server secrets. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -16,7 +15,7 @@ const translate=text=>window.VATRA_LANGUAGE?.translate(text)||text;
 const english=document.documentElement.lang==="en";
 const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
-/* Run a single reveal on the changing content, not the surrounding card. */
+
 function replayAuthContent(node){
  if(!node||window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return;
  node.style.animation="none";
@@ -90,8 +89,8 @@ function getMessage(error){
  if(code==="network_error"||text.includes("failed to fetch")||text.includes("network"))return "Немає з'єднання із сервером. Перевірте інтернет і повторіть спробу.";
  return "Не вдалося виконати дію. Перевірте введені дані та спробуйте ще раз.";
 }
-/* Field errors automatically disappear after 5.5 seconds or on edit.
-   Submitting still checks all required values even after visual errors expire. */
+
+
 const FIELD_ERROR_DURATION_MS=5500;
 const fieldErrorTimers=new WeakMap();
 function showFieldError(control,message){
@@ -136,9 +135,9 @@ function validationText(control,form){
  if(control.type==="password"&&form.id!=="login-form")return passwordIssue(value);
  return "";
 }
-/* One floating hint per input. Native placeholder text is hidden only after
-   this control is initialized, so no second label can overlap the cursor.
-   Validation messages remain outside the positioned input shell. */
+
+
+
 function wireFloatingHints(){
  if(!["login","create-account","forgot","reset"].includes(page))return;
  const syncAll=[];
@@ -158,8 +157,8 @@ function wireFloatingHints(){
  }
  window.addEventListener("pageshow",()=>syncAll.forEach(sync=>sync()));
 }
-/* Keep rotating orbit icon tooltips fully inside the visible welcome panel.
-   At the top of the orbit the tooltip opens below, not under browser chrome. */
+
+
 function wireFieldValidation(){
  const form=document.querySelector("#login-form,#signup-form,#forgot-form,#reset-form");
  if(!form)return;
@@ -215,8 +214,8 @@ function wireFieldValidation(){
   }
  },true);
 }
-/* Two-step VATRA registration. Form values stay in memory while navigating;
-   no passwords or personal details are written to browser storage. */
+
+
 function wirePasswordButtons(){
  document.querySelectorAll("[data-password-toggle]").forEach(button=>{
   const input=document.getElementById(button.dataset.passwordToggle);
@@ -246,8 +245,8 @@ function wirePasswordButtons(){
   sync();
  });
 }
-/* The same password policy governs signup and both reset paths.
-   Login deliberately accepts existing passwords, including older policies. */
+
+
 function passwordIssue(value){
  if(typeof value!=="string"||value.length<12)return "Використайте щонайменше 12 символів.";
  if(value.length>128)return "Використайте не більше 128 символів.";
@@ -261,10 +260,10 @@ function passwordIssue(value){
 function validPassword(value){return passwordIssue(value)==="";}
 async function initialize(){
  try{
- /* Initial language translations must finish before wiring localized controls. */
+
  await window.VATRA_LANGUAGE?.ready;
- /* Shared controls initialize before authentication, so typing never depends
-    on network availability. Each page module initializes only its own view. */
+
+
  wirePasswordButtons();
  wireFloatingHints();
  if(!window.supabase?.createClient){
@@ -295,7 +294,7 @@ async function initialize(){
   try{
    const {data,error}=await sessionCheckWithTimeout();
    if(!error&&data?.user?.email_confirmed_at){await goToFeed();return;}
-  }catch(_){/* Leave login available if the network is unreachable. */}
+  }catch(_){ }
   pageHooks.wireRememberedAccount?.();
  }
  if(page==="create-account"){

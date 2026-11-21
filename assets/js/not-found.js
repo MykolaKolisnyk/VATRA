@@ -1,4 +1,3 @@
-
 (() => {
 
 
@@ -8,14 +7,14 @@
     document.addEventListener?.("dragstart",event=>{
       if(event.target?.closest?.(".ui-404-vatryk-001"))event.preventDefault();
     });
-    
 
 
 
 
 
-    // Return only to a known VATRA page from a same-origin referrer.
-    // Direct visits, unknown or external referrers keep the safe home link.
+
+
+
     const wireReturnLink=()=>{
       if(document.body?.dataset.page!=="not-found")return;
       const link=document.querySelector(".vatra-404-link-002");

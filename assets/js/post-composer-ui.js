@@ -1,6 +1,3 @@
-/* VATRA post composer: real media upload and publishing, private local drafts.
-   Reuses existing Supabase submission and visibility handlers without fake VK
-   imports, scheduled publishing or payment-like promises. */
 (()=>{
 "use strict";
 const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
@@ -100,7 +97,7 @@ function bind({prefix,ownerId,getFile}){
  zone.append(upload);
  zone.append(make("p","vatra-post-composer-zone-note-001",
   t("Фото JPG, PNG, WebP або відео MP4, WebM","Photos JPG, PNG, WebP or video MP4, WebM")));
- // The existing media picker remains the only trusted upload input.
+
  mediaControls.classList.add("vatra-post-composer-media-controls");
  zone.append(mediaControls,mediaPreview);
  const textWrap=make("div","vatra-post-composer-text-wrap ui-vatra-post-composer-text-wrap-001");
