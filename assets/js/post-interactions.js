@@ -91,7 +91,7 @@
  }
  // Browser-only, RLS-scoped pages of comments. Never share them via Redis.
  // Keep pages tiny and short-lived; writes and account switches discard them.
- const COMMENT_PAGE_TTL_MS=4_000,COMMENT_PAGE_MAX=32;
+ const COMMENT_PAGE_TTL_MS=15_000,COMMENT_PAGE_MAX=32;
  const commentPageCaches=new WeakMap();
  function commentPageState(client){
   let state=commentPageCaches.get(client);
