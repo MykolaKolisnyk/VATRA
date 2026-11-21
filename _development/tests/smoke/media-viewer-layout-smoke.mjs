@@ -36,7 +36,7 @@ assert.ok(
  !profileCss.includes("--vatra-profile-photo-backdrop")&&
  !profile.includes("--vatra-profile-photo-backdrop")&&
  profileCss.includes("object-fit:contain")&&
- profile.includes("Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight)"),
+ profile.includes("Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight)"),
  "Portrait and landscape avatar photos must preserve aspect ratio against a solid matte"
 );
 assert.ok(
@@ -51,5 +51,13 @@ assert.ok(
  profileHtml.includes('data-social-uk="Збережене"')&&
  profileHtml.includes('class="ui-profile-photo-more-chevron-001"'),
  "Photo viewers must share the footer, preserve owner permissions, move Save into actions, and show red likes"
+);
+assert.ok(
+ profileCss.includes("ui-profile-photo-content-001:hover")&&
+ postCss.includes("ui-vatra-post-media-viewer-content-001:hover")&&
+ profile.includes("file.size>31457280")&&
+ postMedia.includes("limit:31457280")&&
+ postInteractions.includes("31457280"),
+ "Photo uploads must respect the new 30 MB bucket limit and gallery arrows must fade on hover"
 );
 console.log("VATRA media viewer layout checks passed.");

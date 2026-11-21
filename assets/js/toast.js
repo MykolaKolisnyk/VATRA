@@ -27,7 +27,10 @@ function show(value,kind="info",source){
  kind=severity(text,kind,source);
  const same=[...active].find(x=>x.text===text&&x.kind===kind&&x.node.isConnected);
  if(same){same.restart();return same.node;}
- if(!stack?.isConnected){stack=document.createElement("div");stack.className="vatra-toast-stack-001";stack.setAttribute("aria-label","Повідомлення VATRA");document.body.append(stack);}
+ if(!stack){stack=document.createElement("div");stack.className="vatra-toast-stack-001";stack.setAttribute("aria-label","Повідомлення VATRA");}
+ const openDialogs=[...document.querySelectorAll("dialog[open]")];
+ const host=openDialogs.at(-1)||document.body;
+ if(stack.parentNode!==host)host.append(stack);
  const node=document.createElement("section");node.className="vatra-toast-item-001 vatra-toast-item--"+kind;node.setAttribute("role",kind==="error"?"alert":"status");
  const mark=document.createElement("span");mark.className="vatra-toast-icon-001";mark.setAttribute("aria-hidden","true");mark.textContent=kind==="error"?"!":kind==="success"?"✓":"i";
  const message=document.createElement("p");message.className="vatra-toast-text-001";message.textContent=text;

@@ -1914,13 +1914,14 @@ try{
  await fullRecovery.locator("#password").fill("lowercaseonly123!");
  await fullRecovery.locator("#password-confirm").fill("lowercaseonly123!");
  await fullRecovery.locator("#reset-form button[type='submit']").click();
- await fullRecovery.locator("#response").waitFor({state:"visible"});
+ await fullRecovery.waitForFunction(()=>[...document.querySelectorAll(".vatra-toast-item-001.is-visible")].some(el=>el.textContent.includes("велику латинську літеру")));
  assert.ok((await fullRecovery.locator("#response").textContent()).includes("велику латинську літеру"),
   "Recovery must identify missing uppercase Latin letters");
  assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),undefined);
  assert.ok(await fullRecovery.locator("#response").evaluate(el=>
-  document.querySelector("#recovery-step-heading").nextElementSibling===el),
-  "Password errors must appear immediately below the stage heading");
+  getComputedStyle(el).display==="none"&&
+  !!document.querySelector(".vatra-toast-item-001.is-visible")),
+  "Password validation must use the global toast, not inline form feedback");
 
  await fullRecovery.locator("#password").fill("StrongPassword@12345");
  await fullRecovery.locator("#password-confirm").fill("StrongPassword@12346");
@@ -3602,8 +3603,9 @@ try{
   assert.equal(await feedProbe.locator(reactHost+" .vatra-post-interactions-status-001")
    .getAttribute("data-state"),"error");
   assert.equal(await feedProbe.locator(reactHost+" .vatra-post-interactions-status-001")
-   .isVisible(),true,
-   "Failed unsave feedback must be visible without opening comments");
+   .isVisible(),false,
+   "Failed unsave feedback must not stay inline");
+  await feedProbe.locator(".vatra-toast-item--error.is-visible").last().waitFor({state:"visible"});
   await feedProbe.locator(reactHost+" .vatra-post-comments-toggle-001").click();
   const commentHeart=feedProbe.locator(".vatra-post-comment-dialog .vatra-post-comment-like-001");
   await commentHeart.waitFor({state:"visible"});
