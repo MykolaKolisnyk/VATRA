@@ -406,7 +406,7 @@
  }
  // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.
  // Only the next 12 posts are materialized; no eager 200+200 post download.
- let sourceState=null,renderedIds=new Set();
+ let sourceState=null,renderedIds=new Set(),lastFeedScope=null;
  // Reuse recent, RLS-scoped feed cursors when filters change rapidly.
  // The cache stays in this tab only; no Redis, localStorage or service worker.
  const FEED_PAGE_TTL_MS=12_000,FEED_PAGE_MAX=16;
@@ -544,13 +544,16 @@
   if(loading){if(reset)refreshQueued=true;return;}
   const version=feedRequestVersion;
   loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
-  // Keep the visible feed mounted during a network refresh. That preserves
-  // open menus, comments, scroll position and image decoding until commit.
-  const previousFeed=reset?[...visibleFeed]:null;
-  const previousItems=reset?
+  // Keep the existing cards for same-query refreshes after actions. Switching
+  // categories/search clears stale results immediately (they are a different scope).
+  const scope=JSON.stringify([feedFilter,searchTerm]);
+  const keepExisting=reset&&scope===lastFeedScope;
+  const previousFeed=keepExisting?[...visibleFeed]:null;
+  const previousItems=keepExisting?
    new Map([...posts.querySelectorAll(".feed-post-card[data-post-id]")]
     .map(item=>[item.dataset.postKind+":"+item.dataset.postId,item])):null;
   if(reset){
+   if(!keepExisting)posts.replaceChildren();
    visibleFeed=[];renderedIds=new Set();
    sourceState=makeSourceState();
    more.hidden=true;
@@ -600,7 +603,8 @@
     visibleFeed.push(item);
     batch.append(same&&oldElement?oldElement:card(item,engagement));
    }
-   if(reset)posts.replaceChildren(batch);else posts.append(batch);
+   if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}
+   else posts.append(batch);
    const outstanding=[sourceState.person,sourceState.group].some(x=>x.queue.length||!x.done);
    more.hidden=!outstanding;
    displayEmpty();
@@ -614,7 +618,7 @@
     if(reset){
      visibleFeed=previousFeed||[];
      renderedIds=new Set(visibleFeed.map(item=>item.kind+":"+item.id));
-     // Keep old post cards visible if refreshing failed.
+     // Preserve existing cards only for an unchanged query on transient failure.
     }
     if(illustrated)clearMessage();
     else message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
