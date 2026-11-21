@@ -1188,6 +1188,7 @@ assert.ok(
  messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
  messengerSchema.includes("Only the sender may revoke for everyone"),
  "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
+await import("./messenger-crypto-smoke.mjs");
 
 
 assert.ok(profileBehavior.includes('client.from("friendships")')&&
