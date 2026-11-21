@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 const feed=await readFile("assets/js/feed.js","utf8");
-const start=feed.indexOf(" const FEED_PAGE_TTL_MS=3_000,FEED_PAGE_MAX=16;");
+const start=feed.indexOf(" const FEED_PAGE_TTL_MS=12_000,FEED_PAGE_MAX=16;");
 const end=feed.indexOf(" const makeSourceState=()=>",start);
 assert.ok(start>0&&end>start,"Find the real Feed cursor cache");
 let now=Date.parse("2026-11-14T12:00:00Z");
@@ -35,7 +35,7 @@ function viewer(){
  const different=await readFeedPage(a.client,key+"other filter",a.query([row("different")]));
  assert.equal(different.data[0].body,"different");
  assert.equal(a.requests,2,"Different source filters require independent cache keys");
- now+=3_100;
+ now+=12_100;
  assert.equal((await readFeedPage(a.client,key,a.query([row("fresh")]))).data[0].body,"fresh");
  assert.equal(a.requests,3,"Expired cursors must be refreshed");
  invalidateFeedPages(a.client);
