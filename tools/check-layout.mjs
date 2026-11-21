@@ -2108,7 +2108,7 @@ assert.ok(
  profileScript.includes('const avatarCommentPages=new Map()')&&
  interactionsScript.includes('entries.replaceChildren(...fresh,...remaining)')&&
  interactionsScript.includes('void loadComments(true,true)')&&
- feedScript.includes('const previousFeed=reset?[...visibleFeed]:null;')&&
+ feedScript.includes('const previousFeed=keepExisting?[...visibleFeed]:null;')&&
  feedScript.includes('if(reset)posts.replaceChildren(batch);else posts.append(batch);')&&
  !interactionsScript.includes('vt-vatra-post-audience-hint-001')&&
  !systemFeedCss.includes('.feed-post-audience:hover .vt-vatra-post-audience-hint-001'),
