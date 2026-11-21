@@ -25,7 +25,7 @@ try{
  await db.query("grant execute on function vatra_admin_private.allowed() to authenticated");
  await db.query("grant execute on function public.vatra_has_block_between(bigint) to authenticated");
  await db.query("create publication supabase_realtime");
- const migration=await readFile("supabase/migrations/20261121113000_private_messenger_ciphertext_and_scoped_deletion.sql","utf8");
+ const migration=await readFile("supabase/migrations/20261121113300_private_messenger_ciphertext_and_scoped_deletion.sql","utf8");
  await db.query(migration);
  const as=async user=>{
   await db.query("reset role");
