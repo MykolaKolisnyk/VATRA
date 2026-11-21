@@ -2074,6 +2074,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-cover-viewer"')&&
  "Cover uses an independent dark viewer and animates the existing 2000x580 thumbnail without avatar mode");
 
 const photoReportMigration=await read("supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
+const photoReportNotNull=await read("supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
 assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
  profileScript.includes('window.VATRA_REPORT_PROFILE_PHOTO=path')&&
  profileScript.includes('category="specific_photo"')&&
@@ -2082,7 +2083,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
  !profileScript.includes('footerTag.addEventListener("click"')&&
  memberCss.includes('object-fit:contain')&&
  photoReportMigration.includes("profile_reports_photo_reference_check")&&
- photoReportMigration.includes("profile_reports_unique_target_reason_photo"),
+ photoReportMigration.includes("profile_reports_unique_target_reason_photo")&&
+ photoReportNotNull.includes("photo_path IS NOT NULL"),
  "Avatar gallery labels and secure per-photo moderation reporting must remain available");
 
 const feedPhotoActions=await read("assets/js/post-interactions.js");
