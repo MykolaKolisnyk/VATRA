@@ -409,7 +409,7 @@
  let sourceState=null,renderedIds=new Set();
  // Reuse recent, RLS-scoped feed cursors when filters change rapidly.
  // The cache stays in this tab only; no Redis, localStorage or service worker.
- const FEED_PAGE_TTL_MS=3_000,FEED_PAGE_MAX=16;
+ const FEED_PAGE_TTL_MS=12_000,FEED_PAGE_MAX=16;
  const feedPageCaches=new WeakMap();
  function feedPageState(client){
   let state=feedPageCaches.get(client);
