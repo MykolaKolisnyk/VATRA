@@ -329,8 +329,19 @@
   if(accountError||!validId(account?.vatra_id)){status(t("Не знайдено ваш VATRA ID.","Your VATRA ID was not found."),true);return;}
   state.client=client;state.user=data.user;state.own=String(account.vatra_id);
   $("#messenger-my-profile").href=openProfile(state.own);
-  client.auth.onAuthStateChange(event=>{
-   if(event==="SIGNED_OUT"){cryptoBox().lock();state.locked=true;state.subscription?.unsubscribe();location.replace(ROOT.href);}
+  client.auth.onAuthStateChange((event,session)=>{
+   const switched=!!session?.user?.id&&session.user.id!==state.user.id;
+   if(event!=="SIGNED_OUT"&&!switched)return;
+   // Never show a previous account's decrypted chat when auth changes in
+   // another tab or while this tab is suspended.
+   cryptoBox().lock();
+   state.locked=true;state.peerKey=null;state.selected=null;state.rows=[];
+   $("#messenger-messages").replaceChildren();
+   $("#messenger-conversations").replaceChildren();
+   $("#messenger-compose-text").value="";
+   syncSend();
+   state.subscription?.unsubscribe();
+   location.replace(switched?new URL("messenger.html",ROOT).href:ROOT.href);
   });
   $("#messenger-new-button").addEventListener("click",beginNew);
   $("#messenger-empty-new").addEventListener("click",beginNew);
