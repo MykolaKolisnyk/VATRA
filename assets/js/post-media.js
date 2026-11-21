@@ -435,11 +435,7 @@
  }
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,mediaCaption=null;
- const updateMediaBackdrop=(url,kind)=>{
-  if(kind==="image")mediaDialogContent.style.setProperty("--vatra-post-media-backdrop","url("+JSON.stringify(url)+")");
-  else mediaDialogContent.style.removeProperty("--vatra-post-media-backdrop");
- };
- function openFullMedia(url,kind,container){
+function openFullMedia(url,kind,container){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
    mediaDialog.id="vatra-post-media-viewer";
@@ -471,7 +467,7 @@
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
-    mediaDialogContent.replaceChildren();mediaDialogContent.style.removeProperty("--vatra-post-media-backdrop");restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
+    mediaDialogContent.replaceChildren();restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
    });
    document.body.append(mediaDialog);
   }
@@ -479,7 +475,7 @@
   element.className=kind==="video"?"ui-vatra-post-expanded-video-001":"ui-vatra-post-expanded-image-001";
   if(kind==="video"){element.controls=true;element.autoplay=true;element.playsInline=true;}
   else element.alt=tr("Фото публікації","Post photo");
-  element.src=url;mediaDialogContent.replaceChildren(element);updateMediaBackdrop(url,kind);
+  element.src=url;mediaDialogContent.replaceChildren(element);
   restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const head=container?.querySelector(".feed-post-header"),identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
   const postCard=container?.closest(".feed-post-card");
@@ -667,7 +663,7 @@
      next.addEventListener("click",()=>{if(index<media.length-1){index++;void render();}});
      const currentVideo=mediaDialogContent.querySelector("video");
      currentVideo?.pause();
-     mediaDialogContent.replaceChildren(element,prev,next,counter);updateMediaBackdrop(url,item.media_kind);
+     mediaDialogContent.replaceChildren(element,prev,next,counter);
     }catch(_){}
    };
    mediaDialog.addEventListener("keydown",event=>{

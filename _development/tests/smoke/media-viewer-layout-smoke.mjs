@@ -12,11 +12,12 @@ const [postMedia,postInteractions,profile,postCss,profileCss,profileHtml]=await 
 ]);
 
 assert.ok(
- postMedia.includes("updateMediaBackdrop(url,kind)")&&
- postMedia.includes("updateMediaBackdrop(url,item.media_kind)")&&
+ !postMedia.includes("updateMediaBackdrop")&&
  postCss.includes(".ui-vatra-post-expanded-image-001{width:100%;height:100%}")&&
- postCss.includes("object-fit:contain"),
- "Fullscreen post photos must fill available space without cropping"
+ postCss.includes("object-fit:contain")&&
+ !postCss.includes(".ui-vatra-post-media-viewer-content-001::before")&&
+ !postCss.includes("--vatra-post-media-backdrop"),
+ "Fullscreen post photos must fit their frame against a solid dark background"
 );
 assert.ok(
  postInteractions.includes("filterRow.remove();note.remove();side.append(shell)")&&
@@ -32,9 +33,10 @@ assert.ok(
  "Avatar comments must not display sorting controls"
 );
 assert.ok(
- profileCss.includes("--vatra-profile-photo-backdrop")&&
+ !profileCss.includes("--vatra-profile-photo-backdrop")&&
+ !profile.includes("--vatra-profile-photo-backdrop")&&
  profileCss.includes("object-fit:contain")&&
  profile.includes("Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight)"),
- "Avatar photos must preserve their original aspect ratio"
+ "Portrait and landscape avatar photos must preserve aspect ratio against a solid matte"
 );
 console.log("VATRA media viewer layout checks passed.");
