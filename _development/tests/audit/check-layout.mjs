@@ -1657,7 +1657,8 @@ assert.ok(
  interactionsScript.includes('async function prefetchEngagement(client,posts)')&&
  interactionsScript.includes('client.rpc("post_engagement_page"')&&
  interactionsScript.includes('if(!snapshot&&typeof IntersectionObserver')&&
- interactionsScript.includes('if(snapshot)refresh();')&&
+ interactionsScript.includes('let stored=!!snapshot?.viewer_saved')&&
+ interactionsScript.includes('   refresh();')&&
  feedScript.includes('prefetchEngagement(client,page)')&&
  profileScript.includes('prefetchEngagement(')&&
  clubPostScript.includes('prefetchEngagement('),
