@@ -2373,6 +2373,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const photoContent=q("#profile-photo-content"),photoCanvas=q("#profile-photo-canvas");
  const photoFooter=q("#profile-photo-footer"),footerShare=q("#profile-photo-footer-share");
  const footerTag=q("#profile-photo-footer-tag"),footerMore=q("#profile-photo-footer-more");
+ const footerReport=q("#profile-photo-report");
  const footerMenu=q("#profile-photo-footer-menu"),originalLink=q("#profile-photo-original");
  const setCurrent=q("#profile-photo-set-current"),tagMarkers=q("#profile-photo-tag-markers");
  const tagPicker=q("#profile-photo-tag-picker"),tagSearch=q("#profile-photo-tag-search");
@@ -2408,6 +2409,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  mediaDialog.addEventListener("click",event=>{if(!event.target.closest?.(".ui-profile-photo-more-wrap-001"))closeMore();});
  footerShare.addEventListener("click",()=>{closeMore();q("#profile-photo-share").click();});
  originalLink.addEventListener("click",closeMore);
+ footerReport.addEventListener("click",()=>{
+  closeMore();
+  if(isMine||locked||!mediaDialog.open)return;
+  const selected=gallery[galleryIndex];
+  if(selected)window.VATRA_REPORT_PROFILE_PHOTO?.(selected);
+ });
  document.addEventListener("keydown",event=>{if(event.key==="Escape"){closeMore();closeTagPicker();}});
 
  window.VATRA_AVATAR?.fallback(avatar,"default");
@@ -2804,7 +2811,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const current=path===saved?.avatar_path;
   mediaDialog.dataset.kind=current?"avatar":"avatar-history";
   interaction.hidden=false;activityTicket++;
-  mediaHeading.textContent="";mediaHeading.hidden=true;
+  const displayName=String(q("#profile-heading").textContent||"").trim();
+  const photoTitle=t("Фото профілю · ","Profile photo · ")+displayName;
+  mediaHeading.textContent=photoTitle;mediaHeading.hidden=true;
+  mediaDialog.setAttribute("aria-label",photoTitle);
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
   // A gallery entry is the circular thumbnail; -original is the full photo.
@@ -2815,7 +2825,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(mediaImage.src!==sourceUrl||gallery[galleryIndex]!==path)return;
    mediaImage.onerror=null;mediaImage.src=url;originalLink.href=url;
   };
-  mediaImage.alt=q("#profile-heading").textContent;mediaImage.src=sourceUrl||url;
+  mediaImage.alt=photoTitle;mediaImage.src=sourceUrl||url;
   if(mediaImage.complete)queueMicrotask(fitPhoto);
   originalLink.href=sourceUrl||url;photoFooter.hidden=false;
   resetTagMode();closeMore();reportTag("");tagMarkers.replaceChildren();tagEpoch++;
@@ -2824,12 +2834,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   prevPhoto.hidden=nextPhoto.hidden=gallery.length<2;
   prevPhoto.disabled=galleryIndex===0;nextPhoto.disabled=galleryIndex>=gallery.length-1;
   galleryToolbar.hidden=false;
-  galleryCount.textContent=gallery.length===1?t("Фото профілю","Profile photo"):
-   t("Фото профілю ","Profile photo ")+(galleryIndex+1)+t(" із "," of ")+gallery.length;
-  galleryDelete.hidden=!canEdit;footerTag.hidden=!canEdit;
+  galleryCount.textContent=gallery.length===1?photoTitle:
+   photoTitle+" · "+(galleryIndex+1)+t(" із "," of ")+gallery.length;
+  galleryDelete.hidden=!canEdit;
+  // Person tagging is retired from the photo viewer UI.
+  footerTag.hidden=true;
+  footerReport.hidden=isMine||locked;
   setCurrent.hidden=!canEdit||current;
   footerShare.textContent=t("Поділитися","Share");
-  footerTag.textContent=t("Позначити людину","Tag person");
+  footerReport.textContent=t("Поскаржитися на фото","Report photo");
   galleryDelete.textContent=t("Видалити","Delete");
   footerMore.firstChild.textContent=t("Більше ","More ");
   setCurrent.textContent=t("Зробити фотографією профілю","Make profile photo");
