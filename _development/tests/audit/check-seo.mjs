@@ -9,7 +9,7 @@ const css=await read("assets/css/base.css");
 const privateMessenger=await read("messenger.html");
 assert.ok(privateMessenger.includes('name="robots" content="noindex,nofollow"')&&
  privateMessenger.includes('src="assets/js/host.js"')&&
- privateMessenger.includes('src="assets/js/lang.js"')&&
+ privateMessenger.includes('src="assets/js/lang.js')&&
  privateMessenger.includes('assets/js/messenger-crypto.js')&&
  !privateMessenger.includes('rel="canonical"'),
  "Private messenger must remain unindexed and load verified host, locale and crypto modules");
