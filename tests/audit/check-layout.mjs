@@ -1804,7 +1804,8 @@ assert.ok(
 assert.ok(
  feedScript.includes('.eq("author_vatra_id",vatraId).select("id").maybeSingle()')&&
  feedScript.includes('String(data?.id)!==String(toDelete.id)')&&
- feedScript.includes('Uploaded media is rolled back only if the database INSERT failed')&&
+ feedScript.includes('if(insertError)throw insertError;')&&
+ feedScript.includes('if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}')&&
  storyEditorRuntime.includes('if(insertError)throw insertError;inserted=true;')&&
  storyEditorRuntime.includes('if(uploaded&&!inserted)')&&
  storyEditorRuntime.indexOf('if(inserted){dialog.close();reset();try{onPublished?.();}')>storyEditorRuntime.indexOf('if(uploaded&&!inserted)')&&
