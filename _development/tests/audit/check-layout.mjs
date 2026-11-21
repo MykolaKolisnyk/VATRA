@@ -88,8 +88,8 @@ const instantEnglishTitles=lang.slice(lang.indexOf("  const instantEnglishTitles
 for(const [page,title] of [["friends","Friends"],["gifts","Gifts"]]){
  const html=await read(page+".html");
  assert.ok(instantEnglishTitles.includes(page+':"'+title+'"')&&
-  html.indexOf('src="assets/js/lang.js"')>=0&&
-  html.indexOf('src="assets/js/lang.js"')<html.indexOf("<title>"),
+  html.indexOf('src="assets/js/lang.js')>=0&&
+  html.indexOf('src="assets/js/lang.js')<html.indexOf("<title>"),
   page+": English tab title must be ready before DOM and remote translations");
 }
 const sw=await read("sw.js");
