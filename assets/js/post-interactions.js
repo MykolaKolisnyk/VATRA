@@ -68,7 +68,9 @@
   return new URL((post.is_clip?"clips?clip=":"feed?post=")+encodeURIComponent(post.id),relativeRoot()).href;
  };
  const dateValue=input=>{
-  const date=new Date(input);return Number.isNaN(date.valueOf())?"":new Intl.DateTimeFormat(
+  const date=new Date(input);
+  if(Number.isNaN(date.valueOf()))return "";
+  return window.VATRA_PRESENCE?.relative?.(date,language()==="en")||new Intl.DateTimeFormat(
    dateLocales[language()]||"uk-UA",
    {day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}
   ).format(date);
@@ -713,14 +715,14 @@ function appendAudience(container,level,isGroup=false){
    const file=fileInput.files?.[0];
    if(!file)return;
    const allowed={
-    "image/jpeg":["image","jpg",6291456],"image/png":["image","png",6291456],
-    "image/webp":["image","webp",6291456],
+    "image/jpeg":["image","jpg",31457280],"image/png":["image","png",31457280],
+    "image/webp":["image","webp",31457280],
     "video/mp4":["video","mp4",52428800],"video/webm":["video","webm",52428800]
    };
    const type=allowed[file.type];
    if(!type||file.size>type[2]||file.size<1){
-    feedback(tr("Фото: до 6 МБ. Відео: до 50 МБ. Доступні JPEG, PNG, WebP, MP4, WebM.",
-     "Photo: up to 6 MB. Video: up to 50 MB. JPEG, PNG, WebP, MP4 or WebM."),true);
+    feedback(tr("Фото: до 30 МБ. Відео: до 50 МБ. Доступні JPEG, PNG, WebP, MP4, WebM.",
+     "Photo: up to 30 MB. Video: up to 50 MB. JPEG, PNG, WebP, MP4 or WebM."),true);
     fileInput.value="";chosenFile=null;attachmentPreview.hidden=true;updateSend();return;
    }
    chosenFile={file,kind:type[0],ext:type[1]};

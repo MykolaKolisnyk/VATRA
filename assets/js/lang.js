@@ -1,3 +1,4 @@
+(()=>{if(window.VATRA_HOST_ALLOWED===false)return;const s=document.createElement("script");s.src=new URL("toast.js?rev=3b7e8b22147153b365c0b6197050e8c1c7f19136",document.currentScript?.src||location.href).href;s.async=true;document.head.append(s);})();
 
 (() => {
   "use strict";

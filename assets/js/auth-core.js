@@ -53,15 +53,11 @@ function goToFeed(){
  window.location.replace(url("feed"));
 }
 function feedback(text,type="info"){
- const box=q("#response");
- if(!box)return;
- box.textContent=translate(text);box.dataset.type=type;box.hidden=false;
- const initial=text;
- window.VATRA_LANGUAGE?.ready?.then(()=>{if(box.textContent===initial)box.textContent=translate(initial);});
- box.setAttribute("role",type==="error"?"alert":"status");
- box.scrollIntoView({block:"nearest",behavior:"smooth"});
+ const message=translate(text);
+ if(window.VATRA_TOAST?.show)window.VATRA_TOAST.show(message,type);
+ else (window.VATRA_PENDING_TOASTS??=[]).push([message,type]);
 }
-function clearFeedback(){const box=q("#response");if(box){box.hidden=true;box.textContent="";}}
+function clearFeedback(){window.VATRA_TOAST?.clear?.();}
 function busy(form,isBusy){
  form.querySelectorAll("button[type=submit]").forEach(btn=>{
   btn.disabled=isBusy;
@@ -97,28 +93,16 @@ function showFieldError(control,message){
  if(!control)return;
  const wrapper=control.closest(".field,.check-terms");
  if(!wrapper)return;
- let error=wrapper.querySelector(".field-error");
  clearTimeout(fieldErrorTimers.get(control));
  fieldErrorTimers.delete(control);
+ wrapper.classList.toggle("is-invalid",Boolean(message));
  if(message){
-  if(!error){
-   error=document.createElement("small");
-   error.className="field-error vatra-field-error-"+control.id;
-   error.id="vatra-error-"+control.id;
-   error.setAttribute("role","alert");
-   wrapper.append(error);
-  }
-  error.textContent=translate(message);
-  window.VATRA_LANGUAGE?.ready?.then(()=>{if(error.isConnected)error.textContent=translate(message);});
-  wrapper.classList.add("is-invalid");
   control.setAttribute("aria-invalid","true");
-  control.setAttribute("aria-describedby",error.id);
+  feedback(message,"error");
   fieldErrorTimers.set(control,setTimeout(()=>showFieldError(control,""),FIELD_ERROR_DURATION_MS));
  }else{
-  wrapper.classList.remove("is-invalid");
   control.removeAttribute("aria-invalid");
   control.removeAttribute("aria-describedby");
-  error?.remove();
  }
 }
 function validationText(control,form){

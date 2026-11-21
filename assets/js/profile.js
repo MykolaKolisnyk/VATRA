@@ -429,9 +429,8 @@
    make("span","vatra-profile-editor-label-row-caption-001",tr("Кожне поле має свою аудиторію","Every field has its own audience")));
   const fields=make("div","profile-editor-fields ui-profile-editor-fields-001");
   const saveRow=make("div","profile-editor-footer ui-profile-editor-footer-001");
-  const feedback=make("p","vatra-profile-editor-feedback-001");feedback.setAttribute("role","status");feedback.hidden=true;
   const save=make("button","vatra-profile-editor-save-001",tr("Зберегти зміни","Save changes"));
-  save.type="submit";saveRow.append(feedback,save);
+  save.type="submit";saveRow.append(save);
   form.append(titleRow,summary,separator,fields,saveRow);primary.append(form);
   const sidebar=make("nav","profile-editor-sidebar ui-profile-editor-sidebar-001");
   sidebar.setAttribute("aria-label",tr("Розділи редагування","Edit sections"));
@@ -484,10 +483,7 @@
   back.addEventListener("click",close);
   const mediaDialog=select("#profile-edit-dialog");
   media.addEventListener("click",()=>mediaDialog?.showModal());
-  const note=msg=>{
-   feedback.hidden=!msg;
-   feedback.textContent=msg;feedback.dataset.kind="error";
-  };
+  const note=msg=>{if(msg)window.VATRA_TOAST?.error(msg);};
   const recordDialog=make("dialog","vatra-profile-editor-record-dialog ui-profile-editor-record-dialog-001");
   recordDialog.setAttribute("aria-labelledby","profile-editor-record-title");
   const recordForm=make("form","ui-profile-editor-record-form-001");
@@ -783,7 +779,7 @@
     const active=name===id;
     btn.classList.toggle("is-active",active);btn.setAttribute("aria-current",active?"page":"false");
    }
-   fields.replaceChildren();feedback.hidden=true;
+   fields.replaceChildren();
    if(id==="profile"){
     const identity=make("section","ui-profile-editor-identity-001");
     const coverPreview=make("div","ui-profile-editor-cover-preview-001");
@@ -862,7 +858,7 @@
   };
   form.addEventListener("submit",async event=>{
    event.preventDefault();closeEditorMenu();if(save.disabled)return;
-   save.disabled=true;feedback.hidden=true;feedback.dataset.kind="";
+   save.disabled=true;
 
    const records=groups.flatMap(group=>group.fields).map(field=>{
     const key=field[0],item=draft.get(key)||{value:"",visibility:"friends"};
@@ -905,8 +901,7 @@
 
     accountVisibility=visibility;
     renderInfo();
-    feedback.hidden=false;feedback.dataset.kind="success";
-    feedback.textContent=tr("Зміни збережено.","Changes saved.");
+    window.VATRA_TOAST?.success(tr("Зміни збережено.","Changes saved."));
    }catch(_){
     note(tr("Не вдалося зберегти всі зміни. Повторіть спробу.",
      "Could not save all changes. Please retry."));
@@ -986,9 +981,9 @@ const node=(tag,cls,value)=>{
 };
 const dateText=value=>{
  const date=new Date(value);
- return Number.isNaN(date.getTime())?"":new Intl.DateTimeFormat(locale,{
-  day:"numeric",month:"short",year:"numeric"
- }).format(date);
+ if(Number.isNaN(date.getTime()))return "";
+ return window.VATRA_PRESENCE?.relative?.(date,english)||
+  new Intl.DateTimeFormat(locale,{day:"numeric",month:"short",year:"numeric"}).format(date);
 };
 const setMenuLink=id=>{
  if(!validId(id))return;
@@ -2313,7 +2308,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 
 
   const scale=avatarPhoto?
-   Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight):
+   Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight):
    mediaDialog.dataset.kind==="cover"?
     Math.min(Math.min(roomW,1140)/mediaImage.naturalWidth,
      Math.min(roomH*.76,680)/mediaImage.naturalHeight):
@@ -2816,7 +2811,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   ownerPhoto.href=owner.href;ownerPhoto.setAttribute("aria-label",owner.textContent);
   ownerPhoto.style.backgroundImage=photoURLs.avatar?"url("+JSON.stringify(photoURLs.avatar)+")":"";
   ownerPhoto.classList.toggle("has-photo",!!photoURLs.avatar);
-  const uploaded=galleryDates.get(path);const elapsed=uploaded?Math.max(0,Date.now()-Date.parse(uploaded)):Infinity;date.textContent=uploaded?(elapsed<60000?t("Щойно","Just now"):elapsed<86400000?new Intl.RelativeTimeFormat(locale,{numeric:"auto"}).format(-Math.floor(elapsed/(elapsed<3600000?60000:3600000)),elapsed<3600000?"minute":"hour"):dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
+  const uploaded=galleryDates.get(path);
+  date.textContent=uploaded?(window.VATRA_PRESENCE?.relative?.(uploaded,english)||dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
   resetPhotoComposer();syncComposerAvatar();
   void reloadPhotoActivity(false,true,lastAvatarCommentKey===path+"|"+photoCommentSort);
   void loadTags();
@@ -3132,8 +3128,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  async function uploadImage(file,kind,originalFile=null){
   if(uploading)return false;
   const ext=fileTypes[file?.type];
-  if(!ext||!file?.size||file.size>6291456){
-   status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);return false;
+  if(!ext||!file?.size||file.size>31457280){
+   status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);return false;
   }
   uploading=true;buttonAvatar.disabled=true;buttonCover.disabled=true;coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
   status(t("Завантажуємо зображення…","Uploading image…"));
@@ -3203,7 +3199,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  const closeStep=(from,to)=>{transitioning=true;from.close();to.showModal();transitioning=false;};
  const startCrop=async file=>{if(uploading||finishing||crop.open||finish.open||coverLoading||coverSaving||coverDialog.open)return;
-  if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileAvatar.value="";return;}
+  if(!fileTypes[file?.type]||!file?.size||file.size>31457280){status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);fileAvatar.value="";return;}
   release();sourceFile=file;sourceMime=file.type;const img=new Image();const url=URL.createObjectURL(file);sourceURL=url;
   try{img.src=url;await img.decode();if(sourceURL!==url)return;source=img;const ratio=Math.min(1,720/Math.max(img.naturalWidth,img.naturalHeight));canvas.width=Math.max(1,Math.round(img.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(img.naturalHeight*ratio));const size=Math.min(canvas.width,canvas.height);selection={x:(canvas.width-size)/2,y:(canvas.height-size)/2,size};zoom.value="1";q("#profile-avatar-publish-post").checked=false;q("#profile-avatar-publish-story").checked=false;finishError.hidden=true;draw();crop.showModal();}catch(_){release();status(t("Не вдалося відкрити фото.","Could not open photo."),true);}
  };
@@ -3402,7 +3398,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  const startCoverCrop=async file=>{
   if(uploading||finishing||coverLoading||coverSaving||coverDialog.open||crop.open||finish.open)return;
-  if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileCover.value="";return;}
+  if(!fileTypes[file?.type]||!file?.size||file.size>31457280){status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);fileCover.value="";return;}
   coverRelease();coverSourceFile=file;coverSourceMime=file.type;coverLoading=true;const img=new Image(),url=URL.createObjectURL(file);coverSourceURL=url;
   try{img.src=url;await img.decode();if(coverSourceURL!==url)return;coverSource=img;const scale=Math.min(1,900/Math.max(img.naturalWidth,img.naturalHeight));
    coverCanvas.width=Math.max(1,Math.round(img.naturalWidth*scale));coverCanvas.height=Math.max(1,Math.round(img.naturalHeight*scale));

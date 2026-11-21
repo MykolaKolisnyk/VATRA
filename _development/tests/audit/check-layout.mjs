@@ -54,14 +54,14 @@ const authPageModules=[
 const authControllerNames=["sign-in","create-account","recovery","verify"];
 for(const [name,pageId,controller,stylesheet] of authPageModules){
  const html=await read(name+".html");
- const js='src="assets/js/'+controller+'.js"';
- const shared='src="assets/js/auth-core.js"';
+ const js='src="assets/js/'+controller+'.js';
+ const shared='src="assets/js/auth-core.js';
  assert.ok(html.includes('data-page="'+pageId+'"')&&
   html.split(js).length===2&&html.split(shared).length===2&&
   html.indexOf(js)<html.indexOf(shared)&&
-  html.includes('href="assets/css/'+stylesheet+'.css"')&&
+  html.includes('href="assets/css/'+stylesheet+'.css')&&
   authControllerNames.filter(other=>other!==controller).every(other=>
-   !html.includes('src="assets/js/'+other+'.js"')),
+   !html.includes('src="assets/js/'+other+'.js')),
   name+": must load one matching auth controller before the shared initializer");
 }
 assert.ok(
@@ -88,8 +88,8 @@ const instantEnglishTitles=lang.slice(lang.indexOf("  const instantEnglishTitles
 for(const [page,title] of [["friends","Friends"],["gifts","Gifts"]]){
  const html=await read(page+".html");
  assert.ok(instantEnglishTitles.includes(page+':"'+title+'"')&&
-  html.indexOf('src="assets/js/lang.js"')>=0&&
-  html.indexOf('src="assets/js/lang.js"')<html.indexOf("<title>"),
+  html.indexOf('src="assets/js/lang.js')>=0&&
+  html.indexOf('src="assets/js/lang.js')<html.indexOf("<title>"),
   page+": English tab title must be ready before DOM and remote translations");
 }
 const sw=await read("sw.js");
@@ -153,8 +153,9 @@ assert.ok(auth.includes('function passwordIssue(value){')&&
  auth.includes('if(control.type==="password"&&form.id!=="login-form")return passwordIssue(value);')&&
  (auth.match(/const passwordProblem=passwordIssue\(password\);/g)||[]).length===2&&
  auth.includes('code==="same_password"')&&
- auth.includes('if(status&&heading)heading.after(status);')&&
- auth.includes('if(status&&step.contains(status))form.before(status);'),
+ !auth.includes('if(status&&heading)heading.after(status);')&&
+ !auth.includes('if(status&&step.contains(status))form.before(status);')&&
+ authShared.includes('window.VATRA_TOAST.show(message,type)'),
  "Signup and both reset flows must share a specific password validator and aligned error placement");
 for(const [page,key,id] of [
  ["create-account","n260","create-account-password-policy"],["forgot","n60","forgot-password-policy"],
@@ -818,10 +819,12 @@ assert.ok(auth.includes('function wireFloatingHints()')&&
  "Both forms must restore floating hints without duplicates");
 assert.ok(auth.includes("FIELD_ERROR_DURATION_MS=5500")&&
  auth.includes("fieldErrorTimers.set(control,setTimeout")&&
- css.includes(".check-terms>.field-error{grid-column:1/-1;grid-row:2;")&&
- css.includes(".check-terms>.field-error::before{width:16px;height:16px;")&&
- auth.includes('wrapper.append(error);'),
- "Field errors must expire automatically and align consent messages");
+ auth.includes('feedback(message,"error");')&&
+ !auth.includes('wrapper.append(error);')&&
+ !css.includes(".field-error{")&&
+ !landing.includes('id="response"')&&
+ !register.includes('id="response"'),
+ "Field validation must expire without constructing hidden or inline error elements");
 assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
  auth.includes('help.addEventListener("pointerenter"'),
  "Gender and email help must open on hover and never overlap");
@@ -875,7 +878,7 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
  uk.__pages["create-account"].nodes.n59.text["0"]==="Створити акаунт",
  "Create account must be the unified account creation action");
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
- css.includes('.field-error::before{content:"!"'),
+ css.includes('.field.is-invalid .control{border-color:#e49aa7'),
  "Orbit size and visual validation details must be updated");
 assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
@@ -964,7 +967,7 @@ assert.ok(
  "Recovery card must show only the V mark, and all email fields must use translated floating hints");
 assert.ok(
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;')&&
- css.includes('.ui-forgot-main-001 .forgot-panel-content > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-content > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
  css.includes('.form-box{width:100%;max-width:520px;')&&
  css.includes('.signup-form-panel .narrow-form{width:100%;max-width:520px;'),
  "Password recovery, sign-in and sign-up must share the same 520px form column");
@@ -2189,7 +2192,7 @@ assert.ok(feedPhotoActions.includes(photoLikeGlyph)&&feedPhotoActions.includes(p
  memberProfileMarkup.includes(photoLikeGlyph)&&memberProfileMarkup.includes(photoShareGlyph)&&
  !memberProfileMarkup.includes('id="profile-photo-comments-heading"')&&
  !profileScript.includes('q("#profile-photo-comments-heading")')&&
- profileScript.includes('Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight)')&&
+ profileScript.includes('Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight)')&&
  !profileScript.includes('Math.min(1,roomW*.84/')&&
  memberCss.includes('.profile-photo-comments.is-empty{display:flex;align-items:center;justify-content:center'),
  "Photo viewer uses original VATRA feed like/share SVGs, no comments heading, and uncropped responsive photo scaling");

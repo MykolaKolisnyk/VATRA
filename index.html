@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <script src="assets/js/host.js"></script>
 
-    <script src="assets/js/lang.js"></script>
+    <script src="assets/js/lang.js?rev=39c7614202106f22faa4db4ac221e792fa259169"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#ffffff">
     <meta name="color-scheme" content="light">
@@ -30,13 +30,13 @@
     <meta name="twitter:image" content="https://mykolakolisnyk.github.io/VATRA/assets/logo/logo_app-icon.webp?v=20261118">
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
-    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/base.css?rev=e9c5d77861014c75451d2e4028066ce4d16c8c84">
     <link rel="stylesheet" href="assets/css/sign-in.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/captcha.js"></script>
     <script defer src="assets/js/avatar.js"></script>
-    <script defer src="assets/js/sign-in.js"></script>
-    <script defer src="assets/js/auth-core.js"></script>
+    <script defer src="assets/js/sign-in.js?rev=b105a38281ea2532edeb93c1bbe7130c0856b944"></script>
+    <script defer src="assets/js/auth-core.js?rev=63b973f995721ccc8e0e48d684b4b64a87111807"></script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"VATRA","url":"https://mykolakolisnyk.github.io/VATRA/","description":"VATRA — українська соціальна мережа для спілкування, знайомств, творчості, спільнот, покупок і бізнесу.","inLanguage":"uk-UA"}</script>
     <script defer src="assets/js/network.js"></script>
     <meta name="application-name" content="VATRA">
@@ -109,8 +109,6 @@
             <p class="login-description vatra-home-paragraph-05" data-i18n="n104">
               Повертайтеся до своїх людей, повідомлень і улюблених спільнот.
             </p>
-            <p id="response" class="response vatra-home-paragraph-02" role="status" aria-live="polite" hidden>
-            </p>
             <form id="login-form" autocomplete="on" class="ui-home-form-001">
               <div class="field-stack ui-home-div-011">
                 <label class="field vatra-home-label-01"><span class="vatra-home-inline-02" data-i18n="n109">Електронна пошта</span><span class="vatra-input-shell ui-home-input-shell-001"><input class="control ui-home-input-001" id="email" type="email" name="email" placeholder=" " autocomplete="email" maxlength="254" required><span class="vatra-floating-hint vatra-home-floating-hint-01" aria-hidden="true" data-i18n="n401">Електронна пошта</span></span></label><label class="field vatra-home-label-02"><span class="vatra-home-inline-03" data-i18n="n112">Пароль</span><span class="input-password vatra-input-shell vatra-home-inline-04"><input class="control ui-home-input-002" id="password" name="password" type="password" autocomplete="current-password" placeholder=" " minlength="8" maxlength="128" required><button type="button" class="eye-btn vatra-home-button-01" data-password-toggle="password" aria-label="Показати пароль" aria-pressed="false" data-i18n="n115" hidden>Показати</button><span class="vatra-floating-hint vatra-home-floating-hint-02" aria-hidden="true" data-i18n="n114">Введіть пароль</span></span></label>
@@ -153,8 +151,6 @@
         <span class="vatra-floating-hint vatra-home-saved-floating-001" data-i18n="n505" aria-hidden="true">Введіть пароль</span>
       </span>
     </label>
-                <p id="saved-account-response" class="response vatra-home-saved-response-001" role="status" aria-live="polite" hidden>
-                </p>
                 <button type="submit" class="action primary saved-account-primary vatra-home-saved-signin-001" data-i18n="n506">Увійти</button>
     <a class="saved-account-forgot vatra-home-saved-forgot-001" href="forgot" data-i18n="n507">Забули пароль?</a>
               </form>

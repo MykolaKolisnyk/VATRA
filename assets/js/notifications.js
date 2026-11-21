@@ -42,8 +42,14 @@ let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false;
 const pageURL=()=>new URL("notifications",root).href;
 const timeValue=date=>{
  const parsed=new Date(date);if(!Number.isFinite(parsed.getTime()))return "";
- return new Intl.DateTimeFormat(dateLocales[language()]||"uk-UA",
-  {day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(parsed);
+ const relative=window.VATRA_PRESENCE?.relative?.(parsed,language()==="en");
+ if(relative)return relative;
+ const ms=Math.max(0,Date.now()-parsed.getTime());
+ if(ms<300000)return t("щойно","just now");
+ if(ms<3600000){const n=Math.floor(ms/300000)*5;return language()==="en"?n+" minutes ago":n+" хвилин тому";}
+ if(ms<86400000){const n=Math.floor(ms/3600000);return language()==="en"?n+" hours ago":n+" год тому";}
+ const n=Math.floor(ms/86400000);
+ return language()==="en"?n+" days ago":n+" днів тому";
 };
 const hrefFor=record=>{
  const path=record.kind==="friend_request"||record.kind==="friend_accepted"?

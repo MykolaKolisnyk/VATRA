@@ -322,7 +322,7 @@ assert.ok(notificationRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")
  notificationRuntime.includes('format("Сповіщення: {count} непрочитаних"')&&
  notificationRuntime.includes('format("Учасник VATRA ID {id}"')&&
  notificationRuntime.includes('format("Сторінка {page}"')&&
- notificationRuntime.includes('new Intl.DateTimeFormat(dateLocales[language()]||"uk-UA"'),
+ notificationRuntime.includes('window.VATRA_PRESENCE?.relative?.(parsed,language()==="en")'),
  "Notification runtime must use dictionaries, interpolation and locale-aware dates");
 for(const key of notificationKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
@@ -391,7 +391,7 @@ for(const key of pendingPasswordLocaleKeys.slice(0,6)){
   "Password policy must return the untranslated source key: "+key);
 }
 assert.ok(signInRuntime.includes('translate("Вилучити збережений акаунт")')&&
- signInRuntime.includes('translate("Введіть пароль.")'),
+ signInRuntime.includes('feedback("Введіть пароль.","error")'),
  "Saved account actions must use locale dictionaries");
 assert.ok(recoveryRuntime.includes('translate("Повторити через")')&&
  recoveryRuntime.includes('translate("Встановіть новий пароль")'),

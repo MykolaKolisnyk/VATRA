@@ -72,9 +72,9 @@ async function setupClubSocial(client,clubId,ownId,userId){
      names.get(id)||t("Учасник VATRA","VATRA member"));
     profile.href=root+"id"+id;
     if(names.has(id))void window.VATRA_VERIFIED?.attach(client,profile,id);
-    const time=node("time","feed-post-date vatra-club-post-date-001",new Intl.DateTimeFormat(locale,{
-     day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
-    }).format(new Date(post.created_at)));
+    const time=node("time","feed-post-date vatra-club-post-date-001",
+     window.VATRA_PRESENCE?.relative?.(post.created_at,locale.startsWith("en"))||
+     new Intl.DateTimeFormat(locale,{day:"numeric",month:"short",year:"numeric"}).format(new Date(post.created_at)));
     time.dateTime=post.created_at;
     const meta=node("div","feed-post-meta-row ui-club-post-meta-row-001");
     meta.append(time);window.VATRA_POST_INTERACTIONS?.appendAudience(meta,null,true);

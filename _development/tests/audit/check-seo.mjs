@@ -9,7 +9,7 @@ const css=await read("assets/css/base.css");
 const privateMessenger=await read("messenger.html");
 assert.ok(privateMessenger.includes('name="robots" content="noindex,nofollow"')&&
  privateMessenger.includes('src="assets/js/host.js"')&&
- privateMessenger.includes('src="assets/js/lang.js"')&&
+ privateMessenger.includes('src="assets/js/lang.js')&&
  privateMessenger.includes('assets/js/messenger-crypto.js')&&
  !privateMessenger.includes('rel="canonical"'),
  "Private messenger must remain unindexed and load verified host, locale and crypto modules");
@@ -28,7 +28,7 @@ for(const page of pages){
  assert.ok(html.includes('<html lang="uk"'),filename+": source markup must use accessible Ukrainian fallback");
  assert.ok(html.includes("VATRA"),filename+": branding missing");
  assert.ok(!/\/VATRA\/(?:ua|en)\//.test(html),filename+": language subfolder link remains");
- assert.ok(/\bsrc=["'](?:\/VATRA\/)?assets\/js\/lang\.js(?:\?v=[^"']+)?["']/.test(html),
+ assert.ok(/\bsrc=["'](?:\/VATRA\/)?assets\/js\/lang\.js(?:\?(?:v=[^"']+|rev=[a-f0-9]{40}))?["']/.test(html),
   filename+": shared JSON translation loader missing");
  if(publicPages.has(page)){
   for(const tag of ['rel="canonical"','name="description"','property="og:title"','property="og:image"']){

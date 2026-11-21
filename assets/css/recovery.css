@@ -11,7 +11,6 @@
 .center-main .action{width:100%}
 .center-main .field-stack[hidden]{display:none}
 .center-main #recovery-code-form .subtitle{margin:0 0 10px}
-.center-main .response:not([hidden]){margin:0 0 10px}
 .center-main .form-note{text-align:center;margin-top:19px}
 
 .center-page[data-page="forgot"]{background:radial-gradient(ellipse 75% 60% at 50% 17%,#edf0ff 0%,#f7f8fe 58%,#fafbff 100%)}
@@ -20,7 +19,7 @@
 .ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075)}
 .ui-forgot-main-001 .forgot-panel-content{display:flex;flex-direction:column;align-items:center;width:100%;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 
-.ui-forgot-main-001 .forgot-panel-content > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}
+.ui-forgot-main-001 .forgot-panel-content > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}
 .ui-forgot-main-001 .forgot-panel-header .back{order:1;align-self:center;min-height:36px;margin:0;padding:0;border:0;border-radius:0;background:transparent}
 .ui-forgot-main-001 .forgot-panel-brand{order:0;display:flex;align-items:center;justify-content:center;flex:0 0 52px;width:52px;height:52px;border:0;border-radius:0;background:transparent;transition:transform .18s ease}
 .ui-forgot-main-001 .forgot-panel-brand:hover{transform:translateY(-1px)}
@@ -56,7 +55,6 @@
 .ui-forgot-main-001 .forgot-panel #recovery-success-link{width:100%;max-width:520px;margin:16px 0 0}
 .ui-forgot-main-001 .forgot-panel .recovery-success-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;text-decoration:none;color:#fff}
 .ui-forgot-main-001 .forgot-panel .recovery-success-action:hover,.ui-forgot-main-001 .forgot-panel .recovery-success-action:focus-visible{text-decoration:none;color:#fff}
-.ui-forgot-main-001 .forgot-panel-content>.response:not([hidden]){margin:0 0 20px}
 .ui-forgot-main-001 .forgot-panel:has(#recovery-step:not([hidden])) .forgot-intro{display:none}
 .ui-forgot-main-001 .forgot-panel .recovery-step{margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent}
 .ui-forgot-main-001 .forgot-panel .recovery-step-title{font-size:clamp(26px,3vw,31px);font-weight:745;letter-spacing:-.035em;line-height:1.2}

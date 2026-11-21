@@ -439,10 +439,7 @@ function syncSignupCountdown(){
  button.textContent=signupSending?translate("Надсилаємо…"):remaining
   ?translate("Повторити через")+" "+signupClock(remaining):translate("Надіслати лист ще раз");
 }
-function showSignupMessage(message,error=false){
- const box=q("#signup-confirmation-feedback");if(!box)return;
- box.textContent=translate(message);box.dataset.type=error?"error":"success";box.hidden=false;
-}
+function showSignupMessage(message,error=false){feedback(message,error?"error":"success");}
 function showSignupConfirmation(pending){
  const screen=q("#signup-confirmation"),form=q(".signup-form-panel .narrow-form");
  if(!screen||!form)return;
@@ -451,7 +448,6 @@ function showSignupConfirmation(pending){
  const badge=q("#signup-confirmation-address"),row=q(".signup-confirmation-address-row");
  if(badge&&row){badge.textContent=pending.address||"";row.hidden=!pending.address;}
  document.body.dataset.signupConfirmation="pending";
- q("#signup-confirmation-feedback").hidden=true;
  if(!signupTickTimer)signupTickTimer=setInterval(syncSignupCountdown,1000);
  syncSignupCountdown();
  screen.scrollIntoView({block:"nearest",behavior:"smooth"});

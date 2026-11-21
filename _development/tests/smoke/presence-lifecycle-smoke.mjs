@@ -33,7 +33,7 @@ function makeClient(label){
     assert.ok(value.last_seen_at);
     return {eq(key,id){
      assert.equal(key,"vatra_id");
-     return new Promise(resolve=>writes.push({label,id,resolve}));
+     return new Promise(resolve=>writes.push({label,id,form:value.form,resolve}));
     }};
    },
    insert(){throw Error("Present account should use one UPDATE, not INSERT");}
@@ -50,6 +50,7 @@ const context={
 };
 runInNewContext(`
 const validId=x=>/^[1-9][0-9]{0,18}$/.test(String(x??""));
+const grammar=gender=>gender==="male"?"masculine":gender==="female"?"feminine":"neutral";
 ${source.slice(first,end)}
 globalThis.presenceTest={start,stop,active:()=>active};
 `,context);
@@ -59,6 +60,7 @@ const aRun=presence.start(a,"12","male");
 await new Promise(resolve=>setImmediate(resolve));
 assert.equal(writes.length,1,"Start should not duplicate the initial heartbeat");
 assert.equal(writes[0].id,"12");
+assert.equal(writes[0].form,"masculine","Male profile must store masculine presence form");
 writes[0].resolve({error:null});
 assert.equal(await aRun,true);
 assert.equal(reads.length,1);
@@ -83,6 +85,7 @@ assert.equal(a.state.unsubscribed,true);
 assert.equal(intervalFns.size,0,"Switching account clears the old timer");
 assert.equal(writes.length,3,"New viewer needs its own initial heartbeat");
 assert.equal(writes[2].id,"13");
+assert.equal(writes[2].form,"neutral","Unset or custom gender must stay neutral");
 writes[1].resolve({error:null});
 writes[2].resolve({error:null});
 assert.equal(await bRun,true);

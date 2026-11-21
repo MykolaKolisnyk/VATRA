@@ -10,9 +10,9 @@
   return typeof translated==="string"&&translated!==uk?translated:uk;
  };
  const formats={
-  "image/jpeg":{kind:"image",ext:"jpg",bucket:"post-images",limit:6291456},
-  "image/png":{kind:"image",ext:"png",bucket:"post-images",limit:6291456},
-  "image/webp":{kind:"image",ext:"webp",bucket:"post-images",limit:6291456},
+  "image/jpeg":{kind:"image",ext:"jpg",bucket:"post-images",limit:31457280},
+  "image/png":{kind:"image",ext:"png",bucket:"post-images",limit:31457280},
+  "image/webp":{kind:"image",ext:"webp",bucket:"post-images",limit:31457280},
   "video/mp4":{kind:"video",ext:"mp4",bucket:"videos",limit:52428800},
   "video/webm":{kind:"video",ext:"webm",bucket:"videos",limit:52428800}
  };
@@ -21,7 +21,7 @@
   const info=formats[file?.type];
   if(!info||!file?.size)throw Error(tr("Виберіть JPEG, PNG, WebP, MP4 або WebM.","Choose JPEG, PNG, WebP, MP4 or WebM."));
   if(file.size>info.limit)throw Error(info.kind==="image"?
-   tr("Фото має бути до 6 МБ.","Photo must be under 6 MB."):
+   tr("Фото має бути до 30 МБ.","Photo must be under 30 MB."):
    tr("Відео має бути до 50 МБ.","Video must be under 50 MB."));
   return info;
  };

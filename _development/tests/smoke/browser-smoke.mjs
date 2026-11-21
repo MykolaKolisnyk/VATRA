@@ -1199,15 +1199,13 @@ try{
   const metrics=()=>field.evaluate(el=>{
    const shell=el.closest(".vatra-input-shell");
    const hint=shell?.querySelector(".vatra-floating-hint");
-   const error=el.closest(".field").querySelector(".field-error");
    const ir=el.getBoundingClientRect(),hr=hint?.getBoundingClientRect();
-   const er=error?.getBoundingClientRect();
    return {placeholder:el.placeholder,
     floating:shell?.classList.contains("is-floating")||shell?.matches(":focus-within"),
     hintCount:shell?.querySelectorAll(".vatra-floating-hint").length,
     hintText:hint?.textContent.trim(),hintTop:hr?.top,hintBottom:hr?.bottom,
     inputTop:ir.top,inputBottom:ir.bottom,inputMid:(ir.top+ir.bottom)/2,
-    errorTop:er?.top,errorText:error?.textContent.trim(),
+    oldInlineErrors:el.closest(".field").querySelectorAll(".field-error").length,
     invalid:el.getAttribute("aria-invalid")};
   });
   const empty=await metrics();
@@ -1222,12 +1220,12 @@ try{
   await probe.locator(action).click();
   await probe.waitForTimeout(240);
   const error=await metrics();
-  assert.ok(error.invalid==="true"&&error.errorText&&
+  assert.ok(error.invalid==="true"&&error.oldInlineErrors===0&&
    error.hintCount===1&&error.placeholder===" "&&
    (error.floating?error.hintBottom<=error.inputTop+24:
-    Math.abs((error.hintTop+error.hintBottom)/2-error.inputMid)<=3)&&
-   error.errorTop>=error.inputBottom+2,
-   "Validation must not overlap a floating hint or the error message: "+route+" "+JSON.stringify(error));
+    Math.abs((error.hintTop+error.hintBottom)/2-error.inputMid)<=3),
+   "Validation must not create legacy inline error nodes: "+route+" "+JSON.stringify(error));
+  await probe.locator(".vatra-toast-item--error.is-visible").first().waitFor({state:"visible"});
   await probe.waitForTimeout(5800);
   assert.equal(await field.getAttribute("aria-invalid"),null,
    "Validation error must expire without typing: "+route);
@@ -1272,22 +1270,13 @@ try{
   await consentProbe.locator("#password").fill("VeryStrong@12345");
   await consentProbe.locator("#password-confirm").fill("VeryStrong@12345");
   await consentProbe.locator('#signup-form button[type="submit"]').click();
-  const geometry=await consentProbe.locator(".check-terms").evaluate(label=>{
-   const copy=label.querySelector(":scope > span");
-   const checkbox=label.querySelector(":scope > input");
-   const error=label.querySelector(":scope > .field-error");
-   if(!error)return null;
-   const cr=checkbox.getBoundingClientRect(),sr=copy.getBoundingClientRect(),er=error.getBoundingClientRect();
-   const gap=parseFloat(getComputedStyle(error).columnGap);
-   const iconWidth=parseFloat(getComputedStyle(error,"::before").width);
-   return {inside:error.parentElement===label,checkboxX:cr.left,iconX:er.left,
-    copyX:sr.left,messageX:er.left+gap+iconWidth,below:er.top-sr.bottom,
-    errorRight:er.right,viewport:innerWidth,message:error.textContent.trim()};
-  });
-  assert.ok(geometry?.inside&&Math.abs(geometry.checkboxX-geometry.iconX)<3&&
-   Math.abs(geometry.copyX-geometry.messageX)<3&&geometry.below>=0&&
-   geometry.errorRight<=geometry.viewport+1,
-   "Consent error icon and text must align at "+width+" "+language+": "+JSON.stringify(geometry));
+  const consentFeedback=await consentProbe.locator(".check-terms").evaluate(label=>({
+   oldInlineErrors:label.querySelectorAll(".field-error").length,
+   invalid:label.querySelector("input")?.getAttribute("aria-invalid")
+  }));
+  assert.ok(consentFeedback.oldInlineErrors===0&&consentFeedback.invalid==="true",
+   "Consent validation must create no old inline error nodes");
+  await consentProbe.locator(".vatra-toast-item--error.is-visible").last().waitFor({state:"visible"});
   await consentProbe.close();
  }
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
@@ -1914,25 +1903,24 @@ try{
  await fullRecovery.locator("#password").fill("lowercaseonly123!");
  await fullRecovery.locator("#password-confirm").fill("lowercaseonly123!");
  await fullRecovery.locator("#reset-form button[type='submit']").click();
- await fullRecovery.locator("#response").waitFor({state:"visible"});
- assert.ok((await fullRecovery.locator("#response").textContent()).includes("велику латинську літеру"),
+ await fullRecovery.waitForFunction(()=>[...document.querySelectorAll(".vatra-toast-item-001.is-visible")].some(el=>el.textContent.includes("велику латинську літеру")));
+ assert.ok((await fullRecovery.locator(".vatra-toast-item--error.is-visible").first().textContent()).includes("велику латинську літеру"),
   "Recovery must identify missing uppercase Latin letters");
  assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),undefined);
- assert.ok(await fullRecovery.locator("#response").evaluate(el=>
-  document.querySelector("#recovery-step-heading").nextElementSibling===el),
-  "Password errors must appear immediately below the stage heading");
+ assert.equal(await fullRecovery.locator("#response").count(),0,
+  "The legacy inline password feedback element must be deleted");
 
  await fullRecovery.locator("#password").fill("StrongPassword@12345");
  await fullRecovery.locator("#password-confirm").fill("StrongPassword@12346");
  await fullRecovery.locator("#reset-form button[type='submit']").click();
- assert.ok((await fullRecovery.locator("#response").textContent()).includes("Паролі не збігаються"),
+ assert.ok((await fullRecovery.locator(".vatra-toast-item--error.is-visible").first().textContent()).includes("Паролі не збігаються"),
   "Mismatch must be separate from password complexity validation");
 
  await fullRecovery.locator("#password").fill("OldPassword@12345");
  await fullRecovery.locator("#password-confirm").fill("OldPassword@12345");
  await fullRecovery.locator("#reset-form button[type='submit']").click();
  await fullRecovery.waitForFunction(()=>
-  document.querySelector("#response")?.textContent.includes("відрізняється від попереднього"));
+  [...document.querySelectorAll(".vatra-toast-item--error.is-visible")].some(el=>el.textContent.includes("відрізняється від попереднього")));
  assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),undefined,
   "Server rejection of the previous password must not update the account");
 
@@ -1949,12 +1937,12 @@ try{
   const parent=node.closest(".forgot-panel-content"),style=getComputedStyle(node);
   return {height:btn.height,width:btn.width,contentWidth:row.getBoundingClientRect().width,
    bg:style.backgroundImage,color:style.color,radius:style.borderRadius,
-   contained:parent.contains(document.querySelector("#response")),
+   legacyResponse:parent.querySelector("#response")!==null,
    text:node.textContent.trim()};
  });
  assert.ok(successAppearance.height>=55&&successAppearance.width>=successAppearance.contentWidth-2&&
   successAppearance.bg.includes("linear-gradient")&&successAppearance.color==="rgb(255, 255, 255)"&&
-  parseFloat(successAppearance.radius)>=25&&successAppearance.contained&&successAppearance.text.length>0,
+  parseFloat(successAppearance.radius)>=25&&!successAppearance.legacyResponse&&successAppearance.text.length>0,
   "Successful password reset should reveal a prominent full-width VATRA action with status message: "+JSON.stringify(successAppearance));
  assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),"StrongPassword@12345");
  assert.equal(await fullRecovery.evaluate(()=>sessionStorage.getItem("vatra-recovery-pending")),null);
@@ -1981,7 +1969,7 @@ try{
  await recoveryLink.locator("#password").fill("NewPassword@12345");
  await recoveryLink.locator("#password-confirm").fill("NewPassword@12345");
  await recoveryLink.locator("#reset-form button[type='submit']").click();
- assert.ok((await recoveryLink.locator("#response").textContent()).includes("Підтвердження закінчилося"),
+ assert.ok((await recoveryLink.locator(".vatra-toast-item--error.is-visible").first().textContent()).includes("Підтвердження закінчилося"),
   "Changing accounts mid-recovery must be rejected");
  assert.equal(await recoveryLink.evaluate(()=>window.__resetPasswordChanged),undefined);
  await recoveryLink.evaluate(()=>{window.__resetRecoveryUserId="recovery-user";window.__resetRecoveryHandler("PASSWORD_RECOVERY",{user:{id:"recovery-user"}});});
@@ -2047,7 +2035,7 @@ try{
  await expiredLink.goto(base+"reset.html?type=recovery&error=access_denied",{waitUntil:"domcontentloaded"});
  await waitReady(expiredLink);
  assert.equal(await expiredLink.locator("#reset-form").isVisible(),false);
- assert.ok((await expiredLink.locator("#response").textContent()).includes("Посилання недійсне"));
+ assert.ok((await expiredLink.locator(".vatra-toast-item--error.is-visible").first().textContent()).includes("Посилання недійсне"));
  await expiredLink.close();
  // The UI also displays identical rules and Onest at signup and direct reset.
  for(const [path,selector] of [
@@ -2402,11 +2390,11 @@ try{
  await noCaptcha.locator("#email").fill("example@example.test");
  await noCaptcha.locator("#password").fill("StrongPassword@12345");
  await noCaptcha.locator('#login-form button[type="submit"]').click();
- await noCaptcha.waitForFunction(()=>!document.querySelector("#response").hidden);
+ await noCaptcha.waitForFunction(()=>!!document.querySelector(".vatra-toast-item--error.is-visible"));
  const declined=await noCaptcha.evaluate(()=>({
   authCalled:window.__unsafeLoginAttempt===true,
-  message:document.querySelector("#response").textContent,
-  type:document.querySelector("#response").dataset.type
+  message:document.querySelector(".vatra-toast-item--error.is-visible")?.textContent||"",
+  type:document.querySelector(".vatra-toast-item--error.is-visible")?"error":""
  }));
  assert.ok(!declined.authCalled&&declined.type==="error"&&declined.message.length>0,
   "Failed CAPTCHA script must block login, not fail open: "+JSON.stringify(declined));
@@ -2623,11 +2611,13 @@ try{
  await savedPage.locator("#saved-password").fill("WrongPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  assert.equal(await savedPage.evaluate(()=>sessionStorage.getItem("mockAttemptEmail")),"example@vatra.test");
- await savedPage.locator("#saved-account-response").waitFor({state:"visible"});
+ await savedPage.waitForFunction(()=>[...document.querySelectorAll(".vatra-toast-item--error.is-visible")].some(el=>el.textContent.includes(document.documentElement.lang==="en"?"Could not sign in":"Не вдалося увійти")));
  const expectedSavedError=await savedPage.evaluate(()=>
   document.documentElement.lang==="en"?"Could not sign in. Check your password.":"Не вдалося увійти. Перевірте пароль.");
- assert.equal((await savedPage.locator("#saved-account-response").textContent()).trim(),
-  expectedSavedError,"Saved password failure needs contextual, translated feedback");
+ assert.ok((await savedPage.locator(".vatra-toast-item--error.is-visible").first().textContent()).includes(expectedSavedError),
+  "Saved password failure must use translated toast feedback");
+ assert.equal(await savedPage.locator("#saved-account-response").count(),0,
+  "Old saved-account response block must not exist");
  await savedPage.locator("#saved-password").fill("CorrectPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  await savedPage.waitForURL("**/feed");
@@ -3602,8 +3592,9 @@ try{
   assert.equal(await feedProbe.locator(reactHost+" .vatra-post-interactions-status-001")
    .getAttribute("data-state"),"error");
   assert.equal(await feedProbe.locator(reactHost+" .vatra-post-interactions-status-001")
-   .isVisible(),true,
-   "Failed unsave feedback must be visible without opening comments");
+   .isVisible(),false,
+   "Failed unsave feedback must not stay inline");
+  await feedProbe.locator(".vatra-toast-item--error.is-visible").last().waitFor({state:"visible"});
   await feedProbe.locator(reactHost+" .vatra-post-comments-toggle-001").click();
   const commentHeart=feedProbe.locator(".vatra-post-comment-dialog .vatra-post-comment-like-001");
   await commentHeart.waitFor({state:"visible"});
@@ -4369,8 +4360,8 @@ try{
   });
   assert.equal(coverLayout.source,coverLayout.profileCover,
    "Cover stays on the exact visible banner image; it must never switch to an avatar or original");
-  assert.equal(coverLayout.fit,"cover",
-   "Legacy square uploads must show the same landscape crop in the viewer");
+  assert.equal(coverLayout.fit,"contain",
+   "Legacy square uploads must remain uncropped and preserve their natural aspect ratio in the viewer");
   assert.ok(Math.abs(coverLayout.aspect-2000/580)<.02&&
    coverLayout.centeredX<=3&&coverLayout.centeredY<=3&&coverLayout.width<=1122,
    "Expanded cover must keep its 2000:580 ratio and remain centered: "+JSON.stringify(coverLayout));
@@ -4694,9 +4685,11 @@ try{
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація",
    "Changing editor sections must preserve unsaved personal details");
   await profilePage.locator(".vatra-profile-editor-save-001").click();
-  await profilePage.waitForFunction(()=>document.querySelector(".vatra-profile-editor-feedback-001")?.dataset.kind==="success");
+  await profilePage.waitForFunction(()=>[...document.querySelectorAll(".vatra-toast-item--success.is-visible")].some(el=>/Зміни збережено|Changes saved/.test(el.textContent)));
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація");
-  assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").isVisible(),true);
+  assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").count(),0,
+   "Profile editor must not construct a legacy feedback node");
+   await profilePage.locator(".vatra-toast-item--success.is-visible").last().waitFor({state:"visible"});
   await profilePage.locator(".vatra-profile-editor-media-button-001").click();
   assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
    "The media editor remains available from the new information editor");
