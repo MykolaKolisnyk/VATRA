@@ -50,8 +50,10 @@ CREATE POLICY messenger_keys_active_account ON public.messenger_keys AS RESTRICT
  USING ((SELECT vatra_admin_private.allowed()))
  WITH CHECK ((SELECT vatra_admin_private.allowed()));
 CREATE POLICY messenger_participant_read ON public.messenger_messages FOR SELECT TO authenticated USING (
- sender_id=(SELECT a.vatra_id FROM public.accounts a WHERE a.user_id=(SELECT auth.uid()))
- OR recipient_id=(SELECT a.vatra_id FROM public.accounts a WHERE a.user_id=(SELECT auth.uid()))
+ (sender_id=(SELECT a.vatra_id FROM public.accounts a WHERE a.user_id=(SELECT auth.uid()))
+  AND deleted_for_sender_at IS NULL)
+ OR (recipient_id=(SELECT a.vatra_id FROM public.accounts a WHERE a.user_id=(SELECT auth.uid()))
+  AND deleted_for_recipient_at IS NULL)
 );
 CREATE POLICY messenger_sender_insert ON public.messenger_messages FOR INSERT TO authenticated WITH CHECK(
  sender_id=(SELECT a.vatra_id FROM public.accounts a WHERE a.user_id=(SELECT auth.uid()))
@@ -70,7 +72,7 @@ AS $$
 DECLARE own_id bigint; original public.messenger_messages%ROWTYPE;
 BEGIN
  SELECT a.vatra_id INTO own_id FROM public.accounts a WHERE a.user_id=auth.uid();
- IF own_id IS NULL OR p_scope NOT IN ('mine','everyone') THEN RAISE EXCEPTION 'Invalid deletion request' USING ERRCODE='22023'; END IF;
+ IF own_id IS NULL OR p_scope IS NULL OR p_scope NOT IN ('mine','everyone') THEN RAISE EXCEPTION 'Invalid deletion request' USING ERRCODE='22023'; END IF;
  IF NOT vatra_admin_private.allowed() THEN RAISE EXCEPTION 'Account unavailable' USING ERRCODE='42501'; END IF;
  SELECT * INTO original FROM public.messenger_messages WHERE id=p_id FOR UPDATE;
  IF NOT FOUND OR own_id NOT IN (original.sender_id,original.recipient_id)
