@@ -18,15 +18,15 @@
     // Direct visits, unknown or external referrers keep the safe home link.
     const wireReturnLink=()=>{
       if(document.body?.dataset.page!=="not-found")return;
-      const link=document.querySelector(".vt-404-link-002");
+      const link=document.querySelector(".vatra-404-link-002");
       if(!link)return;
       let previous;
       try{previous=new URL(document.referrer);}catch(_){return;}
       if(previous.origin!==location.origin||previous.pathname===location.pathname)return;
       if(!/^\/VATRA\/(?:index(?:\.html)?|(?:feed|profile|communities|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|forgot|reset|verify|terms|commerce|privacy|cookies|offline)(?:\.html)?|(?:id|club)[1-9][0-9]{0,18})?\/?$/.test(previous.pathname))return;
       link.href=previous.href;
-      link.querySelector(".vt-404-home-label-001").hidden=true;
-      link.querySelector(".vt-404-back-label-001").hidden=false;
+      link.querySelector(".vatra-404-home-label-001").hidden=true;
+      link.querySelector(".vatra-404-back-label-001").hidden=false;
     };
     if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",wireReturnLink,{once:true});
     else wireReturnLink();

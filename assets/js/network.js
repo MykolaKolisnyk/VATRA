@@ -45,12 +45,12 @@
   picture.src=new URL("assets/vatryk/"+file,projectBase).href;
   picture.alt="";picture.width=240;picture.height=240;picture.decoding="async";
   picture.addEventListener("error",()=>{picture.hidden=true;},{once:true});
-  const title=make("h2","vt-vatra-service-notice-title-001",translate(uk,en));
-  const copy=make("p","vt-vatra-service-notice-copy-001",options.description||translate(copyUk,copyEn));
+  const title=make("h2","vatra-service-notice-title-001",translate(uk,en));
+  const copy=make("p","vatra-service-notice-copy-001",options.description||translate(copyUk,copyEn));
   const actions=make("div","ui-vatra-service-notice-actions-001");
   const isSession=kind==="session",retry=["500","503"].includes(String(kind))?options.retry:null;
   const label=options.actionLabel||(isSession?translate("Увійти","Sign in"):retry?translate("Повторити спробу","Retry"):translate("Зрозуміло","Got it"));
-  const action=make("button","vt-vatra-service-notice-action-001",label);action.type="button";
+  const action=make("button","vatra-service-notice-action-001",label);action.type="button";
   action.addEventListener("click",async()=>{
    if(action.disabled)return;
    action.disabled=true;
@@ -64,7 +64,7 @@
    }finally{action.disabled=false;}
   });
   if(options.support){
-   const support=make("a","vt-vatra-service-notice-support-001",translate("Техпідтримка","Support"));
+   const support=make("a","vatra-service-notice-support-001",translate("Техпідтримка","Support"));
    support.href="mailto:vatra.support@gmail.com";actions.append(support);
   }
   actions.append(action);panel.append(picture,title,copy,actions);
@@ -90,7 +90,7 @@
   const english=document.documentElement.lang==="en";
   const label=english?"No internet connection. Check your connection.":"Немає підключення до інтернету. Перевірте мережу.";
   const banner=document.createElement("div");
-  banner.className="network-status vt-network-status";
+  banner.className="network-status vatra-network-status";
   banner.setAttribute("role","status");
   banner.setAttribute("aria-live","polite");
   banner.hidden=true;

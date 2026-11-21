@@ -192,7 +192,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
   picture.src=photoUrl;
  }
  const body=make("div","vatra-notification-content ui-vatra-notification-content-"+index);
- const link=make("a","vatra-notification-link vt-vatra-notification-link-"+index,messageFor(record.kind,name));
+ const link=make("a","vatra-notification-link vatra-notification-link-"+index,messageFor(record.kind,name));
  link.href=hrefFor(record);
  link.addEventListener("click",async event=>{
   if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
@@ -202,12 +202,12 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
   // so the delegated anchor interceptor cannot see the original click.
   if(!window.VATRA_NAVIGATE?.to(link.href))location.assign(link.href);
  });
- const timestamp=make("time","vatra-notification-time vt-vatra-notification-time-"+index,
+ const timestamp=make("time","vatra-notification-time vatra-notification-time-"+index,
   timeValue(record.created_at));
  timestamp.dateTime=record.created_at;
  body.append(link,timestamp);
  const actions=make("div","vatra-notification-actions ui-vatra-notification-actions-"+index);
- const deleteButton=make("button","vatra-notification-delete vt-vatra-notification-delete-"+index);
+ const deleteButton=make("button","vatra-notification-delete vatra-notification-delete-"+index);
  deleteButton.type="button";
  deleteButton.append(icon("delete-"+index,"M7 7h10m-9 0 .7 12h6.6L16 7M10 7V5h4v2M10.5 10.5v5m3-5v5"));
  deleteButton.setAttribute("aria-label",t("Видалити сповіщення","Delete notification"));
@@ -326,23 +326,23 @@ function headerUI(){
  bell.removeAttribute("data-vatra-coming-soon");
  bell.setAttribute("aria-haspopup","dialog");bell.setAttribute("aria-expanded","false");
  bell.setAttribute("aria-label",t("Сповіщення","Notifications"));
- badge=make("span","vatra-notification-count vt-vatra-notification-count-001");
+ badge=make("span","vatra-notification-count vatra-notification-count-001");
  badge.hidden=true;badge.setAttribute("aria-hidden","true");bell.append(badge);
  panel=make("section","vatra-notification-panel ui-vatra-notification-panel-001");
  panel.id="vatra-notification-panel";panel.hidden=true;
  panel.setAttribute("role","dialog");
  panel.setAttribute("aria-label",t("Ваші сповіщення","Your notifications"));
  const heading=make("div","vatra-notification-panel-heading ui-vatra-notification-panel-heading-001");
- const title=make("h2","vt-vatra-notification-title-001",t("Сповіщення","Notifications"));
- const close=make("button","vt-vatra-notification-close-001");
+ const title=make("h2","vatra-notification-title-001",t("Сповіщення","Notifications"));
+ const close=make("button","vatra-notification-close-001");
  close.type="button";close.append(icon("close","M5 5l14 14M19 5 5 19"));
  close.setAttribute("aria-label",t("Закрити сповіщення","Close notifications"));
  close.addEventListener("click",()=>{closePanel();bell.focus();});
  heading.append(title,close);
  panelItems=make("div","vatra-notification-list ui-vatra-notification-panel-list-001");
- const empty=make("p","vt-vatra-notification-panel-empty-001");
+ const empty=make("p","vatra-notification-panel-empty-001");
  empty.id="vatra-notification-panel-empty";empty.hidden=true;
- const footer=make("a","vt-vatra-notification-all-001",t("Відкрити всі сповіщення","View all notifications"));
+ const footer=make("a","vatra-notification-all-001",t("Відкрити всі сповіщення","View all notifications"));
  footer.href=pageURL();
  panel.append(heading,panelItems,empty,footer);
  document.body.append(panel);
