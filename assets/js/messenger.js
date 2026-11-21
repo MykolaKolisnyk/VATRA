@@ -79,6 +79,8 @@
      if(!confirm(message))return;
      await cryptoBox().trustPeer(state.own,id,state.peerKey);
      state.peerChanged=false;button.remove();sendStatus("");syncSend();
+     $("#messenger-messages").replaceChildren();
+     await renderMessages();
     });
     $("#messenger-peer-fingerprint").after(button);
    }else sendStatus("");
@@ -123,8 +125,16 @@
    if(thisDay!==previousDate){nodes.push(node("span","vatra-messenger-date-separator",day(row.created_at)));previousDate=thisDay;}
    if(cached.has(row.id)){nodes.push(cached.get(row.id));continue;}
    let plaintext;
-   try{plaintext=await cryptoBox().decrypt(row,state.own);}
-   catch(_){plaintext=t("Не вдалося розшифрувати для цього ключа.","Unable to decrypt for this key.");}
+   const messagePeerKey=ownRow(row)?row.recipient_public_key:row.sender_public_key;
+   // Never trust a key supplied only by a message envelope. Check it against
+   // the contact's independently pinned identity before decrypting or showing it.
+   if(!state.peerKey||state.peerChanged||!cryptoBox().same(messagePeerKey,state.peerKey))
+    plaintext=t("Ключ відправника не підтверджено. Перевірте відбиток співрозмовника.",
+      "Sender identity unverified. Check your contact's key fingerprint.");
+   else{
+    try{plaintext=await cryptoBox().decrypt(row,state.own);}
+    catch(_){plaintext=t("Не вдалося розшифрувати для цього ключа.","Unable to decrypt for this key.");}
+   }
    if(version!==state.chatVersion||id!==state.selected)return;
    const item=node("article","vatra-messenger-message");item.dataset.messageId=row.id;
    item.dataset.own=String(ownRow(row));item.setAttribute("aria-label",ownRow(row)?t("Ваше повідомлення","Your message"):t("Повідомлення співрозмовника","Contact message"));
@@ -169,7 +179,11 @@
   await loadNames([id]);setPeerHeading();renderConversations();
   const params=new URLSearchParams(location.search);params.set("to",id);
   history.replaceState(history.state,"",location.pathname+"?"+params.toString());
-  await Promise.all([loadPeerKey(),renderMessages()]);
+  await loadPeerKey();
+  if(state.selected===String(id)){
+   $("#messenger-messages").replaceChildren();
+   await renderMessages();
+  }
   syncSend();
  }
  async function beginNew(){
@@ -267,7 +281,8 @@
    state.locked=false;$("#messenger-key-dialog").close();
    $("#messenger-messages").replaceChildren(); // Replace locked placeholders with real decrypted bubbles.
    $("#messenger-security-line").textContent=t("Ваш локальний ключ розблоковано","Your local key is unlocked");
-   await Promise.all([refresh(),state.selected?loadPeerKey():Promise.resolve()]);
+   if(state.selected)await loadPeerKey();
+   await refresh();
   }catch(error){errorAt("#messenger-key-error",error?.message||t("Не вдалося відкрити ключ.","Could not open the key."));}
   finally{button.disabled=false;$("#messenger-passphrase").value="";syncSend();}
  }
