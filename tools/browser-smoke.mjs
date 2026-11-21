@@ -4424,8 +4424,15 @@ try{
   assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   const avatarOwner=(await profilePage.locator("#profile-heading").textContent()).trim();
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
-   (language==="en"?"Profile photo · ":"Фото профілю · ")+avatarOwner+
-   (language==="en"?" · 2 of 2":" · 2 із 2"));
+   (language==="en"?"Profile photo  2 of 2":"Фото профілю  2 із 2"),
+   "Own photo captions should have no repeated name or decorative separator");
+  const fullscreenAvatar=await profilePage.evaluate(()=>{
+   const rect=document.querySelector("#profile-media-viewer").getBoundingClientRect();
+   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight};
+  });
+  assert.ok(Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&
+   Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2,
+   "Avatar viewer must fill the browser viewport on desktop: "+JSON.stringify(fullscreenAvatar));
   assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
    "Person tagging was removed from the photo viewer altogether");
   assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
