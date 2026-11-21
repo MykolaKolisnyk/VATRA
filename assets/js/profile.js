@@ -2637,6 +2637,41 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   photoCommentsMore.textContent=t("Показати ще","Show more");
  };
  updatePhotoSortCopy();
+ // Small RLS-scoped, per-viewer avatar comment cache. Only server-confirmed rows
+ // are stored; writes and account changes clear them. Never persist to storage.
+ const avatarCommentPages=new Map(),AVATAR_COMMENT_TTL=12_000,AVATAR_COMMENT_MAX=12;
+ client.auth?.onAuthStateChange?.(event=>{
+  if(event!=="INITIAL_SESSION"&&event!=="TOKEN_REFRESHED")avatarCommentPages.clear();
+ });
+ const avatarCommentPage=async(path,sort,offset)=>{
+  const key=JSON.stringify([path,sort,offset]),entry=avatarCommentPages.get(key);
+  if(entry?.pending)return entry.pending;
+  if(entry&&entry.expires>Date.now()){
+   avatarCommentPages.delete(key);avatarCommentPages.set(key,entry);
+   return entry.rows.map(row=>({...row}));
+  }
+  avatarCommentPages.delete(key);
+  const pending=(async()=>{
+   const {data,error}=await client.rpc("vatra_avatar_comment_page",{
+    p_owner:Number(targetId),p_avatar_path:path,p_sort:sort,
+    p_offset:offset,p_limit:12
+   });
+   if(error)throw error;
+   return Array.isArray(data)?data:[];
+  })();
+  avatarCommentPages.set(key,{pending,expires:0});
+  while(avatarCommentPages.size>AVATAR_COMMENT_MAX)
+   avatarCommentPages.delete(avatarCommentPages.keys().next().value);
+  try{
+   const rows=await pending;
+   if(avatarCommentPages.get(key)?.pending===pending)
+    avatarCommentPages.set(key,{rows:rows.map(row=>({...row})),expires:Date.now()+AVATAR_COMMENT_TTL});
+   return rows.map(row=>({...row}));
+  }catch(error){
+   if(avatarCommentPages.get(key)?.pending===pending)avatarCommentPages.delete(key);
+   throw error;
+  }
+ };
  async function reloadPhotoActivity(append=false,refreshLikes=true,keepVisible=false){
   const path=photoPath(),ticket=++activityTicket;
   if(!path)return;
@@ -2653,19 +2688,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   commentList.setAttribute("aria-busy","true");photoCommentsMore.disabled=true;
   if(!append&&!reuse)feedback(t("Завантаження коментарів…","Loading comments…"));
   try{
-   const commentsPromise=client.rpc("vatra_avatar_comment_page",{
-    p_owner:Number(targetId),p_avatar_path:path,p_sort:commentSort.value,
-    p_offset:photoCommentOffset,p_limit:12
-   });
+   const commentsPromise=avatarCommentPage(path,commentSort.value,photoCommentOffset);
    const likesPromise=refreshLikes?Promise.all([
     client.from("avatar_likes").select("liker_id",{count:"exact",head:true})
      .eq("owner_vatra_id",targetId).eq("avatar_path",path),
     client.from("avatar_likes").select("liker_id")
      .eq("owner_vatra_id",targetId).eq("avatar_path",path).eq("liker_id",userId).limit(1)
    ]):Promise.resolve(null);
-   const [comments,likeResults]=await Promise.all([commentsPromise,likesPromise]);
+   const [rows,likeResults]=await Promise.all([commentsPromise,likesPromise]);
    if(ticket!==activityTicket||path!==photoPath())return;
-   if(comments.error)throw comments.error;
    if(likeResults){
     if(likeResults[0].error||likeResults[1].error)throw likeResults[0].error||likeResults[1].error;
     const liked=!!likeResults[1].data?.length;
@@ -2674,7 +2705,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     likesButton.classList.toggle("is-liked",liked);
    }
    if(ticket!==activityTicket||path!==photoPath())return;
-   const rows=comments.data||[];
    const {names,images}=await window.VATRA_POST_INTERACTIONS?.authorMap(client,rows)
     ||{names:new Map(),images:new Map()};
    const ids=rows.map(x=>x.id);
@@ -2749,6 +2779,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
         .eq("comment_id",item.id).eq("liker_id",userId):
        await client.from("avatar_comment_likes").insert({comment_id:item.id,liker_id:userId});
       if(result.error)throw result.error;
+      avatarCommentPages.clear();
       reacted=!reacted;countValue+=reacted?1:-1;paint();
      }catch(_){feedback(t("Не вдалося вподобати коментар.","Could not like the comment."),true);}
      finally{reaction.disabled=false;}
@@ -2806,6 +2837,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     owner_vatra_id:targetId,avatar_path:path,author_id:userId,author_vatra_id:ownId,body
    });
    if(error)throw error;
+   avatarCommentPages.clear();
    if(path===photoPath()&&mediaDialog.open){
     resetPhotoComposer();
     // Refresh only this thread; existing comments never disappear while it loads.
