@@ -7,7 +7,7 @@
   side.type="button";side.className="vatra-scroll-rail ui-vatra-scroll-rail-001";side.hidden=true;
   side.setAttribute("aria-label",document.documentElement.lang==="en"?"Scroll to top":"Повернутися вгору");
   side.title=document.documentElement.lang==="en"?"To top":"Вгору";
-  const name=document.createElement("span");name.className="vatra-scroll-rail-label vt-vatra-scroll-rail-label-001";
+  const name=document.createElement("span");name.className="vatra-scroll-rail-label vatra-scroll-rail-label-001";
   name.textContent=document.documentElement.lang==="en"?"Top":"Вгору";
   const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
   icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("class","ui-vatra-scroll-rail-icon-001");

@@ -89,7 +89,7 @@ function wireSavedAccountTooltip(button){
  if(!button)return;
  const tip=document.createElement("span");
  tip.id="vatra-saved-account-tooltip";
- tip.className="vatra-saved-tooltip vt-home-saved-tooltip-001";
+ tip.className="vatra-saved-tooltip vatra-home-saved-tooltip-001";
  tip.setAttribute("role","tooltip");
  tip.hidden=true;
  document.body.append(tip);
