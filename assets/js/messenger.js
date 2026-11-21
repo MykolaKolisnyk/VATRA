@@ -66,10 +66,11 @@
   if(request!==state.peerRequestVersion||id!==state.selected||state.terminating)return;
   if(error){el.textContent=t("Помилка ключа","Key unavailable");sendStatus(t("Не вдалося перевірити ключ співрозмовника.","Could not verify recipient key."));return;}
   if(!data?.public_key){el.textContent="—";sendStatus(t("Співрозмовник ще не налаштував приватний месенджер.","The recipient hasn't set up private Messenger yet."));syncSend();return;}
-  state.peerKey=data.public_key;
+  const candidateKey=data.public_key;
   try{
-   const report=await cryptoBox().checkPeer(state.own,id,state.peerKey);
+   const report=await cryptoBox().checkPeer(state.own,id,candidateKey);
    if(request!==state.peerRequestVersion||id!==state.selected||state.terminating)return;
+   state.peerKey=candidateKey;
    el.textContent=report.actual;
    state.peerChanged=report.changed;
    document.querySelector("#messenger-peer-accept-change")?.remove();
@@ -80,14 +81,19 @@
     button.addEventListener("click",async()=>{
      const message=t("Ви особисто перевірили новий відбиток ключа співрозмовника поза VATRA?","Have you verified your contact's new key fingerprint outside VATRA?");
      if(!confirm(message))return;
-     await cryptoBox().trustPeer(state.own,id,state.peerKey);
+     if(request!==state.peerRequestVersion||id!==state.selected||state.terminating)return;
+     await cryptoBox().trustPeer(state.own,id,candidateKey);
+     if(request!==state.peerRequestVersion||id!==state.selected||state.terminating)return;
      state.peerChanged=false;button.remove();sendStatus("");syncSend();
      $("#messenger-messages").replaceChildren();
      await renderMessages();
     });
     $("#messenger-peer-fingerprint").after(button);
    }else sendStatus("");
-  }catch(_){state.peerKey=null;sendStatus(t("Ключ співрозмовника недійсний.","Invalid contact key."));}
+  }catch(_){
+   if(request!==state.peerRequestVersion||id!==state.selected||state.terminating)return;
+   state.peerKey=null;sendStatus(t("Ключ співрозмовника недійсний.","Invalid contact key."));
+  }
   syncSend();
   }finally{if(request===state.peerRequestVersion)state.peerLoading=false;}
  }
