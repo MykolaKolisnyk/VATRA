@@ -275,47 +275,7 @@ body.profile-page .profile-person-action{
  color:#315fc2;font:700 12px "Onest",sans-serif;cursor:pointer
 }
 body.profile-page .profile-person-action:hover{background:#edf3ff}
-body.profile-page .profile-message-dialog{
- width:min(96vw,510px);max-height:min(90dvh,740px);padding:0;overflow:hidden;
- border:1px solid #dfe7f4;border-radius:18px;background:#fff;color:var(--ink);
- box-shadow:0 24px 70px rgba(27,47,91,.25);font-family:"Onest",system-ui,sans-serif
-}
-body.profile-page .profile-message-dialog::backdrop{background:rgba(22,35,65,.44);backdrop-filter:blur(3px)}
-body.profile-page .profile-message-dialog:not([open]){display:none!important}
-body.profile-page .profile-message-dialog-header{
- display:flex;align-items:center;justify-content:space-between;gap:15px;
- padding:17px 20px;border-bottom:1px solid #e7edf5
-}
-body.profile-page .vt-profile-message-title-001{margin:0;font-size:17px}
-body.profile-page .vt-profile-message-close-001{
- width:34px;height:34px;border:0;border-radius:9px;background:#f1f4fa;color:#526782;font-size:25px;cursor:pointer
-}
-body.profile-page .profile-message-history{
- display:flex;flex-direction:column;gap:9px;min-height:180px;max-height:38dvh;
- overflow-y:auto;padding:18px;background:#f8faff;scrollbar-width:thin
-}
-body.profile-page .profile-message-bubble{
- align-self:flex-start;max-width:87%;padding:10px 13px;border:1px solid #e0e6ef;
- border-radius:14px 14px 14px 4px;background:#fff;color:#35465f;
- white-space:pre-wrap;overflow-wrap:anywhere;font:500 13px/1.55 "Onest",sans-serif
-}
-body.profile-page .profile-message-bubble[data-own="true"]{
- align-self:flex-end;border:0;border-radius:14px 14px 4px 14px;
- background:#e9efff;color:#254d9b
-}
-body.profile-page .profile-message-bubble time{display:block;margin-top:6px;color:#8996aa;font-size:10px}
-body.profile-page .ui-profile-message-form-001{display:flex;flex-direction:column;gap:9px;padding:14px 19px 19px}
-body.profile-page .vt-profile-message-label-001{font-size:12px;font-weight:700;color:#5a6b84}
-body.profile-page .ui-profile-message-text-001{
- width:100%;min-height:76px;padding:12px;border:1px solid #d8e2f0;border-radius:10px;
- background:#fff;color:#314159;resize:none;font:500 13px/1.5 "Onest",sans-serif
-}
-body.profile-page .profile-message-actions{display:flex;justify-content:space-between;gap:12px}
-body.profile-page .profile-message-actions button{min-height:39px;padding:9px 16px;border-radius:9px;font:700 12px "Onest",sans-serif;cursor:pointer}
-body.profile-page .vt-profile-message-refresh-001{border:1px solid #d8e3f2;background:#fff;color:#506481}
-body.profile-page .vt-profile-message-send-001{border:0;background:#346cdb;color:#fff}
-body.profile-page .vt-profile-message-send-001:disabled{opacity:.55;cursor:wait}
-body.profile-page .vt-profile-message-status-001{margin:0;color:#b3495a;font-size:12px}
+/* Retired: the plaintext profile DM popup and its obsolete styles. */
 body.profile-page .ui-profile-post-header-001 .vt-profile-post-avatar-001{
  width:42px;height:42px;flex:none;border-radius:50%;font-size:13px
 }
