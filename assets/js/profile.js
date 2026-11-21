@@ -2368,7 +2368,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const photoURLs={avatar:null,cover:null};
  const visitorStory=q("#profile-visitor-story");
  const prevPhoto=q("#profile-avatar-prev"),nextPhoto=q("#profile-avatar-next"),galleryToolbar=q("#profile-avatar-gallery-toolbar"),galleryCount=q("#profile-avatar-gallery-count"),galleryDelete=q("#profile-avatar-gallery-delete");
- let gallery=[],galleryIndex=0,galleryEpoch=0,menuTimer=null,pendingAvatarUndo=null;
+ let gallery=[],galleryIndex=0,galleryEpoch=0,menuTimer=null,pendingAvatarUndo=null,avatarDeleteInProgress=false;
  const deletedNotice=q("#profile-photo-deleted-notice");
  const deletedMessage=q("#profile-photo-deleted-message");
  const restoreAvatarButton=q("#profile-photo-restore");
@@ -3024,13 +3024,20 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     "Could not delete the story. Please retry."),true);
   }finally{deleteStoryButton.disabled=false;}
  });
- q("#profile-media-viewer-close").addEventListener("click",()=>mediaDialog.close());
+ q("#profile-media-viewer-close").addEventListener("click",()=>{
+  if(!avatarDeleteInProgress&&!uploading)mediaDialog.close();
+ });
+ mediaDialog.addEventListener("cancel",event=>{
+  if(avatarDeleteInProgress||(pendingAvatarUndo&&uploading))event.preventDefault();
+ });
  q("#profile-story-viewer-close").addEventListener("click",()=>storyDialog.close());
  storyDialog.addEventListener("close",()=>{
   const video=storyMedia?.querySelector("video");
   if(video)video.pause();
  });
- mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
+ mediaDialog.addEventListener("click",event=>{
+  if(event.target===mediaDialog&&!avatarDeleteInProgress&&!uploading)mediaDialog.close();
+ });
  storyDialog.addEventListener("click",event=>{if(event.target===storyDialog)storyDialog.close();});
  let openedByHover=false;
  avatarTrigger.addEventListener("click",()=>{if(!canViewPhoto)return;if(photoURLs.avatar)openMedia("avatar");else if(activeStory)openStory();else if(canEdit)showAvatarMenu();});
@@ -3276,7 +3283,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     "You can restore the deleted photo in this viewer until you close it."),
    action:t("Видалити","Delete")
   }))return;
-  uploading=true;galleryEpoch++;removePhoto.disabled=galleryDelete.disabled=true;
+  uploading=true;avatarDeleteInProgress=true;galleryEpoch++;removePhoto.disabled=galleryDelete.disabled=true;
   const previous=saved?.avatar_path||null;
   let changed=false,previewUrl=null;
   try{
@@ -3311,7 +3318,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    pendingAvatarUndo={path,previous,galleryBefore,indexBefore,originalPath,
     thumbnail:thumb.data,original:fullBlob,previewUrl,thumbnailRestored:false,originalRestored:!fullBlob};
    previewUrl=null;
-   if(changed){window.VATRA_AVATAR?.invalidatePath?.(client,ownId);await display(saved);}
+   if(changed){
+    window.VATRA_AVATAR?.invalidatePath?.(client,ownId);
+    try{await display(saved);}catch(_){/* The deleted photo remains safely recoverable. */}
+   }
    deletedMessage.textContent=t("Фотографію видалено.","Photo deleted.");
    restoreAvatarButton.textContent=t("Відновити","Restore");
    restoreAvatarButton.disabled=false;
@@ -3330,7 +3340,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(previewUrl)URL.revokeObjectURL(previewUrl);
    status(t("Не вдалося безпечно видалити фото. Спробуйте ще раз.",
     "Could not safely delete the photo. Please try again."),true);
-  }finally{uploading=false;removePhoto.disabled=galleryDelete.disabled=false;}
+  }finally{uploading=false;avatarDeleteInProgress=false;removePhoto.disabled=galleryDelete.disabled=false;}
  }
  restoreAvatarButton.addEventListener("click",async()=>{
   const undo=pendingAvatarUndo;
@@ -3356,7 +3366,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    pendingAvatarUndo=null;hideAvatarUndo();
    if(undo.previewUrl)URL.revokeObjectURL(undo.previewUrl);
    window.VATRA_AVATAR?.invalidatePath?.(client,ownId);
-   await display(saved);
+   try{await display(saved);}catch(_){}
    renderGalleryPhoto();
    status(t("Фотографію відновлено.","Photo restored."));
   }catch(_){
