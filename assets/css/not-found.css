@@ -1,4 +1,4 @@
-/* VATRA 404: centered missing-page message. Dynamic /idN and /clubN routing stays intact. */
+
 .error-page{
  min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
  overflow-x:hidden;color:var(--ink);
@@ -28,7 +28,7 @@
  user-select:none;-webkit-user-select:none;-webkit-user-drag:none;
  animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both;
 }
-.vt-404-accessible-title-001{margin:0;font-size:clamp(18px,2.3vw,23px);font-weight:600;line-height:1.35;color:var(--ink);}
+.vatra-404-accessible-title-001{margin:0;font-size:clamp(18px,2.3vw,23px);font-weight:600;line-height:1.35;color:var(--ink);}
 @media(max-width:540px){
  .error-home-link{min-height:40px;padding:8px 13px;font-size:12px;gap:6px}
   .error-main{padding:20px 16px}
@@ -37,7 +37,6 @@
 @media(prefers-reduced-motion:reduce){
  .error-main .ui-404-vatryk-001{animation:none!important}
 }
-/* GitHub Pages sends /idN and /clubN through 404.html. The route skeleton,
-   not the mascot, remains visible while the canonical document loads. */
+
 html.vatra-dynamic-route-pending body.error-page > :not(.vatra-route-loading){display:none!important}
 html.vatra-dynamic-route-pending body > #vatra-dynamic-route-loading{display:grid!important;opacity:1!important;animation:none!important}
