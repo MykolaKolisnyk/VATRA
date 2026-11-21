@@ -509,8 +509,13 @@ body.profile-page .profile-photo-actions button:hover{
  border-color:#b9cafa;background:#edf3ff;color:#3568d7
 }
 body.profile-page .profile-photo-actions button.is-liked,
-body.profile-page .profile-photo-actions button[aria-pressed="true"]{
- border-color:#b9cafc;background:#eef3ff;color:#3465d6
+body.profile-page .profile-photo-actions button[aria-pressed="true"],
+body.profile-page .profile-photo-actions button.is-liked:hover,
+body.profile-page .profile-photo-actions button[aria-pressed="true"]:hover{
+ border-color:transparent;background:transparent;color:#e43d56
+}
+body.profile-page .profile-photo-actions button.is-liked .vatra-profile-photo-like-count-001{
+ color:#e43d56
 }
 body.profile-page .profile-photo-actions svg{display:block;width:22px;height:22px;flex:none}
 body.profile-page .vatra-profile-photo-like-count-001{
@@ -2996,6 +3001,8 @@ body.profile-page .ui-profile-photo-footer-actions-001 :is(button,a):hover{backg
 body.profile-page .ui-profile-photo-footer-actions-001 :is(button,a):focus-visible{outline:2px solid #8fb4fb;outline-offset:1px}
 body.profile-page .ui-profile-photo-more-wrap-001{position:relative}
 body.profile-page .ui-profile-photo-footer-actions-001 .vatra-profile-photo-footer-more-001[aria-expanded="true"]{color:#fff;background:#ffffff1b}
+body.profile-page .ui-profile-photo-more-chevron-001{display:block;flex:none;width:14px;height:14px;transition:transform .17s ease}
+body.profile-page .vatra-profile-photo-footer-more-001[aria-expanded="true"] .ui-profile-photo-more-chevron-001{transform:rotate(180deg)}
 body.profile-page .ui-profile-photo-footer-menu-001{
  position:absolute;right:0;bottom:calc(100% + 10px);z-index:9;box-sizing:border-box;
  width:260px;padding:7px;border:1px solid #484c55;border-radius:10px;

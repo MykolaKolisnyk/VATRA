@@ -434,7 +434,7 @@
   update();
  }
 
- let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,mediaCaption=null;
+ let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null;
 function openFullMedia(url,kind,container){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
@@ -461,13 +461,31 @@ function openFullMedia(url,kind,container){
    mediaDialogContent.className="ui-vatra-post-media-viewer-content-001";
    mediaCaption=document.createElement("span");
    mediaCaption.className="vatra-post-media-caption-001";
-   frame.append(close,mediaDialogContent,mediaCaption);
+   const footer=document.createElement("footer");
+   footer.className="ui-vatra-post-media-footer-001";
+   mediaFooterActions=document.createElement("nav");
+   mediaFooterActions.className="ui-vatra-post-media-footer-actions-001";
+   mediaFooterActions.setAttribute("aria-label",tr("Дії з фотографією","Photo actions"));
+   mediaFooterShare=document.createElement("button");
+   mediaFooterShare.type="button";
+   mediaFooterShare.className="vatra-post-media-footer-share-001";
+   mediaFooterShare.textContent=tr("Поділитися","Share");
+   mediaFooterShare.addEventListener("click",()=>mediaSide.querySelector(".vatra-post-share-toggle-001")?.click());
+   mediaFooterDelete=document.createElement("button");
+   mediaFooterDelete.type="button";
+   mediaFooterDelete.className="vatra-post-media-footer-delete-001";
+   mediaFooterDelete.textContent=tr("Видалити","Delete");
+   mediaFooterDelete.hidden=true;
+   mediaFooterDelete.addEventListener("click",()=>mediaFooterActions.querySelector(".vatra-post-owner-delete-001")?.click());
+   mediaFooterActions.append(mediaFooterShare,mediaFooterDelete);
+   footer.append(mediaCaption,mediaFooterActions);
+   frame.append(close,mediaDialogContent,footer);
    mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001";mediaDialog.append(frame,mediaSide);
    mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
-    mediaDialogContent.replaceChildren();restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
+    mediaDialogContent.replaceChildren();restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();mediaFooterDelete.hidden=true;
    });
    document.body.append(mediaDialog);
   }
@@ -482,12 +500,35 @@ function openFullMedia(url,kind,container){
   const ownerId=container?.dataset.vatraMediaOwnerId||postCard?.dataset.vatraMediaOwnerId;
   const viewerId=container?.dataset.vatraViewerId||postCard?.dataset.vatraViewerId;
   const authorName=String(head?.querySelector(".feed-post-name")?.textContent||"").trim();
-  const label=kind==="video"?tr("Відео з публікацій","Video from posts"):tr("Фото з публікацій","Photo from posts");
+  const label=kind==="video"?tr("Відео з публікації","Video from a post"):tr("Фото з публікації","Photo from a post");
   mediaCaption.textContent=ownerId&&viewerId&&ownerId===viewerId?label:
    authorName?label+" "+authorName:label;
   if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
   restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
   mediaSide.hidden=!restoreMediaPanel;
+  const sourceMenu=(postCard||container)?.querySelector("details[data-vatra-post-owner-menu]");
+  if(sourceMenu){
+   const marker=document.createElement("span");
+   marker.className="ui-vatra-post-media-menu-origin-001";
+   marker.hidden=true;
+   sourceMenu.before(marker);
+   const summary=sourceMenu.querySelector("summary");
+   const moreLabel=document.createElement("span");
+   moreLabel.className="vatra-post-media-more-label-001";
+   moreLabel.textContent=tr("Більше","More");
+   summary.prepend(moreLabel);
+   summary.classList.add("ui-vatra-post-media-more-toggle-001");
+   sourceMenu.open=false;
+   mediaFooterActions.append(sourceMenu);
+   mediaFooterDelete.hidden=!sourceMenu.querySelector(".vatra-post-owner-delete-001");
+   restoreOwnerMenu=()=>{
+    sourceMenu.open=false;
+    summary.classList.remove("ui-vatra-post-media-more-toggle-001");
+    moreLabel.remove();
+    if(marker.isConnected)marker.replaceWith(sourceMenu);
+    else sourceMenu.remove();
+   };
+  }else mediaFooterDelete.hidden=true;
   mediaDialog.showModal();
  }
 
