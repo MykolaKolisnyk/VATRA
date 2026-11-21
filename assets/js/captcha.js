@@ -155,7 +155,6 @@ async function token(scope) {
  const promise=new Promise((resolve,reject)=>{resolveToken=resolve;rejectToken=reject;});
  const timer=setTimeout(()=>abort(scope,state,"captcha_timeout"),120000);
  state.pending={promise,resolve:resolveToken,reject:rejectToken,timer};
- // The dialog is already visible before loading the Cloudflare script.
  (async()=>{
   try{
    await state.ready;
