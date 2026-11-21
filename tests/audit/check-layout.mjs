@@ -586,7 +586,7 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  auth.includes('SIGNUP_RESEND_COOLDOWN_MS=60000')&&
  auth.includes('SIGNUP_LINK_VALIDITY_MS=900000')&&
  auth.includes('SIGNUP_AUTH_CHANNEL="vatra-auth-verified"')&&
- auth.includes('auth.auth.getUser(); // Verified via Supabase Auth server.')&&
+ auth.includes('auth.auth.getUser();')&&
  auth.includes('user.email.trim().toLowerCase()===signupPending.email.trim().toLowerCase()')&&
  auth.includes('channel.postMessage({type:"check-confirmed-session"})')&&
  auth.includes('pageHooks.watchSignupConfirmation?.();')&&
