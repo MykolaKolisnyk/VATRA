@@ -1780,14 +1780,14 @@ assert.ok(
  interactionsScript.includes("committed=true;")&&
  interactionsScript.includes("if(!committed)"),
  "Feed post, story and comment mutations must confirm persistence before cleanup");
-// A committed repost or direct message must not be misreported as failed
-// because a subsequent UI callback or modal closing did not complete.
+// Reposts remain durable even if a later UI refresh fails. Direct shares use encrypted Messenger.
 assert.ok(
  interactionsScript.includes("a failed Feed callback cannot turn a repost into a failed write")&&
  interactionsScript.includes("Promise.resolve(settings.onShared()).catch(()=>{})")&&
  interactionsScript.includes("friendsLoaded=false;sendDM.disabled=true;")&&
- interactionsScript.includes("A closed modal is not a failure of an already-persisted direct message"),
- "Shared post/DM success is separate from UI refresh and the friend list");
+ interactionsScript.includes('new URL("messenger.html",relativeRoot())')&&
+ !interactionsScript.includes('from("direct_messages")'),
+ "Repost success survives refresh; direct-message drafts route through encrypted Messenger");
 assert.ok(
  feedScript.includes("let feedRequestVersion=0;")&&
  feedScript.includes("if(version!==feedRequestVersion)return;")&&
