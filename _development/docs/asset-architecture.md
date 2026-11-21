@@ -17,8 +17,8 @@ VATRA/
 │   ├── tests/audit/       Аудити CSS, SEO, перекладів, продуктивності
 │   ├── tools/             Збірка і контроль версій JS/CSS
 │   ├── supabase/          SQL-міграції, функції, операції
-│   └── docs/              Технічні рішення та обмеження
-├── email-templates/       Шаблони листів Supabase
+│   ├── docs/              Технічні рішення та обмеження
+│   └── email-templates/   Шаблони листів Supabase
 └── .github/workflows/     Автоматичні перевірки до релізу
 ```
 
@@ -38,7 +38,7 @@ npm install --no-save --no-package-lock esbuild@0.28.2
 node _development/tools/build-static.mjs
 ```
 
-Збірка `dist/` містить тільки публічні файли сайту: HTML, `assets/`, `sw.js` та необхідні маніфести. `_development/`, `email-templates/` і `.github/` до `dist/` не потрапляють. Перед зміною способу публікації GitHub Pages необхідна окрема перевірка.
+Збірка `dist/` містить тільки публічні файли сайту: HTML, `assets/`, `sw.js` та необхідні маніфести. `_development/` і `.github/` до `dist/` не потрапляють. Перед зміною способу публікації GitHub Pages необхідна окрема перевірка.
 
 `_development/supabase/` — лише вихідні файли, не сама база даних. Видалення папки з GitHub не видаляє вже застосовані SQL-міграції, базу та розгорнуті Edge Functions у Supabase.
 

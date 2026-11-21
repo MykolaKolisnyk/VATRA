@@ -637,7 +637,7 @@ for(const [path,ids] of [["index.html",["email","password","saved-password"]],["
 }
 // The saved account is a display-only local choice, not a password or session cache.
 const savedUI=await read("index.html");
-const signupTemplate=await read("email-templates/confirmation.html");
+const signupTemplate=await read("_development/email-templates/confirmation.html");
 for(const id of ["standard-login-panel","saved-account-panel","saved-login-form","saved-account-other",
  "saved-switch-back","saved-account-return","saved-account-remove-dialog","saved-remove-confirm"]){
  assert.ok(savedUI.includes('id="'+id+'"'),"Saved account control missing: "+id);
@@ -664,7 +664,7 @@ for(const [template,target,type] of [
  ["invite.html","verify","invite"],
  ["email-change.html","verify","email_change"]
 ]){
- const source=await read("email-templates/"+template);
+ const source=await read("_development/email-templates/"+template);
  const expectedLocales=8; // Each auth callback is present in every prepared locale.
  assert.equal(source.split('token_hash={{ .TokenHash }}').length,expectedLocales+1,
   "Every language variant needs a cross-device link: "+template);
@@ -709,7 +709,7 @@ for(const [filename,route,type] of [
  ["email-change.html","verify","email_change"],
  ["recovery.html","reset","recovery"]
 ]){
- const source=await read("email-templates/"+filename);
+ const source=await read("_development/email-templates/"+filename);
  const localeCount=8; // Every source email now has eight localized variants.
  assert.equal(source.split('token_hash={{ .TokenHash }}').length,localeCount+1,
   filename+": every locale branch must use the same direct confirmation URL");
@@ -717,7 +717,7 @@ for(const [filename,route,type] of [
   filename+": wrong token type or callback");
 }
 for(const file of allTemplates.filter(f=>f.endsWith(".html"))){
- const source=await read("email-templates/"+file);
+ const source=await read("_development/email-templates/"+file);
  const classNames=[...source.matchAll(/\sclass="([^"]+)"/g)].flatMap(m=>m[1].split(/\s+/));
  assert.equal(new Set(classNames).size,classNames.length,file+": classes must not collide");
  assert.ok(!/https?:\/\/(?:[^" ]+)?\/v2\b/i.test(source)&&!source.includes('style-2'),
@@ -2281,7 +2281,7 @@ assert.ok(legacyScript.includes("location.replace(target+location.search+locatio
  "Old localized links should redirect to unified URLs");
 assert.ok(!/profile\.js|data-page="public-profile"|supabase-js/.test(errorPage),"404 must not load private account logic");
 for(const name of emailNames){
- const email=await read("email-templates/"+name+".html");
+ const email=await read("_development/email-templates/"+name+".html");
  assert.ok(email.includes('.Data.preferred_locale'),"Email "+name+" loses UA/EN language choice");
  assert.ok(!/https:\/\/mykolakolisnyk\.github\.io\/VATRA\/(?:ua|en)\//.test(email),
   "Email "+name+" links must use root routes");

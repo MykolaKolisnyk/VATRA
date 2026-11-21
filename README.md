@@ -11,8 +11,7 @@
 | `assets/css/` | Стилі інтерфейсу |
 | `assets/i18n/` | Мови |
 | `assets/logo/`, `assets/vatryk/`, `assets/fonts/` | Зображення та шрифт |
-| `email-templates/` | Листи для Supabase Auth |
-| `_development/` | Лише для розробки: тести, збірка, SQL і документація |
+| `_development/` | Лише для розробки: тести, збірка, SQL, документація та шаблони листів |
 | `.github/workflows/` | GitHub Actions для перевірок |
 
 Усі тести, SQL-міграції та технічні нотатки зібрані в **[`_development/`](_development/README.md)**. Під час публікації сайт не використовує ці файли. Для релізної збірки використовуйте `node _development/tools/build-static.mjs`: створена `dist/` не включає службові папки.

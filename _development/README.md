@@ -11,6 +11,7 @@
 | `supabase/functions/` | Код Edge Functions |
 | `supabase/operations/` | Службові SQL-операції |
 | `docs/` | Архітектура та обмеження безпеки |
+| `email-templates/` | Шаблони листів Supabase Auth |
 
 Команди запускати з кореня VATRA:
 
