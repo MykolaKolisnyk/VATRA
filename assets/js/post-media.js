@@ -52,7 +52,7 @@
    result.append(document.createTextNode(original.slice(offset,start)));
    const tag="#"+match[2];
    const link=document.createElement("a");
-   link.className="vt-feed-post-hashtag-001";
+   link.className="vatra-feed-post-hashtag-001";
    link.href=siteRoot+"feed?q="+encodeURIComponent(tag);
    link.textContent=tag;
    link.setAttribute("aria-label",tr("Пошук дописів за хештегом ","Search posts with hashtag ")+tag);
@@ -92,7 +92,7 @@
    release();preview.replaceChildren();
    clear.hidden=!selected.length;preview.hidden=!selected.length;
    if(selected.length){
-    const count=document.createElement("p");count.className="vt-vatra-gallery-selection-count-001";
+    const count=document.createElement("p");count.className="vatra-gallery-selection-count-001";
     count.textContent=selected.length+" / "+GALLERY_LIMIT+" · "+
      selected.filter(file=>formats[file.type]?.kind==="video").length+" "+tr("відео","videos");
     preview.append(count);
@@ -106,7 +106,7 @@
     if(media.tagName==="VIDEO"){media.preload="metadata";media.muted=true;media.playsInline=true;}
     else media.alt=tr("Фото для публікації","Selected post photo");
     const remove=document.createElement("button");remove.type="button";
-    remove.className="vt-vatra-gallery-picker-remove-"+index;
+    remove.className="vatra-gallery-picker-remove-"+index;
     remove.setAttribute("aria-label",tr("Прибрати файл ","Remove file ")+file.name);
     const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
     icon.setAttribute("class","ui-vatra-gallery-picker-remove-icon-"+index);
@@ -120,7 +120,7 @@
     remove.addEventListener("click",()=>{
      selected.splice(index,1);display();changed();
     });
-    const label=document.createElement("small");label.className="vt-vatra-gallery-picker-name-"+index;
+    const label=document.createElement("small");label.className="vatra-gallery-picker-name-"+index;
     label.textContent=file.name;
     tile.append(media,remove,label);grid.append(tile);
    });
@@ -395,7 +395,7 @@
    const src=await signed(client,kind,path,300);
    if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
    const element=document.createElement(kind==="image"?"img":"video");
-   element.className=preview?"vt-story-media-preview-001":"vt-story-media-expanded-001";
+   element.className=preview?"vatra-story-media-preview-001":"vatra-story-media-expanded-001";
    element.src=src;
    if(kind==="image"){
     element.alt=tr("Медіа історії","Story photo");
@@ -419,7 +419,7 @@
   if(Array.from(full).length<=440)return;
   const compact=Array.from(full).slice(0,350).join("").trimEnd()+"…";
   const button=document.createElement("button");
-  button.type="button";button.className="vt-feed-post-read-more-001";
+  button.type="button";button.className="vatra-feed-post-read-more-001";
   button.setAttribute("aria-expanded","false");
   button.textContent=tr("Показати більше","Show more");
   paragraph.dataset.vatraCollapsed="true";
@@ -445,7 +445,7 @@
    const frame=document.createElement("div");
    frame.className="vatra-post-media-viewer-frame ui-vatra-post-media-viewer-frame-001";
    const close=document.createElement("button");
-   close.className="vt-vatra-post-media-close-001";close.type="button";
+   close.className="vatra-post-media-close-001";close.type="button";
    close.setAttribute("aria-label",tr("Закрити","Close"));
    const closeIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
    closeIcon.setAttribute("class","ui-vatra-post-media-close-icon-001");
@@ -461,7 +461,7 @@
    mediaDialogContent=document.createElement("div");
    mediaDialogContent.className="ui-vatra-post-media-viewer-content-001";
    mediaCaption=document.createElement("span");
-   mediaCaption.className="vt-vatra-post-media-caption-001";
+   mediaCaption.className="vatra-post-media-caption-001";
    frame.append(close,mediaDialogContent,mediaCaption);
    mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001";mediaDialog.append(frame,mediaSide);
    mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
@@ -523,7 +523,7 @@
   const previews=media.slice(0,5);
   const tiles=previews.map((item,index)=>{
    const tile=document.createElement("button");
-   tile.className="vatra-post-gallery-tile vt-vatra-post-gallery-tile-"+index;
+   tile.className="vatra-post-gallery-tile vatra-post-gallery-tile-"+index;
    tile.type="button";
    tile.setAttribute("aria-label",tr("Відкрити файл ","Open media ")+(index+1));
    tile.dataset.kind=item.media_kind;
@@ -541,7 +541,7 @@
     play.setAttribute("d","M9 5v14l11-7Z");badge.append(play);tile.append(badge);
    }
    if(index===4&&media.length>5){
-    const extra=document.createElement("span");extra.className="vt-vatra-post-gallery-extra-001";
+    const extra=document.createElement("span");extra.className="vatra-post-gallery-extra-001";
     extra.textContent="+"+(media.length-5);tile.append(extra);
    }
    tile.addEventListener("click",()=>void openGallery(index));
@@ -601,7 +601,7 @@
      tile.classList.add("is-gallery-unavailable");
      tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]')?.remove();
      const notice=document.createElement("span");
-     notice.className="vt-vatra-gallery-unavailable-001";
+     notice.className="vatra-gallery-unavailable-001";
      notice.textContent=tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable.");
      tile.append(notice);
     }
@@ -629,7 +629,7 @@
    mediaDialog.addEventListener("close",()=>{active=false;controller.abort();},{once:true});
    const makeNav=(dir,label)=>{
     const button=document.createElement("button");button.type="button";
-    button.className="vt-vatra-post-gallery-nav-"+(dir<0?"prev":"next");
+    button.className="vatra-post-gallery-nav-"+(dir<0?"prev":"next");
     button.setAttribute("aria-label",label);
     const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
     svg.setAttribute("class","ui-vatra-post-gallery-nav-icon-"+(dir<0?"prev":"next"));
@@ -655,7 +655,7 @@
      const prev=makeNav(-1,tr("Попередній файл","Previous media"));
      const next=makeNav(1,tr("Наступний файл","Next media"));
      const counter=document.createElement("span");
-     counter.className="vt-vatra-post-gallery-counter-001";
+     counter.className="vatra-post-gallery-counter-001";
      counter.textContent=(index+1)+" / "+media.length;
      prev.disabled=index===0;next.disabled=index>=media.length-1;
      prev.hidden=next.hidden=media.length<2;
@@ -693,7 +693,7 @@
    // No video bytes or signed URL are needed until the viewer explicitly plays.
    // This preserves native controls and fullscreen after the first click.
    const play=document.createElement("button");
-   play.className="vt-feed-post-video-play-001";
+   play.className="vatra-feed-post-video-play-001";
    play.type="button";
    const symbol=document.createElementNS("http://www.w3.org/2000/svg","svg");
    symbol.setAttribute("class","ui-feed-post-video-play-icon-001");
@@ -705,7 +705,7 @@
    shape.setAttribute("d","M8 5v14l11-7Z");
    symbol.append(shape);
    const label=document.createElement("span");
-   label.className="vt-feed-post-video-play-label-001";
+   label.className="vatra-feed-post-video-play-label-001";
    label.textContent=tr("Відтворити відео","Play video");
    play.append(symbol,label);
    let pending=false;
@@ -720,7 +720,7 @@
      video.className="feed-post-media-video ui-feed-post-media-video-001";
      video.controls=true;video.preload="metadata";video.playsInline=true;
      const expand=document.createElement("button");expand.type="button";
-     expand.className="vt-feed-post-video-expand-001";
+     expand.className="vatra-feed-post-video-expand-001";
      expand.textContent=tr("На весь екран","Fullscreen");
      expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video",container);});
      video.src=src;
@@ -754,7 +754,7 @@
     await loadImageSource(image,src);
     if(!slot.isConnected)return;
     const frame=document.createElement("button");
-    frame.className="vt-feed-post-media-open-001";frame.type="button";
+    frame.className="vatra-feed-post-media-open-001";frame.type="button";
     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
     frame.addEventListener("click",()=>openFullMedia(src,"image",container));
     frame.append(image);
@@ -766,7 +766,7 @@
    if(!slot.isConnected)return;
    slot.classList.remove("is-loading-media");
    const notice=document.createElement("p");
-   notice.className="vt-feed-post-media-error-001";notice.textContent=message;
+   notice.className="vatra-feed-post-media-error-001";notice.textContent=message;
    slot.replaceChildren(notice);
   }
   // Off-screen media should not compete for bandwidth with the visible Feed.

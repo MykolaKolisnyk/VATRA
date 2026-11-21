@@ -78,14 +78,14 @@ function bind({prefix,ownerId,getFile}){
  }catch(_){return [];}};
  const persist=rows=>{try{localStorage.setItem(storeKey,JSON.stringify(rows.slice(0,12)));return true;}catch(_){return false;}};
  const header=make("header","vatra-post-composer-head ui-vatra-post-composer-head-001");
- const back=make("button","vt-vatra-post-composer-back-001");
+ const back=make("button","vatra-post-composer-back-001");
  back.append(vectorIcon("back","ui-vatra-post-composer-back-icon-001"),
-  make("span","vt-vatra-post-composer-back-label-001",t("Редагувати","Edit")));
+  make("span","vatra-post-composer-back-label-001",t("Редагувати","Edit")));
  back.type="button";back.hidden=true;
  title.textContent=(language()==="uk"?"Нова публікація":t("Новий пост","New post"));
- const drafts=make("button","vt-vatra-post-composer-drafts-001");
+ const drafts=make("button","vatra-post-composer-drafts-001");
  drafts.append(vectorIcon("drafts","ui-vatra-post-composer-drafts-icon-001"),
-  make("span","vt-vatra-post-composer-drafts-label-001",t("Чернетки","Drafts")));
+  make("span","vatra-post-composer-drafts-label-001",t("Чернетки","Drafts")));
  drafts.type="button";drafts.setAttribute("aria-label",t("Мої чернетки на цьому пристрої","Drafts on this device"));
  cancel.replaceChildren(vectorIcon("close","ui-vatra-post-composer-cancel-icon-001"));
  cancel.setAttribute("aria-label",t("Закрити редактор","Close editor"));
@@ -94,11 +94,11 @@ function bind({prefix,ownerId,getFile}){
  const edit=make("section","vatra-post-composer-edit ui-vatra-post-composer-edit-001");
  const zone=make("div","vatra-post-composer-zone ui-vatra-post-composer-zone-001");
  zone.append(iconUpload());
- zone.append(make("h3","vt-vatra-post-composer-zone-title-001",t("Додайте фото або відео","Add a photo or video")));
- const upload=make("button","vt-vatra-post-composer-upload-001",t("Завантажити з пристрою","Upload from device"));
+ zone.append(make("h3","vatra-post-composer-zone-title-001",t("Додайте фото або відео","Add a photo or video")));
+ const upload=make("button","vatra-post-composer-upload-001",t("Завантажити з пристрою","Upload from device"));
  upload.type="button";upload.addEventListener("click",()=>choose.click());
  zone.append(upload);
- zone.append(make("p","vt-vatra-post-composer-zone-note-001",
+ zone.append(make("p","vatra-post-composer-zone-note-001",
   t("Фото JPG, PNG, WebP або відео MP4, WebM","Photos JPG, PNG, WebP or video MP4, WebM")));
  // The existing media picker remains the only trusted upload input.
  mediaControls.classList.add("vatra-post-composer-media-controls");
@@ -113,44 +113,44 @@ function bind({prefix,ownerId,getFile}){
 
  const settings=make("section","vatra-post-composer-settings ui-vatra-post-composer-settings-001");
  settings.hidden=true;
- settings.append(make("h3","vt-vatra-post-composer-settings-title-001",t("Налаштування публікації","Post settings")));
- const summary=make("p","vt-vatra-post-composer-settings-summary-001");
+ settings.append(make("h3","vatra-post-composer-settings-title-001",t("Налаштування публікації","Post settings")));
+ const summary=make("p","vatra-post-composer-settings-summary-001");
  summary.textContent=t("Перевірте допис та виберіть, хто його побачить.","Review your post and choose who can see it.");
  settings.append(summary);
  const audience=form.querySelector('label[for="'+prefix+'-compose-visibility"]');
  if(audience){audience.classList.add("vatra-post-composer-audience");settings.append(audience);}
- const localOnly=make("p","vt-vatra-post-composer-settings-note-001",
+ const localOnly=make("p","vatra-post-composer-settings-note-001",
   t("Публікація з’явиться одразу після натискання «Опублікувати».",
    "Your post will appear as soon as you press Publish."));
  settings.append(localOnly);
  const draftsPanel=make("section","vatra-post-composer-drafts-panel ui-vatra-post-composer-drafts-001");
  draftsPanel.hidden=true;
  const draftList=make("div","vatra-post-composer-draft-list ui-vatra-post-composer-draft-list-001");
- draftsPanel.append(make("h3","vt-vatra-post-composer-draft-title-001",
+ draftsPanel.append(make("h3","vatra-post-composer-draft-title-001",
   t("Ваші чернетки","Your drafts")));
- draftsPanel.append(make("p","vt-vatra-post-composer-draft-info-001",
+ draftsPanel.append(make("p","vatra-post-composer-draft-info-001",
   t("Чернетки зберігаються лише в цьому браузері. Фото та відео не зберігаються.",
    "Drafts are saved in this browser only. Photos and videos are not stored.")));
  draftsPanel.append(draftList);
 
  const footer=make("div","vatra-post-composer-footer ui-vatra-post-composer-footer-001");
  const left=make("div","vatra-post-composer-footer-left ui-vatra-post-composer-footer-left-001");
- const tips=make("button","vt-vatra-post-composer-tips-001",t("ⓘ  Поради щодо публікації","ⓘ  Posting tips"));
+ const tips=make("button","vatra-post-composer-tips-001",t("ⓘ  Поради щодо публікації","ⓘ  Posting tips"));
  tips.type="button";
- const tip=make("p","vt-vatra-post-composer-tip-001",
+ const tip=make("p","vatra-post-composer-tip-001",
   t("Діліться своїм, поважайте приватність інших та обирайте видимість допису перед публікацією.",
    "Share your own content, respect others' privacy, and choose your post's visibility before publishing."));
  tip.hidden=true;
  tips.addEventListener("click",()=>{tip.hidden=!tip.hidden;});
- const draftSave=make("button","vt-vatra-post-composer-draft-save-001",t("Зберегти чернетку","Save draft"));
+ const draftSave=make("button","vatra-post-composer-draft-save-001",t("Зберегти чернетку","Save draft"));
  draftSave.type="button";
- const next=make("button","vt-vatra-post-composer-next-001",t("Далі","Next"));
+ const next=make("button","vatra-post-composer-next-001",t("Далі","Next"));
  next.type="button";
  const footerActions=make("div","vatra-post-composer-footer-actions ui-vatra-post-composer-footer-actions-001");
  left.append(tips,tip);footerActions.append(draftSave,next,submit);
  footer.append(left,footerActions);
  actions.remove();
- const notice=make("p","vt-vatra-post-composer-notice-001");notice.hidden=true;
+ const notice=make("p","vatra-post-composer-notice-001");notice.hidden=true;
  const showNotice=value=>{notice.textContent=value;notice.hidden=!value;};
  function sync(){
   next.disabled=!textarea.value.trim()&&!(typeof getFile==="function"&&getFile());
@@ -169,20 +169,20 @@ function bind({prefix,ownerId,getFile}){
   draftList.replaceChildren();
   for(const item of read()){
    const row=make("div","vatra-post-composer-draft ui-vatra-post-composer-draft-"+String(item.id).replace(/[^a-z0-9]/gi,""));
-   const pickDraft=make("button","vt-vatra-post-composer-draft-open-001",item.body.slice(0,85)||t("Без тексту","No text"));
+   const pickDraft=make("button","vatra-post-composer-draft-open-001",item.body.slice(0,85)||t("Без тексту","No text"));
    pickDraft.type="button";pickDraft.addEventListener("click",()=>{
     selectedId=item.id;textarea.value=item.body;
     if(select)select.value=["public","friends","only_me"].includes(item.visibility)?item.visibility:"public";
     textarea.dispatchEvent(new Event("input",{bubbles:true}));
     setStage("edit");textarea.focus();
    });
-   const remove=make("button","vt-vatra-post-composer-draft-remove-001");
+   const remove=make("button","vatra-post-composer-draft-remove-001");
    remove.append(vectorIcon("close","ui-vatra-post-composer-draft-remove-icon-001"));
    remove.type="button";remove.setAttribute("aria-label",t("Видалити чернетку","Delete draft"));
    remove.addEventListener("click",()=>{persist(read().filter(x=>x.id!==item.id));renderDrafts();});
    row.append(pickDraft,remove);draftList.append(row);
   }
-  if(!draftList.children.length)draftList.append(make("p","vt-vatra-post-composer-draft-empty-001",
+  if(!draftList.children.length)draftList.append(make("p","vatra-post-composer-draft-empty-001",
    t("Чернеток поки немає.","No drafts yet.")));
  }
  drafts.addEventListener("click",()=>{
