@@ -425,7 +425,7 @@
         },
         "n48": {
           "text": {
-            "0": "My page"
+            "0": "My profile"
           }
         }
       }
@@ -2582,7 +2582,7 @@
     },
     "profile": {
       "meta": {
-        "title": "My page",
+        "title": "My profile",
         "description": "Your page on VATRA."
       },
       "nodes": {
@@ -2620,7 +2620,7 @@
         },
         "n48": {
           "text": {
-            "0": "My page"
+            "0": "My profile"
           }
         },
         "n26": {
@@ -2630,12 +2630,12 @@
         },
         "n12": {
           "text": {
-            "0": "My page"
+            "0": "My profile"
           }
         },
         "n50": {
           "text": {
-            "0": "My page"
+            "0": "My profile"
           }
         }
       }
