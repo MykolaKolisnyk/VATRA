@@ -150,12 +150,12 @@ function wireSelects(){
   select.setAttribute("aria-hidden","true");
   const trigger=document.createElement("button");
   trigger.type="button";
-  trigger.className="control vatra-select-trigger vt-select-trigger-"+select.id;
+  trigger.className="control vatra-select-trigger vatra-select-trigger-"+select.id;
   trigger.setAttribute("aria-haspopup","listbox");
   trigger.setAttribute("aria-expanded","false");
   trigger.setAttribute("aria-label",select.getAttribute("aria-label")||"");
   const display=document.createElement("span");
-  display.className="vt-select-display-"+select.id;
+  display.className="vatra-select-display-"+select.id;
   trigger.append(display);
   const list=document.createElement("div");
   list.className="vatra-select-list ui-select-options-"+select.id;
@@ -256,7 +256,7 @@ function wireSelects(){
   for(const [optionIndex,opt] of choices.entries()){
    const item=document.createElement("button");
    item.type="button";
-   item.className="vatra-select-option vt-select-"+select.id+"-item-"+(optionIndex+1);
+   item.className="vatra-select-option vatra-select-"+select.id+"-item-"+(optionIndex+1);
    item.dataset.value=opt.value;
    item.setAttribute("role","option");
    item.setAttribute("aria-selected",String(select.value===opt.value));

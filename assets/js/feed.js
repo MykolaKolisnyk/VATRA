@@ -81,7 +81,7 @@
   const label=loader.querySelector(".vatra-auth-loading-caption");
   if(label)label.textContent=text;
   if(loader.querySelector(".vatra-auth-loading-retry"))return;
-  const retry=node("button","vatra-auth-loading-retry vt-feed-gate-retry-001",t("Повторити","Retry"));
+  const retry=node("button","vatra-auth-loading-retry vatra-feed-gate-retry-001",t("Повторити","Retry"));
   retry.type="button";retry.addEventListener("click",()=>location.reload());
   loader.querySelector(".vatra-auth-loading-content")?.append(retry);
  }
@@ -259,21 +259,21 @@
   item.dataset.postId=post.id;
   item.dataset.postKind=post.kind;
   const head=node("div","feed-post-header ui-feed-post-header-001");
-  const avatar=node("a","feed-avatar feed-post-avatar vt-feed-post-avatar-001 feed-post-profile-avatar",initials(memberName(authorId)));
+  const avatar=node("a","feed-avatar feed-post-avatar vatra-feed-post-avatar-001 feed-post-profile-avatar",initials(memberName(authorId)));
   avatar.href=new URL("id"+authorId,home).href;
   applyAvatar(avatar,authorId);
   avatar.setAttribute("aria-label",t("Відкрити профіль VATRA ID ","Open profile VATRA ID ")+authorId);
   const identity=node("div","feed-post-author ui-feed-post-author-001");
-  const name=node("a","feed-post-name vt-feed-post-name-001 feed-post-profile-link",memberName(authorId));
+  const name=node("a","feed-post-name vatra-feed-post-name-001 feed-post-profile-link",memberName(authorId));
   name.href=new URL("id"+authorId,home).href;
   if(!avatarStates.get(String(authorId)))void window.VATRA_VERIFIED?.attach(client,name,authorId);
-  const stamp=node("time","feed-post-date vt-feed-post-date-001",postedTime(post.created_at));
+  const stamp=node("time","feed-post-date vatra-feed-post-date-001",postedTime(post.created_at));
   stamp.dateTime=post.created_at;
   const meta=node("div","feed-post-meta-row ui-feed-post-meta-row-001");
   meta.append(stamp);window.VATRA_POST_INTERACTIONS?.appendAudience(meta,post.visibility,post.kind==="group");
   identity.append(name,meta);
   if(post.kind==="group"){
-   const group=node("a","feed-post-community vt-feed-post-community-001",
+   const group=node("a","feed-post-community vatra-feed-post-community-001",
     t("Спільнота: ","Community: ")+(followedClubs.get(String(post.club_id))||t("Спільнота VATRA","VATRA community")));
    group.href=new URL("club"+post.club_id,home).href;identity.append(group);
   }
@@ -296,7 +296,7 @@
   }
   item.append(head);
    if(post.body){
-     const body=node("p","feed-post-body vt-feed-post-body-001",post.body);
+     const body=node("p","feed-post-body vatra-feed-post-body-001",post.body);
      window.VATRA_POST_MEDIA?.linkifyHashtags(body);
      item.append(body);
      window.VATRA_POST_MEDIA?.collapsibleBody(body);
@@ -314,7 +314,7 @@
  const globalResults=node("section","vatra-global-search-results ui-vatra-global-search-results-001");
  globalResults.id="vatra-global-search-results";globalResults.hidden=true;
  globalResults.setAttribute("aria-label",t("Результати пошуку VATRA","VATRA search results"));
- const searchHeading=node("h2","vt-vatra-global-search-heading-001",t("Знайдено у VATRA","Found on VATRA"));
+ const searchHeading=node("h2","vatra-global-search-heading-001",t("Знайдено у VATRA","Found on VATRA"));
  const searchGroups=node("div","vatra-global-search-groups ui-vatra-global-search-groups-001");
  globalResults.append(searchHeading,searchGroups);
  posts.parentElement?.insertBefore(globalResults,posts);
@@ -322,7 +322,7 @@
  const drawGlobalGroup=(title,records,makeCard)=>{
   if(!records.length)return;
   const section=node("section","vatra-global-search-group ui-vatra-global-search-group-001");
-  section.append(node("h3","vt-vatra-global-search-section-title-001",title));
+  section.append(node("h3","vatra-global-search-section-title-001",title));
   const list=node("div","vatra-global-search-list ui-vatra-global-search-list-001");
   for(const record of records)list.append(makeCard(record));
   section.append(list);searchGroups.append(section);
@@ -370,10 +370,10 @@
    const avatar=node("span","vatra-global-search-avatar ui-vatra-global-search-avatar-001");
    applyAvatar(avatar,id);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-info-001");
-   const resultName=node("strong","vt-vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member"));
+   const resultName=node("strong","vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member"));
    info.append(resultName);
    if(!avatarStates.get(id))void window.VATRA_VERIFIED?.attach(client,resultName,id);
-   info.append(node("small","vt-vatra-global-search-description-001","VATRA ID "+id+(person.status_text?" · "+person.status_text.slice(0,100):"")));
+   info.append(node("small","vatra-global-search-description-001","VATRA ID "+id+(person.status_text?" · "+person.status_text.slice(0,100):"")));
    link.append(avatar,info);return link;
   });
   drawGlobalGroup(t("Спільноти","Communities"),clubs,club=>{
@@ -390,8 +390,8 @@
    path.setAttribute("d","M15.5 7.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0ZM4 20v-1a8 8 0 0 1 16 0v1M5.5 7a2.5 2.5 0 0 0 0 5m13-5a2.5 2.5 0 0 1 0 5");
    symbol.append(path);icon.append(symbol);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-club-info-001");
-   info.append(node("strong","vt-vatra-global-search-club-name-001",club.name));
-   if(club.description)info.append(node("small","vt-vatra-global-search-club-description-001",club.description.slice(0,100)));
+   info.append(node("strong","vatra-global-search-club-name-001",club.name));
+   if(club.description)info.append(node("small","vatra-global-search-club-description-001",club.description.slice(0,100)));
    link.append(icon,info);return link;
   });
   if(!people.length&&!clubs.length)globalResults.hidden=true;
@@ -679,7 +679,7 @@
     const button=node("button","feed-story-preview ui-feed-story-live-preview-001");
     button.type="button";button.dataset.theme=String(story.theme||0);
     button.setAttribute("aria-label",memberName(id));
-    const storyAvatar=node("span","feed-story-author-avatar vt-feed-story-author-avatar-001",initials(memberName(id)));
+    const storyAvatar=node("span","feed-story-author-avatar vatra-feed-story-author-avatar-001",initials(memberName(id)));
     storyAvatar.setAttribute("aria-hidden","true");
     applyAvatar(storyAvatar,id);
     button.append(storyAvatar);
@@ -691,9 +691,9 @@
      void window.VATRA_POST_MEDIA?.renderStory(client,story,cover,true);
     }else holder.append(button);
     const body=String(story.body||"").trim();
-    button.append(node("span","vt-feed-story-live-body-001",body||
+    button.append(node("span","vatra-feed-story-live-body-001",body||
      (story.media_kind==="video"?t("Відео","Video"):t("Фото","Photo"))),
-     node("span","vt-feed-story-live-name-001",memberName(id)));
+     node("span","vatra-feed-story-live-name-001",memberName(id)));
     button.addEventListener("click",()=>{
      q("#feed-story-view-heading").textContent=memberName(id);
      const text=q("#feed-story-view-body");
