@@ -2681,6 +2681,8 @@ try{
   status:200,contentType:"text/javascript",body:`
   window.__feedTestPosts=[];window.__feedTestCounter=0;
    window.__feedMockDenyDelete=false;window.__feedMockMediaRemovals=0;
+   window.__vatraAvatarRemovedPaths=[];window.__vatraAvatarRestoredPaths=[];
+   window.__vatraAvatarDownloadedPaths=[];
   window.__feedMockStory={id:"00000000-0000-4000-8000-000000000001",body:"Моя тестова історія",
    theme:2,expires_at:"2099-12-31T23:59:59Z"};
   window.__profileDetailRows=[];
@@ -2840,8 +2842,15 @@ try{
     data:{publicUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/"+bucket+"/"+path}
    }),
    list:async(folder,options)=>({data:bucket==="avatars"&&folder==="654321/avatar"&&!new URLSearchParams(location.search).has("no-avatar-test")&&!options?.offset?[{name:"test-profile.webp"},{name:"previous-profile.webp"}]:[],error:null}),
-   upload:async()=>({error:null}),
-   remove:async()=>{window.__feedMockMediaRemovals++;return {data:[],error:null};},
+   download:async path=>{
+    window.__vatraAvatarDownloadedPaths.push(path);
+    const bytes=Uint8Array.from(atob("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="),c=>c.charCodeAt(0));
+    return {data:new Blob([bytes],{type:"image/gif"}),error:null};
+   },
+   upload:async path=>{if(bucket==="avatars")window.__vatraAvatarRestoredPaths.push(path);return {error:null};},
+   remove:async paths=>{window.__feedMockMediaRemovals++;
+    if(bucket==="avatars")window.__vatraAvatarRemovedPaths.push(...paths);
+    return {data:[],error:null};},
    createSignedUrl:async path=>({data:{signedUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/sign/"+bucket+"/"+path+"?token=mock"},error:null})
    })}
   })};
@@ -4423,6 +4432,46 @@ try{
    "Members cannot report their own avatar photo");
   assert.equal(await profilePage.locator("#profile-media-viewer-image").evaluate(el=>getComputedStyle(el).objectFit),"contain",
    "Portrait and landscape profile photos must preserve their aspect ratio");
+  const arrowLayout=await profilePage.evaluate(()=>{
+   const left=document.querySelector("#profile-avatar-prev"),right=document.querySelector("#profile-avatar-next");
+   const photo=document.querySelector("#profile-photo-canvas");
+   const parent=document.querySelector("#profile-photo-content");
+   return {left:left.getBoundingClientRect().toJSON(),right:right.getBoundingClientRect().toJSON(),
+    photo:photo.getBoundingClientRect().toJSON(),parent:parent.getBoundingClientRect().toJSON(),
+    leftParent:left.parentElement.id,rightParent:right.parentElement.id,
+    background:getComputedStyle(document.querySelector(".profile-media-viewer-stage")).backgroundColor,
+    leftRadius:getComputedStyle(left).borderRadius};
+  });
+  assert.equal(arrowLayout.leftParent,"profile-photo-content");
+  assert.equal(arrowLayout.rightParent,"profile-photo-content");
+  assert.ok(arrowLayout.left.right<=arrowLayout.photo.left+2&&
+   arrowLayout.right.left>=arrowLayout.photo.right-2,
+   "VK-style chevrons remain outside the photo even when its aspect ratio changes: "+
+   JSON.stringify(arrowLayout));
+  assert.equal(arrowLayout.background,"rgb(32, 36, 44)");
+  assert.ok(!arrowLayout.leftRadius.includes("50%"),
+   "Navigation must use unframed chevrons, not round floating buttons");
+  await profilePage.locator("#profile-avatar-gallery-delete").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").evaluate(el=>el.open),true);
+  await profilePage.locator("#profile-confirm-accept").click();
+  await profilePage.locator("#profile-photo-deleted-notice").waitFor({state:"visible",timeout:6000});
+  assert.equal((await profilePage.locator("#profile-photo-deleted-message").textContent()).trim(),
+   language==="en"?"Photo deleted.":"Фотографію видалено.");
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true,
+   "Deleting a gallery photo must keep the viewer open for recovery");
+  assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src")).startsWith("blob:"),
+   "The photo stays visible from a safe temporary backup after server deletion");
+  assert.equal(await profilePage.evaluate(()=>window.__vatraAvatarRemovedPaths.includes(
+   "654321/avatar/previous-profile.webp")),true);
+  await profilePage.locator("#profile-photo-restore").click();
+  assert.equal(await profilePage.locator("#profile-photo-deleted-notice").isVisible(),false);
+  assert.ok(await profilePage.evaluate(()=>
+   window.__vatraAvatarRestoredPaths.includes("654321/avatar/previous-profile.webp")),
+   "Restore must actually re-upload the deleted photo, not merely remove the notice");
+  assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(
+   await profilePage.locator("#profile-media-viewer-image").getAttribute("src")),
+   "Restore must return to the same gallery photo");
+
   assert.equal(await profilePage.locator("#profile-avatar-engagement").isVisible(),true,"Historical avatars retain their own engagement panel");
   assert.equal(await profilePage.locator("#profile-media-viewer-heading").isVisible(),false,"Avatar gallery has no redundant heading");
   await profilePage.keyboard.press("ArrowLeft");
