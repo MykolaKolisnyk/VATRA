@@ -18,15 +18,15 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  dialog.dataset.storyEditor="true";
  const e=(tag,suffix,value)=>node(tag,"ui-vatra-story-"+suffix+"-001",value);
  const tr=(uk,en)=>translate(uk,en);
- const button=(suffix,label,fn,ident)=>{const b=node("button","vt-vatra-story-"+suffix+"-001",label);b.type="button";if(ident)b.id=ident;b.addEventListener("click",fn);return b;};
+ const button=(suffix,label,fn,ident)=>{const b=node("button","vatra-story-"+suffix+"-001",label);b.type="button";if(ident)b.id=ident;b.addEventListener("click",fn);return b;};
  const form=e("form","form");form.id=prefix+"-form";
- const header=e("header","header"),title=node("h2","vt-vatra-story-title-001",tr("Нова історія","New story"));title.id=prefix+"-title";
+ const header=e("header","header"),title=node("h2","vatra-story-title-001",tr("Нова історія","New story"));title.id=prefix+"-title";
  const close=button("close","×",()=>{if(!publishing)dialog.close();},prefix+"-cancel");close.setAttribute("aria-label",tr("Закрити","Close"));header.append(title,close);
  const work=e("div","workspace"),stage=e("div","stage"),surface=e("div","surface");surface.id=prefix+"-media-preview";
  const canvas=e("canvas","canvas");canvas.width=W;canvas.height=H;canvas.setAttribute("aria-label",tr("Попередній перегляд історії","Story preview"));canvas.setAttribute("role","img");canvas.hidden=true;
  const video=e("video","video");video.controls=true;video.playsInline=true;video.preload="metadata";video.hidden=true;
  const empty=e("div","empty"),uploadIcon=e("span","upload-icon","↑");uploadIcon.setAttribute("aria-hidden","true");
- const dropCopy=node("p","vt-vatra-story-drop-copy-001",tr("Перетягніть сюди фото або відео","Drag a photo or video here"));
+ const dropCopy=node("p","vatra-story-drop-copy-001",tr("Перетягніть сюди фото або відео","Drag a photo or video here"));
  const file=e("input","file");file.id=prefix==="feed-story"?prefix+"-media":prefix+"-media-input";file.type="file";file.accept="image/jpeg,image/png,image/webp,video/mp4,video/webm";file.hidden=true;
  const choose=button("choose",tr("Вибрати файл","Choose file"),()=>file.click(),prefix+"-media-choose");
  const pickBackground=button("empty-background",tr("Вибрати фон","Choose background"),()=>setPanel("background"));
@@ -41,12 +41,12 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   ["background","◉","Тло","Background"],["filters","◐","Фільтри","Filters"],["adjust","☷","Корекція кольору","Color correction"]
  ];
  const toolButtons=new Map();
- for(const [key,icon,uk,en] of toolDefs){const b=button("tool-"+key,"",()=>setPanel(key));const pict=node("span","ui-vatra-story-tool-icon-"+key+"-001",icon),label=node("span","vt-vatra-story-tool-label-"+key+"-001",tr(uk,en));pict.setAttribute("aria-hidden","true");b.append(pict,label);b.setAttribute("aria-pressed","false");toolButtons.set(key,b);nav.append(b);}
+ for(const [key,icon,uk,en] of toolDefs){const b=button("tool-"+key,"",()=>setPanel(key));const pict=node("span","ui-vatra-story-tool-icon-"+key+"-001",icon),label=node("span","vatra-story-tool-label-"+key+"-001",tr(uk,en));pict.setAttribute("aria-hidden","true");b.append(pict,label);b.setAttribute("aria-pressed","false");toolButtons.set(key,b);nav.append(b);}
  sidebar.append(nav,panel);work.append(stage,sidebar);
  const footer=e("footer","footer"),info=e("div","info");
- const audience=node("span","vt-vatra-story-audience-001",tr("Для друзів","Friends only")),time=node("span","vt-vatra-story-duration-001",tr("24 години","24 hours"));
+ const audience=node("span","vatra-story-audience-001",tr("Для друзів","Friends only")),time=node("span","vatra-story-duration-001",tr("24 години","24 hours"));
  info.append(audience,time);
- const error=node("p","vt-vatra-story-error-001");error.id=prefix+"-error";error.setAttribute("role","status");error.hidden=true;
+ const error=node("p","vatra-story-error-001");error.id=prefix+"-error";error.setAttribute("role","status");error.hidden=true;
  const save=button("publish",tr("Опублікувати","Publish"),()=>{},prefix+"-save");save.type="submit";save.disabled=true;
  footer.append(info,error,save);form.append(header,work,footer);dialog.replaceChildren(form);
  let state=fresh(),back=[],forward=[],assets=new Map(),assetSerial=0,layerSerial=0,active="text",selected=null,brush={color:"#ffffff",width:18,opacity:1},pointer=null,loading=false,publishing=false,request=0,stickerCatalog=null,packId=null,stickerBusy=false;
@@ -94,10 +94,10 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  }
  const currentText=()=>state.texts.find(a=>a.id===selected);
  const currentSticker=()=>state.stickers.find(a=>a.id===selected);
- const heading=(uk,en)=>panel.append(node("h3","vt-vatra-story-panel-heading-001",tr(uk,en)));
- const description=(uk,en)=>panel.append(node("p","vt-vatra-story-panel-note-001",tr(uk,en)));
+ const heading=(uk,en)=>panel.append(node("h3","vatra-story-panel-heading-001",tr(uk,en)));
+ const description=(uk,en)=>panel.append(node("p","vatra-story-panel-note-001",tr(uk,en)));
  function field(label,suffix,value,min,max,step,apply){
-  const line=e("label",suffix+"-field"),name=node("span","vt-vatra-story-"+suffix+"-label-001",label),display=node("output","vt-vatra-story-"+suffix+"-value-001",String(value)),input=e("input",suffix+"-range");
+  const line=e("label",suffix+"-field"),name=node("span","vatra-story-"+suffix+"-label-001",label),display=node("output","vatra-story-"+suffix+"-value-001",String(value)),input=e("input",suffix+"-range");
   input.type="range";input.min=min;input.max=max;input.step=step;input.value=value;
   let saved=false;const remember=()=>{if(!saved){checkpoint();saved=true;}};input.addEventListener("input",()=>{if(publishing||loading)return;remember();const v=Number(input.value);display.value=String(v);apply(v);render();});input.addEventListener("change",()=>{saved=false;});
   line.append(name,display,input);panel.append(line);return input;
@@ -144,7 +144,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   }else if(key==="stickers"){
    heading("Стікери","Stickers");
    const selectedArt=currentSticker();if(selectedArt){field(tr("Розмір стікера","Sticker size"),"sticker-size",selectedArt.width,44,340,1,v=>selectedArt.width=v);panel.append(button("delete-sticker",tr("Видалити стікер","Delete sticker"),()=>{mutate(()=>state.stickers=state.stickers.filter(x=>x.id!==selectedArt.id));selected=null;setPanel(key);}));}
-   if(!stickerCatalog){const pending=node("p","vt-vatra-story-stickers-loading-001",tr("Завантаження…","Loading…"));panel.append(pending);import(new URL("comment-picker.js",script).href).then(mod=>{stickerCatalog=mod;if(dialog.open&&active==="stickers")setPanel("stickers");}).catch(()=>{pending.textContent=tr("Не вдалося завантажити стікери.","Could not load stickers.");});return;}
+   if(!stickerCatalog){const pending=node("p","vatra-story-stickers-loading-001",tr("Завантаження…","Loading…"));panel.append(pending);import(new URL("comment-picker.js",script).href).then(mod=>{stickerCatalog=mod;if(dialog.open&&active==="stickers")setPanel("stickers");}).catch(()=>{pending.textContent=tr("Не вдалося завантажити стікери.","Could not load stickers.");});return;}
    const packs=e("div","sticker-packs");const pack=stickerCatalog.packs.find(p=>p.id===packId)||stickerCatalog.packs[0];if(!pack)return;for(const p of stickerCatalog.packs){const b=button("sticker-pack",tr(p.uk,p.en),()=>{packId=p.id;setPanel(key);});b.setAttribute("aria-pressed",String(p.id===pack.id));packs.append(b);}panel.append(packs);
    const grid=e("div","stickers");for(let i=0;i<pack.rects.length;i++){const b=button("sticker","",()=>void addSticker(pack,i));b.setAttribute("aria-label",tr(pack.uk,pack.en)+" "+(i+1));b.append(stickerCatalog.stickerArt(pack,i));grid.append(b);}panel.append(grid);
   }

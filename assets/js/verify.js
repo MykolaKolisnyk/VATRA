@@ -8,10 +8,10 @@ function showAccountConfirmationFailure(){
  const title=q("#account-title"),mail=q("#account-email");
  if(title)title.textContent=translate("Підтвердження пошти не завершено");
  if(mail)mail.textContent=translate("Якщо пошту вже підтверджено, увійдіть за email і паролем. Інакше запросіть новий лист на пристрої реєстрації.");
- const note=q(".vt-account-paragraph-03");if(note)note.hidden=true;
+ const note=q(".vatra-account-paragraph-03");if(note)note.hidden=true;
  const id=q("#vatra-id");if(id)id.hidden=true;
  const logout=q("#logout");if(logout)logout.hidden=true;
- const link=q(".vt-account-link-03");
+ const link=q(".vatra-account-link-03");
  if(link){link.textContent=translate("Перейти до входу");link.href=url("./");}
 }
 async function acceptEmailConfirmation(){
