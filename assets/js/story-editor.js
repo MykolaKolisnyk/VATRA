@@ -1,4 +1,3 @@
-/* Shared VATRA story editor — one canvas, one private publication flow. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;

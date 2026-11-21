@@ -1,4 +1,3 @@
-/* VATRA unauthenticated page views. No authenticated shell or member-private data. */
 (()=>{"use strict";if(window.VATRA_HOST_ALLOWED===false)return;
 const root=new URL("../../",document.currentScript.src);
 const t=(uk,en)=>document.documentElement.lang==="en"?en:(window.VATRA_LANGUAGE?.translate?.(uk)||uk);
@@ -28,7 +27,7 @@ function prompt(name){
  const copy=node("p","vatra-guest-dialog-copy-001",t("Підписуйтеся, коментуйте та діліться цікавими дописами.","Follow, comment and share interesting posts."));const actions=node("div","ui-vatra-guest-dialog-actions-001");authLinks(actions);d.append(close,icon,title,copy,actions);document.body.append(d);
  const open=()=>{if(!d.open&&document.visibilityState!=="hidden")d.showModal();};
  close.addEventListener("click",()=>d.close());d.addEventListener("click",e=>{if(e.target===d)d.close();});
- // Only reveal after meaningful NEW downward scrolling, never while the dialog is open.
+
  let last=scrollY,lastPromptAt=0,distance=0;
  d.addEventListener("close",()=>{last=scrollY;distance=0;lastPromptAt=Date.now();});
  window.addEventListener("scroll",()=>{const y=scrollY;if(!d.open&&document.visibilityState==="visible"){distance+=Math.max(0,y-last);if(distance>=Math.max(800,innerHeight*1.25)&&Date.now()-lastPromptAt>=18000){distance=0;lastPromptAt=Date.now();open();}}last=y;},{passive:true});
@@ -40,7 +39,7 @@ async function profile(client,id){
  if(result.error)return false;
  const main=layout("#profile-loading","#profile-app");
  if(!result.data){document.title=t("Користувача не знайдено","User not found");main.append(node("section","ui-vatra-guest-note-001",document.title));return true;}
- // RLS exposes only a display name for an active, explicitly public profile.
+
  let name=t("Учасник VATRA","VATRA member");
  try{const preview=await client.from("public_profiles").select("display_name").eq("vatra_id",id).maybeSingle();if(!preview.error&&typeof preview.data?.display_name==="string"&&preview.data.display_name.trim())name=preview.data.display_name.trim().slice(0,100);}catch(_){}
  document.title=name;identity(main,name,true,t("Сторінку приховано","Profile hidden"));
@@ -59,7 +58,7 @@ async function club(client,id){
  const more=node("button","vatra-guest-more-001",t("Показати ще","Show more"));more.type="button";more.hidden=true;posts.append(list,more);columns.append(posts,about);main.append(columns);
  let offset=0,busy=false,done=false;
  async function load(){if(busy||done)return;busy=true;more.disabled=true;try{
-  // Only explicitly guest-visible posts are eligible; RLS must enforce this too.
+
   const response=await client.from("community_posts").select("id,body,created_at").eq("club_id",id).eq("guest_visible",true).order("created_at",{ascending:false}).order("id",{ascending:false}).range(offset,offset+9);
   if(response.error)throw response.error;const rows=response.data||[];offset+=rows.length;done=rows.length<10;more.hidden=done;
   for(const item of rows){const article=node("article","ui-vatra-guest-post-001");article.append(node("strong","vatra-guest-post-author-001",t("Допис спільноти","Community post")),node("time","vatra-guest-post-date-001",new Date(item.created_at).toLocaleDateString(document.documentElement.lang||"uk")),node("p","vatra-guest-post-body-001",item.body||""));const action=node("button","vatra-guest-post-action-001",t("Взаємодіяти з дописом","Interact with post"));action.type="button";action.addEventListener("click",open);article.append(action);list.append(article);}

@@ -1,4 +1,3 @@
-/* VATRA shared avatar: public-image cache only, never credentials or auth tokens. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
