@@ -165,6 +165,7 @@
  async function choosePeer(id){
   if(!validId(id)||String(id)===state.own)return;
   state.selected=String(id);state.peerKey=null;state.peerChanged=false;state.chatVersion++;
+  $("#messenger-messages").replaceChildren(); // Never show the previous contact while switching threads.
   await loadNames([id]);setPeerHeading();renderConversations();
   const params=new URLSearchParams(location.search);params.set("to",id);
   history.replaceState(history.state,"",location.pathname+"?"+params.toString());
@@ -264,6 +265,7 @@
     }
    }
    state.locked=false;$("#messenger-key-dialog").close();
+   $("#messenger-messages").replaceChildren(); // Replace locked placeholders with real decrypted bubbles.
    $("#messenger-security-line").textContent=t("Ваш локальний ключ розблоковано","Your local key is unlocked");
    await Promise.all([refresh(),state.selected?loadPeerKey():Promise.resolve()]);
   }catch(error){errorAt("#messenger-key-error",error?.message||t("Не вдалося відкрити ключ.","Could not open the key."));}
