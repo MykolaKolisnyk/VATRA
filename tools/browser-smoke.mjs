@@ -4,6 +4,7 @@ import {createServer} from "node:http";
 import {readFile,mkdir} from "node:fs/promises";
 import {resolve,sep} from "node:path";
 import {chromium,firefox,webkit} from "playwright";
+import {runMessengerBrowserSmoke} from "./messenger-browser-smoke.mjs";
 
 const basePath="/VATRA/";
 const root=process.cwd();
@@ -53,6 +54,7 @@ try{
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
+ await runMessengerBrowserSmoke({browser,base});
 
  // Simulate previously cached stylesheet/JS content after a deployment.
  // This isolated context enables the actual Service Worker (other tests block it).
