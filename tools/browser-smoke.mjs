@@ -2686,7 +2686,6 @@ try{
   window.__feedMockStory={id:"00000000-0000-4000-8000-000000000001",body:"Моя тестова історія",
    theme:2,expires_at:"2099-12-31T23:59:59Z"};
   window.__profileDetailRows=[];
-  window.__vatraDmHold=false;window.__vatraDmResolvers=[];
   window.__vatraFriendLimitCalls=[];window.__vatraGiftLimitCalls=[];
   window.__vatraFriendActionRows=new URLSearchParams(location.search).has("friend-action-test")?
    [{id:"00000000-0000-4000-8000-000000000882",requester_id:654321,
@@ -2700,15 +2699,7 @@ try{
      user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
     signOut:async()=>({error:null})
    },
-   from:table=>table==="direct_messages"?
-    {select:()=>({or(){return this;},order(){return this;},
-     limit:async()=>{
-      if(window.__vatraDmHold)return new Promise(resolve=>
-       window.__vatraDmResolvers.push(rows=>resolve({data:rows,error:null})));
-      return {data:[],error:null};
-     }}),
-     insert:async()=>({error:null})}:
-    table==="profile_preferences"?
+   from:table=>table==="profile_preferences"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({
      data:window.__profileVisibility==="public"?null:{profile_visibility:window.__profileVisibility},error:null
     })})}),
@@ -3623,7 +3614,7 @@ try{
   await feedProbe.evaluate(()=>{
    const id="00000000-0000-4000-8000-000000000991",
     userId="00000000-0000-4000-8000-000000000992";
-   const state={reposts:[],messages:[],onShared:0,finishDM:null};
+   const state={reposts:[],onShared:0};
    window.__vatraShareSmoke=state;
    const host=document.createElement("div");host.id="vatra-share-smoke";document.body.append(host);
    const client={
@@ -3639,10 +3630,6 @@ try{
       insert(payload){
        if(table==="feed_posts"){
         state.reposts.push(payload);return Promise.resolve({error:null});
-       }
-       if(table==="direct_messages"){
-        state.messages.push(payload);
-        return new Promise(resolve=>{state.finishDM=()=>resolve({error:null});});
        }
        return Promise.resolve({error:null});
       }
@@ -3675,29 +3662,17 @@ try{
    "#vatra-share-smoke-dialog .vt-vatra-post-send-message-001")?.disabled===false);
   assert.equal(await feedProbe.locator(shareDialog+" .ui-vatra-post-share-friend-select-001").inputValue(),"13",
    "Only an accepted friend should populate the share recipient");
-  await feedProbe.evaluate(()=>{
-   const button=document.querySelector("#vatra-share-smoke-dialog .vt-vatra-post-send-message-001");
-   button.click();button.click();
-  });
-  await feedProbe.waitForFunction(()=>window.__vatraShareSmoke.messages.length===1);
-  assert.equal(await feedProbe.locator(shareDialog+" .vt-vatra-post-send-message-001").isDisabled(),true,
-   "An in-flight DM must remain disabled during a rapid second click");
-  await feedProbe.evaluate(()=>{
-   document.querySelector("#vatra-share-smoke-dialog").close();
-   window.__vatraShareSmoke.finishDM();
-  });
-  await feedProbe.waitForFunction(()=>document.querySelector(
-   "#vatra-share-smoke-dialog .vt-vatra-post-send-message-001")?.disabled===false);
-  assert.equal(await feedProbe.evaluate(()=>window.__vatraShareSmoke.messages.length),1,
-   "Double-clicking send must not create duplicate DMs");
-  assert.ok((await feedProbe.locator(shareRoot+" .vt-vatra-post-interactions-status-001").textContent())
-   .includes(language==="en"?"Sent to your friend":"Посилання надіслано"),
-   "Closing the share dialog during a successful DM must not report failure");
+  assert.equal(await feedProbe.locator(shareDialog+" .vt-vatra-post-send-message-001").isEnabled(),true,
+   "Accepted friends can be selected for an encrypted Messenger draft");
+  const shareSecuritySource=await readFile(resolve(root,"assets/js/post-interactions.js"),"utf8");
+  assert.ok(shareSecuritySource.includes('new URL("messenger.html",relativeRoot())')&&
+   !shareSecuritySource.includes('from("direct_messages")'),
+   "Post sharing must navigate to E2EE Messenger, never persist plaintext DMs");
   await feedProbe.evaluate(()=>{
    document.querySelector("#vatra-share-smoke-dialog").remove();
    document.querySelector("#vatra-share-smoke").remove();
   });
-  console.log("VATRA sharing: committed repost, friend DM, close-during-send and double-click OK");
+  console.log("VATRA sharing: durable repost and encrypted Messenger draft routing OK");
   // An old all-posts result must never flash into the newer friends filter.
   await feedProbe.evaluate(()=>{
    document.querySelector('[data-feed-filter="friends"]').click();
@@ -4882,42 +4857,17 @@ try{
    "Escape dismisses the modal and preserves the user's current state");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,
    "Visitors cannot edit another member's page");
-  await profilePage.locator("#profile-message-button").click();
-  assert.equal(await profilePage.locator("#profile-message-dialog").evaluate(el=>el.open),true,
-   "Message button must open the private conversation dialog");
-  await profilePage.locator("#profile-message-close").click();
-  assert.equal(await profilePage.locator("#profile-message-dialog").evaluate(el=>el.open),false);
-  // An earlier delayed request must not overwrite a later opening of the DM.
-  await profilePage.evaluate(()=>{
-   window.__vatraDmHold=true;window.__vatraDmResolvers=[];
-  });
-  await profilePage.locator("#profile-message-button").click();
-  await profilePage.waitForFunction(()=>window.__vatraDmResolvers.length===1);
-  await profilePage.locator("#profile-message-close").click();
-  await profilePage.locator("#profile-message-button").click();
-  await profilePage.waitForFunction(()=>window.__vatraDmResolvers.length===2);
-  await profilePage.evaluate(()=>{
-   window.__vatraDmResolvers[1]([{
-    sender_id:789012,recipient_id:654321,body:"Нове повідомлення VATRA",
-    created_at:"2026-11-14T15:00:00Z"
-   }]);
-  });
-  await profilePage.waitForFunction(()=>
-   document.querySelector("#profile-message-history")?.textContent.includes("Нове повідомлення VATRA"));
-  await profilePage.evaluate(async()=>{
-   window.__vatraDmResolvers[0]([{
-    sender_id:789012,recipient_id:654321,body:"Застаріле повідомлення VATRA",
-    created_at:"2026-11-14T14:00:00Z"
-   }]);
-   await new Promise(resolve=>setTimeout(resolve,0));
-  });
-  assert.ok((await profilePage.locator("#profile-message-history").textContent()).includes(
-   "Нове повідомлення VATRA"));
-  assert.equal((await profilePage.locator("#profile-message-history").textContent()).includes(
-   "Застаріле повідомлення VATRA"),false,
-   "An old in-flight conversation response must not replace the newer dialog content");
-  await profilePage.locator("#profile-message-close").click();
-  await profilePage.evaluate(()=>{window.__vatraDmHold=false;window.__vatraDmResolvers=[];});
+  const visitorProfileURL=profilePage.url();
+  await Promise.all([
+   profilePage.waitForURL(url=>url.pathname.endsWith("/messenger.html")&&
+    url.searchParams.get("to")==="789012",{timeout:15000}),
+   profilePage.locator("#profile-message-button").click()
+  ]);
+  assert.equal(new URL(profilePage.url()).searchParams.get("to"),"789012",
+   "Profile Message must open the dedicated encrypted Messenger with the correct contact");
+  await profilePage.goto(visitorProfileURL,{waitUntil:"domcontentloaded"});
+  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:15000});
+
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "The header must retain the signed-in first name when viewing another profile");
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
