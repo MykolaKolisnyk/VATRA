@@ -1171,7 +1171,7 @@ const messengerMarkup=await read("messenger.html");
 const messengerRuntime=await read("assets/js/messenger.js");
 const messengerCrypto=await read("assets/js/messenger-crypto.js");
 const messengerCss=await read("assets/css/messenger.css");
-const messengerSchema=await read("supabase/migrations/20261121113000_private_messenger_ciphertext_and_scoped_deletion.sql");
+const messengerSchema=await read("supabase/migrations/20261121113300_private_messenger_ciphertext_and_scoped_deletion.sql");
 assert.ok(
  messengerMarkup.includes('data-page="messenger"')&&
  messengerMarkup.includes('id="messenger-delete-mine"')&&
