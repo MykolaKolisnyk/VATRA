@@ -1138,7 +1138,7 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-archive-menu"')&&
  (await read("assets/js/feed.js")).includes('archived_at')&&
  (await read("assets/js/post-interactions.js")).includes('post_saves')&&
- (await read("assets/css/feed.css")).includes('max-height:calc(100dvh - 90px)')&&
+ (await read("assets/css/feed.css")).includes('width:100vw;height:100dvh;')&&
  (await read("assets/js/feed.js")).includes('feedFilter==="friends"'),
  "Profile status, privacy-preserving activity, media tabs and Feed filters must exist");
 assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
