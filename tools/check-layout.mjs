@@ -1454,7 +1454,9 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
  feedScript.includes('batch.append(same&&oldElement?oldElement:card(item,engagement))')&&
- feedScript.includes('if(reset)posts.replaceChildren(batch);else posts.append(batch);')&&
+ feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
+ feedScript.includes('else posts.append(batch);')&&
+ feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
  profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
@@ -2109,7 +2111,9 @@ assert.ok(
  interactionsScript.includes('entries.replaceChildren(...fresh,...remaining)')&&
  interactionsScript.includes('void loadComments(true,true)')&&
  feedScript.includes('const previousFeed=keepExisting?[...visibleFeed]:null;')&&
- feedScript.includes('if(reset)posts.replaceChildren(batch);else posts.append(batch);')&&
+ feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
+ feedScript.includes('else posts.append(batch);')&&
+ feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
  !interactionsScript.includes('vt-vatra-post-audience-hint-001')&&
  !systemFeedCss.includes('.feed-post-audience:hover .vt-vatra-post-audience-hint-001'),
  "All profile/post photos share a fullscreen workspace, cached comments reconcile without flashes and audience markers have no hover");
