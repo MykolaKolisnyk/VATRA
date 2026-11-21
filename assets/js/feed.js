@@ -91,9 +91,9 @@
  }
  function postedTime(value){
   const date=new Date(value);
-  return Number.isNaN(date.getTime())?"":new Intl.DateTimeFormat(locale,{
-   day:"numeric",month:"short",year:"numeric"
-  }).format(date);
+  if(Number.isNaN(date.getTime()))return "";
+  return window.VATRA_PRESENCE?.relative?.(date,english)||
+   new Intl.DateTimeFormat(locale,{day:"numeric",month:"short",year:"numeric"}).format(date);
  }
  const mediaAvatars=new Map(),avatarChecks=new Map(),avatarStates=new Map();
  const avatarURL=id=>{

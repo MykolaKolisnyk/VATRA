@@ -986,9 +986,9 @@ const node=(tag,cls,value)=>{
 };
 const dateText=value=>{
  const date=new Date(value);
- return Number.isNaN(date.getTime())?"":new Intl.DateTimeFormat(locale,{
-  day:"numeric",month:"short",year:"numeric"
- }).format(date);
+ if(Number.isNaN(date.getTime()))return "";
+ return window.VATRA_PRESENCE?.relative?.(date,english)||
+  new Intl.DateTimeFormat(locale,{day:"numeric",month:"short",year:"numeric"}).format(date);
 };
 const setMenuLink=id=>{
  if(!validId(id))return;
@@ -2313,7 +2313,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 
 
   const scale=avatarPhoto?
-   Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight):
+   Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight):
    mediaDialog.dataset.kind==="cover"?
     Math.min(Math.min(roomW,1140)/mediaImage.naturalWidth,
      Math.min(roomH*.76,680)/mediaImage.naturalHeight):
@@ -3132,8 +3132,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  async function uploadImage(file,kind,originalFile=null){
   if(uploading)return false;
   const ext=fileTypes[file?.type];
-  if(!ext||!file?.size||file.size>6291456){
-   status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);return false;
+  if(!ext||!file?.size||file.size>31457280){
+   status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);return false;
   }
   uploading=true;buttonAvatar.disabled=true;buttonCover.disabled=true;coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
   status(t("Завантажуємо зображення…","Uploading image…"));
@@ -3203,7 +3203,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  const closeStep=(from,to)=>{transitioning=true;from.close();to.showModal();transitioning=false;};
  const startCrop=async file=>{if(uploading||finishing||crop.open||finish.open||coverLoading||coverSaving||coverDialog.open)return;
-  if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileAvatar.value="";return;}
+  if(!fileTypes[file?.type]||!file?.size||file.size>31457280){status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);fileAvatar.value="";return;}
   release();sourceFile=file;sourceMime=file.type;const img=new Image();const url=URL.createObjectURL(file);sourceURL=url;
   try{img.src=url;await img.decode();if(sourceURL!==url)return;source=img;const ratio=Math.min(1,720/Math.max(img.naturalWidth,img.naturalHeight));canvas.width=Math.max(1,Math.round(img.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(img.naturalHeight*ratio));const size=Math.min(canvas.width,canvas.height);selection={x:(canvas.width-size)/2,y:(canvas.height-size)/2,size};zoom.value="1";q("#profile-avatar-publish-post").checked=false;q("#profile-avatar-publish-story").checked=false;finishError.hidden=true;draw();crop.showModal();}catch(_){release();status(t("Не вдалося відкрити фото.","Could not open photo."),true);}
  };
@@ -3402,7 +3402,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  const startCoverCrop=async file=>{
   if(uploading||finishing||coverLoading||coverSaving||coverDialog.open||crop.open||finish.open)return;
-  if(!fileTypes[file?.type]||!file?.size||file.size>6291456){status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);fileCover.value="";return;}
+  if(!fileTypes[file?.type]||!file?.size||file.size>31457280){status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);fileCover.value="";return;}
   coverRelease();coverSourceFile=file;coverSourceMime=file.type;coverLoading=true;const img=new Image(),url=URL.createObjectURL(file);coverSourceURL=url;
   try{img.src=url;await img.decode();if(coverSourceURL!==url)return;coverSource=img;const scale=Math.min(1,900/Math.max(img.naturalWidth,img.naturalHeight));
    coverCanvas.width=Math.max(1,Math.round(img.naturalWidth*scale));coverCanvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
