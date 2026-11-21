@@ -3258,7 +3258,9 @@ try{
     async remove(paths){calls.removes.push({bucket,paths});return {error:null};}
    })}};
    const [item]=await window.VATRA_POST_MEDIA.uploadGallery(client,"12",[file]);
-   const host=document.createElement("article");host.id="vatra-smoke-webp";host.className="feed-post-card";document.querySelector("#feed-posts").prepend(host);
+   const host=document.createElement("article");host.id="vatra-smoke-webp";host.className="feed-post-card";
+   host.dataset.vatraViewerId="12";
+   document.querySelector("#feed-posts").prepend(host);
    await window.VATRA_POST_MEDIA.mount(client,{author_vatra_id:"12",media_items:[item]},host);
    window.__vatraWebpFixture={item,calls,client};
    return {fileSize:file.size,item,uploads:calls.uploads};
@@ -3281,6 +3283,18 @@ try{
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraWebpFixture.calls.signed),
    [previewFixture.item.preview_path,previewFixture.item.media_path],
    "Opening fullscreen must sign the unmodified original");
+  const postFrame=await feedProbe.evaluate(()=>{
+   const dialog=document.querySelector("#vatra-post-media-viewer");
+   const rect=dialog.getBoundingClientRect();
+   return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,
+    caption:dialog.querySelector(".vt-vatra-post-media-caption-001")?.textContent};
+  });
+  assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&
+   Math.abs(postFrame.h-postFrame.vh)<=2,
+   "Post photos must use the whole viewport, not a small centered modal: "+JSON.stringify(postFrame));
+  assert.equal(postFrame.caption,
+   language==="en"?"Photo from posts":"Фото з публікацій",
+   "Own post photos must not repeat the owner's name or a decorative separator");
   await feedProbe.keyboard.press("Escape");
   const removed=await feedProbe.evaluate(async()=>{
    const {client,item,calls}=window.__vatraWebpFixture;
@@ -4422,7 +4436,6 @@ try{
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
   await profilePage.locator("#profile-avatar-next").click();
   assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
-  const avatarOwner=(await profilePage.locator("#profile-heading").textContent()).trim();
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
    (language==="en"?"Profile photo  2 of 2":"Фото профілю  2 із 2"),
    "Own photo captions should have no repeated name or decorative separator");
