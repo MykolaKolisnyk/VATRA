@@ -2372,7 +2372,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const galleryDates=new Map();
  const photoContent=q("#profile-photo-content"),photoCanvas=q("#profile-photo-canvas");
  const photoFooter=q("#profile-photo-footer"),footerShare=q("#profile-photo-footer-share");
- const footerTag=q("#profile-photo-footer-tag"),footerMore=q("#profile-photo-footer-more");
+ const footerMore=q("#profile-photo-footer-more");
  const footerReport=q("#profile-photo-report");
  const footerMenu=q("#profile-photo-footer-menu"),originalLink=q("#profile-photo-original");
  const setCurrent=q("#profile-photo-set-current"),tagMarkers=q("#profile-photo-tag-markers");
@@ -2382,7 +2382,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const reportTag=message=>{tagStatus.textContent=message||"";tagStatus.hidden=!message;};
  const closeMore=()=>{footerMenu.classList.remove("is-open");footerMore.setAttribute("aria-expanded","false");};
  const closeTagPicker=()=>{tagPicker.hidden=true;tagPosition=null;tagSearch.value="";tagResults.replaceChildren();searchEpoch++;};
- const resetTagMode=()=>{tagMode=false;footerTag.setAttribute("aria-pressed","false");photoCanvas.classList.remove("is-tagging");closeTagPicker();};
+ const resetTagMode=()=>{tagMode=false;photoCanvas.classList.remove("is-tagging");closeTagPicker();};
  const fitPhoto=()=>{
   if(!mediaImage.complete||!mediaImage.naturalWidth||!mediaImage.naturalHeight)return;
   const style=getComputedStyle(photoContent);
@@ -2571,12 +2571,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    tagResults.append(button);
   }
  };
- footerTag.addEventListener("click",()=>{
-  if(!canEdit)return;
-  tagMode=!tagMode;footerTag.setAttribute("aria-pressed",String(tagMode));
-  photoCanvas.classList.toggle("is-tagging",tagMode);
-  closeTagPicker();closeMore();reportTag("");
- });
  photoCanvas.addEventListener("click",event=>{
   if(!canEdit||!tagMode||event.target!==mediaImage||!photoPath())return;
   const rect=mediaImage.getBoundingClientRect();
@@ -2837,8 +2831,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   galleryCount.textContent=gallery.length===1?photoTitle:
    photoTitle+" · "+(galleryIndex+1)+t(" із "," of ")+gallery.length;
   galleryDelete.hidden=!canEdit;
-  // Person tagging is retired from the photo viewer UI.
-  footerTag.hidden=true;
   footerReport.hidden=isMine||locked;
   setCurrent.hidden=!canEdit||current;
   footerShare.textContent=t("Поділитися","Share");
