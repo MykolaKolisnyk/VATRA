@@ -1025,7 +1025,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","sw.js"]){
+for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","assets/js/messenger.js","assets/js/messenger-crypto.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
@@ -1033,6 +1033,37 @@ for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lan
 // active route may differ; this guards against CSS/HTML drift between pages.
 const sharedShellPages=["feed","profile","communities","club","notifications","friends","gifts"];
 const interactionsScript=await read("assets/js/post-interactions.js");
+
+/* Private Messenger must never silently fall back to legacy plaintext DMs. */
+const messengerMarkup=await read("messenger.html");
+const messengerRuntime=await read("assets/js/messenger.js");
+const messengerCrypto=await read("assets/js/messenger-crypto.js");
+const messengerCss=await read("assets/css/messenger.css");
+const messengerSchema=await read("supabase/migrations/20261121113000_private_messenger_ciphertext_and_scoped_deletion.sql");
+assert.ok(
+ messengerMarkup.includes('data-page="messenger"')&&
+ messengerMarkup.includes('id="messenger-delete-mine"')&&
+ messengerMarkup.includes('id="messenger-delete-everyone"')&&
+ messengerMarkup.includes('id="messenger-key-import"')&&
+ messengerMarkup.includes("assets/js/messenger-crypto.js")&&
+ messengerMarkup.includes("assets/js/messenger.js")&&
+ messengerRuntime.includes('state.client.rpc("messenger_delete_message"')&&
+ messengerRuntime.includes('client.channel("vatra-messenger-"')&&
+ !messengerRuntime.includes('from("direct_messages")')&&
+ !profileBehavior.includes('from("direct_messages")')&&
+ !interactionsScript.includes('from("direct_messages")')&&
+ messengerCrypto.includes('"AES-GCM"')&&
+ messengerCrypto.includes('"ECDH"')&&
+ messengerCrypto.includes('"HKDF"')&&
+ messengerCss.includes(".vatra-messenger-message.is-removing")&&
+ !messengerMarkup.includes("vt-vatra-")&&
+ !messengerCss.includes("vt-vatra-")&&
+ messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
+ messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
+ messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
+ messengerSchema.includes("Only the sender may revoke for everyone"),
+ "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
+
 const reactionsVerifiedDelete=[
  '.select("post_id").maybeSingle()',
  '.select("liker_id").maybeSingle()',
@@ -1110,8 +1141,8 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
  profileMarkup.includes('id="profile-report-open"')&&
  profileMarkup.includes('id="profile-friend-button"')&&
  profileMarkup.includes('id="profile-message-button"')&&
- profileMarkup.includes('id="profile-message-dialog"')&&
- profileMarkup.includes('id="profile-inbox-list"')&&
+ !profileMarkup.includes('id="profile-message-dialog"')&&
+ !profileMarkup.includes('id="profile-inbox-list"')&&
  profileMarkup.includes('id="profile-cover-image" class="profile-cover ui-profile-cover-001 has-system-cover"'),
  "Member profile requires a real cover, tabs, friendship and private message UI");
 assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
@@ -1158,7 +1189,8 @@ assert.ok(profileMarkup.includes('id="profile-heading"')&&
  "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
 const profileBehavior=await read("assets/js/profile.js");
 assert.ok(profileBehavior.includes('client.from("friendships")')&&
- profileBehavior.includes('client.from("direct_messages")')&&
+ !profileBehavior.includes('client.from("direct_messages")')&&
+ profileBehavior.includes('new URL("messenger.html?to="')&&
  profileBehavior.includes("setupProfileInteractions(client,ownId,targetId,isMine)"),
  "Profile friendship and messaging must use persisted, RLS-secured data");
 assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
@@ -1530,7 +1562,7 @@ assert.ok(
  systemProfileCss.includes("body.profile-page :is(")&&
  systemProfileCss.includes("#profile-posts,#profile-friends-preview-list,#profile-gifts-preview-list")&&
  systemProfileCss.includes("#profile-photo-gallery,#profile-video-gallery,#profile-clips-gallery,#profile-saved-list")&&
- systemProfileCss.includes("#profile-archive-stories-list,#profile-archive-posts-list,#profile-inbox-list")&&
+ systemProfileCss.includes("#profile-archive-stories-list,#profile-archive-posts-list")&&
  systemProfileCss.includes("):not(:has(> *)){")&&
  systemProfileCss.includes("--vatra-content-card-gap:16px")&&
  systemFeedCss.includes("#feed-posts:not(:has(> *))")&&
