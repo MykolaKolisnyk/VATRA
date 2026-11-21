@@ -29,7 +29,7 @@ function start(client,ownId,gender){
   if(active!==state||state.updating||document.visibilityState==="hidden")return false;
   state.updating=true;
   try{
-   const {error}=await client.from(table).update({last_seen_at:new Date().toISOString()})
+   const {error}=await client.from(table).update({last_seen_at:new Date().toISOString(),form:grammar(gender)})
     .eq("vatra_id",id);
    if(error)throw error;
    if(active===state)rememberTouch();
@@ -53,7 +53,7 @@ function start(client,ownId,gender){
    if(active!==state)return false;
    if(error)throw error;
    if(!data){
-    const result=await client.from(table).insert({vatra_id:id});
+    const result=await client.from(table).insert({vatra_id:id,form:grammar(gender)});
     if(active!==state)return false;
     if(result.error)throw result.error;
     rememberTouch();
@@ -146,25 +146,36 @@ async function load(client,targetId){
  }
  return request;
 }
+function plural(n,one,few,many){
+ const last=n%100,tail=n%10;
+ return n+" "+(tail===1&&last!==11?one:tail>=2&&tail<=4&&(last<12||last>14)?few:many);
+}
+function relative(value,english=false,now=Date.now()){
+ const date=value instanceof Date?value:new Date(value);
+ if(!Number.isFinite(date.getTime()))return "";
+ const ms=Math.max(0,now-date.getTime());
+ if(ms<300000)return english?"just now":"щойно";
+ const minutes=Math.floor(ms/300000)*5;
+ if(ms<3600000)return english?minutes+" minutes ago":plural(minutes,"хвилину","хвилини","хвилин")+" тому";
+ const hours=Math.floor(ms/3600000);
+ if(ms<86400000)return english?hours+" hour"+(hours===1?"":"s")+" ago":plural(hours,"годину","години","годин")+" тому";
+ const days=Math.floor(ms/86400000);
+ if(ms<2592000000)return english?days+" day"+(days===1?"":"s")+" ago":plural(days,"день","дні","днів")+" тому";
+ const months=Math.floor(ms/2592000000);
+ if(ms<31536000000)return english?months+" month"+(months===1?"":"s")+" ago":plural(months,"місяць","місяці","місяців")+" тому";
+ const years=Math.floor(ms/31536000000);
+ return english?years+" year"+(years===1?"":"s")+" ago":plural(years,"рік","роки","років")+" тому";
+}
 function format(record,english=false){
  const date=record?.last_seen_at?new Date(record.last_seen_at):null;
  if(!date||!Number.isFinite(date.getTime()))return {online:false,text:"",date:null};
- const now=new Date(),elapsed=now.getTime()-date.getTime();
+ const elapsed=Date.now()-date.getTime();
  const online=elapsed>=-30000&&elapsed<=activeWindow;
  if(online)return {online:true,text:"",date};
- const locale=english?"en-GB":"uk-UA";
- const time=new Intl.DateTimeFormat(locale,{hour:"2-digit",minute:"2-digit"}).format(date);
- const today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
- const yesterday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1).getTime();
- const dateStart=new Date(date.getFullYear(),date.getMonth(),date.getDate()).getTime();
- const shortDate=new Intl.DateTimeFormat(locale,{day:"2-digit",month:"2-digit",year:"numeric"}).format(date);
- if(english){
-  const when=dateStart===today?"today at "+time:dateStart===yesterday?"yesterday at "+time:shortDate+" at "+time;
-  return {online:false,text:"Last seen "+when,date};
- }
- const verb=record.form==="masculine"?"Заходив":record.form==="feminine"?"Заходила":"Були в мережі";
- const when=dateStart===today?"сьогодні о "+time:dateStart===yesterday?"вчора о "+time:shortDate+" о "+time;
- return {online:false,text:verb+" "+when,date};
+ const ago=relative(date,english);
+ const verb=record.form==="masculine"?"Заходив":record.form==="feminine"?"Заходила":null;
+ return {online:false,text:english?"Last seen "+ago:verb?verb+" "+ago:"Остання активність: "+ago,date};
 }
-window.VATRA_PRESENCE={start,load,format,grammar};
+
+window.VATRA_PRESENCE={start,load,format,grammar,relative};
 })();
