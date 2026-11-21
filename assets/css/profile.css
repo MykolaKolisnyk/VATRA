@@ -1279,7 +1279,7 @@ body.profile-page [class^="ui-profile-editor-visibility-"]{
  font:705 11px/1.45 "Onest",system-ui,sans-serif;cursor:pointer
 }
 body.profile-page .profile-editor-footer{
- display:flex;align-items:center;justify-content:flex-end;gap:12px;}
+ display:flex;align-items:center;gap:12px;}
 body.profile-page .vatra-profile-editor-save-001{border:0;color:#fff;
  cursor:pointer;white-space:nowrap;
  transition:filter .18s ease,transform .18s ease
