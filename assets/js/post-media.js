@@ -435,7 +435,7 @@
   update();
  }
  /* One accessible fullscreen dialog is reused by every post and upload. */
- let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null;
+ let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,mediaCaption=null;
  function openFullMedia(url,kind,container){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
@@ -460,7 +460,10 @@
    close.addEventListener("click",()=>mediaDialog.close());
    mediaDialogContent=document.createElement("div");
    mediaDialogContent.className="ui-vatra-post-media-viewer-content-001";
-   frame.append(close,mediaDialogContent);mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001";mediaDialog.append(frame,mediaSide);
+   mediaCaption=document.createElement("span");
+   mediaCaption.className="vt-vatra-post-media-caption-001";
+   frame.append(close,mediaDialogContent,mediaCaption);
+   mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001";mediaDialog.append(frame,mediaSide);
    mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
@@ -476,6 +479,13 @@
   element.src=url;mediaDialogContent.replaceChildren(element);
   restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const head=container?.querySelector(".feed-post-header"),identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
+  const postCard=container?.closest(".feed-post-card");
+  const ownerId=container?.dataset.vatraMediaOwnerId||postCard?.dataset.vatraMediaOwnerId;
+  const viewerId=container?.dataset.vatraViewerId||postCard?.dataset.vatraViewerId;
+  const authorName=String(head?.querySelector(".feed-post-name")?.textContent||"").trim();
+  const label=kind==="video"?tr("Відео з публікацій","Video from posts"):tr("Фото з публікацій","Photo from posts");
+  mediaCaption.textContent=ownerId&&viewerId&&ownerId===viewerId?label:
+   authorName?label+" "+authorName:label;
   if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
   restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
   mediaSide.hidden=!restoreMediaPanel;
@@ -647,7 +657,9 @@
      const counter=document.createElement("span");
      counter.className="vt-vatra-post-gallery-counter-001";
      counter.textContent=(index+1)+" / "+media.length;
-     prev.disabled=index===0;next.disabled=index===media.length-1;
+     prev.disabled=index===0;next.disabled=index>=media.length-1;
+     prev.hidden=next.hidden=media.length<2;
+     counter.hidden=media.length<2;
      prev.addEventListener("click",()=>{if(index>0){index--;void render();}});
      next.addEventListener("click",()=>{if(index<media.length-1){index++;void render();}});
      const currentVideo=mediaDialogContent.querySelector("video");
@@ -664,6 +676,8 @@
   return true;
  }
  async function mount(client,post,container){
+  if(!container)return;
+  if(post?.author_vatra_id!=null)container.dataset.vatraMediaOwnerId=String(post.author_vatra_id);
   if(Array.isArray(post?.media_items)&&post.media_items.length){
    await mountGallery(client,post,container);return;
   }
