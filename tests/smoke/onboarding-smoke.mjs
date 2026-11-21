@@ -80,12 +80,12 @@ assert.ok(html.includes('id="vatra-first-steps"')&&source.includes('buildSteps()
 assert.ok(!html.includes('id="vatra-onboarding-replay"'),
  "Shared header must be identical on all member pages");
 assert.ok(css.includes("@media(prefers-reduced-motion:reduce)"));
-assert.ok(css.includes(".vt-tour-spotlight-001"));
+assert.ok(css.includes(".vatra-tour-spotlight-001"));
 assert.ok(css.includes("transition:left .36s")&&css.includes("transition:left .35s"),
  "Spotlight and card must move smoothly instead of jumping");
-assert.ok(source.includes('art=node("span","vt-tour-mascot-001")')&&
+assert.ok(source.includes('art=node("span","vatra-tour-mascot-001")')&&
  source.includes('event.preventDefault()')&&
- !source.includes('art=node("img","vt-tour-mascot-001")'),
+ !source.includes('art=node("img","vatra-tour-mascot-001")'),
  "Vatryk must be decorative and not draggable");
 const route=[...source.matchAll(/\{selector:"([^"]+)"/g)].map(match=>match[1]);
 assert.deepEqual(Array.from(route),[
@@ -101,7 +101,7 @@ for(const selector of new Set(route)){
   assert.ok(html.includes('id="'+selector.slice(1)+'"'),"Missing tour target "+selector);
  else assert.ok(html.includes(selector.slice(1)),"Missing tour target "+selector);
 }
-assert.ok(css.includes("--vt-tour-pointer-x"),"Anchored cards must point to their highlights");
+assert.ok(css.includes("--vatra-tour-pointer-x"),"Anchored cards must point to their highlights");
 
 // Every Ukrainian original string used in onboarding must have an English
 // localization through the existing dictionary, not a new HTTP fetch.
