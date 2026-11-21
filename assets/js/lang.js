@@ -1,3 +1,4 @@
+(()=>{if(window.VATRA_HOST_ALLOWED===false)return;const s=document.createElement("script");s.src=new URL("toast.js?rev=06460dec5e7f8503102c1fb716035024ca291d62",document.currentScript?.src||location.href).href;s.async=true;document.head.append(s);})();
 
 (() => {
   "use strict";
@@ -670,5 +671,3 @@
   reveal(closestScrollable(document.activeElement));
  },{capture:true});
 })();
-
-(()=>{if(window.VATRA_HOST_ALLOWED===false)return;const s=document.createElement("script");s.src=new URL("toast.js?rev=06460dec5e7f8503102c1fb716035024ca291d62",document.currentScript?.src||location.href).href;s.async=true;document.head.append(s);})();
