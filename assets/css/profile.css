@@ -432,7 +432,7 @@ body.profile-page .profile-avatar-menu button:focus-visible{
 body.profile-page .profile-media-viewer{
  position:fixed;inset:0;width:100vw;height:100dvh;
  max-width:none;max-height:none;margin:0;padding:0;
- overflow:hidden;border:0;border-radius:0;background:#050506;color:#fff;
+ overflow:hidden;border:0;border-radius:0;background:#111419;color:#fff;
  font-family:"Onest",system-ui,sans-serif
 }
 body.profile-page .profile-media-viewer:not([open]),
@@ -515,7 +515,6 @@ html:has(#profile-media-viewer[open]){
  overflow:hidden!important;scrollbar-gutter:auto!important
 }
 body:has(#profile-media-viewer[open]){overflow:hidden!important}
-body.profile-page .profile-media-viewer[open]{display:grid}
 body.profile-page .profile-media-viewer-stage{width:100%}
 body.profile-page .profile-media-viewer-image{min-width:0;min-height:0}
 body.profile-page .profile-avatar-engagement{
@@ -2921,12 +2920,9 @@ body.profile-page .ui-profile-photo-emoji-panel-001[hidden]{display:none}
 body.profile-page .vt-profile-photo-emoji-001{font-size:20px}
 body.profile-page .ui-profile-edit-status-001:focus{outline:2px solid #b7cef9;outline-offset:0}
 
-/* Full-viewport photo workspace shared with the post viewer. */
+/* The base modal already owns its full-viewport box. This rule only adds the layout. */
 body.profile-page .profile-media-viewer[open]{
- inset:0;margin:0;width:100vw;height:100dvh;
- max-width:none;max-height:none;border-radius:0;
- grid-template-columns:minmax(0,1fr) clamp(318px,25vw,415px);
- background:#111419;box-shadow:none
+ display:grid;grid-template-columns:minmax(0,1fr) clamp(318px,25vw,415px)
 }
 body.profile-page .profile-media-viewer::backdrop{background:rgba(12,16,24,.92)}
 /* Standalone cover lightbox: the profile remains fixed behind an opaque dimmer.
