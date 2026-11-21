@@ -174,10 +174,9 @@ function wireRememberedAccount(){
  const parts=remembered.name.split(/\s+/).filter(Boolean);
  initials.textContent=parts.length>1?(parts[0][0]+parts[parts.length-1][0]).toLocaleUpperCase():remembered.name.slice(0,1).toLocaleUpperCase();
  window.VATRA_AVATAR?.applyRemembered(q(".saved-account-avatar"),remembered.email);
- const password=q("#saved-password"),message=q("#saved-account-response");
+ const password=q("#saved-password");
  const clearSaved=()=>{
   savedForm.reset();password.value="";password.dispatchEvent(new Event("input",{bubbles:true}));
-  message.hidden=true;message.textContent="";
  };
 
  const revealSavedContents=()=>{
@@ -225,19 +224,15 @@ function wireRememberedAccount(){
   q("#email")?.focus({preventScroll:true});
  });
  savedForm.addEventListener("submit",async event=>{
-  event.preventDefault();message.hidden=true;message.textContent="";
-  if(!password.value){
-   message.textContent=translate("Введіть пароль.");
-   message.dataset.type="error";message.hidden=false;return;
-  }
+  event.preventDefault();
+  if(!password.value){feedback("Введіть пароль.","error");return;}
   busy(savedForm,true);
   try{await authenticatePassword(remembered.email,password.value,savedForm);}
   catch(error){
    const code=String(error?.code||"");
    const detail=String(error?.message||"").toLowerCase();
    const invalidPassword=code==="invalid_credentials"||detail.includes("invalid login credentials");
-   message.textContent=translate(invalidPassword?"Не вдалося увійти. Перевірте пароль.":getMessage(error));
-   message.dataset.type="error";message.hidden=false;
+   feedback(invalidPassword?"Не вдалося увійти. Перевірте пароль.":getMessage(error),"error");
   }
   finally{resetCaptcha(savedForm);busy(savedForm,false);}
  });

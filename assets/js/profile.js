@@ -429,9 +429,8 @@
    make("span","vatra-profile-editor-label-row-caption-001",tr("Кожне поле має свою аудиторію","Every field has its own audience")));
   const fields=make("div","profile-editor-fields ui-profile-editor-fields-001");
   const saveRow=make("div","profile-editor-footer ui-profile-editor-footer-001");
-  const feedback=make("p","vatra-profile-editor-feedback-001");feedback.setAttribute("role","status");feedback.hidden=true;
   const save=make("button","vatra-profile-editor-save-001",tr("Зберегти зміни","Save changes"));
-  save.type="submit";saveRow.append(feedback,save);
+  save.type="submit";saveRow.append(save);
   form.append(titleRow,summary,separator,fields,saveRow);primary.append(form);
   const sidebar=make("nav","profile-editor-sidebar ui-profile-editor-sidebar-001");
   sidebar.setAttribute("aria-label",tr("Розділи редагування","Edit sections"));
@@ -484,10 +483,7 @@
   back.addEventListener("click",close);
   const mediaDialog=select("#profile-edit-dialog");
   media.addEventListener("click",()=>mediaDialog?.showModal());
-  const note=msg=>{
-   feedback.hidden=!msg;
-   feedback.textContent=msg;feedback.dataset.kind="error";
-  };
+  const note=msg=>{if(msg)window.VATRA_TOAST?.error(msg);};
   const recordDialog=make("dialog","vatra-profile-editor-record-dialog ui-profile-editor-record-dialog-001");
   recordDialog.setAttribute("aria-labelledby","profile-editor-record-title");
   const recordForm=make("form","ui-profile-editor-record-form-001");
@@ -783,7 +779,7 @@
     const active=name===id;
     btn.classList.toggle("is-active",active);btn.setAttribute("aria-current",active?"page":"false");
    }
-   fields.replaceChildren();feedback.hidden=true;
+   fields.replaceChildren();
    if(id==="profile"){
     const identity=make("section","ui-profile-editor-identity-001");
     const coverPreview=make("div","ui-profile-editor-cover-preview-001");
@@ -862,7 +858,7 @@
   };
   form.addEventListener("submit",async event=>{
    event.preventDefault();closeEditorMenu();if(save.disabled)return;
-   save.disabled=true;feedback.hidden=true;feedback.dataset.kind="";
+   save.disabled=true;
 
    const records=groups.flatMap(group=>group.fields).map(field=>{
     const key=field[0],item=draft.get(key)||{value:"",visibility:"friends"};
@@ -905,8 +901,7 @@
 
     accountVisibility=visibility;
     renderInfo();
-    feedback.hidden=false;feedback.dataset.kind="success";
-    feedback.textContent=tr("Зміни збережено.","Changes saved.");
+    window.VATRA_TOAST?.success(tr("Зміни збережено.","Changes saved."));
    }catch(_){
     note(tr("Не вдалося зберегти всі зміни. Повторіть спробу.",
      "Could not save all changes. Please retry."));

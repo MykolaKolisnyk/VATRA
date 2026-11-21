@@ -2,11 +2,10 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 const selector=[
-"#response","#saved-account-response","#signup-confirmation-feedback",
 "#profile-media-status","#profile-action-status","#profile-photo-status",
 "#profile-status-error","#profile-edit-message","#profile-report-error",
 "#profile-avatar-finish-error","#profile-cover-edit-error","#profile-compose-status",
-"#profile-photo-tag-status",".vatra-profile-editor-feedback-001",
+"#profile-photo-tag-status",
 "#feed-status","#feed-compose-error","#club-status","#club-compose-error",
 "#community-create-status","#community-list-status","#profile-message-status",
 "#messenger-send-status","#messenger-key-error","#messenger-new-error","#messenger-delete-error",
@@ -70,6 +69,9 @@ function init(){
  });
  watcher.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["hidden","data-status","data-kind","data-state","role"]});
 }
-window.VATRA_TOAST={show,error:text=>show(text,"error"),success:text=>show(text,"success"),warning:text=>show(text,"warning")};
+function clear(){for(const entry of [...active])entry.node.querySelector(".vatra-toast-close-001")?.click();}
+window.VATRA_TOAST={show,clear,error:text=>show(text,"error"),success:text=>show(text,"success"),warning:text=>show(text,"warning")};
+for(const [text,kind] of (window.VATRA_PENDING_TOASTS||[]))show(text,kind);
+delete window.VATRA_PENDING_TOASTS;
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
