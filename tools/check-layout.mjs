@@ -1206,6 +1206,7 @@ assert.ok(
  !messengerSchema.includes("GRANT SELECT,INSERT ON public.messenger_messages")&&
  messengerSchema.includes("NOT (public_key ? 'd')")&&
  messengerSchema.includes("messenger_envelope_encoding")&&
+ messengerSchema.includes("public_key ?& ARRAY['kty','crv','x','y']")&&
  messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
  messengerSchema.includes("Only the sender may revoke for everyone"),
  "New messenger must send only authenticated ciphertext and support scoped server-side revocation");

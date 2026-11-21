@@ -35,17 +35,22 @@ try{
  const pub=letter=>({kty:"EC",crv:"P-256",x:letter.repeat(43),y:"Y".repeat(43)});
  const keyAlice=pub("A"),keyBob=pub("B");
  await as(alice);
+ await assert.rejects(
+  db.query("insert into public.messenger_keys(vatra_id,public_key) values($1,$2::jsonb)",
+   [alice.vatra_id,JSON.stringify({...keyAlice,d:"private-secret"})]),
+  err=>err.code==="23514","Private-key scalar must fail the JWK check before any identity exists"
+ );
+ await assert.rejects(
+  db.query("insert into public.messenger_keys(vatra_id,public_key) values($1,$2::jsonb)",
+   [alice.vatra_id,JSON.stringify({kty:"EC",crv:"P-256",y:keyAlice.y})]),
+  err=>err.code==="23514","Missing JWK coordinates must not pass PostgreSQL NULL check semantics"
+ );
  await db.query("insert into public.messenger_keys(vatra_id,public_key) values($1,$2::jsonb)",
   [alice.vatra_id,JSON.stringify(keyAlice)]);
  await assert.rejects(
   db.query("insert into public.messenger_keys(vatra_id,public_key) values($1,$2::jsonb)",
    [bob.vatra_id,JSON.stringify(keyBob)]),
   err=>err.code==="42501","Alice cannot publish Bob's identity key"
- );
- await assert.rejects(
-  db.query("insert into public.messenger_keys(vatra_id,public_key) values($1,$2::jsonb)",
-   [alice.vatra_id,JSON.stringify({...keyAlice,d:"private-secret"})]),
-  err=>err.code==="23514"||err.code==="23505","Private-key fields must never be accepted"
  );
  await as(bob);
  await db.query("insert into public.messenger_keys(vatra_id,public_key) values($1,$2::jsonb)",

@@ -8,9 +8,11 @@ CREATE TABLE public.messenger_keys(
   CONSTRAINT messenger_public_jwk_shape CHECK (
     jsonb_typeof(public_key)='object'
     AND NOT (public_key ? 'd') -- Never store private ECDH scalar in public table.
-    AND public_key->>'kty'='EC' AND public_key->>'crv'='P-256'
-    AND public_key->>'x' ~ '^[A-Za-z0-9_-]{43}$'
-    AND public_key->>'y' ~ '^[A-Za-z0-9_-]{43}$'
+    AND public_key ?& ARRAY['kty','crv','x','y']
+    AND COALESCE(public_key->>'kty'='EC',false)
+    AND COALESCE(public_key->>'crv'='P-256',false)
+    AND COALESCE(public_key->>'x' ~ '^[A-Za-z0-9_-]{43}$',false)
+    AND COALESCE(public_key->>'y' ~ '^[A-Za-z0-9_-]{43}$',false)
   )
 );
 CREATE TABLE public.messenger_messages(
