@@ -1,4 +1,3 @@
-/* VATRA shared post attachments. All object paths remain in separate private buckets. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -38,7 +37,7 @@
   return new RegExp("^"+id+"/stories/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\."+extension+"$").test(path);
  };
 
- /* Render hashtag anchors as DOM nodes; never parse user-submitted HTML. */
+
  function linkifyHashtags(paragraph){
   if(!paragraph||typeof paragraph.textContent!=="string")return;
   const original=paragraph.textContent;
@@ -67,8 +66,8 @@
  }
 
 
- // A balanced gallery: twelve attachments total, with at most four videos.
- // The storage buckets still enforce their own 6 MB photo / 50 MB video caps.
+
+
  const GALLERY_LIMIT=12,VIDEO_LIMIT=4,TOTAL_LIMIT=160*1024*1024;
  function validateGallery(files){
   if(files.length>GALLERY_LIMIT)throw Error(tr("До 12 фото та відео в одному дописі.","Up to 12 media files per post."));
@@ -145,7 +144,7 @@
    if(!item||!["image","video"].includes(item.media_kind)||!item.media_path)continue;
    if(item.media_kind==="image"){
     imagePaths.push(item.media_path);
-    // A thumbnail belongs to the same private post and must be deleted too.
+
     if(typeof item.preview_path==="string"&&item.preview_path!==item.media_path)
      imagePaths.push(item.preview_path);
    }else videoPaths.push(item.media_path);
@@ -159,8 +158,8 @@
   validateGallery(files);
   const uploaded=[];
   try{
-   // Two uploads in parallel keep mobile bandwidth under control while
-   // avoiding one network round-trip at a time for twelve small images.
+
+
    for(let offset=0;offset<files.length;offset+=2){
     const batch=files.slice(offset,offset+2);
     const results=await Promise.allSettled(batch.map(file=>upload(client,id,file)));
@@ -205,11 +204,11 @@
   clear.addEventListener("click",reset);
   return {getFile:()=>selected,reset};
  }
- // Generate small WebP previews in the member's browser. The original is
- // untouched and remains available in full quality inside the private bucket.
- // Gracefully skip previews when the browser cannot encode a smaller WebP.
+
+
+
  async function makeImagePreview(file){
-  // Small files should not incur a second Storage object or extra encoding work.
+
   if(!file||file.size<256*1024)return null;
   let image=null,release=()=>{};
   try{
@@ -218,7 +217,7 @@
      image=await createImageBitmap(file);
      if(!image?.width||!image?.height){image?.close?.();image=null;}
      else release=()=>image.close?.();
-    }catch(_){/* Fallback to <img> for browsers without reliable bitmap decoding. */}
+    }catch(_){ }
    }
    if(!image){
     if(typeof Image!=="function"||typeof URL==="undefined"||
@@ -238,8 +237,8 @@
    }
    const width=image.naturalWidth||image.width,height=image.naturalHeight||image.height;
    if(!width||!height)return null;
-   // Try progressively smaller previews when complex photographs exceed 400 KiB.
-   // Preserve the original unchanged for full-size viewing.
+
+
    for(const [longEdge,quality] of [[960,0.75],[768,0.66],[640,0.58],[480,0.5]]){
     const scale=Math.min(1,longEdge/Math.max(width,height));
     const canvas=document.createElement("canvas");
@@ -262,8 +261,8 @@
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
   const path=id+"/posts/"+crypto.randomUUID()+"."+format.ext;
-  // Generate at the same time as the original upload; a conversion failure
-  // cannot prevent an otherwise valid post from being published.
+
+
   const previewJob=format.kind==="image"?makeImagePreview(file):Promise.resolve(null);
   const {error}=await client.storage.from(format.bucket).upload(path,file,{
    contentType:file.type,cacheControl:"3600",upsert:false
@@ -278,7 +277,7 @@
      contentType:"image/webp",cacheControl:"3600",upsert:false
     });
     if(!previewError)item.preview_path=previewPath;
-   }catch(_){/* Keep the original photo if preview upload is unavailable. */}
+   }catch(_){ }
   }
   return item;
  }
@@ -300,8 +299,8 @@
  }
 
  const signedURLCaches=new WeakMap();
- // Signed URLs are bearer capabilities: never reuse them across clients or
- // across login/logout, even if the media path is identical.
+
+
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
@@ -309,9 +308,9 @@
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
-    // Supabase emits INITIAL_SESSION immediately after subscription.
-    // It is not an account change; canceling in-flight media here would
-    // hide freshly signed images on the first page load.
+
+
+
     if(event==="INITIAL_SESSION")return;
     state.version++;
     state.signedURLs.clear();
@@ -319,7 +318,7 @@
   }
   return state;
  }
- // Prevent long-lived tabs from retaining unlimited expired URL metadata.
+
  const trimSignedCache=signedURLs=>{
   const now=Date.now();
   for(const [key,entry] of signedURLs)
@@ -327,8 +326,8 @@
   while(signedURLs.size>256)signedURLs.delete(signedURLs.keys().next().value);
  };
  let firstImages=0;
- // Sign each gallery in at most one request per Storage bucket and session,
- // rather than one signed-URL RPC per thumbnail.
+
+
  async function preSignGallery(client,items,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
   const version=state.version,grouped=new Map();
@@ -365,7 +364,7 @@
   const entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
   const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl).then(({data,error})=>{
-   // An in-flight response from a previous session must not be displayed.
+
    if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
    const url=new URL(data.signedUrl);
@@ -391,7 +390,7 @@
   slot.hidden=false;
   if(!preview)slot.textContent=tr("Завантаження медіа…","Loading media…");
   try{
-   // Story tokens are short-lived even if the user closes the viewer.
+
    const src=await signed(client,kind,path,300);
    if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
    const element=document.createElement(kind==="image"?"img":"video");
@@ -434,7 +433,7 @@
   paragraph.insertAdjacentElement("afterend",button);
   update();
  }
- /* One accessible fullscreen dialog is reused by every post and upload. */
+
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,mediaCaption=null;
  function openFullMedia(url,kind,container){
   if(!mediaDialog){
@@ -690,8 +689,8 @@
   placeholder.setAttribute("aria-hidden","true");
   slot.append(placeholder);container.append(slot);
   if(kind==="video"){
-   // No video bytes or signed URL are needed until the viewer explicitly plays.
-   // This preserves native controls and fullscreen after the first click.
+
+
    const play=document.createElement("button");
    play.className="vatra-feed-post-video-play-001";
    play.type="button";
@@ -725,7 +724,7 @@
      expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video",container);});
      video.src=src;
      slot.replaceChildren(video,expand);
-     // A deferred signature may consume the gesture; native controls remain usable.
+
      void video.play().catch(()=>{});
     }catch(_){
      if(!slot.isConnected)return;
@@ -745,7 +744,7 @@
    try{
     const src=await signed(client,"image",path);
     if(!slot.isConnected)return;
-    // Decode outside the DOM: never show half-loaded pixels or a black slab.
+
     const image=new Image();
     image.className="feed-post-media-image ui-feed-post-media-image-001";
     image.alt=tr("Фото до публікації","Post photo");
@@ -769,7 +768,7 @@
    notice.className="vatra-feed-post-media-error-001";notice.textContent=message;
    slot.replaceChildren(notice);
   }
-  // Off-screen media should not compete for bandwidth with the visible Feed.
+
   if(priority<=2||typeof IntersectionObserver==="undefined")void load();
   else{
    const observer=new IntersectionObserver(entries=>{

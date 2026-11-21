@@ -1,4 +1,3 @@
-/* VATRA post interactions. RLS is the source of truth; no unsafe HTML from members. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -89,8 +88,8 @@
   }
   return {names,images};
  }
- // Browser-only, RLS-scoped pages of comments. Never share them via Redis.
- // Keep pages tiny and short-lived; writes and account switches discard them.
+
+
  const COMMENT_PAGE_TTL_MS=15_000,COMMENT_PAGE_MAX=32;
  const commentPageCaches=new WeakMap();
  function commentPageState(client){
@@ -159,8 +158,8 @@
    return {data:null,error};
   }
  }
- // A short-lived, per-client cache for already-RLS-scoped engagement pages.
- // Never send viewer_liked or viewer_saved to shared Redis.
+
+
  const engagementQueryCache=new WeakMap(),engagementAuthBound=new WeakSet();
  const ENGAGEMENT_TTL_MS=3_000,ENGAGEMENT_MAX_PAGES=16;
  function invalidateEngagement(client){
@@ -215,7 +214,7 @@
   cache.set(key,{pending,expires:0});
   try{
    const result=await pending;
-   // Stale responses from writes or an earlier auth session must never render.
+
    if(engagementQueryCache.get(client)!==cache)return new Map();
    if(engagementQueryCache.get(client)===cache){
     cache.delete(key);
@@ -225,7 +224,7 @@
    return result;
   }catch(_){
    if(engagementQueryCache.get(client)===cache)cache.delete(key);
-   // The RLS-protected per-card fallback remains available if the RPC fails.
+
    return new Map();
   }
  }
@@ -252,8 +251,8 @@ function appendAudience(container,level,isGroup=false){
   symbol.append(path);marker.append(symbol);
   container.append(marker);
  }
- // A single accessible owner menu replaces the two large buttons in each post.
- // Database ownership and RLS checks remain in the original action callbacks.
+
+
  let ownerMenuListenersBound=false;
  function addOwnerMenu(header,{source="feed",onArchive=null,onDelete,client,post,ownId,onChange}={}){
   if(!header||typeof onDelete!=="function")return null;
@@ -367,7 +366,7 @@ function appendAudience(container,level,isGroup=false){
     return savePending;
    };
    if(snapshot)refresh();
-   // Posts far below the viewport should not each hit post_saves on initial render.
+
    if(!snapshot&&typeof IntersectionObserver==="function"){
     const observer=new IntersectionObserver(entries=>{
      if(entries.some(x=>x.isIntersecting)){observer.disconnect();void hydrateSaved();}
@@ -382,7 +381,7 @@ function appendAudience(container,level,isGroup=false){
       .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id)
       .select("post_id").maybeSingle():
       await client.from("post_saves").insert({owner_vatra_id:ownId,post_kind:kind,post_id:post.id});
-     // Zero-row deletion (including a silent RLS denial) is not an unsave.
+
      if(result.error||(stored&&String(result.data?.post_id)!==String(post.id)))
       throw result.error||Error("Saved post was not removed");
      stored=!stored;refresh();invalidateEngagement(client);saved.title="";feedback("");
@@ -447,12 +446,12 @@ function appendAudience(container,level,isGroup=false){
     like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
     count.textContent=String(Math.max(0,likeCount));
     invalidateEngagement(client);
-    // Comment and share totals did not change; no extra COUNTs after a like.
+
    }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update your like."),true);}
    finally{like.disabled=false;}
   });
 
-  // Comments are fetched only when the member opens the centered post viewer.
+
   const panel=make("div","vatra-post-comments-panel ui-vatra-post-comments-panel-001");
   panel.hidden=true;
   commentsButton.setAttribute("aria-expanded","false");
@@ -556,7 +555,7 @@ function appendAudience(container,level,isGroup=false){
   attachmentPreview.append(fileLabel,removeFile);
   composer.append(replying,composerInput,popovers,fileInput,attachmentPreview);
   form.append(ownPortrait,composer);
-  // Reaction errors must remain visible even while the comment drawer is closed.
+
   panel.append(entries,more,form);shell.append(panel,status);
   const commentsLocked=kind==="person"&&post.comments_enabled===false;
   if(commentsLocked){form.hidden=true;panel.append(make("p","vatra-post-comments-locked-001",tr("Коментування цієї публікації вимкнено.","Comments on this post are disabled.")));}
@@ -740,7 +739,7 @@ function appendAudience(container,level,isGroup=false){
    const bucket=kind==="image"?"post-images":"videos";
    void (async()=>{
     try{
-     // Reuse the short-lived, in-memory Storage URL cache already used by posts.
+
      const getSigned=window.VATRA_POST_MEDIA?.signed;
      let signedUrl;
      if(typeof getSigned==="function"){
@@ -885,14 +884,14 @@ function appendAudience(container,level,isGroup=false){
     rootReplies.set(item.id,{expand:async reload=>{
      replyCount=Math.max(replyCount+1,1);expand.hidden=false;await setOpen(true,reload);
     }});
-    // The parent page supplied this count in one batched RLS-aware RPC.
+
     expand.hidden=replyCount===0;label();
    }
    return card;
   }
   async function loadComments(reset=false,keepVisible=false){
    if(busy){
-    // Coalesce overlapping refreshes without wiping already rendered comments.
+
     if(reset){pendingReset=true;pendingKeep=keepVisible;ticket++;}
     return;
    }
@@ -914,8 +913,8 @@ function appendAudience(container,level,isGroup=false){
     if(error)throw error;
     if(token!==ticket)return;
     const rows=(data||[]).slice(0,pageSize),ids=rows.map(x=>x.id);
-    // One batch of reply totals replaces one SELECT COUNT per root comment.
-    // Run it concurrently with profile lookups, not sequentially per card.
+
+
     const [people,replyResult]=await Promise.all([
      authorMap(client,rows),
      ids.length?client.rpc("comment_reply_counts",{
@@ -942,8 +941,8 @@ function appendAudience(container,level,isGroup=false){
       renderComment(item,people,mine,item.id,false,replyCounts.get(item.id)||0));
     }
     if(reset&&keepVisible){
-     // Commit one reconciled DOM batch only after successful server reads.
-     // Existing comment nodes keep their focus, reply state and event listeners.
+
+
      const remaining=rows.length?[...previousRows].filter(([id])=>!seen.has(id))
       .map(([,node])=>node):[];
      entries.replaceChildren(...fresh,...remaining);
@@ -977,8 +976,8 @@ function appendAudience(container,level,isGroup=false){
     }
    }
   }
-  // Move the real post (not a duplicate) into a native dialog. This keeps
-  // the same buttons, media and existing handlers working without double renders.
+
+
   let commentDialog=null;
   const openComments=()=>{
    if(settings.inlineComments){panel.hidden=!panel.hidden;commentsButton.setAttribute("aria-expanded",String(!panel.hidden));if(panel.hidden)hideMenus();else void loadComments(true,entries.children.length>0);return;}
@@ -1074,25 +1073,25 @@ function appendAudience(container,level,isGroup=false){
      feedback(tr("Не вдалося опублікувати коментар. Спробуйте ще раз.",
       "Could not post comment. Please retry."),true);
     }else{
-     // DB write succeeded even if a subsequent comment-view refresh failed.
+
      feedback(tr("Коментар опубліковано.","Comment published."));
     }
    }finally{submitting=false;updateSend();}
   }
   form.addEventListener("submit",event=>{event.preventDefault();void publishComment();});
 
-  // A true modal composer, matching VATRA typography: caption, original, friends and link.
-  // The original post is referenced by UUID; the share creates a real feed_posts row.
 
-  // Fetch lightweight totals only for posts near the viewport.
-  // Do not request a redundant row of recent commenters or member avatars:
-  // the paged comment thread below is the single source of comment content.
+
+
+
+
+
   let socialTicket=0;
   async function refreshSocial(){
    const ticket=++socialTicket;
    try{
-    // Likes are already counted by hydrateLike(); avoid a second identical
-   // COUNT request for every visible post.
+
+
    const [commentsResult,sharesResult]=await Promise.all([
      client.from("post_comments").select("id",{count:"exact",head:true})
       .eq("post_kind",kind).eq("post_id",post.id),
@@ -1102,7 +1101,7 @@ function appendAudience(container,level,isGroup=false){
     if(!shell.isConnected||ticket!==socialTicket)return;
     if(!commentsResult.error)commentsCount.textContent=String(Number(commentsResult.count||0));
     if(!sharesResult.error)sharesCount.textContent=String(Number(sharesResult.count||0));
-   }catch(_){/* Counters remain usable while RLS or network totals are unavailable. */}
+   }catch(_){ }
   }
   if(snapshot){
    commentsCount.textContent=String(Math.max(0,Number(snapshot.comment_count)||0));
@@ -1219,7 +1218,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     showShareError(tr("Не вдалося поділитися публікацією.","Could not share the post."));
     repost.disabled=false;return;
    }
-   // Once stored, a failed Feed callback cannot turn a repost into a failed write.
+
    repost.disabled=false;
    invalidateEngagement(client);
    if(shareMenu.open)shareMenu.close();
@@ -1232,7 +1231,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   });
   let friendsLoaded=false;
   dm.addEventListener("click",async()=>{
-   // A previous recipient is not actionable while accepted friendships reload.
+
    friendsLoaded=false;sendDM.disabled=true;
    sendRow.hidden=false;dm.disabled=true;friendSelect.replaceChildren();
    const placeholder=make("option","ui-vatra-post-share-friend-placeholder-001",
@@ -1266,10 +1265,10 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   sendDM.addEventListener("click",()=>{
    const recipient=friendSelect.value;
    if(!friendsLoaded||!validId(recipient)||recipient===ownId||sendDM.disabled)return;
-   // Drafts are encrypted in Messenger, never stored as plaintext in direct_messages.
+
    const body=tr("Поглянь на цей допис: ","Check out this post: ")+permalink(post);
-   // No plaintext drafts in URLs, browser history, network logs, or Referer headers.
-   // Use short-lived same-tab storage only while navigating to Messenger.
+
+
    try{
     sessionStorage.setItem("vatra:messenger:draft-v1",JSON.stringify({to:recipient,body,at:Date.now()}));
    }catch(_){
