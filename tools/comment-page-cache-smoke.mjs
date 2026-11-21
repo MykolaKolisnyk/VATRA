@@ -4,7 +4,7 @@ import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 
 const full=await readFile("assets/js/post-interactions.js","utf8");
-const start=full.indexOf(" const COMMENT_PAGE_TTL_MS=4_000,COMMENT_PAGE_MAX=32;");
+const start=full.indexOf(" const COMMENT_PAGE_TTL_MS=15_000,COMMENT_PAGE_MAX=32;");
 const end=full.indexOf(" // A short-lived, per-client cache for already-RLS-scoped engagement pages.",start);
 assert.ok(start>0&&end>start,"Locate the real comment page implementation");
 let now=Date.parse("2026-11-14T12:00:00Z");
@@ -50,7 +50,7 @@ const row=body=>({id,body,author_vatra_id:"12"});
  assert.equal((await commentThreadPage(a.client,params)).data[0].body,"first",
   "Callers must not mutate cached rows");
  assert.equal(a.calls,1);
- now+=4100;
+ now+=15_100;
  const expired=commentThreadPage(a.client,params);
  assert.equal(a.calls,2,"TTL expiry should re-read RLS data");
  a.complete([row("fresh")]);
