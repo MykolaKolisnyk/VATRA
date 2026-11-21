@@ -52,10 +52,10 @@ function goToFeed(){
  navigatingAuth=true;
  window.location.replace(url("feed"));
 }
-function feedback(text,type="info"){
+function feedback(text,type="info",options={}){
  const message=translate(text);
- if(window.VATRA_TOAST?.show)window.VATRA_TOAST.show(message,type);
- else (window.VATRA_PENDING_TOASTS??=[]).push([message,type]);
+ if(window.VATRA_TOAST?.show)window.VATRA_TOAST.show(message,type,options);
+ else (window.VATRA_PENDING_TOASTS??=[]).push([message,type,options]);
 }
 function clearFeedback(){window.VATRA_TOAST?.clear?.();}
 function busy(form,isBusy){
@@ -98,12 +98,27 @@ function showFieldError(control,message){
  wrapper.classList.toggle("is-invalid",Boolean(message));
  if(message){
   control.setAttribute("aria-invalid","true");
-  feedback(message,"error");
   fieldErrorTimers.set(control,setTimeout(()=>showFieldError(control,""),FIELD_ERROR_DURATION_MS));
  }else{
   control.removeAttribute("aria-invalid");
   control.removeAttribute("aria-describedby");
  }
+}
+function requiredFieldText(control){
+ const uk={
+  "first-name":"Вкажіть ім’я.","last-name":"Вкажіть прізвище.",
+  "email":"Введіть електронну пошту.","recovery-email":"Введіть електронну пошту.",
+  "password":"Введіть пароль.","saved-password":"Введіть пароль.",
+  "password-confirm":"Повторіть пароль.","recovery-token":"Введіть код підтвердження з листа."
+ };
+ const en={
+  "first-name":"Enter your first name.","last-name":"Enter your last name.",
+  "email":"Enter your email address.","recovery-email":"Enter your email address.",
+  "password":"Enter your password.","saved-password":"Enter your password.",
+  "password-confirm":"Confirm your password.","recovery-token":"Enter the verification code from your email."
+ };
+ const chosen=document.documentElement.lang==="en"?en:uk;
+ return chosen[control.id]||translate("Заповніть обов’язкове поле.");
 }
 function validationText(control,form){
  if(control.disabled)return "";
@@ -111,15 +126,15 @@ function validationText(control,form){
  if(control.type==="checkbox"){
   return control.required&&!control.checked?"Щоб продовжити, прийміть умови використання.":"";
  }
- if(!value&&control.required)return "Заповніть це поле.";
+ if(!value&&control.required)return requiredFieldText(control);
  if(!value)return "";
  if(control.type==="email"&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))return "Введіть правильну електронну пошту.";
- if((control.id==="first-name"||control.id==="last-name")&&(value.length<2||value.length>60))return "Використайте від 2 до 60 символів.";
+ if(control.id==="first-name"&&(value.length<2||value.length>60))return "Ім’я має містити від 2 до 60 символів.";
+ if(control.id==="last-name"&&(value.length<2||value.length>60))return "Прізвище має містити від 2 до 60 символів.";
  if(control.id==="password-confirm"&&value!==q("#password")?.value)return "Паролі не збігаються.";
  if(control.type==="password"&&form.id!=="login-form")return passwordIssue(value);
  return "";
 }
-
 
 
 function wireFloatingHints(){
@@ -150,16 +165,16 @@ function wireFieldValidation(){
  const controls=[...form.querySelectorAll("input,select")].filter(c=>c.id&&!["hidden"].includes(c.type));
  const check=control=>{
   if(control.id?.startsWith("birth-")){
-   const valid=["birth-day","birth-month","birth-year"].every(id=>Boolean(q("#"+id)?.value));
-   const start=q("#birth-day");
-   const value=valid?validateBirthday():null;
+   const day=q("#birth-day")?.value,month=q("#birth-month")?.value,year=q("#birth-year")?.value;
+   const value=day&&month&&year?validateBirthday():null;
    const correctDate=typeof value==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(value);
-   showFieldError(start,!valid?"Оберіть дату народження.":correctDate?"":typeof value==="string"?value:"Вкажіть правильну дату народження.");
-   return Boolean(correctDate);
+   const message=!day?"Оберіть день народження.":!month?"Оберіть місяць народження.":!year?"Оберіть рік народження.":correctDate?"":typeof value==="string"?value:"Вкажіть правильну дату народження.";
+   showFieldError(q("#birth-day"),message);
+   return message;
   }
   const message=validationText(control,form);
   showFieldError(control,message);
-  return !message;
+  return message;
  };
  for(const control of controls){
   const clear=()=>{
@@ -175,10 +190,12 @@ function wireFieldValidation(){
    if(scope&&!scope.contains(control))continue;
    if(control.closest("[data-create-account-step]")?.hidden)continue;
    if(control.id.startsWith("birth-")&&control.id!=="birth-day")continue;
-   if(!check(control)&&!first)first=control;
+   const message=check(control);
+   if(message&&!first)first={control,message};
   }
   if(first){
-   const focus=first.closest(".vatra-select")?.querySelector(".vatra-select-trigger")||first;
+   feedback(first.message,"error",{group:"auth-validation"});
+   const focus=first.control.closest(".vatra-select")?.querySelector(".vatra-select-trigger")||first.control;
    focus.focus({preventScroll:true});
    focus.scrollIntoView({behavior:"smooth",block:"center"});
   }

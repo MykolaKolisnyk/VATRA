@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <script src="assets/js/host.js"></script>
 
-    <script src="assets/js/lang.js?rev=df21fa8d1392e1cce990f02310ef7722555ff88a"></script>
+    <script src="assets/js/lang.js?rev=d991b6fe6fb4dd0f59affa35dc6ea450c8873c69"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#f7f9fe">
     <meta name="robots" content="noindex,follow">
@@ -15,11 +15,11 @@
     <link rel="icon" type="image/svg+xml" href="assets/logo/logo_app-icon.svg">
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
-    <link rel="stylesheet" href="assets/css/base.css?rev=3bbaad0ccc3365f7dee097e354c65018c30ac7ed">
+    <link rel="stylesheet" href="assets/css/base.css?rev=149977a92c9807073dd42e4724b47e3e80b24fce">
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=163dda687e778993477c96327b0d7d7085e48909">
     <link rel="stylesheet" href="assets/css/feed.css?rev=ad47870ebac9fca82496bec37d9187a8558f4ec1">
     <link rel="stylesheet" href="assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=2f860e7727fa09f8a9528effd3fefa7e28257663">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=838079ea2b9247a6ddc54df270d977a86cd44abb">
     <link rel="stylesheet" href="assets/css/post-composer.css">
     <link rel="stylesheet" href="assets/css/gifts.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -34,7 +34,7 @@
     <script defer src="assets/js/post-composer-ui.js"></script>
     <script defer src="assets/js/guest-view.js?rev=3396dd0c3de7deed25f770ef52c38ae00117a3c5"></script>
     <script defer src="assets/js/story-editor.js?rev=ebaa9990cc5873d74531e8bd9a13b2449c3030e2"></script>
-    <script defer src="assets/js/profile.js?rev=f258c8884371d554a0163a2379be02b1c5b36577"></script>
+    <script defer src="assets/js/profile.js?rev=56d1935490a9b0175880981311ed38f436005f03"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=a52599aa162826535c0bb8969a1176194"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -192,8 +192,6 @@
        <button type="button" id="profile-message-button" class="profile-message-button vatra-profile-message-button-001" hidden><svg class="ui-profile-message-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-message-icon-001-part-1" d="M5.2 4.5h13.6a2.7 2.7 0 0 1 2.7 2.7v8.3a2.7 2.7 0 0 1-2.7 2.7H10l-5.2 3v-3H5.2a2.7 2.7 0 0 1-2.7-2.7V7.2a2.7 2.7 0 0 1 2.7-2.7Z"/><path class="ui-profile-message-icon-001-part-2" d="M7.2 10.5h9.6M7.2 13.7h6"/></svg><span class="vatra-profile-message-action-label-001" data-social-uk="Повідомлення" data-social-en="Message">Повідомлення</span></button>
               </div>
             </div>
-            <p id="profile-media-status" class="profile-media-status vatra-profile-media-status-001" role="status" aria-live="polite" hidden>
-            </p>
             <p id="profile-action-status" class="profile-action-status vatra-profile-action-status-001" role="status" aria-live="polite" hidden>
             </p>
             <div class="ui-profile-tab-row-001">
@@ -531,7 +529,6 @@
               <div class="ui-profile-cover-preview-identity-001"><span id="profile-cover-preview-avatar" class="ui-profile-cover-preview-avatar-001" aria-hidden="true"></span><strong id="profile-cover-preview-name" class="vatra-profile-cover-preview-name-001"></strong></div>
             </div>
           </section>
-          <p id="profile-cover-edit-error" class="vatra-profile-cover-edit-error-001" role="status" hidden></p>
           <div class="ui-profile-cover-edit-actions-001">
             <button id="profile-cover-edit-step" class="vatra-profile-cover-edit-step-001" type="button" data-social-uk="Попередній перегляд" data-social-en="Preview">Попередній перегляд</button>
             <button id="profile-cover-edit-save" class="vatra-profile-cover-edit-save-001" type="button" data-social-uk="Встановити обкладинку" data-social-en="Set cover">Встановити обкладинку</button>
@@ -550,7 +547,6 @@
   <p class="vatra-profile-avatar-finish-copy-001" data-social-uk="Опублікуйте нове фото у дописі й історії — зберете більше вподобань і переглядів." data-social-en="Publish your new photo in a post and story to get more likes and views.">Опублікуйте нове фото у дописі й історії — зберете більше вподобань і переглядів.</p>
   <label class="ui-profile-avatar-publish-post-label-001"><input id="profile-avatar-publish-post" class="ui-profile-avatar-publish-post-001" type="checkbox"><span class="vatra-profile-avatar-publish-post-copy-001" data-social-uk="Опублікувати у дописі (для друзів)" data-social-en="Publish in a post (friends)">Опублікувати у дописі (для друзів)</span></label>
   <label class="ui-profile-avatar-publish-story-label-001"><input id="profile-avatar-publish-story" class="ui-profile-avatar-publish-story-001" type="checkbox"><span class="vatra-profile-avatar-publish-story-copy-001" data-social-uk="Опублікувати в історії" data-social-en="Publish in a story">Опублікувати в історії</span></label>
-  <p id="profile-avatar-finish-error" class="vatra-profile-avatar-finish-error-001" role="status" hidden></p>
   <div class="ui-profile-avatar-finish-actions-001"><button id="profile-avatar-finish-back" class="vatra-profile-avatar-finish-back-001" type="button" data-social-uk="Назад" data-social-en="Back">Назад</button><button id="profile-avatar-finish-save" class="vatra-profile-avatar-finish-save-001" type="button" data-social-uk="Зберегти" data-social-en="Save">Зберегти</button></div>
 </dialog>
         <dialog id="profile-story-compose-dialog" class="ui-vatra-story-editor-001" aria-labelledby="profile-story-compose-title"></dialog>

@@ -20,9 +20,9 @@ const artwork=Object.freeze({
  maintenance:"vatryk_503.webp"
 });
 const selector=[
- "#profile-media-status","#profile-action-status","#profile-photo-status",
+ "#profile-action-status","#profile-photo-status",
  "#profile-status-error","#profile-edit-message","#profile-report-error",
- "#profile-avatar-finish-error","#profile-cover-edit-error","#profile-compose-status",
+ "#profile-compose-status",
  "#profile-photo-tag-status","#feed-status","#feed-compose-error","#club-status","#club-compose-error",
  "#community-create-status","#community-list-status","#profile-message-status",
  "#messenger-send-status","#messenger-key-error","#messenger-new-error","#messenger-delete-error",
