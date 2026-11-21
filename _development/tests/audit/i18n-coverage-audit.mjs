@@ -121,7 +121,7 @@ assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
 // Read labels from actual post media controls, including aria and error strings.
 const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/tr\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
  .map(match=>JSON.parse(match[1])))];
-assert.equal(postMediaKeys.length,35,"Unexpected source key count in post media runtime");
+assert.equal(postMediaKeys.length,39,"Unexpected source key count in post media runtime");
 for(const key of postMediaKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
   "English post media translation missing: "+key);
@@ -147,7 +147,7 @@ const postEngagementKeys=[
  "Коментарі",
  "Поділитися",
  "Зберегти",
- "Збережено",
+ "Прибрати зі збереженого",
  "Не вдалося змінити збереження.",
  "Не вдалося змінити збереження. Спробуйте ще раз.",
  "Вподобання тимчасово недоступні.",
