@@ -1,4 +1,3 @@
-/* VATRA Feed — authenticated text posts. No passwords, email, or auth UUIDs are displayed publicly. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -81,7 +80,7 @@
   const label=loader.querySelector(".vatra-auth-loading-caption");
   if(label)label.textContent=text;
   if(loader.querySelector(".vatra-auth-loading-retry"))return;
-  const retry=node("button","vatra-auth-loading-retry vt-feed-gate-retry-001",t("Повторити","Retry"));
+  const retry=node("button","vatra-auth-loading-retry vatra-feed-gate-retry-001",t("Повторити","Retry"));
   retry.type="button";retry.addEventListener("click",()=>location.reload());
   loader.querySelector(".vatra-auth-loading-content")?.append(retry);
  }
@@ -110,7 +109,6 @@
  const applyAvatar=(element,id)=>{
   if(!element)return;
   const key=String(id),state=avatarStates.get(key),url=state?null:avatarURL(id);
-  // Inactive account states always override previously cached uploaded photos.
   element.dataset.vatraAvatarUrl=url||"";
   if(!url){
    window.VATRA_AVATAR?.fallback(element,state||"default");
@@ -129,11 +127,9 @@
    while(avatarChecks.size>256)avatarChecks.delete(avatarChecks.keys().next().value);
   }
   void check.then(valid=>{
-   // A failed load must be retried even if the original card was removed.
    if(!valid)avatarChecks.delete(url);
    if(!element.isConnected||element.dataset.vatraAvatarUrl!==url)return;
    if(!valid){
-    // Storage may have been cleaned outside VATRA. Do not leave a blank circle.
     if(avatarURL(key)===url){
      mediaAvatars.delete(key);
      window.VATRA_AVATAR?.invalidatePath?.(client,key);
@@ -160,7 +156,6 @@
    const {data,error}=await (window.VATRA_AVATAR?.paths?.(client,lookup)||
     client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",lookup));
    if(error)throw error;
-   // A removed avatar path must invalidate the previously cached path as well.
    for(const id of lookup)mediaAvatars.delete(id);
    for(const row of data||[])if(row.avatar_path&&!avatarStates.has(String(row.vatra_id)))
     mediaAvatars.set(String(row.vatra_id),row.avatar_path);
@@ -170,7 +165,7 @@
    }
    applyAvatar(q("#feed-header-avatar"),vatraId);
    applyAvatar(q("#feed-composer-avatar"),vatraId);
-  }catch(_){/* Use initials if media lookup is unavailable. */}
+  }catch(_){ }
  }
  const memberName=id=>{
   const state=avatarStates.get(String(id));
@@ -187,7 +182,7 @@
     client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",needed.slice(0,100)));
    if(error)throw error;
    for(const profile of data||[])publicNames.set(String(profile.vatra_id),profile.display_name);
-  }catch(_){/* Keep the ID visible when a member has not shared a public name. */}
+  }catch(_){ }
  }
  async function loadSubscriptions(){
   const viewerId=vatraId;
@@ -195,11 +190,7 @@
    friends=new Set();followedClubs=new Map();
    return false;
   }
-  // Own posts must remain available if the very first audience read fails.
   if(!friends.size)friends.add(viewerId);
-  // Build a coherent snapshot before replacing a previously successful one.
-  // On a temporary PostgREST failure, keep known friends and follows and retry
-  // the next time Feed or stories actually need the audience.
   let connectionQuery=Promise.resolve({data:[],error:null});
   let followedQuery=Promise.resolve({data:[],error:null});
   let connectionsAvailable=false,followsAvailable=false;
@@ -208,12 +199,12 @@
    connectionQuery=query.or("requester_id.eq."+viewerId+",recipient_id.eq."+viewerId)
     .eq("status","accepted").limit(500);
    connectionsAvailable=true;
-  }catch(_){/* Missing optional APIs in offline mocks must not blank Feed. */}
+  }catch(_){ }
   try{
    const query=client.from("community_follows").select("club_id");
    followedQuery=query.eq("member_vatra_id",viewerId).limit(500);
    followsAvailable=true;
-  }catch(_){/* Missing optional APIs in offline mocks must not blank Feed. */}
+  }catch(_){ }
   const [connections,subscriptions]=await Promise.allSettled([connectionQuery,followedQuery]);
   const hasRows=result=>result.status==="fulfilled"&&!result.value?.error&&
    Array.isArray(result.value?.data);
@@ -235,11 +226,8 @@
   }
   if(viewerId!==vatraId)return false;
   friends=nextFriends;followedClubs=nextClubs;
-  // Names and avatars are fetched only for the 12 visible posts or stories.
   return true;
  }
- // Feed and stories share the same 60-second friend/subscription snapshot.
- // Failed reads must never be cached as an empty successful audience.
  function ensureSubscriptions(){
   if(subscriptionsInflight)return subscriptionsInflight;
   if(subscriptionsLoadedAt&&Date.now()-subscriptionsLoadedAt<60000)return Promise.resolve();
@@ -259,21 +247,21 @@
   item.dataset.postId=post.id;
   item.dataset.postKind=post.kind;
   const head=node("div","feed-post-header ui-feed-post-header-001");
-  const avatar=node("a","feed-avatar feed-post-avatar vt-feed-post-avatar-001 feed-post-profile-avatar",initials(memberName(authorId)));
+  const avatar=node("a","feed-avatar feed-post-avatar vatra-feed-post-avatar-001 feed-post-profile-avatar",initials(memberName(authorId)));
   avatar.href=new URL("id"+authorId,home).href;
   applyAvatar(avatar,authorId);
   avatar.setAttribute("aria-label",t("Відкрити профіль VATRA ID ","Open profile VATRA ID ")+authorId);
   const identity=node("div","feed-post-author ui-feed-post-author-001");
-  const name=node("a","feed-post-name vt-feed-post-name-001 feed-post-profile-link",memberName(authorId));
+  const name=node("a","feed-post-name vatra-feed-post-name-001 feed-post-profile-link",memberName(authorId));
   name.href=new URL("id"+authorId,home).href;
   if(!avatarStates.get(String(authorId)))void window.VATRA_VERIFIED?.attach(client,name,authorId);
-  const stamp=node("time","feed-post-date vt-feed-post-date-001",postedTime(post.created_at));
+  const stamp=node("time","feed-post-date vatra-feed-post-date-001",postedTime(post.created_at));
   stamp.dateTime=post.created_at;
   const meta=node("div","feed-post-meta-row ui-feed-post-meta-row-001");
   meta.append(stamp);window.VATRA_POST_INTERACTIONS?.appendAudience(meta,post.visibility,post.kind==="group");
   identity.append(name,meta);
   if(post.kind==="group"){
-   const group=node("a","feed-post-community vt-feed-post-community-001",
+   const group=node("a","feed-post-community vatra-feed-post-community-001",
     t("Спільнота: ","Community: ")+(followedClubs.get(String(post.club_id))||t("Спільнота VATRA","VATRA community")));
    group.href=new URL("club"+post.club_id,home).href;identity.append(group);
   }
@@ -296,7 +284,7 @@
   }
   item.append(head);
    if(post.body){
-     const body=node("p","feed-post-body vt-feed-post-body-001",post.body);
+     const body=node("p","feed-post-body vatra-feed-post-body-001",post.body);
      window.VATRA_POST_MEDIA?.linkifyHashtags(body);
      item.append(body);
      window.VATRA_POST_MEDIA?.collapsibleBody(body);
@@ -310,11 +298,10 @@
    });
   return item;
  }
- // Unified VATRA search: names, member status, communities and all accessible posts.
  const globalResults=node("section","vatra-global-search-results ui-vatra-global-search-results-001");
  globalResults.id="vatra-global-search-results";globalResults.hidden=true;
  globalResults.setAttribute("aria-label",t("Результати пошуку VATRA","VATRA search results"));
- const searchHeading=node("h2","vt-vatra-global-search-heading-001",t("Знайдено у VATRA","Found on VATRA"));
+ const searchHeading=node("h2","vatra-global-search-heading-001",t("Знайдено у VATRA","Found on VATRA"));
  const searchGroups=node("div","vatra-global-search-groups ui-vatra-global-search-groups-001");
  globalResults.append(searchHeading,searchGroups);
  posts.parentElement?.insertBefore(globalResults,posts);
@@ -322,14 +309,13 @@
  const drawGlobalGroup=(title,records,makeCard)=>{
   if(!records.length)return;
   const section=node("section","vatra-global-search-group ui-vatra-global-search-group-001");
-  section.append(node("h3","vt-vatra-global-search-section-title-001",title));
+  section.append(node("h3","vatra-global-search-section-title-001",title));
   const list=node("div","vatra-global-search-list ui-vatra-global-search-list-001");
   for(const record of records)list.append(makeCard(record));
   section.append(list);searchGroups.append(section);
  };
  async function loadGlobalResults(){
   const phrase=searchTerm.trim();
-  // Share simultaneous requests for the same phrase, not successive explicit searches.
   if(globalSearchPending&&globalSearchPhrase===phrase)return globalSearchPending;
   const ticket=++globalSearchTicket;
   globalSearchController?.abort();
@@ -341,7 +327,6 @@
   globalResults.hidden=false;searchGroups.replaceChildren();
   searchHeading.textContent=t("Пошук у VATRA","Search VATRA")+": "+phrase;
   const escaped=phrase.replace(/[\\%_]/g,character=>String.fromCharCode(92)+character);
-  // Separate structured queries avoid composing raw PostgREST OR syntax from member input.
   const exact=phrase.match(/^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$/i);
   const memberQuery=client.from("public_profiles").select("vatra_id,display_name,status_text");
   const queries=[
@@ -351,7 +336,6 @@
    client.from("communities").select("club_id,name,description").ilike("name","%"+escaped+"%").limit(8),
    client.from("communities").select("club_id,name,description").ilike("description","%"+escaped+"%").limit(8)
   ];
-  // PostgREST's abortSignal cancels network work from superseded searches.
   const [membersByName,membersByStatus,clubsByName,clubsByDescription]=await Promise.allSettled(
    queries.map(query=>typeof query.abortSignal==="function"?
     query.abortSignal(controller.signal):query));
@@ -370,10 +354,10 @@
    const avatar=node("span","vatra-global-search-avatar ui-vatra-global-search-avatar-001");
    applyAvatar(avatar,id);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-info-001");
-   const resultName=node("strong","vt-vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member"));
+   const resultName=node("strong","vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member"));
    info.append(resultName);
    if(!avatarStates.get(id))void window.VATRA_VERIFIED?.attach(client,resultName,id);
-   info.append(node("small","vt-vatra-global-search-description-001","VATRA ID "+id+(person.status_text?" · "+person.status_text.slice(0,100):"")));
+   info.append(node("small","vatra-global-search-description-001","VATRA ID "+id+(person.status_text?" · "+person.status_text.slice(0,100):"")));
    link.append(avatar,info);return link;
   });
   drawGlobalGroup(t("Спільноти","Communities"),clubs,club=>{
@@ -390,8 +374,8 @@
    path.setAttribute("d","M15.5 7.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0ZM4 20v-1a8 8 0 0 1 16 0v1M5.5 7a2.5 2.5 0 0 0 0 5m13-5a2.5 2.5 0 0 1 0 5");
    symbol.append(path);icon.append(symbol);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-club-info-001");
-   info.append(node("strong","vt-vatra-global-search-club-name-001",club.name));
-   if(club.description)info.append(node("small","vt-vatra-global-search-club-description-001",club.description.slice(0,100)));
+   info.append(node("strong","vatra-global-search-club-name-001",club.name));
+   if(club.description)info.append(node("small","vatra-global-search-club-description-001",club.description.slice(0,100)));
    link.append(icon,info);return link;
   });
   if(!people.length&&!clubs.length)globalResults.hidden=true;
@@ -404,11 +388,7 @@
    }
   }
  }
- // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.
- // Only the next 12 posts are materialized; no eager 200+200 post download.
  let sourceState=null,renderedIds=new Set(),lastFeedScope=null;
- // Reuse recent, RLS-scoped feed cursors when filters change rapidly.
- // The cache stays in this tab only; no Redis, localStorage or service worker.
  const FEED_PAGE_TTL_MS=12_000,FEED_PAGE_MAX=16;
  const feedPageCaches=new WeakMap();
  function feedPageState(client){
@@ -539,13 +519,10 @@
   return result;
  }
  async function loadPosts(reset=false){
-  // A new filter/search request supersedes the previous in-flight response.
   if(reset)feedRequestVersion++;
   if(loading){if(reset)refreshQueued=true;return;}
   const version=feedRequestVersion;
   loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
-  // Keep the existing cards for same-query refreshes after actions. Switching
-  // categories/search clears stale results immediately (they are a different scope).
   const scope=JSON.stringify([feedFilter,searchTerm]);
   const keepExisting=reset&&scope===lastFeedScope;
   const previousFeed=keepExisting?[...visibleFeed]:null;
@@ -559,14 +536,11 @@
    more.hidden=true;
   }
   try{
-   // Category switches reuse the same verified social connections briefly.
-   // Avoid extra friendship/community queries on every rapid filter click.
    await ensureSubscriptions();
    if(version!==feedRequestVersion)return;
    if(!sourceState)sourceState=makeSourceState();
    const page=await takePage();
    if(version!==feedRequestVersion)return;
-   // Open a shared permalink without downloading hundreds of unrelated posts.
    const requested=reset?new URLSearchParams(location.search).get("post"):null;
    if(feedFilter==="all"&&requested&&/^[a-f0-9-]{36}$/i.test(requested)&&!searchTerm&&
     !page.some(p=>p.id===requested)){
@@ -590,15 +564,12 @@
     window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||
      Promise.resolve(new Map())
    ]);
-   // Superseded requests may finish, but must not repaint the new filter.
    if(version!==feedRequestVersion)return;
    const batch=document.createDocumentFragment();
    const oldById=new Map((previousFeed||[]).map(item=>[item.kind+":"+item.id,item]));
    for(const item of page){
     const key=item.kind+":"+item.id,old=oldById.get(key);
     const oldElement=previousItems?.get(key);
-    // Stable records keep their original DOM/listeners; only changed cards
-    // are repainted, without blanking every other post and its comments.
     const same=old&&JSON.stringify(old)===JSON.stringify(item);
     visibleFeed.push(item);
     batch.append(same&&oldElement?oldElement:card(item,engagement));
@@ -618,7 +589,6 @@
     if(reset){
      visibleFeed=previousFeed||[];
      renderedIds=new Set(visibleFeed.map(item=>item.kind+":"+item.id));
-     // Preserve existing cards only for an unchanged query on transient failure.
     }
     if(illustrated)clearMessage();
     else message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
@@ -648,7 +618,6 @@
    await ensureSubscriptions();
    const friendIds=[...friends].filter(id=>id!==vatraId);
    if(!friendIds.length){
-    // Nobody in the friend audience: skip unnecessary RLS/Storage reads.
     holder.replaceChildren();
     q(".feed-stories")?.classList.add("is-empty");
     return;
@@ -657,8 +626,6 @@
     .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
     .gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false});
-   // Filter at PostgREST before the 60-story cap when the friend set fits
-   // a reasonably sized URL. Viewer RLS remains the access authority.
    if(friendIds.length<=100&&typeof query.in==="function")
     query=query.in("author_vatra_id",friendIds);
    const {data,error}=await query.limit(60);
@@ -679,21 +646,20 @@
     const button=node("button","feed-story-preview ui-feed-story-live-preview-001");
     button.type="button";button.dataset.theme=String(story.theme||0);
     button.setAttribute("aria-label",memberName(id));
-    const storyAvatar=node("span","feed-story-author-avatar vt-feed-story-author-avatar-001",initials(memberName(id)));
+    const storyAvatar=node("span","feed-story-author-avatar vatra-feed-story-author-avatar-001",initials(memberName(id)));
     storyAvatar.setAttribute("aria-hidden","true");
     applyAvatar(storyAvatar,id);
     button.append(storyAvatar);
     if(story.media_kind&&story.media_path){
      const cover=node("span","feed-story-cover ui-feed-story-cover-001");
      button.append(cover);
-     // Always use a private short-lived signed URL, never a public bucket URL.
      holder.append(button);
      void window.VATRA_POST_MEDIA?.renderStory(client,story,cover,true);
     }else holder.append(button);
     const body=String(story.body||"").trim();
-    button.append(node("span","vt-feed-story-live-body-001",body||
+    button.append(node("span","vatra-feed-story-live-body-001",body||
      (story.media_kind==="video"?t("Відео","Video"):t("Фото","Photo"))),
-     node("span","vt-feed-story-live-name-001",memberName(id)));
+     node("span","vatra-feed-story-live-name-001",memberName(id)));
     button.addEventListener("click",()=>{
      q("#feed-story-view-heading").textContent=memberName(id);
      const text=q("#feed-story-view-body");
@@ -744,7 +710,6 @@
     });
     if(insertError)throw insertError;
    }catch(ex){
-    // Uploaded media is rolled back only if the database INSERT failed.
     if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
     showError(ex?.message||t("Не вдалося опублікувати допис.","Could not publish post."));
     submit.disabled=false;return;
@@ -772,8 +737,6 @@
    const table=toDelete.kind==="group"?"community_posts":"feed_posts";
    const {data,error}=await client.from(table).delete().eq("id",toDelete.id)
     .eq("author_vatra_id",vatraId).select("id").maybeSingle();
-   // RLS may silently affect zero rows. Never remove media or report success
-   // unless the requested own post was actually deleted.
    if(error||String(data?.id)!==String(toDelete.id))throw error||Error("Post not deleted");
    if(toDelete.media_path)void window.VATRA_POST_MEDIA?.remove(client,toDelete).catch(()=>{});
    if(toDelete.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,toDelete.media_items);
@@ -828,8 +791,6 @@
    searchForm?.addEventListener("submit",event=>{
     event.preventDefault();
     searchTerm=searchInput.value.trim().slice(0,120);
-    // An explicit search submission is a user-initiated refresh: bypass
-    // any cached Feed cursor even when the search text did not change.
     invalidateFeedPages(client);
     clearMessage();
     void Promise.allSettled([loadGlobalResults(),loadPosts(true)]);
@@ -847,8 +808,6 @@
     if(event.key==="Escape"&&accountMenu?.open)accountMenu.open=false;
    });
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
-   // The visible button remains a keyboard-accessible fallback. Load one
-   // additional server page when it approaches the viewport, never all posts.
    if(typeof IntersectionObserver==="function"){
     const postPager=new IntersectionObserver(entries=>{
      if(entries.some(entry=>entry.isIntersecting)&&
@@ -858,7 +817,6 @@
     },{rootMargin:"0px 0px 260px 0px"});
     postPager.observe(more);
    }
-   // A filter is a new source query, not a cosmetic visibility toggle.
    describeFilter();
    const filterToggle=q("#feed-filter-toggle"),filterOptions=q("#feed-filter-options");
    const closeFilter=()=>{
@@ -877,8 +835,6 @@
       t("Відкрити фільтр стрічки","Open feed filter"));
      q(".feed-filter-row")?.setAttribute("data-open",String(next));
     });
-    // Close after the target's click handler. Closing on pointerdown moves
-    // the Feed post cards before pointerup and can swallow a delete/comment click.
     document.addEventListener("click",event=>{
      if(!filterOptions.hidden&&!q(".feed-filter-row")?.contains(event.target))closeFilter();
     });
@@ -912,9 +868,6 @@
     window.VATRA_AVATAR?.clearHeader();
     location.replace(new URL("./",location.href).href);
    });
-   // The verified shell is ready: render it immediately instead of waiting
-   // for several independent social queries. The post area has lightweight
-   // skeleton cards until the first response settles.
    posts.replaceChildren();
    for(let i=0;i<2;i++){
     const card=node("div","feed-post-placeholder ui-feed-post-placeholder-00"+(i+1));

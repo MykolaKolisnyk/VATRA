@@ -3,7 +3,7 @@
 ## Architecture
 - UI: messenger.html, assets/css/messenger.css, assets/js/messenger.js.
 - Crypto: assets/js/messenger-crypto.js with browser Web Crypto and local encrypted key backups.
-- Database: supabase/migrations/20261121113000_private_messenger_ciphertext_and_scoped_deletion.sql.
+- Database: _development/supabase/migrations/20261121113300_private_messenger_ciphertext_and_scoped_deletion.sql.
 - The older direct_messages.body stored plaintext. Do not label it E2EE or automatically import plaintext as encrypted.
 - Only ciphertext, public keys, sender/recipient IDs, timestamps and deletion markers are stored on Supabase. No passphrases, decrypted message bodies or private keys are sent there.
 - Shared-post drafts cross pages only via short-lived same-tab sessionStorage, removed on first Messenger load; plaintext is never included in URLs, browser history, Referer or API query parameters.
@@ -35,4 +35,4 @@ Implement audio/video calling using WebRTC DTLS-SRTP, authenticated RLS-protecte
 - Apply the additive migration to the correct Supabase project before shipping the frontend.
 - Test two authenticated accounts, two browsers and an unauthenticated third party for RLS and key behavior.
 - Test backup export/import, wrong passphrase, key-change warnings, separate deletion scopes, realtime delivery and no plaintext in API/network traces.
-- Run current CI, bilingual and mobile UI tests. Keep this feature as an unmerged PR until verification completes.
+- Run current CI, bilingual and mobile UI tests. PR #240 was merged into main on 2026-11-21, but this does not establish cryptographic security or release readiness: keep Messenger explicitly labeled beta and do not claim Signal/Double Ratchet-grade protection until independent review and real multi-account testing are complete.

@@ -1,10 +1,8 @@
-/* VATRA network status: non-destructive banner plus pre-cached offline page. */
 (() => {
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
  const scriptUrl=new URL(document.currentScript?.src||"assets/js/network.js",document.baseURI);
  const projectBase=new URL("../../",scriptUrl);
- // Explicit service responses only: never intercept console, fetch or unhandled rejections.
  const serviceNotices=Object.freeze({
   "403":["vatryk_403.webp","Доступ заборонено","Access denied","Ви не маєте дозволу на виконання цієї дії.","You do not have permission to perform this action."],
   "429":["vatryk_429.webp","Забагато запитів","Too many requests","Спробуйте виконати цю дію трохи пізніше.","Please try this action again in a little while."],
@@ -45,12 +43,12 @@
   picture.src=new URL("assets/vatryk/"+file,projectBase).href;
   picture.alt="";picture.width=240;picture.height=240;picture.decoding="async";
   picture.addEventListener("error",()=>{picture.hidden=true;},{once:true});
-  const title=make("h2","vt-vatra-service-notice-title-001",translate(uk,en));
-  const copy=make("p","vt-vatra-service-notice-copy-001",options.description||translate(copyUk,copyEn));
+  const title=make("h2","vatra-service-notice-title-001",translate(uk,en));
+  const copy=make("p","vatra-service-notice-copy-001",options.description||translate(copyUk,copyEn));
   const actions=make("div","ui-vatra-service-notice-actions-001");
   const isSession=kind==="session",retry=["500","503"].includes(String(kind))?options.retry:null;
   const label=options.actionLabel||(isSession?translate("Увійти","Sign in"):retry?translate("Повторити спробу","Retry"):translate("Зрозуміло","Got it"));
-  const action=make("button","vt-vatra-service-notice-action-001",label);action.type="button";
+  const action=make("button","vatra-service-notice-action-001",label);action.type="button";
   action.addEventListener("click",async()=>{
    if(action.disabled)return;
    action.disabled=true;
@@ -64,12 +62,10 @@
    }finally{action.disabled=false;}
   });
   if(options.support){
-   const support=make("a","vt-vatra-service-notice-support-001",translate("Техпідтримка","Support"));
+   const support=make("a","vatra-service-notice-support-001",translate("Техпідтримка","Support"));
    support.href="mailto:vatra.support@gmail.com";actions.append(support);
   }
   actions.append(action);panel.append(picture,title,copy,actions);
-  // Service errors are content states, never a modal form covering the page.
-  // Locked accounts get a dedicated full-page state; recoverable errors are inline.
   let host=document.body;
   if(!locked){
    const feed=document.querySelector(".feed-main");
@@ -90,7 +86,7 @@
   const english=document.documentElement.lang==="en";
   const label=english?"No internet connection. Check your connection.":"Немає підключення до інтернету. Перевірте мережу.";
   const banner=document.createElement("div");
-  banner.className="network-status vt-network-status";
+  banner.className="network-status vatra-network-status";
   banner.setAttribute("role","status");
   banner.setAttribute("aria-live","polite");
   banner.hidden=true;
@@ -105,8 +101,6 @@
   update();
   if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="file:"){
    const worker=navigator.serviceWorker;
-   // Refresh a previously controlled page when updated code takes over.
-   // Never discard input edits or an open dialog during this transition.
    if(worker.controller){
     let edited=false;
     const recordEdit=event=>{

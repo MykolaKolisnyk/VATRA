@@ -100,14 +100,14 @@ const deps={...catalog,t:text,make,field,btn,marketLimit:10,marketConditions:[["
 for(const key of signature)assert.ok(key in deps,"No mock for editor dependency "+key);
 const listing=realEditor(deps);listing.showModal();assert.equal(listing.open,true);
 const picker=byClass(listing,"ui-vatra-market-type-picker-001"),guidance=byClass(picker,"ui-vatra-market-create-guidance-001");
-assert.ok(guidance&&byClass(guidance,"vt-vatra-market-moderation-notice-001"),"Publication guidance belongs to the create-listing picker");
-assert.ok(byClass(guidance,"vt-vatra-market-rules-link-003"),"Standalone commerce rules must be available when creating a listing");
+assert.ok(guidance&&byClass(guidance,"vatra-market-moderation-notice-001"),"Publication guidance belongs to the create-listing picker");
+assert.ok(byClass(guidance,"vatra-market-rules-link-003"),"Standalone commerce rules must be available when creating a listing");
 assert.ok(byClass(listing,"ui-vatra-market-accept-checkbox-001").required,"Rules acceptance remains mandatory");
-assert.ok(!market.includes('toolbarNav.append(mode,action,moderationNotice)')&&!market.includes('vt-vatra-market-rules-link-001'),"Routine guidance and rules link must not occupy the catalogue sidebar");
+assert.ok(!market.includes('toolbarNav.append(mode,action,moderationNotice)')&&!market.includes('vatra-market-rules-link-001'),"Routine guidance and rules link must not occupy the catalogue sidebar");
 const commerce=await readFile("commerce.html","utf8");
 assert.ok(!commerce.includes("policy-tabs-shell"),"Commerce rules must not share general legal-document navigation");
 for(const [id] of catalog.marketTypes){
- const pick=byClass(listing,"vt-vatra-market-type-"+id);assert.ok(pick,"Missing listing type "+id);await pick.fire("click");
+ const pick=byClass(listing,"vatra-market-type-"+id);assert.ok(pick,"Missing listing type "+id);await pick.fire("click");
  assert.equal(byClass(listing,"ui-vatra-market-editor-sidebar-001").hidden,false);
  const price=byClass(listing,"input-market-price");
  assert.equal(Boolean(price.readOnly),id==="free","Free listing price must be locked only for free listings");
@@ -121,7 +121,7 @@ assert.ok(guard.includes("{root,t,node,button,icon,valid}"),"Guard must provide 
 actualAdmin.openPanel({client:adminClient,id:"1"},()=>permitted,{root:"https://example.com/VATRA/",t:text,node:make,button,icon:()=>element("svg"),valid});
 const adminDialog=doc.body.children.at(-1);
 assert.equal(adminDialog.open,true);
-await byClass(adminDialog,"vt-vatra-admin-nav-button-users").fire("click");
+await byClass(adminDialog,"vatra-admin-nav-button-users").fire("click");
 const form=byClass(adminDialog,"ui-vatra-admin-lookup-001"),input=byClass(form,"ui-vatra-admin-id-input-001");
 input.value="bad";await form.fire("submit");assert.equal(requests.filter(r=>r.p_action==="lookup").length,0);
 input.value="17";await form.fire("submit");assert.equal(requests.filter(r=>r.p_action==="lookup").length,1);

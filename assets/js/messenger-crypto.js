@@ -1,6 +1,3 @@
-/* VATRA Messenger: audited-browser-primitive beta. Not Signal/Double Ratchet.
-   Only ciphertext crosses Supabase. Encrypted private key stays in local IndexedDB.
-   The user's passphrase is never sent, stored, or logged. */
 (()=>{
  "use strict";
  const encoder=new TextEncoder(),decoder=new TextDecoder();
@@ -72,7 +69,7 @@
   let parsed;
   try{parsed=JSON.parse(text);}catch(_){throw Error("Це не резервна копія ключа VATRA.");}
   if(parsed.version!==1||parsed.owner!==String(owner)||!same(parsed.publicKey,remote)||!parsed.box)throw Error("Резервна копія не належить поточному акаунту або ключ уже змінено.");
-  await unprotect(parsed.box,pass); // Authenticate before persisting.
+  await unprotect(parsed.box,pass); 
   await put("identities",String(owner),parsed);
   return unlock(owner,pass,remote);
  }

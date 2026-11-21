@@ -1,4 +1,3 @@
-/* Canonical CSS and JS import guard: no layered same-selector declarations. */
 import assert from "node:assert/strict";
 import {readFile,readdir} from "node:fs/promises";
 
@@ -38,6 +37,9 @@ function rules(source){
  assert.equal(stack.length,0,"Unclosed CSS blocks");
  return found;
 }
+const rootEntries=await readdir(".");
+for(const folder of ["tests","tools","supabase","docs"])
+ assert.ok(!rootEntries.includes(folder),folder+": development-only files belong under _development");
 const cssFiles=(await readdir("assets/css")).filter(x=>x.endsWith(".css"));
 for(const file of cssFiles){
  const found=rules(await readFile("assets/css/"+file,"utf8")),visited=new Map;
@@ -58,4 +60,17 @@ for(const file of htmlFiles){
  assert.equal(scripts.length,new Set(scripts).size,file+": duplicate JavaScript import");
  assert.equal(styles.length,new Set(styles).size,file+": duplicate CSS import");
 }
-console.log("VATRA CSS/JS audit: "+cssFiles.length+" canonical stylesheets and "+htmlFiles.length+" page imports clean.");
+const jsFiles=(await readdir("assets/js")).filter(x=>x.endsWith(".js"));
+for(const [folder,files] of [["assets/js",jsFiles],["assets/css",cssFiles]]){
+ for(const file of files){
+  const source=await readFile(folder+"/"+file,"utf8");
+  assert.ok(!/^[ \t]*\/\/|^[ \t]*\/\*/m.test(source),folder+"/"+file+": explanatory code comment");
+  assert.ok(!/\bvt-[a-z0-9_-]+/i.test(source),folder+"/"+file+": legacy vt- identifier");
+ }
+}
+for(const file of htmlFiles){
+ const markup=await readFile(file,"utf8");
+ assert.ok(!markup.includes("<!--"),file+": explanatory HTML comment");
+ assert.ok(!/\bvt-[a-z0-9_-]+/i.test(markup),file+": legacy vt- identifier");
+}
+console.log("VATRA CSS/JS audit: "+cssFiles.length+" canonical stylesheets and "+htmlFiles.length+" page imports clean; no prose comments or vt- selectors.");

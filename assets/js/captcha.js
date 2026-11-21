@@ -1,7 +1,3 @@
-/* VATRA — one modal Cloudflare Turnstile integration for Supabase Auth.
- * Public site key only. The secret must remain exclusively in Supabase Dashboard.
- * A valid token is required before starting login, registration or email recovery.
- */
 (() => {
 "use strict";
 const SITE_KEY = "0x4AAAAAAF3zmwtnC60B4gUQ";
@@ -40,11 +36,11 @@ function buildDialog(scope,close) {
  dialog.setAttribute("aria-describedby","captcha-description-"+scope.id);
  dialog.tabIndex=-1;
  const title=document.createElement("h2");
- title.className="captcha-title vt-captcha-title-"+scope.id;
+ title.className="captcha-title vatra-captcha-title-"+scope.id;
  title.id="captcha-title-"+scope.id;
  title.textContent=english?"VATRA security check":"Перевірка безпеки VATRA";
  const description=document.createElement("p");
- description.className="captcha-description vt-captcha-description-"+scope.id;
+ description.className="captcha-description vatra-captcha-description-"+scope.id;
  description.id="captcha-description-"+scope.id;
  description.textContent=english
   ?"Confirm you are not a bot. When verification is complete, we will continue automatically."
@@ -54,12 +50,12 @@ function buildDialog(scope,close) {
  widget.setAttribute("role","group");
  widget.setAttribute("aria-label",english?"Cloudflare verification":"Перевірка Cloudflare");
  const note=document.createElement("p");
- note.className="captcha-note vt-captcha-note-"+scope.id;
+ note.className="captcha-note vatra-captcha-note-"+scope.id;
  note.setAttribute("role","status");
  note.textContent=english?"Verifying…":"Триває перевірка…";
  const cancel=document.createElement("button");
  cancel.type="button";
- cancel.className="captcha-cancel vt-captcha-button-"+scope.id;
+ cancel.className="captcha-cancel vatra-captcha-button-"+scope.id;
  cancel.textContent=english?"Cancel":"Скасувати";
  cancel.setAttribute("aria-label",english?"Cancel security verification":"Скасувати перевірку безпеки");
  dialog.append(title,description,widget,note,cancel);
@@ -125,8 +121,8 @@ function mount(scope) {
  })();
  return state;
 }
-/* Remove Turnstile while its container is still mounted; detaching the DOM first
-   makes Cloudflare report "Cannot find Widget" / "Nothing to remove found". */
+
+
 function dispose(scope,state){
  if(state.closed)return;
  state.closed=true;
@@ -155,7 +151,6 @@ async function token(scope) {
  const promise=new Promise((resolve,reject)=>{resolveToken=resolve;rejectToken=reject;});
  const timer=setTimeout(()=>abort(scope,state,"captcha_timeout"),120000);
  state.pending={promise,resolve:resolveToken,reject:rejectToken,timer};
- // The dialog is already visible before loading the Cloudflare script.
  (async()=>{
   try{
    await state.ready;

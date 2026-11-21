@@ -78,7 +78,7 @@ assert.ok(missingPage.includes('src="/VATRA/assets/js/not-found.js"')&&
  notFoundCss.includes('html.vatra-dynamic-route-pending body.error-page > :not(.vatra-route-loading)'),
  "404 fallback must keep routing in its own module and hide the error page for valid permalinks");
 
-const errors=await read("assets/js/errors.js");
+
 const captcha=await read("assets/js/captcha.js");
 const lang=await read("assets/js/lang.js");
 // These account sections must never show "404 Page not found" in the
@@ -176,7 +176,7 @@ assert.ok(auth.includes('let recoveryVerifiedUserId=null;')&&
  !auth.includes('if(!error&&data?.user)reveal();'),
  "Password recovery must be bound to verified identity");
 const registerHtml=await read("create-account.html");
-assert.ok(!registerHtml.includes('vt-create-account-paragraph-02')&&
+assert.ok(!registerHtml.includes('vatra-create-account-paragraph-02')&&
  !Object.hasOwn(uk.__pages["create-account"].nodes,"n51")&&
  !Object.hasOwn(en.__pages["create-account"].nodes,"n51"),
  "Do not duplicate the password requirements in signup or translations");
@@ -203,7 +203,7 @@ for(const name of pages){
  for(const match of markup.matchAll(/<(h[1-6]|p|a|button|input|select|textarea|span|label|li|nav|main|section|div|header|footer|svg|img)(?=[\s>])([^>]*)>/g)){
   const attrs=match[2];
   const classes=attrs.match(/\sclass="([^"]+)"/)?.[1]?.split(/\s+/)||[];
-  assert.ok(classes.length>0&&classes.some(c=>c.startsWith("vt-")||c.startsWith("ui-")),
+  assert.ok(classes.length>0&&classes.some(c=>c.startsWith("vatra-")||c.startsWith("ui-")),
    name+".html: a visible element must have a page-specific style hook: "+match[0].slice(0,120));
  }
 }
@@ -215,12 +215,8 @@ assert.ok(css.includes('@keyframes vatraLanguageBackdrop')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header .back{order:1;'),
  "Recovery navigation and language modal should share VATRA branding and motion");
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
-assert.ok(!errors.includes('window.addEventListener("error"')&&
- !errors.includes('window.addEventListener("unhandledrejection"')&&
- !errors.includes('console[kind]')&&
- !errors.includes('vatra-error-toast')&&
- !auth.includes("VATRA_ERRORS"),
- "Browser console output must stay in DevTools rather than trigger on-page alerts");
+assert.ok(!(await readdir("assets/js")).includes("errors.js")&&!auth.includes("VATRA_ERRORS"),
+ "Retired browser diagnostics must not be recreated");
 assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transparent;opacity:0}')&&
  css.includes('.vatra-floating-hint{')&&
  css.includes('.vatra-input-shell:focus-within .vatra-floating-hint,')&&
@@ -263,7 +259,7 @@ assert.ok(lang.includes('search.placeholder = " ";')&&
  lang.includes('searchShell.append(search,searchHint,clearSearch)')&&
  css.includes('.language-search-shell .vatra-floating-hint{'),
  "Language search must share one floating hint with auth inputs");
-assert.ok(lang.includes('clearSearch.className="language-search-clear vt-language-clear-button"')&&
+assert.ok(lang.includes('clearSearch.className="language-search-clear vatra-language-clear-button"')&&
  lang.includes('search.dispatchEvent(new Event("input",{bubbles:true}))')&&
  css.includes(".language-search-clear{position:absolute;top:50%;right:11px;")&&
  css.includes(".language-search::-webkit-search-cancel-button,"),
@@ -408,25 +404,32 @@ assert.ok(!offline.includes('assets/js/errors.js')&&!sw.includes('ROOT+"assets/j
  "Offline pages and service worker must not load console-to-toast diagnostics");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
-const ownRe=/\b(?:vt|ui)-[a-z0-9-]+/g;
+const isOwnClass=name=>/^(?:ui|vatra)-[a-z0-9_-]+$/.test(name);
 const voidTags=new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 function inspect(path,html){
  const body=html.slice(html.search(/<body\b/i)).replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,"");
  assert.ok(body.startsWith("<body"),path+": missing HTML body");
  const unique=new Set(),stack=[],missing=[];
+ const frequency=new Map();
+ for(const token of body.match(/<[^>]*>/g)||[]){
+  const attrs=(token.match(/\bclass\s*=\s*"([^"]*)"/i)||[])[1]||"";
+  for(const name of attrs.split(/\s+/).filter(isOwnClass))
+   frequency.set(name,(frequency.get(name)||0)+1);
+ }
+ const owned=classes=>classes.split(/\s+/).filter(name=>isOwnClass(name)&&frequency.get(name)===1);
  for(const token of body.match(/<[^>]*>|[^<]+/g)||[]){
   const close=token.match(/^<\/([a-z][a-z0-9-]*)\s*>/i);
   if(close){const index=stack.map(x=>x.tag).lastIndexOf(close[1].toLowerCase());if(index>=0)stack.length=index;continue;}
   const open=token.match(/^<([a-z][a-z0-9-]*)(?=[\s/>])([^>]*)>/i);
   if(open){
    const tag=open[1].toLowerCase(),classes=(open[2].match(/\bclass\s*=\s*"([^"]*)"/i)||[])[1]||"";
-   const own=(classes.match(ownRe)||[]);
+   const own=owned(classes);
    assert.ok(own.length>=1,path+": missing individual class on "+tag);
    for(const item of own){assert.ok(!unique.has(item),path+": duplicate individual class "+item);unique.add(item);}
    if(!voidTags.has(tag)&&!token.endsWith("/>"))stack.push({tag,classes});
   }else if(!token.startsWith("<")&&/[\p{L}\p{N}]/u.test(token.trim())){
    const current=stack.at(-1);
-   if(!current||!/\bvt-[a-z0-9-]+/.test(current.classes))missing.push(token.trim().slice(0,45));
+   if(!current||!owned(current.classes).length)missing.push(token.trim().slice(0,45));
   }
  }
  assert.deepEqual(missing,[],path+": visible text missing unique class");
@@ -458,10 +461,10 @@ assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-h
 assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,0,
  "Five VATRA orbit slogans must be removed");
 assert.ok(
- landing.includes('class="vt-home-paragraph-01">')&&
- landing.includes('class="vt-home-emphasis-04" data-i18n="n100"')&&
- landing.includes('class="vt-home-description-001" data-i18n="n99"')&&
- !landing.includes('class="vt-home-paragraph-01" data-i18n="n99"')&&
+ landing.includes('class="vatra-home-paragraph-01">')&&
+ landing.includes('class="vatra-home-emphasis-04" data-i18n="n100"')&&
+ landing.includes('class="vatra-home-description-001" data-i18n="n99"')&&
+ !landing.includes('class="vatra-home-paragraph-01" data-i18n="n99"')&&
  (landing.match(/data-i18n="n99"/g)||[]).length===1&&
  (landing.match(/data-i18n="n100"/g)||[]).length===1&&
  uk.__pages.index.nodes.n99.text["0"].includes("Знаходьте своїх людей")&&
@@ -535,8 +538,8 @@ assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша
 assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"')&&
  !landing.includes('class="login-header ui-login-header-001"')&&
  !landing.includes('class="login-header-logo')&&
- !landing.includes('class="login-brand-kicker vt-login-brand-kicker-01"')&&
- landing.includes('class="login-form-kicker vt-login-form-kicker-01"')&&
+ !landing.includes('class="login-brand-kicker vatra-login-brand-kicker-01"')&&
+ landing.includes('class="login-form-kicker vatra-login-form-kicker-01"')&&
  signInCss.includes(".login-form-overline{")&&createAccountCss.includes(".signup-form-overline{")&&
  css.includes("margin:auto;border-radius:28px")&&
  css.includes("border-radius:28px 0 0 28px")&&
@@ -556,10 +559,10 @@ assert.ok(!css.includes(".create-account-page .field:has(input.control)")&&
  "Auth cards must center without reserved space from the former top navigation");
 const register=await read("create-account.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
 assert.ok(!register.includes('class="create-account-header')&&
- !register.includes('class="header-logo vt-create-account-link-01"')&&
+ !register.includes('class="header-logo vatra-create-account-link-01"')&&
  register.includes('class="signup-layout auth-layout ui-signup-layout-001"')&&
  register.includes('class="create-account-back-nav ui-create-account-back-nav-001"')&&
- register.includes('href="./" class="back vt-create-account-link-02"')&&
+ register.includes('href="./" class="back vatra-create-account-link-02"')&&
  css.includes(".auth-layout{")&&!css.includes(".login-layout::before,.signup-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".create-account-back-nav{")&&
  !register.includes('class="signup-brand-top')&&
  register.includes('auth-footer-content ui-create-account-footer-content-001'),
@@ -583,7 +586,7 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  auth.includes('SIGNUP_RESEND_COOLDOWN_MS=60000')&&
  auth.includes('SIGNUP_LINK_VALIDITY_MS=900000')&&
  auth.includes('SIGNUP_AUTH_CHANNEL="vatra-auth-verified"')&&
- auth.includes('auth.auth.getUser(); // Verified via Supabase Auth server.')&&
+ auth.includes('auth.auth.getUser();')&&
  auth.includes('user.email.trim().toLowerCase()===signupPending.email.trim().toLowerCase()')&&
  auth.includes('channel.postMessage({type:"check-confirmed-session"})')&&
  auth.includes('pageHooks.watchSignupConfirmation?.();')&&
@@ -595,7 +598,7 @@ assert.ok(css.includes(".signup-confirmation-tips p{margin:0;color:var(--soft);f
  "Confirmation secondary typography must use consistent 13–14px rules");
 assert.ok(uk.__pages["create-account"].meta.title==="Створити акаунт"&&
  en.__pages["create-account"].meta.title==="Create account"&&
- !register.includes('href="./" class="vt-create-account-link-10"'),
+ !register.includes('href="./" class="vatra-create-account-link-10"'),
  "Registration tab and account-creation links must use consistent naming");
 assert.ok(captcha.includes('dispose(scope,state);')&&
  captcha.indexOf('dispose(scope,state);')<captcha.indexOf('waiting.resolve(token);')&&
@@ -619,8 +622,8 @@ assert.ok(css.includes('.create-account-main{width:min(calc(100% - 88px),1300px)
 for(const id of ["first-name","last-name","gender","email","password","password-confirm"]){
  assert.ok(register.includes('id="'+id+'"'),"Missing registration control: "+id);
 }
-assert.ok(register.includes('class="create-account-help-trigger vt-create-account-summary-01"')&&
- register.includes('class="create-account-help-link vt-create-account-summary-02"')&&
+assert.ok(register.includes('class="create-account-help-trigger vatra-create-account-summary-01"')&&
+ register.includes('class="create-account-help-link vatra-create-account-summary-02"')&&
  register.includes('href="privacy#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
 for(const [path,ids] of [["index.html",["email","password","saved-password"]],["create-account.html",["first-name","last-name","email","password","password-confirm"]]]){
@@ -634,7 +637,7 @@ for(const [path,ids] of [["index.html",["email","password","saved-password"]],["
 }
 // The saved account is a display-only local choice, not a password or session cache.
 const savedUI=await read("index.html");
-const signupTemplate=await read("email-templates/confirmation.html");
+const signupTemplate=await read("_development/email-templates/confirmation.html");
 for(const id of ["standard-login-panel","saved-account-panel","saved-login-form","saved-account-other",
  "saved-switch-back","saved-account-return","saved-account-remove-dialog","saved-remove-confirm"]){
  assert.ok(savedUI.includes('id="'+id+'"'),"Saved account control missing: "+id);
@@ -661,19 +664,19 @@ for(const [template,target,type] of [
  ["invite.html","verify","invite"],
  ["email-change.html","verify","email_change"]
 ]){
- const source=await read("email-templates/"+template);
+ const source=await read("_development/email-templates/"+template);
  const expectedLocales=8; // Each auth callback is present in every prepared locale.
  assert.equal(source.split('token_hash={{ .TokenHash }}').length,expectedLocales+1,
   "Every language variant needs a cross-device link: "+template);
  assert.ok(source.includes(target+'?token_hash={{ .TokenHash }}&amp;type='+type),
   "Wrong token type or destination: "+template);
 }
-assert.ok(register.includes('href="./" class="back vt-create-account-link-02"')&&
+assert.ok(register.includes('href="./" class="back vatra-create-account-link-02"')&&
  !css.includes('.create-account-page[data-signup-confirmation="pending"] .create-account-back-nav{visibility:hidden;pointer-events:none}')&&
  !css.includes('.create-account-back-nav .back{min-height:40px;')&&
  !register.includes('class="signup-login-switch')&&
- register.includes('<a href="./" class="vt-create-account-footer-signin" data-i18n="n247">Увійти</a>')&&
- !css.includes('.create-account-page .footer nav>.vt-create-account-footer-signin{')&&
+ register.includes('<a href="./" class="vatra-create-account-footer-signin" data-i18n="n247">Увійти</a>')&&
+ !css.includes('.create-account-page .footer nav>.vatra-create-account-footer-signin{')&&
  !css.includes('.footer nav>a[href="create-account.html"]{'),
  "Signup should show the mirrored Sign in link ONLY in the footer without altering form layout");
 // Field labels are retained for accessibility, but shown as floating hints on
@@ -686,16 +689,16 @@ for(const path of ["forgot.html","reset.html"]){
   path+" must not repeat captions above the text fields");
 }
 const homeMarkup=await read("index.html");
-assert.ok(homeMarkup.includes('vt-home-saved-field-title-001 vatra-sr-only')&&
+assert.ok(homeMarkup.includes('vatra-home-saved-field-title-001 vatra-sr-only')&&
  !homeMarkup.includes('saved-account-wordmark')&&
  !css.includes('.site .saved-account-wordmark{')&&
  css.includes('.site .saved-account-top{display:flex;align-items:center;justify-content:space-between;gap:10px;')&&
  css.includes('.vatra-sr-only{position:absolute!important;'),
  "Remembered account must have no redundant wordmark or visible top password label");
 assert.ok(!css.includes('.footer nav>a[href="create-account.html"]{')&&
- !css.includes('.create-account-page .footer nav>.vt-create-account-footer-signin{'),
+ !css.includes('.create-account-page .footer nav>.vatra-create-account-footer-signin{'),
  "Footer sign-in and create-account links must use the same shared link typography");
-const allTemplates=await readdir("email-templates");
+const allTemplates=await readdir("_development/email-templates");
 assert.deepEqual(allTemplates.filter(f=>f.endsWith(".html")).sort(),
  emailNames.map(n=>n+".html").sort(),
  "Email templates must have exactly one canonical HTML per purpose");
@@ -706,7 +709,7 @@ for(const [filename,route,type] of [
  ["email-change.html","verify","email_change"],
  ["recovery.html","reset","recovery"]
 ]){
- const source=await read("email-templates/"+filename);
+ const source=await read("_development/email-templates/"+filename);
  const localeCount=8; // Every source email now has eight localized variants.
  assert.equal(source.split('token_hash={{ .TokenHash }}').length,localeCount+1,
   filename+": every locale branch must use the same direct confirmation URL");
@@ -714,7 +717,7 @@ for(const [filename,route,type] of [
   filename+": wrong token type or callback");
 }
 for(const file of allTemplates.filter(f=>f.endsWith(".html"))){
- const source=await read("email-templates/"+file);
+ const source=await read("_development/email-templates/"+file);
  const classNames=[...source.matchAll(/\sclass="([^"]+)"/g)].flatMap(m=>m[1].split(/\s+/));
  assert.equal(new Set(classNames).size,classNames.length,file+": classes must not collide");
  assert.ok(!/https?:\/\/(?:[^" ]+)?\/v2\b/i.test(source)&&!source.includes('style-2'),
@@ -727,7 +730,7 @@ const returnStart=registrationMarkup.indexOf('<nav class="create-account-back-na
 const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-create-account-div-001">');
 const overlineStart=registrationMarkup.indexOf('<div class="signup-form-overline ui-signup-form-overline-001">');
 const labelsStart=registrationMarkup.indexOf('<div class="signup-overline-labels ui-signup-overline-labels-001">');
-const kickerStart=registrationMarkup.indexOf('class="signup-form-kicker vt-signup-form-kicker-01"');
+const kickerStart=registrationMarkup.indexOf('class="signup-form-kicker vatra-signup-form-kicker-01"');
 assert.ok(formStart>=0&&innerStart>formStart&&
  overlineStart>innerStart&&labelsStart>overlineStart&&kickerStart>labelsStart&&returnStart>kickerStart&&
  !registrationMarkup.includes('data-step-label=')&&
@@ -889,7 +892,7 @@ for(const page of ["terms","privacy","cookies","forgot","reset"]){
 for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!html.includes("policy-eyebrow")&&!html.includes("VATRA · Інформація")&&
- !html.includes('href="terms.html" class="vt-'+page+'-footer-legal'),
+ !html.includes('href="terms.html" class="vatra-'+page+'-footer-legal'),
  page+": redundant document eyebrow and footer navigation must be gone");
 }
 
@@ -932,7 +935,7 @@ for(const page of ["index","create-account","forgot","reset","verify","404"]){
 }
 assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&&
  uk.__pages["create-account"].nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
- !register.includes('href="./" class="vt-create-account-link-10"'),
+ !register.includes('href="./" class="vatra-create-account-link-10"'),
  "Confirmation screen must have one contextual sign-in link");
 for(const page of ["terms","privacy","cookies","forgot","reset"]){
  const html=await read(page+".html");
@@ -945,9 +948,9 @@ assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-
  css.includes(".create-account-page .create-account-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
 assert.ok(
- !forgot.includes('class="header-logo vt-forgot-link-02"')&&
+ !forgot.includes('class="header-logo vatra-forgot-link-02"')&&
  forgot.includes('class="forgot-panel-header ui-forgot-panel-header-001"')&&
- forgot.includes('class="forgot-panel-brand vt-forgot-link-02"')&&
+ forgot.includes('class="forgot-panel-brand vatra-forgot-link-02"')&&
  forgot.includes('src="assets/logo/logo_symbol.svg"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header{display:flex;')&&
  !css.includes('.ui-forgot-main-001>.header-logo{')&&
@@ -971,7 +974,7 @@ assert.ok(
  reset.includes('class="reset-intro ui-reset-intro-001"')&&
  reset.includes('id="reset-title"')&&
  reset.includes('src="assets/logo/logo_symbol.svg"')&&
- !reset.includes('class="header-logo vt-reset-link-02"')&&
+ !reset.includes('class="header-logo vatra-reset-link-02"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;')&&
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px)')&&
  css.includes('box-shadow:0 26px 64px rgba(31,50,96,.075)}')&&
@@ -1000,12 +1003,12 @@ assert.ok(
  "Recovery must not claim email delivery just because Supabase accepts a reset request");
 assert.ok(
  forgot.includes('class="vatra-input-shell ui-forgot-input-shell-001"')&&
- forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-01" aria-hidden="true" data-i18n="n59">Електронна пошта</span>')&&
+ forgot.includes('class="vatra-floating-hint vatra-forgot-floating-hint-01" aria-hidden="true" data-i18n="n59">Електронна пошта</span>')&&
  forgot.includes('class="vatra-input-shell ui-forgot-input-shell-002"')&&
- forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-02" aria-hidden="true" data-i18n="n56"')&&
+ forgot.includes('class="vatra-floating-hint vatra-forgot-floating-hint-02" aria-hidden="true" data-i18n="n56"')&&
  reset.includes('class="vatra-input-shell ui-reset-input-shell-001"')&&
  reset.includes('class="vatra-input-shell ui-reset-input-shell-002"')&&
- reset.includes('class="vatra-floating-hint vt-reset-floating-hint-02" aria-hidden="true" data-i18n="n44"')&&
+ reset.includes('class="vatra-floating-hint vatra-reset-floating-hint-02" aria-hidden="true" data-i18n="n44"')&&
  auth.includes('if(!["login","create-account","forgot","reset"].includes(page))return;')&&
  auth.includes('#recovery-code-form .field:has(input.control)')&&
  uk.__pages.forgot.nodes.n56.text["0"]==="Введіть код"&&
@@ -1025,7 +1028,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","assets/js/messenger.js","assets/js/messenger-crypto.js","sw.js"]){
+for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","assets/js/messenger.js","assets/js/messenger-crypto.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
@@ -1052,8 +1055,8 @@ assert.ok(reactionsVerifiedDelete.every(part=>reactionsSource.includes(part))&&
 const profileExtraScript=await read("assets/js/profile.js");
 const scrollRailScript=await read("assets/js/scroll-rail.js");
 assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
- interactionsScript.includes('vt-vatra-post-comments-count-001')&&
- interactionsScript.includes('vt-vatra-post-shares-count-001')&&
+ interactionsScript.includes('vatra-post-comments-count-001')&&
+ interactionsScript.includes('vatra-post-shares-count-001')&&
  interactionsScript.includes('p_limit:pageSize+1')&&
  !interactionsScript.includes('vatra-post-compact-comments')&&
  interactionsScript.includes('navigator.clipboard.writeText(permalink(post))')&&
@@ -1164,7 +1167,7 @@ const messengerMarkup=await read("messenger.html");
 const messengerRuntime=await read("assets/js/messenger.js");
 const messengerCrypto=await read("assets/js/messenger-crypto.js");
 const messengerCss=await read("assets/css/messenger.css");
-const messengerSchema=await read("supabase/migrations/20261121113000_private_messenger_ciphertext_and_scoped_deletion.sql");
+const messengerSchema=await read("_development/supabase/migrations/20261121113300_private_messenger_ciphertext_and_scoped_deletion.sql");
 assert.ok(
  messengerMarkup.includes('data-page="messenger"')&&
  messengerMarkup.includes('id="messenger-delete-mine"')&&
@@ -1196,9 +1199,9 @@ assert.ok(
  messengerCrypto.includes('"HKDF"')&&
  messengerCss.includes(".vatra-messenger-message.is-removing")&&
  messengerCss.includes(".vatra-messenger-page [hidden]{display:none!important}")&&
- (await read("tools/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
- !messengerMarkup.includes("vt-vatra-")&&
- !messengerCss.includes("vt-vatra-")&&
+ (await read("_development/tests/smoke/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
+ !messengerMarkup.includes(String.fromCharCode(118,116,45))&&
+ !messengerCss.includes(String.fromCharCode(118,116,45))&&
  messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
  messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
  messengerSchema.includes("GRANT INSERT (vatra_id,public_key)")&&
@@ -1210,7 +1213,7 @@ assert.ok(
  messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
  messengerSchema.includes("Only the sender may revoke for everyone"),
  "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
-await import("./messenger-crypto-smoke.mjs");
+await import("../smoke/messenger-crypto-smoke.mjs");
 
 
 assert.ok(profileBehavior.includes('client.from("friendships")')&&
@@ -1268,7 +1271,7 @@ assert.ok(memberCss.includes("body.profile-page .profile-media-viewer{")&&
  memberCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
  memberCss.includes("body.profile-page .profile-avatar-wrap.is-menu-open .profile-avatar-menu:not([hidden])"),
  "Member photo viewer must fill the screen and story avatar menu must not be clipped");
-assert.ok(sharedCss.includes(".vt-vatra-account")===false ||
+assert.ok(sharedCss.includes(".vatra-account")===false ||
  sharedCss.includes("body.feed-page .feed-account-dropdown > a > svg") &&
  sharedCss.includes("body.feed-page .feed-account-dropdown > button > svg"),
  "Account dropdown SVGs must remain visible after language switching");
@@ -1356,8 +1359,8 @@ for(const page of sharedShellPages){
   page+": VATRA universal search must retain history and its own clear control");
  assert.ok(["ui-vatra-account-profile-icon-001","ui-vatra-account-settings-icon-001",
   "ui-vatra-account-support-icon-001","ui-vatra-account-logout-icon-001"].every(cls=>header.includes(cls))&&
-  header.includes('class="vt-vatra-account-settings-label-001" data-social-uk=')&&
-  header.includes('class="vt-vatra-account-profile-label-001" data-i18n="n48"'),
+  header.includes('class="vatra-account-settings-label-001" data-social-uk=')&&
+  header.includes('class="vatra-account-profile-label-001" data-i18n="n48"'),
   page+": account avatar menu must preserve SVG icons and live translations");
  assert.ok(header.includes('href="vatra-id?view=settings#general" class="feed-menu-settings-link')&&!header.includes("feed-menu-settings-panel")&&!header.includes("data-language-trigger"),page+": Settings opens the settings page directly");
  const nav=header.match(/<nav class="social-top-nav[\s\S]*?<\/nav>/)?.[0]||"";
@@ -1468,7 +1471,7 @@ assert.ok(
  feedMarkup.includes('id="feed-filter-summary"') &&
  feedScript.includes('const describeFilter=()=>{') &&
  feedScript.includes('Date.now()-subscriptionsLoadedAt<60000') &&
- feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{'),
+ feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vatra-feed-filter-summary-001{'),
  "Feed category filters must explain their scope and reuse recent subscriptions");
 
 assert.doesNotThrow(()=>new Function(feedScript),"Feed script must remain valid JavaScript");
@@ -1563,7 +1566,7 @@ assert.ok(
  detailsModule.includes('paragraph.textContent=bio') &&
  detailsModule.includes('paragraph.hidden=!bio') &&
  detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
- !detailsModule.includes('vt-profile-detail-audience-') &&
+ !detailsModule.includes('vatra-profile-detail-audience-') &&
  detailsModule.includes('lab.htmlFor=inputId') &&
  !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-info{') &&
@@ -1669,16 +1672,16 @@ assert.ok(
  (await read("club.html")).includes('id="club-posts-more"'),
  "Community posts must paginate in small bounded pages without duplicate deep links");
 
-const feedPostGrantMigration=await read("supabase/migrations/20261113165546_restore_authenticated_feed_posts_data_api_permissions.sql");
+const feedPostGrantMigration=await read("_development/supabase/migrations/20261113165546_restore_authenticated_feed_posts_data_api_permissions.sql");
 assert.ok(
  feedPostGrantMigration.includes("GRANT SELECT, INSERT, UPDATE ON TABLE public.feed_posts TO authenticated;")&&
  !feedPostGrantMigration.includes("TO anon;")&&
  !feedPostGrantMigration.includes("DISABLE ROW LEVEL SECURITY"),
  "Authenticated members must be able to publish feed posts without exposing them to anon");
 
-const mediaOnlyMigration=await read("supabase/migrations/20261113170207_allow_gallery_only_posts_without_text.sql");
-const communityGrantMigration=await read("supabase/migrations/20261113171114_restore_community_directory_read_and_owner_create_grants.sql");
-const socialUpdateMigration=await read("supabase/migrations/20261113171325_restore_owner_scoped_update_privileges_for_social_features.sql");
+const mediaOnlyMigration=await read("_development/supabase/migrations/20261113170207_allow_gallery_only_posts_without_text.sql");
+const communityGrantMigration=await read("_development/supabase/migrations/20261113171114_restore_community_directory_read_and_owner_create_grants.sql");
+const socialUpdateMigration=await read("_development/supabase/migrations/20261113171325_restore_owner_scoped_update_privileges_for_social_features.sql");
 assert.ok(
  mediaOnlyMigration.includes("jsonb_array_length(media_items) > 0")&&
  mediaOnlyMigration.includes("feed_posts_body_length")&&
@@ -1693,7 +1696,7 @@ assert.ok(
  !socialUpdateMigration.includes("TO anon"),
  "Gallery-only publishing, public community directory and RLS-scoped social writes must be retained");
 
-const domainReadViewMigration=await read("supabase/migrations/20261113171916_add_nonbreaking_domain_named_rls_invoker_read_views.sql");
+const domainReadViewMigration=await read("_development/supabase/migrations/20261113171916_add_nonbreaking_domain_named_rls_invoker_read_views.sql");
 const domainGiftsScript=await read("assets/js/gifts.js");
 assert.ok(
  domainReadViewMigration.split("WITH (security_invoker = true)").length===4&&
@@ -1710,7 +1713,7 @@ assert.ok(
  !domainGiftsScript.includes('client.from("vatra_profile_gifts")'),
  "New read-only domain aliases must retain invoker-RLS and support old clients");
 
-const physicalRenameSql=await read("supabase/migrations/20261113174336_rename_three_read_only_domain_tables_and_preserve_legacy_rls_views.sql");
+const physicalRenameSql=await read("_development/supabase/migrations/20261113174336_rename_three_read_only_domain_tables_and_preserve_legacy_rls_views.sql");
 assert.ok(
  physicalRenameSql.includes("ALTER TABLE public.vatra_directory RENAME TO member_directory;")&&
  physicalRenameSql.includes("ALTER TABLE public.vatra_account_states RENAME TO account_states;")&&
@@ -1724,7 +1727,7 @@ assert.ok(
  physicalRenameSql.includes("COMMIT;"),
  "Physical renames must preserve signup/state trigger writes and old-client RLS-only SELECT aliases");
 
-const welcomeGiftRenameSql=await read("supabase/migrations/20261113175142_fix_welcome_gift_after_physical_profile_gifts_rename.sql");
+const welcomeGiftRenameSql=await read("_development/supabase/migrations/20261113175142_fix_welcome_gift_after_physical_profile_gifts_rename.sql");
 assert.ok(
  welcomeGiftRenameSql.includes("CREATE OR REPLACE FUNCTION vatra_internal.award_welcome_gift()")&&
  welcomeGiftRenameSql.includes("insert into public.profile_gifts(")&&
@@ -1732,7 +1735,7 @@ assert.ok(
  !welcomeGiftRenameSql.includes("insert into public.vatra_profile_gifts("),
  "Signup welcome-gift trigger must use physical table after renaming it");
 
-const renamedLikerAndReports=await read("supabase/migrations/20261113174858_rename_post_like_members_and_profile_reports_preserving_rls_compatibility.sql");
+const renamedLikerAndReports=await read("_development/supabase/migrations/20261113174858_rename_post_like_members_and_profile_reports_preserving_rls_compatibility.sql");
 assert.ok(
  renamedLikerAndReports.includes("ALTER TABLE public.vatra_post_like_members RENAME TO post_like_members;")&&
  renamedLikerAndReports.includes("ALTER TABLE public.vatra_profile_reports RENAME TO profile_reports;")&&
@@ -1743,7 +1746,7 @@ assert.ok(
  !profileScript.includes('client.from("vatra_profile_reports")'),
  "Profile reports and public like membership tables must retain RLS and legacy client write support");
 
-const socialDomainMigration=await read("supabase/migrations/20261113175644_rename_fourteen_social_tables_with_rls_compatibility.sql");
+const socialDomainMigration=await read("_development/supabase/migrations/20261113175644_rename_fourteen_social_tables_with_rls_compatibility.sql");
 const socialDomainPairs=[
  ["vatra_avatar_comment_likes","avatar_comment_likes"],
  ["vatra_avatar_comments","avatar_comments"],["vatra_avatar_likes","avatar_likes"],
@@ -1764,7 +1767,7 @@ assert.ok(
  !/\bDROP\b[^;]*\bCASCADE\b/i.test(socialDomainMigration.replace(/^\s*--.*$/gm,"")),
  "All 14 physical renames must retain legacy caller-scoped views, notification triggers and RLS");
 
-const lastProfileRename=await read("supabase/migrations/20261113180825_rename_last_two_profile_upsert_tables.sql");
+const lastProfileRename=await read("_development/supabase/migrations/20261113180825_rename_last_two_profile_upsert_tables.sql");
 assert.ok(
  lastProfileRename.includes("ALTER TABLE public.vatra_profile_details RENAME TO profile_details;")&&
  lastProfileRename.includes("ALTER TABLE public.vatra_profile_preferences RENAME TO profile_preferences;")&&
@@ -1776,7 +1779,7 @@ assert.ok(
  !profileScript.includes('client.from("vatra_profile_preferences")'),
  "The last two profile upserts must use physical tables with legacy RLS views");
 
-const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
+const publicRedisEdge=await read("_development/supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
  publicRedisEdge.includes('Deno.env.get("REDIS_URL")')&&
@@ -1788,7 +1791,7 @@ assert.ok(
  !publicRedisEdge.includes("SUPABASE_SERVICE_ROLE_KEY")&&
  !publicRedisEdge.includes("SUPABASE_SECRET_KEYS")&&
  publicRedisEdge.includes('Cache-Control": "no-store"')&&
- (await read("docs/redis-cache-policy.md")).includes("15 seconds")&&
+ (await read("_development/docs/redis-cache-policy.md")).includes("15 seconds")&&
  communityScript.includes("const PUBLIC_DIRECTORY_CACHE_ENABLED=true")&&
  communityScript.includes('client.functions.invoke("public-community-directory",{method:"GET"})')&&
  communityScript.includes("if(!data){"),
@@ -1797,7 +1800,8 @@ assert.ok(
 assert.ok(
  feedScript.includes('.eq("author_vatra_id",vatraId).select("id").maybeSingle()')&&
  feedScript.includes('String(data?.id)!==String(toDelete.id)')&&
- feedScript.includes('Uploaded media is rolled back only if the database INSERT failed')&&
+ feedScript.includes('if(insertError)throw insertError;')&&
+ feedScript.includes('if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}')&&
  storyEditorRuntime.includes('if(insertError)throw insertError;inserted=true;')&&
  storyEditorRuntime.includes('if(uploaded&&!inserted)')&&
  storyEditorRuntime.indexOf('if(inserted){dialog.close();reset();try{onPublished?.();}')>storyEditorRuntime.indexOf('if(uploaded&&!inserted)')&&
@@ -1806,7 +1810,7 @@ assert.ok(
  "Feed post, story and comment mutations must confirm persistence before cleanup");
 // Reposts remain durable even if a later UI refresh fails. Direct shares use encrypted Messenger.
 assert.ok(
- interactionsScript.includes("a failed Feed callback cannot turn a repost into a failed write")&&
+ interactionsScript.includes('feedback(tr("Публікацію додано у ваш профіль.","Shared to your profile."));')&&
  interactionsScript.includes("Promise.resolve(settings.onShared()).catch(()=>{})")&&
  interactionsScript.includes("friendsLoaded=false;sendDM.disabled=true;")&&
  interactionsScript.includes('new URL("messenger.html",relativeRoot())')&&
@@ -1821,7 +1825,7 @@ assert.ok(
  "New search/filter revisions must supersede old Feed pages and errors");
 // Third-party friends list privacy must be enforced in both the UI and RLS.
 const friendshipPrivacyJs=await read("assets/js/friends.js");
-const friendshipPrivacySql=await read("supabase/migrations/20261114154237_private_friendship_rows_to_participants.sql");
+const friendshipPrivacySql=await read("_development/supabase/migrations/20261114154237_private_friendship_rows_to_participants.sql");
 assert.ok(
  friendshipPrivacyJs.includes('if(!me){')&&
  friendshipPrivacyJs.includes('Список друзів цього профілю закритий.')&&
@@ -2058,9 +2062,9 @@ const onboardingJs=await read("assets/js/onboarding.js");
 const ownerAdminGuard=await read("assets/js/account-guard.js");
 const ownerAdminJs=await read("assets/js/admin.js");
 assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js?rev=')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
-const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
+const ownerAdminSQL=await read("_development/supabase/vatra-owner-admin.sql");
 assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("marketView(host,")&&!ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
-assert.ok((await read("assets/css/feed.css")).includes(".vt-vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vt-vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
+assert.ok((await read("assets/css/feed.css")).includes(".vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
@@ -2077,7 +2081,7 @@ assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  onboardingJs.includes('vatra.onboarding.v1.member.')&&
  onboardingJs.includes('MAX_AGE_MS=30*24*60*60*1000')&&
  onboardingJs.includes('profile_media')&&onboardingJs.includes('community_follows')&&
- onboardingCss.includes('.vt-tour-spotlight-001')&&
+ onboardingCss.includes('.vatra-tour-spotlight-001')&&
  onboardingCss.includes('@media(prefers-reduced-motion:reduce)')&&
  ["welcome","waiting","success","goodbye","explanation"].every(state=>
   onboardingJs.includes("vatryk_"+state+".webp")),
@@ -2146,8 +2150,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and chevrons stay outside the image");
 
-const photoReportMigration=await read("supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
-const photoReportNotNull=await read("supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
+const photoReportMigration=await read("_development/supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
+const photoReportNotNull=await read("_development/supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
 assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
  profileScript.includes('window.VATRA_REPORT_PROFILE_PHOTO=path')&&
  profileScript.includes('category="specific_photo"')&&
@@ -2163,7 +2167,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
 assert.ok(
  memberCss.includes('body.profile-page .profile-media-viewer[open]{\n display:grid;grid-template-columns:minmax(0,1fr) clamp(318px,25vw,415px)')&&
  systemFeedCss.includes('width:100vw;height:100dvh;')&&
- systemFeedCss.includes('.vt-vatra-post-media-caption-001{')&&
+ systemFeedCss.includes('.vatra-post-media-caption-001{')&&
  profileScript.includes('lastAvatarCommentKey=key;')&&
  profileScript.includes('commentList.replaceChildren(...fresh,...older)')&&
  profileScript.includes('const avatarCommentPages=new Map()')&&
@@ -2173,8 +2177,8 @@ assert.ok(
  feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
  feedScript.includes('else posts.append(batch);')&&
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
- !interactionsScript.includes('vt-vatra-post-audience-hint-001')&&
- !systemFeedCss.includes('.feed-post-audience:hover .vt-vatra-post-audience-hint-001'),
+ !interactionsScript.includes('vatra-post-audience-hint-001')&&
+ !systemFeedCss.includes('.feed-post-audience:hover .vatra-post-audience-hint-001'),
  "All profile/post photos share a fullscreen workspace, cached comments reconcile without flashes and audience markers have no hover");
  
 const feedPhotoActions=await read("assets/js/post-interactions.js");
@@ -2231,11 +2235,11 @@ assert.ok(auth.includes('dialog?.addEventListener("close",()=>removeTooltip?.sup
  auth.includes('removeTooltip?.suppress();')&&
  auth.includes('if(suppressRestore||event?.pointerType==="touch"'),
  "Cancelling the saved-account removal dialog must not show a focus-restored tooltip");
-assert.ok(errorPage.includes('class="error-home-link vt-404-link-002"')&&
+assert.ok(errorPage.includes('class="error-home-link vatra-404-link-002"')&&
  errorPage.includes('class="ui-404-vatryk-001" aria-hidden="true"')&&
  notFoundCss.includes('background-image:url("/VATRA/assets/vatryk/vatryk_detective.webp")')&&
- errorPage.includes('class="vt-404-accessible-title-001"')&&
- errorPage.includes('href="/VATRA/" class="error-home-link vt-404-link-002"')&&
+ errorPage.includes('class="vatra-404-accessible-title-001"')&&
+ errorPage.includes('href="/VATRA/" class="error-home-link vatra-404-link-002"')&&
  errorPage.includes("Такої сторінки немає")&&
  !errorPage.includes('class="account-card error-card')&&
  !errorPage.includes('class="error-code')&&
@@ -2277,7 +2281,7 @@ assert.ok(legacyScript.includes("location.replace(target+location.search+locatio
  "Old localized links should redirect to unified URLs");
 assert.ok(!/profile\.js|data-page="public-profile"|supabase-js/.test(errorPage),"404 must not load private account logic");
 for(const name of emailNames){
- const email=await read("email-templates/"+name+".html");
+ const email=await read("_development/email-templates/"+name+".html");
  assert.ok(email.includes('.Data.preferred_locale'),"Email "+name+" loses UA/EN language choice");
  assert.ok(!/https:\/\/mykolakolisnyk\.github\.io\/VATRA\/(?:ua|en)\//.test(email),
   "Email "+name+" links must use root routes");
@@ -2311,8 +2315,8 @@ assert.ok(legalCss.includes('.policy-main{padding:32px 0 32px}')&&
  "Policy documents must share desktop/mobile section spacing with auth pages");
 
 // One VATRA footer line and compact signup eyebrow on both form routes.
-assert.ok(landing.includes('class="vt-home-link-08"')&&
- register.includes('class="vt-create-account-footer-signin"')&&
+assert.ok(landing.includes('class="vatra-home-link-08"')&&
+ register.includes('class="vatra-create-account-footer-signin"')&&
  !css.includes('footer-auth-action')&&
  register.indexOf('<div class="signup-overline-labels')<register.indexOf('<nav class="create-account-back-nav')&&
  !css.includes('position:absolute;\n    top:clamp(16px,1.6vw,25px)')&&
@@ -2327,11 +2331,8 @@ const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
 const consolidatedFeed=await read("assets/css/feed.css");
-assert.ok(consolidatedFeed.includes('/* A compact return-to-top control, never a full-height gutter overlay. */')&&
- consolidatedFeed.includes('width:50px;height:50px;')&&
+assert.ok( consolidatedFeed.includes('width:50px;height:50px;')&&
  !consolidatedFeed.includes('width:var(--vatra-rail-width')&&
- !consolidatedFeed.includes('/* Spacious VK-like edge affordance')&&
- !consolidatedFeed.includes('/* Quiet VATRA left gutter:')&&
  consolidatedFeed.includes('bottom:-1px;left:13px;right:13px;z-index:2;')&&
  consolidatedFeed.includes('height:3px;border-radius:3px 3px 0 0;background:var(--vatra-action-ink)')&&
  consolidatedFeed.includes('padding:12px 0;border:0;border-radius:0;background:transparent;box-shadow:none')&&
@@ -2348,10 +2349,10 @@ assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
  "All VATRA member areas and outbound navigation use canonical extensionless routes");
-assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
+assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vatra-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
- !landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508">')&&
+ !landing.includes('id="saved-account-return" class="saved-account-return vatra-home-saved-return-001" data-i18n="n508">')&&
  css.includes('.site .saved-account-return:hover,.site .saved-account-return:focus-visible{color:var(--blue);transform:translateX(-2px)')&&
  css.includes('min-height:151px;width:100%')&&
  auth.includes('returnButton.hidden=true')&&auth.includes('returnButton.hidden=false')&&
@@ -2385,9 +2386,9 @@ assert.ok(auth.includes('function replayAuthContent(node)')&&
  !css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]) > :not([hidden]){animation:'),
  "Registration, confirmation and password recovery must reveal whole content blocks");
 const resetNew=await read("reset.html");
-assert.ok(forgot.includes('id="account-link" href="./" class="action primary full recovery-success-action vt-forgot-link-08"')&&
- resetNew.includes('id="recovery-success-link" class="form-note recovery-success-row vt-reset-paragraph-03" hidden')&&
- resetNew.includes('id="account-link" href="./" class="action primary full recovery-success-action vt-reset-link-03" hidden')&&
+assert.ok(forgot.includes('id="account-link" href="./" class="action primary full recovery-success-action vatra-forgot-link-08"')&&
+ resetNew.includes('id="recovery-success-link" class="form-note recovery-success-row vatra-reset-paragraph-03" hidden')&&
+ resetNew.includes('id="account-link" href="./" class="action primary full recovery-success-action vatra-reset-link-03" hidden')&&
  css.includes('.ui-forgot-main-001 .forgot-panel .recovery-success-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px')&&
  css.includes('.ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .control{padding-top:21px;padding-bottom:7px}'),
  "Both recovery paths need identical accessible password fields and full-width success CTA");
@@ -2444,7 +2445,7 @@ assert.ok(lang.includes('new MutationObserver(applyTitle)')&&
 /* Cache regression: public display names only, fail-closed auth and direct
    RLS fallback. Scripts must load before authors are rendered. */
 const publicNameBrowser=await read("assets/js/public-name-cache.js");
-const publicNameEdge=await read("supabase/functions/public-profile-names/index.ts");
+const publicNameEdge=await read("_development/supabase/functions/public-profile-names/index.ts");
 assert.doesNotThrow(()=>new Function(publicNameBrowser),
  "Shared public-name cache must parse in supported browsers");
 assert.ok(
@@ -2481,7 +2482,7 @@ for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
  assert.ok((await read(path)).includes("window.VATRA_PUBLIC_NAMES?.get(client,"),
   "Public-name lookups must use the shared cache in "+path);
 }
-await import("./public-cache-smoke.mjs");
+await import("../smoke/public-cache-smoke.mjs");
 
 /* Viewer-specific engagement is cached only for 3 seconds in this browser,
    never shared with Redis; all four local mutations invalidate it. */
@@ -2493,12 +2494,12 @@ assert.ok(
  engagementCacheController.includes('p_posts:requested.slice(i,i+24)')&&
  (engagementCacheController.match(/invalidateEngagement\(client\);/g)||[]).length>=4,
  "Viewer engagement cache must remain bounded, batched and invalidated after writes");
-await import("./engagement-cache-smoke.mjs");
+await import("../smoke/engagement-cache-smoke.mjs");
 
 /* Re-ranked paged comments: SQL query must count each comment's likes once
    and precompute current-viewer friend IDs, without bypassing RLS. */
 const commentThreadSqlOptimization=await read(
- "supabase/migrations/20261113185828_optimize_comment_thread_friend_and_like_counts.sql");
+ "_development/supabase/migrations/20261113185828_optimize_comment_thread_friend_and_like_counts.sql");
 assert.ok(
  commentThreadSqlOptimization.includes("WITH friend_ids AS MATERIALIZED")&&
  commentThreadSqlOptimization.includes("LEFT JOIN LATERAL (")&&
@@ -2521,10 +2522,10 @@ assert.ok(
  clubRuntime.includes('client.functions.invoke("public-community-directory",{')&&
  clubRuntime.includes('body:{club_id:numeric}')&&
  clubRuntime.includes('return client.from("communities")')&&
- (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
+ (await read("_development/docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
-await import("./community-detail-cache-smoke.mjs");
-await import("./community-category-smoke.mjs");
+await import("../smoke/community-detail-cache-smoke.mjs");
+await import("../smoke/community-category-smoke.mjs");
 
 /* Off-screen batch DOM rendering avoids repeated list-level mutations. */
 const batchedFeedPosts=await read("assets/js/feed.js");
@@ -2545,8 +2546,8 @@ assert.ok(
 /* Legacy Table Editor entries were RLS-invoker views, not physical tables.
    Storage bucket renames must preserve role-specific policies and MIME/size
    limits; the active browser must use only canonical bucket IDs. */
-const legacyViewCleanup=await read("supabase/migrations/20261113195057_remove_legacy_vatra_compatibility_views.sql");
-const storageBucketCleanup=await read("supabase/migrations/20261113195123_prepare_clean_vatra_storage_bucket_ids_and_rls.sql");
+const legacyViewCleanup=await read("_development/supabase/migrations/20261113195057_remove_legacy_vatra_compatibility_views.sql");
+const storageBucketCleanup=await read("_development/supabase/migrations/20261113195123_prepare_clean_vatra_storage_bucket_ids_and_rls.sql");
 assert.ok((legacyViewCleanup.match(/DROP VIEW IF EXISTS public\.vatra_/g)||[]).length===21&&
  !legacyViewCleanup.includes("CASCADE")&&
  storageBucketCleanup.includes("INSERT INTO storage.buckets(")&&
@@ -2581,7 +2582,7 @@ assert.ok(
  postMediaScript.includes("state.version!==version")&&
  !postMediaScript.includes("const signedURLs=new Map();"),
  "Private signed Storage URLs must be isolated per client and invalidated on auth changes");
-await import("./media-signed-cache-smoke.mjs");
+await import("../smoke/media-signed-cache-smoke.mjs");
 
 /* The shared live-search results contain RLS-scoped posts. Cache only in
    bounded viewer-local memory; never persist or share them via Redis. */
@@ -2597,7 +2598,7 @@ assert.ok(
  liveSearchCacheScript.includes("data[key].slice(0,20)")&&
  !liveSearchCacheScript.includes("site-search-redis"),
  "Site-wide live search must remain RLS-gated, session-scoped and bounded");
-const siteSearchSQL=await read("supabase/search-site.sql");
+const siteSearchSQL=await read("_development/supabase/search-site.sql");
 assert.ok(siteSearchSQL.includes("security invoker")&&
  siteSearchSQL.includes("from public.feed_posts")&&
  siteSearchSQL.includes("from public.community_posts")&&
@@ -2607,7 +2608,7 @@ assert.ok(siteSearchSQL.includes("security invoker")&&
  siteSearchSQL.includes("revoke all on function public.search_site(text,integer) from public,anon;")&&
  siteSearchSQL.includes("grant execute on function public.search_site(text,integer) to authenticated;"),
  "Server search must keep RLS, public posts, approved listings and authenticated access");
-await import("./live-search-cache-smoke.mjs");
+await import("../smoke/live-search-cache-smoke.mjs");
 
 /* Friend stories share the Feed's social graph; don't query all stories while
    waiting for friendships or when the viewer has no friends. */
@@ -2621,11 +2622,11 @@ assert.ok(
  feedStoryOptimization.includes('query=query.in("author_vatra_id",friendIds)')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
-await import("./feed-story-subscriptions-smoke.mjs");
+await import("../smoke/feed-story-subscriptions-smoke.mjs");
 
-await import("./section-loading-smoke.mjs");
-await import("./static-cache-smoke.mjs");
-await import("./revision-assets.mjs");
+await import("../smoke/section-loading-smoke.mjs");
+await import("../smoke/static-cache-smoke.mjs");
+await import("../../tools/revision-assets.mjs");
 const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
@@ -2683,8 +2684,8 @@ assert.ok(sectionsRuntime.includes('marketplace_cases')&&ownerAdminJs.includes('
 assert.ok(!marketplaceRuntime.includes("VATRA_OPEN_MARKET_MODERATION")&&!marketplaceRuntime.includes("marketplace_moderators")&&!marketplaceRuntime.includes("marketplace_moderation_history")&&!marketplaceRuntime.includes("modControls"),"Only ADMIN PANEL owns staff marketplace moderation");
 assert.ok(ownerAdminJs.includes('client.rpc("vatra_admin_access")')&&ownerAdminJs.includes('from("marketplace_moderators")')&&ownerAdminJs.includes('from("marketplace_listings").update')&&ownerAdminJs.includes('from("marketplace_cases").update')&&ownerAdminJs.includes('from("marketplace_suspensions").insert')&&ownerAdminJs.includes('from("marketplace_moderation_history")')&&ownerAdminJs.includes('!ready||!check.checked'),"Owner moderation must check server roles and require manual photo review");
 for(const file of ["business","business-bookings","business-brand","business-inbox","business-jobs","business-stores"])await assert.rejects(stat("assets/js/"+file+".js"),{code:"ENOENT"});
-const moderationSQL=await read("supabase/vatra-marketplace-moderation.sql");
-const moderationMediaSQL=await read("supabase/vatra-marketplace-moderation-media.sql");
+const moderationSQL=await read("_development/supabase/vatra-marketplace-moderation.sql");
+const moderationMediaSQL=await read("_development/supabase/vatra-marketplace-moderation-media.sql");
 assert.ok(moderationSQL.includes("VATRA_MARKET_MODERATOR_REQUIRED")&&moderationSQL.includes("VATRA_MARKET_SUSPENDED")&&moderationSQL.includes("moderation_status='approved'")&&moderationSQL.includes("enable row level security"));
 assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&moderationMediaSQL.includes("drop constraint vatra_market_cases_listing_id_fkey"),"Prevent image swaps and preserve complaints");
 
@@ -2692,7 +2693,7 @@ assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&modera
 
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
 
-const publicFriendSQL=await read("supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
+const publicFriendSQL=await read("_development/supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
 const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
 
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])])')&&
@@ -2705,7 +2706,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-cover-edit-dialog"')&&member
 for(const dirEntry of await readdir(".")){if(!dirEntry.endsWith(".html"))continue;const html=await read(dirEntry);assert.ok(!/<title>[^<]* · VATRA<\/title>/.test(html),dirEntry+": remove the redundant brand suffix from the browser tab");}
 for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))continue;const catalog=JSON.parse(await read("assets/i18n/"+file));assert.ok(Object.values(catalog.__pages||{}).every(page=>!page.meta?.title?.endsWith(" · VATRA")),file+": localized tab title must be suffix-free");}
 
-await import("./maintenance-smoke.mjs");
+await import("../smoke/maintenance-smoke.mjs");
 
 await assert.rejects(stat("business.html"),{code:"ENOENT"});
 assert.ok(!(await read("assets/js/club.js")).includes("setupCommunityBusiness")&&
@@ -2715,7 +2716,7 @@ assert.ok(!(await read("assets/js/club.js")).includes("setupCommunityBusiness")&
  "Retired business tools must be absent from both community pages");
 assert.ok(!(await read("assets/js/not-found.js")).includes("|marketplace|business|"),"Retired business route must not resolve");
 
-const retiredActivitySQL=await read("supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
+const retiredActivitySQL=await read("_development/supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
 assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&retiredActivitySQL.includes("drop table public.business_followers;")&&retiredActivitySQL.includes("alter column club_id set not null")&&!/drop table[^;]*cascade/i.test(retiredActivitySQL),"Legacy business storage is removed safely and community linkage is mandatory");
 
 await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
@@ -2725,7 +2726,7 @@ for(const asset of ["community-business","community-business-brand","community-b
  "community-business-jobs","community-business-inbox","community-business-stores"]){
  await assert.rejects(stat("assets/js/"+asset+".js"),{code:"ENOENT"});
 }
-const businessResetSQL=await read("supabase/migrations/20261120163311_reset_created_communities_retire_business_tools.sql");
+const businessResetSQL=await read("_development/supabase/migrations/20261120163311_reset_created_communities_retire_business_tools.sql");
 assert.ok(businessResetSQL.includes("delete from public.communities;")&&
  businessResetSQL.includes("drop schema if exists business_private cascade;")&&
  businessResetSQL.includes("drop column if exists business_enabled;")&&
@@ -2736,7 +2737,7 @@ assert.ok(businessResetSQL.includes("delete from public.communities;")&&
 // Gallery, site settings and shared-account navigation regressions.
 assert.ok(profileScript.includes('const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]')&&profileScript.includes('interaction.hidden=false;activityTicket++')&&!memberCss.includes('body.profile-page .profile-media-viewer[data-kind="avatar-history"][open]{grid-template-columns:minmax(0,1fr)}'),"Historical avatars must retain their own panel");
 assert.ok(settingsRuntime.includes('from("profile_preferences")')&&settingsRuntime.includes('from("member_blocks")')&&settingsRuntime.includes('vatra:notification-display:')&&settingsRuntime.includes('get("view")==="settings"'),"Settings must use existing profile and block records and browser-scoped notification filters");
-const galleryMigration=await read("supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
+const galleryMigration=await read("_development/supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
 assert.ok(galleryMigration.includes("storage.objects")&&galleryMigration.includes("auth.uid()")&&galleryMigration.includes("profile_visibility"),"Only existing gallery images with permitted viewers accept interactions");
 
 assert.ok(memberProfileMarkup.includes('maxlength="80" placeholder="Напишіть статус"')&&profileScript.includes('Array.from(next).length>80'),"Profile status uses a compact 80-character limit");

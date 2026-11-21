@@ -1,4 +1,4 @@
-/* VATRA sign-in page — page-specific appearance (after shared base.css). */
+
 .site{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 12% 28%,#f2effb 0%,transparent 38%),linear-gradient(125deg,#fdfcff,#f7f9fe 75%)}.intro-side{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1.7vw,20px);position:relative;isolation:isolate;overflow:hidden;border:1px solid #e4e9f5;border-right:0;border-radius:28px 0 0 28px;padding:clamp(26px,3vw,46px) clamp(28px,3.9vw,64px);background:radial-gradient(circle at 53% 43%,rgba(226,232,255,.77),transparent 56%),linear-gradient(145deg,#fcfaff 8%,#f1f5ff 100%)}.intro-side:before{content:"";position:absolute;inset:-10% -30% 15% 10%;z-index:-2;background:radial-gradient(ellipse,#edf0ff 0%,transparent 68%)}
 .login-form-overline{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .login-form-kicker{display:inline-flex;align-items:center;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
@@ -9,7 +9,7 @@
 .site .form-box .action.secondary:hover{background:#f4f7ff;border-color:#6894f3}
 .site .form-box .or{margin:31px 0}
 
-/* VATRA saved-account selector: isolated component styles, never credentials. */
+
 .site .saved-switch-back{display:flex;align-items:center;justify-content:flex-end;gap:8px;width:100%;min-height:40px;padding:0;margin:0 0 16px;border:0;background:none;color:#677386;font:700 13px/1.45 "Onest",system-ui,sans-serif;text-align:right;cursor:pointer}
 .site .saved-switch-back[hidden]{display:none!important}
 .site .saved-switch-back:hover{color:var(--blue)}
@@ -21,7 +21,7 @@
 .site .saved-account-remove{position:relative;z-index:2;display:grid;place-items:center;margin-left:auto;width:38px;height:38px;padding:8px;border:1px solid #e2e9f4;border-radius:11px;background:#f6f8fd;color:#65738b;cursor:pointer;transition:background .18s,color .18s}
 .site .saved-account-remove:hover{background:#eef3ff;color:#285fd0}
 .site .saved-account-remove svg{width:21px;height:21px}
-/* Body-level, collision-aware hint: never cropped by the card, even on zoom. */
+
 .site .vatra-saved-tooltip{position:fixed;z-index:13000;display:block;width:max-content;max-width:min(248px,calc(100vw - 24px));padding:10px 13px;border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766;box-shadow:0 12px 30px rgba(26,44,92,.14);font-family:"Onest",Inter,system-ui,sans-serif;font-size:12px;font-weight:650;line-height:1.45;letter-spacing:0;text-align:left;white-space:normal;overflow-wrap:anywhere;pointer-events:none;opacity:0;transform:translateY(-4px);transition:opacity .16s ease,transform .16s ease}
 .site .vatra-saved-tooltip.is-visible{opacity:1;transform:translateY(0)}
 .site .vatra-saved-tooltip[hidden]{display:none!important}
@@ -34,7 +34,7 @@
 .site .saved-account-email{max-width:100%;margin:0 0 26px;color:#65748e;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
 .site .saved-account-overview,.site .saved-account-login{display:grid;gap:12px;align-content:center;min-height:151px;width:100%}
 .site .saved-account-primary,.site .saved-account-secondary{width:100%;min-height:53px}
-/* A secondary account choice remains clearly actionable, not a muted pill. */
+
 .site .saved-account-secondary{
  background:#fff;border:1.5px solid #a7bff3;color:#285ec6;
  box-shadow:0 2px 8px rgba(40,95,205,.04)
@@ -53,8 +53,7 @@
 .site .saved-account-return svg{width:18px;height:18px;flex:none}
 .site .saved-account-return:hover,.site .saved-account-return:focus-visible{color:var(--blue);transform:translateX(-2px);text-decoration:none}
 .site .saved-account-note{max-width:38ch;margin:22px 0 0;color:#728099;font-size:12px;line-height:1.65}
-/* The reminder is only for the account chooser. Hide it without collapsing
-   its slot so the saved-account card stays exactly the same size on password entry. */
+
 .site[data-saved-login="password"] .saved-account-note{visibility:hidden}
 .site .saved-remove-dialog{position:fixed;max-width:min(440px,calc(100vw - 32px));width:100%;padding:28px;border:1px solid #dce5f4;border-radius:22px;background:#fff;color:var(--ink);box-shadow:0 24px 80px rgba(15,25,55,.2);font-family:"Onest",system-ui,sans-serif}
 .site .saved-remove-dialog::backdrop{background:rgba(14,24,48,.55);backdrop-filter:blur(3px)}
@@ -65,9 +64,9 @@
 @media(max-width:540px){.site .saved-account-panel{border-radius:20px;padding:24px 19px}.site .saved-account-avatar{width:82px;height:82px}.site .saved-account-avatar span{font-size:30px}}
 @media(prefers-reduced-motion:reduce){.site .saved-account-content.is-revealing{animation:none!important}}
 
-/* VATRA: центральний логотип і вісім тематичних іконок на єдиній орбіті. */
 
-/* Іконки обертаються навколо центрального логотипа. */
+
+
 .intro-art{position:relative;isolation:isolate;container-type:inline-size;display:grid;place-items:center;flex:0 0 auto;width:100%;height:clamp(340px,calc(var(--inner-radius) * 2 + 64px),498px);min-height:0;max-height:none;margin:0 auto;--inner-radius:min(34cqw,226px)}
 .intro-circle{position:absolute;left:50%;top:50%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0}
 
@@ -104,7 +103,7 @@
 
 .orbit-icon:hover,.orbit-icon:focus-visible{background:var(--icon-bg,#f1f6ff);border-color:var(--icon-color,#7eacfa);box-shadow:0 11px 31px rgba(49,98,179,.16),0 0 0 5px color-mix(in srgb,var(--icon-color,#2865d8) 9%,transparent)}
 .orbit-icon:focus-visible{outline:3px solid #92b5fa;outline-offset:4px}
-/* Tooltip text is positioned on the stationary panel, not the rotating layer. */
+
 .orbit-tooltip{position:absolute;z-index:60;top:0;left:0;width:max-content;max-width:min(205px,72vw);display:flex;flex-direction:column;gap:4px;padding:11px 13px;border:1px solid #c8d8f7;border-radius:13px;background:#fff;box-shadow:0 15px 35px rgba(35,58,107,.16);color:var(--ink);font-size:12px;line-height:1.5;text-align:left;white-space:normal;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .18s ease,visibility .18s ease}
 .orbit-tooltip strong{font-size:12px;line-height:1.35;font-weight:750;letter-spacing:-.01em}
 .orbit-tooltip>span{font-size:11px;color:var(--soft);line-height:1.5;font-weight:450}
@@ -117,12 +116,12 @@
 @media (prefers-reduced-motion:reduce){.orbit-track,.orbit-face,.orbit-face svg,.intro-symbol{animation:none!important}.orbit-icon,.orbit-tooltip{transition:none!important}}
 
 .intro-circle:focus-visible{outline:2px solid var(--blue)} 
-/* VATRA welcome copy belongs under the orbit, not removed from the layout. */
+
 .intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0 auto;text-align:center}
 .intro-copy p{margin:0;color:var(--soft);font-size:15px;line-height:1.65;text-wrap:pretty;overflow-wrap:break-word}
 .intro-copy p strong{display:block;margin-bottom:7px;font-weight:750;color:var(--ink);font-size:16px;line-height:1.45}
 .form-side{display:flex;align-items:center;justify-content:center;padding:clamp(30px,4vw,66px) clamp(28px,4.3vw,70px);min-width:0;border:1px solid #e4e9f5;border-left:0;border-radius:0 28px 28px 0;background:#fff}
-/* The login label stays accessible; only the interior hint is visual. */
+
 .site .form-box .field:has(input.control)>span:first-child{
  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
  clip-path:inset(50%);white-space:nowrap;pointer-events:none
@@ -136,8 +135,8 @@
 .intro-symbol,
 .site .form-box{animation:none!important}}
 
-/* Узгоджена адаптація всіх наявних сторінок VATRA. */
-/* Signup navigation shares the eyebrow row instead of floating above the form. */
+
+
 @media (min-width:1200px) and (max-width:1399px){
   .intro-side{padding:24px clamp(24px,4vw,76px) 27px}
 .form-side{padding:24px clamp(23px,3vw,44px)}}

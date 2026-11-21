@@ -194,7 +194,7 @@ try{
    const tile=(gift,i)=>{
     const el=document.createElement(gift?"button":"a");el.className=gift?"profile-gift-tile":"profile-friend-tile";
     const art=document.createElement("span");art.className=gift?"profile-gift-art":"profile-friend-portrait";
-    const text=document.createElement("span");text.className=gift?"vt-profile-gift-name-001":"vt-profile-friend-name-"+i;
+    const text=document.createElement("span");text.className=gift?"vatra-profile-gift-name-001":"vatra-profile-friend-name-"+i;
     text.textContent=gift?"Перший вогник":"Ім’я "+i;el.append(art,text);return el;
    };
    const measure=list=>Array.from(list.children,el=>{const r=el.getBoundingClientRect(),a=el.firstElementChild.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,center:a.left+a.width/2,bottom:r.bottom,avatarW:a.width,avatarH:a.height};});
@@ -234,7 +234,7 @@ try{
    '<main class="profile-posts-section">'+
    '<div class="profile-left-stack"><aside id="profile-friends-preview" class="profile-mini-card">'+
    '<h2>Друзі</h2><div id="profile-friends-preview-list" class="profile-friends-preview-grid"> \n </div>'+
-   '<p id="profile-friends-preview-empty" class="vt-profile-friends-preview-empty-001">Друзів поки немає</p></aside></div>'+
+   '<p id="profile-friends-preview-empty" class="vatra-profile-friends-preview-empty-001">Друзів поки немає</p></aside></div>'+
    '<div class="profile-posts-main"><header class="profile-posts-overview">Публікації</header>'+
    '<div id="profile-quick-compose" class="profile-quick-compose">Додати публікацію</div>'+
    '<div id="profile-posts" class="feed-posts"> \n </div>'+
@@ -304,16 +304,16 @@ try{
     JSON.stringify({width,...feedLoaded}));
   await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
    '<body class="feed-page community-page"><section class="club-posts-section">'+
-   '<h2 class="vt-club-posts-title-001">Публікації</h2>'+
+   '<h2 class="vatra-club-posts-title-001">Публікації</h2>'+
    '<div id="club-posts" class="club-posts"> \n </div>'+
-   '<p id="club-posts-empty" class="vt-club-posts-empty-001">Поки немає дописів</p>'+
+   '<p id="club-posts-empty" class="vatra-club-posts-empty-001">Поки немає дописів</p>'+
    '</section></body></html>',{waitUntil:"load"});
   const clubEmpty=await spacingProbe.evaluate(()=>{
    const section=document.querySelector(".club-posts-section");
    return {display:getComputedStyle(document.querySelector("#club-posts")).display,
     gap:parseFloat(getComputedStyle(section).rowGap),
     actual:document.querySelector("#club-posts-empty").getBoundingClientRect().top-
-     document.querySelector(".vt-club-posts-title-001").getBoundingClientRect().bottom};
+     document.querySelector(".vatra-club-posts-title-001").getBoundingClientRect().bottom};
   });
   assert.ok(clubEmpty.display==="none"&&nearly(clubEmpty.gap,expected)&&
    nearly(clubEmpty.actual,expected),
@@ -692,7 +692,7 @@ try{
   modalAnimations.backdrop.includes("vatraLanguageBackdrop"),
   "Language dialog shell must stay still and only its content may rise");
  assert.deepEqual(await page.locator(".language-option").evaluateAll(nodes=>
-  nodes.map(node=>node.className.match(/vt-language-choice-([a-z]+)/)?.[1])),
+  nodes.map(node=>node.className.match(/vatra-language-choice-([a-z]+)/)?.[1])),
   ["uk","en","pl","de","fr","it","ka","bg"],
   "VATRA must show exactly eight selected languages and no removed placeholders");
  assert.equal(await page.locator(".language-option:disabled").count(),6,
@@ -708,7 +708,7 @@ try{
  await localizedSignup.waitForFunction(()=>document.documentElement.lang==="en");
  // Opera/Chromium birthday dropdowns should never show the tiny native
  // up/down scrollbar arrows, and the graphite thumb follows pointer presence.
- await localizedSignup.locator(".vt-select-trigger-birth-day").click();
+ await localizedSignup.locator(".vatra-select-trigger-birth-day").click();
  const dateList=localizedSignup.locator(".ui-select-options-birth-day");
  await dateList.waitFor({state:"visible"});
  const dateScroller=dateList.locator(".vatra-select-scroll-area");
@@ -840,7 +840,7 @@ try{
   await probe.setViewportSize({width,height});
   await probe.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
   await waitReady(probe);
-  const entry=probe.locator(".ui-create-account-footer-001 .vt-create-account-footer-signin");
+  const entry=probe.locator(".ui-create-account-footer-001 .vatra-create-account-footer-signin");
   assert.equal(await entry.count(),1);
   assert.equal(await entry.isVisible(),true,"Footer sign-in link must be visible at "+width);
   assert.equal(new URL(await entry.getAttribute("href"),base).href,base);
@@ -1420,9 +1420,9 @@ try{
   const previous=tab.url();
   await tab.evaluate(url=>location.assign(url),base+"missing/return-example");
   await tab.waitForURL("**/missing/return-example");
-  await tab.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending")&&document.querySelector(".vt-404-back-label-001")?.hidden===false);
+  await tab.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending")&&document.querySelector(".vatra-404-back-label-001")?.hidden===false);
   assert.equal(await tab.locator(".error-home-link").evaluate(el=>el.href),previous,"A missing page must return to the actual internal referring page");
-  assert.equal(await tab.locator(".vt-404-back-label-001").textContent(),language==="en"?"Go back":"Повернутися назад");
+  assert.equal(await tab.locator(".vatra-404-back-label-001").textContent(),language==="en"?"Go back":"Повернутися назад");
   await tab.locator(".error-home-link").click();
   await tab.waitForURL(previous);
   await tab.close();
@@ -1615,7 +1615,7 @@ try{
    Math.abs(metrics.formWidth-metrics.introWidth)<=1.5&&
    (width<768||Math.abs(metrics.formWidth-520)<=1),
    "Recovery form must use the same centered 520px content column as login and registration: "+JSON.stringify(metrics));
-  const forgotCaption=await recoveryPage.locator('#forgot-form .vt-forgot-inline-01');
+  const forgotCaption=await recoveryPage.locator('#forgot-form .vatra-forgot-inline-01');
   // CSS-clipped captions remain accessible; Playwright's visibility heuristic
   // may still count their tiny layout rectangle as visible.
   const hiddenCaption=await forgotCaption.evaluate(el=>({
@@ -1677,7 +1677,7 @@ try{
    alignment.brandRight<alignment.backRight&&alignment.brandRight<=width+1&&
    Math.abs(alignment.backMid-alignment.brandMid)<=2,
    "Small V logo must be inside the recovery card, opposite the back link: "+JSON.stringify(alignment));
-  assert.equal(await recoveryPage.locator(".vt-forgot-floating-hint-01").textContent(),
+  assert.equal(await recoveryPage.locator(".vatra-forgot-floating-hint-01").textContent(),
    language==="uk"?"Електронна пошта":"Email address");
   assert.equal(await recoveryPage.locator(".forgot-kicker").count(),0,
    "The extra recovery eyebrow must be absent in both languages");
@@ -1699,7 +1699,7 @@ try{
   assert.equal(stageMotion,"vatraAuthReveal","Entire OTP content, including logo, must share the reveal animation");
   assert.equal(otpFragment,"none","OTP heading and fields must not animate independently");
   const codeField=recoveryPage.locator("#recovery-token");
-  const codeHint=recoveryPage.locator(".vt-forgot-floating-hint-02");
+  const codeHint=recoveryPage.locator(".vatra-forgot-floating-hint-02");
   assert.equal(await codeField.getAttribute("placeholder")," ");
   assert.equal(await codeHint.textContent(),language==="uk"?"Введіть код":"Enter code");
   await codeField.focus();
@@ -2063,7 +2063,7 @@ try{
    path+" must share the typography");
   assert.equal(await tip.evaluate(el=>getComputedStyle(el).fontSize),"13px");
   if(path==="create-account.html"){
-   assert.equal(await policyPage.locator(".vt-create-account-paragraph-02").count(),0);
+   assert.equal(await policyPage.locator(".vatra-create-account-paragraph-02").count(),0);
    assert.equal(await policyPage.locator(".signup-step").first().evaluate(el=>getComputedStyle(el).animationName),"none");
    await policyPage.evaluate(()=>{
     document.body.dataset.createAccountStep="2";
@@ -2081,8 +2081,8 @@ try{
  for(const language of ["uk","en"]){
   await context.addCookies([{name:"vatra-language",value:language,url:base}]);
   for(const [route,selector] of [
-   ["create-account.html",".vt-create-account-floating-hint-03"],
-   ["reset.html",".vt-reset-floating-hint-01"]
+   ["create-account.html",".vatra-create-account-floating-hint-03"],
+   ["reset.html",".vatra-reset-floating-hint-01"]
   ]){
    const emailPage=await context.newPage();
    await emailPage.goto(base+route,{waitUntil:"domcontentloaded"});
@@ -2162,7 +2162,7 @@ try{
   await waitReady(resetPage);
   await resetPage.waitForFunction(lang=>document.documentElement.lang===lang,language);
   const token=resetPage.locator("#recovery-token");
-  assert.equal(await resetPage.locator(".vt-reset-floating-hint-02").textContent(),
+  assert.equal(await resetPage.locator(".vatra-reset-floating-hint-02").textContent(),
    language==="uk"?"Введіть код":"Enter code");
   await token.focus();
   await resetPage.waitForTimeout(240);
@@ -2617,7 +2617,7 @@ try{
  assert.ok(passwordMotion.shell==="none"&&passwordMotion.content==="vatraAuthReveal"&&
   passwordMotion.top==="none"&&passwordMotion.form==="none"&&passwordMotion.hasCommonParent,
   "On the password step, avatar, name, fields and note must reveal as one inner content block: "+JSON.stringify(passwordMotion));
- assert.equal(await savedPage.locator(".vt-home-saved-field-title-001").evaluate(
+ assert.equal(await savedPage.locator(".vatra-home-saved-field-title-001").evaluate(
   node=>getComputedStyle(node).clipPath),"inset(50%)",
   "Saved account captions must be screen-reader-only");
  await savedPage.locator("#saved-password").fill("WrongPass@123");
@@ -2916,10 +2916,10 @@ try{
  const typography=await ownerFriends.evaluate(async()=>{
   await document.fonts.ready;
   const read=selector=>{const s=getComputedStyle(document.querySelector(selector));return {family:s.fontFamily,size:parseFloat(s.fontSize),weight:Number(s.fontWeight),line:parseFloat(s.lineHeight)};};
-  return {loaded:document.fonts.check('16px Onest'),heading:read("#friends-heading"),name:read(".vt-vatra-friends-name-1"),status:read(".vt-vatra-friends-subtitle-1"),action:read(".vt-vatra-friends-remove-1"),label:read(".vt-vatra-friends-tab-label-accepted"),count:read(".vt-vatra-friends-tab-count-accepted")};
+  return {loaded:document.fonts.check('16px Onest'),heading:read("#friends-heading"),name:read(".vatra-friends-name-1"),status:read(".vatra-friends-subtitle-1"),action:read(".vatra-friends-remove-1"),label:read(".vatra-friends-tab-label-accepted"),count:read(".vatra-friends-tab-count-accepted")};
  });
  assert.ok(typography.loaded&&[typography.heading,typography.name,typography.status,typography.action,typography.label,typography.count].every(s=>s.family.includes("Onest")&&s.line>s.size)&&typography.heading.size===24&&typography.name.size===16&&typography.name.weight>typography.status.weight&&typography.status.size===13&&typography.count.size<typography.label.size,"Friends typography must follow the Onest hierarchy: "+JSON.stringify(typography));
- await ownerFriends.locator(".vt-vatra-friends-remove-1").click();
+ await ownerFriends.locator(".vatra-friends-remove-1").click();
  await ownerFriends.waitForFunction(()=>window.__vatraFriendDeleteAttempts===1);
  assert.equal(await ownerFriends.locator(".vatra-friends-person").count(),1,
   "Denied deletion must leave the friend row intact");
@@ -2927,7 +2927,7 @@ try{
   "Не вдалося виконати дію"),
   "A zero-row DELETE must be reported as unsuccessful");
  await ownerFriends.evaluate(()=>{window.__vatraFriendDenyDelete=false;});
- await ownerFriends.locator(".vt-vatra-friends-remove-1").click();
+ await ownerFriends.locator(".vatra-friends-remove-1").click();
  await ownerFriends.waitForFunction(()=>window.__vatraFriendDeleteAttempts===2&&
   document.querySelectorAll(".vatra-friends-person").length===0);
  assert.equal(await ownerFriends.evaluate(()=>window.__vatraFriendActionRows.length),0);
@@ -2960,7 +2960,7 @@ try{
   return el.dispatchEvent(event)===false;
  });
  assert.equal(preventsMenu,true,"Decorative gift stage cannot expose the image context menu");
- await giftsProbe.locator(".vt-vatra-gift-viewer-close-001").click();
+ await giftsProbe.locator(".vatra-gift-viewer-close-001").click();
  await giftsProbe.waitForFunction(()=>document.querySelectorAll(".vatra-gift-particle").length===0);
  assert.equal(await giftsProbe.locator(".vatra-gift-particle").count(),0,
   "Closing the viewer must tear down its visual effects");
@@ -3002,28 +3002,28 @@ try{
   await feedProbe.locator(".feed-account-toggle").click();
   await feedProbe.locator("#vatra-onboarding-replay").click();
   await feedProbe.locator("#vatra-tour-dialog").waitFor({state:"visible"});
-  assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(el=>
+  assert.equal(await feedProbe.locator(".vatra-tour-mascot-001").evaluate(el=>
    el.tagName==="SPAN"&&getComputedStyle(el).backgroundImage.includes("vatryk_welcome.webp")),
    true,"Welcome Vatryk must be decorative and non-draggable");
-  assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(async el=>{
+  assert.equal(await feedProbe.locator(".vatra-tour-mascot-001").evaluate(async el=>{
    const image=new Image();
    image.src="/VATRA/assets/vatryk/vatryk_welcome.webp";
    try{await image.decode();return image.naturalWidth>0;}catch(_){return false;}
   }),true,"The original welcome PNG must load");
-  await feedProbe.locator(".vt-tour-next-001").click();
-  assert.equal(await feedProbe.locator(".vt-tour-heading-001").textContent(),
+  await feedProbe.locator(".vatra-tour-next-001").click();
+  assert.equal(await feedProbe.locator(".vatra-tour-heading-001").textContent(),
    language==="uk"?"Пошук у VATRA":"Search VATRA");
-  await feedProbe.locator(".vt-tour-spotlight-001").waitFor({state:"visible",timeout:3000});
-  assert.equal(await feedProbe.locator(".vt-tour-spotlight-001").isVisible(),true,
+  await feedProbe.locator(".vatra-tour-spotlight-001").waitFor({state:"visible",timeout:3000});
+  assert.equal(await feedProbe.locator(".vatra-tour-spotlight-001").isVisible(),true,
    "An actual Feed control should be highlighted");
-  assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
-  await feedProbe.locator(".vt-tour-next-001").click();
-  assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("2"));
-  assert.equal(await feedProbe.locator(".vt-tour-heading-001").textContent(),
+  assert.ok((await feedProbe.locator(".vatra-tour-progress-001").textContent()).includes("1"));
+  await feedProbe.locator(".vatra-tour-next-001").click();
+  assert.ok((await feedProbe.locator(".vatra-tour-progress-001").textContent()).includes("2"));
+  assert.equal(await feedProbe.locator(".vatra-tour-heading-001").textContent(),
    language==="uk"?"Твоя стрічка":"Your feed");
-  await feedProbe.locator(".vt-tour-back-001").click();
-  assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
-  await feedProbe.locator(".vt-tour-skip-001").click();
+  await feedProbe.locator(".vatra-tour-back-001").click();
+  assert.ok((await feedProbe.locator(".vatra-tour-progress-001").textContent()).includes("1"));
+  await feedProbe.locator(".vatra-tour-skip-001").click();
   assert.equal(await feedProbe.locator("#vatra-tour-dialog").isVisible(),false);
   const firstSteps=feedProbe.locator("#vatra-first-steps");
   await firstSteps.waitFor({state:"visible"});
@@ -3037,7 +3037,7 @@ try{
    return {gap:steps.top-filter.bottom,left:Math.abs(steps.left-filter.left),width:Math.abs(steps.width-filter.width)};
   });
   assert.ok(stepsGeometry.gap>=10&&stepsGeometry.gap<=20&&stepsGeometry.left<2&&stepsGeometry.width<2,"First steps must sit immediately under the Feed filter at the same width");
-  await firstSteps.locator(".vt-feed-first-steps-refresh-001").click();
+  await firstSteps.locator(".vatra-feed-first-steps-refresh-001").click();
   assert.equal(await feedProbe.locator("#vatra-tour-dialog").isVisible(),false);
   console.log("VATRA first-visit: UK/EN welcome artwork, spotlight, Back, Skip, replay and tasks: OK");
 
@@ -3075,7 +3075,7 @@ try{
    "All VATRA header icons must be interactive, including coming-soon previews");
   assert.equal(await feedProbe.locator(".feed-header-icon-button:disabled").count(),0,
    "Right header controls must not be inert");
-  assert.equal((await feedProbe.locator(".vt-shell-nav-label-feed-001").textContent()).trim(),
+  assert.equal((await feedProbe.locator(".vatra-shell-nav-label-feed-001").textContent()).trim(),
    language==="en"?"Feed":"Стрічка");
   assert.ok((await feedProbe.locator(".feed-header-brand img").getAttribute("src")).endsWith("logo_symbol.svg"),
    "The VATRA V symbol, not the full wordmark, belongs at the left edge");
@@ -3176,7 +3176,7 @@ try{
   assert.equal(gallerySafety.tooManyVideos,true,"A post must reject more than four videos");
   assert.equal(await feedProbe.locator("#vatra-smoke-gallery .vatra-post-gallery-tile").count(),5,
    "A seven-photo post must render a five-tile mosaic, not seven giant images");
-  assert.equal((await feedProbe.locator("#vatra-smoke-gallery .vt-vatra-post-gallery-extra-001").textContent()).trim(),"+2");
+  assert.equal((await feedProbe.locator("#vatra-smoke-gallery .vatra-post-gallery-extra-001").textContent()).trim(),"+2");
   await feedProbe.locator("#vatra-smoke-gallery").evaluate(el=>el.remove());
   // Neither a gallery video nor an inline player should sign an asset before
   // an explicit click. This prevents full-file MP4 metadata range requests.
@@ -3204,14 +3204,14 @@ try{
    "Video preview must not create a hidden video element that fetches MP4 bytes");
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraVideoSmoke),{signed:0,batched:0},
    "Unplayed videos must not request signed URLs");
-  const playVideo=feedProbe.locator("#vatra-smoke-video .vt-feed-post-video-play-001");
+  const playVideo=feedProbe.locator("#vatra-smoke-video .vatra-feed-post-video-play-001");
   assert.equal(await playVideo.isVisible(),true);
   assert.equal((await playVideo.innerText()).trim(),language==="en"?"Play video":"Відтворити відео");
   await playVideo.click();
   await feedProbe.locator("#vatra-smoke-video video[controls]").waitFor({state:"attached"});
   assert.equal(await feedProbe.evaluate(()=>window.__vatraVideoSmoke.signed),1,
    "User-triggered playback should sign exactly one media file");
-  assert.equal(await feedProbe.locator("#vatra-smoke-video .vt-feed-post-video-expand-001").count(),1,
+  assert.equal(await feedProbe.locator("#vatra-smoke-video .vatra-feed-post-video-expand-001").count(),1,
    "Playback must keep fullscreen controls");
   await feedProbe.locator("#vatra-smoke-video").evaluate(el=>{
    for(const video of el.querySelectorAll("video")){
@@ -3281,7 +3281,7 @@ try{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const rect=dialog.getBoundingClientRect();
    return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,
-    caption:dialog.querySelector(".vt-vatra-post-media-caption-001")?.textContent};
+    caption:dialog.querySelector(".vatra-post-media-caption-001")?.textContent};
   });
   assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&
    Math.abs(postFrame.h-postFrame.vh)<=2,
@@ -3318,17 +3318,17 @@ try{
   await feedProbe.locator("#feed-compose-media-preview .vatra-gallery-picker-tile>button").first().click();
   assert.equal(await feedProbe.locator("#feed-compose-media-preview .vatra-gallery-picker-tile").count(),1,
    "Removing one attachment must preserve the other");
-  assert.equal(await feedProbe.locator(".vt-vatra-post-composer-next-001").isEnabled(),true,
+  assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isEnabled(),true,
    "Selecting media without text must unlock Next in Feed");
-  await feedProbe.locator(".vt-vatra-post-composer-next-001").click();
+  await feedProbe.locator(".vatra-post-composer-next-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-composer-settings").isVisible(),true,
    "Media-only Feed post must reach visibility settings");
-  await feedProbe.locator(".vt-vatra-post-composer-back-001").click();
+  await feedProbe.locator(".vatra-post-composer-back-001").click();
   await feedProbe.locator("#feed-compose-media-remove").click();
-  assert.equal(await feedProbe.locator(".vt-vatra-post-composer-next-001").isDisabled(),true,
+  assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isDisabled(),true,
    "Removing the only attachment must lock Next in Feed");
   await feedProbe.locator("#feed-compose-text").fill("VATRA Feed publishing smoke test");
-  await feedProbe.locator(".vt-vatra-post-composer-next-001").click();
+  await feedProbe.locator(".vatra-post-composer-next-001").click();
   await feedProbe.locator("#feed-compose-save").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),
@@ -3383,7 +3383,7 @@ try{
    "The viewer is created only when requested");
   assert.equal(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls.length),0,
    "Comment content must not trigger an RPC before opening the viewer");
-  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
+  await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-toggle-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>el.open),true,
    "Clicking the SVG comment action opens a native centered dialog");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),true,
@@ -3405,15 +3405,15 @@ try{
   assert.equal(await feedProbe.evaluate(()=>window.__vatraSmokeParentCountQueries),0,
    "No per-comment reply count queries may run for root comments");
   const replyLabels=await feedProbe.locator(
-   "#vatra-smoke-inline-interactions .vt-vatra-comment-expand-replies-001").allTextContents();
+   "#vatra-smoke-inline-interactions .vatra-comment-expand-replies-001").allTextContents();
   const replyLocale=await feedProbe.evaluate(()=>document.documentElement.lang);
   assert.deepEqual(replyLabels,replyLocale==="en"?
    ["2 replies","1 reply"]:["2 відповідей","1 відповідь"],
    "Batched totals must preserve each localized reply count label");
-  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
+  await feedProbe.locator(".vatra-post-comment-dialog-close-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
    "Closing the viewer must restore the original post without a duplicate");
-  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
+  await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-toggle-001").click();
   await feedProbe.waitForFunction(()=>{
    const list=document.querySelector(".vatra-post-comment-dialog .ui-vatra-post-comment-list-001");
    return list?.getAttribute("aria-busy")==="false"&&
@@ -3433,13 +3433,13 @@ try{
   assert.deepEqual(postDividers,{
    interactions:"1px",actions:"0px",comments:"0px",composer:"0px"
   },"One divider immediately beneath media, above post action counts");
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-action-label-001").first().evaluate(
+  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-action-label-001").first().evaluate(
    el=>getComputedStyle(el).position),"absolute",
    "Post actions must show only icons while retaining accessible names");
   for(const selector of [
-   ".vt-vatra-post-like-count-001",
-   ".vt-vatra-post-comments-count-001",
-   ".vt-vatra-post-shares-count-001"
+   ".vatra-post-like-count-001",
+   ".vatra-post-comments-count-001",
+   ".vatra-post-shares-count-001"
   ]){
    assert.equal((await feedProbe.locator("#vatra-smoke-inline-interactions "+selector).textContent()).trim(),"0",
     "Each SVG post action starts with a visible numeric count");
@@ -3449,26 +3449,26 @@ try{
 
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-composer-avatar").count(),1,
    "Inline comment composer has the same circular member portrait as the feed");
-  const emojiControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-emoji-001");
+  const emojiControl=feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-emoji-001");
   await emojiControl.click();
   await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").isVisible(),true,
    "Emoji picker opens inside the current comment composer");
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vt-vatra-post-comment-emoji-option-001").length>1000);
-  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-sticker-tab-001").click();
-  await feedProbe.locator(".vt-vatra-sticker-option-001").first().waitFor();
-  assert.equal(await feedProbe.locator(".vt-vatra-sticker-pack-001").count(),9);
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-post-comment-emoji-option-001").length>1000);
+  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-sticker-tab-001").click();
+  await feedProbe.locator(".vatra-sticker-option-001").first().waitFor();
+  assert.equal(await feedProbe.locator(".vatra-sticker-pack-001").count(),9);
   await feedProbe.getByRole("button",{name:"Батя",exact:true}).click().catch(async()=>{await feedProbe.getByRole("button",{name:"Dad",exact:true}).click();});
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vt-vatra-sticker-option-001").length===20);
-  await feedProbe.waitForFunction(()=>{const art=document.querySelector(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001");return art&&art.style.width&&art.style.visibility!=="hidden";});
-  const cropRatio=await feedProbe.locator(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001").first().evaluate(async art=>{
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-sticker-option-001").length===20);
+  await feedProbe.waitForFunction(()=>{const art=document.querySelector(".vatra-sticker-option-001 .ui-vatra-sticker-art-001");return art&&art.style.width&&art.style.visibility!=="hidden";});
+  const cropRatio=await feedProbe.locator(".vatra-sticker-option-001 .ui-vatra-sticker-art-001").first().evaluate(async art=>{
    const mod=await import(new URL("assets/js/comment-picker.js",location.href).href);
    const image=new Image();image.src=JSON.parse(art.style.backgroundImage.slice(4,-1));await image.decode();
    const pack=mod.packs.find(p=>p.id==="dad"||p.uk==="Батя"),[, ,w,h]=pack.rects[0],rect=art.getBoundingClientRect();
    return {actual:rect.width/rect.height,expected:w*image.naturalWidth/(h*image.naturalHeight)};
   });
   assert.ok(Math.abs(cropRatio.actual-cropRatio.expected)<.03,"Sticker thumbnails preserve the crop aspect ratio");
-  await feedProbe.locator(".vt-vatra-sticker-option-001").first().click();
+  await feedProbe.locator(".vatra-sticker-option-001").first().click();
   await feedProbe.waitForFunction(()=>!!window.__vatraSmokeStickerInsert?.media_path);
   const sentSticker=await feedProbe.evaluate(()=>({upload:window.__vatraSmokeStickerUpload,insert:window.__vatraSmokeStickerInsert}));
   assert.equal(sentSticker.upload.bucket,"post-images");
@@ -3479,13 +3479,13 @@ try{
   assert.equal(sentSticker.insert.body,"");
   assert.equal(await feedProbe.locator(".vatra-post-comment-file-preview").isVisible(),false,"Sticker sends directly without a file-preview step");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"","Sticker is an independent image, not fake emoji text");
-  const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-attach-001");
+  const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-001");
   await attachmentControl.click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
 
-  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
+  await feedProbe.locator(".vatra-post-comment-dialog-close-001").click();
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
 
   const batchedPostStats=await feedProbe.evaluate(async()=>{
@@ -3521,11 +3521,11 @@ try{
    const result={
     rpcCalls:calls.length,rpcName:calls[0]?.name,postCount:calls[0]?.posts?.length,
     records:batch.size,rowQueries,
-    likes:value(".vt-vatra-post-like-count-001"),
-    comments:value(".vt-vatra-post-comments-count-001"),
-    shares:value(".vt-vatra-post-shares-count-001"),
-    liked:el.querySelector(".vt-vatra-post-like-001")?.getAttribute("aria-pressed"),
-    saved:el.querySelector(".vt-vatra-post-save-001")?.getAttribute("aria-pressed")
+    likes:value(".vatra-post-like-count-001"),
+    comments:value(".vatra-post-comments-count-001"),
+    shares:value(".vatra-post-shares-count-001"),
+    liked:el.querySelector(".vatra-post-like-001")?.getAttribute("aria-pressed"),
+    saved:el.querySelector(".vatra-post-save-001")?.getAttribute("aria-pressed")
    };
    el.remove();return result;
   });
@@ -3581,45 +3581,45 @@ try{
    }});
   });
   const reactHost="#vatra-reaction-integrity-test";
-  const reactLike=feedProbe.locator(reactHost+" .vt-vatra-post-like-001");
-  const reactSave=feedProbe.locator(reactHost+" .vt-vatra-post-save-001");
+  const reactLike=feedProbe.locator(reactHost+" .vatra-post-like-001");
+  const reactSave=feedProbe.locator(reactHost+" .vatra-post-save-001");
   await reactLike.click();
   await feedProbe.waitForFunction(()=>window.__vatraReactionTest.deleted.includes("post_likes")&&
-   !document.querySelector("#vatra-reaction-integrity-test .vt-vatra-post-like-001").disabled);
+   !document.querySelector("#vatra-reaction-integrity-test .vatra-post-like-001").disabled);
   assert.equal(await reactLike.getAttribute("aria-pressed"),"true");
-  assert.equal((await feedProbe.locator(reactHost+" .vt-vatra-post-like-count-001").textContent()).trim(),"1");
+  assert.equal((await feedProbe.locator(reactHost+" .vatra-post-like-count-001").textContent()).trim(),"1");
   await reactSave.click();
   await feedProbe.waitForFunction(()=>window.__vatraReactionTest.deleted.includes("post_saves")&&
-   !document.querySelector("#vatra-reaction-integrity-test .vt-vatra-post-save-001").disabled);
+   !document.querySelector("#vatra-reaction-integrity-test .vatra-post-save-001").disabled);
   assert.equal(await reactSave.getAttribute("aria-pressed"),"true",
    "Silent zero-row unsave must preserve the bookmark");
-  assert.equal(await feedProbe.locator(reactHost+" .vt-vatra-post-interactions-status-001")
+  assert.equal(await feedProbe.locator(reactHost+" .vatra-post-interactions-status-001")
    .getAttribute("data-state"),"error");
-  assert.equal(await feedProbe.locator(reactHost+" .vt-vatra-post-interactions-status-001")
+  assert.equal(await feedProbe.locator(reactHost+" .vatra-post-interactions-status-001")
    .isVisible(),true,
    "Failed unsave feedback must be visible without opening comments");
-  await feedProbe.locator(reactHost+" .vt-vatra-post-comments-toggle-001").click();
-  const commentHeart=feedProbe.locator(".vatra-post-comment-dialog .vt-vatra-post-comment-like-001");
+  await feedProbe.locator(reactHost+" .vatra-post-comments-toggle-001").click();
+  const commentHeart=feedProbe.locator(".vatra-post-comment-dialog .vatra-post-comment-like-001");
   await commentHeart.waitFor({state:"visible"});
   assert.equal(await commentHeart.getAttribute("aria-pressed"),"true");
   await commentHeart.click();
   await feedProbe.waitForFunction(()=>window.__vatraReactionTest.deleted.includes("post_comment_likes")&&
-   !document.querySelector(".vatra-post-comment-dialog .vt-vatra-post-comment-like-001").disabled);
+   !document.querySelector(".vatra-post-comment-dialog .vatra-post-comment-like-001").disabled);
   assert.equal(await commentHeart.getAttribute("aria-pressed"),"true",
    "Silent zero-row comment unlike must preserve the heart");
-  assert.equal((await feedProbe.locator(".vatra-post-comment-dialog .vt-vatra-post-comment-like-count-001")
+  assert.equal((await feedProbe.locator(".vatra-post-comment-dialog .vatra-post-comment-like-count-001")
    .textContent()).trim(),"1");
   await feedProbe.evaluate(()=>{window.__vatraReactionTest.allow=true;});
   await commentHeart.click();
   await feedProbe.waitForFunction(()=>document.querySelector(
-   ".vatra-post-comment-dialog .vt-vatra-post-comment-like-001")?.getAttribute("aria-pressed")==="false");
-  await feedProbe.locator(".vatra-post-comment-dialog .vt-vatra-post-comment-dialog-close-001").click();
+   ".vatra-post-comment-dialog .vatra-post-comment-like-001")?.getAttribute("aria-pressed")==="false");
+  await feedProbe.locator(".vatra-post-comment-dialog .vatra-post-comment-dialog-close-001").click();
   await reactLike.click();
   await feedProbe.waitForFunction(()=>document.querySelector(
-   "#vatra-reaction-integrity-test .vt-vatra-post-like-001")?.getAttribute("aria-pressed")==="false");
+   "#vatra-reaction-integrity-test .vatra-post-like-001")?.getAttribute("aria-pressed")==="false");
   await reactSave.click();
   await feedProbe.waitForFunction(()=>document.querySelector(
-   "#vatra-reaction-integrity-test .vt-vatra-post-save-001")?.getAttribute("aria-pressed")==="false");
+   "#vatra-reaction-integrity-test .vatra-post-save-001")?.getAttribute("aria-pressed")==="false");
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraReactionTest.deleted),[
    "post_likes","post_saves","post_comment_likes",
    "post_comment_likes","post_likes","post_saves"
@@ -3664,22 +3664,22 @@ try{
   });
   const shareRoot="#vatra-share-smoke";
   const shareDialog="#vatra-share-smoke-dialog";
-  await feedProbe.locator(shareRoot+" .vt-vatra-post-share-toggle-001").click();
-  await feedProbe.locator(shareDialog+" .vt-vatra-post-share-profile-001").click();
+  await feedProbe.locator(shareRoot+" .vatra-post-share-toggle-001").click();
+  await feedProbe.locator(shareDialog+" .vatra-post-share-profile-001").click();
   await feedProbe.waitForFunction(()=>window.__vatraShareSmoke.reposts.length===1);
   assert.equal(await feedProbe.locator(shareDialog).evaluate(el=>el.open),false,
    "A successfully committed repost must close its dialog");
-  assert.ok((await feedProbe.locator(shareRoot+" .vt-vatra-post-interactions-status-001").textContent())
+  assert.ok((await feedProbe.locator(shareRoot+" .vatra-post-interactions-status-001").textContent())
    .includes(language==="en"?"Shared to your profile":"Публікацію додано"),
    "An exception in the caller's refresh cannot change a successful repost into an error");
   assert.equal(await feedProbe.evaluate(()=>window.__vatraShareSmoke.onShared),1);
-  await feedProbe.locator(shareRoot+" .vt-vatra-post-share-toggle-001").click();
-  await feedProbe.locator(shareDialog+" .vt-vatra-post-share-message-001").click();
+  await feedProbe.locator(shareRoot+" .vatra-post-share-toggle-001").click();
+  await feedProbe.locator(shareDialog+" .vatra-post-share-message-001").click();
   await feedProbe.waitForFunction(()=>document.querySelector(
-   "#vatra-share-smoke-dialog .vt-vatra-post-send-message-001")?.disabled===false);
+   "#vatra-share-smoke-dialog .vatra-post-send-message-001")?.disabled===false);
   assert.equal(await feedProbe.locator(shareDialog+" .ui-vatra-post-share-friend-select-001").inputValue(),"13",
    "Only an accepted friend should populate the share recipient");
-  assert.equal(await feedProbe.locator(shareDialog+" .vt-vatra-post-send-message-001").isEnabled(),true,
+  assert.equal(await feedProbe.locator(shareDialog+" .vatra-post-send-message-001").isEnabled(),true,
    "Accepted friends can be selected for an encrypted Messenger draft");
   const shareSecuritySource=await readFile(resolve(root,"assets/js/post-interactions.js"),"utf8");
   assert.ok(shareSecuritySource.includes('new URL("messenger.html",relativeRoot())')&&
@@ -3760,7 +3760,7 @@ try{
   assert.equal(await feedProbe.locator(".feed-account-dropdown #feed-menu-name").count(),0);
   const headerOrder=await feedProbe.evaluate(()=>{
    const controls=document.querySelector(".feed-header-controls");
-   const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")||c.startsWith("vt-")));
+   const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")||c.startsWith("vatra-")));
    return direct;
   });
   assert.deepEqual(headerOrder,["ui-shell-header-messenger-001",
@@ -3810,7 +3810,7 @@ try{
     Number(getComputedStyle(back).opacity)>.85&&
     Number(getComputedStyle(icon).opacity)<.15;
   },null,{timeout:2400});
-  assert.equal((await feedProbe.locator(".vt-search-panel-heading-001").innerText()).trim(),
+  assert.equal((await feedProbe.locator(".vatra-search-panel-heading-001").innerText()).trim(),
    language==="en"?"Recently viewed":"Нещодавно переглянуті");
   assert.equal((await feedProbe.locator("#vatra-search-edit").innerText()).trim(),
    language==="en"?"Edit":"Редагувати");
@@ -3959,11 +3959,11 @@ try{
   const storyCanvas=feedProbe.locator("#feed-story-media-preview canvas");
   assert.ok(await storyCanvas.isVisible(),"Photo must be drawn into the real story canvas");
   assert.equal(await storyCanvas.evaluate(el=>el.width/el.height),540/960);
-  await feedProbe.locator(".vt-vatra-story-tool-filters-001").click();
-  await feedProbe.locator(".vt-vatra-story-filter-001").nth(1).click();
-  assert.equal(await feedProbe.locator(".vt-vatra-story-filter-001").nth(1).getAttribute("aria-pressed"),"true");
-  await feedProbe.locator(".vt-vatra-story-undo-001").click();
-  assert.equal(await feedProbe.locator(".vt-vatra-story-filter-001").first().getAttribute("aria-pressed"),"true");
+  await feedProbe.locator(".vatra-story-tool-filters-001").click();
+  await feedProbe.locator(".vatra-story-filter-001").nth(1).click();
+  assert.equal(await feedProbe.locator(".vatra-story-filter-001").nth(1).getAttribute("aria-pressed"),"true");
+  await feedProbe.locator(".vatra-story-undo-001").click();
+  assert.equal(await feedProbe.locator(".vatra-story-filter-001").first().getAttribute("aria-pressed"),"true");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.media_kind),"image",
@@ -4035,7 +4035,7 @@ try{
   assert.equal(await feedProbe.locator(".feed-menu-support > svg").count(),1);
   assert.equal(await feedProbe.locator("#feed-logout > svg").count(),1,
    "All account actions must have persistent SVG icons in UK and EN");
-  assert.equal((await feedProbe.locator(".vt-vatra-account-settings-label-001").textContent()).trim(),
+  assert.equal((await feedProbe.locator(".vatra-account-settings-label-001").textContent()).trim(),
    language==="en"?"Settings":"Налаштування");
   assert.equal(await feedProbe.locator(".feed-menu-settings-link").evaluate(el=>{const url=new URL(el.href);return url.pathname.split("/").pop()+url.search+url.hash;}),"vatra-id?view=settings#general","Settings must navigate directly");
   assert.equal(await feedProbe.locator(".feed-menu-settings-panel, .feed-account-dropdown [data-language-trigger]").count(),0,"Language controls belong to Settings, not the avatar dropdown");
@@ -4209,9 +4209,9 @@ try{
   assert.equal(await feedProbe.locator(".feed-post-card:has(.vatra-post-owner-menu[open])").evaluate(
    el=>getComputedStyle(el).zIndex),"35",
    "Open post options must rise above subsequent animated post cards");
-  assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-archive-001").isVisible(),true);
-  assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-delete-001").isVisible(),true);
-  for(const action of ["pin","edit","copy","comments"])assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-"+action+"-001").isVisible(),true);
+  assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-archive-001").isVisible(),true);
+  assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-delete-001").isVisible(),true);
+  for(const action of ["pin","edit","copy","comments"])assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-"+action+"-001").isVisible(),true);
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".vatra-post-owner-panel").waitFor({state:"hidden"});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
@@ -4613,7 +4613,7 @@ try{
   assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
    "Inline post composer has a media action icon like Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
-  assert.equal((await profilePage.locator(".vt-social-profile-posts-tab-label-001").textContent()).trim(),
+  assert.equal((await profilePage.locator(".vatra-social-profile-posts-tab-label-001").textContent()).trim(),
    language==="en"?"Home":"Головна","First member tab uses Home, but the post panel remains Publications");
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
    "Information must be beside compact posts instead of its own tab");
@@ -4631,7 +4631,7 @@ try{
    profileSpacing.leftGap==="16px"&&profileSpacing.rightGap==="16px"&&
    profileSpacing.overviewHeight<80,
    "Profile About/Friends/Gifts/Posts spacing must be consistent: "+JSON.stringify(profileSpacing));
-  assert.equal((await profilePage.locator(".vt-profile-posts-overview-title-001").textContent()).trim(),
+  assert.equal((await profilePage.locator(".vatra-profile-posts-overview-title-001").textContent()).trim(),
    language==="en"?"Posts":"Публікації",
    "The publications column must have a clear localized section heading");
   const profileColumns=await profilePage.locator("#profile-posts-section").evaluate(section=>{
@@ -4685,15 +4685,15 @@ try{
   await profilePage.locator('.profile-editor-nav-link[data-group="profile"]').click();
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація",
    "Changing editor sections must preserve unsaved personal details");
-  await profilePage.locator(".vt-profile-editor-save-001").click();
-  await profilePage.waitForFunction(()=>document.querySelector(".vt-profile-editor-feedback-001")?.dataset.kind==="success");
+  await profilePage.locator(".vatra-profile-editor-save-001").click();
+  await profilePage.waitForFunction(()=>document.querySelector(".vatra-profile-editor-feedback-001")?.dataset.kind==="success");
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація");
-  assert.equal(await profilePage.locator(".vt-profile-editor-feedback-001").isVisible(),true);
-  await profilePage.locator(".vt-profile-editor-media-button-001").click();
+  assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").isVisible(),true);
+  await profilePage.locator(".vatra-profile-editor-media-button-001").click();
   assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
    "The media editor remains available from the new information editor");
   await profilePage.locator("#profile-edit-cancel").click();
-  await profilePage.locator(".vt-profile-editor-back-001").click();
+  await profilePage.locator(".vatra-profile-editor-back-001").click();
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-about-heading").textContent()).trim(),
@@ -4704,24 +4704,24 @@ try{
    "Read-only About facts should not use decorative icon tiles");
   assert.equal((await profilePage.locator("#profile-about-text").textContent()).trim(),"Тестова інформація");
   assert.equal(await profilePage.locator("#profile-about-text").evaluate(el=>getComputedStyle(el).textAlign),"center");
-  assert.equal(await profilePage.locator("#profile-about-card .vt-profile-information-label-short_bio").count(),0);
-  assert.equal((await profilePage.locator(".vt-profile-information-value-city").textContent()).trim(),"Київ",
+  assert.equal(await profilePage.locator("#profile-about-card .vatra-profile-information-label-short_bio").count(),0);
+  assert.equal((await profilePage.locator(".vatra-profile-information-value-city").textContent()).trim(),"Київ",
    "Current city has priority over hometown");
-  assert.equal(await profilePage.locator(".vt-profile-information-value-hometown").count(),0,
+  assert.equal(await profilePage.locator(".vatra-profile-information-value-hometown").count(),0,
    "Current city and hometown should not compete in the compact summary");
-  assert.equal((await profilePage.locator(".vt-profile-information-value-relationship").textContent()).trim(),language==="en"?"In a relationship":"Зустрічаюся");
-  assert.equal((await profilePage.locator(".vt-profile-about-website-001").textContent()).trim(),"https://example.org");
+  assert.equal((await profilePage.locator(".vatra-profile-information-value-relationship").textContent()).trim(),language==="en"?"In a relationship":"Зустрічаюся");
+  assert.equal((await profilePage.locator(".vatra-profile-about-website-001").textContent()).trim(),"https://example.org");
   await profilePage.locator("#profile-about-more").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),true,
    "More details opens the full personal-information dialog");
-  assert.equal((await profilePage.locator(".vt-profile-detail-value-hometown").textContent()).trim(),"Львів",
+  assert.equal((await profilePage.locator(".vatra-profile-detail-value-hometown").textContent()).trim(),"Львів",
    "Both location fields belong in the full dialog");
-  assert.equal((await profilePage.locator(".vt-profile-detail-bio-001").textContent()).trim(),"Тестова інформація");
-  assert.equal(await profilePage.locator("#vatra-profile-details-dialog [class^='vt-profile-detail-audience-']").count(),0,
+  assert.equal((await profilePage.locator(".vatra-profile-detail-bio-001").textContent()).trim(),"Тестова інформація");
+  assert.equal(await profilePage.locator("#vatra-profile-details-dialog [class^='vatra-profile-detail-audience-']").count(),0,
    "Privacy visibility belongs only in the editor, never the read-only information dialog");
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog .vatra-profile-detail-icon").count(),0,
    "Detail sections use typography and labels rather than repetitive icons");
-  await profilePage.locator(".vt-vatra-profile-details-close-001").click();
+  await profilePage.locator(".vatra-profile-details-close-001").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),false);
   await profilePage.locator("#profile-tab-photos").click();
   assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),true,
@@ -4741,15 +4741,15 @@ try{
    name:"vatra-test.png",mimeType:"image/png",
    buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")
   });
-  assert.equal(await profilePage.locator(".vt-vatra-post-composer-next-001").isEnabled(),true,
+  assert.equal(await profilePage.locator(".vatra-post-composer-next-001").isEnabled(),true,
    "Selecting photo without text unlocks the Profile editor");
-  await profilePage.locator(".vt-vatra-post-composer-next-001").click();
+  await profilePage.locator(".vatra-post-composer-next-001").click();
   assert.equal(await profilePage.locator(".vatra-post-composer-settings").isVisible(),true,
    "Media-only Profile post must reach visibility settings");
-  await profilePage.locator(".vt-vatra-post-composer-back-001").click();
+  await profilePage.locator(".vatra-post-composer-back-001").click();
   await profilePage.locator("#profile-compose-media-remove").click();
   await profilePage.locator("#profile-compose-text").fill(injectionText);
-  await profilePage.locator(".vt-vatra-post-composer-next-001").click();
+  await profilePage.locator(".vatra-post-composer-next-001").click();
   await profilePage.locator("#profile-compose-submit").click();
   await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-posts .feed-post-card").length===1);
   assert.equal((await profilePage.locator("#profile-posts .feed-post-body").textContent()).trim(),injectionText);
@@ -4926,7 +4926,7 @@ try{
   assert.equal(await profilePage.locator("#profile-message-button").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-block-toggle").isVisible(),true);
-  assert.ok((await profilePage.locator(".vt-profile-locked-description-001").textContent()).includes(
+  assert.ok((await profilePage.locator(".vatra-profile-locked-description-001").textContent()).includes(
    language==="en"?"restricted your access":"обмежив вам доступ"));
   await profilePage.goto(base+"id789012?block-test=me",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
@@ -5209,7 +5209,7 @@ try{
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   if(language==="uk")assertStableHeader(await navCenters(page),"Communities");
-  assert.equal((await page.locator(".vt-community-discovery-title-001").textContent()).trim(),
+  assert.equal((await page.locator(".vatra-community-discovery-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
   const hero=page.locator("#community-discovery-banner");
   const heroImage=hero.locator(".ui-community-banner-art-001");
@@ -5406,13 +5406,13 @@ try{
   }
   assert.equal(await topicCards.first().evaluate(el=>el.dispatchEvent(new MouseEvent("contextmenu",{bubbles:true,cancelable:true}))),false);
   assert.equal(await topicCards.first().evaluate(el=>el.dispatchEvent(new Event("dragstart",{bubbles:true,cancelable:true}))),false);
-  assert.equal(await page.locator(".vt-community-card-open-001").count(),1);
+  assert.equal(await page.locator(".vatra-community-card-open-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-cover-001").getAttribute("href")).endsWith("/VATRA/club1"));
   await page.locator('[data-community-category="music"]').click();
   await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
   assert.equal(await page.locator(".ui-community-card-001").count(),1,"Category matches independently of post name or description");
   assert.equal(await page.locator('[data-community-category="music"]').getAttribute("aria-pressed"),"true");
-  const expandTopics=page.locator(".vt-community-all-topics-001");
+  const expandTopics=page.locator(".vatra-community-all-topics-001");
   await expandTopics.click();
   assert.equal(await expandTopics.getAttribute("aria-expanded"),"true");
   assert.equal(await topicCards.count(),40,"All topics expand as the same photo cards");
@@ -5437,8 +5437,8 @@ try{
   assert.equal(await expandTopics.getAttribute("aria-expanded"),"false");
   assert.equal(await topicCards.count(),40);
   assert.ok(await topicStrip.evaluate(el=>!el.classList.contains("is-expanded")&&el.scrollWidth>el.clientWidth));
-  assert.equal(await page.locator(".vt-community-clear-topic-001").isVisible(),true,"Collapsed category remains clearable");
-  await page.locator(".vt-community-clear-topic-001").click();
+  assert.equal(await page.locator(".vatra-community-clear-topic-001").isVisible(),true,"Collapsed category remains clearable");
+  await page.locator(".vatra-community-clear-topic-001").click();
   await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
   assert.equal(await page.locator(".ui-community-card-001").count(),1);
   await expandTopics.click();
@@ -5571,7 +5571,7 @@ try{
      await view.evaluate(()=>document.fonts.ready);
      // Check the birthday list in each browser engine, not only Chromium.
      if(target.id==="signup"&&viewport.id==="laptop"){
-      await view.locator(".vt-select-trigger-birth-month").click();
+      await view.locator(".vatra-select-trigger-birth-month").click();
       const list=view.locator(".ui-select-options-birth-month");
       await list.waitFor({state:"visible"});
       const scrollArea=list.locator(".vatra-select-scroll-area");

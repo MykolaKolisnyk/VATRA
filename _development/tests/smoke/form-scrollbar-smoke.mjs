@@ -23,7 +23,7 @@ assert.ok(base.includes("@supports selector(::-webkit-scrollbar)")&&
  base.includes("::-webkit-scrollbar-button")&&
  base.includes("display:none!important;width:0!important;height:0!important"),
  "Chromium/Opera form lists must suppress native top/bottom arrow buttons");
-for(const scope of [".captcha-dialog",".vatra-select-scroll-area",".vt-tour-scroll-area-001",
+for(const scope of [".captcha-dialog",".vatra-select-scroll-area",".vatra-tour-scroll-area-001",
  ".vatra-search-history",".profile-photo-comments",".profile-compose-dialog",
  ".vatra-post-composer-edit",".vatra-notification-panel",".ui-vatra-section-dialog-scroll-001",
  ".ui-vatra-clips-social-001 .vatra-post-comment-list","textarea"])
@@ -51,7 +51,7 @@ assert.ok(feed.includes("margin:3px 8px 9px 0"),
  "Search history scrollbar should be inset from the popup edges");
 const onboarding=await readFile("assets/css/onboarding.css","utf8");
 const tour=await readFile("assets/js/onboarding.js","utf8");
-assert.ok(onboarding.includes(".vt-tour-scroll-area-001")&&
+assert.ok(onboarding.includes(".vatra-tour-scroll-area-001")&&
  onboarding.includes("width:calc(100% - 10px);margin-right:10px")&&
  tour.includes("card.append(scrollArea)")&&tour.includes("scrollArea.append(actions)"),
  "Tour must scroll inside its rounded frame, not along its outside edge");

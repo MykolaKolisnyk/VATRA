@@ -128,7 +128,7 @@ function position(){
  if(!root||root.hidden||!card)return;
  const vw=window.innerWidth,vh=window.innerHeight,edge=14,gap=16;
  if(mode!=="tour"){
-  spotlight.hidden=true;card.classList.remove("vt-tour-anchored-001");
+  spotlight.hidden=true;card.classList.remove("vatra-tour-anchored-001");
   card.removeAttribute("data-placement");
   const box=card.getBoundingClientRect();
   card.style.left=Math.max(edge,(vw-box.width)/2)+"px";
@@ -137,7 +137,7 @@ function position(){
  }
  const anchor=document.querySelector(steps[index]?.selector);
  if(!anchor||!anchor.getClientRects().length){
-  spotlight.hidden=true;card.classList.remove("vt-tour-anchored-001");
+  spotlight.hidden=true;card.classList.remove("vatra-tour-anchored-001");
   root.dataset.stage="fallback";
   card.style.left=Math.max(edge,(vw-card.getBoundingClientRect().width)/2)+"px";
   card.style.top=Math.max(edge,(vh-card.getBoundingClientRect().height)/2)+"px";
@@ -163,7 +163,7 @@ function position(){
  spotlight.style.top=Math.min(top,vh-3)+"px";
  spotlight.style.width=Math.max(2,right-left)+"px";
  spotlight.style.height=Math.max(2,bottom-top)+"px";
- card.classList.add("vt-tour-anchored-001");
+ card.classList.add("vatra-tour-anchored-001");
  const width=card.getBoundingClientRect().width,height=card.getBoundingClientRect().height;
  const cardLeft=Math.max(edge,Math.min(vw-width-edge,rect.left+rect.width/2-width/2));
  const below=rect.bottom+gap,above=rect.top-height-gap;
@@ -171,7 +171,7 @@ function position(){
  const cardTop=placement==="below"?below:placement==="above"?above:
   Math.max(edge,Math.min(vh-height-edge,(vh-height)/2));
  card.dataset.placement=placement;
- card.style.setProperty("--vt-tour-pointer-x",
+ card.style.setProperty("--vatra-tour-pointer-x",
   Math.max(22,Math.min(width-22,rect.left+rect.width/2-cardLeft))+"px");
  card.style.left=cardLeft+"px";card.style.top=cardTop+"px";
 }
@@ -197,7 +197,7 @@ function show(){
  progress.hidden=mode!=="tour";
  prev.hidden=mode!=="tour"||index===0;
  skip.hidden=mode==="goodbye";
- card.classList.toggle("vt-tour-intro-001",mode==="welcome"||mode==="goodbye");
+ card.classList.toggle("vatra-tour-intro-001",mode==="welcome"||mode==="goodbye");
  const current=steps[index];
  const imageName=mode==="welcome"?"vatryk_welcome.webp":
   mode==="goodbye"?"vatryk_goodbye.webp":
@@ -219,13 +219,13 @@ function show(){
 
  if(mode==="tour"){
   progress.textContent=tr("Крок")+" "+(index+1)+" "+tr("із")+" "+steps.length;
-  progress.style.setProperty("--vt-tour-progress",((index+1)/steps.length*100)+"%");
+  progress.style.setProperty("--vatra-tour-progress",((index+1)/steps.length*100)+"%");
   progress.setAttribute("aria-valuenow",String(index+1));
   progress.setAttribute("aria-valuemax",String(steps.length));
   if(!replaying)saveState(localStorage,session.id,"paused",index);
  }
 
- card.querySelector(".vt-tour-scroll-area-001").scrollTop=0;
+ card.querySelector(".vatra-tour-scroll-area-001").scrollTop=0;
  schedulePosition();
  next.focus({preventScroll:true});
 }
@@ -253,36 +253,36 @@ function back(){
  if(index>0)activate("tour",index-1);else activate("welcome");
 }
 function build(){
- root=node("div","vt-tour-root-001");root.id="vatra-tour-dialog";root.hidden=true;
+ root=node("div","vatra-tour-root-001");root.id="vatra-tour-dialog";root.hidden=true;
  root.setAttribute("role","dialog");root.setAttribute("aria-modal","true");
  root.setAttribute("aria-labelledby","vatra-tour-title");
  root.setAttribute("aria-describedby","vatra-tour-description");
- const shield=node("div","vt-tour-shield-001");
+ const shield=node("div","vatra-tour-shield-001");
  shield.setAttribute("aria-hidden","true");
  shield.addEventListener("click",()=>pause());
- spotlight=node("div","vt-tour-spotlight-001");spotlight.hidden=true;
+ spotlight=node("div","vatra-tour-spotlight-001");spotlight.hidden=true;
  spotlight.setAttribute("aria-hidden","true");
- card=node("section","vt-tour-card-001");
- const scrollArea=node("div","vt-tour-scroll-area-001");
- const top=node("div","vt-tour-header-001");
- art=node("span","vt-tour-mascot-001");
+ card=node("section","vatra-tour-card-001");
+ const scrollArea=node("div","vatra-tour-scroll-area-001");
+ const top=node("div","vatra-tour-header-001");
+ art=node("span","vatra-tour-mascot-001");
  art.setAttribute("aria-hidden","true");
  art.addEventListener("dragstart",event=>event.preventDefault());
  art.addEventListener("contextmenu",event=>event.preventDefault());
- label=node("p","vt-tour-eyebrow-001");
- const words=node("div","vt-tour-words-001");
- heading=node("h2","vt-tour-heading-001");heading.id="vatra-tour-title";
- description=node("p","vt-tour-description-001");description.id="vatra-tour-description";
+ label=node("p","vatra-tour-eyebrow-001");
+ const words=node("div","vatra-tour-words-001");
+ heading=node("h2","vatra-tour-heading-001");heading.id="vatra-tour-title";
+ description=node("p","vatra-tour-description-001");description.id="vatra-tour-description";
  words.append(label,heading,description);
  top.append(art,words);scrollArea.append(top);
- progress=node("p","vt-tour-progress-001");
+ progress=node("p","vatra-tour-progress-001");
  progress.setAttribute("role","progressbar");progress.setAttribute("aria-valuemin","0");
  progress.setAttribute("aria-label",tr("Прогрес знайомства"));
  scrollArea.append(progress);
- const actions=node("div","vt-tour-actions-001");
- prev=node("button","vt-tour-back-001");prev.type="button";prev.addEventListener("click",back);
- skip=node("button","vt-tour-skip-001");skip.type="button";skip.addEventListener("click",skipTour);
- next=node("button","vt-tour-next-001");next.type="button";next.addEventListener("click",proceed);
+ const actions=node("div","vatra-tour-actions-001");
+ prev=node("button","vatra-tour-back-001");prev.type="button";prev.addEventListener("click",back);
+ skip=node("button","vatra-tour-skip-001");skip.type="button";skip.addEventListener("click",skipTour);
+ next=node("button","vatra-tour-next-001");next.type="button";next.addEventListener("click",proceed);
  actions.append(prev,skip,next);scrollArea.append(actions);
  card.append(scrollArea);
  root.append(shield,spotlight,card);document.body.append(root);
@@ -291,9 +291,9 @@ function buildSteps(){
  const host=document.querySelector("#vatra-first-steps");if(!host||!session)return;
  stepsCard=host;host.replaceChildren();
  const header=node("div","ui-feed-first-steps-head-001"),words=node("div","ui-feed-first-steps-copy-001");
- const title=node("h2","vt-feed-first-steps-title-001",tr("Мої перші кроки"));title.id="vatra-first-steps-title";
+ const title=node("h2","vatra-feed-first-steps-title-001",tr("Мої перші кроки"));title.id="vatra-first-steps-title";
  stepsArt=node("span","ui-feed-first-steps-mascot-001");stepsArt.setAttribute("aria-hidden","true");
- taskStatus=node("p","vt-feed-first-steps-status-001");taskStatus.setAttribute("aria-live","polite");
+ taskStatus=node("p","vatra-feed-first-steps-status-001");taskStatus.setAttribute("aria-live","polite");
  words.append(title,taskStatus);header.append(words,stepsArt);
  stepsMeter=node("div","ui-feed-first-steps-meter-001");stepsMeter.setAttribute("role","progressbar");stepsMeter.setAttribute("aria-label",tr("Мої перші кроки"));stepsMeter.setAttribute("aria-valuemin","0");stepsMeter.setAttribute("aria-valuemax",String(tasks.length));
  stepsFill=node("div","ui-feed-first-steps-fill-001");stepsMeter.append(stepsFill);
@@ -301,14 +301,14 @@ function buildSteps(){
  for(let i=0;i<tasks.length;i++){
   const row=node("a","ui-feed-first-step-row-00"+(i+1));row.href=new URL(tasks[i].page,home()).href;
   const marker=node("span","ui-feed-first-step-mark-00"+(i+1));marker.setAttribute("aria-hidden","true");
-  const title=node("span","vt-feed-first-step-name-00"+(i+1),tr(tasks[i].title));
-  const status=node("small","vt-feed-first-step-note-00"+(i+1));status.setAttribute("aria-live","off");
+  const title=node("span","vatra-feed-first-step-name-00"+(i+1),tr(tasks[i].title));
+  const status=node("small","vatra-feed-first-step-note-00"+(i+1));status.setAttribute("aria-live","off");
   row.append(marker,title,status);tasksBox.append(row);
   if(tasks[i].key==="post")row.addEventListener("click",event=>{const compose=document.querySelector("#feed-compose-open");if(compose&&results?.[i]!==true){event.preventDefault();compose.click();}});
   taskRows.push({row,marker,title,status});
  }
  const actions=node("div","ui-feed-first-steps-actions-001");
- refresh=node("button","vt-feed-first-steps-refresh-001",tr("Оновити прогрес"));refresh.type="button";refresh.addEventListener("click",()=>void checkTasks(true));
+ refresh=node("button","vatra-feed-first-steps-refresh-001",tr("Оновити прогрес"));refresh.type="button";refresh.addEventListener("click",()=>void checkTasks(true));
  actions.append(refresh);host.append(header,stepsMeter,tasksBox,actions);host.hidden=false;renderTasks();
 }
 function renderTasks(){
@@ -373,7 +373,7 @@ function start(options={}){
  const menu=document.querySelector(".feed-account-menu");
  const support=menu?.querySelector(".feed-menu-support");
  if(saved?.status!=="done"&&support&&!document.querySelector("#vatra-onboarding-replay")){
-  const launch=node("button","vt-feed-onboarding-launch-001",tr("Знайомство з VATRA"));
+  const launch=node("button","vatra-feed-onboarding-launch-001",tr("Знайомство з VATRA"));
   launch.id="vatra-onboarding-replay";launch.type="button";launch.hidden=true;
   support.before(launch);
  }

@@ -1,15 +1,10 @@
-/* VATRA official-host check. Client-side deterrent, not copy protection. */
 (() => {
   "use strict";
-  // Public VATRA runs on the official HTTPS origin only. This check prevents
-  // unmodified copies from running elsewhere, but cannot protect downloadable
-  // static source from someone who edits or removes JavaScript.
   const allowed=location.protocol==="https:" &&
     location.hostname==="mykolakolisnyk.github.io" &&
     /^\/VATRA(?:\/|$)/.test(location.pathname);
   window.VATRA_HOST_ALLOWED = allowed;
   if (allowed) {
-    // The public status contains no member data. It is deliberately not cached.
     const root=new URL("/VATRA/",location.origin);
     const path=location.pathname;
     const maintenancePage=/^\/VATRA\/maintenance(?:\.html)?$/.test(path);
@@ -52,7 +47,6 @@
       try{
         if(await getStatus()!==true)return;
         if(await owner())return;
-        // Re-read after a slow session check, in case maintenance ended meanwhile.
         if(await getStatus()!==true)return;
         location.replace(new URL("maintenance.html",root).href);
       }finally{checking=false;}
@@ -73,13 +67,13 @@
     const container = document.createElement("main");
     container.className = "ui-host-blocked-container";
     const heading = document.createElement("h1");
-    heading.className = "vt-host-blocked-heading";
+    heading.className = "vatra-host-blocked-heading";
     heading.textContent = "VATRA";
     const p = document.createElement("p");
-    p.className = "vt-host-blocked-explanation";
+    p.className = "vatra-host-blocked-explanation";
     p.textContent = "Будь ласка, відкрийте VATRA на офіційному сайті.";
     const a = document.createElement("a");
-    a.className = "vt-host-blocked-link";
+    a.className = "vatra-host-blocked-link";
     a.href = "https://mykolakolisnyk.github.io/VATRA/";
     a.textContent = "Перейти до VATRA";
     container.append(heading, p, a);

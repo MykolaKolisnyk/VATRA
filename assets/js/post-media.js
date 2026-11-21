@@ -1,4 +1,3 @@
-/* VATRA shared post attachments. All object paths remain in separate private buckets. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -38,7 +37,7 @@
   return new RegExp("^"+id+"/stories/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\."+extension+"$").test(path);
  };
 
- /* Render hashtag anchors as DOM nodes; never parse user-submitted HTML. */
+
  function linkifyHashtags(paragraph){
   if(!paragraph||typeof paragraph.textContent!=="string")return;
   const original=paragraph.textContent;
@@ -52,7 +51,7 @@
    result.append(document.createTextNode(original.slice(offset,start)));
    const tag="#"+match[2];
    const link=document.createElement("a");
-   link.className="vt-feed-post-hashtag-001";
+   link.className="vatra-feed-post-hashtag-001";
    link.href=siteRoot+"feed?q="+encodeURIComponent(tag);
    link.textContent=tag;
    link.setAttribute("aria-label",tr("Пошук дописів за хештегом ","Search posts with hashtag ")+tag);
@@ -67,8 +66,8 @@
  }
 
 
- // A balanced gallery: twelve attachments total, with at most four videos.
- // The storage buckets still enforce their own 6 MB photo / 50 MB video caps.
+
+
  const GALLERY_LIMIT=12,VIDEO_LIMIT=4,TOTAL_LIMIT=160*1024*1024;
  function validateGallery(files){
   if(files.length>GALLERY_LIMIT)throw Error(tr("До 12 фото та відео в одному дописі.","Up to 12 media files per post."));
@@ -92,7 +91,7 @@
    release();preview.replaceChildren();
    clear.hidden=!selected.length;preview.hidden=!selected.length;
    if(selected.length){
-    const count=document.createElement("p");count.className="vt-vatra-gallery-selection-count-001";
+    const count=document.createElement("p");count.className="vatra-gallery-selection-count-001";
     count.textContent=selected.length+" / "+GALLERY_LIMIT+" · "+
      selected.filter(file=>formats[file.type]?.kind==="video").length+" "+tr("відео","videos");
     preview.append(count);
@@ -106,7 +105,7 @@
     if(media.tagName==="VIDEO"){media.preload="metadata";media.muted=true;media.playsInline=true;}
     else media.alt=tr("Фото для публікації","Selected post photo");
     const remove=document.createElement("button");remove.type="button";
-    remove.className="vt-vatra-gallery-picker-remove-"+index;
+    remove.className="vatra-gallery-picker-remove-"+index;
     remove.setAttribute("aria-label",tr("Прибрати файл ","Remove file ")+file.name);
     const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
     icon.setAttribute("class","ui-vatra-gallery-picker-remove-icon-"+index);
@@ -120,7 +119,7 @@
     remove.addEventListener("click",()=>{
      selected.splice(index,1);display();changed();
     });
-    const label=document.createElement("small");label.className="vt-vatra-gallery-picker-name-"+index;
+    const label=document.createElement("small");label.className="vatra-gallery-picker-name-"+index;
     label.textContent=file.name;
     tile.append(media,remove,label);grid.append(tile);
    });
@@ -145,7 +144,7 @@
    if(!item||!["image","video"].includes(item.media_kind)||!item.media_path)continue;
    if(item.media_kind==="image"){
     imagePaths.push(item.media_path);
-    // A thumbnail belongs to the same private post and must be deleted too.
+
     if(typeof item.preview_path==="string"&&item.preview_path!==item.media_path)
      imagePaths.push(item.preview_path);
    }else videoPaths.push(item.media_path);
@@ -159,8 +158,8 @@
   validateGallery(files);
   const uploaded=[];
   try{
-   // Two uploads in parallel keep mobile bandwidth under control while
-   // avoiding one network round-trip at a time for twelve small images.
+
+
    for(let offset=0;offset<files.length;offset+=2){
     const batch=files.slice(offset,offset+2);
     const results=await Promise.allSettled(batch.map(file=>upload(client,id,file)));
@@ -205,11 +204,11 @@
   clear.addEventListener("click",reset);
   return {getFile:()=>selected,reset};
  }
- // Generate small WebP previews in the member's browser. The original is
- // untouched and remains available in full quality inside the private bucket.
- // Gracefully skip previews when the browser cannot encode a smaller WebP.
+
+
+
  async function makeImagePreview(file){
-  // Small files should not incur a second Storage object or extra encoding work.
+
   if(!file||file.size<256*1024)return null;
   let image=null,release=()=>{};
   try{
@@ -218,7 +217,7 @@
      image=await createImageBitmap(file);
      if(!image?.width||!image?.height){image?.close?.();image=null;}
      else release=()=>image.close?.();
-    }catch(_){/* Fallback to <img> for browsers without reliable bitmap decoding. */}
+    }catch(_){ }
    }
    if(!image){
     if(typeof Image!=="function"||typeof URL==="undefined"||
@@ -238,8 +237,8 @@
    }
    const width=image.naturalWidth||image.width,height=image.naturalHeight||image.height;
    if(!width||!height)return null;
-   // Try progressively smaller previews when complex photographs exceed 400 KiB.
-   // Preserve the original unchanged for full-size viewing.
+
+
    for(const [longEdge,quality] of [[960,0.75],[768,0.66],[640,0.58],[480,0.5]]){
     const scale=Math.min(1,longEdge/Math.max(width,height));
     const canvas=document.createElement("canvas");
@@ -262,8 +261,8 @@
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
   const path=id+"/posts/"+crypto.randomUUID()+"."+format.ext;
-  // Generate at the same time as the original upload; a conversion failure
-  // cannot prevent an otherwise valid post from being published.
+
+
   const previewJob=format.kind==="image"?makeImagePreview(file):Promise.resolve(null);
   const {error}=await client.storage.from(format.bucket).upload(path,file,{
    contentType:file.type,cacheControl:"3600",upsert:false
@@ -278,7 +277,7 @@
      contentType:"image/webp",cacheControl:"3600",upsert:false
     });
     if(!previewError)item.preview_path=previewPath;
-   }catch(_){/* Keep the original photo if preview upload is unavailable. */}
+   }catch(_){ }
   }
   return item;
  }
@@ -300,8 +299,8 @@
  }
 
  const signedURLCaches=new WeakMap();
- // Signed URLs are bearer capabilities: never reuse them across clients or
- // across login/logout, even if the media path is identical.
+
+
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
@@ -309,9 +308,9 @@
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
-    // Supabase emits INITIAL_SESSION immediately after subscription.
-    // It is not an account change; canceling in-flight media here would
-    // hide freshly signed images on the first page load.
+
+
+
     if(event==="INITIAL_SESSION")return;
     state.version++;
     state.signedURLs.clear();
@@ -319,7 +318,7 @@
   }
   return state;
  }
- // Prevent long-lived tabs from retaining unlimited expired URL metadata.
+
  const trimSignedCache=signedURLs=>{
   const now=Date.now();
   for(const [key,entry] of signedURLs)
@@ -327,8 +326,8 @@
   while(signedURLs.size>256)signedURLs.delete(signedURLs.keys().next().value);
  };
  let firstImages=0;
- // Sign each gallery in at most one request per Storage bucket and session,
- // rather than one signed-URL RPC per thumbnail.
+
+
  async function preSignGallery(client,items,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
   const version=state.version,grouped=new Map();
@@ -365,7 +364,7 @@
   const entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
   const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl).then(({data,error})=>{
-   // An in-flight response from a previous session must not be displayed.
+
    if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
    const url=new URL(data.signedUrl);
@@ -391,11 +390,11 @@
   slot.hidden=false;
   if(!preview)slot.textContent=tr("Завантаження медіа…","Loading media…");
   try{
-   // Story tokens are short-lived even if the user closes the viewer.
+
    const src=await signed(client,kind,path,300);
    if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
    const element=document.createElement(kind==="image"?"img":"video");
-   element.className=preview?"vt-story-media-preview-001":"vt-story-media-expanded-001";
+   element.className=preview?"vatra-story-media-preview-001":"vatra-story-media-expanded-001";
    element.src=src;
    if(kind==="image"){
     element.alt=tr("Медіа історії","Story photo");
@@ -419,7 +418,7 @@
   if(Array.from(full).length<=440)return;
   const compact=Array.from(full).slice(0,350).join("").trimEnd()+"…";
   const button=document.createElement("button");
-  button.type="button";button.className="vt-feed-post-read-more-001";
+  button.type="button";button.className="vatra-feed-post-read-more-001";
   button.setAttribute("aria-expanded","false");
   button.textContent=tr("Показати більше","Show more");
   paragraph.dataset.vatraCollapsed="true";
@@ -434,7 +433,7 @@
   paragraph.insertAdjacentElement("afterend",button);
   update();
  }
- /* One accessible fullscreen dialog is reused by every post and upload. */
+
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,mediaCaption=null;
  function openFullMedia(url,kind,container){
   if(!mediaDialog){
@@ -445,7 +444,7 @@
    const frame=document.createElement("div");
    frame.className="vatra-post-media-viewer-frame ui-vatra-post-media-viewer-frame-001";
    const close=document.createElement("button");
-   close.className="vt-vatra-post-media-close-001";close.type="button";
+   close.className="vatra-post-media-close-001";close.type="button";
    close.setAttribute("aria-label",tr("Закрити","Close"));
    const closeIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
    closeIcon.setAttribute("class","ui-vatra-post-media-close-icon-001");
@@ -461,7 +460,7 @@
    mediaDialogContent=document.createElement("div");
    mediaDialogContent.className="ui-vatra-post-media-viewer-content-001";
    mediaCaption=document.createElement("span");
-   mediaCaption.className="vt-vatra-post-media-caption-001";
+   mediaCaption.className="vatra-post-media-caption-001";
    frame.append(close,mediaDialogContent,mediaCaption);
    mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001";mediaDialog.append(frame,mediaSide);
    mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
@@ -523,7 +522,7 @@
   const previews=media.slice(0,5);
   const tiles=previews.map((item,index)=>{
    const tile=document.createElement("button");
-   tile.className="vatra-post-gallery-tile vt-vatra-post-gallery-tile-"+index;
+   tile.className="vatra-post-gallery-tile vatra-post-gallery-tile-"+index;
    tile.type="button";
    tile.setAttribute("aria-label",tr("Відкрити файл ","Open media ")+(index+1));
    tile.dataset.kind=item.media_kind;
@@ -541,7 +540,7 @@
     play.setAttribute("d","M9 5v14l11-7Z");badge.append(play);tile.append(badge);
    }
    if(index===4&&media.length>5){
-    const extra=document.createElement("span");extra.className="vt-vatra-post-gallery-extra-001";
+    const extra=document.createElement("span");extra.className="vatra-post-gallery-extra-001";
     extra.textContent="+"+(media.length-5);tile.append(extra);
    }
    tile.addEventListener("click",()=>void openGallery(index));
@@ -601,7 +600,7 @@
      tile.classList.add("is-gallery-unavailable");
      tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]')?.remove();
      const notice=document.createElement("span");
-     notice.className="vt-vatra-gallery-unavailable-001";
+     notice.className="vatra-gallery-unavailable-001";
      notice.textContent=tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable.");
      tile.append(notice);
     }
@@ -629,7 +628,7 @@
    mediaDialog.addEventListener("close",()=>{active=false;controller.abort();},{once:true});
    const makeNav=(dir,label)=>{
     const button=document.createElement("button");button.type="button";
-    button.className="vt-vatra-post-gallery-nav-"+(dir<0?"prev":"next");
+    button.className="vatra-post-gallery-nav-"+(dir<0?"prev":"next");
     button.setAttribute("aria-label",label);
     const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
     svg.setAttribute("class","ui-vatra-post-gallery-nav-icon-"+(dir<0?"prev":"next"));
@@ -655,7 +654,7 @@
      const prev=makeNav(-1,tr("Попередній файл","Previous media"));
      const next=makeNav(1,tr("Наступний файл","Next media"));
      const counter=document.createElement("span");
-     counter.className="vt-vatra-post-gallery-counter-001";
+     counter.className="vatra-post-gallery-counter-001";
      counter.textContent=(index+1)+" / "+media.length;
      prev.disabled=index===0;next.disabled=index>=media.length-1;
      prev.hidden=next.hidden=media.length<2;
@@ -690,10 +689,10 @@
   placeholder.setAttribute("aria-hidden","true");
   slot.append(placeholder);container.append(slot);
   if(kind==="video"){
-   // No video bytes or signed URL are needed until the viewer explicitly plays.
-   // This preserves native controls and fullscreen after the first click.
+
+
    const play=document.createElement("button");
-   play.className="vt-feed-post-video-play-001";
+   play.className="vatra-feed-post-video-play-001";
    play.type="button";
    const symbol=document.createElementNS("http://www.w3.org/2000/svg","svg");
    symbol.setAttribute("class","ui-feed-post-video-play-icon-001");
@@ -705,7 +704,7 @@
    shape.setAttribute("d","M8 5v14l11-7Z");
    symbol.append(shape);
    const label=document.createElement("span");
-   label.className="vt-feed-post-video-play-label-001";
+   label.className="vatra-feed-post-video-play-label-001";
    label.textContent=tr("Відтворити відео","Play video");
    play.append(symbol,label);
    let pending=false;
@@ -720,12 +719,12 @@
      video.className="feed-post-media-video ui-feed-post-media-video-001";
      video.controls=true;video.preload="metadata";video.playsInline=true;
      const expand=document.createElement("button");expand.type="button";
-     expand.className="vt-feed-post-video-expand-001";
+     expand.className="vatra-feed-post-video-expand-001";
      expand.textContent=tr("На весь екран","Fullscreen");
      expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video",container);});
      video.src=src;
      slot.replaceChildren(video,expand);
-     // A deferred signature may consume the gesture; native controls remain usable.
+
      void video.play().catch(()=>{});
     }catch(_){
      if(!slot.isConnected)return;
@@ -745,7 +744,7 @@
    try{
     const src=await signed(client,"image",path);
     if(!slot.isConnected)return;
-    // Decode outside the DOM: never show half-loaded pixels or a black slab.
+
     const image=new Image();
     image.className="feed-post-media-image ui-feed-post-media-image-001";
     image.alt=tr("Фото до публікації","Post photo");
@@ -754,7 +753,7 @@
     await loadImageSource(image,src);
     if(!slot.isConnected)return;
     const frame=document.createElement("button");
-    frame.className="vt-feed-post-media-open-001";frame.type="button";
+    frame.className="vatra-feed-post-media-open-001";frame.type="button";
     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
     frame.addEventListener("click",()=>openFullMedia(src,"image",container));
     frame.append(image);
@@ -766,10 +765,10 @@
    if(!slot.isConnected)return;
    slot.classList.remove("is-loading-media");
    const notice=document.createElement("p");
-   notice.className="vt-feed-post-media-error-001";notice.textContent=message;
+   notice.className="vatra-feed-post-media-error-001";notice.textContent=message;
    slot.replaceChildren(notice);
   }
-  // Off-screen media should not compete for bandwidth with the visible Feed.
+
   if(priority<=2||typeof IntersectionObserver==="undefined")void load();
   else{
    const observer=new IntersectionObserver(entries=>{

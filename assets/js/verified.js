@@ -121,7 +121,7 @@
   previous?.remove();
   const name=target.textContent;
   if(!await lookup(client,id)||requests.get(target)!==token||target.textContent!==name)return;
-  if(target.matches(".profile-name,.feed-post-name,.vt-vatra-global-search-name-001,[class*='vt-vatra-search-live-primary-people-'],[class^='vt-vatra-friends-name-'],[class^='vt-profile-friend-name-']")){
+  if(target.matches(".profile-name,.feed-post-name,.vatra-global-search-name-001,[class*='vatra-search-live-primary-people-'],[class^='vatra-friends-name-'],[class^='vatra-profile-friend-name-']")){
    if(!target.querySelector(":scope > .vatra-verified-name-text")){
     const text=document.createElement("span");text.className="vatra-verified-name-text";text.textContent=name;target.replaceChildren(text);
    }

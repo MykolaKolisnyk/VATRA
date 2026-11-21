@@ -1,18 +1,18 @@
-/* Standard avatars are inline SVG data URIs in CSS only. No separate image files or requests. */
-/* Onest • локальний шрифт, SIL Open Font License 1.1 */
+
+
 @font-face{font-family:"Onest";src:url("../fonts/Onest-Variable.ttf") format("truetype");font-weight:100 900;font-style:normal;font-display:swap;}
-/* Індивідуальні класи текстів VATRA. Базова типографіка без дублювання стилів сторінок. */
-:where([class^="vt-"],[class*=" vt-"]){
+
+:where([class^="vatra-"],[class*=" vatra-"]){
   font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
   text-rendering:optimizeLegibility;
 }
-:where(p[class^="vt-"],p[class*=" vt-"],li[class^="vt-"],li[class*=" vt-"],blockquote[class^="vt-"],blockquote[class*=" vt-"]){
+:where(p[class^="vatra-"],p[class*=" vatra-"],li[class^="vatra-"],li[class*=" vatra-"],blockquote[class^="vatra-"],blockquote[class*=" vatra-"]){
   font-size:15px;
   font-weight:400;
   line-height:1.65;
   color:var(--soft);
 }
-:where(h1[class^="vt-"],h1[class*=" vt-"],h2[class^="vt-"],h2[class*=" vt-"],h3[class^="vt-"],h3[class*=" vt-"],h4[class^="vt-"],h4[class*=" vt-"]){
+:where(h1[class^="vatra-"],h1[class*=" vatra-"],h2[class^="vatra-"],h2[class*=" vatra-"],h3[class^="vatra-"],h3[class*=" vatra-"],h4[class^="vatra-"],h4[class*=" vatra-"]){
   line-height:1.25;
   letter-spacing:-.025em;
   font-weight:700;
@@ -22,11 +22,9 @@
 
 .split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;min-width:0;width:min(calc(100% - 88px),1300px);margin:auto;border-radius:28px;box-shadow:0 24px 65px rgba(42,55,102,.11)}.header-logo{width:170px;display:inline-block}.header-logo img{width:100%;height:auto;aspect-ratio:1342/380}
 
-/* A real, shared pending-state overlay. Fast requests never flash a loader:
-   show only if work is still pending after 160 ms; ready content is NEVER delayed. */
+
 .vatra-auth-loading{position:fixed;inset:0;z-index:11000;display:grid;place-items:center;min-height:100dvh;padding:0;background:#f3f5fa;font-family:"Onest",system-ui,sans-serif;opacity:0;animation:vatraLoaderReveal .001s linear 160ms both}
-/* GitHub Pages initially returns 404.html for canonical /idN and /clubN.
-   Show the SAME VATRA splash while their actual documents load, in both locales. */
+
 html:not(.vatra-dynamic-route-pending) .vatra-route-loading{display:none!important}
 html.vatra-dynamic-route-pending body > :not(.vatra-route-loading){visibility:hidden!important}
 html.vatra-dynamic-route-pending body > .vatra-route-loading{visibility:visible!important}
@@ -40,8 +38,7 @@ html.vatra-dynamic-route-pending body > .vatra-route-loading{visibility:visible!
 @keyframes vatraLoadingSlide{from{transform:translateX(-20%)}to{transform:translateX(165%)}}
 @keyframes vatraLoadingPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.88;transform:scale(.975)}}
 body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
-/* The same splash handles real network failures: stop the busy animation and
-   offer a retry instead of showing an endlessly sliding progress indicator. */
+
 .vatra-auth-loading[data-loading-error="true"]{animation:none;opacity:1}
 .vatra-auth-loading[data-loading-error="true"] .vatra-auth-loading-symbol{animation:none}
 .vatra-auth-loading[data-loading-error="true"] .vatra-auth-loading-track{display:none}
@@ -49,11 +46,9 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .vatra-auth-loading-retry{min-height:42px;padding:10px 23px;border:1px solid #aec6f5;border-radius:999px;background:#fff;color:#2a62c9;font:700 13px/1.3 "Onest",system-ui,sans-serif;cursor:pointer}
 .vatra-auth-loading-retry:hover{background:#eef4ff}
 .vatra-auth-loading-retry:focus-visible{outline:3px solid #a8c7ff;outline-offset:3px}
-/* No flash of interactive login/register/recovery fields during initial session
-   validation. Content appears immediately when auth/locale are ready. */
+
 body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading){visibility:hidden}
-/* Do not use up the entrance animation behind the authentication splash.
-   This applies equally to uk and en; it excludes the animated loading splash. */
+
 body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading),
 body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *,
 body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *::before,
@@ -83,10 +78,9 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 .field:has(input.control){position:relative;gap:8px}
 .field:has(input.control)>span:first-child,
 .field-caption{font-size:13px;line-height:1.4;font-weight:700;color:#48576d}
-/* Accessible captions stay in the DOM, but are never repeated above floating hints.
-   Registration intentionally keeps its visible field labels. */
+
 .vatra-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
-/* Reusable animated hint: tied to the input box, never to the error message. */
+
 .vatra-input-shell{position:relative;display:block;width:100%;min-width:0}
 .vatra-input-shell .control{display:block;width:100%}
 .vatra-input-shell .control::placeholder{color:transparent;opacity:0}
@@ -108,8 +102,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 .vatra-input-shell:has(input:-webkit-autofill:not(:placeholder-shown)) .control{
  padding-top:20px;padding-bottom:5px
 }
-/* Clear inputs are never floating merely because an obsolete JS class persisted.
-   Focused controls still float normally; recovery has its own initial-focus guard. */
+
 .vatra-input-shell.is-floating:not(:focus-within):has(input:placeholder-shown) .vatra-floating-hint{
  top:50%;transform:translateY(-50%);font-size:15px;color:var(--soft)
 }
@@ -120,14 +113,14 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 .field.is-invalid .vatra-floating-hint{color:#aa4e60}
 .field.is-invalid .control{border-color:#e49aa7;background:#fffdfd;box-shadow:0 0 0 3px rgba(220,79,104,.055)}
 .password-policy-note{margin:-2px 0 2px;color:var(--soft);font-size:13px;font-weight:450;line-height:1.55;font-family:"Onest",Inter,system-ui,sans-serif}
-.field-error{display:flex;align-items:flex-start;gap:7px;width:100%;margin:8px 0 1px;color:#a83d54;font-size:12px;font-weight:650;line-height:1.5}.field-error::before{content:"!";display:grid;place-items:center;flex:none;width:15px;height:15px;margin-top:1px;border-radius:50%;background:#fff0f2;color:#b8435b;font-size:10px;font-weight:800}.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;font-size:15px;font-weight:500;color:var(--ink);font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.2;transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease}.control::placeholder{color:#627187;opacity:1}.control:hover{border-color:#a8b5cb}.control:focus,.control:focus-visible{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}.input-password{display:block;position:relative;min-width:0}.input-password .control{display:block}.input-password input{padding-right:85px}.eye-btn{border:0;background:transparent;color:var(--blue);position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:9px 7px;border-radius:8px;font-size:12px;font-weight:700}.eye-btn:hover{background:#f2f5fe}.vt-ua-home-inline-05,.vt-en-home-inline-05{font-size:12px;color:#627187;font-weight:500}.remember{display:flex;gap:8px;align-items:center;color:#647086;cursor:pointer;font-size:12px}
+.field-error{display:flex;align-items:flex-start;gap:7px;width:100%;margin:8px 0 1px;color:#a83d54;font-size:12px;font-weight:650;line-height:1.5}.field-error::before{content:"!";display:grid;place-items:center;flex:none;width:15px;height:15px;margin-top:1px;border-radius:50%;background:#fff0f2;color:#b8435b;font-size:10px;font-weight:800}.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;font-size:15px;font-weight:500;color:var(--ink);font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.2;transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease}.control::placeholder{color:#627187;opacity:1}.control:hover{border-color:#a8b5cb}.control:focus,.control:focus-visible{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}.input-password{display:block;position:relative;min-width:0}.input-password .control{display:block}.input-password input{padding-right:85px}.eye-btn{border:0;background:transparent;color:var(--blue);position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:9px 7px;border-radius:8px;font-size:12px;font-weight:700}.eye-btn:hover{background:#f2f5fe}.vatra-ua-home-inline-05,.vatra-en-home-inline-05{font-size:12px;color:#627187;font-weight:500}.remember{display:flex;gap:8px;align-items:center;color:#647086;cursor:pointer;font-size:12px}
 .remember input{width:16px;height:16px;accent-color:var(--blue);margin:0}.simple-link{color:var(--blue);font-size:13px;font-weight:700}.simple-link:hover{text-decoration:underline}.action{border:1px solid transparent;display:inline-flex;justify-content:center;align-items:center;min-height:52px;border-radius:999px;padding:12px 22px;font-size:14px;font-weight:700;line-height:1.35;text-align:center;transition:background .17s,transform .17s}.action:active{transform:translateY(1px)}.action.primary{background:var(--blue);color:white}.action.primary:hover{background:var(--blue2)}.action.secondary{color:var(--blue);background:white;border:1.5px solid #4b81ff}.action.secondary:hover{background:#f2f6ff}.action.subtle{color:#39475D;background:#f0f2f6}.action.subtle:hover{background:#e7ebf2}.action.full{width:100%}.form-box h2{margin-bottom:10px}
 .or{display:flex;align-items:center;gap:16px;color:#627187;font-size:12px;margin:29px 0}.or:before,.or:after{content:"";height:1px;flex:1;background:#e5eaf0}.form-note{font-size:12px;line-height:1.7;color:#627187;text-align:center;margin:23px 0 0}.response{border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin:0 0 19px;border:1px solid #c9defe;background:#f2f7ff;color:#174b9b}.response[data-type=error]{border-color:#efccd2;background:#fff3f5;color:#a32a40}.response[data-type=success]{border-color:#c6e8dd;background:#f1fbf7;color:#176b50}
 .network-status{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(95%,500px);padding:12px 17px;text-align:center;border-radius:13px;border:1px solid #ffd2d2;background:#fff3f4;color:#B44053;box-shadow:0 15px 40px rgba(18,32,70,.16);font-size:13px;font-weight:700}
 .footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:13px;line-height:1.5;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}.footer nav>a{display:inline-flex;align-items:center;min-height:40px;line-height:1.4;transition:color .18s ease}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
 .auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}.auth-footer-content>span b{font-weight:770;color:var(--ink)}
 
-/* Єдиний вибір мови VATRA: одне джерело стилів для всіх сторінок. */
+
 .language-trigger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:7px 9px;color:#64728b;background:transparent;border:1px solid transparent;border-radius:10px;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap}
 .language-trigger:hover,.language-trigger:focus-visible{color:var(--blue);border-color:#dce6fc;background:#f4f7fe}
 .language-trigger .language-flag{width:24px;height:18px;flex:none;box-shadow:0 0 0 1px rgba(44,57,86,.13);border-radius:4px;overflow:hidden;shape-rendering:geometricPrecision}
@@ -165,7 +158,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 .language-scroll-shell{position:relative;min-height:0;min-width:0;flex:0 1 auto;height:auto;max-height:min(54dvh,515px)}
 .language-grid{height:100%;min-height:0;max-height:100%;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;align-content:start;padding:1px 19px 3px 1px;scrollbar-width:none;-ms-overflow-style:none}
 .language-grid::-webkit-scrollbar{display:none;width:0;height:0}
-/* Language picker: dark graphite thumb; invisible track and no hover backdrop. */
+
 .language-scroll-track{position:absolute;top:0;bottom:0;right:2px;width:8px;border-radius:99px;background:transparent;cursor:pointer;touch-action:none;opacity:0;transition:opacity .46s ease}
 .language-scroll-track.is-visible,.language-scroll-track.is-dragging{opacity:1}
 .language-scroll-track[hidden]{display:none}
@@ -188,7 +181,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 @media(prefers-reduced-motion:reduce){
 :is(.account-card,.error-card) > :not([hidden]){animation:none!important}.back{transition:none!important}}
 
-/* Console-only notices: compact, Onest, automatic dismissal. */
+
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
 .vatra-error-toast{display:flex;align-items:flex-start;gap:11px;min-height:64px;padding:12px;background:linear-gradient(#fff,#fcfdff);border:1px solid #e3e7f4;border-left:3px solid #d64b68;border-radius:14px;box-shadow:0 12px 38px rgba(26,44,92,.16);pointer-events:auto;opacity:0;transform:translate3d(-12px,12px,0) scale(.985);transition:opacity .22s ease,transform .22s cubic-bezier(.2,.8,.2,1);overflow-wrap:anywhere}
 .vatra-error-toast.is-visible{opacity:1;transform:translate3d(0,0,0) scale(1)}
@@ -206,8 +199,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 @media(max-width:540px){.vatra-error-stack{left:12px;bottom:12px;width:calc(100vw - 24px)}}
 @media(prefers-reduced-motion:reduce){.vatra-error-toast{transition:none;transform:none}}
 .terms{color:#627187;font-size:12px;line-height:1.7;margin:2px 0}.terms a{color:var(--blue);font-weight:700}.account-main{flex:1;display:grid;place-items:center;padding:40px 20px}.account-card{width:min(100%,520px);padding:45px 35px;border-radius:24px;border:1px solid #e7ebf3;background:white;text-align:center;box-shadow:var(--shadow)}.account-card>img{width:95px;margin:0 auto 18px}:is(.account-card,.error-card) > :not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}.account-card h1{margin:0;font-size:30px;letter-spacing:-.045em}.account-card p{line-height:1.7;color:var(--soft);font-size:14px;overflow-wrap:anywhere}.account-card .action{margin-top:14px}.account-card .vatra-id{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin:10px 0 6px;padding:9px 16px;border:1px solid #d9e5ff;border-radius:999px;background:#eff5ff;color:#2865D8;font-size:14px;font-weight:740;letter-spacing:.01em}.legal-main{max-width:850px;margin:0 auto;padding:50px 25px 95px}.legal-main .header-logo{width:185px;margin-bottom:35px}.legal-main h1{font-size:36px;letter-spacing:-.045em}.legal-main h2{font-size:22px;margin-top:36px}.legal-main p{font-size:14px;line-height:1.8;color:#566277}
-/* On ultrawide but short screens use one shared card floor rather than
-   compressing text or shifting the signup illustration independently. */
+
 @media (min-width:1800px) and (max-height:850px){
 .split{min-height:700px}
 }
@@ -215,9 +207,9 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 .split{min-height:670px}
 }
 @media (max-width:1199px){
-  /* Tall stacked auth cards scroll naturally without phantom header spacing. */
+  
   .auth-layout{justify-content:flex-start;padding:32px 0}
-  /* На планшетах і телефонах вхід першочерговий, композиція бренду — нижче. */
+  
   .split{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);margin:16px auto 28px;border-radius:24px}
   .form-box{width:min(100%,510px);margin:0 auto}
 
@@ -249,8 +241,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
-/* Deep links to /idN and /clubN use page-shaped placeholders while GitHub
-   Pages resolves their document. No changes to login/register form loading. */
+
 html.vatra-dynamic-route-pending .vatra-route-loading{
  display:block;opacity:1!important;animation:none!important;
  overflow:hidden;background:#f5f7fc
@@ -304,7 +295,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  html.vatra-dynamic-route-pending .vatra-dynamic-block{animation:none;background:#e8edf5}
 }
 
-/* System member portraits must never be mistaken for uploaded photos. */
+
 [data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
 [data-vatra-avatar-state="not-found"]:not(.has-photo){background-image:var(--vatra-not-found-avatar)!important}
 [data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
@@ -316,9 +307,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 }
 
 
-/* Shared graphite form scrollbars: show while the pointer is in the form,
-   fade as it leaves; keyboard and touch scrolling stay usable.
-   No arrow buttons, hover backgrounds or page-level scrollbar overrides. */
+
 @property --vatra-form-scroll-alpha{
  syntax:"<number>";
  inherits:true;
@@ -326,7 +315,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 }
 :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -366,7 +355,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 }
 :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -403,7 +392,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 }
 :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -440,7 +429,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 }
 :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -475,7 +464,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  textarea)::-webkit-scrollbar-track,
 :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -512,7 +501,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 }
 :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -548,13 +537,11 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  background:rgb(64 70 79 / var(--vatra-form-scroll-alpha));
  border:2px solid transparent;border-radius:99px;background-clip:padding-box
 }
-/* Respect thin native bars in modern engines (Opera, Chrome, Safari and
-   Firefox). Retain legacy WebKit arrow-button suppression for older versions.
-   Never force auto-width OS scrollbars inside VATRA forms. */
+
 @supports selector(::-webkit-scrollbar){
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -592,7 +579,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  }
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -627,7 +614,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  textarea)::-webkit-scrollbar-button,
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -662,7 +649,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  textarea)::-webkit-scrollbar-button:single-button,
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -697,7 +684,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  textarea)::-webkit-scrollbar-button:vertical:decrement,
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -737,7 +724,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 @media(prefers-reduced-motion:reduce){
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
- .vt-tour-scroll-area-001,
+ .vatra-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -773,8 +760,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .language-scroll-track{transition:none!important}
 }
 
-/* Shared VATRA service notice — only opened for explicit user-facing failures. */
-/* Nonmodal Vatryk error states: integrated into content, not a form. */
+
+
 .ui-vatra-service-notice-001{
  box-sizing:border-box;display:grid;justify-items:center;align-content:center;
  width:min(540px,calc(100% - 32px));max-width:100%;min-height:290px;
@@ -790,21 +777,21 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 }
 .ui-vatra-service-notice-art-001{display:block;width:min(230px,70vw);height:auto;max-height:250px;aspect-ratio:1;object-fit:contain;margin:0 auto 10px}
 .ui-vatra-service-notice-art-001[hidden]{display:none}
-.vt-vatra-service-notice-title-001{font:720 24px/1.3 Onest,Inter,system-ui,sans-serif;letter-spacing:-.025em;margin:0 0 10px;color:var(--ink,#293951)}
-.vt-vatra-service-notice-copy-001{font:450 14px/1.65 Onest,Inter,system-ui,sans-serif;margin:0;color:var(--soft,#65758a);overflow-wrap:anywhere}
+.vatra-service-notice-title-001{font:720 24px/1.3 Onest,Inter,system-ui,sans-serif;letter-spacing:-.025em;margin:0 0 10px;color:var(--ink,#293951)}
+.vatra-service-notice-copy-001{font:450 14px/1.65 Onest,Inter,system-ui,sans-serif;margin:0;color:var(--soft,#65758a);overflow-wrap:anywhere}
 .ui-vatra-service-notice-actions-001{display:grid;justify-items:center;gap:12px;width:min(250px,100%);margin-top:22px}
-.vt-vatra-service-notice-action-001{width:100%;min-height:44px;border:0;border-radius:11px;background:var(--vatra-action-primary,#2861d8);color:#fff;font:680 14px/1.4 Onest,Inter,system-ui,sans-serif;cursor:pointer;padding:10px 15px}
-.vt-vatra-service-notice-action-001:hover:not(:disabled){background:var(--vatra-action-primary-hover,#2256bd)}
-.vt-vatra-service-notice-action-001:disabled{opacity:.6;cursor:default}
-.vt-vatra-service-notice-support-001{color:var(--blue,#2861d8);font:620 14px/1.4 Onest,Inter,system-ui,sans-serif;text-decoration:none;padding:6px}
-.vt-vatra-service-notice-action-001:focus-visible,.vt-vatra-service-notice-support-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:3px}
+.vatra-service-notice-action-001{width:100%;min-height:44px;border:0;border-radius:11px;background:var(--vatra-action-primary,#2861d8);color:#fff;font:680 14px/1.4 Onest,Inter,system-ui,sans-serif;cursor:pointer;padding:10px 15px}
+.vatra-service-notice-action-001:hover:not(:disabled){background:var(--vatra-action-primary-hover,#2256bd)}
+.vatra-service-notice-action-001:disabled{opacity:.6;cursor:default}
+.vatra-service-notice-support-001{color:var(--blue,#2861d8);font:620 14px/1.4 Onest,Inter,system-ui,sans-serif;text-decoration:none;padding:6px}
+.vatra-service-notice-action-001:focus-visible,.vatra-service-notice-support-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:3px}
 @media(max-height:540px){.ui-vatra-service-notice-art-001{width:120px}.ui-vatra-service-notice-001{min-height:180px;padding:18px}}
 
 
-/* Form text areas have a stable layout; long content scrolls inside. */
+
 textarea{resize:none}
 
-/* Common motion for contextual panels. Keep visibility and position independent. */
+
 @supports (transition-behavior:allow-discrete){
  :is(.profile-archive-menu,.vatra-post-comment-attach-menu,.vatra-post-comment-emoji-panel,.ui-profile-photo-emoji-panel-001,.ui-business-category-popover-001){transition:opacity .18s ease,translate .18s ease,display .18s allow-discrete;opacity:1;translate:0 0}
  :is(.profile-archive-menu,.vatra-post-comment-attach-menu,.vatra-post-comment-emoji-panel,.ui-profile-photo-emoji-panel-001,.ui-business-category-popover-001)[hidden]{opacity:0;translate:0 -5px;pointer-events:none}

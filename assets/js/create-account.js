@@ -1,4 +1,3 @@
-/* VATRA Create account: page-specific behavior; shared utilities are in auth-core.js. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -31,7 +30,6 @@ function wireHoverHelp(){
   const side=availableRight>=355?"right":availableLeft>=355?"left":"below";
   help.dataset.side=side;
   panel.style.top="";panel.style.bottom="";
-  // Keep the complete help bubble within the visible viewport.
   requestAnimationFrame(()=>{
    if(!help.open)return;
    const bounds=panel.getBoundingClientRect();
@@ -61,7 +59,6 @@ function wireHoverHelp(){
   });
   summary?.addEventListener("click",event=>{
    event.preventDefault();
-   // Touch devices have no hover: retaining tap access keeps the hint usable.
    if(matchMedia("(hover: none)").matches){
     if(!help.open)reveal(help);
    }
@@ -87,7 +84,6 @@ function wireCreateAccountWizard(){
    header.hidden=Number(header.dataset.stepHeading)!==step;
   progress.setAttribute("aria-valuenow",String(step));
   if(animate)replayAuthContent(q(".signup-form-panel .narrow-form"));
-  // Previous input values and any inline errors are retained when going back.
  }
  next.addEventListener("click",()=>{
   if(!validateCreateAccountStep(first))return;
@@ -124,8 +120,8 @@ function fillBirthdays(){
  for(let i=1;i<=31;i++)day.add(new Option(String(i).padStart(2,"0"),String(i).padStart(2,"0")));
  for(let i=now.getFullYear();i>=1900;i--)year.add(new Option(String(i),String(i)));
 }
-/* Accessible VATRA dropdowns use native select values and validation; the
-   browser's native OS popup is replaced by a consistent Onest listbox. */
+
+
 function wireSelects(){
  const selects=[...document.querySelectorAll("#birth-day,#birth-month,#birth-year,#gender")];
  let opened=null;
@@ -144,33 +140,28 @@ function wireSelects(){
   select.parentNode.insertBefore(root,select);
   root.append(select);
   const required=select.required;
-  select.required=false; // validateBirthday() checks the original select values on submit
+  select.required=false; 
   select.classList.add("vatra-select-native");
   select.tabIndex=-1;
   select.setAttribute("aria-hidden","true");
   const trigger=document.createElement("button");
   trigger.type="button";
-  trigger.className="control vatra-select-trigger vt-select-trigger-"+select.id;
+  trigger.className="control vatra-select-trigger vatra-select-trigger-"+select.id;
   trigger.setAttribute("aria-haspopup","listbox");
   trigger.setAttribute("aria-expanded","false");
   trigger.setAttribute("aria-label",select.getAttribute("aria-label")||"");
   const display=document.createElement("span");
-  display.className="vt-select-display-"+select.id;
+  display.className="vatra-select-display-"+select.id;
   trigger.append(display);
   const list=document.createElement("div");
   list.className="vatra-select-list ui-select-options-"+select.id;
   list.hidden=true;
   list.setAttribute("role","listbox");
   list.setAttribute("aria-label",select.getAttribute("aria-label")||"");
-  // Keep the rounded popup shell static and inset only the scrolling content.
-  // This prevents scrollbar thumbs running into its top/bottom corners.
   const scrollArea=document.createElement("div");
   scrollArea.className="vatra-select-scroll-area ui-select-scroll-"+select.id;
   scrollArea.setAttribute("role","presentation");
   list.append(scrollArea);
-  // The native rail has browser-specific arrows. Use a small themed thumb that
-  // follows the real scroll position; the content itself remains natively
-  // scrollable by wheel, touch and keyboard.
   const rail=document.createElement("div");
   rail.className="vatra-select-scroll-rail ui-select-rail-"+select.id;
   rail.hidden=true;
@@ -187,7 +178,6 @@ function wireSelects(){
   function updateRail(){
    if(list.hidden)return;
    const overflow=scrollArea.scrollHeight-scrollArea.clientHeight;
-   // Measure after revealing: hidden rails report clientHeight=0.
    if(overflow<=1){rail.hidden=true;rail.classList.remove("is-visible");return;}
    rail.hidden=false;
    const height=rail.clientHeight;
@@ -256,7 +246,7 @@ function wireSelects(){
   for(const [optionIndex,opt] of choices.entries()){
    const item=document.createElement("button");
    item.type="button";
-   item.className="vatra-select-option vt-select-"+select.id+"-item-"+(optionIndex+1);
+   item.className="vatra-select-option vatra-select-"+select.id+"-item-"+(optionIndex+1);
    item.dataset.value=opt.value;
    item.setAttribute("role","option");
    item.setAttribute("aria-selected",String(select.value===opt.value));
@@ -270,7 +260,6 @@ function wireSelects(){
    scrollArea.append(item);
   }
   root.append(trigger,list);
-  // The visible registration caption also opens the custom gender selector.
   const caption=document.querySelector('label[for="'+select.id+'"]');
   if(caption){
     caption.addEventListener("click",event=>{
@@ -306,8 +295,6 @@ function wireSelects(){
    opened={trigger,list,root,select,choices,resetRail};
    const active=list.querySelector('[aria-selected="true"]');
    if(active)active.scrollIntoView({block:"nearest"});
-   // Layout is now measurable. Keep the thumb visible if the pointer opened
-   // the list and already happens to rest over its content.
    requestAnimationFrame(()=>{
     if(opened?.list!==list)return;
     updateRail();
@@ -361,8 +348,6 @@ const SIGNUP_PENDING_KEY="vatra-signup-confirmation";
 const SIGNUP_AUTH_CHANNEL="vatra-auth-verified";
 let signupAuthWatchStarted=false,signupVerificationBusy=false,signupAccountNavigating=false;
 
-// Never accept a cross-tab message as proof of identity. Only the Auth server
-// can confirm that this browser holds a session for the expected email.
 function isExpectedConfirmedSignup(user){
  return !!(signupPending?.email&&user?.id&&user?.email_confirmed_at&&
   typeof user.email==="string"&&
@@ -374,14 +359,13 @@ async function verifyPendingSignupSession(){
  const expected=signupPending;
  signupVerificationBusy=true;
  try{
-  const {data,error}=await auth.auth.getUser(); // Verified via Supabase Auth server.
+  const {data,error}=await auth.auth.getUser(); 
   if(error||signupPending!==expected||!isExpectedConfirmedSignup(data?.user)||
    q("#signup-confirmation")?.hidden!==false)return;
   signupAccountNavigating=true;
   try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
   goToFeed();
  }catch(_){
-  // Transient network errors keep the waiting screen available for retries.
  }finally{signupVerificationBusy=false;}
 }
 function watchSignupConfirmation(){
@@ -390,7 +374,7 @@ function watchSignupConfirmation(){
  const check=()=>{void verifyPendingSignupSession();};
  const onAuth=event=>{
   if(["INITIAL_SESSION","SIGNED_IN","TOKEN_REFRESHED","USER_UPDATED"].includes(event))
-   setTimeout(check,0); // Avoid awaiting other Supabase calls inside the Auth callback.
+   setTimeout(check,0); 
  };
  const subscription=auth.auth.onAuthStateChange?.(onAuth)?.data?.subscription;
  let channel=null;
@@ -424,14 +408,12 @@ function announceVerifiedAccount(){
  if(typeof BroadcastChannel==="undefined")return;
  try{
   const channel=new BroadcastChannel(SIGNUP_AUTH_CHANNEL);
-  channel.postMessage({type:"check-confirmed-session"}); // No email, ID or token.
+  channel.postMessage({type:"check-confirmed-session"}); 
   channel.close();
  }catch(_){}
 }
 
 const SIGNUP_RESEND_COOLDOWN_MS=60000;
-// VATRA Supabase Email OTP Expiration: 900 seconds (confirmed in Auth settings).
-// The client counts from the successful server response; network latency can affect seconds shown.
 const SIGNUP_LINK_VALIDITY_MS=900000;
 let signupPending=null,signupSending=false,signupTickTimer=null;
 function maskSignupEmail(email){

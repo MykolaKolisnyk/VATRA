@@ -1,12 +1,9 @@
-/* VATRA • shared authentication. Public publishable key only; never embed server secrets. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 const PROJECT_URL="https://cxrcycxrlkufozomsxcs.supabase.co";
 const PUBLIC_KEY="sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i";
 const page=document.body.dataset.page||"login";
-// Capture the original callback URL before the Supabase SDK consumes the query.
-// An older PKCE link opened on a new device must show an explanation, not a silent redirect.
 const initialAuthQuery=new URLSearchParams(location.search);
 const initialAuthHash=new URLSearchParams(location.hash.slice(1));
 const initialAccountCallback=page==="verify"&&(initialAuthQuery.has("token_hash")||
@@ -18,7 +15,7 @@ const translate=text=>window.VATRA_LANGUAGE?.translate(text)||text;
 const english=document.documentElement.lang==="en";
 const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
-/* Run a single reveal on the changing content, not the surrounding card. */
+
 function replayAuthContent(node){
  if(!node||window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return;
  node.style.animation="none";
@@ -32,7 +29,6 @@ function validateBirthday(){return pageHooks.validateBirthday?.()??null;}
 let navigatingAuth=false;
 const markAuthReady=()=>{if(!navigatingAuth)document.body.dataset.authReady="true";};
 function sessionCheckWithTimeout(){
- // No artificial loading delay: fall back to sign-in if a stale network request stalls.
  return Promise.race([
   auth.auth.getUser(),
   new Promise(resolve=>setTimeout(()=>resolve({data:{user:null},error:new Error("Session check timed out")}),8000))
@@ -47,16 +43,12 @@ function rememberAccount(user){
  window.VATRA_AVATAR?.clearHeader(email);
  const metadata=user.user_metadata||{};
  const name=[metadata.first_name,metadata.last_name].filter(x=>typeof x==="string"&&x.trim()).join(" ").trim().slice(0,120)||email.split("@")[0];
- // Save identity labels and an optional PUBLIC avatar link only, not passwords,
- // auth UUIDs, OTPs or session tokens. Preserve an earlier photo for this email.
  const avatarUrl=window.VATRA_AVATAR?.getRemembered(email);
  const entry={v:1,email,name};
  if(avatarUrl)entry.avatarUrl=avatarUrl;
  try{localStorage.setItem(REMEMBERED_ACCOUNT_KEY,JSON.stringify(entry));}catch(_){}
 }
 function goToFeed(){
- // After a verified sign-in or sign-up, Feed is the VATRA home screen.
- // The dedicated /verify endpoint redeems email links and returns to Feed.
  navigatingAuth=true;
  window.location.replace(url("feed"));
 }
@@ -97,8 +89,8 @@ function getMessage(error){
  if(code==="network_error"||text.includes("failed to fetch")||text.includes("network"))return "Немає з'єднання із сервером. Перевірте інтернет і повторіть спробу.";
  return "Не вдалося виконати дію. Перевірте введені дані та спробуйте ще раз.";
 }
-/* Field errors automatically disappear after 5.5 seconds or on edit.
-   Submitting still checks all required values even after visual errors expire. */
+
+
 const FIELD_ERROR_DURATION_MS=5500;
 const fieldErrorTimers=new WeakMap();
 function showFieldError(control,message){
@@ -111,11 +103,9 @@ function showFieldError(control,message){
  if(message){
   if(!error){
    error=document.createElement("small");
-   error.className="field-error vt-field-error-"+control.id;
+   error.className="field-error vatra-field-error-"+control.id;
    error.id="vatra-error-"+control.id;
    error.setAttribute("role","alert");
-   // Consent validation occupies a dedicated row below the whole label,
-   // never sits inside the inline link text.
    wrapper.append(error);
   }
   error.textContent=translate(message);
@@ -145,9 +135,9 @@ function validationText(control,form){
  if(control.type==="password"&&form.id!=="login-form")return passwordIssue(value);
  return "";
 }
-/* One floating hint per input. Native placeholder text is hidden only after
-   this control is initialized, so no second label can overlap the cursor.
-   Validation messages remain outside the positioned input shell. */
+
+
+
 function wireFloatingHints(){
  if(!["login","create-account","forgot","reset"].includes(page))return;
  const syncAll=[];
@@ -157,9 +147,6 @@ function wireFloatingHints(){
   const hint=shell?.querySelector(":scope > .vatra-floating-hint");
   if(!input||!shell||!hint)continue;
   const sync=()=>{
-   // A real value lifts the hint. Focus is styled by CSS separately.
-   // Some password managers retain :-webkit-autofill on a cleared input;
-   // a blank field must never stay lifted after blur.
    shell.classList.toggle("is-floating",Boolean(input.value));
   };
   for(const event of ["focus","blur","input","change","animationstart"])
@@ -170,8 +157,8 @@ function wireFloatingHints(){
  }
  window.addEventListener("pageshow",()=>syncAll.forEach(sync=>sync()));
 }
-/* Keep rotating orbit icon tooltips fully inside the visible welcome panel.
-   At the top of the orbit the tooltip opens below, not under browser chrome. */
+
+
 function wireFieldValidation(){
  const form=document.querySelector("#login-form,#signup-form,#forgot-form,#reset-form");
  if(!form)return;
@@ -191,7 +178,6 @@ function wireFieldValidation(){
   return !message;
  };
  for(const control of controls){
-  // Editing immediately clears the old error instead of repainting it on blur.
   const clear=()=>{
    showFieldError(control,"");
    if(control.id?.startsWith("birth-"))showFieldError(q("#birth-day"),"");
@@ -228,8 +214,8 @@ function wireFieldValidation(){
   }
  },true);
 }
-/* Two-step VATRA registration. Form values stay in memory while navigating;
-   no passwords or personal details are written to browser storage. */
+
+
 function wirePasswordButtons(){
  document.querySelectorAll("[data-password-toggle]").forEach(button=>{
   const input=document.getElementById(button.dataset.passwordToggle);
@@ -259,8 +245,8 @@ function wirePasswordButtons(){
   sync();
  });
 }
-/* The same password policy governs signup and both reset paths.
-   Login deliberately accepts existing passwords, including older policies. */
+
+
 function passwordIssue(value){
  if(typeof value!=="string"||value.length<12)return "Використайте щонайменше 12 символів.";
  if(value.length>128)return "Використайте не більше 128 символів.";
@@ -274,10 +260,10 @@ function passwordIssue(value){
 function validPassword(value){return passwordIssue(value)==="";}
 async function initialize(){
  try{
- /* Initial language translations must finish before wiring localized controls. */
+
  await window.VATRA_LANGUAGE?.ready;
- /* Shared controls initialize before authentication, so typing never depends
-    on network availability. Each page module initializes only its own view. */
+
+
  wirePasswordButtons();
  wireFloatingHints();
  if(!window.supabase?.createClient){
@@ -286,8 +272,6 @@ async function initialize(){
  }
  try{
   auth=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
-   // Recovery OTP verifies the user's identity only to change their password.
-   // It must NEVER persist a normal VATRA login session in localStorage.
    auth:{autoRefreshToken:page!=="reset"&&page!=="forgot",
     persistSession:page!=="reset"&&page!=="forgot",
     detectSessionInUrl:page!=="forgot",flowType:"pkce"}
@@ -310,7 +294,7 @@ async function initialize(){
   try{
    const {data,error}=await sessionCheckWithTimeout();
    if(!error&&data?.user?.email_confirmed_at){await goToFeed();return;}
-  }catch(_){/* Leave login available if the network is unreachable. */}
+  }catch(_){ }
   pageHooks.wireRememberedAccount?.();
  }
  if(page==="create-account"){

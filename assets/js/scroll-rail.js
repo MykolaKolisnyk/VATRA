@@ -7,7 +7,7 @@
   side.type="button";side.className="vatra-scroll-rail ui-vatra-scroll-rail-001";side.hidden=true;
   side.setAttribute("aria-label",document.documentElement.lang==="en"?"Scroll to top":"Повернутися вгору");
   side.title=document.documentElement.lang==="en"?"To top":"Вгору";
-  const name=document.createElement("span");name.className="vatra-scroll-rail-label vt-vatra-scroll-rail-label-001";
+  const name=document.createElement("span");name.className="vatra-scroll-rail-label vatra-scroll-rail-label-001";
   name.textContent=document.documentElement.lang==="en"?"Top":"Вгору";
   const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
   icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("class","ui-vatra-scroll-rail-icon-001");
@@ -23,7 +23,6 @@
    pending=false;
    const edge=layout?.getBoundingClientRect();
    const gutter=edge&&edge.width>0?edge.left:0;
-   // A floating control must never occupy the entire viewport gutter.
    const left=gutter>=78?Math.round(gutter-62):16;
    side.style.left=Math.max(12,Math.min(innerWidth-60,left))+"px";
    side.hidden=window.scrollY<350||document.documentElement.scrollHeight-innerHeight<500;

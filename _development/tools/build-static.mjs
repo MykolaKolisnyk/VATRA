@@ -4,7 +4,7 @@ import {resolve,join,extname} from "node:path";
 import {fileURLToPath} from "node:url";
 import {execFileSync} from "node:child_process";
 import {transform,version} from "esbuild";
-const root=fileURLToPath(new URL("../",import.meta.url));
+const root=fileURLToPath(new URL("../../",import.meta.url));
 const output=resolve(root,"dist");
 assert.equal(version,"0.28.2","Use the pinned esbuild version");
 assert.notEqual(output,resolve(root),"Refusing to replace source");
@@ -29,12 +29,13 @@ async function minify(path){
  }
 }
 await minify(output);
-execFileSync(process.execPath,[join(root,"tools","revision-assets.mjs"),"--write"],{cwd:output,stdio:"inherit"});
-execFileSync(process.execPath,[join(root,"tools","revision-assets.mjs")],{cwd:output,stdio:"inherit"});
+execFileSync(process.execPath,[join(root,"_development","tools","revision-assets.mjs"),"--write"],{cwd:output,stdio:"inherit"});
+execFileSync(process.execPath,[join(root,"_development","tools","revision-assets.mjs")],{cwd:output,stdio:"inherit"});
 for(const page of ["index.html","feed.html","profile.html","marketplace.html","clips.html","club.html","vatra-id.html"]){
  assert.ok((await stat(join(output,page))).size>0,page+" missing from static build");
 }
 assert.ok(count>10&&after<before,"Expected smaller production assets");
+assert.ok(!(await readdir(output)).includes("_development"),"Development files must never ship");
 const summary={files:count,originalBytes:before,minifiedBytes:after,savedBytes:before-after};
 console.log("VATRA static build: "+JSON.stringify(summary));
 await writeFile(join(root,"build-summary.json"),JSON.stringify(summary,null,2)+"\n");

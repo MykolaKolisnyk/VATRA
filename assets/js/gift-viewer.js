@@ -54,9 +54,9 @@ function setup(){
  dialog=make("dialog","vatra-gift-viewer ui-vatra-gift-viewer-001");
  dialog.setAttribute("aria-labelledby","vatra-gift-viewer-heading");
  const top=make("header","vatra-gift-viewer-head ui-vatra-gift-viewer-head-001");
- heading=make("h2","vt-vatra-gift-viewer-heading-001");
+ heading=make("h2","vatra-gift-viewer-heading-001");
  heading.id="vatra-gift-viewer-heading";
- close=make("button","vt-vatra-gift-viewer-close-001");
+ close=make("button","vatra-gift-viewer-close-001");
  const closeIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
  closeIcon.setAttribute("class","ui-vatra-gift-viewer-close-icon-001");
  closeIcon.setAttribute("viewBox","0 0 24 24");
@@ -80,8 +80,8 @@ function setup(){
  picture.addEventListener("dragstart",event=>event.preventDefault());
  picture.addEventListener("contextmenu",event=>event.preventDefault());
  stage.append(effects,picture);
- eventText=make("p","vt-vatra-gift-viewer-event-001");
- description=make("p","vt-vatra-gift-viewer-description-001");
+ eventText=make("p","vatra-gift-viewer-event-001");
+ description=make("p","vatra-gift-viewer-description-001");
  const footer=make("footer","vatra-gift-viewer-footer ui-vatra-gift-viewer-footer-001");
  footer.append(eventText,description);
  dialog.append(top,stage,footer);

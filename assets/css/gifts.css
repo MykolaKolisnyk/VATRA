@@ -1,4 +1,4 @@
-/* VATRA released gift: First Flame PNG and its lightweight embers. */
+
 body.vatra-gifts-page .vatra-gifts-main{
  width:min(1050px,calc(100% - 36px));margin:28px auto 78px;
  padding:27px 32px 38px;border:1px solid #e1e9f5;border-radius:21px;
@@ -6,17 +6,17 @@ body.vatra-gifts-page .vatra-gifts-main{
  color:#30435f;font-family:"Onest",system-ui,sans-serif
 }
 body.vatra-gifts-page .vatra-gifts-header{display:flex;flex-direction:column;gap:7px;margin-bottom:24px}
-body.vatra-gifts-page .vt-vatra-gifts-back-001{
+body.vatra-gifts-page .vatra-gifts-back-001{
  align-self:start;margin-bottom:7px;color:#3868bd;text-decoration:none;
  font:750 12px/1.5 "Onest",system-ui,sans-serif
 }
-body.vatra-gifts-page .vt-vatra-gifts-eyebrow-001{
+body.vatra-gifts-page .vatra-gifts-eyebrow-001{
  color:#8499bc;letter-spacing:.12em;font:700 11px/1.4 "Onest",system-ui,sans-serif
 }
-body.vatra-gifts-page .vt-vatra-gifts-title-001{
+body.vatra-gifts-page .vatra-gifts-title-001{
  margin:0;color:#2e4163;font:820 clamp(25px,3vw,33px)/1.2 "Onest",system-ui,sans-serif;letter-spacing:-.042em
 }
-body.vatra-gifts-page .vt-vatra-gifts-intro-001{margin:0;color:#7187a8;font:500 13px/1.6 "Onest",system-ui,sans-serif}
+body.vatra-gifts-page .vatra-gifts-intro-001{margin:0;color:#7187a8;font:500 13px/1.6 "Onest",system-ui,sans-serif}
 body.vatra-gifts-page .vatra-gifts-tabs{
  display:flex;gap:4px;align-items:center;flex-wrap:wrap;
  width:max-content;max-width:100%;margin-bottom:23px;padding:5px;
@@ -47,28 +47,28 @@ body.vatra-gifts-page .vatra-gifts-card-image{
  display:grid;place-items:center;width:100%;aspect-ratio:1;
  border-radius:13px;background:#f4f7fe;overflow:hidden
 }
-/* All gift illustrations are decorative CSS surfaces, never draggable images. */
+
 body.vatra-gifts-page .vatra-gifts-card-art{
  display:block;width:min(100%,195px);aspect-ratio:1;
  background-size:contain;background-repeat:no-repeat;background-position:center;
  user-select:none;-webkit-user-select:none;-webkit-user-drag:none
 }
-body.vatra-gifts-page [class^="vt-vatra-gifts-card-title-"]{
+body.vatra-gifts-page [class^="vatra-gifts-card-title-"]{
  color:#304462;font:780 15px/1.3 "Onest",system-ui,sans-serif
 }
-body.vatra-gifts-page [class^="vt-vatra-gifts-card-copy-"]{
+body.vatra-gifts-page [class^="vatra-gifts-card-copy-"]{
  color:#7789a5;font:510 12px/1.5 "Onest",system-ui,sans-serif
 }
-body.vatra-gifts-page [class^="vt-vatra-gifts-card-state-"]{
+body.vatra-gifts-page [class^="vatra-gifts-card-state-"]{
  margin-top:auto;padding:5px 10px;border-radius:22px;background:#edf3ff;
  color:#5478bb;font:690 10.5px/1.3 "Onest",system-ui,sans-serif
 }
-body.vatra-gifts-page .vt-vatra-gifts-empty-001{
+body.vatra-gifts-page .vatra-gifts-empty-001{
  margin:0;padding:44px 14px;text-align:center;color:#8190a9;
  font:540 14px/1.7 "Onest",system-ui,sans-serif
 }
-body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
-/* Immersive viewer occupies the entire viewport on every route and size. */
+body.vatra-gifts-page .vatra-gifts-empty-001[hidden]{display:none}
+
 .vatra-gift-viewer{
  position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;
  box-sizing:border-box;margin:0;padding:0;overflow:hidden;
@@ -140,10 +140,10 @@ body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
  text-align:center
 }
 .vatra-gift-viewer-footer p{margin:0}
-.vt-vatra-gift-viewer-event-001{
+.vatra-gift-viewer-event-001{
  color:#b4cbf8;font:760 12px/1.5 "Onest",system-ui,sans-serif
 }
-.vt-vatra-gift-viewer-description-001{
+.vatra-gift-viewer-description-001{
  margin:auto!important;max-width:680px;color:#d2dff3;
  font:510 clamp(12px,1.5vw,15px)/1.6 "Onest",system-ui,sans-serif
 }
@@ -154,7 +154,7 @@ body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
  body.vatra-gifts-page .vatra-gifts-main{width:calc(100% - 18px);padding:20px 15px 28px;margin:12px auto 45px}
  body.vatra-gifts-page .vatra-gifts-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
  body.vatra-gifts-page .vatra-gifts-card{padding:9px 8px 14px;gap:7px}
- body.vatra-gifts-page .vt-vatra-gifts-title-001{font-size:25px}
+ body.vatra-gifts-page .vatra-gifts-title-001{font-size:25px}
  .vatra-gift-viewer-head{min-height:61px;padding:9px 16px}
  .vatra-gift-viewer-footer{gap:5px;padding:12px 18px max(16px,env(safe-area-inset-bottom))}
  .vatra-gift-viewer-picture{inset:0 10px}

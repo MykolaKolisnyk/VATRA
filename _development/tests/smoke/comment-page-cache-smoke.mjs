@@ -5,7 +5,7 @@ import {runInNewContext} from "node:vm";
 
 const full=await readFile("assets/js/post-interactions.js","utf8");
 const start=full.indexOf(" const COMMENT_PAGE_TTL_MS=15_000,COMMENT_PAGE_MAX=32;");
-const end=full.indexOf(" // A short-lived, per-client cache for already-RLS-scoped engagement pages.",start);
+const end=full.indexOf(" const engagementQueryCache=new WeakMap()",start);
 assert.ok(start>0&&end>start,"Locate the real comment page implementation");
 let now=Date.parse("2026-11-14T12:00:00Z");
 class FakeDate extends Date{static now(){return now;}}

@@ -6,7 +6,7 @@ import {runInNewContext} from "node:vm";
 
 const code=await readFile("assets/js/feed.js","utf8");
 const first=code.indexOf(" let globalSearchTicket=0,globalSearchController=null");
-const last=code.indexOf(" // Independent, fixed-size Supabase cursors",first);
+const last=code.indexOf(" let sourceState=null,renderedIds=new Set(),lastFeedScope=null;",first);
 assert.ok(first>0&&last>first,"Global search code is available");
 assert.ok(code.includes("globalSearchTicket++;globalSearchController?.abort();"),
  "Signing out cancels the active global search");

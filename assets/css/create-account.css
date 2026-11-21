@@ -1,4 +1,4 @@
-/* VATRA create-account page — page-specific appearance (after shared base.css). */
+
 
 .signup-form-overline{display:flex;align-items:center;gap:12px;margin-bottom:16px;justify-content:space-between;flex-wrap:wrap;row-gap:8px}
 .signup-form-kicker{display:inline-flex;align-items:center;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
@@ -10,14 +10,14 @@
 .field.is-invalid .vatra-select-trigger{border-color:#e49aa7;background:#fffdfd;box-shadow:0 0 0 3px rgba(220,79,104,.055)}
 .check-terms.is-invalid{color:#a83d54}
 .check-terms>span{display:block;min-width:0;flex:1;grid-column:2;grid-row:1}.check-terms>.field-error{grid-column:1/-1;grid-row:2;margin:0;min-width:0;align-self:start;gap:11px}.check-terms>.field-error::before{width:16px;height:16px;margin-top:1px}
-.vt-ua-create-account-inline-05,.vt-en-create-account-inline-05{font-weight:400;color:#627187}
+.vatra-ua-create-account-inline-05,.vatra-en-create-account-inline-05{font-weight:400;color:#627187}
 .check-terms input{width:16px;height:16px;accent-color:var(--blue);margin:0}
 .signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty;margin:0;max-width:45ch}
 .create-account-page .footer{padding-inline:0}
 .create-account-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 
 .create-account-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.create-account-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-height:36px;width:auto;max-width:none;margin:0;padding:0}.create-account-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}
-/* Registration retains its captions above the same floating-hint controls. */
+
 .signup-form-panel .field:has(input.control){position:relative;gap:8px}
 .signup-form-panel .field,.signup-form-panel .two>.field{align-content:start;align-self:start}
 .signup-form-panel .field:has(input.control)>span:first-child{
@@ -62,7 +62,7 @@
 
 
 
-/* Confirmation shares the registration typography and content width. */
+
 .signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .signup-confirmation[hidden],.signup-form-panel .narrow-form[hidden]{display:none}
 .signup-confirmation-kicker{margin-bottom:16px}
@@ -85,9 +85,9 @@
 .signup-confirmation-delay{margin:12px 0 0;color:var(--soft);font-size:13px;line-height:1.55}
 .signup-confirmation-signin{display:inline-flex;align-items:center;justify-content:center;margin-top:22px;padding:6px 12px;border-radius:9px;color:var(--blue);font-size:14px;font-weight:650;line-height:1.5;text-align:center;text-decoration:underline;text-underline-offset:3px;transition:background .18s ease,color .18s ease,text-underline-offset .18s ease}
 .signup-confirmation-signin:hover,.signup-confirmation-signin:focus-visible{background:#edf3ff;color:#174db6;text-underline-offset:5px}
-/* Keep the login link visible even while email confirmation is pending. */
 
-/* VATRA registration experience: one brand column and two accessible form stages. */
+
+
 .signup-brand{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:center;min-width:0;min-height:0;padding:clamp(32px,4.2vw,66px);border-radius:28px 0 0 28px;color:#fff;background:radial-gradient(circle at 85% 23%,rgba(140,86,241,.43),transparent 34%),radial-gradient(circle at 8% 75%,rgba(28,107,240,.24),transparent 38%),linear-gradient(155deg,#172753,#101a3c 85%);}
 .signup-brand::before,.signup-brand::after{content:"";position:absolute;z-index:-1;pointer-events:none;border:1px solid rgba(218,228,255,.11);border-radius:50%;width:420px;aspect-ratio:1}
 .signup-brand::before{right:-245px;top:-150px}
@@ -124,7 +124,7 @@
 .create-account-back-nav,
 .signup-form-panel .narrow-form,
 .signup-confirmation{animation:none!important}.signup-progress-segment{transition:none!important}}
-/* Фірмові списки дати народження та статі: однаковий Onest у полі та меню. */
+
 .vatra-select{position:relative;min-width:0;width:100%}
 .vatra-select-native{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;border:0!important;opacity:0;pointer-events:none;clip-path:inset(50%);overflow:hidden}
 .vatra-select-trigger{display:flex;align-items:center;justify-content:flex-start;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
@@ -135,8 +135,7 @@
 .vatra-select-list{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;
  max-height:304px;overflow:hidden;padding:0;background:#fff;border:1px solid #d7ddea;
  border-radius:13px;box-shadow:0 16px 42px rgba(26,44,92,.15)}
-/* Browser-independent date dropdown scrolling. Hide the OS scrollbar entirely
-   (including Opera's arrow buttons) and draw our inset VATRA thumb instead. */
+
 .vatra-select-scroll-area{box-sizing:border-box;display:block;width:calc(100% - 12px);
  max-height:inherit;overflow-y:auto;overscroll-behavior:contain;
  margin-right:12px;padding:6px 3px 7px 6px;scrollbar-width:none!important;
@@ -158,16 +157,15 @@
 .vatra-select-option:hover,.vatra-select-option:focus-visible{background:#f1f5ff;color:var(--blue);outline:none}
 .vatra-select-option[aria-selected="true"]{background:#eaf1ff;color:#2865D8;font-weight:700}.check-terms{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:11px;row-gap:6px;align-items:start;cursor:pointer}.check-terms>input{grid-column:1;grid-row:1;align-self:start;flex:none;margin-top:3px}.create-account-actions{display:grid;gap:11px}.create-account-actions .action{width:100%}.create-account-bottom{text-align:center;font-size:13px;color:#627187;margin:20px 0 0}.create-account-bottom a{color:var(--blue);font-weight:700}
 
-/* Узгоджена адаптація всіх наявних сторінок VATRA. */
-/* Signup navigation shares the eyebrow row instead of floating above the form. */
+
+
 @media (min-width:1200px) and (max-width:1399px){
 .signup-form-panel{padding:24px clamp(23px,3vw,44px)}}
 @media (min-width:1200px) and (max-height:760px){
-  /* Preserve the V symbol and card gutters; only release unused artwork height. */
+  
   .signup-brand-art{height:clamp(215px,18vw,235px)}
 .signup-form-panel{padding-block:18px}}
-/* On ultrawide but short screens use one shared card floor rather than
-   compressing text or shifting the signup illustration independently. */
+
 @media (min-width:1800px) and (max-height:850px){
 .create-account-main{min-height:700px}}
 @media (min-width:1200px) and (max-height:610px){
@@ -183,7 +181,7 @@
   .signup-form-panel .narrow-form,.signup-form-panel .create-account-back-nav{max-width:510px}
 }
 @media (max-width:540px){
-  /* Canonical mobile signup rules live after the tablet breakpoint. */
+  
   .create-account-page .create-account-main{width:calc(100% - 24px);padding:0}
   .signup-form-overline .create-account-back-nav{width:auto;margin:0 0 0 auto;justify-content:flex-end}
   .signup-brand{padding:22px 23px;border-radius:21px 21px 0 0}

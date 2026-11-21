@@ -76,10 +76,10 @@ var href = regexp.MustCompile(`(?i)href="([^"]*)"`)
 func require(ok bool, message string){if !ok {panic(message)}}
 
 func main(){
- readme,err:=os.ReadFile("email-templates/README.md")
+ readme,err:=os.ReadFile("_development/email-templates/README.md")
  if err!=nil {panic(err)}
  for _,name := range names {
-  raw,err:=os.ReadFile("email-templates/"+name+".html"); if err!=nil {panic(err)}
+  raw,err:=os.ReadFile("_development/email-templates/"+name+".html"); if err!=nil {panic(err)}
   source:=string(raw)
   require(strings.Count(source,`{{ if eq .Data.preferred_locale "en" }}`)>=2,name+": missing bilingual branches")
   require(!strings.Contains(strings.ToLower(source),"<script"),name+": email must not execute JavaScript")

@@ -1,4 +1,4 @@
-/* VATRA — standalone offline page. Cached by the service worker. */
+
 @font-face{font-family:Onest;src:url("../fonts/Onest-Variable.ttf") format("truetype");font-display:swap;font-weight:100 900}
 :root{font-family:Onest,system-ui,-apple-system,"Segoe UI",sans-serif;color:#2c3850;color-scheme:light}
 *{box-sizing:border-box}
@@ -22,7 +22,7 @@ button:focus-visible,a.button:focus-visible{outline:3px solid #88a9ff;outline-of
 @media(max-width:480px){main{padding:24px 22px 27px;border-radius:21px}.offline-brand{min-height:45px}.offline-brand img{width:51px}.offline-content{margin-top:9px}.ui-offline-vatryk-001{width:min(100%,195px);height:clamp(115px,24dvh,195px);margin-bottom:14px}.offline-actions{margin-top:24px}button,a.button{min-height:52px;font-size:14px}.tagline{font-size:11px;margin-top:25px}}
 @media(max-height:650px) and (min-width:481px){.offline-content{margin-top:4px}.ui-offline-vatryk-001{height:clamp(90px,21dvh,145px);margin-bottom:12px}.offline-actions{margin-top:18px}.tagline{margin-top:20px}}
 @media(prefers-reduced-motion:reduce){button,a.button{transition:none}}
-/* Console-only notices: compact, Onest, automatic dismissal. */
+
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
 .vatra-error-toast{display:flex;align-items:flex-start;gap:11px;min-height:64px;padding:12px;background:linear-gradient(#fff,#fcfdff);border:1px solid #e3e7f4;border-left:3px solid #d64b68;border-radius:14px;box-shadow:0 12px 38px rgba(26,44,92,.16);pointer-events:auto;opacity:0;transform:translate3d(-12px,12px,0) scale(.985);transition:opacity .22s ease,transform .22s cubic-bezier(.2,.8,.2,1);overflow-wrap:anywhere}
 .vatra-error-toast.is-visible{opacity:1;transform:translate3d(0,0,0) scale(1)}

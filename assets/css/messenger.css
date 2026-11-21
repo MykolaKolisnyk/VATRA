@@ -1,4 +1,4 @@
-/* VATRA Messenger. One contained component namespace; no vt-vatra or throwaway overrides. */
+
 :root{--messenger-blue:#2464d7;--messenger-ink:#2c3850;--messenger-muted:#738199;--messenger-border:#e4e9f2;--messenger-bg:#f6f8fc}
 .vatra-messenger-page [hidden]{display:none!important}
 body.vatra-messenger-page{height:100dvh;min-height:600px;overflow:hidden;background:#eef1f7;color:var(--messenger-ink);font-family:"Onest",system-ui,sans-serif}

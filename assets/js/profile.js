@@ -1,7 +1,3 @@
-
-
-
-
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -216,7 +212,7 @@
    "attitude_to_alcohol","address","mobile_phone","additional_phone"
   ];
   const sections=make("div","profile-information-groups ui-profile-information-groups-001");
-  const more=make("button","vt-profile-about-more-001",tr("Докладніше","More details"));
+  const more=make("button","vatra-profile-about-more-001",tr("Докладніше","More details"));
   more.type="button";more.id="profile-about-more";
   more.append(svg("arrow"));
   more.setAttribute("aria-haspopup","dialog");
@@ -225,11 +221,11 @@
   modal.setAttribute("aria-labelledby","vatra-profile-details-heading");
   const modalHeader=make("div","vatra-profile-details-header ui-vatra-profile-details-header-001");
   const modalTitles=make("div","ui-vatra-profile-details-titles-001");
-  const modalEyebrow=make("span","vt-vatra-profile-details-eyebrow-001",tr("ПРО МЕНЕ · VATRA","ABOUT ME · VATRA"));
-  const modalTitle=make("h2","vt-vatra-profile-details-title-001",tr("Докладна інформація","Detailed information"));
+  const modalEyebrow=make("span","vatra-profile-details-eyebrow-001",tr("ПРО МЕНЕ · VATRA","ABOUT ME · VATRA"));
+  const modalTitle=make("h2","vatra-profile-details-title-001",tr("Докладна інформація","Detailed information"));
   modalTitle.id="vatra-profile-details-heading";
   modalTitles.append(modalEyebrow,modalTitle);
-  const closeModal=make("button","vt-vatra-profile-details-close-001");
+  const closeModal=make("button","vatra-profile-details-close-001");
   closeModal.append(svg("x"));
   closeModal.type="button";
   closeModal.setAttribute("aria-label",tr("Закрити докладну інформацію","Close detailed information"));
@@ -259,16 +255,16 @@
 
 
    if(key==="short_bio"){
-    return detailed?make("p","vt-profile-detail-bio-001",data.value):null;
+    return detailed?make("p","vatra-profile-detail-bio-001",data.value):null;
    }
    const label=make("span",detailed?
-    "vt-profile-detail-label-"+key:"vt-profile-information-label-"+key,tr(field[1],field[2]));
+    "vatra-profile-detail-label-"+key:"vatra-profile-information-label-"+key,tr(field[1],field[2]));
    const content=make("span",detailed?
-    "vt-profile-detail-value-"+key:"vt-profile-information-value-"+key);
+    "vatra-profile-detail-value-"+key:"vatra-profile-information-value-"+key);
    if(key==="website"){
     const href=safeWebsite(data.value.trim());
     if(href){
-     const link=make("a",detailed?"vt-profile-detail-website-001":"vt-profile-about-website-001",data.value.trim());
+     const link=make("a",detailed?"vatra-profile-detail-website-001":"vatra-profile-about-website-001",data.value.trim());
      link.href=href;link.target="_blank";link.rel="noopener noreferrer nofollow";
      content.append(link);
     }else content.textContent=data.value;
@@ -293,7 +289,7 @@
     const keys=group.keys.filter(key=>visibleField(key));
     if(!keys.length)continue;
     const section=make("section","vatra-profile-details-section ui-vatra-profile-details-section-"+group.id);
-    const head=make("h3","vt-vatra-profile-details-section-title-"+group.id,lang(group.label));
+    const head=make("h3","vatra-profile-details-section-title-"+group.id,lang(group.label));
     const headingRow=make("div","vatra-profile-details-section-head ui-vatra-profile-details-section-head-"+group.id);
     headingRow.append(head);section.append(headingRow);
     for(const key of keys){section.append(itemFor(key,true));count++;}
@@ -301,20 +297,20 @@
    }
    if(count&&isMine){
     const footer=make("div","vatra-profile-details-footer ui-vatra-profile-details-footer-001");
-    const edit=make("button","vt-vatra-profile-details-edit-001",tr("Редагувати інформацію","Edit information"));
+    const edit=make("button","vatra-profile-details-edit-001",tr("Редагувати інформацію","Edit information"));
     edit.type="button";edit.append(svg("edit"));
     edit.addEventListener("click",()=>{modal.close();openEditor();});
     footer.append(edit);modalContent.append(footer);
    }
    if(!count){
     const empty=make("div","vatra-profile-details-empty ui-vatra-profile-details-empty-001");
-    empty.append(svg("user"),make("p","vt-vatra-profile-details-empty-label-001",
+    empty.append(svg("user"),make("p","vatra-profile-details-empty-label-001",
      isMine?tr("Відомостей поки немає. Додайте те, чим бажаєте поділитися.",
       "No details yet. Add what you would like to share."):
       tr("Користувач ще не додав доступної вам інформації.",
        "This member has not shared any information with you.")));
     if(isMine){
-     const edit=make("button","vt-vatra-profile-details-edit-001",tr("Редагувати профіль","Edit profile"));
+     const edit=make("button","vatra-profile-details-edit-001",tr("Редагувати профіль","Edit profile"));
      edit.type="button";
      edit.addEventListener("click",()=>{modal.close();openEditor();});
      empty.append(edit);
@@ -376,13 +372,13 @@
    if(blocked)notice.dataset.lockReason="block";
    notice.append(svg("lock"));
    const copy=make("div","ui-profile-locked-notice-content-001");
-   copy.append(make("h2","vt-profile-locked-heading-001",
+   copy.append(make("h2","vatra-profile-locked-heading-001",
     blockAccess?.blockedByThem?
      tr("Доступ до сторінки обмежено","Access to this profile is restricted"):
     blockAccess?.blockedByMe?
      tr("Ви заблокували цього користувача","You blocked this member"):
      tr("Ця сторінка закрита","This profile is private")));
-   copy.append(make("p","vt-profile-locked-description-001",
+   copy.append(make("p","vatra-profile-locked-description-001",
     blockAccess?.blockedByThem?
      tr("Користувач обмежив вам доступ до своєї сторінки.",
       "This member has restricted your access to their profile."):
@@ -401,17 +397,17 @@
   const workspace=make("section","profile-edit-workspace ui-profile-edit-workspace-001");
   workspace.id="profile-edit-workspace";workspace.hidden=true;
   const heading=make("header","profile-editor-header ui-profile-editor-header-001");
-  const back=make("button","vt-profile-editor-back-001");
-  back.type="button";back.append(svg("arrow"),make("span","vt-profile-editor-back-label-001",tr("Мій профіль","My profile")));
+  const back=make("button","vatra-profile-editor-back-001");
+  back.type="button";back.append(svg("arrow"),make("span","vatra-profile-editor-back-label-001",tr("Мій профіль","My profile")));
   const titles=make("div","ui-profile-editor-titles-001");
   titles.append(
-   make("span","vt-profile-editor-eyebrow-001",tr("ОСОБИСТИЙ ПРОСТІР  /  VATRA","YOUR SPACE  /  VATRA")),
-   make("h1","vt-profile-editor-title-001",tr("Редагувати профіль","Edit your profile")),
-   make("p","vt-profile-editor-subtitle-001",tr(
+   make("span","vatra-profile-editor-eyebrow-001",tr("ОСОБИСТИЙ ПРОСТІР  /  VATRA","YOUR SPACE  /  VATRA")),
+   make("h1","vatra-profile-editor-title-001",tr("Редагувати профіль","Edit your profile")),
+   make("p","vatra-profile-editor-subtitle-001",tr(
     "Ваша історія — ваші правила. Заповнюйте профіль у власному ритмі й керуйте видимістю кожного поля.",
     "Your story, your rules. Share what matters and control the audience of each detail.")));
-  const privacyPill=make("span","vt-profile-editor-privacy-pill-001");
-  privacyPill.append(svg("lock"),make("span","vt-profile-editor-privacy-pill-label-001",
+  const privacyPill=make("span","vatra-profile-editor-privacy-pill-001");
+  privacyPill.append(svg("lock"),make("span","vatra-profile-editor-privacy-pill-label-001",
    tr("Приватність під контролем","Privacy in your hands")));
   heading.append(back,titles,privacyPill);
   const layout=make("div","profile-editor-layout ui-profile-editor-layout-001");
@@ -420,48 +416,48 @@
   form.id="profile-editor-form";
   const titleRow=make("div","profile-editor-section-head ui-profile-editor-section-head-001");
   const groupTitleWrap=make("div","ui-profile-editor-section-title-wrap-001");
-  const chapter=make("span","vt-profile-editor-chapter-001");
-  const groupTitle=make("h2","vt-profile-editor-section-title-001");
+  const chapter=make("span","vatra-profile-editor-chapter-001");
+  const groupTitle=make("h2","vatra-profile-editor-section-title-001");
   groupTitleWrap.append(chapter,groupTitle);
-  const media=make("button","vt-profile-editor-media-button-001");
-  media.type="button";media.append(svg("photo"),make("span","vt-profile-editor-media-button-text-001",tr("Фото й обкладинка","Photos and cover")));
+  const media=make("button","vatra-profile-editor-media-button-001");
+  media.type="button";media.append(svg("photo"),make("span","vatra-profile-editor-media-button-text-001",tr("Фото й обкладинка","Photos and cover")));
   titleRow.append(groupTitleWrap,media);
-  const summary=make("p","vt-profile-editor-section-description-001");
+  const summary=make("p","vatra-profile-editor-section-description-001");
   const separator=make("div","profile-editor-label-row ui-profile-editor-label-row-001");
   separator.append(
-   make("span","vt-profile-editor-label-row-title-001",tr("Ваші відомості","Your details")),
-   make("span","vt-profile-editor-label-row-caption-001",tr("Кожне поле має свою аудиторію","Every field has its own audience")));
+   make("span","vatra-profile-editor-label-row-title-001",tr("Ваші відомості","Your details")),
+   make("span","vatra-profile-editor-label-row-caption-001",tr("Кожне поле має свою аудиторію","Every field has its own audience")));
   const fields=make("div","profile-editor-fields ui-profile-editor-fields-001");
   const saveRow=make("div","profile-editor-footer ui-profile-editor-footer-001");
-  const feedback=make("p","vt-profile-editor-feedback-001");feedback.setAttribute("role","status");feedback.hidden=true;
-  const save=make("button","vt-profile-editor-save-001",tr("Зберегти зміни","Save changes"));
+  const feedback=make("p","vatra-profile-editor-feedback-001");feedback.setAttribute("role","status");feedback.hidden=true;
+  const save=make("button","vatra-profile-editor-save-001",tr("Зберегти зміни","Save changes"));
   save.type="submit";saveRow.append(feedback,save);
   form.append(titleRow,summary,separator,fields,saveRow);primary.append(form);
   const sidebar=make("nav","profile-editor-sidebar ui-profile-editor-sidebar-001");
   sidebar.setAttribute("aria-label",tr("Розділи редагування","Edit sections"));
   const navHeading=make("div","ui-profile-editor-nav-heading-001");
   navHeading.append(
-   make("span","vt-profile-editor-nav-eyebrow-001",tr("РОЗДІЛИ","SECTIONS")),
-   make("strong","vt-profile-editor-nav-title-001",tr("Особисті дані","Personal details")),
-   make("span","vt-profile-editor-nav-subtitle-001",tr("7 розділів · усе під контролем","7 sections · in your control")));
+   make("span","vatra-profile-editor-nav-eyebrow-001",tr("РОЗДІЛИ","SECTIONS")),
+   make("strong","vatra-profile-editor-nav-title-001",tr("Особисті дані","Personal details")),
+   make("span","vatra-profile-editor-nav-subtitle-001",tr("7 розділів · усе під контролем","7 sections · in your control")));
   sidebar.append(navHeading);
   const menu=make("div","ui-profile-editor-nav-menu-001");
   const navButtons=new Map();
   for(const [index,group] of groups.entries()){
-   const btn=make("button","profile-editor-nav-link vt-profile-editor-nav-"+group.id);
+   const btn=make("button","profile-editor-nav-link vatra-profile-editor-nav-"+group.id);
    btn.type="button";btn.dataset.group=group.id;
    const navIcon=make("span","ui-vatra-profile-editor-nav-symbol-"+group.id);
    navIcon.append(svg(group.icon));
    btn.append(navIcon,
-    make("span","vt-profile-editor-nav-index-"+group.id,String(index+1).padStart(2,"0")),
-    make("span","vt-profile-editor-nav-label-"+group.id,lang(group.label)));
-   const marker=make("span","vt-profile-editor-nav-dot-"+group.id);
+    make("span","vatra-profile-editor-nav-index-"+group.id,String(index+1).padStart(2,"0")),
+    make("span","vatra-profile-editor-nav-label-"+group.id,lang(group.label)));
+   const marker=make("span","vatra-profile-editor-nav-dot-"+group.id);
    marker.setAttribute("aria-hidden","true");btn.append(marker);
    btn.addEventListener("click",()=>switchGroup(group.id));
    navButtons.set(group.id,btn);menu.append(btn);
   }
   const navFoot=make("div","ui-profile-editor-nav-footer-001");
-  navFoot.append(svg("lock"),make("span","vt-profile-editor-nav-footer-label-001",
+  navFoot.append(svg("lock"),make("span","vatra-profile-editor-nav-footer-label-001",
    tr("Видимість ваших даних налаштовується окремо.",
     "Each piece of information has its own visibility.")));
   sidebar.append(menu,navFoot);layout.append(primary,sidebar);
@@ -496,14 +492,14 @@
   recordDialog.setAttribute("aria-labelledby","profile-editor-record-title");
   const recordForm=make("form","ui-profile-editor-record-form-001");
   const recordHead=make("header","ui-profile-editor-record-head-001");
-  const recordTitle=make("h2","vt-profile-editor-record-title-001");
+  const recordTitle=make("h2","vatra-profile-editor-record-title-001");
   recordTitle.id="profile-editor-record-title";
-  const recordClose=make("button","vt-profile-editor-record-close-001");recordClose.type="button";recordClose.append(svg("x"));recordClose.setAttribute("aria-label",tr("Закрити","Close"));
+  const recordClose=make("button","vatra-profile-editor-record-close-001");recordClose.type="button";recordClose.append(svg("x"));recordClose.setAttribute("aria-label",tr("Закрити","Close"));
   recordHead.append(recordTitle,recordClose);
   const recordFields=make("div","profile-editor-fields ui-profile-editor-record-fields-001");
   const recordFoot=make("footer","ui-profile-editor-record-footer-001");
-  const recordCancel=make("button","vt-profile-editor-record-cancel-001",tr("Скасувати","Cancel"));recordCancel.type="button";
-  const recordSave=make("button","vt-profile-editor-record-save-001",tr("Зберегти","Save"));recordSave.type="submit";
+  const recordCancel=make("button","vatra-profile-editor-record-cancel-001",tr("Скасувати","Cancel"));recordCancel.type="button";
+  const recordSave=make("button","vatra-profile-editor-record-save-001",tr("Зберегти","Save"));recordSave.type="submit";
   recordFoot.append(recordCancel,recordSave);recordForm.append(recordHead,recordFields,recordFoot);recordDialog.append(recordForm);document.body.append(recordDialog);
   let recordSnapshot=null;
   const cancelRecord=()=>{
@@ -578,11 +574,11 @@
    const state={anchor,wrapper,items,choose,panel,selectedValue,buttons:[],index:-1,search:"",searchTime:0};
    editorMenu=state;anchor.setAttribute("aria-expanded","true");anchor.setAttribute("aria-controls",panel.id);wrapper.classList.add("is-open");
    items.forEach((item,index)=>{
-    const button=make("button","vt-profile-editor-dropdown-option-001");
+    const button=make("button","vatra-profile-editor-dropdown-option-001");
     button.id=panel.id+"-"+index;button.type="button";button.tabIndex=-1;button.setAttribute("role","option");
     const selected=item.value===selectedValue;button.setAttribute("aria-selected",String(selected));button.classList.toggle("is-selected",selected);
     if(item.icon){const symbol=svg(item.icon);symbol.classList.add("ui-profile-editor-option-symbol-001");button.append(symbol);}
-    button.append(make("span","vt-profile-editor-dropdown-option-label-001",item.text));
+    button.append(make("span","vatra-profile-editor-dropdown-option-label-001",item.text));
     if(selected){const check=svg("check");check.classList.add("ui-profile-editor-option-check-001");button.append(check);}
     button.disabled=Boolean(item.disabled);
     button.addEventListener("pointerdown",event=>event.preventDefault());
@@ -590,7 +586,7 @@
     button.addEventListener("click",()=>chooseEditorOption(state,index));
     panel.append(button);state.buttons.push(button);
    });
-   if(!items.length)panel.append(make("p","vt-profile-editor-dropdown-empty-001",tr("Немає збігів. Можна ввести власне значення.","No matches. You can enter your own value.")));
+   if(!items.length)panel.append(make("p","vatra-profile-editor-dropdown-empty-001",tr("Немає збігів. Можна ввести власне значення.","No matches. You can enter your own value.")));
    const host=anchor.closest("dialog[open]")||document.body;
    host.append(panel);
    if(typeof panel.showPopover==="function"){
@@ -653,10 +649,10 @@
   const enhanceEditorSelect=(native,variant="normal")=>{
    const id=native.id,wrapper=make("div","vatra-editor-select ui-profile-editor-select-"+id);
    wrapper.dataset.variant=variant;
-   const button=make("button","vt-profile-editor-select-trigger-001");button.type="button";button.id=id;
+   const button=make("button","vatra-profile-editor-select-trigger-001");button.type="button";button.id=id;
    button.setAttribute("role","combobox");button.setAttribute("aria-haspopup","listbox");button.setAttribute("aria-expanded","false");
    button.setAttribute("aria-label",native.getAttribute("aria-label")||tr("Обрати значення","Choose a value"));
-   const caption=make("span","vt-profile-editor-select-value-001");
+   const caption=make("span","vatra-profile-editor-select-value-001");
    const iconWrap=make("span","ui-profile-editor-select-symbol-001");
    if(variant==="compact")button.append(iconWrap);
    button.append(caption,menuArrow());
@@ -681,7 +677,7 @@
   };
   const enhanceCityInput=input=>{
    const wrapper=make("div","vatra-editor-city ui-profile-editor-city-"+input.id);
-   const arrow=make("button","vt-profile-editor-city-toggle-001");arrow.type="button";arrow.tabIndex=-1;
+   const arrow=make("button","vatra-profile-editor-city-toggle-001");arrow.type="button";arrow.tabIndex=-1;
    arrow.setAttribute("aria-label",tr("Список міст","City suggestions"));arrow.append(menuArrow());
    input.before(wrapper);wrapper.append(input,arrow);
    input.setAttribute("role","combobox");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-expanded","false");input.setAttribute("aria-haspopup","listbox");
@@ -709,10 +705,10 @@
   const buildField=([key,uk,en,kind],destination)=>{
    const row=make("div","profile-editor-field ui-profile-editor-field-"+key);
    row.dataset.long=kind==="long"?"true":"false";
-   const lab=make("label","vt-profile-editor-label-"+key,tr(uk,en));
+   const lab=make("label","vatra-profile-editor-label-"+key,tr(uk,en));
    const current=draft.get(key)||{value:"",visibility:"friends"};
    const disclosure=make("div","ui-profile-editor-disclosure-"+key);
-   disclosure.append(make("span","vt-profile-editor-disclosure-label-"+key,tr("Хто бачить","Visible to")));
+   disclosure.append(make("span","vatra-profile-editor-disclosure-label-"+key,tr("Хто бачить","Visible to")));
    const selectBox=make("select","ui-profile-editor-visibility-"+key);
    selectBox.id="profile-editor-visibility-"+key;
    selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+tr(uk,en));
@@ -732,8 +728,8 @@
     const render=()=>{
      chips.replaceChildren();picker.replaceChildren(opt("",tr("Додати мову","Add a language")));
      for(const value of selectedLanguages){
-      const chip=make("button","vt-profile-editor-language-chip-001");chip.type="button";
-      chip.append(make("span","vt-profile-editor-language-chip-label-001",value),svg("x"));
+      const chip=make("button","vatra-profile-editor-language-chip-001");chip.type="button";
+      chip.append(make("span","vatra-profile-editor-language-chip-label-001",value),svg("x"));
       chip.setAttribute("aria-label",tr("Видалити мову: ","Remove language: ")+value);
       chip.addEventListener("click",()=>{selectedLanguages.splice(selectedLanguages.indexOf(value),1);render();update();pickerView?.focus();});
       chips.append(chip);
@@ -792,8 +788,8 @@
     const identity=make("section","ui-profile-editor-identity-001");
     const coverPreview=make("div","ui-profile-editor-cover-preview-001");
     const avatarPreview=make("span","ui-profile-editor-avatar-preview-001");
-    const coverButton=make("button","vt-profile-editor-cover-change-001",tr("Змінити обкладинку","Change cover"));coverButton.type="button";
-    const avatarButton=make("button","vt-profile-editor-avatar-change-001",tr("Змінити фото","Change photo"));avatarButton.type="button";
+    const coverButton=make("button","vatra-profile-editor-cover-change-001",tr("Змінити обкладинку","Change cover"));coverButton.type="button";
+    const avatarButton=make("button","vatra-profile-editor-avatar-change-001",tr("Змінити фото","Change photo"));avatarButton.type="button";
     const updatePreview=()=>{
      const profileCover=select("#profile-cover-image"),profileAvatar=select("#profile-avatar");
      coverPreview.style.backgroundImage=profileCover?.style.backgroundImage||"";
@@ -812,22 +808,22 @@
     coverPreview.append(coverButton,avatarPreview);
     const identityInfo=make("div","ui-profile-editor-identity-info-001");
     const nameLine=make("div","ui-profile-editor-identity-name-row-001");
-    nameLine.append(make("strong","vt-profile-editor-identity-name-001",select("#profile-heading")?.querySelector(".vatra-verified-name-text")?.textContent||select("#profile-heading")?.textContent.trim()||"VATRA"));
-    const idLink=make("a","vt-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id",location.href).href;
+    nameLine.append(make("strong","vatra-profile-editor-identity-name-001",select("#profile-heading")?.querySelector(".vatra-verified-name-text")?.textContent||select("#profile-heading")?.textContent.trim()||"VATRA"));
+    const idLink=make("a","vatra-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id",location.href).href;
     nameLine.append(idLink);identityInfo.append(avatarButton,nameLine);
     const verification=make("div","ui-profile-editor-verification-row-001");
-    const verifyLabel=make("span","vt-profile-editor-verification-label-001",tr("Верифікація","Verification"));
-    const verifyState=make("span","vt-profile-editor-verification-state-001",tr("Перевірка статусу…","Checking status…"));
-    const verifyLink=make("a","vt-profile-editor-verification-link-001",tr("Подати заявку","Apply"));verifyLink.href=new URL("vatra-id#verification",location.href).href;
+    const verifyLabel=make("span","vatra-profile-editor-verification-label-001",tr("Верифікація","Verification"));
+    const verifyState=make("span","vatra-profile-editor-verification-state-001",tr("Перевірка статусу…","Checking status…"));
+    const verifyLink=make("a","vatra-profile-editor-verification-link-001",tr("Подати заявку","Apply"));verifyLink.href=new URL("vatra-id#verification",location.href).href;
     verification.append(verifyLabel,verifyState,verifyLink);identityInfo.append(verification);identity.append(coverPreview,identityInfo);fields.append(identity);
     void (async()=>{try{const {data,error}=await client.from("verified_accounts").select("vatra_id").eq("vatra_id",ownId).maybeSingle();if(error)throw error;verifyState.textContent=data?tr("Сторінку верифіковано","Verified profile"):tr("Сторінка не верифікована","Not verified");verifyLink.hidden=Boolean(data);}catch(_){verifyState.textContent=tr("Статус недоступний","Status unavailable");}})();
     const privacy=make("div","profile-editor-privacy ui-profile-editor-privacy-001");
     const privacySymbol=make("div","ui-profile-editor-privacy-symbol-001");
     privacySymbol.append(svg("lock"));
     const copy=make("div","ui-profile-editor-privacy-copy-001");
-    copy.append(make("strong","vt-profile-editor-privacy-heading-001",
+    copy.append(make("strong","vatra-profile-editor-privacy-heading-001",
      tr("Хто може бачити мою сторінку","Who can view my profile")),
-     make("small","vt-profile-editor-privacy-help-001",
+     make("small","vatra-profile-editor-privacy-help-001",
       tr("Закриту сторінку та її публікації бачитимуть тільки підтверджені друзі.",
        "Only confirmed friends can view a private page and its posts.")));
     const change=make("select","ui-profile-editor-page-visibility-001");
@@ -844,11 +840,11 @@
     if(values.length){
      for(const field of values){
       const row=make("div","ui-profile-editor-record-summary-"+field[0]);
-      row.append(make("span","vt-profile-editor-record-label-"+field[0],tr(field[1],field[2])),make("span","vt-profile-editor-record-value-"+field[0],draft.get(field[0]).value));
+      row.append(make("span","vatra-profile-editor-record-label-"+field[0],tr(field[1],field[2])),make("span","vatra-profile-editor-record-value-"+field[0],draft.get(field[0]).value));
       info.append(row);
      }
-    }else info.append(make("p","vt-profile-editor-record-empty-001",tr("Інформацію ще не додано.","No information added yet.")));
-    const edit=make("button","vt-profile-editor-record-open-001",values.length?tr("Редагувати","Edit"):tr("Додати","Add"));edit.type="button";
+    }else info.append(make("p","vatra-profile-editor-record-empty-001",tr("Інформацію ще не додано.","No information added yet.")));
+    const edit=make("button","vatra-profile-editor-record-open-001",values.length?tr("Редагувати","Edit"):tr("Додати","Add"));edit.type="button";
     edit.addEventListener("click",()=>{
      recordTitle.textContent=values.length?tr("Редагувати інформацію","Edit details"):tr("Додати інформацію","Add details");
      recordFields.replaceChildren();
@@ -1015,7 +1011,7 @@ const gateError=message=>{
  const label=loader.querySelector(".vatra-auth-loading-caption");
  if(label)label.textContent=message;
  if(loader.querySelector(".vatra-auth-loading-retry"))return;
- const retry=node("button","vatra-auth-loading-retry vt-profile-retry-001",t("Повторити","Retry"));
+ const retry=node("button","vatra-auth-loading-retry vatra-profile-retry-001",t("Повторити","Retry"));
  retry.type="button";
  retry.addEventListener("click",()=>location.reload());
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
@@ -1075,7 +1071,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    .map(card=>[card.dataset.postId,card])):new Map();
  list.dataset.loading="true";list.setAttribute("aria-busy","true");
  if(!append){
-  // Do not remove existing posts, comments or media while requesting changes.
+
   if(!list.querySelector(".feed-post-card")){
    empty.textContent=t("Завантаження публікацій…","Loading posts…");
    empty.hidden=false;
@@ -1115,16 +1111,16 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    article.dataset.postId=post.id;
    const header=node("div","feed-post-header ui-profile-post-header-001");
    const identity=node("div","feed-post-author ui-profile-post-author-001");
-   const name=node("a","feed-post-name vt-profile-post-name-001 feed-post-profile-link",
+   const name=node("a","feed-post-name vatra-profile-post-name-001 feed-post-profile-link",
     q("#profile-heading").textContent);
    name.href=memberUrl(targetId);
    void window.VATRA_VERIFIED?.attach(client,name,post.author_vatra_id);
-   const stamp=node("time","feed-post-date vt-profile-post-date-001",dateText(post.created_at));
+   const stamp=node("time","feed-post-date vatra-profile-post-date-001",dateText(post.created_at));
    stamp.dateTime=post.created_at;
    const meta=node("div","feed-post-meta-row ui-profile-post-meta-row-001");
    meta.append(stamp);window.VATRA_POST_INTERACTIONS?.appendAudience(meta,post.visibility,false);
    identity.append(name,meta);
-   const avatar=node("a","feed-avatar feed-post-avatar vt-profile-post-avatar-001 feed-post-profile-avatar",
+   const avatar=node("a","feed-avatar feed-post-avatar vatra-profile-post-avatar-001 feed-post-profile-avatar",
     q("#profile-avatar").textContent||"V");
    avatar.href=memberUrl(targetId);
    avatar.setAttribute("aria-label",t("Переглянути профіль","View profile"));
@@ -1161,9 +1157,9 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
     });
    }
    article.append(header);
-   if(post.pinned_at)article.append(node("div","vt-vatra-profile-post-pinned-001",t("Закріплена публікація","Pinned post")));
+   if(post.pinned_at)article.append(node("div","vatra-profile-post-pinned-001",t("Закріплена публікація","Pinned post")));
    if(post.body){
-    const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
+    const body=node("p","feed-post-body vatra-profile-post-body-001",post.body);
     window.VATRA_POST_MEDIA?.linkifyHashtags(body);
     article.append(body);
     window.VATRA_POST_MEDIA?.collapsibleBody(body);
@@ -1203,7 +1199,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   }
  }catch(_){
   if(ticket!==profilePostsRequest)return;
-  // On transient failure preserve already visible cards and their interactions.
+
   empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
    "Could not load posts. Try refreshing this page.");
   empty.hidden=!!list.querySelector(".feed-post-card");
@@ -1275,8 +1271,8 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  const empty=(selector,content)=>{const element=q(selector);element.textContent=content;element.hidden=false;};
  const makeRow=(list,heading,description)=>{
   const article=node("article","profile-extra-row ui-profile-extra-row-001");
-  article.append(node("strong","vt-profile-extra-title-001",heading),
-   node("p","vt-profile-extra-copy-001",description));
+  article.append(node("strong","vatra-profile-extra-title-001",heading),
+   node("p","vatra-profile-extra-copy-001",description));
   list.append(article);return article;
  };
  const displaySavedMedia=(article,item)=>{
@@ -1325,15 +1321,15 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
     const community=save.post_kind==="group"?communities.get(String(post.club_id)):null;
     const heading=community?community+" · "+author:author;
     const article=makeRow(list,heading,post.body||t("Медіапублікація","Media post"));
-    if(people.has(String(post.author_vatra_id)))void window.VATRA_VERIFIED?.attach(client,article.querySelector(".vt-profile-extra-title-001"),post.author_vatra_id);
+    if(people.has(String(post.author_vatra_id)))void window.VATRA_VERIFIED?.attach(client,article.querySelector(".vatra-profile-extra-title-001"),post.author_vatra_id);
     displaySavedMedia(article,post);
     displayShared(article,post);
     const groupSaved=save.post_kind==="group"&&validId(post.club_id);
-    const a=node("a","vt-profile-saved-link-001",groupSaved?
+    const a=node("a","vatra-profile-saved-link-001",groupSaved?
      t("Відкрити спільноту","Open community"):t("Відкрити допис","Open post"));
     a.href=groupSaved?new URL("club"+post.club_id,home).href:
      new URL("feed?post="+encodeURIComponent(post.id),home).href;
-    const remove=node("button","vt-profile-saved-remove-001",t("Прибрати зі збереженого","Remove from saved"));
+    const remove=node("button","vatra-profile-saved-remove-001",t("Прибрати зі збереженого","Remove from saved"));
     remove.type="button";
     remove.addEventListener("click",async()=>{
      remove.disabled=true;
@@ -1362,7 +1358,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
      (item.media_kind==="video"?t("Відеоісторія","Video story"):
       item.media_kind==="image"?t("Фотоісторія","Photo story"):
        t("Історія","Story")));
-    const view=node("button","vt-profile-archived-story-open-001",
+    const view=node("button","vatra-profile-archived-story-open-001",
      t("Переглянути історію","View story"));
     view.type="button";
     view.addEventListener("click",()=>{
@@ -1395,11 +1391,11 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
    for(const item of data||[]){
     const article=makeRow(list,people.get(String(item.author_vatra_id))||t("Моя публікація","My post"),
      item.body||t("Медіапублікація","Media post"));
-    const stamp=node("time","vt-profile-extra-stamp-001",dateText(item.created_at));
+    const stamp=node("time","vatra-profile-extra-stamp-001",dateText(item.created_at));
     stamp.dateTime=item.created_at;article.append(stamp);
     displaySavedMedia(article,item);
     displayShared(article,item);
-    const restore=node("button","vt-profile-restore-post-001",t("Повернути в публікації","Restore post"));
+    const restore=node("button","vatra-profile-restore-post-001",t("Повернути в публікації","Restore post"));
     restore.type="button";
     restore.addEventListener("click",async()=>{
      restore.disabled=true;
@@ -1409,7 +1405,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
      article.remove();
      if(!list.children.length)empty("#profile-archive-posts-empty",t("В архіві немає публікацій.","No archived posts."));
     });
-    const permanent=node("button","vt-profile-permanent-delete-001",t("Видалити назавжди","Delete permanently"));
+    const permanent=node("button","vatra-profile-permanent-delete-001",t("Видалити назавжди","Delete permanently"));
     permanent.type="button";permanent.addEventListener("click",async()=>{
      if(!await window.VATRA_PROFILE_CONFIRM({
       title:t("Видалити назавжди?","Delete permanently?"),
@@ -1502,7 +1498,7 @@ function setupProfileGallery(client,targetId){
      tile.setAttribute("aria-label",settings.clip?t("Кліп","Clip"):settings.kind==="image"?t("Фото","Photo"):t("Відео","Video"));
      list.append(tile);
      if(settings.clip){
-      const open=node("a","vt-profile-clip-open-001",t("Відкрити кліп","Open clip"));
+      const open=node("a","vatra-profile-clip-open-001",t("Відкрити кліп","Open clip"));
       open.href=new URL("clips?clip="+encodeURIComponent(post.id),home).href;
       void window.VATRA_POST_MEDIA?.mount(client,post,tile).then(()=>{if(tile.isConnected)tile.append(open);});
      }else void window.VATRA_POST_MEDIA?.mount(client,post,tile);
@@ -1634,7 +1630,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  const firstName=value=>String(value||"").trim().split(/\s+/)[0]||t("Учасник","Member");
  const giftInfo=code=>window.VATRA_GIFTS_CATALOG?.byCode(code)||null;
  const loading=(el,value)=>{
-  el.replaceChildren(node("p","vt-profile-mini-loading-001",value));
+  el.replaceChildren(node("p","vatra-profile-mini-loading-001",value));
  };
  loading(friendsPreview,t("Завантаження друзів…","Loading friends…"));
  loading(giftsPreview,t("Завантаження подарунків…","Loading gifts…"));
@@ -1642,10 +1638,10 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  let allFriendsPending=null,allGiftsPending=null;
  function personCard(member,compact){
   const id=String(member.id);
-  const link=node("a",compact?"profile-friend-tile vt-profile-friend-tile-"+id:
-   "profile-friend-full vt-profile-friend-full-"+id);
+  const link=node("a",compact?"profile-friend-tile vatra-profile-friend-tile-"+id:
+   "profile-friend-full vatra-profile-friend-full-"+id);
   link.href=memberUrl(id);link.setAttribute("aria-label",member.name);
-  const photo=node("span","profile-friend-portrait vt-profile-friend-portrait-"+id);
+  const photo=node("span","profile-friend-portrait vatra-profile-friend-portrait-"+id);
   photo.setAttribute("aria-hidden","true");
   window.VATRA_AVATAR?.fallback(photo,member.state||"default");
   if(member.avatar&&!member.state){
@@ -1653,7 +1649,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
    photo.style.backgroundImage="url("+JSON.stringify(member.avatar)+")";
    photo.classList.add("has-photo");
   }
-  const label=node("span","vt-profile-friend-name-"+id,compact?firstName(member.name):member.name);
+  const label=node("span","vatra-profile-friend-name-"+id,compact?firstName(member.name):member.name);
   if(!member.state)void window.VATRA_VERIFIED?.attach(client,label,id);
   link.append(photo,label);return link;
  }
@@ -1758,8 +1754,8 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   art.style.backgroundImage="url("+JSON.stringify(window.VATRA_GIFTS_CATALOG.fileUrl(info))+")";
   art.addEventListener("dragstart",event=>event.preventDefault());
   art.addEventListener("contextmenu",event=>event.preventDefault());
-  const title=node("strong","vt-profile-gift-name-001",t(info.uk,info.en));
-  const sub=node("small","vt-profile-gift-caption-001",info.exclusive?t(info.eventUk,info.eventEn):t("За приєднання до VATRA","For joining VATRA"));
+  const title=node("strong","vatra-profile-gift-name-001",t(info.uk,info.en));
+  const sub=node("small","vatra-profile-gift-caption-001",info.exclusive?t(info.eventUk,info.eventEn):t("За приєднання до VATRA","For joining VATRA"));
   item.append(art);if(!compact)item.append(title,sub);return item;
  }
  q("#profile-friends-all")?.addEventListener("click",()=>{
@@ -1778,10 +1774,10 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
     if(result.error)throw result.error;if(!dialog.open||epoch!==giftDialogEpoch)return;
     const rows=result.data||[];offset+=rows.length;done=rows.length<30||(Number.isFinite(result.count)&&offset>=result.count);
     q("#profile-gifts-dialog-count").textContent=Number.isFinite(result.count)?String(result.count):"";
-    for(const gift of rows){const info=giftInfo(gift.gift_code);if(!info)continue;const row=node("article","ui-profile-gift-dialog-row-001"),date=node("time","vt-profile-gift-dialog-date-001",dateText(gift.created_at));date.dateTime=gift.created_at;row.append(date,giftCard(gift,false));list.append(row);}
-    if(!list.children.length&&done)list.append(node("p","vt-profile-gift-dialog-empty-001",t("Подарунків поки немає.","No gifts yet.")));
+    for(const gift of rows){const info=giftInfo(gift.gift_code);if(!info)continue;const row=node("article","ui-profile-gift-dialog-row-001"),date=node("time","vatra-profile-gift-dialog-date-001",dateText(gift.created_at));date.dateTime=gift.created_at;row.append(date,giftCard(gift,false));list.append(row);}
+    if(!list.children.length&&done)list.append(node("p","vatra-profile-gift-dialog-empty-001",t("Подарунків поки немає.","No gifts yet.")));
     more.hidden=done;
-   }catch(_){if(epoch===giftDialogEpoch&&dialog.open){list.append(node("p","vt-profile-gift-dialog-empty-001",t("Не вдалося завантажити подарунки.","Could not load gifts.")));more.hidden=false;}}finally{busy=false;if(epoch===giftDialogEpoch)more.disabled=false;}
+   }catch(_){if(epoch===giftDialogEpoch&&dialog.open){list.append(node("p","vatra-profile-gift-dialog-empty-001",t("Не вдалося завантажити подарунки.","Could not load gifts.")));more.hidden=false;}}finally{busy=false;if(epoch===giftDialogEpoch)more.disabled=false;}
   }
   more.onclick=()=>void load();void load();
  });
@@ -1802,10 +1798,10 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
     const indexed=new Map((groups||[]).map(x=>[String(x.club_id),x]));
     for(const id of ids){
      const info=indexed.get(id);if(!info)continue;
-     const a=node("a","profile-community-link vt-profile-community-link-"+id);
+     const a=node("a","profile-community-link vatra-profile-community-link-"+id);
      a.href=new URL("club"+id,home).href;
-     a.append(node("span","profile-community-symbol vt-profile-community-symbol-"+id,"V"),
-      node("span","vt-profile-community-name-"+id,String(info.name||"").trim()||t("Спільнота","Community")));
+     a.append(node("span","profile-community-symbol vatra-profile-community-symbol-"+id,"V"),
+      node("span","vatra-profile-community-name-"+id,String(info.name||"").trim()||t("Спільнота","Community")));
      communityList.append(a);
     }
    }
@@ -1933,12 +1929,12 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
  const option=(label,action)=>{
   const button=node("button","profile-report-option ui-profile-report-option-001");
   button.type="button";
-  button.append(node("span","vt-profile-report-option-label-001",label),
-   node("span","vt-profile-report-option-arrow-001","›"));
+  button.append(node("span","vatra-profile-report-option-label-001",label),
+   node("span","vatra-profile-report-option-arrow-001","›"));
   button.addEventListener("click",action);content.append(button);
  };
- const paragraph=(value,cl="vt-profile-report-copy-001")=>content.append(node("p",cl,value));
- const heading=value=>content.append(node("h3","vt-profile-report-prompt-001",value));
+ const paragraph=(value,cl="vatra-profile-report-copy-001")=>content.append(node("p",cl,value));
+ const heading=value=>content.append(node("h3","vatra-profile-report-prompt-001",value));
  const message=value=>{error.textContent=value;error.hidden=!value;};
  const render=()=>{
   content.replaceChildren();message("");
@@ -1976,8 +1972,8 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
    paragraph(t("Скарга надходить на перевірку. Надсилання не означає автоматичного видалення контенту.","Your report is reviewed. Submitting does not automatically remove content."));
    const group=node("div","profile-report-review ui-profile-report-review-001");
    const chosen=base.find(x=>x[0]===category);
-   group.append(node("small","vt-profile-report-category-label-001",t("Причина скарги","Report category")),
-    node("strong","vt-profile-report-category-value-001",
+   group.append(node("small","vatra-profile-report-category-label-001",t("Причина скарги","Report category")),
+    node("strong","vatra-profile-report-category-value-001",
      category==="specific_photo"?t("Фотографія профілю","Profile photo"):
      category==="specific_post"?t("Конкретний допис","Specific post"):chosen?t(chosen[1],chosen[2]):reason));
    if(kind==="photo"&&photoPath){
@@ -1986,10 +1982,10 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
     preview.src=client.storage.from("avatars").getPublicUrl(photoPath).data?.publicUrl||"";
     group.append(preview);
    }
-   group.append(node("small","vt-profile-report-reason-label-001",t("Уточнення","Details")),
-    node("strong","vt-profile-report-reason-value-001",reason));
+   group.append(node("small","vatra-profile-report-reason-label-001",t("Уточнення","Details")),
+    node("strong","vatra-profile-report-reason-value-001",reason));
    content.append(group);
-   const label=node("label","vt-profile-report-details-label-001",t("Додаткова інформація (необов’язково)","Additional details (optional)"));
+   const label=node("label","vatra-profile-report-details-label-001",t("Додаткова інформація (необов’язково)","Additional details (optional)"));
    label.setAttribute("for","profile-report-details");
    const input=node("textarea","ui-profile-report-details-001");
    input.id="profile-report-details";input.maxLength=1500;input.rows=4;
@@ -2000,7 +1996,7 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
   }else if(step==="success"){
    heading(t("Дякуємо за скаргу","Thank you for your report"));
    paragraph(t("Скаргу надіслано для перевірки. Дякуємо, що допомагаєте підтримувати безпеку VATRA.","Your report was submitted for review. Thank you for helping keep VATRA safe."));
-   const done=node("button","vt-profile-report-done-001",t("Готово","Done"));
+   const done=node("button","vatra-profile-report-done-001",t("Готово","Done"));
    done.type="button";done.addEventListener("click",()=>dialog.close());content.append(done);
   }
  };
@@ -2051,12 +2047,12 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  const show=(el,txt)=>{el.textContent=txt;el.hidden=!txt;};
  const makePerson=(id,description)=>{
   const row=node("div","profile-person ui-profile-person-"+id);
-  const avatar=node("span","profile-person-avatar vt-profile-person-avatar-"+id,"V");
+  const avatar=node("span","profile-person-avatar vatra-profile-person-avatar-"+id,"V");
   avatar.setAttribute("aria-hidden","true");
   const info=node("div","profile-person-details ui-profile-person-details-"+id);
-  const link=node("a","vt-profile-person-link-"+id,"VATRA ID "+id);
+  const link=node("a","vatra-profile-person-link-"+id,"VATRA ID "+id);
   link.href=memberUrl(id);
-  info.append(link,node("small","vt-profile-person-description-"+id,description));
+  info.append(link,node("small","vatra-profile-person-description-"+id,description));
   row.append(avatar,info);
   return row;
  };
@@ -2095,7 +2091,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 
  if(isMine&&location.hash==="#profile-messages-section")choose("messages");
  if(!validId(ownId))return;
- // The retired profile popup never sends plaintext again.
+
  const openConversation=peer=>{
   if(validPeer(peer))location.assign(new URL("messenger.html?to="+encodeURIComponent(peer),new URL("./",location.href)).href);
  };
@@ -2166,7 +2162,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
     const status=item.status==="accepted"?t("У друзях","Friends"):
      incoming?t("Вхідна заявка","Incoming request"):t("Вихідна заявка","Outgoing request");
     const row=makePerson(other,status);
-    const action=node("button","profile-person-action vt-profile-friend-action-"+other,
+    const action=node("button","profile-person-action vatra-profile-friend-action-"+other,
      item.status==="pending"&&incoming?t("Прийняти","Accept"):
      item.status==="accepted"?t("Видалити","Remove"):t("Скасувати","Cancel"));
     action.type="button";
@@ -2243,7 +2239,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
  if(!caption||!window.VATRA_PRESENCE)return;
  const refresh=async()=>{
   try{
-   // The session initializes its own heartbeat independently; viewing another profile never touches its timestamp.
+
    const record=await window.VATRA_PRESENCE.load(client,targetId);
    const state=window.VATRA_PRESENCE.format(record,english);
    caption.textContent=state.online?t("У мережі","Online"):state.text||t("Статус мережі невідомий","Online status unavailable");
@@ -2286,7 +2282,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const backup=pendingAvatarUndo;if(!backup)return;
   pendingAvatarUndo=null;
   if(backup.previewUrl)URL.revokeObjectURL(backup.previewUrl);
-  // Only a finalized deletion loses person tags; an undo preserves them.
+
   void client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId)
    .eq("avatar_path",backup.path).then(()=>{}).catch(()=>{});
  };
@@ -2314,8 +2310,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
   if(roomW<=0||roomH<=0)return;
   const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
-  // Avatars preserve their existing VK-style scale; covers are centered
-  // at a comfortable size instead of filling the entire browser width.
+
+
   const scale=avatarPhoto?
    Math.min(roomW*.96/mediaImage.naturalWidth,roomH*.96/mediaImage.naturalHeight):
    mediaDialog.dataset.kind==="cover"?
@@ -2441,13 +2437,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const id=String(tag.tagged_vatra_id),label=names.get(id)||"VATRA ID "+id;
    const wrapper=document.createElement("div");wrapper.className="ui-profile-photo-tag-group-001";
    wrapper.style.left=Number(tag.x_pct)+"%";wrapper.style.top=Number(tag.y_pct)+"%";
-   const anchor=document.createElement("a");anchor.className="vt-profile-photo-tag-marker-001";
+   const anchor=document.createElement("a");anchor.className="vatra-profile-photo-tag-marker-001";
    anchor.href=memberUrl(id);anchor.setAttribute("aria-label",t("Перейти до профілю: ","View profile: ")+label);
    anchor.textContent="•";
-   const tooltip=document.createElement("span");tooltip.className="vt-profile-photo-tag-name-001";tooltip.textContent=label;
+   const tooltip=document.createElement("span");tooltip.className="vatra-profile-photo-tag-name-001";tooltip.textContent=label;
    anchor.append(tooltip);wrapper.append(anchor);
    if(canEdit||id===String(ownId)){
-    const remove=document.createElement("button");remove.className="vt-profile-photo-tag-remove-001";
+    const remove=document.createElement("button");remove.className="vatra-profile-photo-tag-remove-001";
     remove.type="button";remove.textContent="×";
     remove.setAttribute("aria-label",t("Прибрати позначку: ","Remove tag: ")+label);
     remove.addEventListener("click",async()=>{
@@ -2466,7 +2462,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const term=tagSearch.value.trim().replace(/[%_\\]/g,"").slice(0,50),ticket=++searchEpoch;
   tagResults.replaceChildren();
   if(term.length<2){
-   const hint=document.createElement("p");hint.className="vt-profile-photo-tag-message-001";
+   const hint=document.createElement("p");hint.className="vatra-profile-photo-tag-message-001";
    hint.textContent=t("Введіть щонайменше 2 символи.","Enter at least 2 characters.");
    tagResults.append(hint);return;
   }
@@ -2475,12 +2471,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(ticket!==searchEpoch||tagPicker.hidden)return;
   if(error){tagFailure(error,t("Пошук недоступний.","Search unavailable."),searchPeople);return;}
   if(!data?.length){
-   const hint=document.createElement("p");hint.className="vt-profile-photo-tag-message-001";
+   const hint=document.createElement("p");hint.className="vatra-profile-photo-tag-message-001";
    hint.textContent=t("Нікого не знайдено.","No members found.");tagResults.append(hint);return;
   }
   for(const member of data){
    const button=document.createElement("button");button.type="button";
-   button.className="vt-profile-photo-tag-result-001";button.setAttribute("role","option");
+   button.className="vatra-profile-photo-tag-result-001";button.setAttribute("role","option");
    button.textContent=String(member.display_name||"VATRA")+" · VATRA ID "+member.vatra_id;
    button.addEventListener("click",async()=>{
     const selected=photoPath(),point=tagPosition;
@@ -2531,7 +2527,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
  };
  const updatePhotoSortCopy=()=>{
-  q(".vt-profile-photo-sort-label-001").textContent=t("Показувати:","Show:");
+  q(".vatra-profile-photo-sort-label-001").textContent=t("Показувати:","Show:");
   const options=commentSort.options;
   options[0].textContent=t("Найактуальніші","Most relevant");
   options[1].textContent=t("Найновіші","Newest");
@@ -2547,8 +2543,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   photoCommentsMore.textContent=t("Показати ще","Show more");
  };
  updatePhotoSortCopy();
- // Small RLS-scoped, per-viewer avatar comment cache. Only server-confirmed rows
- // are stored; writes and account changes clear them. Never persist to storage.
+
+
  const avatarCommentPages=new Map(),AVATAR_COMMENT_TTL=12_000,AVATAR_COMMENT_MAX=12;
  client.auth?.onAuthStateChange?.(event=>{
   if(event!=="INITIAL_SESSION"&&event!=="TOKEN_REFRESHED")avatarCommentPages.clear();
@@ -2630,7 +2626,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     if(reuse)commentList.replaceChildren();
     const placeholder=node("div","ui-profile-photo-empty-state-001"),symbol=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS("http://www.w3.org/2000/svg","path");
     symbol.setAttribute("class","ui-profile-photo-empty-icon-001");symbol.setAttribute("viewBox","0 0 48 48");symbol.setAttribute("fill","none");symbol.setAttribute("stroke","currentColor");symbol.setAttribute("stroke-width","2.6");symbol.setAttribute("stroke-linecap","round");symbol.setAttribute("stroke-linejoin","round");symbol.setAttribute("aria-hidden","true");p.setAttribute("d","M16 7h22a5 5 0 0 1 5 5v17a5 5 0 0 1-5 5h-4v8l-10-8h-8a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5ZM6 15a5 5 0 0 0-4 5v14a5 5 0 0 0 5 5h5v5l6-5");symbol.append(p);
-    placeholder.append(symbol,node("p","vt-profile-photo-no-comments-001",t("Коментарів поки немає. Будьте першими!","No comments yet. Be the first!")));commentList.append(placeholder);
+    placeholder.append(symbol,node("p","vatra-profile-photo-no-comments-001",t("Коментарів поки немає. Будьте першими!","No comments yet. Be the first!")));commentList.append(placeholder);
    }
    const fresh=[];
    for(const item of rows){
@@ -2649,15 +2645,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
      avatar.classList.add("has-photo");avatar.textContent="";
     }
     const meta=node("div","profile-photo-comment-meta ui-profile-photo-comment-meta-001");
-    const author=node("a","vt-profile-photo-comment-name-001",member);
+    const author=node("a","vatra-profile-photo-comment-name-001",member);
     author.href=memberUrl(id);
     if(names.has(id))void window.VATRA_VERIFIED?.attach(client,author,id);
-    const stamp=node("time","vt-profile-photo-comment-time-001",dateText(item.created_at));
-    stamp.dateTime=item.created_at;meta.append(author,node("p","vt-profile-photo-comment-body-001",item.body),stamp);head.append(avatar,meta);
+    const stamp=node("time","vatra-profile-photo-comment-time-001",dateText(item.created_at));
+    stamp.dateTime=item.created_at;meta.append(author,node("p","vatra-profile-photo-comment-body-001",item.body),stamp);head.append(avatar,meta);
     card.append(head);
     if(item.moderation_status==="possible_spam")
-     card.append(node("small","vt-profile-photo-comment-spam-001",t("Можливий спам","Potential spam")));
-    const reaction=node("button","vt-profile-photo-comment-like-001");
+     card.append(node("small","vatra-profile-photo-comment-spam-001",t("Можливий спам","Potential spam")));
+    const reaction=node("button","vatra-profile-photo-comment-like-001");
     reaction.type="button";
     const reactionIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
     reactionIcon.setAttribute("class","ui-profile-photo-comment-heart-001");
@@ -2671,7 +2667,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     heartPath.setAttribute("class","ui-profile-photo-comment-heart-path-001");
     heartPath.setAttribute("d","M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z");
     reactionIcon.append(heartPath);
-    const reactionLabel=node("span","vt-profile-photo-comment-like-label-001");
+    const reactionLabel=node("span","vatra-profile-photo-comment-like-label-001");
     reaction.append(reactionIcon,reactionLabel);
     let countValue=Number(item.likes)||0,reacted=ownCommentLikes.has(item.id);
     const paint=()=>{
@@ -2699,7 +2695,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(!append&&reuse&&rows.length){
     const received=new Set(rows.map(item=>String(item.id)));
     const older=[...existing].filter(([id])=>!received.has(id)).map(([,node])=>node);
-    // Single-frame DOM reconciliation: no empty panel, scroll jump or comment flash.
+
     commentList.replaceChildren(...fresh,...older);
    }else if(fresh.length){
     if(append){
@@ -2750,7 +2746,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    avatarCommentPages.clear();
    if(path===photoPath()&&mediaDialog.open){
     resetPhotoComposer();
-    // Refresh only this thread; existing comments never disappear while it loads.
+
     void reloadPhotoActivity(false,false,true);
    }
   }catch(_){if(path===photoPath()&&mediaDialog.open)feedback(t("Не вдалося додати коментар.","Could not add comment."),true);}
@@ -2770,7 +2766,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  q("#profile-photo-share-label").textContent=t("Поділитися","Share");
  q("#profile-photo-comment-text").placeholder=t("Коментувати…","Comment…");
  q("#profile-photo-comment-send").textContent=t("Надіслати","Send");
- q(".vt-profile-photo-comment-label-001").textContent=t("Ваш коментар","Your comment");
+ q(".vatra-profile-photo-comment-label-001").textContent=t("Ваш коментар","Your comment");
  const composerAvatar=q("#profile-photo-composer-avatar"),emojiToggle=q("#profile-photo-emoji-toggle"),emojiPanel=q("#profile-photo-emoji-panel"),cancelComment=q("#profile-photo-comment-cancel");
  const setEmojiOpen=open=>{emojiPanel.hidden=!open;emojiToggle.setAttribute("aria-expanded",String(open));};
  const resetPhotoComposer=()=>{commentForm.classList.remove("is-expanded");commentInput.value="";setEmojiOpen(false);commentSend.disabled=true;};
@@ -2779,7 +2775,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  commentInput.addEventListener("focus",expandComposer);commentInput.addEventListener("input",()=>{commentSend.disabled=commentBusy||!commentInput.value.trim();});
  cancelComment.addEventListener("click",()=>{resetPhotoComposer();cancelComment.blur();});
  emojiToggle.addEventListener("click",()=>{expandComposer();setEmojiOpen(emojiPanel.hidden);});
- for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vt-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>1000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
+ for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>1000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
  mediaDialog.addEventListener("click",e=>{if(!emojiPanel.hidden&&!emojiPanel.contains(e.target)&&!emojiToggle.contains(e.target))setEmojiOpen(false);});
  mediaDialog.addEventListener("close",resetPhotoComposer);
  const listAvatarGallery=async()=>{
@@ -2805,8 +2801,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   mediaDialog.setAttribute("aria-label",photoTitle);
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
-  // A gallery entry is the circular thumbnail; -original is the full photo.
-  // Legacy images without a companion still open their existing file.
+
+
   const sourcePath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
   const sourceUrl=getPublicPath(sourcePath,"avatar");
   mediaImage.onerror=()=>{
@@ -2848,8 +2844,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  document.addEventListener("keydown",event=>{if(!mediaDialog.open||!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches?.("input,textarea,select,[contenteditable]")||document.querySelector("dialog[open]:not(#profile-media-viewer)"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
  let swipeStart=null;mediaImage.addEventListener("touchstart",event=>{swipeStart=event.touches[0]?.clientX??null;},{passive:true});
  mediaImage.addEventListener("touchend",event=>{if(swipeStart===null)return;const dx=(event.changedTouches[0]?.clientX??swipeStart)-swipeStart;swipeStart=null;if(Math.abs(dx)>55&&["avatar","avatar-history"].includes(mediaDialog.dataset.kind))stepPhoto(dx<0?1:-1);},{passive:true});
- // Covers use their own dialog and the already-rendered banner, never avatar data.
- // Legacy square uploads keep the same crop in the profile and in the viewer.
+
+
  const coverViewerDialog=q("#profile-cover-viewer"),coverStage=q("#profile-cover-viewer-stage");
  const coverImage=q("#profile-cover-viewer-image"),coverOriginal=q("#profile-cover-viewer-original");
  let coverEpoch=0,coverFlight=null,coverAnimation=null;
@@ -2870,8 +2866,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const finish=()=>{
    if(finished||ticket!==coverEpoch||!coverViewerDialog.open||!decoded||!arrived)return;
    finished=true;
-   // An atomic handoff avoids two semi-transparent pictures overlapping
-   // and prevents a delayed image decode from flashing a blank frame.
+
+
    coverViewerDialog.classList.add("is-ready");
    clearCoverFlight();
   };
@@ -2917,8 +2913,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    void coverAnimation.finished.then(arrivedAtCenter).catch(()=>{});
   }
   if(coverImage.complete&&coverImage.naturalWidth)queueMicrotask(prepareImage);
-  // Opening a cover never switches to an unverified -original image.
-  // New uploads can still open their real, separately saved full original.
+
+
   const originalPath=saved?.cover_path?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
   const originalUrl=originalPath?getPublicPath(originalPath,"cover"):null;
   if(originalUrl&&originalUrl!==source){
@@ -3270,7 +3266,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   let changed=false,previewUrl=null;
   try{
    const storage=client.storage.from("avatars");
-   // Download before removing; never offer an Undo that cannot re-upload.
+
    const thumb=await storage.download(path);
    if(thumb.error||!(thumb.data instanceof Blob))throw Error("Could not back up avatar");
    const originalPath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
@@ -3302,7 +3298,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    previewUrl=null;
    if(changed){
     window.VATRA_AVATAR?.invalidatePath?.(client,ownId);
-    try{await display(saved);}catch(_){/* The deleted photo remains safely recoverable. */}
+    try{await display(saved);}catch(_){ }
    }
    deletedMessage.textContent=t("Фотографію видалено.","Photo deleted.");
    restoreAvatarButton.textContent=t("Відновити","Restore");
@@ -3362,7 +3358,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  buttonCover.addEventListener("click",()=>fileCover.click());coverChange.addEventListener("click",()=>fileCover.click());
  fileAvatar.addEventListener("change",()=>{if(fileAvatar.files?.[0])void startCrop(fileAvatar.files[0]);});
 
- // Cover thumbnail is exactly 2000 × 580; preserve the unedited source for fullscreen.
+
  const coverDialog=q("#profile-cover-edit-dialog"),coverCanvas=q("#profile-cover-crop-canvas"),coverZoom=q("#profile-cover-crop-zoom");
  const coverCropPanel=q("#profile-cover-crop-panel"),coverPreviewPanel=q("#profile-cover-preview-panel"),coverPreviewCanvas=q("#profile-cover-preview-image");
  const coverStep=q("#profile-cover-edit-step"),coverSave=q("#profile-cover-edit-save"),coverClose=q("#profile-cover-edit-close"),coverError=q("#profile-cover-edit-error");
@@ -3383,7 +3379,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   ctx.save();
   ctx.fillStyle="rgba(15,23,42,.68)";
   ctx.beginPath();ctx.rect(0,0,coverCanvas.width,coverCanvas.height);ctx.rect(x,y,w,h);ctx.fill("evenodd");
-  // Desktop displays all of the 2000×580 crop; mobile displays its center.
+
   ctx.fillStyle="rgba(15,23,42,.25)";
   ctx.fillRect(x,y,mobileX-x,h);
   ctx.fillRect(mobileX+mobileW,y,x+w-mobileX-mobileW,h);
@@ -3600,7 +3596,7 @@ async function start(){
     publicName.trim().split(/\s+/).filter(Boolean).map(x=>Array.from(x)[0]).slice(0,2).join("").toLocaleUpperCase(locale)
    ):"V");
   setupProfileEdit(client,targetId,isMine,publicStatus,metadata.gender);
- 
+
   if(isMine){
    q("#profile-about-text").textContent=t(
     "Інформацію про себе поки не додано.",

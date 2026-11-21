@@ -1,1 +1,0 @@
-/* VATRA browser diagnostics remain available in DevTools. No console interception, unhandled-rejection listeners or on-page diagnostic toasts. Form errors are handled locally by their respective forms. */
