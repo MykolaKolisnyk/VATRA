@@ -1642,7 +1642,7 @@ assert.ok(
  postMediaScript.includes("async function mountGallery(client,post,container)")&&
  interactionsScript.includes("panel.hidden=true;")&&
  interactionsScript.includes('const openComments=()=>{')&&
- interactionsScript.includes('dialog.showModal();close.focus(')&&
+ interactionsScript.includes('dialog.showModal();content.scrollTop=0;close.focus(')&&
  !interactionsScript.includes('summaryObserver.disconnect();void refreshSocial();void loadComments(true);')&&
  (await read("assets/js/feed.js")).includes("media_items:uploaded||[]")&&
  profileExtraScript.includes("media_items:uploaded||[]")&&
@@ -2146,7 +2146,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('.profile-media-viewer.is-photo-deleted')&&
  memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
  !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
- memberCss.includes('padding:58px 76px 18px')&&
+ memberCss.includes('padding:48px 68px 8px;isolation:isolate')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and chevrons stay outside the image");
 
@@ -2188,7 +2188,7 @@ assert.ok(feedPhotoActions.includes(photoLikeGlyph)&&feedPhotoActions.includes(p
  memberProfileMarkup.includes(photoLikeGlyph)&&memberProfileMarkup.includes(photoShareGlyph)&&
  !memberProfileMarkup.includes('id="profile-photo-comments-heading"')&&
  !profileScript.includes('q("#profile-photo-comments-heading")')&&
- profileScript.includes('Math.min(roomW*.96/mediaImage.naturalWidth,roomH*.96/mediaImage.naturalHeight)')&&
+ profileScript.includes('Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight)')&&
  !profileScript.includes('Math.min(1,roomW*.84/')&&
  memberCss.includes('.profile-photo-comments.is-empty{display:flex;align-items:center;justify-content:center'),
  "Photo viewer uses original VATRA feed like/share SVGs, no comments heading, and uncropped responsive photo scaling");

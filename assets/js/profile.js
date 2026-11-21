@@ -2313,7 +2313,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 
 
   const scale=avatarPhoto?
-   Math.min(roomW*.96/mediaImage.naturalWidth,roomH*.96/mediaImage.naturalHeight):
+   Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight):
    mediaDialog.dataset.kind==="cover"?
     Math.min(Math.min(roomW,1140)/mediaImage.naturalWidth,
      Math.min(roomH*.76,680)/mediaImage.naturalHeight):
@@ -2321,7 +2321,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
   photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
  };
- mediaImage.addEventListener("load",fitPhoto);
+ mediaImage.addEventListener("load",()=>{
+  photoContent.style.setProperty("--vatra-profile-photo-backdrop","url("+JSON.stringify(mediaImage.currentSrc||mediaImage.src)+")");
+  fitPhoto();
+ });
  const photoResizeObserver=typeof ResizeObserver==="function"?new ResizeObserver(fitPhoto):null;
  photoResizeObserver?.observe(photoContent);
  window.addEventListener("resize",fitPhoto,{passive:true});
@@ -2410,8 +2413,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentForm=q("#profile-photo-comment-form"),commentInput=q("#profile-photo-comment-text");
  const commentSend=q("#profile-photo-comment-send"),commentStatus=q("#profile-photo-status");
  const shareButton=q("#profile-photo-share");
- const commentSort=q("#profile-photo-comment-sort"),photoCommentsMore=q("#profile-photo-comments-more");
- const commentSortNote=q("#profile-photo-comment-sort-note"),commentFilters=q(".ui-profile-photo-comment-filters-001");
+ const photoCommentsMore=q("#profile-photo-comments-more"),photoCommentSort="relevant";
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
  let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
@@ -2526,24 +2528,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const feedback=(value,bad=false)=>{
   commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
  };
- const updatePhotoSortCopy=()=>{
-  q(".vatra-profile-photo-sort-label-001").textContent=t("Показувати:","Show:");
-  const options=commentSort.options;
-  options[0].textContent=t("Найактуальніші","Most relevant");
-  options[1].textContent=t("Найновіші","Newest");
-  options[2].textContent=t("Усі коментарі","All comments");
-  commentSortNote.textContent=commentSort.value==="relevant"?
-   t("Спочатку друзі та коментарі з найбільшою кількістю вподобань.",
-     "Friends and most-liked comments first."):
-   commentSort.value==="newest"?
-   t("Від нових до старих, без позначеного спаму.",
-     "Newest first, excluding marked spam."):
-   t("Усі доступні коментарі, включно з можливим спамом.",
-     "All available comments, including potential spam.");
-  photoCommentsMore.textContent=t("Показати ще","Show more");
- };
- updatePhotoSortCopy();
-
+ photoCommentsMore.textContent=t("Показати ще","Show more");
 
  const avatarCommentPages=new Map(),AVATAR_COMMENT_TTL=12_000,AVATAR_COMMENT_MAX=12;
  client.auth?.onAuthStateChange?.(event=>{
@@ -2581,7 +2566,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  async function reloadPhotoActivity(append=false,refreshLikes=true,keepVisible=false){
   const path=photoPath(),ticket=++activityTicket;
   if(!path)return;
-  const key=path+"|"+commentSort.value;
+  const key=path+"|"+photoCommentSort;
   const reuse=keepVisible&&lastAvatarCommentKey===key;
   const existing=!append&&reuse?
    new Map([...commentList.children].filter(el=>el.dataset?.commentId)
@@ -2589,12 +2574,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(!append){
    photoCommentOffset=0;
    if(!reuse){commentList.replaceChildren();commentList.classList.remove("is-empty");
-    photoCommentsMore.hidden=true;commentFilters.hidden=true;}
+    photoCommentsMore.hidden=true;}
   }
   commentList.setAttribute("aria-busy","true");photoCommentsMore.disabled=true;
   if(!append&&!reuse)feedback(t("Завантаження коментарів…","Loading comments…"));
   try{
-   const commentsPromise=avatarCommentPage(path,commentSort.value,photoCommentOffset);
+   const commentsPromise=avatarCommentPage(path,photoCommentSort,photoCommentOffset);
    const likesPromise=refreshLikes?Promise.all([
     client.from("avatar_likes").select("liker_id",{count:"exact",head:true})
      .eq("owner_vatra_id",targetId).eq("avatar_path",path),
@@ -2706,7 +2691,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
    lastAvatarCommentKey=key;
    photoCommentOffset+=rows.length;
-   commentFilters.hidden=photoCommentOffset===0;
+   
    photoCommentsMore.hidden=rows.length<12;feedback("");
   }catch(_){
    if(ticket===activityTicket)feedback(t("Коментарі поки недоступні.","Comments are temporarily unavailable."),true);
@@ -2714,7 +2699,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(ticket===activityTicket){commentList.setAttribute("aria-busy","false");photoCommentsMore.disabled=false;}
   }
  }
- commentSort.addEventListener("change",()=>{updatePhotoSortCopy();void reloadPhotoActivity(false,false);});
+ 
  photoCommentsMore.addEventListener("click",()=>void reloadPhotoActivity(true,false));
  likesButton.addEventListener("click",async()=>{
   const path=photoPath();if(likeBusy||!path||!validId(ownId))return;
@@ -2801,6 +2786,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   mediaDialog.setAttribute("aria-label",photoTitle);
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
+   photoContent.style.removeProperty("--vatra-profile-photo-backdrop");
 
 
   const sourcePath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
@@ -2836,7 +2822,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   ownerPhoto.classList.toggle("has-photo",!!photoURLs.avatar);
   const uploaded=galleryDates.get(path);const elapsed=uploaded?Math.max(0,Date.now()-Date.parse(uploaded)):Infinity;date.textContent=uploaded?(elapsed<60000?t("Щойно","Just now"):elapsed<86400000?new Intl.RelativeTimeFormat(locale,{numeric:"auto"}).format(-Math.floor(elapsed/(elapsed<3600000?60000:3600000)),elapsed<3600000?"minute":"hour"):dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
   resetPhotoComposer();syncComposerAvatar();
-  void reloadPhotoActivity(false,true,lastAvatarCommentKey===path+"|"+commentSort.value);
+  void reloadPhotoActivity(false,true,lastAvatarCommentKey===path+"|"+photoCommentSort);
   void loadTags();
  };
  const stepPhoto=delta=>{if(pendingAvatarUndo)return;const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
