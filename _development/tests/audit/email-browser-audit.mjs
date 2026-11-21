@@ -1,5 +1,5 @@
 /* Rendered Supabase Go-template email compatibility checks.
-   Run after VATRA_AUDIT_EMAIL_OUTPUT=1 go run tools/email-template-audit.go.
+   Run after VATRA_AUDIT_EMAIL_OUTPUT=1 go run _development/tests/audit/email-template-audit.go.
    Fixtures are generated in CI; no production emails or accounts are touched. */
 import assert from "node:assert/strict";
 import {readFile,mkdir} from "node:fs/promises";

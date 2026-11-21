@@ -1167,7 +1167,7 @@ const messengerMarkup=await read("messenger.html");
 const messengerRuntime=await read("assets/js/messenger.js");
 const messengerCrypto=await read("assets/js/messenger-crypto.js");
 const messengerCss=await read("assets/css/messenger.css");
-const messengerSchema=await read("supabase/migrations/20261121113300_private_messenger_ciphertext_and_scoped_deletion.sql");
+const messengerSchema=await read("_development/supabase/migrations/20261121113300_private_messenger_ciphertext_and_scoped_deletion.sql");
 assert.ok(
  messengerMarkup.includes('data-page="messenger"')&&
  messengerMarkup.includes('id="messenger-delete-mine"')&&
@@ -1199,7 +1199,7 @@ assert.ok(
  messengerCrypto.includes('"HKDF"')&&
  messengerCss.includes(".vatra-messenger-message.is-removing")&&
  messengerCss.includes(".vatra-messenger-page [hidden]{display:none!important}")&&
- (await read("tests/smoke/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
+ (await read("_development/tests/smoke/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
  !messengerMarkup.includes(String.fromCharCode(118,116,45))&&
  !messengerCss.includes(String.fromCharCode(118,116,45))&&
  messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
@@ -1672,16 +1672,16 @@ assert.ok(
  (await read("club.html")).includes('id="club-posts-more"'),
  "Community posts must paginate in small bounded pages without duplicate deep links");
 
-const feedPostGrantMigration=await read("supabase/migrations/20261113165546_restore_authenticated_feed_posts_data_api_permissions.sql");
+const feedPostGrantMigration=await read("_development/supabase/migrations/20261113165546_restore_authenticated_feed_posts_data_api_permissions.sql");
 assert.ok(
  feedPostGrantMigration.includes("GRANT SELECT, INSERT, UPDATE ON TABLE public.feed_posts TO authenticated;")&&
  !feedPostGrantMigration.includes("TO anon;")&&
  !feedPostGrantMigration.includes("DISABLE ROW LEVEL SECURITY"),
  "Authenticated members must be able to publish feed posts without exposing them to anon");
 
-const mediaOnlyMigration=await read("supabase/migrations/20261113170207_allow_gallery_only_posts_without_text.sql");
-const communityGrantMigration=await read("supabase/migrations/20261113171114_restore_community_directory_read_and_owner_create_grants.sql");
-const socialUpdateMigration=await read("supabase/migrations/20261113171325_restore_owner_scoped_update_privileges_for_social_features.sql");
+const mediaOnlyMigration=await read("_development/supabase/migrations/20261113170207_allow_gallery_only_posts_without_text.sql");
+const communityGrantMigration=await read("_development/supabase/migrations/20261113171114_restore_community_directory_read_and_owner_create_grants.sql");
+const socialUpdateMigration=await read("_development/supabase/migrations/20261113171325_restore_owner_scoped_update_privileges_for_social_features.sql");
 assert.ok(
  mediaOnlyMigration.includes("jsonb_array_length(media_items) > 0")&&
  mediaOnlyMigration.includes("feed_posts_body_length")&&
@@ -1696,7 +1696,7 @@ assert.ok(
  !socialUpdateMigration.includes("TO anon"),
  "Gallery-only publishing, public community directory and RLS-scoped social writes must be retained");
 
-const domainReadViewMigration=await read("supabase/migrations/20261113171916_add_nonbreaking_domain_named_rls_invoker_read_views.sql");
+const domainReadViewMigration=await read("_development/supabase/migrations/20261113171916_add_nonbreaking_domain_named_rls_invoker_read_views.sql");
 const domainGiftsScript=await read("assets/js/gifts.js");
 assert.ok(
  domainReadViewMigration.split("WITH (security_invoker = true)").length===4&&
@@ -1713,7 +1713,7 @@ assert.ok(
  !domainGiftsScript.includes('client.from("vatra_profile_gifts")'),
  "New read-only domain aliases must retain invoker-RLS and support old clients");
 
-const physicalRenameSql=await read("supabase/migrations/20261113174336_rename_three_read_only_domain_tables_and_preserve_legacy_rls_views.sql");
+const physicalRenameSql=await read("_development/supabase/migrations/20261113174336_rename_three_read_only_domain_tables_and_preserve_legacy_rls_views.sql");
 assert.ok(
  physicalRenameSql.includes("ALTER TABLE public.vatra_directory RENAME TO member_directory;")&&
  physicalRenameSql.includes("ALTER TABLE public.vatra_account_states RENAME TO account_states;")&&
@@ -1727,7 +1727,7 @@ assert.ok(
  physicalRenameSql.includes("COMMIT;"),
  "Physical renames must preserve signup/state trigger writes and old-client RLS-only SELECT aliases");
 
-const welcomeGiftRenameSql=await read("supabase/migrations/20261113175142_fix_welcome_gift_after_physical_profile_gifts_rename.sql");
+const welcomeGiftRenameSql=await read("_development/supabase/migrations/20261113175142_fix_welcome_gift_after_physical_profile_gifts_rename.sql");
 assert.ok(
  welcomeGiftRenameSql.includes("CREATE OR REPLACE FUNCTION vatra_internal.award_welcome_gift()")&&
  welcomeGiftRenameSql.includes("insert into public.profile_gifts(")&&
@@ -1735,7 +1735,7 @@ assert.ok(
  !welcomeGiftRenameSql.includes("insert into public.vatra_profile_gifts("),
  "Signup welcome-gift trigger must use physical table after renaming it");
 
-const renamedLikerAndReports=await read("supabase/migrations/20261113174858_rename_post_like_members_and_profile_reports_preserving_rls_compatibility.sql");
+const renamedLikerAndReports=await read("_development/supabase/migrations/20261113174858_rename_post_like_members_and_profile_reports_preserving_rls_compatibility.sql");
 assert.ok(
  renamedLikerAndReports.includes("ALTER TABLE public.vatra_post_like_members RENAME TO post_like_members;")&&
  renamedLikerAndReports.includes("ALTER TABLE public.vatra_profile_reports RENAME TO profile_reports;")&&
@@ -1746,7 +1746,7 @@ assert.ok(
  !profileScript.includes('client.from("vatra_profile_reports")'),
  "Profile reports and public like membership tables must retain RLS and legacy client write support");
 
-const socialDomainMigration=await read("supabase/migrations/20261113175644_rename_fourteen_social_tables_with_rls_compatibility.sql");
+const socialDomainMigration=await read("_development/supabase/migrations/20261113175644_rename_fourteen_social_tables_with_rls_compatibility.sql");
 const socialDomainPairs=[
  ["vatra_avatar_comment_likes","avatar_comment_likes"],
  ["vatra_avatar_comments","avatar_comments"],["vatra_avatar_likes","avatar_likes"],
@@ -1767,7 +1767,7 @@ assert.ok(
  !/\bDROP\b[^;]*\bCASCADE\b/i.test(socialDomainMigration.replace(/^\s*--.*$/gm,"")),
  "All 14 physical renames must retain legacy caller-scoped views, notification triggers and RLS");
 
-const lastProfileRename=await read("supabase/migrations/20261113180825_rename_last_two_profile_upsert_tables.sql");
+const lastProfileRename=await read("_development/supabase/migrations/20261113180825_rename_last_two_profile_upsert_tables.sql");
 assert.ok(
  lastProfileRename.includes("ALTER TABLE public.vatra_profile_details RENAME TO profile_details;")&&
  lastProfileRename.includes("ALTER TABLE public.vatra_profile_preferences RENAME TO profile_preferences;")&&
@@ -1779,7 +1779,7 @@ assert.ok(
  !profileScript.includes('client.from("vatra_profile_preferences")'),
  "The last two profile upserts must use physical tables with legacy RLS views");
 
-const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
+const publicRedisEdge=await read("_development/supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
  publicRedisEdge.includes('Deno.env.get("REDIS_URL")')&&
@@ -1791,7 +1791,7 @@ assert.ok(
  !publicRedisEdge.includes("SUPABASE_SERVICE_ROLE_KEY")&&
  !publicRedisEdge.includes("SUPABASE_SECRET_KEYS")&&
  publicRedisEdge.includes('Cache-Control": "no-store"')&&
- (await read("docs/redis-cache-policy.md")).includes("15 seconds")&&
+ (await read("_development/docs/redis-cache-policy.md")).includes("15 seconds")&&
  communityScript.includes("const PUBLIC_DIRECTORY_CACHE_ENABLED=true")&&
  communityScript.includes('client.functions.invoke("public-community-directory",{method:"GET"})')&&
  communityScript.includes("if(!data){"),
@@ -1825,7 +1825,7 @@ assert.ok(
  "New search/filter revisions must supersede old Feed pages and errors");
 // Third-party friends list privacy must be enforced in both the UI and RLS.
 const friendshipPrivacyJs=await read("assets/js/friends.js");
-const friendshipPrivacySql=await read("supabase/migrations/20261114154237_private_friendship_rows_to_participants.sql");
+const friendshipPrivacySql=await read("_development/supabase/migrations/20261114154237_private_friendship_rows_to_participants.sql");
 assert.ok(
  friendshipPrivacyJs.includes('if(!me){')&&
  friendshipPrivacyJs.includes('Список друзів цього профілю закритий.')&&
@@ -2062,7 +2062,7 @@ const onboardingJs=await read("assets/js/onboarding.js");
 const ownerAdminGuard=await read("assets/js/account-guard.js");
 const ownerAdminJs=await read("assets/js/admin.js");
 assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js?rev=')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
-const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
+const ownerAdminSQL=await read("_development/supabase/vatra-owner-admin.sql");
 assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("marketView(host,")&&!ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
 assert.ok((await read("assets/css/feed.css")).includes(".vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
@@ -2150,8 +2150,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and chevrons stay outside the image");
 
-const photoReportMigration=await read("supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
-const photoReportNotNull=await read("supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
+const photoReportMigration=await read("_development/supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
+const photoReportNotNull=await read("_development/supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
 assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
  profileScript.includes('window.VATRA_REPORT_PROFILE_PHOTO=path')&&
  profileScript.includes('category="specific_photo"')&&
@@ -2445,7 +2445,7 @@ assert.ok(lang.includes('new MutationObserver(applyTitle)')&&
 /* Cache regression: public display names only, fail-closed auth and direct
    RLS fallback. Scripts must load before authors are rendered. */
 const publicNameBrowser=await read("assets/js/public-name-cache.js");
-const publicNameEdge=await read("supabase/functions/public-profile-names/index.ts");
+const publicNameEdge=await read("_development/supabase/functions/public-profile-names/index.ts");
 assert.doesNotThrow(()=>new Function(publicNameBrowser),
  "Shared public-name cache must parse in supported browsers");
 assert.ok(
@@ -2499,7 +2499,7 @@ await import("../smoke/engagement-cache-smoke.mjs");
 /* Re-ranked paged comments: SQL query must count each comment's likes once
    and precompute current-viewer friend IDs, without bypassing RLS. */
 const commentThreadSqlOptimization=await read(
- "supabase/migrations/20261113185828_optimize_comment_thread_friend_and_like_counts.sql");
+ "_development/supabase/migrations/20261113185828_optimize_comment_thread_friend_and_like_counts.sql");
 assert.ok(
  commentThreadSqlOptimization.includes("WITH friend_ids AS MATERIALIZED")&&
  commentThreadSqlOptimization.includes("LEFT JOIN LATERAL (")&&
@@ -2522,7 +2522,7 @@ assert.ok(
  clubRuntime.includes('client.functions.invoke("public-community-directory",{')&&
  clubRuntime.includes('body:{club_id:numeric}')&&
  clubRuntime.includes('return client.from("communities")')&&
- (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
+ (await read("_development/docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
 await import("../smoke/community-detail-cache-smoke.mjs");
 await import("../smoke/community-category-smoke.mjs");
@@ -2546,8 +2546,8 @@ assert.ok(
 /* Legacy Table Editor entries were RLS-invoker views, not physical tables.
    Storage bucket renames must preserve role-specific policies and MIME/size
    limits; the active browser must use only canonical bucket IDs. */
-const legacyViewCleanup=await read("supabase/migrations/20261113195057_remove_legacy_vatra_compatibility_views.sql");
-const storageBucketCleanup=await read("supabase/migrations/20261113195123_prepare_clean_vatra_storage_bucket_ids_and_rls.sql");
+const legacyViewCleanup=await read("_development/supabase/migrations/20261113195057_remove_legacy_vatra_compatibility_views.sql");
+const storageBucketCleanup=await read("_development/supabase/migrations/20261113195123_prepare_clean_vatra_storage_bucket_ids_and_rls.sql");
 assert.ok((legacyViewCleanup.match(/DROP VIEW IF EXISTS public\.vatra_/g)||[]).length===21&&
  !legacyViewCleanup.includes("CASCADE")&&
  storageBucketCleanup.includes("INSERT INTO storage.buckets(")&&
@@ -2598,7 +2598,7 @@ assert.ok(
  liveSearchCacheScript.includes("data[key].slice(0,20)")&&
  !liveSearchCacheScript.includes("site-search-redis"),
  "Site-wide live search must remain RLS-gated, session-scoped and bounded");
-const siteSearchSQL=await read("supabase/search-site.sql");
+const siteSearchSQL=await read("_development/supabase/search-site.sql");
 assert.ok(siteSearchSQL.includes("security invoker")&&
  siteSearchSQL.includes("from public.feed_posts")&&
  siteSearchSQL.includes("from public.community_posts")&&
@@ -2684,8 +2684,8 @@ assert.ok(sectionsRuntime.includes('marketplace_cases')&&ownerAdminJs.includes('
 assert.ok(!marketplaceRuntime.includes("VATRA_OPEN_MARKET_MODERATION")&&!marketplaceRuntime.includes("marketplace_moderators")&&!marketplaceRuntime.includes("marketplace_moderation_history")&&!marketplaceRuntime.includes("modControls"),"Only ADMIN PANEL owns staff marketplace moderation");
 assert.ok(ownerAdminJs.includes('client.rpc("vatra_admin_access")')&&ownerAdminJs.includes('from("marketplace_moderators")')&&ownerAdminJs.includes('from("marketplace_listings").update')&&ownerAdminJs.includes('from("marketplace_cases").update')&&ownerAdminJs.includes('from("marketplace_suspensions").insert')&&ownerAdminJs.includes('from("marketplace_moderation_history")')&&ownerAdminJs.includes('!ready||!check.checked'),"Owner moderation must check server roles and require manual photo review");
 for(const file of ["business","business-bookings","business-brand","business-inbox","business-jobs","business-stores"])await assert.rejects(stat("assets/js/"+file+".js"),{code:"ENOENT"});
-const moderationSQL=await read("supabase/vatra-marketplace-moderation.sql");
-const moderationMediaSQL=await read("supabase/vatra-marketplace-moderation-media.sql");
+const moderationSQL=await read("_development/supabase/vatra-marketplace-moderation.sql");
+const moderationMediaSQL=await read("_development/supabase/vatra-marketplace-moderation-media.sql");
 assert.ok(moderationSQL.includes("VATRA_MARKET_MODERATOR_REQUIRED")&&moderationSQL.includes("VATRA_MARKET_SUSPENDED")&&moderationSQL.includes("moderation_status='approved'")&&moderationSQL.includes("enable row level security"));
 assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&moderationMediaSQL.includes("drop constraint vatra_market_cases_listing_id_fkey"),"Prevent image swaps and preserve complaints");
 
@@ -2693,7 +2693,7 @@ assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&modera
 
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
 
-const publicFriendSQL=await read("supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
+const publicFriendSQL=await read("_development/supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
 const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
 
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])])')&&
@@ -2716,7 +2716,7 @@ assert.ok(!(await read("assets/js/club.js")).includes("setupCommunityBusiness")&
  "Retired business tools must be absent from both community pages");
 assert.ok(!(await read("assets/js/not-found.js")).includes("|marketplace|business|"),"Retired business route must not resolve");
 
-const retiredActivitySQL=await read("supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
+const retiredActivitySQL=await read("_development/supabase/migrations/20261119131927_remove_retired_standalone_business_activity.sql");
 assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&retiredActivitySQL.includes("drop table public.business_followers;")&&retiredActivitySQL.includes("alter column club_id set not null")&&!/drop table[^;]*cascade/i.test(retiredActivitySQL),"Legacy business storage is removed safely and community linkage is mandatory");
 
 await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
@@ -2726,7 +2726,7 @@ for(const asset of ["community-business","community-business-brand","community-b
  "community-business-jobs","community-business-inbox","community-business-stores"]){
  await assert.rejects(stat("assets/js/"+asset+".js"),{code:"ENOENT"});
 }
-const businessResetSQL=await read("supabase/migrations/20261120163311_reset_created_communities_retire_business_tools.sql");
+const businessResetSQL=await read("_development/supabase/migrations/20261120163311_reset_created_communities_retire_business_tools.sql");
 assert.ok(businessResetSQL.includes("delete from public.communities;")&&
  businessResetSQL.includes("drop schema if exists business_private cascade;")&&
  businessResetSQL.includes("drop column if exists business_enabled;")&&
@@ -2737,7 +2737,7 @@ assert.ok(businessResetSQL.includes("delete from public.communities;")&&
 // Gallery, site settings and shared-account navigation regressions.
 assert.ok(profileScript.includes('const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]')&&profileScript.includes('interaction.hidden=false;activityTicket++')&&!memberCss.includes('body.profile-page .profile-media-viewer[data-kind="avatar-history"][open]{grid-template-columns:minmax(0,1fr)}'),"Historical avatars must retain their own panel");
 assert.ok(settingsRuntime.includes('from("profile_preferences")')&&settingsRuntime.includes('from("member_blocks")')&&settingsRuntime.includes('vatra:notification-display:')&&settingsRuntime.includes('get("view")==="settings"'),"Settings must use existing profile and block records and browser-scoped notification filters");
-const galleryMigration=await read("supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
+const galleryMigration=await read("_development/supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
 assert.ok(galleryMigration.includes("storage.objects")&&galleryMigration.includes("auth.uid()")&&galleryMigration.includes("profile_visibility"),"Only existing gallery images with permitted viewers accept interactions");
 
 assert.ok(memberProfileMarkup.includes('maxlength="80" placeholder="Напишіть статус"')&&profileScript.includes('Array.from(next).length>80'),"Profile status uses a compact 80-character limit");

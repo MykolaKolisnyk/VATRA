@@ -2,8 +2,8 @@
 import assert from "node:assert/strict";
 import { readFile,readdir } from "node:fs/promises";
 const src=await readFile("assets/js/communities.js","utf8");
-const edge=await readFile("supabase/functions/public-community-directory/index.ts","utf8");
-const sql=await readFile("supabase/migrations/20261118181717_add_community_categories.sql","utf8");
+const edge=await readFile("_development/supabase/functions/public-community-directory/index.ts","utf8");
+const sql=await readFile("_development/supabase/migrations/20261118181717_add_community_categories.sql","utf8");
 const html=await readFile("communities.html","utf8");
 const categories=JSON.parse(src.match(/const categories=(\[\[.*?\]\]);/)[1]);
 const keys=categories.map(row=>row[0]);

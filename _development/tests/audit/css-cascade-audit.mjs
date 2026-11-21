@@ -37,6 +37,9 @@ function rules(source){
  assert.equal(stack.length,0,"Unclosed CSS blocks");
  return found;
 }
+const rootEntries=await readdir(".");
+for(const folder of ["tests","tools","supabase","docs"])
+ assert.ok(!rootEntries.includes(folder),folder+": development-only files belong under _development");
 const cssFiles=(await readdir("assets/css")).filter(x=>x.endsWith(".css"));
 for(const file of cssFiles){
  const found=rules(await readFile("assets/css/"+file,"utf8")),visited=new Map;

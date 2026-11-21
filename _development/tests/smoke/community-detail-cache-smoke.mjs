@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { runInNewContext } from "node:vm";
 
 const source=await readFile("assets/js/club.js","utf8");
-const edge=await readFile("supabase/functions/public-community-directory/index.ts","utf8");
+const edge=await readFile("_development/supabase/functions/public-community-directory/index.ts","utf8");
 const begin=source.indexOf("async function fetchPublicClub(client,number){");
 const end=source.indexOf("async function openClub(",begin);
 assert.ok(begin>=0&&end>begin,"Find the standalone public-club lookup");
