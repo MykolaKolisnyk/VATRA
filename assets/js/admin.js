@@ -60,7 +60,6 @@ export function openPanel(current,isCurrent,ui){
   }
   nav.append(group);
  }
- nav.append(node("p","vatra-admin-nav-footnote-001",t("Доступно тільки власнику VATRA. Всі рішення фіксуються в журналі.","Owner-only access. Every decision is recorded in the audit log.")));
  const pageDescriptions={
   dashboard:t("Актуальний стан VATRA та завдання, які потребують уваги.","Live VATRA metrics and tasks that need attention."),
   users:t("Переглядайте учасників, знаходьте їх за ID і керуйте доступом.","Browse members, find by ID and manage access."),
@@ -335,10 +334,11 @@ export function openPanel(current,isCurrent,ui){
   if(!Object.hasOwn(pageLabels,key))return;
   tab=key;const stamp=++renderEpoch;
   for(const [id,b] of navButtons)b.setAttribute("aria-pressed",String(id===key));
-  content.replaceChildren();content.scrollTop=0;
+  content.replaceChildren();body.scrollTop=0;
   const toolbar=node("div","ui-vatra-admin-page-header-001"),heading=node("div","ui-vatra-admin-page-heading-001");
-  heading.append(node("span","vatra-admin-page-kicker-001",t("ПАНЕЛЬ КЕРУВАННЯ","CONTROL PANEL")),node("h2","vatra-admin-page-title-001",pageLabels[key]),node("p","vatra-admin-page-description-001",pageDescriptions[key]));
-  const reload=button("vatra-admin-refresh-001",t("Оновити","Refresh"),()=>void render(key,selected));
+  heading.append(node("h2","vatra-admin-page-title-001",pageLabels[key]),node("p","vatra-admin-page-description-001",pageDescriptions[key]));
+  const reload=button("vatra-admin-refresh-001","",()=>void render(key,selected));
+  reload.append(iconFor("history"),node("span","vatra-admin-refresh-label-001",t("Оновити","Refresh")));
   toolbar.append(heading,reload);content.append(toolbar);
   const host=node("div","ui-vatra-admin-view-001");content.append(host);
   host.append(node("p","vatra-admin-loading-001",t("Завантаження даних…","Loading data…")));
@@ -348,9 +348,12 @@ export function openPanel(current,isCurrent,ui){
     const data=await rpc("dashboard");if(stamp!==renderEpoch)return;
     latestDashboard=data;refreshNavCounts(data);
     host.replaceChildren();
-    const greeting=node("div","ui-vatra-admin-overview-heading-001");
-    greeting.append(node("h3","vatra-admin-overview-title-001",t("Стан вашої платформи","Your platform at a glance")),node("p","vatra-admin-hint-001",t("Усі числа — актуальні дані Supabase. Натисніть на показник, щоб відкрити розділ.","All numbers are live Supabase data. Select a metric to open its section.")));
-    host.append(greeting);
+    const pendingTotal=Number(data?.verification_pending||0)+Number(data?.reports_pending||0)+Number(data?.market_pending||0);
+    const strip=node("div","ui-vatra-admin-overview-status-001");
+    const freshness=node("span","vatra-admin-overview-freshness-001",t("Оновлено: ","Updated: ")+new Date().toLocaleTimeString(document.documentElement.lang==="en"?"en-GB":"uk-UA",{hour:"2-digit",minute:"2-digit"}));
+    const queueNote=node("span","vatra-admin-overview-queue-note-001",pendingTotal?t("Потребують розгляду: ","Awaiting review: ")+pendingTotal:t("Усі черги опрацьовано","All moderation queues are clear"));
+    queueNote.dataset.pending=String(pendingTotal>0);
+    strip.append(freshness,queueNote);host.append(strip);
     const grid=node("div","ui-vatra-admin-stats-001");
     const metrics=[
      ["accounts",t("Користувачі","Members"),"users",t("Зареєстровані акаунти","Registered accounts")],
@@ -359,24 +362,24 @@ export function openPanel(current,isCurrent,ui){
      ["communities",t("Спільноти","Communities"),"dashboard",t("Створені спільноти","Created communities")]
     ];
     for(const [field,label,target,note] of metrics){
-     const tile=button("ui-vatra-admin-stat-001","",()=>{if(target!=="dashboard")void render(target);});
+     const tile=target==="dashboard"?node("div","ui-vatra-admin-stat-001"):button("ui-vatra-admin-stat-001","",()=>void render(target));
      tile.dataset.tone=field;
      const top=node("span","ui-vatra-admin-stat-top-001");
      top.append(iconFor(target==="dashboard"?"dashboard":target),node("span","vatra-admin-stat-label-001",label));
      tile.append(top,node("strong","vatra-admin-stat-number-001",Number(data?.[field]||0).toLocaleString(document.documentElement.lang==="en"?"en-GB":"uk-UA")),node("span","vatra-admin-stat-note-001",note));
      if(target!=="dashboard"){const arrow=node("span","vatra-admin-stat-arrow-001","↗");arrow.setAttribute("aria-hidden","true");tile.append(arrow);}
-     else tile.disabled=true;
      grid.append(tile);
     }
     host.append(grid);
     const two=node("div","ui-vatra-admin-overview-columns-001");
     const tasks=box(t("Потребує уваги","Needs attention"));
-    tasks.append(node("p","vatra-admin-hint-001",t("Заявки й питання для модерації.","Queues awaiting moderation.")));
+    const tasksHeader=node("div","ui-vatra-admin-box-toolbar-001");
+    tasksHeader.append(node("span","vatra-admin-queue-summary-001",pendingTotal?t("Очікує рішення: ","Open cases: ")+pendingTotal:t("Нових звернень немає","Nothing pending")));
+    tasks.append(tasksHeader);
     for(const [field,label,description,target] of [
      ["verification_pending",t("Заявки на верифікацію","Verification requests"),t("Перевірити профілі й ухвалити рішення","Review profiles and decide"),"requests"],
      ["reports_pending",t("Скарги на профілі","Profile reports"),t("Опрацювати скарги користувачів","Handle member reports"),"reports"],
-     ["market_pending",t("Товари на модерації","Listings awaiting review"),t("Перевірити товари маркетплейсу","Review marketplace listings"),"market"],
-     ["blocked",t("Заблоковані акаунти","Blocked accounts"),t("Керувати обмеженнями доступу","Manage access restrictions"),"users"]
+     ["market_pending",t("Товари на модерації","Listings awaiting review"),t("Перевірити товари маркетплейсу","Review marketplace listings"),"market"]
     ]){
      const item=button("ui-vatra-admin-queue-row-001","",()=>void render(target));
      const textWrap=node("span","ui-vatra-admin-queue-info-001");
@@ -386,7 +389,7 @@ export function openPanel(current,isCurrent,ui){
      item.append(textWrap,number);tasks.append(item);
     }
     const tools=box(t("Швидкі дії","Quick actions"));
-    tools.append(node("p","vatra-admin-hint-001",t("Найважливіші операції адміністратора.","Common administration tasks.")));
+    const shortcutGrid=node("div","ui-vatra-admin-shortcut-grid-001");tools.append(shortcutGrid);
     for(const [label,description,target,iconKey] of [
      [t("Знайти користувача","Find a member"),t("Переглянути профіль, статус або доступ","View profile, status and access"),"users","users"],
      [t("Нове оголошення","New announcement"),t("Повідомити про оновлення VATRA","Share a VATRA update"),"announcements","announcements"],
@@ -398,7 +401,7 @@ export function openPanel(current,isCurrent,ui){
      const copy=node("span","ui-vatra-admin-shortcut-copy-001");
      copy.append(node("strong","vatra-admin-shortcut-title-001",label),node("span","vatra-admin-shortcut-note-001",description));
      const arrow=node("span","vatra-admin-shortcut-arrow-001","›");arrow.setAttribute("aria-hidden","true");
-     item.append(symbol,copy,arrow);tools.append(item);
+     item.append(symbol,copy,arrow);shortcutGrid.append(item);
     }
     two.append(tasks,tools);host.append(two);
    }

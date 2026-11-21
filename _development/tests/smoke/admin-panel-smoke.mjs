@@ -6,6 +6,10 @@ assert.ok(rootFiles[0].includes('from("announcements")'));
 assert.ok(rootFiles[0].includes('from("announcement_views")'));
 assert.ok(!rootFiles[1].includes('from("vatra_announcements")'));
 assert.ok(rootFiles[2].includes(".ui-vatra-admin-directory-row-001"));
+assert.match(rootFiles[2],/\.ui-vatra-admin-body-001\{[^}]*overflow-y:auto/,"Admin panel must use the body as its only scroll container");
+assert.match(rootFiles[2],/\.ui-vatra-admin-nav-001\{[^}]*position:sticky/,"Sidebar must remain sticky");
+assert.match(rootFiles[2],/\.ui-vatra-admin-content-001\{[^}]*overflow:visible/,"Content must not have a second scrollbar");
+assert.ok(rootFiles[2].includes("html:has(.ui-vatra-admin-dialog-001[open])"),"Background page must not scroll behind admin panel");
 const events=[];
 class ElementMock{
  constructor(tag="div"){
@@ -66,6 +70,9 @@ openPanel({client},()=>true,ui);
 await tick();
 assert.equal(seen[0],"dashboard");
 assert.ok(walk(document.body).some(el=>el.className==="vatra-admin-stat-number-001"&&el.textContent==="37"),"Dashboard must show live member count");
+assert.ok(walk(document.body).some(el=>el.className==="ui-vatra-admin-overview-status-001"),"Dashboard must show last refresh and pending status");
+assert.equal(walk(document.body).filter(el=>el.className==="ui-vatra-admin-shortcut-001").length,4,"Dashboard must show four compact quick actions");
+assert.equal(walk(document.body).filter(el=>el.className==="ui-vatra-admin-queue-row-001").length,3,"Pending list must only include actual moderation queues");
 const usersNav=walk(document.body).find(el=>el.dataset.adminTab==="users");
 assert.ok(usersNav,"Members sidebar item missing");
 usersNav.click();await tick();
