@@ -2486,7 +2486,7 @@ for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
  assert.ok((await read(path)).includes("window.VATRA_PUBLIC_NAMES?.get(client,"),
   "Public-name lookups must use the shared cache in "+path);
 }
-await import("./public-cache-smoke.mjs");
+await import("../smoke/public-cache-smoke.mjs");
 
 /* Viewer-specific engagement is cached only for 3 seconds in this browser,
    never shared with Redis; all four local mutations invalidate it. */
@@ -2498,7 +2498,7 @@ assert.ok(
  engagementCacheController.includes('p_posts:requested.slice(i,i+24)')&&
  (engagementCacheController.match(/invalidateEngagement\(client\);/g)||[]).length>=4,
  "Viewer engagement cache must remain bounded, batched and invalidated after writes");
-await import("./engagement-cache-smoke.mjs");
+await import("../smoke/engagement-cache-smoke.mjs");
 
 /* Re-ranked paged comments: SQL query must count each comment's likes once
    and precompute current-viewer friend IDs, without bypassing RLS. */
@@ -2528,8 +2528,8 @@ assert.ok(
  clubRuntime.includes('return client.from("communities")')&&
  (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
-await import("./community-detail-cache-smoke.mjs");
-await import("./community-category-smoke.mjs");
+await import("../smoke/community-detail-cache-smoke.mjs");
+await import("../smoke/community-category-smoke.mjs");
 
 /* Off-screen batch DOM rendering avoids repeated list-level mutations. */
 const batchedFeedPosts=await read("assets/js/feed.js");
@@ -2586,7 +2586,7 @@ assert.ok(
  postMediaScript.includes("state.version!==version")&&
  !postMediaScript.includes("const signedURLs=new Map();"),
  "Private signed Storage URLs must be isolated per client and invalidated on auth changes");
-await import("./media-signed-cache-smoke.mjs");
+await import("../smoke/media-signed-cache-smoke.mjs");
 
 /* The shared live-search results contain RLS-scoped posts. Cache only in
    bounded viewer-local memory; never persist or share them via Redis. */
@@ -2612,7 +2612,7 @@ assert.ok(siteSearchSQL.includes("security invoker")&&
  siteSearchSQL.includes("revoke all on function public.search_site(text,integer) from public,anon;")&&
  siteSearchSQL.includes("grant execute on function public.search_site(text,integer) to authenticated;"),
  "Server search must keep RLS, public posts, approved listings and authenticated access");
-await import("./live-search-cache-smoke.mjs");
+await import("../smoke/live-search-cache-smoke.mjs");
 
 /* Friend stories share the Feed's social graph; don't query all stories while
    waiting for friendships or when the viewer has no friends. */
@@ -2626,11 +2626,11 @@ assert.ok(
  feedStoryOptimization.includes('query=query.in("author_vatra_id",friendIds)')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
-await import("./feed-story-subscriptions-smoke.mjs");
+await import("../smoke/feed-story-subscriptions-smoke.mjs");
 
-await import("./section-loading-smoke.mjs");
-await import("./static-cache-smoke.mjs");
-await import("./revision-assets.mjs");
+await import("../smoke/section-loading-smoke.mjs");
+await import("../smoke/static-cache-smoke.mjs");
+await import("../../tools/revision-assets.mjs");
 const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
@@ -2710,7 +2710,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-cover-edit-dialog"')&&member
 for(const dirEntry of await readdir(".")){if(!dirEntry.endsWith(".html"))continue;const html=await read(dirEntry);assert.ok(!/<title>[^<]* · VATRA<\/title>/.test(html),dirEntry+": remove the redundant brand suffix from the browser tab");}
 for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))continue;const catalog=JSON.parse(await read("assets/i18n/"+file));assert.ok(Object.values(catalog.__pages||{}).every(page=>!page.meta?.title?.endsWith(" · VATRA")),file+": localized tab title must be suffix-free");}
 
-await import("./maintenance-smoke.mjs");
+await import("../smoke/maintenance-smoke.mjs");
 
 await assert.rejects(stat("business.html"),{code:"ENOENT"});
 assert.ok(!(await read("assets/js/club.js")).includes("setupCommunityBusiness")&&
