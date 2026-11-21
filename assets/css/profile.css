@@ -3004,7 +3004,6 @@ body.profile-page .ui-profile-photo-footer-001{
 body.profile-page .ui-profile-photo-footer-001[hidden],
 body.profile-page .ui-profile-avatar-gallery-toolbar-001[hidden],
 body.profile-page .vt-profile-avatar-gallery-delete-001[hidden],
-body.profile-page .vt-profile-photo-footer-tag-001[hidden],
 body.profile-page .vt-profile-photo-set-current-001[hidden]{display:none!important}
 body.profile-page .vt-profile-avatar-gallery-count-001{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:min(50vw,460px)}
 body.profile-page .vt-profile-photo-report-001[hidden]{display:none!important}
