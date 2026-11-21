@@ -1177,6 +1177,10 @@ assert.ok(
  messengerRuntime.includes('client.channel("vatra-messenger-"')&&
  messengerRuntime.includes('cryptoBox().same(messagePeerKey,state.peerKey)')&&
  messengerRuntime.includes('state.peerChanged')&&
+ messengerRuntime.includes('client.auth.onAuthStateChange((event,session)=>')&&
+ messengerRuntime.includes('session.user.id!==state.user.id')&&
+ messengerRuntime.includes('$("#messenger-conversations").replaceChildren()')&&
+ messengerRuntime.includes('if(event.persisted)location.reload()')&&
  messengerRuntime.includes('Passphrases do not match.')&&
  messengerRuntime.includes('const saved=await cryptoBox().loadRecord(state.own)')&&
  !messengerRuntime.includes('from("direct_messages")')&&
