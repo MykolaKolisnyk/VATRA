@@ -3536,5 +3536,22 @@
   "Медіафайл тимчасово недоступний.": "Media temporarily unavailable.",
   "Знаходь друзів, переглядай запити та дізнавайся, хто онлайн.": "Find friends, review requests, and see who's online.",
   "Переглядай короткі відео та публікуй власні кліпи.": "Watch short videos and publish your own clips.",
-  "Знаходь товари, створюй оголошення та зв’язуйся з продавцями.": "Discover products, publish listings, and contact sellers."
+  "Знаходь товари, створюй оголошення та зв’язуйся з продавцями.": "Discover products, publish listings, and contact sellers.",
+  "Для друзів": "Friends only",
+  "Лише я": "Only me",
+  "Учасники спільноти": "Community members",
+  "Публічно": "Public",
+  "Дії з публікацією": "Post options",
+  "Керування публікацією": "Manage post",
+  "Архівувати": "Archive",
+  "Взаємодія з публікацією": "Post interactions",
+  "Подобається": "Like",
+  "Коментарі": "Comments",
+  "Поділитися": "Share",
+  "Зберегти": "Save",
+  "Збережено": "Saved",
+  "Не вдалося змінити збереження.": "Could not update saved post.",
+  "Не вдалося змінити збереження. Спробуйте ще раз.": "Could not update saved post. Please retry.",
+  "Вподобання тимчасово недоступні.": "Likes temporarily unavailable.",
+  "Не вдалося змінити вподобання.": "Could not update your like."
 }

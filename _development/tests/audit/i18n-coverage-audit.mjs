@@ -128,6 +128,36 @@ for(const key of postMediaKeys){
  assert.equal(en[key].endsWith(" "),key.endsWith(" "),
   "English post media prefix whitespace mismatch: "+key);
 }
+const postInteractionsRuntime=await readFile("assets/js/post-interactions.js","utf8");
+assert.ok(postInteractionsRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+ postInteractionsRuntime.includes('const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
+ postInteractionsRuntime.includes('dateLocales[language()]||"uk-UA"')&&
+ !postInteractionsRuntime.includes('const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;'),
+ "Post interaction controls and dates must use the selected locale");
+const postEngagementKeys=[
+ "Для друзів",
+ "Лише я",
+ "Учасники спільноти",
+ "Публічно",
+ "Дії з публікацією",
+ "Керування публікацією",
+ "Архівувати",
+ "Взаємодія з публікацією",
+ "Подобається",
+ "Коментарі",
+ "Поділитися",
+ "Зберегти",
+ "Збережено",
+ "Не вдалося змінити збереження.",
+ "Не вдалося змінити збереження. Спробуйте ще раз.",
+ "Вподобання тимчасово недоступні.",
+ "Не вдалося змінити вподобання."
+];
+assert.equal(postEngagementKeys.length,17,"Unexpected count of engagement translations");
+for(const key of postEngagementKeys){
+ assert.ok(postInteractionsRuntime.includes(key)&&typeof en[key]==="string"&&en[key].trim(),
+  "Missing English post engagement string: "+key);
+}
 const communityRuntime=(await Promise.all(["community-core","communities","club"].map(name=>readFile("assets/js/"+name+".js","utf8")))).join("\n");
 const communityPages=[
  await readFile("communities.html","utf8"),
@@ -463,6 +493,10 @@ for(const code of codes){
  for(const key of [...socialShellKeys,...socialPageKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": social-shell text missing: "+key);
+ }
+ for(const key of postEngagementKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": missing post engagement translation: "+key);
  }
  for(const key of postMediaKeys){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
