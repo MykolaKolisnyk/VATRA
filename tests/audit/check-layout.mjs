@@ -1810,7 +1810,7 @@ assert.ok(
  "Feed post, story and comment mutations must confirm persistence before cleanup");
 // Reposts remain durable even if a later UI refresh fails. Direct shares use encrypted Messenger.
 assert.ok(
- interactionsScript.includes("a failed Feed callback cannot turn a repost into a failed write")&&
+ interactionsScript.includes('feedback(tr("Публікацію додано у ваш профіль.","Shared to your profile."));')&&
  interactionsScript.includes("Promise.resolve(settings.onShared()).catch(()=>{})")&&
  interactionsScript.includes("friendsLoaded=false;sendDM.disabled=true;")&&
  interactionsScript.includes('new URL("messenger.html",relativeRoot())')&&
