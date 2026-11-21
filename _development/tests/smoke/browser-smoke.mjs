@@ -2619,7 +2619,7 @@ try{
  await savedPage.locator("#saved-password").fill("WrongPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  assert.equal(await savedPage.evaluate(()=>sessionStorage.getItem("mockAttemptEmail")),"example@vatra.test");
- await savedPage.locator("#saved-account-response").waitFor({state:"visible"});
+ await savedPage.waitForFunction(()=>[...document.querySelectorAll(".vatra-toast-item--error.is-visible")].some(el=>el.textContent.includes(document.documentElement.lang==="en"?"Could not sign in":"Не вдалося увійти")));
  const expectedSavedError=await savedPage.evaluate(()=>
   document.documentElement.lang==="en"?"Could not sign in. Check your password.":"Не вдалося увійти. Перевірте пароль.");
  assert.equal((await savedPage.locator("#saved-account-response").textContent()).trim(),
@@ -4693,7 +4693,8 @@ try{
   await profilePage.locator(".vatra-profile-editor-save-001").click();
   await profilePage.waitForFunction(()=>document.querySelector(".vatra-profile-editor-feedback-001")?.dataset.kind==="success");
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація");
-  assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").isVisible(),true);
+  assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").isVisible(),false,"Profile save feedback belongs in shared toast");
+   await profilePage.locator(".vatra-toast-item--success.is-visible").last().waitFor({state:"visible"});
   await profilePage.locator(".vatra-profile-editor-media-button-001").click();
   assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
    "The media editor remains available from the new information editor");
