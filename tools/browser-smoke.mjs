@@ -3719,7 +3719,7 @@ try{
   await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
    document.querySelectorAll("#feed-posts .feed-post-card").length===0);
   // Global header search no longer submits a Feed filter. Expire the actual
-  // three-second cursor cache before holding the next network response.
+  // twelve-second cursor cache before holding the next network response.
   await feedProbe.waitForTimeout(3100);
   await feedProbe.evaluate(()=>{
    window.__feedHoldNextRange=true;window.__feedReleaseRange=null;
