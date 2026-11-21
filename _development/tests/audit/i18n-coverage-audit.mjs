@@ -391,7 +391,7 @@ for(const key of pendingPasswordLocaleKeys.slice(0,6)){
   "Password policy must return the untranslated source key: "+key);
 }
 assert.ok(signInRuntime.includes('translate("Вилучити збережений акаунт")')&&
- signInRuntime.includes('translate("Введіть пароль.")'),
+ signInRuntime.includes('feedback("Введіть пароль.","error")'),
  "Saved account actions must use locale dictionaries");
 assert.ok(recoveryRuntime.includes('translate("Повторити через")')&&
  recoveryRuntime.includes('translate("Встановіть новий пароль")'),
