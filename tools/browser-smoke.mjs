@@ -3720,7 +3720,7 @@ try{
    document.querySelectorAll("#feed-posts .feed-post-card").length===0);
   // Global header search no longer submits a Feed filter. Expire the actual
   // twelve-second cursor cache before holding the next network response.
-  await feedProbe.waitForTimeout(3100);
+  await feedProbe.waitForTimeout(12100);
   await feedProbe.evaluate(()=>{
    window.__feedHoldNextRange=true;window.__feedReleaseRange=null;
    window.__feedStaleFilterPaint=false;
