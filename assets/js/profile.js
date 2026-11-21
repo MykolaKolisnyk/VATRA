@@ -3350,13 +3350,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const storage=client.storage.from("avatars");
    if(!undo.thumbnailRestored){
     const r=await storage.upload(undo.path,undo.thumbnail,
-     {contentType:undo.thumbnail.type||avatarType(undo.path),upsert:false});
+     {contentType:avatarType(undo.path),upsert:false});
     if(r.error)throw r.error;
     undo.thumbnailRestored=true;
    }
    if(undo.original&&!undo.originalRestored){
     const r=await storage.upload(undo.originalPath,undo.original,
-     {contentType:undo.original.type||avatarType(undo.originalPath),upsert:false});
+     {contentType:avatarType(undo.originalPath),upsert:false});
     if(r.error)throw r.error;
     undo.originalRestored=true;
    }
