@@ -2078,7 +2078,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
  profileScript.includes('window.VATRA_REPORT_PROFILE_PHOTO=path')&&
  profileScript.includes('category="specific_photo"')&&
  profileScript.includes('photo_path:photoPath')&&
- profileScript.includes('footerTag.hidden=true;')&&
+ !memberProfileMarkup.includes('id="profile-photo-footer-tag"')&&
+ !profileScript.includes('footerTag.addEventListener("click"')&&
  memberCss.includes('object-fit:contain')&&
  photoReportMigration.includes("profile_reports_photo_reference_check")&&
  photoReportMigration.includes("profile_reports_unique_target_reason_photo"),
