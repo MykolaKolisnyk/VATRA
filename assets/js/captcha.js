@@ -1,7 +1,3 @@
-/* VATRA — one modal Cloudflare Turnstile integration for Supabase Auth.
- * Public site key only. The secret must remain exclusively in Supabase Dashboard.
- * A valid token is required before starting login, registration or email recovery.
- */
 (() => {
 "use strict";
 const SITE_KEY = "0x4AAAAAAF3zmwtnC60B4gUQ";
@@ -125,8 +121,8 @@ function mount(scope) {
  })();
  return state;
 }
-/* Remove Turnstile while its container is still mounted; detaching the DOM first
-   makes Cloudflare report "Cannot find Widget" / "Nothing to remove found". */
+
+
 function dispose(scope,state){
  if(state.closed)return;
  state.closed=true;

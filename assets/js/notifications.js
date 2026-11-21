@@ -1,5 +1,3 @@
-/* VATRA private notifications: one bell on every authenticated page, plus a full inbox.
-   Events are emitted by database triggers. Clients have no INSERT permission. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -14,7 +12,7 @@ const t=(uk,english)=>{
  return typeof translated==="string"&&translated!==uk?translated:
   current==="en"?english:uk;
 };
-// Text interpolation uses no HTML and does not alter user-provided names.
+
 const format=(uk,english,values)=>t(uk,english).replace(/\{(name|count|page|id)\}/g,
  (_,key)=>String(values[key]??""));
 const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id??""));
@@ -107,15 +105,15 @@ function applyDisplayFilter(query,id){
 async function unreadCount(){
  const run=notificationRun;
  if(!run||!badge||!bell)return;
- // Realtime updates during an in-flight count require one trailing refresh,
- // not parallel duplicate PostgREST requests.
+
+
  if(refreshBusy){refreshQueued=true;return;}
  refreshBusy=true;
  try{
   const {count,error}=await applyDisplayFilter(run.client.from("member_notifications")
    .select("id",{count:"exact",head:true}).eq("recipient_vatra_id",run.id).is("read_at",null),run.id);
   if(error)throw error;
-  if(run!==notificationRun)return; // Old sessions cannot paint the current badge.
+  if(run!==notificationRun)return; 
   const n=Number(count||0);
   badge.hidden=n===0;badge.textContent=n>99?"99+":String(n);
   bell.setAttribute("aria-label",n?format("Сповіщення: {count} непрочитаних","Notifications: {count} unread",{count:n}):
@@ -198,8 +196,8 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
   if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
   event.preventDefault();
   if(!record.read_at)await markRead(record.id);
-  // Notifications navigate programmatically after marking an item as read,
-  // so the delegated anchor interceptor cannot see the original click.
+
+
   if(!window.VATRA_NAVIGATE?.to(link.href))location.assign(link.href);
  });
  const timestamp=make("time","vatra-notification-time vatra-notification-time-"+index,
@@ -222,7 +220,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
  return article;
 }
 async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
- // Keep real row geometry visible until data is ready; no blank flash after route auth.
+
  const placeholders=Array.from({length:Math.min(3,opts.size)},(_,i)=>{
   const row=make("div","vatra-notification-skeleton ui-notification-skeleton-"+i);
   row.setAttribute("aria-hidden","true");
@@ -268,13 +266,13 @@ async function panelLoad(){
  const run=notificationRun;
  if(!panel||!open||!run)return;
  if(panelLoadPending){panelLoadQueued=true;return panelLoadPending;}
- // Keep a single panel fetch active; a burst of events gets one trailing fetch.
+
  const task=(async()=>{
   const list=panelItems;
   const rows=await renderRows(list,pick("#vatra-notification-panel-empty"),
    {page:0,size:6},panelLoad,null,null,null);
   if(!open||run!==notificationRun)return;
-  // Mark exactly the items the reader saw, never older pages.
+
   const unread=rows.filter(row=>!row.read_at).map(row=>row.id);
   if(unread.length)try{
    const {error}=await run.client.from("member_notifications")
@@ -284,7 +282,7 @@ async function panelLoad(){
    if(!open||run!==notificationRun)return;
    for(const node of list.querySelectorAll(".is-unread"))node.classList.remove("is-unread");
    void unreadCount();
-  }catch(_){/* Keep unread state when a write fails. */}
+  }catch(_){ }
  })();
  panelLoadPending=task;
  try{await task;}
@@ -358,8 +356,8 @@ function headerUI(){
  window.addEventListener("scroll",positionPanel,{passive:true});
  window.visualViewport?.addEventListener("resize",positionPanel,{passive:true});
 }
-/* Search is shared by every authenticated VATRA screen. Results include
-   viewer-specific RLS-visible posts, so they MUST NOT go into shared Redis. */
+
+
 const SITE_SEARCH_TTL_MS=8_000,SITE_SEARCH_MAX=24;
 const siteSearchCaches=new WeakMap();
 const emptySiteSearch=()=>({people:[],communities:[],posts:[],products:[],clips:[],photos:[],videos:[]});
@@ -370,7 +368,7 @@ function siteSearchState(viewer){
  siteSearchCaches.set(viewer,state);
  if(typeof viewer.auth?.onAuthStateChange==="function"){
   viewer.auth.onAuthStateChange(event=>{
-   // INITIAL_SESSION and token refresh leave the effective viewer unchanged.
+
    if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
    state.generation++;
    for(const entry of state.entries.values())entry.controller?.abort();
@@ -379,8 +377,8 @@ function siteSearchState(viewer){
  }
  return state;
 }
-// The live-search UI can cancel obsolete requests. Keep a shared request alive
-// while another consumer still awaits the same phrase.
+
+
 function consumeSiteSearch(entry,signal,state,key){
  if(!signal){entry.uncancelable=true;return entry.pending;}
  if(signal.aborted)return Promise.resolve(emptySiteSearch());
@@ -422,7 +420,7 @@ async function findSite(term,signal){
  const previous=state.entries.get(key);
  if(previous){
   if(previous.pending){
-   // Repeated identical terms share one Supabase query batch.
+
    state.entries.delete(key);state.entries.set(key,previous);
    return consumeSiteSearch(previous,signal,state,key);
   }
@@ -437,7 +435,7 @@ async function findSite(term,signal){
   consumers:0,uncancelable:false};
  let pending;
  pending=querySite(viewer,phrase,entry.controller.signal).then(({result,cacheable})=>{
-  // A signed-out user must not receive results from an earlier session.
+
   if(state.generation!==generation)return emptySiteSearch();
   if(state.entries.get(key)===entry){
    state.entries.delete(key);
@@ -454,7 +452,7 @@ async function findSite(term,signal){
  while(state.entries.size>SITE_SEARCH_MAX){
   const oldest=state.entries.keys().next().value;
   const expired=state.entries.get(oldest);
-  // Eviction must not cancel a request that still has consumers.
+
   if(expired?.pending&&expired.consumers===0&&!expired.uncancelable)
    expired.controller.abort();
   state.entries.delete(oldest);
@@ -489,11 +487,11 @@ function stop(){
 function start(c,id){
  if(!c||!validId(id))return;
  if(notificationRun?.client===c&&notificationRun.id===String(id))return;
- stop(); // No listeners, timers, or a badge from a previous account.
+ stop(); 
  client=c;ownId=String(id);
- // Search history follows the member whose identity the app verified.
+
  window.VATRA_AUTH_MEMBER_ID=ownId;
- // All verified social routes publish the same account context.
+
  window.VATRA_ADMIN_CONTEXT={client:c,id:ownId};
  void window.VATRA_ADMIN_SESSION?.(c,ownId);
  window.VATRA_SEARCH_HISTORY?.setViewer(ownId);
@@ -502,7 +500,7 @@ function start(c,id){
  const run={client:c,id:ownId,controller:new AbortController(),timer:null,authSubscription:null};
  notificationRun=run;
  void unreadCount();
- // Coalesce focus/visibility events; prefer realtime over polling.
+
  let subscribed=false,lastRefresh=Date.now(),lastPoll=Date.now();
  const refresh=(force=false)=>{
   if(notificationRun!==run||document.hidden||(!force&&Date.now()-lastRefresh<15000))return;
@@ -524,7 +522,7 @@ function start(c,id){
      filter:"recipient_vatra_id=eq."+run.id},()=>refresh(true))
     .subscribe(status=>{if(notificationRun===run)subscribed=status==="SUBSCRIBED";});
  }catch(_){subscribed=false;}
- // A local sign-out invalidates the current viewer's unread requests and UI.
+
  try{
   run.authSubscription=c.auth?.onAuthStateChange?.(event=>{
    if(event==="SIGNED_OUT"&&notificationRun===run)stop();

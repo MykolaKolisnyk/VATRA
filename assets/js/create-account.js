@@ -1,4 +1,3 @@
-/* VATRA Create account: page-specific behavior; shared utilities are in auth-core.js. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -121,8 +120,8 @@ function fillBirthdays(){
  for(let i=1;i<=31;i++)day.add(new Option(String(i).padStart(2,"0"),String(i).padStart(2,"0")));
  for(let i=now.getFullYear();i>=1900;i--)year.add(new Option(String(i),String(i)));
 }
-/* Accessible VATRA dropdowns use native select values and validation; the
-   browser's native OS popup is replaced by a consistent Onest listbox. */
+
+
 function wireSelects(){
  const selects=[...document.querySelectorAll("#birth-day,#birth-month,#birth-year,#gender")];
  let opened=null;
@@ -141,7 +140,7 @@ function wireSelects(){
   select.parentNode.insertBefore(root,select);
   root.append(select);
   const required=select.required;
-  select.required=false; // validateBirthday() checks the original select values on submit
+  select.required=false; 
   select.classList.add("vatra-select-native");
   select.tabIndex=-1;
   select.setAttribute("aria-hidden","true");
@@ -360,7 +359,7 @@ async function verifyPendingSignupSession(){
  const expected=signupPending;
  signupVerificationBusy=true;
  try{
-  const {data,error}=await auth.auth.getUser(); // Verified via Supabase Auth server.
+  const {data,error}=await auth.auth.getUser(); 
   if(error||signupPending!==expected||!isExpectedConfirmedSignup(data?.user)||
    q("#signup-confirmation")?.hidden!==false)return;
   signupAccountNavigating=true;
@@ -375,7 +374,7 @@ function watchSignupConfirmation(){
  const check=()=>{void verifyPendingSignupSession();};
  const onAuth=event=>{
   if(["INITIAL_SESSION","SIGNED_IN","TOKEN_REFRESHED","USER_UPDATED"].includes(event))
-   setTimeout(check,0); // Avoid awaiting other Supabase calls inside the Auth callback.
+   setTimeout(check,0); 
  };
  const subscription=auth.auth.onAuthStateChange?.(onAuth)?.data?.subscription;
  let channel=null;
@@ -409,7 +408,7 @@ function announceVerifiedAccount(){
  if(typeof BroadcastChannel==="undefined")return;
  try{
   const channel=new BroadcastChannel(SIGNUP_AUTH_CHANNEL);
-  channel.postMessage({type:"check-confirmed-session"}); // No email, ID or token.
+  channel.postMessage({type:"check-confirmed-session"}); 
   channel.close();
  }catch(_){}
 }

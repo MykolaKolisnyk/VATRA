@@ -1,4 +1,3 @@
-/* VATRA Password recovery: page-specific behavior; shared utilities are in auth-core.js. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -40,7 +39,7 @@ function wireForgot(){
   form.hidden=true;
   hideEmailNotes(true);
   step.hidden=false;
-  // Keep validation and server errors directly below the active step title.
+
   const status=q("#response"),heading=q("#recovery-step-heading");
   if(status&&heading)heading.after(status);
   q("#recovery-code-form").hidden=false;
@@ -81,8 +80,8 @@ function wireForgot(){
     sessionStorage.setItem("vatra-recovery-email",email);
     sessionStorage.setItem("vatra-recovery-pending",JSON.stringify({email,sentAt}));
    }catch(_){}
-   // The code step already explains what happens next. Avoid a duplicate green
-   // success banner after the first request; retain feedback for an explicit resend.
+
+
    if(repeat)feedback("Якщо акаунт існує, новий код надіслано. Використайте код з останнього листа.","success");
    if(repeat){codeField.value="";codeField.dispatchEvent(new Event("input",{bubbles:true}));}
    enterCode(email,sentAt);
@@ -110,7 +109,7 @@ function wireForgot(){
  });
  changeEmail.addEventListener("click",editEmail);
  window.addEventListener("pagehide",()=>{if(timer)clearInterval(timer);});
- // A refreshed tab returns to the code field; never store the code itself.
+
  try{
   const saved=JSON.parse(sessionStorage.getItem("vatra-recovery-pending")||"null");
   if(saved&&typeof saved.email==="string"&&Number.isFinite(saved.sentAt)
@@ -128,13 +127,13 @@ function wireReset(){
  const tokenHash=params.get("token_hash");
  const openedLink=params.has("code")||params.get("type")==="recovery"||hash.get("type")==="recovery"||hash.has("access_token");
  const linkFailed=Boolean(params.get("error")||hash.get("error"));
- // A pre-existing login session is not evidence of a password recovery.
+
  let recoveryVerifiedUserId=null;
  const emailInput=q("#recovery-email");
  const tokenInput=q("#recovery-token");
- // Password managers may focus the first new-password input on their own.
- // Ignore that implicit focus while the newly revealed fields are empty,
- // but float normally as soon as the user clicks, tabs or types.
+
+
+
  const newPasswordFields=[...form.querySelectorAll('input.control[type="password"]')];
  const activatePasswordHint=input=>input.closest(".vatra-input-shell")?.classList.remove("is-awaiting-user-input");
  for(const input of newPasswordFields){
@@ -149,14 +148,14 @@ function wireReset(){
   });
  });
  try{emailInput.value=sessionStorage.getItem("vatra-recovery-email")||"";}catch(_){}
- // Programmatic session-prefill must also update the shared floating-hint state.
+
  emailInput.dispatchEvent(new Event("input",{bubbles:true}));
  const reveal=verifiedUser=>{
   if(!verifiedUser?.id)return;
   recoveryVerifiedUserId=verifiedUser.id;
   codeForm.hidden=true;
   form.hidden=false;
-  // Preserve centered captions even if the browser auto-focuses a blank password field.
+
   for(const input of newPasswordFields){
    const shell=input.closest(".vatra-input-shell");
    shell?.classList.toggle("is-awaiting-user-input",!input.value);
@@ -166,7 +165,7 @@ function wireReset(){
   const heading=q("#recovery-step-heading");
   if(heading){
    heading.textContent=translate("Встановіть новий пароль");
-   heading.tabIndex=-1; // Announce the new step without focusing an empty input.
+   heading.tabIndex=-1; 
   }
   clearFeedback();
   replayAuthContent(q(".forgot-panel-content"));
@@ -175,8 +174,8 @@ function wireReset(){
  if(linkFailed){
   feedback("Посилання недійсне або застаріло. Запросіть нове.","error");
  }else if(tokenHash){
-  // Token hashes can be redeemed in a different browser without the PKCE
-  // verifier from the device where reset was requested.
+
+
   history.replaceState(history.state,"",location.pathname);
   if(params.get("type")!=="recovery"||tokenHash.length>2048){
    feedback("Посилання недійсне або застаріло. Запросіть нове.","error");
@@ -190,7 +189,7 @@ function wireReset(){
    })();
   }
  }else if(openedLink){
-  // Legacy callbacks are allowed only after PASSWORD_RECOVERY, never SIGNED_IN.
+
   auth.auth.onAuthStateChange((event,session)=>{
    if(event==="PASSWORD_RECOVERY"&&session?.user?.id)reveal(session.user);
   });
@@ -227,7 +226,7 @@ function wireReset(){
    if(userErr||!user||user.id!==recoveryVerifiedUserId){feedback("Підтвердження закінчилося. Запросіть новий код для відновлення.","error");form.hidden=true;codeForm.hidden=false;return;}
    const {error}=await auth.auth.updateUser({password});
    if(error)throw error;
-   // This one-time recovery session must not become a normal signed-in account.
+
    recoveryVerifiedUserId=null;
    try{await auth.auth.signOut?.({scope:"local"});}catch(_){}
    form.reset();

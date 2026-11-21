@@ -1,11 +1,9 @@
-/* VATRA member presence: a throttled, owner-only heartbeat.
-   Browser time is display-only; the database stamps the real activity time. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 const validId=x=>/^[1-9][0-9]{0,18}$/.test(String(x??""));
 const grammar=gender=>gender==="male"?"masculine":gender==="female"?"feminine":"neutral";
-const activeWindow=90000; // A visible tab renews at 60 seconds; stale presence expires quickly.
+const activeWindow=90000; 
 let active=null;
 function stop(){
  const state=active;
@@ -19,7 +17,7 @@ function start(client,ownId,gender){
  if(!client||!validId(ownId))return Promise.resolve(false);
  const id=String(ownId);
  if(active?.client===client&&active.id===id)return active.promise;
- stop(); // A different viewer must not inherit the previous heartbeat timer.
+ stop(); 
  const state={client,id,controller:new AbortController(),interval:null,
   authSubscription:null,updating:false,promise:null};
  active=state;
@@ -39,7 +37,7 @@ function start(client,ownId,gender){
   }catch(_){return false;}
   finally{state.updating=false;}
  };
- // Register cleanup before the initial DB read: sign-out may race with it.
+
  try{
   state.authSubscription=client.auth?.onAuthStateChange?.(event=>{
    if(event==="SIGNED_OUT"&&active===state)stop();
@@ -62,7 +60,7 @@ function start(client,ownId,gender){
    }else await update();
    }
    if(active!==state)return false;
-   // A visible tab sends no more than one heartbeat per minute.
+
    let lastTouch=readTouch()||0;
    const pulse=()=>{
     if(active!==state||document.visibilityState==="hidden"||
@@ -81,9 +79,9 @@ function start(client,ownId,gender){
  })();
  return state.promise;
 }
-// RLS-protected presence belongs to a single Supabase client/session.
-// Reuse only overlapping reads and a short snapshot; live status is always
-// recalculated by format(), and profile polling refreshes status every 30 seconds.
+
+
+
 const PRESENCE_READ_TTL_MS=15_000,PRESENCE_MISSING_TTL_MS=5_000,PRESENCE_CACHE_MAX=64;
 const presenceReadCaches=new WeakMap();
 function presenceReadState(client){
@@ -134,7 +132,7 @@ async function load(client,targetId){
    return record?{...record}:null;
   }catch(_){return null;}
   finally{
-   // An old request must never delete a newer viewer's cached result.
+
    if(state.entries.get(key)===entry)state.entries.delete(key);
   }
  })();

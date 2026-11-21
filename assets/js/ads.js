@@ -1,5 +1,3 @@
-/* VATRA Google AdSense slot: never fabricate a publisher or ad-unit ID.
-   Fill both meta tags in feed.html after AdSense approval. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -22,7 +20,7 @@
    const code=document.createElement("script");
    code.async=true;code.crossOrigin="anonymous";
    code.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+encodeURIComponent(publisher);
-   code.addEventListener("load",()=>{try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(_){/* ads may be blocked */}});
+   code.addEventListener("load",()=>{try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(_){ }});
    document.head.append(code);
   };
   render();
