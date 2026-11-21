@@ -149,3 +149,94 @@ button.ui-vatra-admin-stat-001:hover{transform:translateY(-2px);border-color:#b9
 .vatra-admin-announcement-body-001{font:450 14px/1.5 Onest,system-ui,sans-serif;color:#3a4960}
 .vatra-admin-announcement-state-001{justify-self:start;padding:4px 8px;border-radius:8px;background:#f1f3f6;color:#64748b;font:650 12px/1.25 Onest,system-ui,sans-serif}
 .vatra-admin-announcement-state-001[data-active="true"]{background:#eaf7ef;color:#25704a}
+
+
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-directory-pagination-001{display:flex;align-items:center;justify-content:flex-end;gap:13px;padding-top:12px;border-top:1px solid #ebeff5}
+.ui-vatra-admin-dialog-001 .vatra-admin-directory-page-001{color:#5b7393;font:630 12px/1.4 Onest,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-lookup-001>.ui-vatra-admin-duration-001{flex:0 0 172px;height:39px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-member-result-001:not(:empty){display:grid;gap:12px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-member-stats-001{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-member-stat-001{display:grid;gap:3px;padding:14px 12px;border:1px solid #e6edf7;border-radius:10px;background:#f8faff}
+.ui-vatra-admin-dialog-001 .vatra-admin-member-stat-number-001{font:770 21px/1.25 Onest,system-ui,sans-serif;color:#213d65;font-variant-numeric:tabular-nums}
+.ui-vatra-admin-dialog-001 .vatra-admin-member-stat-label-001,.ui-vatra-admin-dialog-001 .vatra-admin-member-presence-001{font:520 11px/1.5 Onest,system-ui,sans-serif;color:#758aa5}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-member-history-001{border:1px solid #e5ebf4;border-radius:9px;padding:10px 13px;background:#fbfcfe}
+.ui-vatra-admin-dialog-001 .vatra-admin-member-history-title-001{font:680 12px/1.4 Onest,system-ui,sans-serif;color:#4d6686;cursor:pointer}
+.ui-vatra-admin-dialog-001 .vatra-admin-member-history-line-001{margin:8px 0 0;font:470 11px/1.45 Onest,system-ui,sans-serif;color:#637d9d}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-analytics-cards-001{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-analytics-stat-001{display:grid;gap:7px;min-width:0;padding:17px;border:1px solid #e2eaf4;border-radius:12px;background:#fff}
+.ui-vatra-admin-dialog-001 .vatra-admin-analytics-stat-label-001{font:650 11px/1.4 Onest,system-ui,sans-serif;color:#6781a2}
+.ui-vatra-admin-dialog-001 .vatra-admin-analytics-stat-number-001{font:780 clamp(20px,2.8vw,28px)/1.2 Onest,system-ui,sans-serif;color:#1d3b61;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.ui-vatra-admin-dialog-001 .vatra-admin-analytics-stat-note-001{font:450 10px/1.5 Onest,system-ui,sans-serif;color:#91a0b3}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-chart-legend-001{display:flex;align-items:center;flex-wrap:wrap;gap:15px}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-legend-item-001{display:inline-flex;align-items:center;gap:7px;font:560 11px/1.3 Onest,system-ui,sans-serif;color:#677f9c}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-legend-item-001::before{content:"";width:9px;height:9px;border-radius:3px;background:#447bdd}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-legend-item-001[data-series="posts"]::before{background:#4ba98d}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-legend-item-001[data-series="comments"]::before{background:#e6ab61}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-chart-001{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:9px;align-items:end;min-height:200px;border-bottom:1px solid #d8e2ef;padding:12px 0 0}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-chart-day-001{display:grid;grid-template-rows:165px 24px;align-items:end;min-width:0}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-chart-bars-001{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:100%}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-bar-001{display:block;flex:1;max-width:15px;min-height:2px;border-radius:4px 4px 0 0;background:#447bdd;transition:height .3s ease}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-bar-001[data-series="posts"]{background:#4ba98d}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-bar-001[data-series="comments"]{background:#e6ab61}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-date-001{text-align:center;color:#899cb4;font:490 9px/1.3 Onest,system-ui,sans-serif}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-monitor-status-001{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:16px;border:1px solid #d5e9dc;border-radius:11px;background:#f1faf4}
+.ui-vatra-admin-dialog-001 .vatra-admin-monitor-dot-001{width:9px;height:9px;flex:none;border-radius:50%;background:#3eaa75;box-shadow:0 0 0 4px #def3e7}
+.ui-vatra-admin-dialog-001 .vatra-admin-monitor-headline-001{font:710 13px/1.4 Onest,system-ui,sans-serif;color:#296548}
+.ui-vatra-admin-dialog-001 .vatra-admin-monitor-time-001{margin-left:auto;font:480 11px/1.4 Onest,system-ui,sans-serif;color:#71917d}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-monitor-row-001{display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid #edf0f4;padding:8px 0}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-monitor-row-001:last-child{border:0}
+.ui-vatra-admin-dialog-001 .vatra-admin-monitor-row-name-001{font:650 12px/1.4 Onest,system-ui,sans-serif;color:#3f5879}
+.ui-vatra-admin-dialog-001 .vatra-admin-monitor-row-value-001{font:480 11px/1.4 Onest,system-ui,sans-serif;color:#6e87a2}
+.ui-vatra-admin-dialog-001 .vatra-admin-monitor-info-001{font:480 12px/1.6 Onest,system-ui,sans-serif;color:#516987}
+.ui-vatra-admin-dialog-001 .vatra-admin-monitor-limitation-001{font:450 11px/1.55 Onest,system-ui,sans-serif;color:#8c7894;padding:11px;background:#fbf7fb;border-radius:9px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-filter-tabs-001{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding-bottom:3px}
+.ui-vatra-admin-dialog-001 .vatra-admin-filter-tab-001{padding:9px 14px;border:1px solid #dbe4ef;border-radius:9px;background:#fff;color:#5f7695;font:650 12px/1.35 Onest,system-ui,sans-serif;cursor:pointer}
+.ui-vatra-admin-dialog-001 .vatra-admin-filter-tab-001[aria-pressed="true"]{border-color:#396fce;background:#eaf1fd;color:#2054ae}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-moderation-list-001{display:grid;gap:12px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-case-meta-001{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.ui-vatra-admin-dialog-001 .vatra-admin-case-status-001{padding:5px 9px;border-radius:99px;background:#ecf4f2;color:#3d7766;font:680 10px/1.25 Onest,system-ui,sans-serif}
+.ui-vatra-admin-dialog-001 .vatra-admin-case-status-001[data-pending="true"]{background:#fff3e5;color:#ae702d}
+.ui-vatra-admin-dialog-001 .vatra-admin-case-resolution-001{padding:10px;border-radius:8px;background:#f5f8fb;color:#57708e;font:480 12px/1.6 Onest,system-ui,sans-serif}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-controls-001{display:flex;justify-content:flex-start}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-controls-001>.ui-vatra-admin-duration-001{max-width:280px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-list-001{display:grid;gap:0}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-entry-001{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0;border-bottom:1px solid #e9eef6}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-entry-001:last-child{border:0}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-copy-001{display:grid;gap:5px;min-width:0}
+.ui-vatra-admin-dialog-001 .vatra-admin-audit-event-001{font:680 12px/1.4 Onest,system-ui,sans-serif;color:#304b6b}
+.ui-vatra-admin-dialog-001 .vatra-admin-audit-reason-001{font:480 11px/1.5 Onest,system-ui,sans-serif;color:#6d829f;overflow-wrap:anywhere}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-meta-001{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap;flex:none}
+.ui-vatra-admin-dialog-001 .vatra-admin-audit-date-001{font:480 10px/1.4 Onest,system-ui,sans-serif;color:#8da0b5}
+@media(max-width:1120px){
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-analytics-cards-001{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-chart-001{gap:4px}
+}
+@media(max-width:760px){
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-lookup-001>.ui-vatra-admin-duration-001{flex-basis:auto;width:100%}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-member-stats-001{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-analytics-cards-001{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-chart-001{gap:2px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-chart-day-001{grid-template-rows:140px 22px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-chart-bars-001{gap:1px}
+.ui-vatra-admin-dialog-001 .vatra-admin-chart-date-001{font-size:8px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-entry-001{flex-direction:column;align-items:stretch}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-audit-meta-001{justify-content:flex-start}
+}
+
+
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-announcement-schedule-001{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:9px}
+.ui-vatra-admin-dialog-001 .ui-vatra-admin-announcement-schedule-001 input{box-sizing:border-box;width:100%;border:1px solid #d6e2f0;border-radius:9px;padding:10px 12px;background:#fff;color:#283f5d;font:520 12px/1.4 Onest,system-ui,sans-serif}
+.ui-vatra-admin-confirm-dialog-001{box-sizing:border-box;margin:auto;width:min(460px,calc(100vw - 28px));max-width:none;border:1px solid #e0e7f0;border-radius:15px;padding:23px;box-shadow:0 25px 90px #06162d66;background:#fff;color:#253a57;font-family:Onest,system-ui,sans-serif}
+.ui-vatra-admin-confirm-dialog-001::backdrop{background:#08172b99;backdrop-filter:blur(2px)}
+.ui-vatra-admin-confirm-dialog-001[open]{display:grid;gap:13px}
+.ui-vatra-admin-confirm-dialog-001 .vatra-admin-confirm-title-001{margin:0;font:760 19px/1.4 Onest,system-ui,sans-serif;color:#1c3657}
+.ui-vatra-admin-confirm-dialog-001 .vatra-admin-confirm-action-001{margin:0;font:680 14px/1.4 Onest,system-ui,sans-serif;color:#315e99}
+.ui-vatra-admin-confirm-dialog-001 .vatra-admin-confirm-reason-001{margin:0;padding:11px;border-radius:9px;background:#f4f7fc;overflow-wrap:anywhere;color:#465e7e;font:490 12px/1.55 Onest,system-ui,sans-serif}
+.ui-vatra-admin-confirm-dialog-001 .vatra-admin-confirm-caution-001{margin:0;color:#8291a5;font:470 11px/1.5 Onest,system-ui,sans-serif}
+.ui-vatra-admin-confirm-dialog-001 .ui-vatra-admin-confirm-id-001{display:grid;gap:8px;color:#765e6b;font:520 12px/1.5 Onest,system-ui,sans-serif}
+.ui-vatra-admin-confirm-dialog-001 .vatra-admin-confirm-id-input-001{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #d8e2ed;border-radius:8px;color:#28405f;background:#fff;font:530 13px/1.3 Onest,system-ui,sans-serif}
+.ui-vatra-admin-confirm-dialog-001 .ui-vatra-admin-confirm-actions-001{display:flex;align-items:center;justify-content:flex-end;gap:9px;margin-top:5px}
+.ui-vatra-admin-confirm-dialog-001 .ui-vatra-admin-confirm-actions-001 button{border:1px solid #d7e0ec;border-radius:9px;min-height:37px;padding:9px 15px;font:670 12px/1.2 Onest,system-ui,sans-serif;background:#f0f4fa;color:#4c6687;cursor:pointer}
+.ui-vatra-admin-confirm-dialog-001 .ui-vatra-admin-confirm-actions-001 .vatra-admin-danger-001{background:#b43952;border-color:#b43952;color:#fff}
+.ui-vatra-admin-confirm-dialog-001 .ui-vatra-admin-confirm-actions-001 button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:760px){.ui-vatra-admin-dialog-001 .ui-vatra-admin-announcement-schedule-001{grid-template-columns:1fr}}
