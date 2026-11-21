@@ -5,8 +5,6 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 const KEY="vatra-remembered-account";
 const HEADER_KEY="vatra-authenticated-header-v1";
 const ORIGIN="https://cxrcycxrlkufozomsxcs.supabase.co";
-// The artwork is defined once, as inline SVG data URIs in CSS.
-// Preserve the existing asset()/coverAsset() API for any integrations.
 const SYSTEM_STATES=new Set(["default","deleted","blocked","not-found"]);
 function cssSvg(kind,state){
  const variant=SYSTEM_STATES.has(state)?state:"default";
@@ -16,8 +14,6 @@ function cssSvg(kind,state){
  if(match)return match[2];
  return variant!=="default"?cssSvg(kind,"default"):null;
 }
-// The CSS owns the actual portraits; expose the same stable paths through
-// the existing asset() API without treating them as uploaded user photos.
 const SYSTEM_VATRYK_ART=Object.freeze({
  blocked:"/VATRA/assets/vatryk/vatryk-blocked.webp",
  deleted:"/VATRA/assets/vatryk/vatryk-deleted.webp",
@@ -37,7 +33,6 @@ function clearFallback(element){
  if(element)element.removeAttribute("data-vatra-avatar-state");
 }
 const STATE_TTL_MS=10_000,STATE_CACHE_MAX=256;
-// Scope short state snapshots and in-flight queries to one Supabase client.
 const stateLookupCaches=new WeakMap();
 function stateForClient(client){
  let bucket=stateLookupCaches.get(client);
@@ -72,7 +67,6 @@ async function states(client,ids){
    const {data,error}=await client.from("account_states")
     .select("vatra_id,state,blocked_until").in("vatra_id",missing);
    if(error)throw error;
-   // Never populate an authenticated cache with a previous session's result.
    if(bucket.generation!==generation)return;
    const found=new Map((data||[]).map(row=>[String(row.vatra_id),row]));
    const expires=Date.now()+STATE_TTL_MS;
@@ -89,7 +83,6 @@ async function states(client,ids){
     if(bucket.pending.get(id)===task)bucket.pending.delete(id);
   }).catch(()=>{});
  }
- // Reuse overlapping in-flight batches instead of issuing duplicate queries.
  const waiting=[...new Set(valid.map(id=>bucket.pending.get(id)).filter(Boolean))];
  if(waiting.length)await Promise.allSettled(waiting);
  if(bucket.generation!==generation)return new Map();
@@ -103,8 +96,6 @@ async function states(client,ids){
  }
  return result;
 }
-// Feed avatar paths are public bucket metadata, but profile_media queries
-// still run under the current viewer's RLS: never share these rows via Redis.
 const PATH_TTL_MS=15_000,PATH_MISSING_TTL_MS=5_000,PATH_CACHE_MAX=256;
 const pathLookupCaches=new WeakMap();
 function pathsFor(client){
@@ -278,9 +269,6 @@ function paintHeader(entry,validate=true){
  if(!safe)return;
  if(face.dataset.vatraHeaderUrl===safe&&face.classList.contains("has-photo"))return;
  face.dataset.vatraHeaderUrl=safe;
- // The URL is safe and was confirmed during the previous page. Applying it
- // synchronously is essential: a new page must not paint the silhouette while
- // waiting for another image.onload event. Browser cache handles the pixels.
  face.style.backgroundImage="url("+JSON.stringify(safe)+")";
  face.classList.add("has-photo");face.textContent="";
  const photo=new Image();
@@ -306,8 +294,6 @@ function primeHeader(){
  const entry=headerRead();
  if(entry&&document.body?.classList.contains("feed-page"))paintHeader(entry,true);
 }
-// Preload the last verified portrait while HTML is being parsed, ahead of the
-// route's authentication and media queries. This does not reveal auth data.
 const previousHeader=headerRead();
 const cachedPhoto=safeUrl(previousHeader?.avatarUrl);
 if(cachedPhoto&&document.head){
@@ -319,8 +305,6 @@ if(cachedPhoto&&document.head){
 function setHeader({email,name,initials,id,client}){
  if(client&&id){window.VATRA_ADMIN_CONTEXT={client,id:String(id)};window.VATRA_ADMIN_SESSION?.(client,String(id));}
  if(!email){
-  // Older account fixtures may not expose an email. Render confirmed identity
-  // without persisting a header against an unverifiable account.
   const label=document.querySelector("#feed-menu-name");
   const face=document.querySelector("#feed-header-avatar");
   const number=document.querySelector("#feed-header-id");
@@ -339,8 +323,6 @@ function setHeader({email,name,initials,id,client}){
  saveHeader(entry);paintHeader(entry);
 }
 function clearHeader(activeEmail){
- // Preserve the same user's cached header through reauthentication but never
- // show the previous account's identity after switching accounts in one tab.
  const saved=headerRead();
  if(activeEmail&&saved&&emailKey(saved.email)===emailKey(activeEmail))return;
  try{sessionStorage.removeItem(HEADER_KEY);}catch(_){}
@@ -350,8 +332,6 @@ function applyRemembered(element,email){
  const url=getRemembered(email);
  if(!url)return;
  const active=headerRead();
- // A remembered-account picture may be older than the photo verified during
- // this tab's previous page. Never let its delayed onload overwrite the newer one.
  if(element.id==="feed-header-avatar"&&active&&
   emailKey(active.email)===emailKey(email)&&safeUrl(active.avatarUrl)&&
   safeUrl(active.avatarUrl)!==url)return;
@@ -359,7 +339,6 @@ function applyRemembered(element,email){
  const picture=new Image();
  picture.onload=()=>{
   if(!element.isConnected||getRemembered(email)!==url)return;
-  // A newer authenticated avatar must win over an older remembered image.
   if(element.dataset.vatraHeaderUrl&&element.dataset.vatraHeaderUrl!==url)return;
   element.style.backgroundImage="url("+JSON.stringify(url)+")";
   element.classList.add("has-photo");element.textContent="";
@@ -372,8 +351,6 @@ function applyRemembered(element,email){
   }
  };
  picture.onerror=()=>{
-  // This request may fail after a newer portrait has already been verified.
-  // Never erase the newer photo or its up-to-date remembered URL.
   if(!element.isConnected||getRemembered(email)!==url)return;
   if(element.dataset.vatraHeaderUrl===url){
    element.classList.remove("has-photo");

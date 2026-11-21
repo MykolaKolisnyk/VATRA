@@ -27,7 +27,6 @@ export function openPanel(current,isCurrent,ui){
  }catch(_){err();}finally{find.disabled=false;}}
  form.addEventListener("submit",e=>{e.preventDefault();void lookup();});if(selected)await lookup();}
  async function marketView(host,active){
-  // Both the owner RPC and the existing marketplace RLS must authorize moderation.
   async function authorize(){
    if(!active())return false;
    const owner=await client.rpc("vatra_admin_access");

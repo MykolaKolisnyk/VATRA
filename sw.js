@@ -30,8 +30,6 @@ const ASSETS=[
 self.addEventListener("install",event=>{
  event.waitUntil((async()=>{
   const cache=await caches.open(CACHE);
-  // The fallback document is essential. Icons, fonts and translations are
-  // optional: a temporary missing asset must not abort worker installation.
   await cache.add(new Request(OFFLINE,{cache:"reload"}));
   await Promise.allSettled(ASSETS.filter(path=>path!==OFFLINE)
    .map(path=>cache.add(new Request(path,{cache:"reload"}))));
@@ -62,7 +60,6 @@ self.addEventListener("fetch",event=>{
  if(request.mode==="navigate"){
   event.respondWith((async()=>{
    try{
-    // Revalidate HTML; do not store member pages or private state.
     return await fetch(request,{cache:"no-cache"});
    }catch(_){
     return await caches.match(OFFLINE)||new Response("VATRA: Offline",{
@@ -93,13 +90,10 @@ self.addEventListener("fetch",event=>{
    }catch(_){return Response.error();}
   }
   try{
-   // Revalidate unversioned source files; cache-first served obsolete base.css
-   // together with newer profile/feed CSS, hiding avatars and active states.
    const fresh=await fetch(request,{cache:"no-cache"});
    if(fresh.ok)await cache.put(request,fresh.clone()).catch(()=>{});
    return fresh;
   }catch(_){
-   // Use last valid static file only when offline.
    return await cache.match(request)||
     (url.search?await cache.match(url.pathname):null)||
     Response.error();
