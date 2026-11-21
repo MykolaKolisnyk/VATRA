@@ -2473,7 +2473,9 @@ const batchedProfilePosts=await read("assets/js/profile.js");
 const batchedClubPosts=clubRuntime;
 assert.ok(
  batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:card(item,engagement))")&&
- batchedFeedPosts.includes("if(reset)posts.replaceChildren(batch);else posts.append(batch);")&&
+ batchedFeedPosts.includes("if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}")&&
+ batchedFeedPosts.includes("else posts.append(batch);")&&
+ batchedFeedPosts.includes("const keepExisting=reset&&scope===lastFeedScope")&&
  batchedProfilePosts.includes("batch.append(article);")&&
  batchedProfilePosts.includes("if(append)list.append(batch);else list.replaceChildren(batch);")&&
  batchedClubPosts.includes("const batch=document.createDocumentFragment();")&&
