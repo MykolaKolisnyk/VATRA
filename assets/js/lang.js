@@ -670,3 +670,5 @@
   reveal(closestScrollable(document.activeElement));
  },{capture:true});
 })();
+
+(()=>{if(window.VATRA_HOST_ALLOWED===false)return;const s=document.createElement("script");s.src=new URL("toast.js?rev=9ca279c876b2309c698ff04a3e812b9f2048ca18",document.currentScript?.src||location.href).href;s.async=true;document.head.append(s);})();
