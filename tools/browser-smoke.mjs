@@ -4468,9 +4468,12 @@ try{
   assert.ok(await profilePage.evaluate(()=>
    window.__vatraAvatarRestoredPaths.includes("654321/avatar/previous-profile.webp")),
    "Restore must actually re-upload the deleted photo, not merely remove the notice");
+  await profilePage.waitForFunction(()=>
+   /\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(
+    document.querySelector("#profile-media-viewer-image")?.getAttribute("src")||""),null,{timeout:7000});
   assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(
    await profilePage.locator("#profile-media-viewer-image").getAttribute("src")),
-   "Restore must return to the same gallery photo");
+   "Restore must return to the same gallery photo after the profile refresh completes");
 
   assert.equal(await profilePage.locator("#profile-avatar-engagement").isVisible(),true,"Historical avatars retain their own engagement panel");
   assert.equal(await profilePage.locator("#profile-media-viewer-heading").isVisible(),false,"Avatar gallery has no redundant heading");
