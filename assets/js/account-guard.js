@@ -30,10 +30,10 @@ async function session(client,id){
 }
 function loadAdmin(){
  if(adminPromise)return adminPromise;
- const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=ff277b0f6b4cbf71548149abffcf3a2ff89713c1",root).href;style.dataset.vatraAdminStyle="true";
+ const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=3b2eed5da2df597d16c17d1d24a8dd9bb7c2d0d2",root).href;style.dataset.vatraAdminStyle="true";
  const ready=new Promise((resolve,reject)=>{style.onload=resolve;style.onerror=()=>reject(Error("Admin styles unavailable"));});
  document.head.append(style);
- adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=93dc71ccf6a3d45f72f010bd30c09e4779821d76",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
+ adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=94c17af215a67cd650007f1b112baf9efb5e4ec5",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
  return adminPromise;
 }
 function showBlocked(client,state){

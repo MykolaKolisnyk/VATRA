@@ -127,7 +127,7 @@ async function marketplace(){
   editorLoading=true;action.setAttribute("aria-busy","true");
   try{
    if(!editorDialog){
-    const module=await import(new URL("assets/js/marketplace-editor.js?rev=38018bd1e016bee08e0826640f320a877a5d652e",root).href);
+    const module=await import(new URL("assets/js/marketplace-editor.js?rev=e49ad96e152c4b2ec0045b6d5a5036ec0aea7051",root).href);
     editorDialog=module.createMarketplaceEditor({marketScreen,make,field,t,marketCurrencySelect,marketMoneyField,marketLimit,message,marketFields,marketFieldKeys,marketConditions,marketTypeCategories,marketTypes,priceText,categories,marketAmount,marketDetailsText,marketSubLabel,btn,sectionIcon,submit,ownId,client,nameOf,link,onPublished});
    }
    if(action.isConnected)editorDialog.showModal();
