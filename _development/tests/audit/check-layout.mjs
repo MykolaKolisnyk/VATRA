@@ -54,14 +54,14 @@ const authPageModules=[
 const authControllerNames=["sign-in","create-account","recovery","verify"];
 for(const [name,pageId,controller,stylesheet] of authPageModules){
  const html=await read(name+".html");
- const js='src="assets/js/'+controller+'.js"';
- const shared='src="assets/js/auth-core.js"';
+ const js='src="assets/js/'+controller+'.js';
+ const shared='src="assets/js/auth-core.js';
  assert.ok(html.includes('data-page="'+pageId+'"')&&
   html.split(js).length===2&&html.split(shared).length===2&&
   html.indexOf(js)<html.indexOf(shared)&&
-  html.includes('href="assets/css/'+stylesheet+'.css"')&&
+  html.includes('href="assets/css/'+stylesheet+'.css')&&
   authControllerNames.filter(other=>other!==controller).every(other=>
-   !html.includes('src="assets/js/'+other+'.js"')),
+   !html.includes('src="assets/js/'+other+'.js')),
   name+": must load one matching auth controller before the shared initializer");
 }
 assert.ok(
