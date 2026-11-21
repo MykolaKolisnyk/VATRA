@@ -1453,8 +1453,8 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('batch.append(card(item,engagement))')&&
- feedScript.includes('posts.append(batch)')&&
+ feedScript.includes('batch.append(same&&oldElement?oldElement:card(item,engagement))')&&
+ feedScript.includes('if(reset)posts.replaceChildren(batch);else posts.append(batch);')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
  profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
@@ -2468,10 +2468,10 @@ const batchedFeedPosts=await read("assets/js/feed.js");
 const batchedProfilePosts=await read("assets/js/profile.js");
 const batchedClubPosts=clubRuntime;
 assert.ok(
- batchedFeedPosts.includes("batch.append(card(item,engagement))")&&
- batchedFeedPosts.includes("posts.append(batch)")&&
+ batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:card(item,engagement))")&&
+ batchedFeedPosts.includes("if(reset)posts.replaceChildren(batch);else posts.append(batch);")&&
  batchedProfilePosts.includes("batch.append(article);")&&
- batchedProfilePosts.includes("list.append(batch);")&&
+ batchedProfilePosts.includes("if(append)list.append(batch);else list.replaceChildren(batch);")&&
  batchedClubPosts.includes("const batch=document.createDocumentFragment();")&&
  batchedClubPosts.includes("batch.append(article);")&&
  batchedClubPosts.includes("list.append(batch);"),
