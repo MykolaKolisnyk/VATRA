@@ -1196,7 +1196,7 @@ assert.ok(
  messengerCrypto.includes('"HKDF"')&&
  messengerCss.includes(".vatra-messenger-message.is-removing")&&
  messengerCss.includes(".vatra-messenger-page [hidden]{display:none!important}")&&
- (await read("tools/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
+ (await read("tests/smoke/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
  !messengerMarkup.includes("vt-vatra-")&&
  !messengerCss.includes("vt-vatra-")&&
  messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
@@ -1210,7 +1210,7 @@ assert.ok(
  messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
  messengerSchema.includes("Only the sender may revoke for everyone"),
  "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
-await import("./messenger-crypto-smoke.mjs");
+await import("../smoke/messenger-crypto-smoke.mjs");
 
 
 assert.ok(profileBehavior.includes('client.from("friendships")')&&

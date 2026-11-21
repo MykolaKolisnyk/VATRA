@@ -19,63 +19,63 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check avatar state cache safety
-        run: node tools/avatar-state-cache-smoke.mjs
+        run: node tests/smoke/avatar-state-cache-smoke.mjs
       - name: Check avatar path query caching
-        run: node tools/avatar-path-cache-smoke.mjs
+        run: node tests/smoke/avatar-path-cache-smoke.mjs
       - name: Check remembered avatar image race safety
-        run: node tools/avatar-remembered-race-smoke.mjs
+        run: node tests/smoke/avatar-remembered-race-smoke.mjs
       - name: Check profile avatar metadata request deduplication
-        run: node tools/profile-avatar-query-smoke.mjs
+        run: node tests/smoke/profile-avatar-query-smoke.mjs
       - name: Check Vatryk PNG artwork and system avatar states
-        run: node tools/vatryk-artwork-smoke.mjs
+        run: node tests/smoke/vatryk-artwork-smoke.mjs
       - name: Check Vatryk first-visit onboarding without production requests
-        run: node tools/onboarding-smoke.mjs
+        run: node tests/smoke/onboarding-smoke.mjs
       - name: Check unified dark auto-hiding form scrollbars
-        run: node tools/form-scrollbar-smoke.mjs
+        run: node tests/smoke/form-scrollbar-smoke.mjs
       - name: Check original VATRA gifts and fullscreen decorative viewer
-        run: node tools/gift-viewer-smoke.mjs
+        run: node tests/smoke/gift-viewer-smoke.mjs
       - name: Check shared friends and notifications cache
-        run: node tools/shared-social-cache-smoke.mjs
+        run: node tests/smoke/shared-social-cache-smoke.mjs
       - name: Check notification request deduplication and session teardown
-        run: node tools/notification-lifecycle-smoke.mjs
+        run: node tests/smoke/notification-lifecycle-smoke.mjs
       - name: Check comment thread viewer cache
-        run: node tools/comment-page-cache-smoke.mjs
+        run: node tests/smoke/comment-page-cache-smoke.mjs
       - name: Check Feed cursor viewer cache
-        run: node tools/feed-page-cache-smoke.mjs
+        run: node tests/smoke/feed-page-cache-smoke.mjs
       - name: Check Feed friend/community subscription cache and retry
-        run: node tools/feed-subscriptions-smoke.mjs
+        run: node tests/smoke/feed-subscriptions-smoke.mjs
       - name: Check global Feed search cancellation without production queries
-        run: node tools/feed-global-search-smoke.mjs
+        run: node tests/smoke/feed-global-search-smoke.mjs
       - name: Audit unpublished multilingual page catalogs
-        run: node tools/i18n-coverage-audit.mjs
+        run: node tests/audit/i18n-coverage-audit.mjs
       - name: Check SEO and site layout
         run: |
-          node tools/check-seo.mjs
-          node tools/check-layout.mjs
-          node tools/css-cascade-audit.mjs
+          node tests/audit/check-seo.mjs
+          node tests/audit/check-layout.mjs
+          node tests/audit/css-cascade-audit.mjs
       - name: Check shared signed media caching
-        run: node tools/media-signed-cache-smoke.mjs
+        run: node tests/smoke/media-signed-cache-smoke.mjs
       - name: Check adaptive image preview generation and safe fallback
-        run: node tools/media-preview-smoke.mjs
+        run: node tests/smoke/media-preview-smoke.mjs
       - name: Check presence heartbeat session lifecycle
-        run: node tools/presence-lifecycle-smoke.mjs
+        run: node tests/smoke/presence-lifecycle-smoke.mjs
       - name: Check presence RLS read cache and sign-out invalidation
-        run: node tools/presence-read-cache-smoke.mjs
+        run: node tests/smoke/presence-read-cache-smoke.mjs
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23.x'
       - name: Render all Supabase email templates in English and Ukrainian
         env:
           VATRA_AUDIT_EMAIL_OUTPUT: "1"
-        run: go run tools/email-template-audit.go
+        run: go run tests/audit/email-template-audit.go
       - name: Install Playwright browsers for cross-engine UI checks
         run: |
           npm install --no-save --no-package-lock playwright@1.64.1
           npx playwright install --with-deps chromium firefox webkit
       - name: Check layout, forms, accessibility and cross-browser rendering
-        run: node tools/browser-smoke.mjs
+        run: node tests/smoke/browser-smoke.mjs
       - name: Check email layout in Chromium Firefox WebKit
-        run: node tools/email-browser-audit.mjs
+        run: node tests/audit/email-browser-audit.mjs
       - name: Save responsive visual audit screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -102,7 +102,7 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.64.1
           npx playwright install chromium
       - name: Test bilingual VATRA pages on native operating system
-        run: node tools/platform-smoke.mjs
+        run: node tests/smoke/platform-smoke.mjs
 
   scale:
     runs-on: ubuntu-latest
@@ -127,11 +127,11 @@ jobs:
       - name: Simulate 1000 concurrent account creations without production traffic
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
-        run: node tools/scale-audit.mjs
+        run: node tests/audit/scale-audit.mjs
       - name: Verify Messenger RLS and scoped deletion on disposable PostgreSQL
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
-        run: node tools/messenger-rls-smoke.mjs
+        run: node tests/smoke/messenger-rls-smoke.mjs
 
   minified-assets:
     name: Build minified VATRA static artifact
@@ -144,7 +144,7 @@ jobs:
       - name: Verify versioned asset references
         run: node tools/revision-assets.mjs
       - name: Verify lazy module authorization and page ownership
-        run: node tools/section-loading-smoke.mjs
+        run: node tests/smoke/section-loading-smoke.mjs
       - name: Install pinned asset minifier
         run: npm install --no-save --no-package-lock esbuild@0.28.2
       - name: Construct deploy-ready static site and update fingerprints
