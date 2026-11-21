@@ -1195,6 +1195,8 @@ assert.ok(
  messengerCrypto.includes('"ECDH"')&&
  messengerCrypto.includes('"HKDF"')&&
  messengerCss.includes(".vatra-messenger-message.is-removing")&&
+ messengerCss.includes(".vatra-messenger-page [hidden]{display:none!important}")&&
+ (await read("tools/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
  !messengerMarkup.includes("vt-vatra-")&&
  !messengerCss.includes("vt-vatra-")&&
  messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
