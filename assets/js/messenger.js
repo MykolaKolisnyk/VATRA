@@ -1,4 +1,3 @@
-/* VATRA Messenger: encrypted text, real RLS, scoped deletion, and realtime refresh. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -136,8 +135,8 @@
    if(cached.has(row.id)){nodes.push(cached.get(row.id));continue;}
    let plaintext;
    const messagePeerKey=ownRow(row)?row.recipient_public_key:row.sender_public_key;
-   // Never trust a key supplied only by a message envelope. Check it against
-   // the contact's independently pinned identity before decrypting or showing it.
+
+
    if(!state.peerKey||state.peerChanged||!cryptoBox().same(messagePeerKey,state.peerKey))
     plaintext=t("Ключ відправника не підтверджено. Перевірте відбиток співрозмовника.",
       "Sender identity unverified. Check your contact's key fingerprint.");
@@ -157,7 +156,7 @@
    item.append(bubble,footer,actions);nodes.push(item);
   }
   if(state.terminating||version!==state.chatVersion||id!==state.selected)return;
-  // Move existing real nodes, don't blank the thread while network or crypto is running.
+
   host.replaceChildren(...nodes);
   if(wasNearBottom)host.scrollTop=host.scrollHeight;
  }
@@ -175,7 +174,7 @@
    state.rows=data||[];
    await loadNames(state.rows.map(other));
    if(state.terminating||version!==state.refreshVersion)return;
-   // Discover an E2EE key registered by the contact after the chat opened.
+
    if(state.selected&&!state.peerKey&&!state.peerLoading&&!state.locked){
     await loadPeerKey();
     if(state.peerKey)$("#messenger-messages").replaceChildren();
@@ -192,7 +191,7 @@
  async function choosePeer(id){
   if(!validId(id)||String(id)===state.own)return;
   state.selected=String(id);state.peerKey=null;state.peerChanged=false;state.chatVersion++;
-  $("#messenger-messages").replaceChildren(); // Never show the previous contact while switching threads.
+  $("#messenger-messages").replaceChildren(); 
   const selectedRequest=++state.peerRequestVersion;
   await loadNames([id]);
   if(state.terminating||selectedRequest!==state.peerRequestVersion||state.selected!==String(id))return;
@@ -288,8 +287,8 @@
    errorAt("#messenger-key-error",t("Парольні фрази не збігаються.","Passphrases do not match."));return;
   }
   button.disabled=true;errorAt("#messenger-key-error","");
-  // A transient network failure can leave the encrypted local key created but
-  // not registered. Reuse that identity on retry instead of creating a new one.
+
+
   async function registerKey(pub){
    const {error}=await state.client.from("messenger_keys")
     .insert({vatra_id:state.own,public_key:pub});
@@ -321,7 +320,7 @@
     }
    }
    state.locked=false;$("#messenger-key-dialog").close();
-   $("#messenger-messages").replaceChildren(); // Replace locked placeholders with real decrypted bubbles.
+   $("#messenger-messages").replaceChildren(); 
    $("#messenger-security-line").textContent=t("Ваш локальний ключ розблоковано","Your local key is unlocked");
    if(state.selected)await loadPeerKey();
    await refresh();
@@ -352,8 +351,8 @@
   client.auth.onAuthStateChange((event,session)=>{
    const switched=!!session?.user?.id&&session.user.id!==state.user.id;
    if(event!=="SIGNED_OUT"&&!switched)return;
-   // Never show a previous account's decrypted chat when auth changes in
-   // another tab or while this tab is suspended.
+
+
    cryptoBox().lock();
    state.terminating=true;state.refreshVersion++;state.chatVersion++;state.peerRequestVersion++;
    state.locked=true;state.peerKey=null;state.selected=null;state.rows=[];
@@ -401,8 +400,8 @@
   await refresh();
   const peer=new URLSearchParams(location.search).get("to");
   if(validId(peer)&&peer!==state.own)await choosePeer(peer);
-  // Consume and erase the short-lived local draft before the first message is sent.
-  // Never put message plaintext into query strings or navigation history.
+
+
   let draft=null;
   try{
    const stored=sessionStorage.getItem("vatra:messenger:draft-v1");
@@ -423,8 +422,8 @@
    .subscribe();
   state.poll=setInterval(()=>{if(document.visibilityState==="visible")void refresh();},25000);
   window.addEventListener("pagehide",()=>{
-   // A restored back-forward-cache page must never retain decrypted DOM or
-   // a stale unlocked UI after Web Crypto has dropped its in-memory key.
+
+
    cryptoBox().lock();
    state.terminating=true;state.refreshVersion++;state.chatVersion++;state.peerRequestVersion++;
    state.locked=true;state.peerKey=null;
@@ -436,7 +435,7 @@
    if(state.subscription)void client.removeChannel(state.subscription);
   });
   window.addEventListener("pageshow",event=>{
-   if(event.persisted)location.reload(); // Re-authenticate and require key unlock.
+   if(event.persisted)location.reload(); 
   });
   document.addEventListener("visibilitychange",onChange);
  }
