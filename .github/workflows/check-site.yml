@@ -12,7 +12,24 @@ permissions:
   contents: read
 
 jobs:
+  development:
+    name: Detect development workspace
+    runs-on: ubuntu-latest
+    outputs:
+      present: ${{ steps.check.outputs.present }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -d _development/tests ] && [ -d _development/tools ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
   validate:
+    needs: development
+    if: needs.development.outputs.present == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -84,6 +101,8 @@ jobs:
           retention-days: 7
 
   native-platforms:
+    needs: development
+    if: needs.development.outputs.present == 'true'
     name: Native OS UI smoke (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -103,6 +122,8 @@ jobs:
         run: node _development/tests/smoke/platform-smoke.mjs
 
   scale:
+    needs: development
+    if: needs.development.outputs.present == 'true'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -132,6 +153,8 @@ jobs:
         run: node _development/tests/smoke/messenger-rls-smoke.mjs
 
   minified-assets:
+    needs: development
+    if: needs.development.outputs.present == 'true'
     name: Build minified VATRA static artifact
     runs-on: ubuntu-latest
     steps:
