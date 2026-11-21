@@ -109,6 +109,11 @@ function showFieldError(control,message){
    wrapper.append(error);
   }
   error.textContent=translate(message);
+  const toast=window.VATRA_TOAST;
+  if(toast?.error){
+   error.style.display="none";
+   toast.error(translate(message));
+  }else error.style.removeProperty("display");
   window.VATRA_LANGUAGE?.ready?.then(()=>{if(error.isConnected)error.textContent=translate(message);});
   wrapper.classList.add("is-invalid");
   control.setAttribute("aria-invalid","true");
