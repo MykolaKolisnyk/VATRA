@@ -4417,8 +4417,8 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
    (language==="en"?"Profile photo · ":"Фото профілю · ")+avatarOwner+
    (language==="en"?" · 2 of 2":" · 2 із 2"));
-  assert.equal(await profilePage.locator("#profile-photo-footer-tag").isVisible(),false,
-   "Person tagging is no longer offered in the photo viewer");
+  assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
+   "Person tagging was removed from the photo viewer altogether");
   assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
    "Members cannot report their own avatar photo");
   assert.equal(await profilePage.locator("#profile-media-viewer-image").evaluate(el=>getComputedStyle(el).objectFit),"contain",
