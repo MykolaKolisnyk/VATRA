@@ -2915,7 +2915,7 @@ body.profile-page .ui-profile-cover-viewer-001.is-ready .ui-profile-cover-viewer
 }
 body.profile-page .ui-profile-cover-viewer-image-001{
  display:block;width:100%;height:100%;max-width:none;max-height:none;
- object-fit:cover;object-position:center
+ object-fit:contain;object-position:center;background:#12161e
 }
 body.profile-page .ui-profile-cover-flight-001{
  position:fixed;z-index:5;display:block;pointer-events:none;
@@ -3069,7 +3069,6 @@ body.profile-page .vatra-profile-gifts-dialog-more-001[hidden]{display:none}
 }
 @media(prefers-reduced-motion:reduce){body.profile-page .ui-profile-photo-footer-menu-001,body.profile-page .vatra-profile-photo-tag-name-001{transition:none}}
 
-body.profile-page .ui-profile-cover-viewer-image-001{object-fit:contain;background:#12161e}
 body.profile-page .ui-profile-photo-canvas-001 .profile-media-viewer-image{object-fit:contain;object-position:center}
 @media(hover:hover) and (pointer:fine){
  body.profile-page .ui-profile-photo-content-001 :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001):not([hidden]){opacity:0;pointer-events:none;transition:opacity .26s ease,color .16s ease,background .16s ease}
