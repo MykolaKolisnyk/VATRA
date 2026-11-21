@@ -1,11 +1,7 @@
-/* VATRA public-name cache: authenticated Redis + RLS fallback, bounded per-viewer memory.
-   Only VATRA IDs and display names are returned; session state is never persisted. */
 (() => {
  "use strict";
  const caches=new WeakMap();
  const TTL=90_000,MISSING_TTL=15_000,MAX_ENTRIES=256,MAX_BATCH=48;
- // Redis is optional. A failed Edge lookup should not be repeated on each page
- // navigation; this only persists an availability timestamp, never user data.
  const EDGE_COOLDOWN_KEY="vatra-public-names-edge-retry-at-v1";
  const edgeRetryAt=()=>{
   try{
@@ -30,8 +26,6 @@
   caches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
-    // These don't change the signed-in user. Clear on sign-in/sign-out,
-    // user update, or any other account-transition notification.
     if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
     state.generation++;
     state.rows.clear();
@@ -48,7 +42,6 @@
    state.rows.delete(id);
    return undefined;
   }
-  // Make the bounded cache LRU instead of allowing hot entries to be evicted.
   state.rows.delete(id);
   state.rows.set(id,entry);
   return entry;
@@ -68,7 +61,6 @@
     const allowed=new Set(ids);
     return data.data.filter(validName).filter(row=>allowed.has(validId(row.vatra_id)));
    }catch(_){
-    // Avoid a wave of repeated failed Edge calls; use normal PostgREST RLS.
     pauseEdge(state);
    }
   }
