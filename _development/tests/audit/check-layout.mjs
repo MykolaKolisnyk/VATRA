@@ -818,10 +818,12 @@ assert.ok(auth.includes('function wireFloatingHints()')&&
  "Both forms must restore floating hints without duplicates");
 assert.ok(auth.includes("FIELD_ERROR_DURATION_MS=5500")&&
  auth.includes("fieldErrorTimers.set(control,setTimeout")&&
- css.includes(".check-terms>.field-error{grid-column:1/-1;grid-row:2;")&&
- css.includes(".check-terms>.field-error::before{width:16px;height:16px;")&&
- auth.includes('wrapper.append(error);'),
- "Field errors must expire automatically and align consent messages");
+ auth.includes('feedback(message,"error");')&&
+ !auth.includes('wrapper.append(error);')&&
+ !css.includes(".field-error{")&&
+ !landing.includes('id="response"')&&
+ !register.includes('id="response"'),
+ "Field validation must expire without constructing hidden or inline error elements");
 assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
  auth.includes('help.addEventListener("pointerenter"'),
  "Gender and email help must open on hover and never overlap");
@@ -875,7 +877,7 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
  uk.__pages["create-account"].nodes.n59.text["0"]==="Створити акаунт",
  "Create account must be the unified account creation action");
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
- css.includes('.field-error::before{content:"!"'),
+ css.includes('.field.is-invalid .control{border-color:#e49aa7'),
  "Orbit size and visual validation details must be updated");
 assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
@@ -964,7 +966,7 @@ assert.ok(
  "Recovery card must show only the V mark, and all email fields must use translated floating hints");
 assert.ok(
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;')&&
- css.includes('.ui-forgot-main-001 .forgot-panel-content > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-content > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
  css.includes('.form-box{width:100%;max-width:520px;')&&
  css.includes('.signup-form-panel .narrow-form{width:100%;max-width:520px;'),
  "Password recovery, sign-in and sign-up must share the same 520px form column");
