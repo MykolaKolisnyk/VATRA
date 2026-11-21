@@ -1034,35 +1034,6 @@ for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lan
 const sharedShellPages=["feed","profile","communities","club","notifications","friends","gifts"];
 const interactionsScript=await read("assets/js/post-interactions.js");
 
-/* Private Messenger must never silently fall back to legacy plaintext DMs. */
-const messengerMarkup=await read("messenger.html");
-const messengerRuntime=await read("assets/js/messenger.js");
-const messengerCrypto=await read("assets/js/messenger-crypto.js");
-const messengerCss=await read("assets/css/messenger.css");
-const messengerSchema=await read("supabase/migrations/20261121113000_private_messenger_ciphertext_and_scoped_deletion.sql");
-assert.ok(
- messengerMarkup.includes('data-page="messenger"')&&
- messengerMarkup.includes('id="messenger-delete-mine"')&&
- messengerMarkup.includes('id="messenger-delete-everyone"')&&
- messengerMarkup.includes('id="messenger-key-import"')&&
- messengerMarkup.includes("assets/js/messenger-crypto.js")&&
- messengerMarkup.includes("assets/js/messenger.js")&&
- messengerRuntime.includes('state.client.rpc("messenger_delete_message"')&&
- messengerRuntime.includes('client.channel("vatra-messenger-"')&&
- !messengerRuntime.includes('from("direct_messages")')&&
- !profileBehavior.includes('from("direct_messages")')&&
- !interactionsScript.includes('from("direct_messages")')&&
- messengerCrypto.includes('"AES-GCM"')&&
- messengerCrypto.includes('"ECDH"')&&
- messengerCrypto.includes('"HKDF"')&&
- messengerCss.includes(".vatra-messenger-message.is-removing")&&
- !messengerMarkup.includes("vt-vatra-")&&
- !messengerCss.includes("vt-vatra-")&&
- messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
- messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
- messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
- messengerSchema.includes("Only the sender may revoke for everyone"),
- "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
 
 const reactionsVerifiedDelete=[
  '.select("post_id").maybeSingle()',
@@ -1188,6 +1159,37 @@ assert.ok(profileMarkup.includes('id="profile-heading"')&&
  (await read("assets/js/profile.js")).includes('window.VATRA_AVATAR?.invalidatePath?.(client,ownId);'),
  "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
 const profileBehavior=await read("assets/js/profile.js");
+/* Private Messenger must never silently fall back to legacy plaintext DMs. */
+const messengerMarkup=await read("messenger.html");
+const messengerRuntime=await read("assets/js/messenger.js");
+const messengerCrypto=await read("assets/js/messenger-crypto.js");
+const messengerCss=await read("assets/css/messenger.css");
+const messengerSchema=await read("supabase/migrations/20261121113000_private_messenger_ciphertext_and_scoped_deletion.sql");
+assert.ok(
+ messengerMarkup.includes('data-page="messenger"')&&
+ messengerMarkup.includes('id="messenger-delete-mine"')&&
+ messengerMarkup.includes('id="messenger-delete-everyone"')&&
+ messengerMarkup.includes('id="messenger-key-import"')&&
+ messengerMarkup.includes("assets/js/messenger-crypto.js")&&
+ messengerMarkup.includes("assets/js/messenger.js")&&
+ messengerRuntime.includes('state.client.rpc("messenger_delete_message"')&&
+ messengerRuntime.includes('client.channel("vatra-messenger-"')&&
+ !messengerRuntime.includes('from("direct_messages")')&&
+ !profileBehavior.includes('from("direct_messages")')&&
+ !interactionsScript.includes('from("direct_messages")')&&
+ messengerCrypto.includes('"AES-GCM"')&&
+ messengerCrypto.includes('"ECDH"')&&
+ messengerCrypto.includes('"HKDF"')&&
+ messengerCss.includes(".vatra-messenger-message.is-removing")&&
+ !messengerMarkup.includes("vt-vatra-")&&
+ !messengerCss.includes("vt-vatra-")&&
+ messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
+ messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
+ messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
+ messengerSchema.includes("Only the sender may revoke for everyone"),
+ "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
+
+
 assert.ok(profileBehavior.includes('client.from("friendships")')&&
  !profileBehavior.includes('client.from("direct_messages")')&&
  profileBehavior.includes('new URL("messenger.html?to="')&&
