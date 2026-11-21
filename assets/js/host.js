@@ -73,13 +73,13 @@
     const container = document.createElement("main");
     container.className = "ui-host-blocked-container";
     const heading = document.createElement("h1");
-    heading.className = "vt-host-blocked-heading";
+    heading.className = "vatra-host-blocked-heading";
     heading.textContent = "VATRA";
     const p = document.createElement("p");
-    p.className = "vt-host-blocked-explanation";
+    p.className = "vatra-host-blocked-explanation";
     p.textContent = "Будь ласка, відкрийте VATRA на офіційному сайті.";
     const a = document.createElement("a");
-    a.className = "vt-host-blocked-link";
+    a.className = "vatra-host-blocked-link";
     a.href = "https://mykolakolisnyk.github.io/VATRA/";
     a.textContent = "Перейти до VATRA";
     container.append(heading, p, a);

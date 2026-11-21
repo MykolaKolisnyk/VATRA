@@ -234,10 +234,10 @@
     symbol.alt="";
     symbol.width=68;symbol.height=68;
     const title=document.createElement("span");
-    title.className="vatra-auth-loading-title vt-static-locale-title-001";
+    title.className="vatra-auth-loading-title vatra-static-locale-title-001";
     title.textContent="VATRA";
     const caption=document.createElement("p");
-    caption.className="vatra-auth-loading-caption vt-static-locale-caption-001";
+    caption.className="vatra-auth-loading-caption vatra-static-locale-caption-001";
     caption.textContent="Loading VATRA";
     const track=document.createElement("div");
     track.className="vatra-auth-loading-track ui-static-locale-track-001";
@@ -321,7 +321,7 @@
       trigger.replaceChildren();
       trigger.append(flag(english ? "gb" : "ua"));
       const label=document.createElement("span");
-      label.className="vt-language-trigger-label-"+id;
+      label.className="vatra-language-trigger-label-"+id;
       label.textContent=nativeLabels[current];
       const chevron=document.createElementNS("http://www.w3.org/2000/svg","svg");
       chevron.classList.add("language-chevron","ui-language-trigger-chevron-"+id);
@@ -350,14 +350,14 @@
     texts.className = "ui-language-heading-copy";
     const heading = document.createElement("h2");
     heading.id = "vatra-language-heading";
-     heading.className = "vt-language-dialog-heading";
+     heading.className = "vatra-language-dialog-heading";
     heading.textContent = words.heading;
     const details = document.createElement("p");
-    details.className = "vt-language-dialog-description";
+    details.className = "vatra-language-dialog-description";
      details.textContent = words.details;
     texts.append(heading, details);
     const closeBtn = document.createElement("button");
-    closeBtn.className = "language-close vt-language-close-button";
+    closeBtn.className = "language-close vatra-language-close-button";
     closeBtn.type = "button";
     closeBtn.setAttribute("aria-label", words.close);
     const closeIcon = document.createElementNS("http://www.w3.org/2000/svg","svg");
@@ -373,11 +373,11 @@
     closeIcon.append(closePath);closeBtn.append(closeIcon);
     headingRow.append(texts, closeBtn);
     const searchField = document.createElement("div");
-    searchField.className = "field language-search-field vt-language-search-label";
+    searchField.className = "field language-search-field vatra-language-search-label";
     const searchShell = document.createElement("span");
     searchShell.className = "vatra-input-shell language-search-shell";
     const searchHint = document.createElement("span");
-    searchHint.className = "vatra-floating-hint vt-language-search-caption";
+    searchHint.className = "vatra-floating-hint vatra-language-search-caption";
     searchHint.setAttribute("aria-hidden","true");
     searchHint.textContent = words.search;
     const search = document.createElement("input");
@@ -389,7 +389,7 @@
     search.placeholder = " "; // The floating hint replaces the native placeholder.
     search.setAttribute("aria-label", words.search);
     const clearSearch=document.createElement("button");
-    clearSearch.className="language-search-clear vt-language-clear-button";
+    clearSearch.className="language-search-clear vatra-language-clear-button";
     clearSearch.type="button";
     clearSearch.hidden=true;
     clearSearch.setAttribute("aria-label",english?"Clear search":"Очистити пошук");
@@ -412,23 +412,23 @@
     list.setAttribute("role", "region");
     list.setAttribute("aria-label", words.heading);
     const notFound = document.createElement("p");
-    notFound.className = "language-empty vt-language-no-results";
+    notFound.className = "language-empty vatra-language-no-results";
     notFound.textContent = words.empty;
     notFound.hidden = true;
     let restoreFocus = null;
     for (const [code,name,englishName,country,enabled] of languages) {
       const button = document.createElement("button");
-      button.className = "language-option vt-language-choice-" + code + (code === current ? " is-selected" : "");
+      button.className = "language-option vatra-language-choice-" + code + (code === current ? " is-selected" : "");
       button.type = "button";
       button.dataset.search = (code + " " + name + " " + englishName).toLocaleLowerCase();
       button.append(flag(country));
       const copy = document.createElement("span");
-      copy.className = "language-option-copy vt-language-copy-" + code;
+      copy.className = "language-option-copy vatra-language-copy-" + code;
       const strong = document.createElement("strong");
-      strong.className = "vt-language-name-" + code;
+      strong.className = "vatra-language-name-" + code;
        strong.textContent = name;
       const subtitle = document.createElement("small");
-      subtitle.className = "vt-language-caption-" + code;
+      subtitle.className = "vatra-language-caption-" + code;
        subtitle.textContent = code === current ? words.current : (enabled ? englishName : words.future);
       copy.append(strong, subtitle);
       button.append(copy);
@@ -605,7 +605,7 @@
 (()=>{
  "use strict";
  const selector=[
-  ".captcha-dialog",".vatra-select-scroll-area",".vt-tour-scroll-area-001",
+  ".captcha-dialog",".vatra-select-scroll-area",".vatra-tour-scroll-area-001",
   ".feed-compose-dialog",".ui-vatra-story-editor-001",".ui-vatra-story-panel-001",".ui-vatra-story-tools-001",".club-compose-dialog",
   ".vatra-post-comment-dialog-content",".vatra-gallery-picker-grid",
   ".vatra-search-history",".vatra-search-live-results",".feed-account-dropdown",

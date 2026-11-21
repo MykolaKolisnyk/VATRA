@@ -30,9 +30,9 @@ function card(gift,owned){
  art.addEventListener("dragstart",event=>event.preventDefault());
  art.addEventListener("contextmenu",event=>event.preventDefault());
  artwork.append(art);
- const heading=make("strong","vt-vatra-gifts-card-title-"+gift.code,t(gift.uk,gift.en));
- const description=make("span","vt-vatra-gifts-card-copy-"+gift.code,t(gift.descriptionUk,gift.descriptionEn));
- const state=make("small","vt-vatra-gifts-card-state-"+gift.code,
+ const heading=make("strong","vatra-gifts-card-title-"+gift.code,t(gift.uk,gift.en));
+ const description=make("span","vatra-gifts-card-copy-"+gift.code,t(gift.descriptionUk,gift.descriptionEn));
+ const state=make("small","vatra-gifts-card-state-"+gift.code,
   owned?t("У колекції","In your collection"):t("Безкоштовний","Free"));
  item.append(artwork,heading,description,state);
  return item;
