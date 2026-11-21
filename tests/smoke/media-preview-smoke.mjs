@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 
-const source=readFileSync(new URL("../assets/js/post-media.js",import.meta.url),"utf8");
+const source=readFileSync(new URL("../../assets/js/post-media.js",import.meta.url),"utf8");
 function setup({small=false,decodeFails=false,noFallback=false,previewUploadFails=false}={}){
  const uploads=[],attempts=[],releases=[];
  let count=0,bitmapClosed=0;
