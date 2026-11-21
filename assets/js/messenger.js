@@ -214,7 +214,15 @@
   state.keyDialogMode=mode;
   $("#messenger-passphrase").value="";errorAt("#messenger-key-error","");
   const title=$("#messenger-key-title"),description=$("#messenger-key-description"),submit=$("#messenger-key-submit");
-  if(mode==="create"){
+  const missing=mode==="missing";
+  $("#messenger-key-submit").hidden=missing;
+  $("#messenger-passphrase").hidden=missing;
+  $("#messenger-key-import").hidden=!missing;
+  $("label[for=messenger-passphrase]").hidden=missing;
+  if(missing){
+   title.textContent=t("Потрібен ключ з вашого пристрою","Your device key is needed");
+   description.textContent=t("Ваш ключ уже створений в іншому браузері. Імпортуйте його зашифровану резервну копію. Без неї повідомлення відновити неможливо.","Your key was created in another browser. Import its encrypted backup. Without it you cannot recover messages.");
+  }else if(mode==="create"){
    title.textContent=t("Створіть приватний ключ","Create a private key");
    description.textContent=t("Введіть унікальну парольну фразу від 14 символів. Вона захистить ваш ключ на цьому пристрої. VATRA її не зберігає. Після створення збережіть зашифровану резервну копію.","Use a unique passphrase of at least 14 characters. It protects your device key. VATRA never stores it. Save your encrypted backup.");
   }else if(mode==="import"){
@@ -268,7 +276,7 @@
   const local=await cryptoBox().loadRecord(state.own);
   if(data&&!local){
    status(t("Цей пристрій не має вашого приватного ключа. Імпортуйте зашифровану копію.","This device has no private key. Import your encrypted backup."),true);
-   keyDialog("unlock");return;
+   keyDialog("missing");return;
   }
   keyDialog(local?"unlock":"create");
  }
@@ -307,6 +315,7 @@
   $("#messenger-delete-everyone").addEventListener("click",()=>void doDelete("everyone"));
   $("#messenger-delete-cancel").addEventListener("click",()=>$("#messenger-delete-dialog").close());
   $("#messenger-key-form").addEventListener("submit",keySubmit);
+  $("#messenger-key-import").addEventListener("click",()=>$("#messenger-import-key-file").click());
   $("#messenger-key-dialog").addEventListener("cancel",event=>{if(state.locked)event.preventDefault();});
   $("#messenger-export-key").addEventListener("click",()=>void downloadBackup().catch(()=>status(t("Не вдалося зберегти резервну копію.","Backup download failed."),true)));
   $("#messenger-import-key-file").addEventListener("change",async event=>{
