@@ -13,7 +13,7 @@
  const time=date=>new Intl.DateTimeFormat(locale()==="en"?"en-US":"uk-UA",{hour:"2-digit",minute:"2-digit"}).format(new Date(date));
  const day=date=>new Intl.DateTimeFormat(locale()==="en"?"en-US":"uk-UA",{day:"numeric",month:"long",year:"numeric"}).format(new Date(date));
  const node=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
- const state={client:null,user:null,own:null,selected:null,rows:[],names:new Map(),locked:true,peerKey:null,peerChanged:false,keyDialogMode:"",pendingImport:null,
+ const state={client:null,user:null,own:null,selected:null,rows:[],names:new Map(),locked:true,terminating:false,peerKey:null,peerChanged:false,keyDialogMode:"",pendingImport:null,
   refreshVersion:0,chatVersion:0,refreshPending:false,sendBusy:false,deleteId:null,subscription:null,poll:null};
  const ROWS="id,sender_id,recipient_id,ciphertext,nonce,salt,sender_public_key,recipient_public_key,created_at,deleted_for_all_at,deleted_for_sender_at,deleted_for_recipient_at";
  function status(text,error=false){const el=$("#messenger-inbox-status");el.textContent=text||"";el.dataset.error=String(!!error);}
@@ -114,13 +114,13 @@
  }
  async function renderMessages(){
   const id=state.selected,host=$("#messenger-messages"),version=++state.chatVersion;
-  if(!id){host.replaceChildren();return;}
+  if(state.terminating||!id){host.replaceChildren();return;}
   const rows=visibleRows().filter(row=>other(row)===id).slice().reverse();
   const cached=new Map([...host.querySelectorAll("[data-message-id]")].map(el=>[el.dataset.messageId,el]));
   const nodes=[],wasNearBottom=host.scrollHeight-host.scrollTop-host.clientHeight<95;
   let previousDate="";
   for(const row of rows){
-   if(version!==state.chatVersion||id!==state.selected)return;
+   if(state.terminating||version!==state.chatVersion||id!==state.selected)return;
    const thisDay=new Date(row.created_at).toDateString();
    if(thisDay!==previousDate){nodes.push(node("span","vatra-messenger-date-separator",day(row.created_at)));previousDate=thisDay;}
    if(cached.has(row.id)){nodes.push(cached.get(row.id));continue;}
@@ -135,7 +135,7 @@
     try{plaintext=await cryptoBox().decrypt(row,state.own);}
     catch(_){plaintext=t("Не вдалося розшифрувати для цього ключа.","Unable to decrypt for this key.");}
    }
-   if(version!==state.chatVersion||id!==state.selected)return;
+   if(state.terminating||version!==state.chatVersion||id!==state.selected)return;
    const item=node("article","vatra-messenger-message");item.dataset.messageId=row.id;
    item.dataset.own=String(ownRow(row));item.setAttribute("aria-label",ownRow(row)?t("Ваше повідомлення","Your message"):t("Повідомлення співрозмовника","Contact message"));
    const bubble=node("div","vatra-messenger-message-bubble",plaintext);
@@ -146,13 +146,13 @@
    remove.addEventListener("click",()=>openDelete(row));actions.append(remove);
    item.append(bubble,footer,actions);nodes.push(item);
   }
-  if(version!==state.chatVersion||id!==state.selected)return;
+  if(state.terminating||version!==state.chatVersion||id!==state.selected)return;
   // Move existing real nodes, don't blank the thread while network or crypto is running.
   host.replaceChildren(...nodes);
   if(wasNearBottom)host.scrollTop=host.scrollHeight;
  }
  async function refresh(){
-  if(!state.client||!state.own)return;
+  if(state.terminating||!state.client||!state.own)return;
   if(state.refreshPending){state.refreshVersion++;return;}
   state.refreshPending=true;
   const version=++state.refreshVersion;
@@ -161,14 +161,15 @@
     .or("sender_id.eq."+state.own+",recipient_id.eq."+state.own)
     .order("created_at",{ascending:false}).limit(300);
    if(error)throw error;
-   if(version!==state.refreshVersion)return;
+   if(state.terminating||version!==state.refreshVersion)return;
    state.rows=data||[];
    await loadNames(state.rows.map(other));
+   if(state.terminating||version!==state.refreshVersion)return;
    renderConversations();await renderMessages();status("");
-  }catch(_){status(t("Не вдалося оновити розмови. Спробуйте ще раз.","Could not refresh conversations. Retry."),true);}
+  }catch(_){if(!state.terminating)status(t("Не вдалося оновити розмови. Спробуйте ще раз.","Could not refresh conversations. Retry."),true);}
   finally{
    state.refreshPending=false;
-   if(version!==state.refreshVersion&&document.visibilityState!=="hidden")void refresh();
+   if(!state.terminating&&version!==state.refreshVersion&&document.visibilityState!=="hidden")void refresh();
   }
  }
  function onChange(){if(document.visibilityState!=="hidden")void refresh();}
@@ -335,6 +336,7 @@
    // Never show a previous account's decrypted chat when auth changes in
    // another tab or while this tab is suspended.
    cryptoBox().lock();
+   state.terminating=true;state.refreshVersion++;state.chatVersion++;
    state.locked=true;state.peerKey=null;state.selected=null;state.rows=[];
    $("#messenger-messages").replaceChildren();
    $("#messenger-conversations").replaceChildren();
@@ -405,8 +407,10 @@
    // A restored back-forward-cache page must never retain decrypted DOM or
    // a stale unlocked UI after Web Crypto has dropped its in-memory key.
    cryptoBox().lock();
+   state.terminating=true;state.refreshVersion++;state.chatVersion++;
    state.locked=true;state.peerKey=null;
    $("#messenger-messages").replaceChildren();
+   $("#messenger-conversations").replaceChildren();
    $("#messenger-compose-text").value="";
    syncSend();
    clearInterval(state.poll);

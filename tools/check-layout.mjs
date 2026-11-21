@@ -1181,6 +1181,8 @@ assert.ok(
  messengerRuntime.includes('session.user.id!==state.user.id')&&
  messengerRuntime.includes('$("#messenger-conversations").replaceChildren()')&&
  messengerRuntime.includes('if(event.persisted)location.reload()')&&
+ messengerRuntime.includes('state.terminating=true;state.refreshVersion++;state.chatVersion++')&&
+ messengerRuntime.includes('if(state.terminating||version!==state.refreshVersion)return;')&&
  messengerRuntime.includes('Passphrases do not match.')&&
  messengerRuntime.includes('const saved=await cryptoBox().loadRecord(state.own)')&&
  !messengerRuntime.includes('from("direct_messages")')&&
