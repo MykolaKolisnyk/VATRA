@@ -30,15 +30,15 @@ async function session(client,id){
  }catch(_){}
 }
 function loadAnnouncements(){
- if(!announcementsPromise)announcementsPromise=import(new URL("assets/js/announcements.js?rev=f40733cab0b5ad3a0cb0a28e18b9b6cf7266dce2",root).href).then(module=>{announcementsModule=module;return module;}).catch(error=>{announcementsPromise=null;throw error;});
+ if(!announcementsPromise)announcementsPromise=import(new URL("assets/js/announcements.js?rev=9813078fb77cef938069ec3023283bf130141992",root).href).then(module=>{announcementsModule=module;return module;}).catch(error=>{announcementsPromise=null;throw error;});
  return announcementsPromise;
 }
 function loadAdmin(){
  if(adminPromise)return adminPromise;
- const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=96ddf22fb1009fda56c8549dbf290656d0ce856e",root).href;style.dataset.vatraAdminStyle="true";
+ const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=455e9b4f8be045a6204f8abdb622714a59e3773d",root).href;style.dataset.vatraAdminStyle="true";
  const ready=new Promise((resolve,reject)=>{style.onload=resolve;style.onerror=()=>reject(Error("Admin styles unavailable"));});
  document.head.append(style);
- adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=f8545cf8025edcc6b59ad2e20c3e49306ab9b4f9",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
+ adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=8a2f75231da4a22424295cbf159cf9a96e28f305",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
  return adminPromise;
 }
 function showBlocked(client,state){

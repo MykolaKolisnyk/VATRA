@@ -55,6 +55,8 @@ jobs:
         run: node _development/tests/smoke/notification-lifecycle-smoke.mjs
       - name: Check toast validation, automatic dismissal and profile photo feedback
         run: node _development/tests/smoke/toast-ux-smoke.mjs
+      - name: Check professional admin panel navigation and member directory
+        run: node _development/tests/smoke/admin-panel-smoke.mjs
       - name: Check comment thread viewer cache
         run: node _development/tests/smoke/comment-page-cache-smoke.mjs
       - name: Check Feed cursor viewer cache
