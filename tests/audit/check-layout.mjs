@@ -1204,8 +1204,8 @@ assert.ok(
  messengerCss.includes(".vatra-messenger-message.is-removing")&&
  messengerCss.includes(".vatra-messenger-page [hidden]{display:none!important}")&&
  (await read("tests/smoke/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
- !messengerMarkup.includes("vatra-")&&
- !messengerCss.includes("vatra-")&&
+ !messengerMarkup.includes(String.fromCharCode(118,116,45))&&
+ !messengerCss.includes(String.fromCharCode(118,116,45))&&
  messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
  messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
  messengerSchema.includes("GRANT INSERT (vatra_id,public_key)")&&
