@@ -2923,7 +2923,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   prevPhoto.disabled=galleryIndex===0;nextPhoto.disabled=galleryIndex>=gallery.length-1;
   galleryToolbar.hidden=false;
   galleryCount.textContent=gallery.length===1?photoTitle:
-   photoTitle+"  "+(galleryIndex+1)+t(" із "," of ")+gallery.length;
+   photoTitle+" "+(galleryIndex+1)+t(" із "," of ")+gallery.length;
   galleryDelete.hidden=!canEdit;
   footerReport.hidden=isMine||locked;
   setCurrent.hidden=!canEdit||current;
