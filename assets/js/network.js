@@ -1,10 +1,8 @@
-/* VATRA network status: non-destructive banner plus pre-cached offline page. */
 (() => {
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
  const scriptUrl=new URL(document.currentScript?.src||"assets/js/network.js",document.baseURI);
  const projectBase=new URL("../../",scriptUrl);
- // Explicit service responses only: never intercept console, fetch or unhandled rejections.
  const serviceNotices=Object.freeze({
   "403":["vatryk_403.webp","Доступ заборонено","Access denied","Ви не маєте дозволу на виконання цієї дії.","You do not have permission to perform this action."],
   "429":["vatryk_429.webp","Забагато запитів","Too many requests","Спробуйте виконати цю дію трохи пізніше.","Please try this action again in a little while."],
@@ -68,8 +66,6 @@
    support.href="mailto:vatra.support@gmail.com";actions.append(support);
   }
   actions.append(action);panel.append(picture,title,copy,actions);
-  // Service errors are content states, never a modal form covering the page.
-  // Locked accounts get a dedicated full-page state; recoverable errors are inline.
   let host=document.body;
   if(!locked){
    const feed=document.querySelector(".feed-main");
@@ -105,8 +101,6 @@
   update();
   if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="file:"){
    const worker=navigator.serviceWorker;
-   // Refresh a previously controlled page when updated code takes over.
-   // Never discard input edits or an open dialog during this transition.
    if(worker.controller){
     let edited=false;
     const recordEdit=event=>{

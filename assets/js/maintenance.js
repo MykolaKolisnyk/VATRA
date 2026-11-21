@@ -1,4 +1,3 @@
-/* Maintenance status only: the owner controls the mode from ADMIN PANEL. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;

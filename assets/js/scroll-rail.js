@@ -23,7 +23,6 @@
    pending=false;
    const edge=layout?.getBoundingClientRect();
    const gutter=edge&&edge.width>0?edge.left:0;
-   // A floating control must never occupy the entire viewport gutter.
    const left=gutter>=78?Math.round(gutter-62):16;
    side.style.left=Math.max(12,Math.min(innerWidth-60,left))+"px";
    side.hidden=window.scrollY<350||document.documentElement.scrollHeight-innerHeight<500;

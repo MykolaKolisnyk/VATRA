@@ -1,24 +1,56 @@
-# VATRA — page-owned assets
+# Структура файлів VATRA
 
-Shared social pages retain `base.css`, the existing shared `feed.css` shell and `social-shell.js`. Clips, Marketplace and VATRA ID share only the new section helpers (`core.js` / `core.css`) and load their own feature files; `sections.js` and `sections.css` are removed.
+Це основна VATRA у GitHub Pages. Публічні адреси сторінок зберігаються: HTML-файли залишаються в корені репозиторію.
 
-- The community directory and individual club share `community-core.js` and `communities.css` but load `communities.js` and `club.js` separately. The directory never imports post media or post interactions. Optional business tools (`community-business.js` and `community-business-*`) load their JavaScript only inside a club; their active styles live in `communities.css`, scoped to the community tool view. There is no standalone business page or stylesheet.
-- Marketplace's creation form and clip composer are imported on demand.
-- `account-guard.js` checks restrictions for every member. Only a verified owner-role response exposes the ADMIN PANEL entry, and only clicking it imports `admin.js` and `admin.css`. Marketplace moderation is rendered within that panel, never in the public marketplace. The server RPC/RLS remains the authorization boundary.
-- Marketplace images obtain signed URLs near the viewport. Identical photo paths reuse in-flight requests and a bounded 60-second browser-memory cache cleared on auth changes. No signed URLs or private results go to Redis.
-- Clip author labels use batched public-name lookups and the existing optional Redis-backed public-name endpoint. Header avatar paths reuse the existing viewer-local cache.
-- Content-versioned JS/CSS use a Git blob fingerprint in the URL. The service worker caches only body-matching versions without revalidation, capped at 80 entries. Unversioned resources retain network revalidation; HTML and private data are not cached by the worker.
-- When updating a versioned module, run `node tools/revision-assets.mjs --write` and commit changed references in the same commit.
+```text
+VATRA/
+├── index.html, feed.html, profile.html, messenger.html, ... 
+├── 404.html, offline.html, maintenance.html
+├── sw.js, site.webmanifest, sitemap.xml
+├── assets/
+│   ├── js/             Робочі JavaScript-модулі
+│   ├── css/            Робочі стилі
+│   ├── i18n/           Переклади інтерфейсу
+│   ├── fonts/          Шрифт Onest
+│   ├── logo/           Логотипи VATRA
+│   ├── vatryk/         Зображення Ватриків
+│   └── ...             Інші зображення інтерфейсу
+├── tests/
+│   ├── smoke/          Перевірки сценаріїв роботи
+│   └── audit/          Аудити структури, CSS, SEO, перекладів
+├── tools/              Інструменти складання, а не код сторінок
+├── supabase/
+│   ├── migrations/     Історія SQL-міграцій
+│   ├── functions/      Серверні Edge Functions
+│   └── operations/     Службові SQL-операції
+├── email-templates/    Листи Supabase Auth
+└── docs/               Технічні описи та рішення
+```
 
-## Production build
+## Де редагувати
 
-Run from the repository root:
+- Зовнішній вигляд конкретної сторінки — `assets/css/<назва>.css`; спільні правила — `base.css`, `core.css` і наявні загальні стилі.
+- Поведінку сторінки — відповідний файл `assets/js/<назва>.js`; спільна логіка залишається у спільних модулях, а не копіюється.
+- Повідомлення — `messenger.html`, `assets/js/messenger.js`, `assets/js/messenger-crypto.js`, `assets/css/messenger.css`.
+- Тести не завантажуються браузером для роботи VATRA та не повинні лежати поряд з робочими модулями.
+- SQL у `supabase/migrations` — історичні записи. Не перейменовуйте вже застосовані міграції без перевірки історії бази.
 
-```sh
+## Правила чистого коду
+
+1. Для власних класів та ідентифікаторів використовуйте зрозумілий префікс `vatra-`, не вводьте нових `vt-`.
+2. Не додавайте пояснювальні коментарі всередину JS/CSS. Пояснення архітектури та обмежень безпеки тримайте в `docs/`.
+3. Не створюйте `v2`/`final` копій чинних файлів і не нашаровуйте CSS-виправлення поверх дубльованих правил.
+4. Перед злиттям перевіряйте зв'язки ресурсів, адаптивність, переклади, авторизацію та тести.
+5. Стара база Supabase та наявні медіафайли користувачів не є матеріалом для «очищення» репозиторію.
+
+## Збірка
+
+```bash
+node tools/revision-assets.mjs
 npm install --no-save --no-package-lock esbuild@0.28.2
 node tools/build-static.mjs
 ```
 
-The build copies only public site files into `dist/`, minifies CSS and JS without bundling page modules together, updates content fingerprints after minification and emits `build-summary.json`. Source files remain readable and there are no tracked .min copies. The build does not change Supabase, Redis credentials or GitHub Pages deployment settings. A separate manual Pages source change to GitHub Actions and a validated deployment workflow are necessary before the generated artifact can replace the current branch-based site.
+Збірка створює тимчасову папку `dist/`; її не потрібно копіювати вручну в корінь. Публікація з `dist/` потребує окремого перевіреного налаштування GitHub Pages. Перевірки запускаються в GitHub Actions через `.github/workflows/check-site.yml`.
 
-The shared social stylesheet still needs a browser-verified split; music and messaging do not yet have standalone HTML routes in this repository.
+Важливо: актуальний Messenger — бета-версія з E2EE, не Signal/Double Ratchet. Дивіться `docs/messenger-security.md`.
