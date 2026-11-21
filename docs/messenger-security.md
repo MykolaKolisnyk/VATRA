@@ -6,6 +6,7 @@
 - Database: supabase/migrations/20261121113000_private_messenger_ciphertext_and_scoped_deletion.sql.
 - The older direct_messages.body stored plaintext. Do not label it E2EE or automatically import plaintext as encrypted.
 - Only ciphertext, public keys, sender/recipient IDs, timestamps and deletion markers are stored on Supabase. No passphrases, decrypted message bodies or private keys are sent there.
+- Shared-post drafts cross pages only via short-lived same-tab sessionStorage, removed on first Messenger load; plaintext is never included in URLs, browser history, Referer or API query parameters.
 
 ## Key protection and portability
 1. The first browser creates a P-256 ECDH identity. Private JWK is immediately encrypted with AES-256-GCM using a key derived from a passphrase (PBKDF2-SHA-256, 600000 iterations, random salt and nonce).

@@ -3666,6 +3666,8 @@ try{
    "Accepted friends can be selected for an encrypted Messenger draft");
   const shareSecuritySource=await readFile(resolve(root,"assets/js/post-interactions.js"),"utf8");
   assert.ok(shareSecuritySource.includes('new URL("messenger.html",relativeRoot())')&&
+   shareSecuritySource.includes('sessionStorage.setItem("vatra:messenger:draft-v1"')&&
+   !shareSecuritySource.includes('link.searchParams.set("draft"')&&
    !shareSecuritySource.includes('from("direct_messages")'),
    "Post sharing must navigate to E2EE Messenger, never persist plaintext DMs");
   await feedProbe.evaluate(()=>{

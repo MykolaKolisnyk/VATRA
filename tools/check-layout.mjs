@@ -1786,6 +1786,8 @@ assert.ok(
  interactionsScript.includes("Promise.resolve(settings.onShared()).catch(()=>{})")&&
  interactionsScript.includes("friendsLoaded=false;sendDM.disabled=true;")&&
  interactionsScript.includes('new URL("messenger.html",relativeRoot())')&&
+ interactionsScript.includes('sessionStorage.setItem("vatra:messenger:draft-v1"')&&
+ !interactionsScript.includes('link.searchParams.set("draft"')&&
  !interactionsScript.includes('from("direct_messages")'),
  "Repost success survives refresh; direct-message drafts route through encrypted Messenger");
 assert.ok(
