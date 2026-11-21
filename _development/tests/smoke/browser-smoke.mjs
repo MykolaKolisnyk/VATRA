@@ -3291,7 +3291,7 @@ try{
    Math.abs(postFrame.h-postFrame.vh)<=2,
    "Post photos must use the whole viewport, not a small centered modal: "+JSON.stringify(postFrame));
   assert.equal(postFrame.caption,
-   language==="en"?"Photo from posts":"Фото з публікацій",
+   language==="en"?"Photo from a post":"Фото з публікації",
    "Own post photos must not repeat the owner's name or a decorative separator");
   assert.equal(postFrame.imageFit,"contain","Post photos must preserve original proportions");
   assert.equal(postFrame.matte,"none","Post photos must not display a blurred duplicate");

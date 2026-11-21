@@ -3000,7 +3000,7 @@ body.feed-page .vatra-post-owner-action svg{flex:none;width:19px;height:19px;col
 body.feed-page .vatra-post-owner-delete-001 svg{color:#c34c60}
 body.feed-page .vatra-profile-post-pinned-001{font:650 12px/1.5 Onest,system-ui,sans-serif;color:#7187aa;margin:4px 0 10px}
 .ui-vatra-post-media-side-001{
- flex:0 0 clamp(340px,27vw,450px);align-self:stretch;min-width:0;
+ flex:0 0 clamp(318px,25vw,415px);align-self:stretch;min-width:0;
  display:flex;flex-direction:column;background:#fff;color:#334761;overflow:hidden
 }
 .vatra-post-media-caption-001{

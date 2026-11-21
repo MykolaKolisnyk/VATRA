@@ -506,6 +506,7 @@ function openFullMedia(url,kind,container){
   if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
   restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
   mediaSide.hidden=!restoreMediaPanel;
+  mediaFooterShare.hidden=!restoreMediaPanel;
   const sourceMenu=(postCard||container)?.querySelector("details[data-vatra-post-owner-menu]");
   if(sourceMenu){
    const marker=document.createElement("span");

@@ -1,4 +1,11 @@
 {
+  "Фото з публікації": "Photo d’une publication",
+  "Відео з публікації": "Vidéo d’une publication",
+  "Поки нічого не збережено.": "Aucun élément enregistré pour le moment.",
+  "Прибрати зі збереженого": "Retirer des éléments enregistrés",
+  "Збережене": "Enregistrés",
+  "Більше": "Plus",
+
   "Доступ заборонено": "Accès refusé",
   "Ви не маєте дозволу на виконання цієї дії.": "Vous n’avez pas l’autorisation d’effectuer cette action.",
   "Забагато запитів": "Trop de requêtes",
