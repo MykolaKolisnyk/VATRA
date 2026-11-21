@@ -1,4 +1,12 @@
 {
+  "Дії з фотографією": "Fotoaktionen",
+  "Фото з публікації": "Foto aus einem Beitrag",
+  "Відео з публікації": "Video aus einem Beitrag",
+  "Поки нічого не збережено.": "Noch nichts gespeichert.",
+  "Прибрати зі збереженого": "Aus Gespeichert entfernen",
+  "Збережене": "Gespeichert",
+  "Більше": "Mehr",
+
   "Доступ заборонено": "Zugriff verweigert",
   "Ви не маєте дозволу на виконання цієї дії.": "Sie haben keine Berechtigung, diese Aktion auszuführen.",
   "Забагато запитів": "Zu viele Anfragen",

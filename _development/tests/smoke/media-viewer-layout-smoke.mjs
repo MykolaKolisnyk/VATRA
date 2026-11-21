@@ -39,4 +39,17 @@ assert.ok(
  profile.includes("Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight)"),
  "Portrait and landscape avatar photos must preserve aspect ratio against a solid matte"
 );
+assert.ok(
+ postMedia.includes('ui-vatra-post-media-footer-001')&&
+ postMedia.includes('restoreOwnerMenu?.()')&&
+ postMedia.includes('tr("Фото з публікації","Photo from a post")')&&
+ postInteractions.includes('optionsPanel.prepend(saved)')&&
+ postInteractions.includes('row.append(like,commentsButton,share);shell.append(row)')&&
+ !postInteractions.includes('row.append(like,commentsButton,share,saved)')&&
+ postCss.includes('color:#e43d56;background:transparent')&&
+ profileCss.includes('color:#e43d56')&&
+ profileHtml.includes('data-social-uk="Збережене"')&&
+ profileHtml.includes('class="ui-profile-photo-more-chevron-001"'),
+ "Photo viewers must share the footer, preserve owner permissions, move Save into actions, and show red likes"
+);
 console.log("VATRA media viewer layout checks passed.");

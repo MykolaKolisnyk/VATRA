@@ -263,7 +263,7 @@ function appendAudience(container,level,isGroup=false){
 
  let ownerMenuListenersBound=false;
  function addOwnerMenu(header,{source="feed",onArchive=null,onDelete,client,post,ownId,onChange}={}){
-  if(!header||typeof onDelete!=="function")return null;
+  if(!header)return null;
   const details=make("details","vatra-post-owner-menu ui-vatra-post-owner-menu-001");
   details.dataset.vatraPostOwnerMenu="";
   const summary=make("summary","vatra-post-owner-toggle vatra-post-owner-toggle-001");
@@ -294,7 +294,7 @@ function appendAudience(container,level,isGroup=false){
    });
    panel.append(button);
   };
-  if(client&&post&&validUUID(post.id)&&post.kind!=="group"&&String(post.author_vatra_id)===String(ownId)){
+  if(client&&post&&validUUID(post.id)&&post.kind!=="group"&&String(post.author_vatra_id)===String(ownId)&&typeof onDelete==="function"){
    const update=async changes=>{const {data,error}=await client.from("feed_posts").update(changes).eq("id",post.id).eq("author_vatra_id",ownId).select("id").maybeSingle();if(error||!data)throw Error("Not saved");onChange?.();};
    option("pin",post.pinned_at?tr("Відкріпити","Unpin"):tr("Закріпити","Pin"),async()=>{const {data,error}=await client.rpc("vatra_set_post_pin",{p_post_id:post.id,p_pin:!post.pinned_at});if(error||data!==true)throw Error("Not pinned");onChange?.();});
    option("edit",tr("Редагувати","Edit"),()=>{
@@ -306,7 +306,7 @@ function appendAudience(container,level,isGroup=false){
   }
   if(typeof onArchive==="function")
    option("archive",tr("Архівувати","Archive"),onArchive);
-  option("delete",tr("Видалити","Delete"),onDelete);
+  if(typeof onDelete==="function")option("delete",tr("Видалити","Delete"),onDelete);
   details.append(summary,panel);
   details.addEventListener("toggle",()=>{
    if(!details.open)return;
@@ -354,14 +354,24 @@ function appendAudience(container,level,isGroup=false){
   const sharesCount=make("span","vatra-post-shares-count-001","0");
   share.append(sharesCount);
   share.setAttribute("aria-expanded","false");
-  const saved=action("vatra-post-save-001","bookmark",tr("Зберегти","Save"));
+  const saved=action("vatra-post-save-001 vatra-post-owner-action vatra-post-owner-save-001","bookmark",tr("Зберегти","Save"));
   saved.setAttribute("aria-pressed","false");
-  if(!validId(ownId))saved.hidden=true;
-  row.append(like,commentsButton,share,saved);shell.append(row);
+  row.append(like,commentsButton,share);shell.append(row);
   if(validId(ownId)){
+   const postHead=container.querySelector(".feed-post-header");
+   let optionsMenu=postHead?.querySelector("details[data-vatra-post-owner-menu]");
+   if(!optionsMenu)optionsMenu=addOwnerMenu(postHead,{client,post,ownId});
+   const optionsPanel=optionsMenu?.querySelector(".vatra-post-owner-panel");
+   if(optionsPanel){
+    saved.querySelector("span").classList.add("vatra-post-owner-action-label-001");
+    optionsPanel.prepend(saved);
+    saved.addEventListener("click",()=>{optionsMenu.open=false;});
+   }else row.append(saved);
    let stored=!!snapshot?.viewer_saved,saveReady=!!snapshot,savePending=null;
    const refresh=()=>{saved.setAttribute("aria-pressed",String(stored));
-    saved.querySelector("span").textContent=stored?tr("Збережено","Saved"):tr("Зберегти","Save");};
+    const label=stored?tr("Прибрати зі збереженого","Remove from saved"):tr("Зберегти","Save");
+    saved.querySelector("span").textContent=label;
+    saved.setAttribute("aria-label",label);saved.title=label;};
    const hydrateSaved=()=>{
     if(saveReady)return Promise.resolve(true);
     if(savePending)return savePending;
@@ -373,7 +383,7 @@ function appendAudience(container,level,isGroup=false){
     })().catch(()=>false).finally(()=>{savePending=null;});
     return savePending;
    };
-   if(snapshot)refresh();
+   refresh();
 
    if(!snapshot&&typeof IntersectionObserver==="function"){
     const observer=new IntersectionObserver(entries=>{
@@ -392,7 +402,7 @@ function appendAudience(container,level,isGroup=false){
 
      if(result.error||(stored&&String(result.data?.post_id)!==String(post.id)))
       throw result.error||Error("Saved post was not removed");
-     stored=!stored;refresh();invalidateEngagement(client);saved.title="";feedback("");
+     stored=!stored;refresh();invalidateEngagement(client);feedback("");
     }catch(_){
      saved.title=tr("Не вдалося змінити збереження.","Could not update saved post.");
      feedback(tr("Не вдалося змінити збереження. Спробуйте ще раз.",

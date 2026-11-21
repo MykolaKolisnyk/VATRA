@@ -1309,8 +1309,8 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
    const persons=rows.filter(row=>row.post_kind==="person").map(row=>row.post_id);
    const groups=rows.filter(row=>row.post_kind==="group").map(row=>row.post_id);
    const fetched=await Promise.all([
-    persons.length?client.from("feed_posts").select("id,body,author_vatra_id,media_kind,media_path,shared_post_kind,shared_post_id,created_at").in("id",persons):Promise.resolve({data:[]}),
-    groups.length?client.from("community_posts").select("id,body,author_vatra_id,club_id,media_kind,media_path,created_at").in("id",groups):Promise.resolve({data:[]})
+    persons.length?client.from("feed_posts").select("id,body,author_vatra_id,media_kind,media_path,media_items,is_clip,shared_post_kind,shared_post_id,created_at").in("id",persons):Promise.resolve({data:[]}),
+    groups.length?client.from("community_posts").select("id,body,author_vatra_id,club_id,media_kind,media_path,media_items,created_at").in("id",groups):Promise.resolve({data:[]})
    ]);
    const map=new Map(fetched.flatMap((x,i)=>(x.data||[]).map(p=>[(i?"group":"person")+":"+p.id,p])));
    const all=[...map.values()];
@@ -1337,12 +1337,12 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
       .eq("post_kind",save.post_kind).eq("post_id",save.post_id);
      if(result.error){remove.disabled=false;return;}
      article.remove();
-     if(!list.children.length)empty("#profile-saved-empty",t("Збережених публікацій поки немає.","No saved posts yet."));
+     if(!list.children.length)empty("#profile-saved-empty",t("Поки нічого не збережено.","Nothing saved yet."));
     });
     article.append(a,remove);
    }
-   if(!list.children.length)empty("#profile-saved-empty",t("Збережених публікацій поки немає.","No saved posts yet."));
-  }catch(_){empty("#profile-saved-empty",t("Не вдалося завантажити збережене.","Could not load saved posts."));}
+   if(!list.children.length)empty("#profile-saved-empty",t("Поки нічого не збережено.","Nothing saved yet."));
+  }catch(_){empty("#profile-saved-empty",t("Не вдалося завантажити збережене.","Could not load saved items."));}
  };
  const stories=async()=>{
   if(!isMine)return;
