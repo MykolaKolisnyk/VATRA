@@ -2073,6 +2073,18 @@ assert.ok(memberProfileMarkup.includes('id="profile-cover-viewer"')&&
  memberCss.includes('.ui-profile-cover-viewer-image-001'),
  "Cover uses an independent dark viewer and animates the existing 2000x580 thumbnail without avatar mode");
 
+assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
+ memberProfileMarkup.includes('id="profile-photo-restore"')&&
+ profileScript.includes('pendingAvatarUndo={path,previous')&&
+ profileScript.includes('storage.download(path)')&&
+ profileScript.includes('restoreAvatarButton.addEventListener("click"')&&
+ memberCss.includes('.profile-media-viewer.is-photo-deleted')&&
+ memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
+ !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
+ memberCss.includes('padding:58px 76px 18px')&&
+ memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
+ "Avatar deletions preserve a restorable backup and chevrons stay outside the image");
+
 const photoReportMigration=await read("supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
 const photoReportNotNull=await read("supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
 assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
