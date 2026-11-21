@@ -91,7 +91,7 @@
  }
  // Browser-only, RLS-scoped pages of comments. Never share them via Redis.
  // Keep pages tiny and short-lived; writes and account switches discard them.
- const COMMENT_PAGE_TTL_MS=4_000,COMMENT_PAGE_MAX=32;
+ const COMMENT_PAGE_TTL_MS=15_000,COMMENT_PAGE_MAX=32;
  const commentPageCaches=new WeakMap();
  function commentPageState(client){
   let state=commentPageCaches.get(client);
@@ -237,19 +237,19 @@ function appendAudience(container,level,isGroup=false){
    visibility==="group"?tr("Учасники спільноти","Community members"):
    tr("Публічно","Public");
   const marker=make("span","feed-post-audience ui-feed-post-audience-001");
+  marker.setAttribute("role","img");
   marker.setAttribute("aria-label",label);
-  marker.tabIndex=0;
-  const hint=make("span","vt-vatra-post-audience-hint-001",label);
-  hint.setAttribute("aria-hidden","true");
   const symbol=glyph(visibility==="only_me"?"bookmark":visibility==="public"?"share":"comments");
   symbol.setAttribute("class","ui-feed-post-audience-icon-001");
+  symbol.setAttribute("aria-hidden","true");
+  symbol.setAttribute("focusable","false");
   symbol.replaceChildren();
   const ns="http://www.w3.org/2000/svg";
   const path=document.createElementNS(ns,"path");
   if(visibility==="only_me")path.setAttribute("d","M7 10V7a5 5 0 0 1 10 0v3M5.5 10.5h13v10h-13z");
   else if(visibility==="public")path.setAttribute("d","M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18");
   else path.setAttribute("d","M15.5 10a3 3 0 1 0-6 0 3 3 0 0 0 6 0ZM4 21v-1a8 8 0 0 1 16 0v1M5.5 9a2.5 2.5 0 0 0 0 5M18.5 9a2.5 2.5 0 0 1 0 5");
-  symbol.append(path);marker.append(symbol,hint);
+  symbol.append(path);marker.append(symbol);
   container.append(marker);
  }
  // A single accessible owner menu replaces the two large buttons in each post.
@@ -329,6 +329,7 @@ function appendAudience(container,level,isGroup=false){
   const kind=post?.kind==="group"?"group":"person";
   if(!validUUID(post?.id)||!client||!container)return;
   const ownId=String(settings.ownId||""),userId=settings.userId;
+  if(validId(ownId))container.dataset.vatraViewerId=ownId;
   const snapshot=settings.engagement?.post_id===post.id&&settings.engagement?.post_kind===kind?
    settings.engagement:null;
   const shell=make("section","vatra-post-interactions ui-vatra-post-interactions-001");
@@ -561,7 +562,7 @@ function appendAudience(container,level,isGroup=false){
   if(commentsLocked){form.hidden=true;panel.append(make("p","vt-vatra-post-comments-locked-001",tr("Коментування цієї публікації вимкнено.","Comments on this post are disabled.")));}
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
   const replySize=3;
-  let commentOffset=0,busy=false,ticket=0,pendingReset=false,replyTarget=null,chosenFile=null,emojiMode="emoji",pickerVersion=0,activePack="vatryk",cropVersion=0,cropping=false,submitting=false;
+  let commentOffset=0,busy=false,ticket=0,pendingReset=false,pendingKeep=false,replyTarget=null,chosenFile=null,emojiMode="emoji",pickerVersion=0,activePack="vatryk",cropVersion=0,cropping=false,submitting=false;
   const rootReplies=new Map();
   const stopReply=()=>{
    replyTarget=null;replying.hidden=true;replyingText.textContent="";
@@ -786,7 +787,9 @@ function appendAudience(container,level,isGroup=false){
      if(result.error||String(result.data?.id)!==String(item.id))throw result.error||Error("Comment not removed");
      card.remove();invalidateComments(client);invalidateEngagement(client);
      if(item.media_path&&String(item.media_path).startsWith(String(ownId)+"/comments/")&&["image","video"].includes(item.media_kind)){try{await client.storage.from(item.media_kind==="image"?"post-images":"videos").remove([item.media_path]);}catch(_){}}
-     if(replyTarget?.id===item.id)stopReply();await loadComments(true);void refreshSocial();feedback(tr("Коментар видалено.","Comment deleted."));
+     if(replyTarget?.id===item.id)stopReply();
+     void loadComments(true,true);void refreshSocial();
+     feedback(tr("Коментар видалено.","Comment deleted."));
     }catch(_){feedback(tr("Не вдалося видалити коментар.","Could not delete comment."),true);}finally{remove.disabled=false;}});authorRow.append(remove);
    }
    content.append(authorRow);
@@ -887,15 +890,22 @@ function appendAudience(container,level,isGroup=false){
    }
    return card;
   }
-  async function loadComments(reset=false){
+  async function loadComments(reset=false,keepVisible=false){
    if(busy){
-    // A sort change or reopened viewer must not be lost while a page is loading.
-    if(reset){pendingReset=true;ticket++;}
+    // Coalesce overlapping refreshes without wiping already rendered comments.
+    if(reset){pendingReset=true;pendingKeep=keepVisible;ticket++;}
     return;
    }
    busy=true;more.disabled=true;entries.setAttribute("aria-busy","true");
    const token=++ticket;
-   if(reset){commentOffset=0;entries.replaceChildren();more.hidden=true;rootReplies.clear();}
+   const previousRows=reset&&keepVisible?
+    new Map([...entries.children].filter(el=>el.dataset?.commentId)
+     .map(el=>[el.dataset.commentId,el])):new Map();
+   if(reset){
+    commentOffset=0;
+    if(!keepVisible){entries.replaceChildren();rootReplies.clear();}
+    more.hidden=true;
+   }
    try{
     const {data,error}=await commentThreadPage(client,{
      p_kind:kind,p_post_id:post.id,p_sort:sort.value,
@@ -923,9 +933,32 @@ function appendAudience(container,level,isGroup=false){
      if(!result.error)mine=new Set((result.data||[]).map(x=>x.comment_id));
     }
     if(token!==ticket)return;
-    if(reset&&!rows.length)entries.append(make("p","vt-vatra-post-comments-empty-001",
-     tr("Коментарів поки немає.","No comments yet.")));
-    for(const item of rows)entries.append(renderComment(item,people,mine,item.id,false,replyCounts.get(item.id)||0));
+    if(token!==ticket)return;
+    const fresh=[];
+    const seen=new Set();
+    for(const item of rows){
+     const key=String(item.id);seen.add(key);
+     fresh.push(previousRows.get(key)||
+      renderComment(item,people,mine,item.id,false,replyCounts.get(item.id)||0));
+    }
+    if(reset&&keepVisible){
+     // Commit one reconciled DOM batch only after successful server reads.
+     // Existing comment nodes keep their focus, reply state and event listeners.
+     const remaining=rows.length?[...previousRows].filter(([id])=>!seen.has(id))
+      .map(([,node])=>node):[];
+     entries.replaceChildren(...fresh,...remaining);
+     if(!rows.length){
+      rootReplies.clear();
+      entries.append(make("p","vt-vatra-post-comments-empty-001",
+       tr("Коментарів поки немає.","No comments yet.")));
+     }
+    }else{
+     if(reset&&!rows.length)entries.append(make("p","vt-vatra-post-comments-empty-001",
+      tr("Коментарів поки немає.","No comments yet.")));
+     for(const node of fresh){
+      if(!entries.querySelector("#"+CSS.escape(node.id)))entries.append(node);
+     }
+    }
     commentOffset+=rows.length;more.hidden=(data||[]).length<=pageSize;
     const deepComment=new URLSearchParams(location.search).get("comment");
     if(validUUID(deepComment)){
@@ -937,14 +970,18 @@ function appendAudience(container,level,isGroup=false){
     if(token===ticket)feedback(tr("Не вдалося завантажити коментарі.","Could not load comments."),true);
    }finally{
     busy=false;more.disabled=false;entries.setAttribute("aria-busy","false");
-    if(pendingReset){pendingReset=false;void loadComments(true);}
+    if(pendingReset){
+     const keep=pendingKeep;
+     pendingReset=false;pendingKeep=false;
+     void loadComments(true,keep);
+    }
    }
   }
   // Move the real post (not a duplicate) into a native dialog. This keeps
   // the same buttons, media and existing handlers working without double renders.
   let commentDialog=null;
   const openComments=()=>{
-   if(settings.inlineComments){panel.hidden=!panel.hidden;commentsButton.setAttribute("aria-expanded",String(!panel.hidden));if(panel.hidden)hideMenus();else void loadComments(true);return;}
+   if(settings.inlineComments){panel.hidden=!panel.hidden;commentsButton.setAttribute("aria-expanded",String(!panel.hidden));if(panel.hidden)hideMenus();else void loadComments(true,entries.children.length>0);return;}
    if(commentDialog?.open)return;
    const card=container.closest(".feed-post-card")||container;
    if(!card.parentNode)return;
@@ -991,7 +1028,7 @@ function appendAudience(container,level,isGroup=false){
    close.addEventListener("click",dismiss);
    dialog.addEventListener("click",event=>{if(event.target===dialog)dismiss();});
    dialog.showModal();close.focus({preventScroll:true});
-   void loadComments(true);
+   void loadComments(true,entries.children.length>0);
   };
   commentsButton.addEventListener("click",openComments);
   if(new URLSearchParams(location.search).get("comment")&&
@@ -1027,8 +1064,9 @@ function appendAudience(container,level,isGroup=false){
     if(!sticker){input.value="";chosenFile=null;fileInput.value="";attachmentPreview.hidden=true;stopReply();}
     else if(!input.value.trim()&&!chosenFile)stopReply();
     updateSend();
-    if(target&&rootReplies.has(target.id))await rootReplies.get(target.id).expand(true);
-    else await loadComments(true);
+    if(target&&rootReplies.has(target.id)){
+     void rootReplies.get(target.id).expand(true);
+    }else void loadComments(true,true);
     void refreshSocial();feedback(tr("Коментар опубліковано.","Comment published."));
    }catch(_){
     if(!committed){
@@ -1254,7 +1292,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   mediaPanels.set(container,side=>{
    if(!shell.isConnected||commentDialog?.open)return null;
    const marker=make("span","ui-vatra-media-actions-origin-001");marker.hidden=true;shell.before(marker);
-   const wasHidden=panel.hidden;side.append(shell);panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");side.closest("dialog")?.append(popovers);void loadComments(true);
+   const wasHidden=panel.hidden;side.append(shell);panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");side.closest("dialog")?.append(popovers);void loadComments(true,entries.children.length>0);
    const avoidNested=e=>{if(e.target.closest(".vt-vatra-post-comments-toggle-001")){e.preventDefault();e.stopImmediatePropagation();}};side.addEventListener("click",avoidNested,true);
    return ()=>{side.removeEventListener("click",avoidNested,true);hideMenus();composer.insertBefore(popovers,fileInput);panel.hidden=wasHidden;commentsButton.setAttribute("aria-expanded",String(!wasHidden));if(marker.isConnected)marker.replaceWith(shell);else shell.remove();};
   });

@@ -1069,12 +1069,17 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  const offset=append?Number(list.dataset.offset||0):0;
  const year=Number(q("#profile-post-filter-year")?.value||0);
  const month=Number(q("#profile-post-filter-month")?.value||0);
+ const scope=String(targetId)+"|"+year+"|"+month;
+ const oldCards=!append&&list.dataset.profileScope===scope?
+  new Map([...list.querySelectorAll(".feed-post-card[data-post-id]")]
+   .map(card=>[card.dataset.postId,card])):new Map();
  list.dataset.loading="true";list.setAttribute("aria-busy","true");
  if(!append){
-  list.replaceChildren();
-  empty.textContent=t("Завантаження публікацій…","Loading posts…");
-  empty.hidden=false;
-  list.dataset.offset="0";
+  // Do not remove existing posts, comments or media while requesting changes.
+  if(!list.querySelector(".feed-post-card")){
+   empty.textContent=t("Завантаження публікацій…","Loading posts…");
+   empty.hidden=false;
+  }
   if(more)more.hidden=true;
  }
  if(more)more.disabled=true;
@@ -1099,10 +1104,14 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   const engagement=await (window.VATRA_POST_INTERACTIONS?.prefetchEngagement(
    client,rows.map(post=>({...post,kind:"person"})))||Promise.resolve(new Map()));
   if(ticket!==profilePostsRequest)return;
-  if(!append)list.replaceChildren();
   const batch=document.createDocumentFragment();
   for(const post of rows){
+   const fingerprint=JSON.stringify([post.id,post.body,post.visibility,post.media_kind,
+    post.media_path,post.media_items,post.pinned_at,post.comments_enabled]);
+   const cached=oldCards.get(String(post.id));
+   if(cached?._vatraPostFingerprint===fingerprint){batch.append(cached);continue;}
    const article=node("article","feed-post-card ui-profile-post-card-001");
+   article._vatraPostFingerprint=fingerprint;
    article.dataset.postId=post.id;
    const header=node("div","feed-post-header ui-profile-post-header-001");
    const identity=node("div","feed-post-author ui-profile-post-author-001");
@@ -1168,7 +1177,8 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    });
    batch.append(article);
   }
-  list.append(batch);
+  if(append)list.append(batch);else list.replaceChildren(batch);
+  list.dataset.profileScope=scope;
   list.dataset.offset=String(offset+rows.length);
   empty.hidden=list.querySelector(".feed-post-card")!==null;
   if(!empty.hidden)empty.textContent=year?
@@ -1193,10 +1203,10 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   }
  }catch(_){
   if(ticket!==profilePostsRequest)return;
-  if(!append)list.replaceChildren();
+  // On transient failure preserve already visible cards and their interactions.
   empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
    "Could not load posts. Try refreshing this page.");
-  empty.hidden=false;
+  empty.hidden=!!list.querySelector(".feed-post-card");
  }finally{
   if(ticket===profilePostsRequest){
    list.dataset.loading="false";list.setAttribute("aria-busy","false");
@@ -2407,6 +2417,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentSort=q("#profile-photo-comment-sort"),photoCommentsMore=q("#profile-photo-comments-more");
  const commentSortNote=q("#profile-photo-comment-sort-note"),commentFilters=q(".ui-profile-photo-comment-filters-001");
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
+ let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
 
  const tagFailure=(error,fallback,retry)=>{
@@ -2536,26 +2547,66 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   photoCommentsMore.textContent=t("Показати ще","Show more");
  };
  updatePhotoSortCopy();
- async function reloadPhotoActivity(append=false,refreshLikes=true){
+ // Small RLS-scoped, per-viewer avatar comment cache. Only server-confirmed rows
+ // are stored; writes and account changes clear them. Never persist to storage.
+ const avatarCommentPages=new Map(),AVATAR_COMMENT_TTL=12_000,AVATAR_COMMENT_MAX=12;
+ client.auth?.onAuthStateChange?.(event=>{
+  if(event!=="INITIAL_SESSION"&&event!=="TOKEN_REFRESHED")avatarCommentPages.clear();
+ });
+ const avatarCommentPage=async(path,sort,offset)=>{
+  const key=JSON.stringify([path,sort,offset]),entry=avatarCommentPages.get(key);
+  if(entry?.pending)return entry.pending;
+  if(entry&&entry.expires>Date.now()){
+   avatarCommentPages.delete(key);avatarCommentPages.set(key,entry);
+   return entry.rows.map(row=>({...row}));
+  }
+  avatarCommentPages.delete(key);
+  const pending=(async()=>{
+   const {data,error}=await client.rpc("vatra_avatar_comment_page",{
+    p_owner:Number(targetId),p_avatar_path:path,p_sort:sort,
+    p_offset:offset,p_limit:12
+   });
+   if(error)throw error;
+   return Array.isArray(data)?data:[];
+  })();
+  avatarCommentPages.set(key,{pending,expires:0});
+  while(avatarCommentPages.size>AVATAR_COMMENT_MAX)
+   avatarCommentPages.delete(avatarCommentPages.keys().next().value);
+  try{
+   const rows=await pending;
+   if(avatarCommentPages.get(key)?.pending===pending)
+    avatarCommentPages.set(key,{rows:rows.map(row=>({...row})),expires:Date.now()+AVATAR_COMMENT_TTL});
+   return rows.map(row=>({...row}));
+  }catch(error){
+   if(avatarCommentPages.get(key)?.pending===pending)avatarCommentPages.delete(key);
+   throw error;
+  }
+ };
+ async function reloadPhotoActivity(append=false,refreshLikes=true,keepVisible=false){
   const path=photoPath(),ticket=++activityTicket;
   if(!path)return;
-  if(!append){photoCommentOffset=0;commentList.replaceChildren();commentList.classList.remove("is-empty");photoCommentsMore.hidden=true;commentFilters.hidden=true;}
+  const key=path+"|"+commentSort.value;
+  const reuse=keepVisible&&lastAvatarCommentKey===key;
+  const existing=!append&&reuse?
+   new Map([...commentList.children].filter(el=>el.dataset?.commentId)
+    .map(el=>[el.dataset.commentId,el])):new Map();
+  if(!append){
+   photoCommentOffset=0;
+   if(!reuse){commentList.replaceChildren();commentList.classList.remove("is-empty");
+    photoCommentsMore.hidden=true;commentFilters.hidden=true;}
+  }
   commentList.setAttribute("aria-busy","true");photoCommentsMore.disabled=true;
-  if(!append)feedback(t("Завантаження коментарів…","Loading comments…"));
+  if(!append&&!reuse)feedback(t("Завантаження коментарів…","Loading comments…"));
   try{
-   const commentsPromise=client.rpc("vatra_avatar_comment_page",{
-    p_owner:Number(targetId),p_avatar_path:path,p_sort:commentSort.value,
-    p_offset:photoCommentOffset,p_limit:12
-   });
+   const commentsPromise=avatarCommentPage(path,commentSort.value,photoCommentOffset);
    const likesPromise=refreshLikes?Promise.all([
     client.from("avatar_likes").select("liker_id",{count:"exact",head:true})
      .eq("owner_vatra_id",targetId).eq("avatar_path",path),
     client.from("avatar_likes").select("liker_id")
      .eq("owner_vatra_id",targetId).eq("avatar_path",path).eq("liker_id",userId).limit(1)
    ]):Promise.resolve(null);
-   const [comments,likeResults]=await Promise.all([commentsPromise,likesPromise]);
+   const [rows,likeResults]=await Promise.all([commentsPromise,likesPromise]);
    if(ticket!==activityTicket||path!==photoPath())return;
-   if(comments.error)throw comments.error;
    if(likeResults){
     if(likeResults[0].error||likeResults[1].error)throw likeResults[0].error||likeResults[1].error;
     const liked=!!likeResults[1].data?.length;
@@ -2564,7 +2615,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     likesButton.classList.toggle("is-liked",liked);
    }
    if(ticket!==activityTicket||path!==photoPath())return;
-   const rows=comments.data||[];
    const {names,images}=await window.VATRA_POST_INTERACTIONS?.authorMap(client,rows)
     ||{names:new Map(),images:new Map()};
    const ids=rows.map(x=>x.id);
@@ -2577,14 +2627,19 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(ticket!==activityTicket||path!==photoPath())return;
    commentList.classList.toggle("is-empty",!append&&!rows.length);
    if(!append&&!rows.length){
+    if(reuse)commentList.replaceChildren();
     const placeholder=node("div","ui-profile-photo-empty-state-001"),symbol=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS("http://www.w3.org/2000/svg","path");
     symbol.setAttribute("class","ui-profile-photo-empty-icon-001");symbol.setAttribute("viewBox","0 0 48 48");symbol.setAttribute("fill","none");symbol.setAttribute("stroke","currentColor");symbol.setAttribute("stroke-width","2.6");symbol.setAttribute("stroke-linecap","round");symbol.setAttribute("stroke-linejoin","round");symbol.setAttribute("aria-hidden","true");p.setAttribute("d","M16 7h22a5 5 0 0 1 5 5v17a5 5 0 0 1-5 5h-4v8l-10-8h-8a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5ZM6 15a5 5 0 0 0-4 5v14a5 5 0 0 0 5 5h5v5l6-5");symbol.append(p);
     placeholder.append(symbol,node("p","vt-profile-photo-no-comments-001",t("Коментарів поки немає. Будьте першими!","No comments yet. Be the first!")));commentList.append(placeholder);
    }
+   const fresh=[];
    for(const item of rows){
+    const old=existing.get(String(item.id));
+    if(old){fresh.push(old);continue;}
     const id=String(item.author_vatra_id);
     const member=names.get(id)||t("Учасник VATRA","VATRA member");
     const card=node("article","profile-photo-comment ui-profile-photo-comment-001");
+    card.dataset.commentId=String(item.id);
     const head=node("div","profile-photo-comment-head ui-profile-photo-comment-head-001");
     const avatar=node("a","profile-photo-comment-avatar ui-profile-photo-comment-avatar-001",
      member.split(/\s+/).slice(0,2).map(x=>Array.from(x)[0]||"").join("").toLocaleUpperCase(locale));
@@ -2634,12 +2689,26 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
         .eq("comment_id",item.id).eq("liker_id",userId):
        await client.from("avatar_comment_likes").insert({comment_id:item.id,liker_id:userId});
       if(result.error)throw result.error;
+      avatarCommentPages.clear();
       reacted=!reacted;countValue+=reacted?1:-1;paint();
      }catch(_){feedback(t("Не вдалося вподобати коментар.","Could not like the comment."),true);}
      finally{reaction.disabled=false;}
     });
-    card.append(reaction);commentList.append(card);
+    card.append(reaction);fresh.push(card);
    }
+   if(!append&&reuse&&rows.length){
+    const received=new Set(rows.map(item=>String(item.id)));
+    const older=[...existing].filter(([id])=>!received.has(id)).map(([,node])=>node);
+    // Single-frame DOM reconciliation: no empty panel, scroll jump or comment flash.
+    commentList.replaceChildren(...fresh,...older);
+   }else if(fresh.length){
+    if(append){
+     const present=new Set([...commentList.querySelectorAll("[data-comment-id]")]
+      .map(el=>el.dataset.commentId));
+     commentList.append(...fresh.filter(el=>!present.has(el.dataset.commentId)));
+    }else commentList.append(...fresh);
+   }
+   lastAvatarCommentKey=key;
    photoCommentOffset+=rows.length;
    commentFilters.hidden=photoCommentOffset===0;
    photoCommentsMore.hidden=rows.length<12;feedback("");
@@ -2659,7 +2728,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     client.from("avatar_likes").delete().eq("avatar_path",path).eq("liker_id",userId):
     client.from("avatar_likes").insert({owner_vatra_id:targetId,avatar_path:path,liker_id:userId});
    const {error}=await query;if(error)throw error;
-   if(path===photoPath()&&mediaDialog.open)await reloadPhotoActivity();
+   if(path===photoPath()&&mediaDialog.open){
+   const liked=likesButton.getAttribute("aria-pressed")!=="true";
+   likesButton.setAttribute("aria-pressed",String(liked));
+   likesButton.classList.toggle("is-liked",liked);
+   likesCount.textContent=String(Math.max(0,(Number(likesCount.textContent)||0)+(liked?1:-1)));
+  }
   }catch(_){if(path===photoPath()&&mediaDialog.open)feedback(t("Не вдалося змінити вподобання.","Could not update like."),true);}
   finally{likeBusy=false;likesButton.disabled=false;}
  });
@@ -2673,7 +2747,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     owner_vatra_id:targetId,avatar_path:path,author_id:userId,author_vatra_id:ownId,body
    });
    if(error)throw error;
-   if(path===photoPath()&&mediaDialog.open){resetPhotoComposer();await reloadPhotoActivity();}
+   avatarCommentPages.clear();
+   if(path===photoPath()&&mediaDialog.open){
+    resetPhotoComposer();
+    // Refresh only this thread; existing comments never disappear while it loads.
+    void reloadPhotoActivity(false,false,true);
+   }
   }catch(_){if(path===photoPath()&&mediaDialog.open)feedback(t("Не вдалося додати коментар.","Could not add comment."),true);}
   finally{commentBusy=false;commentSend.disabled=!commentInput.value.trim();}
  });
@@ -2720,7 +2799,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   mediaDialog.dataset.kind=current?"avatar":"avatar-history";
   interaction.hidden=false;activityTicket++;
   const displayName=String(q("#profile-heading").textContent||"").trim();
-  const photoTitle=t("Фото профілю · ","Profile photo · ")+displayName;
+  const photoTitle=isMine?t("Фото профілю","Profile photo"):
+   t("Фото профілю ","Profile photo of ")+displayName;
   mediaHeading.textContent=photoTitle;mediaHeading.hidden=true;
   mediaDialog.setAttribute("aria-label",photoTitle);
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
@@ -2743,7 +2823,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   prevPhoto.disabled=galleryIndex===0;nextPhoto.disabled=galleryIndex>=gallery.length-1;
   galleryToolbar.hidden=false;
   galleryCount.textContent=gallery.length===1?photoTitle:
-   photoTitle+" · "+(galleryIndex+1)+t(" із "," of ")+gallery.length;
+   photoTitle+" "+(galleryIndex+1)+t(" із "," of ")+gallery.length;
   galleryDelete.hidden=!canEdit;
   footerReport.hidden=isMine||locked;
   setCurrent.hidden=!canEdit||current;
@@ -2759,7 +2839,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   ownerPhoto.style.backgroundImage=photoURLs.avatar?"url("+JSON.stringify(photoURLs.avatar)+")":"";
   ownerPhoto.classList.toggle("has-photo",!!photoURLs.avatar);
   const uploaded=galleryDates.get(path);const elapsed=uploaded?Math.max(0,Date.now()-Date.parse(uploaded)):Infinity;date.textContent=uploaded?(elapsed<60000?t("Щойно","Just now"):elapsed<86400000?new Intl.RelativeTimeFormat(locale,{numeric:"auto"}).format(-Math.floor(elapsed/(elapsed<3600000?60000:3600000)),elapsed<3600000?"minute":"hour"):dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
-  resetPhotoComposer();syncComposerAvatar();void reloadPhotoActivity();void loadTags();
+  resetPhotoComposer();syncComposerAvatar();
+  void reloadPhotoActivity(false,true,lastAvatarCommentKey===path+"|"+commentSort.value);
+  void loadTags();
  };
  const stepPhoto=delta=>{if(pendingAvatarUndo)return;const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
  prevPhoto.addEventListener("click",()=>stepPhoto(-1));nextPhoto.addEventListener("click",()=>stepPhoto(1));

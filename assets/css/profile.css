@@ -354,6 +354,10 @@ body.profile-page .profile-cover-view:focus-visible{
 body.profile-page .profile-cover-view[hidden]{display:none!important}
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  position:relative;z-index:8;align-self:flex-start;flex:none;}
+/* An open avatar action menu must stay above the sticky header search field. */
+body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap.is-menu-open{
+ z-index:110
+}
 body.profile-page .profile-avatar-trigger{
  display:block;position:relative;width:100%;height:100%;padding:0;
  border:0;border-radius:50%;background:transparent;}
@@ -392,7 +396,7 @@ body.profile-page .profile-avatar-menu button:focus-visible{
 body.profile-page .profile-media-viewer{
  position:fixed;inset:0;width:100vw;height:100dvh;
  max-width:none;max-height:none;margin:0;padding:0;
- overflow:hidden;border:0;border-radius:0;background:#050506;color:#fff;
+ overflow:hidden;border:0;border-radius:0;background:#111419;color:#fff;
  font-family:"Onest",system-ui,sans-serif
 }
 body.profile-page .profile-media-viewer:not([open]),
@@ -475,7 +479,6 @@ html:has(#profile-media-viewer[open]){
  overflow:hidden!important;scrollbar-gutter:auto!important
 }
 body:has(#profile-media-viewer[open]){overflow:hidden!important}
-body.profile-page .profile-media-viewer[open]{display:grid}
 body.profile-page .profile-media-viewer-stage{width:100%}
 body.profile-page .profile-media-viewer-image{min-width:0;min-height:0}
 body.profile-page .profile-avatar-engagement{
@@ -2871,14 +2874,11 @@ body.profile-page .ui-profile-photo-emoji-panel-001[hidden]{display:none}
 body.profile-page .vt-profile-photo-emoji-001{font-size:20px}
 body.profile-page .ui-profile-edit-status-001:focus{outline:2px solid #b7cef9;outline-offset:0}
 
-/* Avatar gallery: measured, uncropped photo + dark VK-style footer + white discussion panel. */
+/* The base modal already owns its full-viewport box. This rule only adds the layout. */
 body.profile-page .profile-media-viewer[open]{
- inset:0;margin:auto;width:min(1300px,calc(100vw - 44px));height:min(840px,calc(100dvh - 42px));
- max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);
- border-radius:16px;grid-template-columns:minmax(0,1fr) clamp(310px,29%,380px);
- background:#20242c;box-shadow:0 30px 90px rgba(8,15,29,.3)
+ display:grid;grid-template-columns:minmax(0,1fr) clamp(318px,25vw,415px)
 }
-body.profile-page .profile-media-viewer::backdrop{background:rgba(14,19,27,.78)}
+body.profile-page .profile-media-viewer::backdrop{background:rgba(12,16,24,.92)}
 /* Standalone cover lightbox: the profile remains fixed behind an opaque dimmer.
    Only the displayed 2000:580 cover animates; avatar gallery stays independent. */
 @keyframes vatra-cover-backdrop-in{
@@ -2952,9 +2952,9 @@ body.profile-page .vt-profile-cover-viewer-original-001[hidden]{display:none!imp
 
 body.profile-page .profile-media-viewer-stage{
  display:flex;flex-direction:column;box-sizing:border-box;height:100%;
- padding:0;min-width:0;min-height:0;overflow:hidden;background:#20242c
+ padding:0;min-width:0;min-height:0;overflow:hidden;background:#111419
 }
-body.profile-page .profile-media-viewer[data-image-format="png"] .profile-media-viewer-stage{background:#20242c}
+body.profile-page .profile-media-viewer[data-image-format="png"] .profile-media-viewer-stage{background:#111419}
 /* Deleted avatar remains visible with an in-viewer Restore control. */
 body.profile-page .ui-profile-photo-deleted-notice-001{
  position:absolute;top:0;left:0;right:0;z-index:6;box-sizing:border-box;
@@ -3060,7 +3060,7 @@ body.profile-page .ui-profile-gift-dialog-row-001 .profile-gift-art{width:min(10
 body.profile-page .vt-profile-gifts-dialog-more-001{display:block;margin:16px auto;padding:9px 18px;border:0;border-radius:10px;background:#edf3fc;color:#3565b7;cursor:pointer}
 body.profile-page .vt-profile-gifts-dialog-more-001[hidden]{display:none}
 @media(max-width:780px){
- body.profile-page .profile-media-viewer[open]{width:calc(100vw - 16px);height:calc(100dvh - 20px);grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,55%) minmax(0,45%);border-radius:12px}
+ body.profile-page .profile-media-viewer[open]{width:100vw;height:100dvh;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,60%) minmax(0,40%);border-radius:0}
  body.profile-page .profile-media-viewer-stage{height:100%!important}
  body.profile-page .ui-profile-photo-content-001{padding:48px 44px 10px}
  body.profile-page .ui-profile-photo-footer-001{min-height:47px;padding:6px 10px;gap:5px}

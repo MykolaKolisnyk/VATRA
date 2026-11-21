@@ -1140,7 +1140,7 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-archive-menu"')&&
  (await read("assets/js/feed.js")).includes('archived_at')&&
  (await read("assets/js/post-interactions.js")).includes('post_saves')&&
- (await read("assets/css/feed.css")).includes('max-height:calc(100dvh - 90px)')&&
+ (await read("assets/css/feed.css")).includes('width:100vw;height:100dvh;')&&
  (await read("assets/js/feed.js")).includes('feedFilter==="friends"'),
  "Profile status, privacy-preserving activity, media tabs and Feed filters must exist");
 assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
@@ -1488,8 +1488,10 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('batch.append(card(item,engagement))')&&
- feedScript.includes('posts.append(batch)')&&
+ feedScript.includes('batch.append(same&&oldElement?oldElement:card(item,engagement))')&&
+ feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
+ feedScript.includes('else posts.append(batch);')&&
+ feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
  profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
@@ -2136,6 +2138,23 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
  photoReportNotNull.includes("photo_path IS NOT NULL"),
  "Avatar gallery labels and secure per-photo moderation reporting must remain available");
 
+assert.ok(
+ memberCss.includes('body.profile-page .profile-media-viewer[open]{\n display:grid;grid-template-columns:minmax(0,1fr) clamp(318px,25vw,415px)')&&
+ systemFeedCss.includes('width:100vw;height:100dvh;')&&
+ systemFeedCss.includes('.vt-vatra-post-media-caption-001{')&&
+ profileScript.includes('lastAvatarCommentKey=key;')&&
+ profileScript.includes('commentList.replaceChildren(...fresh,...older)')&&
+ profileScript.includes('const avatarCommentPages=new Map()')&&
+ interactionsScript.includes('entries.replaceChildren(...fresh,...remaining)')&&
+ interactionsScript.includes('void loadComments(true,true)')&&
+ feedScript.includes('const previousFeed=keepExisting?[...visibleFeed]:null;')&&
+ feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
+ feedScript.includes('else posts.append(batch);')&&
+ feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
+ !interactionsScript.includes('vt-vatra-post-audience-hint-001')&&
+ !systemFeedCss.includes('.feed-post-audience:hover .vt-vatra-post-audience-hint-001'),
+ "All profile/post photos share a fullscreen workspace, cached comments reconcile without flashes and audience markers have no hover");
+ 
 const feedPhotoActions=await read("assets/js/post-interactions.js");
 const photoLikeGlyph='M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z';
 const photoShareGlyph='M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z';
@@ -2490,10 +2509,12 @@ const batchedFeedPosts=await read("assets/js/feed.js");
 const batchedProfilePosts=await read("assets/js/profile.js");
 const batchedClubPosts=clubRuntime;
 assert.ok(
- batchedFeedPosts.includes("batch.append(card(item,engagement))")&&
- batchedFeedPosts.includes("posts.append(batch)")&&
+ batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:card(item,engagement))")&&
+ batchedFeedPosts.includes("if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}")&&
+ batchedFeedPosts.includes("else posts.append(batch);")&&
+ batchedFeedPosts.includes("const keepExisting=reset&&scope===lastFeedScope")&&
  batchedProfilePosts.includes("batch.append(article);")&&
- batchedProfilePosts.includes("list.append(batch);")&&
+ batchedProfilePosts.includes("if(append)list.append(batch);else list.replaceChildren(batch);")&&
  batchedClubPosts.includes("const batch=document.createDocumentFragment();")&&
  batchedClubPosts.includes("batch.append(article);")&&
  batchedClubPosts.includes("list.append(batch);"),

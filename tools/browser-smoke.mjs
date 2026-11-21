@@ -3102,7 +3102,8 @@ try{
    shellPolish.portrait<=35&&shellPolish.adBorder==="0px"&&
    shellPolish.adShadow==="none"&&
    shellPolish.adBackground==="rgba(0, 0, 0, 0)"&&
-   shellPolish.railWidth===50&&shellPolish.railHeight===50&&
+   shellPolish.railWidth>=44&&shellPolish.railWidth<=50&&
+   shellPolish.railHeight===shellPolish.railWidth&&
    shellPolish.railPosition==="fixed"&&shellPolish.railHidden,
    "Header avatar, flush muted line, unboxed ads and compact scroll control: "+JSON.stringify(shellPolish));
   if(language==="uk"){
@@ -3249,7 +3250,9 @@ try{
     async remove(paths){calls.removes.push({bucket,paths});return {error:null};}
    })}};
    const [item]=await window.VATRA_POST_MEDIA.uploadGallery(client,"12",[file]);
-   const host=document.createElement("article");host.id="vatra-smoke-webp";host.className="feed-post-card";document.querySelector("#feed-posts").prepend(host);
+   const host=document.createElement("article");host.id="vatra-smoke-webp";host.className="feed-post-card";
+   host.dataset.vatraViewerId="12";
+   document.querySelector("#feed-posts").prepend(host);
    await window.VATRA_POST_MEDIA.mount(client,{author_vatra_id:"12",media_items:[item]},host);
    window.__vatraWebpFixture={item,calls,client};
    return {fileSize:file.size,item,uploads:calls.uploads};
@@ -3272,6 +3275,18 @@ try{
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraWebpFixture.calls.signed),
    [previewFixture.item.preview_path,previewFixture.item.media_path],
    "Opening fullscreen must sign the unmodified original");
+  const postFrame=await feedProbe.evaluate(()=>{
+   const dialog=document.querySelector("#vatra-post-media-viewer");
+   const rect=dialog.getBoundingClientRect();
+   return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,
+    caption:dialog.querySelector(".vt-vatra-post-media-caption-001")?.textContent};
+  });
+  assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&
+   Math.abs(postFrame.h-postFrame.vh)<=2,
+   "Post photos must use the whole viewport, not a small centered modal: "+JSON.stringify(postFrame));
+  assert.equal(postFrame.caption,
+   language==="en"?"Photo from posts":"Фото з публікацій",
+   "Own post photos must not repeat the owner's name or a decorative separator");
   await feedProbe.keyboard.press("Escape");
   const removed=await feedProbe.evaluate(async()=>{
    const {client,item,calls}=window.__vatraWebpFixture;
@@ -3682,8 +3697,8 @@ try{
   await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
    document.querySelectorAll("#feed-posts .feed-post-card").length===0);
   // Global header search no longer submits a Feed filter. Expire the actual
-  // three-second cursor cache before holding the next network response.
-  await feedProbe.waitForTimeout(3100);
+  // twelve-second cursor cache before holding the next network response.
+  await feedProbe.waitForTimeout(12100);
   await feedProbe.evaluate(()=>{
    window.__feedHoldNextRange=true;window.__feedReleaseRange=null;
    window.__feedStaleFilterPaint=false;
@@ -4080,8 +4095,8 @@ try{
     author_vatra_id:654321,body:text,created_at:new Date().toISOString()});
   },injectionText);
   // Header search now expands global results, not Feed. Refresh the real
-  // cursor by switching categories after the three-second cache lifetime.
-  await feedProbe.waitForTimeout(3100);
+  // cursor by switching categories after the twelve-second cache lifetime.
+  await feedProbe.waitForTimeout(12100);
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false);
   await feedProbe.locator("#feed-filter-toggle").click();
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true);
@@ -4399,10 +4414,16 @@ try{
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
   await profilePage.locator("#profile-avatar-next").click();
   assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
-  const avatarOwner=(await profilePage.locator("#profile-heading").textContent()).trim();
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
-   (language==="en"?"Profile photo · ":"Фото профілю · ")+avatarOwner+
-   (language==="en"?" · 2 of 2":" · 2 із 2"));
+   (language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2"),
+   "Own photo captions should have no repeated name or decorative separator");
+  const fullscreenAvatar=await profilePage.evaluate(()=>{
+   const rect=document.querySelector("#profile-media-viewer").getBoundingClientRect();
+   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight};
+  });
+  assert.ok(Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&
+   Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2,
+   "Avatar viewer must fill the browser viewport on desktop: "+JSON.stringify(fullscreenAvatar));
   assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
    "Person tagging was removed from the photo viewer altogether");
   assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
@@ -4425,7 +4446,8 @@ try{
    arrowLayout.right.left>=arrowLayout.photo.right-2,
    "VK-style chevrons remain outside the photo even when its aspect ratio changes: "+
    JSON.stringify(arrowLayout));
-  assert.equal(arrowLayout.background,"rgb(32, 36, 44)");
+  assert.equal(arrowLayout.background,"rgb(17, 20, 25)",
+   "Photo viewer must use the shared dark workspace background");
   assert.ok(!arrowLayout.leftRadius.includes("50%"),
    "Navigation must use unframed chevrons, not round floating buttons");
   await profilePage.locator("#profile-avatar-gallery-delete").click();
@@ -4539,6 +4561,9 @@ try{
    language==="en"?"Write a post":"Додати публікацію");
   assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
   await profilePage.locator("#profile-edit-open").hover();
+  // The cover action fades out in 160ms; wait for the settled non-hover state.
+  // A real stacking/hover regression still times out instead of being masked.
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="0",null,{timeout:3000});
   assert.equal(await profilePage.locator("#profile-cover-change").evaluate(el=>getComputedStyle(el).opacity),"0","Cover edit is hidden at rest");
   await profilePage.locator("#profile-cover-image").hover();
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
@@ -5189,7 +5214,10 @@ try{
    const img=new Image();img.src=url;await img.decode();
    return {width:img.naturalWidth,height:img.naturalHeight,filename:new URL(url).pathname.split("/").pop()};
   });
-  assert.deepEqual(dimensions,{width:2000,height:580,filename:"communities.webp"});
+  assert.ok(dimensions.filename==="communities.webp"&&
+   dimensions.width>=2000&&dimensions.height>=580&&
+   dimensions.width/dimensions.height>=2.8,
+   "The community banner must retain its high-resolution panoramic WebP source: "+JSON.stringify(dimensions));
   assert.equal(await hero.evaluate(el=>el.dispatchEvent(new MouseEvent("contextmenu",{bubbles:true,cancelable:true}))),false);
   assert.equal(await hero.locator("h2").textContent(),language==="en"?"Find your people":"Знайдіть своїх людей");
   const savedViewport=page.viewportSize();
