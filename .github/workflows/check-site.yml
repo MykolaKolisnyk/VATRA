@@ -128,6 +128,10 @@ jobs:
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
         run: node tools/scale-audit.mjs
+      - name: Verify Messenger RLS and scoped deletion on disposable PostgreSQL
+        env:
+          DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
+        run: node tools/messenger-rls-smoke.mjs
 
   minified-assets:
     name: Build minified VATRA static artifact
