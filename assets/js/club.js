@@ -12,7 +12,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
  const CLUB_PAGE_SIZE=12;
  const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
  const guestLabel=node("label","ui-club-guest-optin-001"),guestOption=node("input","ui-club-guest-optin-check-001");guestOption.type="checkbox";
- guestLabel.append(guestOption,node("span","vt-club-guest-optin-label-001",t("Дозволити гостям читати цей текстовий допис","Allow guests to read this text post")));input.after(guestLabel);
+ guestLabel.append(guestOption,node("span","vatra-club-guest-optin-label-001",t("Дозволити гостям читати цей текстовий допис","Allow guests to read this text post")));input.after(guestLabel);
  const picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
   input:"#club-compose-media",choose:"#club-compose-media-choose",
   clear:"#club-compose-media-remove",preview:"#club-compose-media-preview",
@@ -68,11 +68,11 @@ async function setupClubSocial(client,clubId,ownId,userId){
     const article=node("article","feed-post-card ui-club-post-card-001");
     article.dataset.postId=post.id;
     const head=node("div","feed-post-header ui-club-post-head-001");
-    const profile=node("a","feed-post-name vt-club-post-author-001",
+    const profile=node("a","feed-post-name vatra-club-post-author-001",
      names.get(id)||t("Учасник VATRA","VATRA member"));
     profile.href=root+"id"+id;
     if(names.has(id))void window.VATRA_VERIFIED?.attach(client,profile,id);
-    const time=node("time","feed-post-date vt-club-post-date-001",new Intl.DateTimeFormat(locale,{
+    const time=node("time","feed-post-date vatra-club-post-date-001",new Intl.DateTimeFormat(locale,{
      day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
     }).format(new Date(post.created_at)));
     time.dateTime=post.created_at;
@@ -81,7 +81,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
     head.append(profile,meta);
     article.append(head);
    if(post.body){
-     const body=node("p","feed-post-body vt-club-post-body-001",post.body);
+     const body=node("p","feed-post-body vatra-club-post-body-001",post.body);
      window.VATRA_POST_MEDIA?.linkifyHashtags(body);
      article.append(body);
     }

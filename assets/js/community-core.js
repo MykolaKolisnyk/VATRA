@@ -39,7 +39,7 @@ const gateError=message=>{
  const caption=loader.querySelector(".vatra-auth-loading-caption");
  if(caption)caption.textContent=message;
  if(loader.querySelector(".vatra-auth-loading-retry"))return;
- const retry=node("button","vatra-auth-loading-retry vt-community-retry-001",t("Повторити","Retry"));
+ const retry=node("button","vatra-auth-loading-retry vatra-community-retry-001",t("Повторити","Retry"));
  retry.type="button";
  retry.addEventListener("click",()=>location.reload());
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
@@ -71,7 +71,7 @@ async function start(init){
   const paths={all:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM9 9l7-3-3 7-7 3z",followed:"M12 21s-9-5-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 7-9 12-9 12Z",owned:"M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-2a8 8 0 0 1 16 0v2"};
   const icon=node("span","vatra-discovery-nav-icon ui-vatra-community-nav-icon-"+key),svg=document.createElementNS(ns,"svg"),part=document.createElementNS(ns,"path");
   svg.setAttribute("class","ui-vatra-community-nav-svg-"+key);svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.7");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");part.setAttribute("class","ui-vatra-community-nav-path-"+key);part.setAttribute("d",paths[key]||paths.all);svg.append(part);icon.append(svg);
-  const label=node("span","vt-vatra-community-nav-label-"+key,button.textContent);button.replaceChildren(icon,label);
+  const label=node("span","vatra-community-nav-label-"+key,button.textContent);button.replaceChildren(icon,label);
  }
  for(const element of document.querySelectorAll("[data-social-uk]")){
   element.textContent=t(element.dataset.socialUk,element.dataset.socialEn);

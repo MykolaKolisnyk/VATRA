@@ -10,7 +10,7 @@ async function openDirectory(client,ownId,userId){
  const categoryNames=new Map(categories.map(([id,uk,en])=>[id,t(uk,en)]));
  const categoryLabel=id=>categoryNames.get(id)||categoryNames.get("other");
  const categoryInput=$("#community-category");
- const addCategoryOptions=(select,placeholder)=>{const first=node("option","vt-community-category-choice-001",placeholder);first.value="";select.append(first);for(const [id] of categories){const option=node("option","vt-community-category-choice-001",categoryLabel(id));option.value=id;select.append(option);}};
+ const addCategoryOptions=(select,placeholder)=>{const first=node("option","vatra-community-category-choice-001",placeholder);first.value="";select.append(first);for(const [id] of categories){const option=node("option","vatra-community-category-choice-001",categoryLabel(id));option.value=id;select.append(option);}};
  addCategoryOptions(categoryInput,t("Оберіть категорію","Choose a category"));
 
  const form=$("#community-create-form"),button=$("#community-create-submit");
@@ -88,9 +88,9 @@ async function openDirectory(client,ownId,userId){
   const topics=$("#community-topics"),banner=$("#community-discovery-banner"),memberships=$("#community-memberships-preview");
   const topicGrid=node("div","ui-community-topic-grid-001");topicGrid.id="community-topic-grid";
   const topicHeader=node("div","ui-community-topic-heading-row-001"),topicActions=node("div","ui-community-topic-actions-001");
-  const topicsToggle=node("button","vt-community-all-topics-001",t("Усі теми","All topics"));topicsToggle.type="button";topicsToggle.setAttribute("aria-expanded","false");topicsToggle.setAttribute("aria-controls",topicGrid.id);
-  const clearTopic=node("button","vt-community-clear-topic-001",t("Скинути тему","Clear topic"));clearTopic.type="button";clearTopic.hidden=true;
-  const topicHeading=node("h2","vt-community-topics-title-001",t("Пошук за темою","Find by topic"));topicHeading.id="community-topics-heading";
+  const topicsToggle=node("button","vatra-community-all-topics-001",t("Усі теми","All topics"));topicsToggle.type="button";topicsToggle.setAttribute("aria-expanded","false");topicsToggle.setAttribute("aria-controls",topicGrid.id);
+  const clearTopic=node("button","vatra-community-clear-topic-001",t("Скинути тему","Clear topic"));clearTopic.type="button";clearTopic.hidden=true;
+  const topicHeading=node("h2","vatra-community-topics-title-001",t("Пошук за темою","Find by topic"));topicHeading.id="community-topics-heading";
   topicGrid.setAttribute("role","region");topicGrid.setAttribute("aria-labelledby",topicHeading.id);
   const topicArrows=node("div","ui-community-topic-arrows-001");
   const makeArrow=(direction,label)=>{
@@ -163,7 +163,7 @@ async function openDirectory(client,ownId,userId){
       photo.setAttribute("aria-hidden","true");photo.dataset.topicCover=filename;
       b.append(photo);
      }
-     b.append(node("span","vt-community-topic-name-001",categoryLabel(id)));
+     b.append(node("span","vatra-community-topic-name-001",categoryLabel(id)));
      b.addEventListener("click",()=>chooseTopic(selectedCategory===id?"":id));
      topicCards.set(id,b);
     }
@@ -184,10 +184,10 @@ async function openDirectory(client,ownId,userId){
   });
   showTopics();
   const renderMemberships=()=>{
-   memberships.replaceChildren(node("h2","vt-community-memberships-title-001",t("Мої спільноти","My communities")));
+   memberships.replaceChildren(node("h2","vatra-community-memberships-title-001",t("Мої спільноти","My communities")));
    const ids=[...new Set([...owned,...following])];const available=ids.map(id=>knownClubs.get(id)).filter(Boolean).slice(0,6);
-   for(const club of available){const item=node("a","ui-community-membership-link-001");item.href=clubURL(String(club.club_id));item.append(node("span","ui-community-membership-avatar-001",String(club.name||"V").slice(0,1).toLocaleUpperCase()),node("span","vt-community-membership-name-001",club.name));memberships.append(item);}
-   if(!available.length)memberships.append(node("p","vt-community-memberships-empty-001",ids.length?t("Перегляньте свої підписки.","View your subscriptions."):t("Ваші спільноти з’являться тут.","Your communities will appear here.")));
+   for(const club of available){const item=node("a","ui-community-membership-link-001");item.href=clubURL(String(club.club_id));item.append(node("span","ui-community-membership-avatar-001",String(club.name||"V").slice(0,1).toLocaleUpperCase()),node("span","vatra-community-membership-name-001",club.name));memberships.append(item);}
+   if(!available.length)memberships.append(node("p","vatra-community-memberships-empty-001",ids.length?t("Перегляньте свої підписки.","View your subscriptions."):t("Ваші спільноти з’являться тут.","Your communities will appear here.")));
   };
   const render=()=>{
    list.replaceChildren();banner.hidden=mode!=="all"||!!term;topics.hidden=mode!=="all"||!!term;
@@ -200,13 +200,13 @@ async function openDirectory(client,ownId,userId){
    if(!idPattern.test(number))continue;
    const card=node("article","ui-community-card-001");
    const head=node("div","ui-community-card-head-001");
-   const nameLink=node("a","vt-community-card-name-001",club.name);nameLink.href=clubURL(number);head.append(nameLink);
+   const nameLink=node("a","vatra-community-card-name-001",club.name);nameLink.href=clubURL(number);head.append(nameLink);
    const mark=node("span","ui-community-card-avatar-001",String(club.name||"V").trim().slice(0,1).toLocaleUpperCase());
-   const detail=node("div","ui-community-card-detail-001");detail.append(head,node("span","vt-community-card-category-001",categoryLabel(club.category)),node("p","vt-community-card-description-001",club.description||t("Без опису","No description")));
+   const detail=node("div","ui-community-card-detail-001");detail.append(head,node("span","vatra-community-card-category-001",categoryLabel(club.category)),node("p","vatra-community-card-description-001",club.description||t("Без опису","No description")));
    const cover=node("a","ui-community-card-cover-001");cover.href=clubURL(number);cover.setAttribute("aria-label",club.name);cover.append(mark);
-   const foot=node("div","ui-community-card-actions-001"),open=node("a","vt-community-card-open-001",t("Переглянути","View"));open.href=clubURL(number);foot.append(open);
+   const foot=node("div","ui-community-card-actions-001"),open=node("a","vatra-community-card-open-001",t("Переглянути","View"));open.href=clubURL(number);foot.append(open);
    if(ownId&&!owned.has(number)&&!filterError){
-    const join=node("button","vt-community-card-join-001",following.has(number)?t("Відписатися","Unfollow"):t("Приєднатися","Join"));join.type="button";join.setAttribute("aria-pressed",String(following.has(number)));
+    const join=node("button","vatra-community-card-join-001",following.has(number)?t("Відписатися","Unfollow"):t("Приєднатися","Join"));join.type="button";join.setAttribute("aria-pressed",String(following.has(number)));
     join.addEventListener("click",async()=>{join.disabled=true;try{const result=following.has(number)?await client.from("community_follows").delete().eq("club_id",number).eq("member_vatra_id",ownId):await client.from("community_follows").insert({club_id:number,member_vatra_id:ownId});if(result.error)throw result.error;if(following.has(number))following.delete(number);else following.add(number);render();}catch(_){status("#community-list-status",t("Не вдалося змінити підписку.","Could not update subscription."),"error");}finally{join.disabled=false;}});foot.append(join);
    }
    detail.append(foot);card.append(cover,detail);list.append(card);
@@ -219,9 +219,9 @@ async function openDirectory(client,ownId,userId){
     const icon=node("span","ui-community-directory-empty-icon-001");icon.setAttribute("aria-hidden","true");
     const heading=selectedCategory?t("У цій категорії ще немає спільнот","No communities in this category yet"):term?t("Нічого не знайдено","No matches"):mode==="followed"?t("Ви ще не підписані на спільноти","You have not joined any communities"):mode==="owned"?t("У вас ще немає спільнот","You have no communities"):t("Тут починаються спільноти","Communities start here");
     const copy=selectedCategory?t("Оберіть іншу тему або створіть власну спільноту.","Choose another topic or create your own community."):term?t("За цим запитом спільнот не знайдено.","No communities match this search."):mode==="followed"?t("Знайдіть цікаві спільноти та приєднуйтеся до них.","Find communities you like and join them."):mode==="all"?t("Спільнот поки немає. Створіть першу!","No communities yet. Create the first one!"):t("Створіть місце для однодумців, друзів або свого проєкту.","Create a space for like-minded people, friends, or your project.");
-    const call=node("button","community-create-toggle vt-community-directory-empty-action-001",selectedCategory?t("Усі теми","All topics"):term?t("Очистити пошук","Clear search"):mode==="followed"?t("Усі спільноти","All communities"):t("Створити спільноту","Create community"));
+    const call=node("button","community-create-toggle vatra-community-directory-empty-action-001",selectedCategory?t("Усі теми","All topics"):term?t("Очистити пошук","Clear search"):mode==="followed"?t("Усі спільноти","All communities"):t("Створити спільноту","Create community"));
     call.type="button";call.addEventListener("click",()=>{if(selectedCategory){chooseTopic("");}else if(term){term="";if(input)input.value="";void refresh();}else if(mode==="followed"){filters.find(tab=>tab.dataset.communityFilter==="all")?.click();}else if(panel?.hidden)toggle?.click();else $("#community-name")?.focus();});
-    box.append(icon,node("h3","vt-community-directory-empty-title-001",heading),node("p","vt-community-directory-empty-copy-001",copy),call);list.append(box);
+    box.append(icon,node("h3","vatra-community-directory-empty-title-001",heading),node("p","vatra-community-directory-empty-copy-001",copy),call);list.append(box);
    }
   };
   let revision=0,timer=null;
