@@ -13,7 +13,7 @@
  const time=date=>new Intl.DateTimeFormat(locale()==="en"?"en-US":"uk-UA",{hour:"2-digit",minute:"2-digit"}).format(new Date(date));
  const day=date=>new Intl.DateTimeFormat(locale()==="en"?"en-US":"uk-UA",{day:"numeric",month:"long",year:"numeric"}).format(new Date(date));
  const node=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
- const state={client:null,user:null,own:null,selected:null,rows:[],names:new Map(),locked:true,terminating:false,peerKey:null,peerChanged:false,keyDialogMode:"",pendingImport:null,
+ const state={client:null,user:null,own:null,selected:null,rows:[],names:new Map(),locked:true,terminating:false,peerKey:null,peerLoading:false,peerRequestVersion:0,peerChanged:false,keyDialogMode:"",pendingImport:null,
   refreshVersion:0,chatVersion:0,refreshPending:false,sendBusy:false,deleteId:null,subscription:null,poll:null};
  const ROWS="id,sender_id,recipient_id,ciphertext,nonce,salt,sender_public_key,recipient_public_key,created_at,deleted_for_all_at,deleted_for_sender_at,deleted_for_recipient_at";
  function status(text,error=false){const el=$("#messenger-inbox-status");el.textContent=text||"";el.dataset.error=String(!!error);}
@@ -56,17 +56,20 @@
   for(const record of result.data||[])state.names.set(String(record.vatra_id),String(record.display_name||"").trim()||"VATRA ID "+record.vatra_id);
  }
  async function loadPeerKey(){
+  const request=++state.peerRequestVersion;
+  state.peerLoading=true;
+  try{
   state.peerKey=null;state.peerChanged=false;
   const id=state.selected,el=$("#messenger-peer-fingerprint");
   if(!id){el.textContent="—";return;}
   const {data,error}=await state.client.from("messenger_keys").select("public_key").eq("vatra_id",id).maybeSingle();
-  if(id!==state.selected)return;
+  if(request!==state.peerRequestVersion||id!==state.selected||state.terminating)return;
   if(error){el.textContent=t("Помилка ключа","Key unavailable");sendStatus(t("Не вдалося перевірити ключ співрозмовника.","Could not verify recipient key."));return;}
   if(!data?.public_key){el.textContent="—";sendStatus(t("Співрозмовник ще не налаштував приватний месенджер.","The recipient hasn't set up private Messenger yet."));syncSend();return;}
   state.peerKey=data.public_key;
   try{
    const report=await cryptoBox().checkPeer(state.own,id,state.peerKey);
-   if(id!==state.selected)return;
+   if(request!==state.peerRequestVersion||id!==state.selected||state.terminating)return;
    el.textContent=report.actual;
    state.peerChanged=report.changed;
    document.querySelector("#messenger-peer-accept-change")?.remove();
@@ -86,6 +89,7 @@
    }else sendStatus("");
   }catch(_){state.peerKey=null;sendStatus(t("Ключ співрозмовника недійсний.","Invalid contact key."));}
   syncSend();
+  }finally{if(request===state.peerRequestVersion)state.peerLoading=false;}
  }
  function syncSend(){
   $("#messenger-send").disabled=state.sendBusy||state.locked||!state.peerKey||state.peerChanged||!$("#messenger-compose-text").value.trim();
@@ -165,6 +169,12 @@
    state.rows=data||[];
    await loadNames(state.rows.map(other));
    if(state.terminating||version!==state.refreshVersion)return;
+   // Discover an E2EE key registered by the contact after the chat opened.
+   if(state.selected&&!state.peerKey&&!state.peerLoading&&!state.locked){
+    await loadPeerKey();
+    if(state.peerKey)$("#messenger-messages").replaceChildren();
+   }
+   if(state.terminating||version!==state.refreshVersion)return;
    renderConversations();await renderMessages();status("");
   }catch(_){if(!state.terminating)status(t("Не вдалося оновити розмови. Спробуйте ще раз.","Could not refresh conversations. Retry."),true);}
   finally{
@@ -177,7 +187,10 @@
   if(!validId(id)||String(id)===state.own)return;
   state.selected=String(id);state.peerKey=null;state.peerChanged=false;state.chatVersion++;
   $("#messenger-messages").replaceChildren(); // Never show the previous contact while switching threads.
-  await loadNames([id]);setPeerHeading();renderConversations();
+  const selectedRequest=++state.peerRequestVersion;
+  await loadNames([id]);
+  if(state.terminating||selectedRequest!==state.peerRequestVersion||state.selected!==String(id))return;
+  setPeerHeading();renderConversations();
   const params=new URLSearchParams(location.search);params.set("to",id);
   history.replaceState(history.state,"",location.pathname+"?"+params.toString());
   await loadPeerKey();
@@ -336,7 +349,7 @@
    // Never show a previous account's decrypted chat when auth changes in
    // another tab or while this tab is suspended.
    cryptoBox().lock();
-   state.terminating=true;state.refreshVersion++;state.chatVersion++;
+   state.terminating=true;state.refreshVersion++;state.chatVersion++;state.peerRequestVersion++;
    state.locked=true;state.peerKey=null;state.selected=null;state.rows=[];
    $("#messenger-messages").replaceChildren();
    $("#messenger-conversations").replaceChildren();
@@ -407,7 +420,7 @@
    // A restored back-forward-cache page must never retain decrypted DOM or
    // a stale unlocked UI after Web Crypto has dropped its in-memory key.
    cryptoBox().lock();
-   state.terminating=true;state.refreshVersion++;state.chatVersion++;
+   state.terminating=true;state.refreshVersion++;state.chatVersion++;state.peerRequestVersion++;
    state.locked=true;state.peerKey=null;
    $("#messenger-messages").replaceChildren();
    $("#messenger-conversations").replaceChildren();
