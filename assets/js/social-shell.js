@@ -203,6 +203,15 @@
     item.addEventListener("click",()=>location.assign(new URL(page,location.href).href));
     continue;
    }
+   if(item.dataset.vatraComingSoon==="messenger"){
+    item.removeAttribute("data-vatra-coming-soon");
+    item.removeAttribute("aria-disabled");item.removeAttribute("title");item.disabled=false;
+    item.addEventListener("click",()=>{
+     hideTooltip();
+     location.assign(new URL("messenger.html",new URL("./",location.href)).href);
+    });
+    continue;
+   }
    if(item.dataset.vatraComingSoon==="notifications"){
     item.removeAttribute("data-vatra-coming-soon");continue;
    }
