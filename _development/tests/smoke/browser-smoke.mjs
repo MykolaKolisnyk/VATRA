@@ -4360,8 +4360,8 @@ try{
   });
   assert.equal(coverLayout.source,coverLayout.profileCover,
    "Cover stays on the exact visible banner image; it must never switch to an avatar or original");
-  assert.equal(coverLayout.fit,"cover",
-   "Legacy square uploads must show the same landscape crop in the viewer");
+  assert.equal(coverLayout.fit,"contain",
+   "Legacy square uploads must remain uncropped and preserve their natural aspect ratio in the viewer");
   assert.ok(Math.abs(coverLayout.aspect-2000/580)<.02&&
    coverLayout.centeredX<=3&&coverLayout.centeredY<=3&&coverLayout.width<=1122,
    "Expanded cover must keep its 2000:580 ratio and remain centered: "+JSON.stringify(coverLayout));
