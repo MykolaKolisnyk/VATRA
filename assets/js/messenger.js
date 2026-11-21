@@ -332,7 +332,19 @@
   await refresh();
   const peer=new URLSearchParams(location.search).get("to");
   if(validId(peer)&&peer!==state.own)await choosePeer(peer);
-  const draft=new URLSearchParams(location.search).get("draft");
+  // Consume and erase the short-lived local draft before the first message is sent.
+  // Never put message plaintext into query strings or navigation history.
+  let draft=null;
+  try{
+   const stored=sessionStorage.getItem("vatra:messenger:draft-v1");
+   sessionStorage.removeItem("vatra:messenger:draft-v1");
+   if(stored){
+    const item=JSON.parse(stored);
+    if(item&&item.to===peer&&typeof item.body==="string"&&
+       Number.isFinite(item.at)&&Date.now()-item.at>=0&&Date.now()-item.at<120000)
+     draft=item.body;
+   }
+  }catch(_){}
   if(draft)$("#messenger-compose-text").value=draft.slice(0,2000);
   syncSend();
   await setupKeys();
