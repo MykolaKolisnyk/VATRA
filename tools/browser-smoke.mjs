@@ -4885,6 +4885,10 @@ try{
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,
    "Visitors cannot edit another member's page");
   const visitorProfileURL=profilePage.url();
+  // Return to the profile hero before clicking the message action: the sticky
+  // site search must not intercept a button scrolled underneath the header.
+  await profilePage.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await profilePage.waitForFunction(()=>window.scrollY===0);
   await Promise.all([
    profilePage.waitForURL(url=>url.pathname.endsWith("/messenger.html")&&
     url.searchParams.get("to")==="789012",{timeout:15000}),
