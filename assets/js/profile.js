@@ -2321,10 +2321,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
   photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
  };
- mediaImage.addEventListener("load",()=>{
-  photoContent.style.setProperty("--vatra-profile-photo-backdrop","url("+JSON.stringify(mediaImage.currentSrc||mediaImage.src)+")");
-  fitPhoto();
- });
+ mediaImage.addEventListener("load",fitPhoto);
  const photoResizeObserver=typeof ResizeObserver==="function"?new ResizeObserver(fitPhoto):null;
  photoResizeObserver?.observe(photoContent);
  window.addEventListener("resize",fitPhoto,{passive:true});
@@ -2786,7 +2783,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   mediaDialog.setAttribute("aria-label",photoTitle);
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
-   photoContent.style.removeProperty("--vatra-profile-photo-backdrop");
 
 
   const sourcePath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");

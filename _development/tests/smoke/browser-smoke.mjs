@@ -3280,8 +3280,12 @@ try{
   const postFrame=await feedProbe.evaluate(()=>{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const rect=dialog.getBoundingClientRect();
+   const canvas=dialog.querySelector(".ui-vatra-post-media-viewer-content-001");
+   const photo=canvas.querySelector(".ui-vatra-post-expanded-image-001");
    return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,
-    caption:dialog.querySelector(".vatra-post-media-caption-001")?.textContent};
+    caption:dialog.querySelector(".vatra-post-media-caption-001")?.textContent,
+    imageFit:getComputedStyle(photo).objectFit,
+    matte:getComputedStyle(canvas,"::before").content};
   });
   assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&
    Math.abs(postFrame.h-postFrame.vh)<=2,
@@ -3289,6 +3293,8 @@ try{
   assert.equal(postFrame.caption,
    language==="en"?"Photo from posts":"Фото з публікацій",
    "Own post photos must not repeat the owner's name or a decorative separator");
+  assert.equal(postFrame.imageFit,"contain","Post photos must preserve original proportions");
+  assert.equal(postFrame.matte,"none","Post photos must not display a blurred duplicate");
   await feedProbe.keyboard.press("Escape");
   const removed=await feedProbe.evaluate(async()=>{
    const {client,item,calls}=window.__vatraWebpFixture;
@@ -4440,6 +4446,7 @@ try{
     photo:photo.getBoundingClientRect().toJSON(),parent:parent.getBoundingClientRect().toJSON(),
     leftParent:left.parentElement.id,rightParent:right.parentElement.id,
     background:getComputedStyle(document.querySelector(".profile-media-viewer-stage")).backgroundColor,
+    matte:getComputedStyle(parent,"::before").content,
     leftRadius:getComputedStyle(left).borderRadius};
   });
   assert.equal(arrowLayout.leftParent,"profile-photo-content");
@@ -4450,6 +4457,7 @@ try{
    JSON.stringify(arrowLayout));
   assert.equal(arrowLayout.background,"rgb(17, 20, 25)",
    "Photo viewer must use the shared dark workspace background");
+  assert.equal(arrowLayout.matte,"none","Avatar photos must not display a blurred duplicate");
   assert.ok(!arrowLayout.leftRadius.includes("50%"),
    "Navigation must use unframed chevrons, not round floating buttons");
   await profilePage.locator("#profile-avatar-gallery-delete").click();
