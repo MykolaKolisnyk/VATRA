@@ -2188,7 +2188,7 @@ assert.ok(feedPhotoActions.includes(photoLikeGlyph)&&feedPhotoActions.includes(p
  memberProfileMarkup.includes(photoLikeGlyph)&&memberProfileMarkup.includes(photoShareGlyph)&&
  !memberProfileMarkup.includes('id="profile-photo-comments-heading"')&&
  !profileScript.includes('q("#profile-photo-comments-heading")')&&
- profileScript.includes('Math.min(roomW*.96/mediaImage.naturalWidth,roomH*.96/mediaImage.naturalHeight)')&&
+ profileScript.includes('Math.min(roomW*.995/mediaImage.naturalWidth,roomH*.995/mediaImage.naturalHeight)')&&
  !profileScript.includes('Math.min(1,roomW*.84/')&&
  memberCss.includes('.profile-photo-comments.is-empty{display:flex;align-items:center;justify-content:center'),
  "Photo viewer uses original VATRA feed like/share SVGs, no comments heading, and uncropped responsive photo scaling");
