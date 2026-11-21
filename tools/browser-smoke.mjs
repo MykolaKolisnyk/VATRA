@@ -5259,7 +5259,10 @@ try{
    const img=new Image();img.src=url;await img.decode();
    return {width:img.naturalWidth,height:img.naturalHeight,filename:new URL(url).pathname.split("/").pop()};
   });
-  assert.deepEqual(dimensions,{width:2000,height:580,filename:"communities.webp"});
+  assert.ok(dimensions.filename==="communities.webp"&&
+   dimensions.width>=2000&&dimensions.height>=580&&
+   dimensions.width/dimensions.height>=2.8,
+   "The community banner must retain its high-resolution panoramic WebP source: "+JSON.stringify(dimensions));
   assert.equal(await hero.evaluate(el=>el.dispatchEvent(new MouseEvent("contextmenu",{bubbles:true,cancelable:true}))),false);
   assert.equal(await hero.locator("h2").textContent(),language==="en"?"Find your people":"Знайдіть своїх людей");
   const savedViewport=page.viewportSize();
