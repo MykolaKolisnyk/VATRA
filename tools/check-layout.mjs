@@ -1170,12 +1170,15 @@ assert.ok(
  messengerMarkup.includes('id="messenger-delete-mine"')&&
  messengerMarkup.includes('id="messenger-delete-everyone"')&&
  messengerMarkup.includes('id="messenger-key-import"')&&
+ messengerMarkup.includes('id="messenger-key-confirm"')&&
  messengerMarkup.includes("assets/js/messenger-crypto.js")&&
  messengerMarkup.includes("assets/js/messenger.js")&&
  messengerRuntime.includes('state.client.rpc("messenger_delete_message"')&&
  messengerRuntime.includes('client.channel("vatra-messenger-"')&&
  messengerRuntime.includes('cryptoBox().same(messagePeerKey,state.peerKey)')&&
  messengerRuntime.includes('state.peerChanged')&&
+ messengerRuntime.includes('Passphrases do not match.')&&
+ messengerRuntime.includes('const saved=await cryptoBox().loadRecord(state.own)')&&
  !messengerRuntime.includes('from("direct_messages")')&&
  !profileBehavior.includes('from("direct_messages")')&&
  !interactionsScript.includes('from("direct_messages")')&&
@@ -1187,6 +1190,11 @@ assert.ok(
  !messengerCss.includes("vt-vatra-")&&
  messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
  messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
+ messengerSchema.includes("GRANT INSERT (vatra_id,public_key)")&&
+ messengerSchema.includes("GRANT INSERT (id,sender_id,recipient_id,ciphertext,nonce,salt,sender_public_key,recipient_public_key)")&&
+ !messengerSchema.includes("GRANT SELECT,INSERT ON public.messenger_messages")&&
+ messengerSchema.includes("NOT (public_key ? 'd')")&&
+ messengerSchema.includes("messenger_envelope_encoding")&&
  messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
  messengerSchema.includes("Only the sender may revoke for everyone"),
  "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
