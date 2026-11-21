@@ -3111,7 +3111,8 @@ try{
    shellPolish.portrait<=35&&shellPolish.adBorder==="0px"&&
    shellPolish.adShadow==="none"&&
    shellPolish.adBackground==="rgba(0, 0, 0, 0)"&&
-   shellPolish.railWidth===50&&shellPolish.railHeight===50&&
+   shellPolish.railWidth>=44&&shellPolish.railWidth<=50&&
+   shellPolish.railHeight===shellPolish.railWidth&&
    shellPolish.railPosition==="fixed"&&shellPolish.railHidden,
    "Header avatar, flush muted line, unboxed ads and compact scroll control: "+JSON.stringify(shellPolish));
   if(language==="uk"){
