@@ -1,4 +1,4 @@
-(()=>{if(window.VATRA_HOST_ALLOWED===false)return;const s=document.createElement("script");s.src=new URL("toast.js?rev=3b631677feb65cd52d7d65c984d432ef2c0a09db",document.currentScript?.src||location.href).href;s.async=true;document.head.append(s);})();
+(()=>{if(window.VATRA_HOST_ALLOWED===false)return;const s=document.createElement("script");s.src=new URL("toast.js?rev=2bf4db072e1b1be2f861731d80422549aa49ae39",document.currentScript?.src||location.href).href;s.async=true;document.head.append(s);})();
 
 (() => {
   "use strict";
