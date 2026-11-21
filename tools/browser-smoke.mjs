@@ -4117,8 +4117,8 @@ try{
     author_vatra_id:654321,body:text,created_at:new Date().toISOString()});
   },injectionText);
   // Header search now expands global results, not Feed. Refresh the real
-  // cursor by switching categories after the three-second cache lifetime.
-  await feedProbe.waitForTimeout(3100);
+  // cursor by switching categories after the twelve-second cache lifetime.
+  await feedProbe.waitForTimeout(12100);
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false);
   await feedProbe.locator("#feed-filter-toggle").click();
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true);
