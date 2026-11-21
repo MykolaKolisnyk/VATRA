@@ -314,7 +314,7 @@
       tr("Користувач ще не додав доступної вам інформації.",
        "This member has not shared any information with you.")));
     if(isMine){
-     const edit=make("button","vt-vatra-profile-details-edit-001",tr("Редагувати сторінку","Edit profile"));
+     const edit=make("button","vt-vatra-profile-details-edit-001",tr("Редагувати профіль","Edit profile"));
      edit.type="button";
      edit.addEventListener("click",()=>{modal.close();openEditor();});
      empty.append(edit);
@@ -402,11 +402,11 @@
   workspace.id="profile-edit-workspace";workspace.hidden=true;
   const heading=make("header","profile-editor-header ui-profile-editor-header-001");
   const back=make("button","vt-profile-editor-back-001");
-  back.type="button";back.append(svg("arrow"),make("span","vt-profile-editor-back-label-001",tr("Моя сторінка","My profile")));
+  back.type="button";back.append(svg("arrow"),make("span","vt-profile-editor-back-label-001",tr("Мій профіль","My profile")));
   const titles=make("div","ui-profile-editor-titles-001");
   titles.append(
    make("span","vt-profile-editor-eyebrow-001",tr("ОСОБИСТИЙ ПРОСТІР  /  VATRA","YOUR SPACE  /  VATRA")),
-   make("h1","vt-profile-editor-title-001",tr("Редагувати сторінку","Edit your profile")),
+   make("h1","vt-profile-editor-title-001",tr("Редагувати профіль","Edit your profile")),
    make("p","vt-profile-editor-subtitle-001",tr(
     "Ваша історія — ваші правила. Заповнюйте профіль у власному ритмі й керуйте видимістю кожного поля.",
     "Your story, your rules. Share what matters and control the audience of each detail.")));
@@ -2047,10 +2047,6 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  const friendButton=q("#profile-friend-button"),messageButton=q("#profile-message-button");
  const actionStatus=q("#profile-action-status");
  const friends=q("#profile-friends-list"),friendsEmpty=q("#profile-friends-empty");
- const inbox=q("#profile-inbox-list"),inboxEmpty=q("#profile-inbox-empty");
- const dialog=q("#profile-message-dialog"),conversation=q("#profile-message-history");
- const messageText=q("#profile-message-text"),messageStatus=q("#profile-message-status");
- const send=q("#profile-message-send");
  const validPeer=id=>validId(String(id))&&String(id)!==String(ownId);
  const show=(el,txt)=>{el.textContent=txt;el.hidden=!txt;};
  const makePerson=(id,description)=>{
@@ -2064,11 +2060,11 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   row.append(avatar,info);
   return row;
  };
- let loadFriends=async()=>{},loadInbox=async()=>{};
+ let loadFriends=async()=>{};
  const tabs=[...document.querySelectorAll("[data-profile-tab]")];
  function choose(name){
   if(!isMine&&["saved","archive-stories","archive-posts"].includes(name))return;
-  if(name==="messages"&&!isMine)return;
+  if(name==="messages"){location.assign(new URL("messenger.html",new URL("./",location.href)).href);return;}
 
   for(const tab of tabs){
    const active=tab.dataset.profileTab===name;
@@ -2083,7 +2079,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   else if(name==="friends")void loadFriends();
   if(name==="gifts")void window.VATRA_PROFILE_SHOW_GIFTS?.();
   if(name==="communities")void window.VATRA_PROFILE_SHOW_COMMUNITIES?.();
-  if(name==="messages")void loadInbox();
+
   window.VATRA_PROFILE_EXTRA_TAB?.(name);
  }
  window.VATRA_PROFILE_CHOOSE_TAB=choose;
@@ -2099,83 +2095,10 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 
  if(isMine&&location.hash==="#profile-messages-section")choose("messages");
  if(!validId(ownId))return;
- let activePeer=null,sending=false,conversationRequestSeq=0;
- const messagesQuery=peer=>"and(sender_id.eq."+ownId+",recipient_id.eq."+peer+
-  "),and(sender_id.eq."+peer+",recipient_id.eq."+ownId+")";
- const loadConversation=async()=>{
-  if(!validPeer(activePeer)||!dialog.open)return;
-  const requestPeer=String(activePeer),requestSeq=++conversationRequestSeq;
-  const isCurrent=()=>requestSeq===conversationRequestSeq&&activePeer===requestPeer&&dialog.open;
-  conversation.replaceChildren(node("p","vt-profile-message-loading-001",t("Завантаження…","Loading…")));
-  try{
-   const {data,error}=await client.from("direct_messages")
-    .select("sender_id,recipient_id,body,created_at")
-    .or(messagesQuery(requestPeer)).order("created_at",{ascending:false}).limit(50);
-   if(!isCurrent())return;
-   if(error)throw error;
-   conversation.replaceChildren();
-   if(!data?.length)conversation.append(node("p","vt-profile-message-empty-001",
-    t("Повідомлень ще немає.","No messages yet.")));
-   for(const m of (data||[]).slice().reverse()){
-    const bubble=node("div","profile-message-bubble ui-profile-message-bubble-001");
-
-    const source=String(m.body||"");
-    const postLink=new RegExp("https://mykolakolisnyk[.]github[.]io/VATRA/feed[?]post=[a-f0-9-]{36}","ig");
-    let cursor=0,match;
-    while((match=postLink.exec(source))!==null){
-     bubble.append(document.createTextNode(source.slice(cursor,match.index)));
-     const url=new URL(match[0]),link=node("a","vt-profile-message-post-link-001",
-      t("Переглянути допис","View post"));
-     if(url.origin==="https://mykolakolisnyk.github.io"&&url.pathname==="/VATRA/feed")
-      link.href=url.href;
-     bubble.append(link);cursor=match.index+match[0].length;
-    }
-    bubble.append(document.createTextNode(source.slice(cursor)));
-    bubble.dataset.own=String(m.sender_id)===String(ownId)?"true":"false";
-    const time=node("time","vt-profile-message-time-001",dateText(m.created_at));
-    time.dateTime=m.created_at;
-    bubble.append(time);conversation.append(bubble);
-   }
-   conversation.scrollTop=conversation.scrollHeight;
-  }catch(_){
-   if(!isCurrent())return;
-   conversation.replaceChildren(node("p","vt-profile-message-error-001",
-    t("Не вдалося завантажити розмову.","Could not load conversation.")));
-  }
+ // The retired profile popup never sends plaintext again.
+ const openConversation=peer=>{
+  if(validPeer(peer))location.assign(new URL("messenger.html?to="+encodeURIComponent(peer),new URL("./",location.href)).href);
  };
- const openConversation=async peer=>{
-  if(sending||!validPeer(peer))return;
-  activePeer=String(peer);
-  q("#profile-message-title").textContent=t("Повідомлення · VATRA ID ","Messages · VATRA ID ")+activePeer;
-  messageText.value="";show(messageStatus,"");
-  if(!dialog.open)dialog.showModal();
-  await loadConversation();
-  if(dialog.open&&activePeer===String(peer))messageText.focus();
- };
- q("#profile-message-close").addEventListener("click",()=>{if(!sending)dialog.close();});
- dialog.addEventListener("close",()=>{
-  if(!dialog.open){conversationRequestSeq++;activePeer=null;}
- });
- q("#profile-message-refresh").addEventListener("click",()=>void loadConversation());
- q("#profile-message-form").addEventListener("submit",async event=>{
-  event.preventDefault();
-  if(sending||!validPeer(activePeer))return;
-  const body=messageText.value.trim();
-  if(!body||Array.from(body).length>2000){
-   show(messageStatus,t("Потрібно 1–2000 символів.","Please enter 1–2000 characters."));return;
-  }
-  sending=true;send.disabled=true;show(messageStatus,"");
-  try{
-   const {error}=await client.from("direct_messages").insert({
-    sender_id:ownId,recipient_id:activePeer,body
-   });
-   if(error)throw error;
-   messageText.value="";
-   await loadConversation();
-   show(messageStatus,t("Повідомлення надіслано.","Message sent."));
-  }catch(_){show(messageStatus,t("Не вдалося надіслати.","Failed to send message."));}
-  finally{sending=false;send.disabled=false;}
- });
  if(!isMine){
   messageButton.hidden=false;
   messageButton.addEventListener("click",()=>void openConversation(targetId));
@@ -2269,29 +2192,6 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    }
    if(!data?.length)show(friendsEmpty,t("Друзів і заявок поки немає.","No friends or requests yet."));
   }catch(_){show(friendsEmpty,t("Не вдалося завантажити друзів.","Could not load friends."));}
- };
- loadInbox=async()=>{
-  inbox.replaceChildren();inboxEmpty.hidden=true;
-  if(!isMine)return;
-  try{
-   const {data,error}=await client.from("direct_messages")
-    .select("sender_id,recipient_id,created_at")
-    .or("sender_id.eq."+ownId+",recipient_id.eq."+ownId)
-    .order("created_at",{ascending:false}).limit(200);
-   if(error)throw error;
-   const seen=new Set();
-   for(const item of data||[]){
-    const other=String(item.sender_id)===String(ownId)?String(item.recipient_id):String(item.sender_id);
-    if(seen.has(other))continue;
-    seen.add(other);
-    const row=makePerson(other,t("Останній діалог: ","Latest conversation: ")+dateText(item.created_at));
-    const action=node("button","profile-person-action vt-profile-message-open-"+other,t("Написати","Message"));
-    action.type="button";
-    action.addEventListener("click",()=>void openConversation(other));
-    row.append(action);inbox.append(row);
-   }
-   if(!seen.size)show(inboxEmpty,t("Діалогів поки немає.","No conversations yet."));
-  }catch(_){show(inboxEmpty,t("Не вдалося завантажити повідомлення.","Could not load messages."));}
  };
 }
 

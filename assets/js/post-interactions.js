@@ -1224,7 +1224,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    invalidateEngagement(client);
    if(shareMenu.open)shareMenu.close();
    shareCaption.value="";
-   feedback(tr("Публікацію додано на вашу сторінку.","Shared to your profile."));
+   feedback(tr("Публікацію додано у ваш профіль.","Shared to your profile."));
    if(typeof settings.onShared==="function"){
     try{Promise.resolve(settings.onShared()).catch(()=>{});}catch(_){}
    }
@@ -1263,24 +1263,23 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     tr("Не вдалося завантажити друзів","Could not load friends")));sendDM.disabled=true;}
    finally{dm.disabled=false;}
   });
-  sendDM.addEventListener("click",async()=>{
+  sendDM.addEventListener("click",()=>{
    const recipient=friendSelect.value;
    if(!friendsLoaded||!validId(recipient)||recipient===ownId||sendDM.disabled)return;
-   sendDM.disabled=true;showShareError("");
+   // Drafts are encrypted in Messenger, never stored as plaintext in direct_messages.
+   const body=tr("Поглянь на цей допис: ","Check out this post: ")+permalink(post);
+   // No plaintext drafts in URLs, browser history, network logs, or Referer headers.
+   // Use short-lived same-tab storage only while navigating to Messenger.
    try{
-    const body=tr("Поглянь на цей допис: ","Check out this post: ")+permalink(post);
-    const result=await client.from("direct_messages").insert({
-     sender_id:ownId,recipient_id:recipient,body
-    });
-    if(result.error)throw result.error;
+    sessionStorage.setItem("vatra:messenger:draft-v1",JSON.stringify({to:recipient,body,at:Date.now()}));
    }catch(_){
-    showShareError(tr("Не вдалося надіслати повідомлення.","Could not send message."));
-    sendDM.disabled=false;return;
+    showShareError(tr("Не вдалося передати чернетку безпечно. Скопіюйте посилання.","Cannot securely transfer draft. Copy the link instead."));
+    return;
    }
-   // A closed modal is not a failure of an already-persisted direct message.
-   sendDM.disabled=false;
+   const link=new URL("messenger.html",relativeRoot());
+   link.searchParams.set("to",recipient);
    if(shareMenu.open)shareMenu.close();
-   feedback(tr("Посилання надіслано другу.","Sent to your friend."));
+   location.assign(link.href);
   });
   copy.addEventListener("click",async()=>{
    try{
