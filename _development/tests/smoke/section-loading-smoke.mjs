@@ -70,7 +70,7 @@ function element(tag,cls="",copy=""){
   setAttribute(){},addEventListener(type,fn){if(!listeners.has(type))listeners.set(type,[]);listeners.get(type).push(fn);},
   async fire(type){for(const fn of listeners.get(type)||[])await fn({preventDefault(){},target:this});},
   showModal(){this.open=true;},close(){this.open=false;void this.fire("close");},remove(){this.isConnected=false;},
-  reset(){},checkValidity(){return true;},reportValidity(){return true;},
+  reset(){},focus(){},scrollIntoView(){},checkValidity(){return true;},reportValidity(){return true;},
   querySelector(selector){return all(this).find(n=>n.tag===selector)||null;}
  };return el;
 }
@@ -81,7 +81,7 @@ const make=(tag,cls,copy)=>element(tag,cls,copy);
 const button=(cls,copy,fn)=>{const b=make("button",cls,copy);b.addEventListener("click",fn);return b;};
 const btn=(label,cls,fn)=>button(cls,label,fn);
 const field=(parent,key,label,type,max,required)=>{const outer=make("div","field-"+key),input=make("input","input-"+key);outer.append(make("label","label-"+key,label),input);parent.append(outer);return input;};
-const doc={body:element("body"),createElement:element};
+const doc={body:element("body"),documentElement:{lang:"uk"},createElement:element,createElementNS:(_,tag)=>element(tag)};
 const market=await readFile("assets/js/marketplace.js","utf8");
 const editor=await readFile("assets/js/marketplace-editor.js","utf8");
 const signature=editor.match(/createMarketplaceEditor\(\{([^}]+)\}\)/)[1].split(",");

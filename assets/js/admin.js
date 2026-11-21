@@ -3,29 +3,156 @@ export function clearPanel(){dialog?.close();dialog?.remove();dialog=null;}
 export function openPanel(current,isCurrent,ui){
  if(dialog?.open||!isCurrent())return;
  const {root,t,node,button,icon,valid}=ui;
- const client=current.client,d=node("dialog","ui-vatra-admin-dialog-001"),header=node("header","ui-vatra-admin-header-001"),body=node("div","ui-vatra-admin-body-001"),nav=node("nav","ui-vatra-admin-nav-001"),content=node("main","ui-vatra-admin-content-001");dialog=d;d.setAttribute("aria-label","ADMIN PANEL");
- const heading=node("div","ui-vatra-admin-heading-001");heading.append(icon(),node("h1","vatra-admin-title-001","ADMIN PANEL"),node("span","vatra-admin-owner-001","VATRA ID 1"));header.append(heading,button("vatra-admin-close-001",t("Закрити","Close"),()=>d.close()));body.append(nav,content);d.append(header,body);document.body.append(d);
+ const client=current.client,d=node("dialog","ui-vatra-admin-dialog-001"),header=node("header","ui-vatra-admin-header-001"),body=node("div","ui-vatra-admin-body-001"),nav=node("nav","ui-vatra-admin-nav-001"),content=node("main","ui-vatra-admin-content-001");
+ dialog=d;d.setAttribute("aria-labelledby","vatra-admin-panel-title");nav.setAttribute("aria-label",t("Розділи адміністрації","Administration sections"));
+ const heading=node("div","ui-vatra-admin-heading-001"),brand=node("span","ui-vatra-admin-brand-001");
+ brand.append(icon());
+ const headingText=node("div","ui-vatra-admin-heading-text-001"),eyebrow=node("span","vatra-admin-eyebrow-001",t("VATRA / Адміністрування","VATRA / Administration"));
+ const title=node("h1","vatra-admin-title-001",t("Центр керування","Control center"));title.id="vatra-admin-panel-title";
+ headingText.append(eyebrow,title);heading.append(brand,headingText);
+ const owner=node("span","vatra-admin-owner-001",t("Власник · ID 1","Owner · ID 1")),close=button("vatra-admin-close-001",t("Закрити","Close"),()=>d.close());
+ close.setAttribute("aria-label",t("Закрити панель адміністратора","Close administration panel"));
+ const headerActions=node("div","ui-vatra-admin-header-actions-001");headerActions.append(owner,close);header.append(heading,headerActions);
+ body.append(nav,content);d.append(header,body);document.body.append(d);
  d.addEventListener("close",()=>{d.remove();if(dialog===d)dialog=null;},{once:true});
- let tab="dashboard",renderEpoch=0;
- const say=(s,bad=false)=>{if(s)window.VATRA_TOAST?.show(s,bad?"error":"success");};
+ let tab="dashboard",renderEpoch=0,latestDashboard=null;
+ const say=(value,bad=false)=>{if(value)window.VATRA_TOAST?.show(value,bad?"error":"success");};
  async function rpc(action,params={}){if(!isCurrent()||dialog!==d||!d.open)throw Error("Inactive admin session");const {data,error}=await client.rpc("vatra_admin_manage",{p_action:action,...params});if(error||!isCurrent()||dialog!==d||!d.open)throw error||Error("Inactive admin session");return data;}
- const safeDate=v=>v?new Date(v).toLocaleString():"—";
- const box=(title)=>{const el=node("section","ui-vatra-admin-box-001");el.append(node("h2","vatra-admin-box-title-001",title));return el;};
+ const safeDate=value=>{const date=value?new Date(value):null;return date&&!Number.isNaN(date.getTime())?date.toLocaleString(document.documentElement.lang==="en"?"en-GB":"uk-UA",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}):"—";};
+ const box=title=>{const el=node("section","ui-vatra-admin-box-001");el.append(node("h2","vatra-admin-box-title-001",title));return el;};
  const err=()=>say(t("Не вдалося виконати дію. Перевірте доступ і дані.","Could not complete the action. Check access and data."),true);
- const reasonField=()=>{const w=node("label","ui-vatra-admin-field-001"),i=node("textarea","ui-vatra-admin-reason-001");i.maxLength=1000;i.placeholder=t("Причина рішення (не менше 3 символів)","Decision reason (at least 3 characters)");w.append(node("span","vatra-admin-label-001",t("Причина","Reason")),i);return {w,i};};
- async function mutate(action,params,reason,refresh,btn){if(reason.trim().length<3){say(t("Вкажіть причину рішення.","Enter a decision reason."),true);return;}if(!confirm(t("Підтвердити адміністративну дію?","Confirm this administrative action?")))return;btn.disabled=true;try{await rpc(action,{...params,p_reason:reason.trim()});say(t("Рішення збережено.","Decision saved."));await refresh();}catch(_){err();}finally{btn.disabled=false;}}
- function actionButton(label,action,params,reason,refresh,danger=false){const b=button(danger?"vatra-admin-danger-001":"vatra-admin-primary-001",label,()=>void mutate(action,params(),reason.value,refresh,b));return b;}
- const tabs=[["dashboard",t("Огляд","Overview")],["users",t("Користувачі","Members")],["requests",t("Верифікація","Verification")],["reports",t("Скарги на профілі","Profile reports")],["market",t("Маркетплейс","Marketplace")],["maintenance",t("Технічні роботи","Maintenance")],["announcements",t("Оголошення","Announcements")],["history",t("Журнал дій","Audit log")]];
- const navButtons=new Map();for(const [key,label] of tabs){const b=button("vatra-admin-nav-button-"+key,label,()=>void render(key));navButtons.set(key,b);nav.append(b);}
+ const reasonField=()=>{const w=node("label","ui-vatra-admin-field-001"),i=node("textarea","ui-vatra-admin-reason-001");i.maxLength=1000;i.placeholder=t("Поясніть причину рішення (щонайменше 3 символи)","Explain the decision (at least 3 characters)");w.append(node("span","vatra-admin-label-001",t("Причина рішення","Decision reason")),i);return {w,i};};
+ async function mutate(action,params,reason,refresh,btn,label){if(reason.trim().length<3){say(t("Вкажіть причину рішення.","Enter a decision reason."),true);return;}if(!confirm(t("Підтвердити дію: ","Confirm action: ")+label+"?"))return;btn.disabled=true;try{await rpc(action,{...params,p_reason:reason.trim()});say(t("Рішення збережено.","Decision saved."));await refresh();}catch(_){err();}finally{btn.disabled=false;}}
+ function actionButton(label,action,params,reason,refresh,danger=false){const b=button(danger?"vatra-admin-danger-001":"vatra-admin-primary-001",label,()=>void mutate(action,params(),reason.value,refresh,b,label));return b;}
+ const symbols={
+ dashboard:["M3 3h8v8H3z","M13 3h8v5h-8z","M13 10h8v11h-8z","M3 13h8v8H3z"],
+ users:["M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2","M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8","M20 21v-2a4 4 0 0 0-3-3.87","M16 3.13a4 4 0 0 1 0 7.75"],
+ requests:["M12 2 9.4 4.5 6 4.6l-.5 3.3L3 10l1.2 3.2L3.8 17l3.4.8L9 20.8l3-1.5 3 1.5 1.8-3 3.4-.8-.4-3.8L21 10l-2.5-2.1-.5-3.3-3.4-.1z","m9 12 2 2 4-4"],
+ reports:["M5 3v18","M5 4h13l-2 5 2 5H5"],
+ market:["M3 10h18l-1-6H4z","M5 10v11h14V10","M9 21v-7h6v7"],
+ maintenance:["M12 2v4","M12 18v4","M4.93 4.93l2.83 2.83","M16.24 16.24l2.83 2.83","M2 12h4","M18 12h4","M4.93 19.07l2.83-2.83","M16.24 7.76l2.83-2.83","M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6"],
+ announcements:["M3 11h4l10-5v12L7 13H3z","M7 13l2 7h3l-2-6","M20 9a4 4 0 0 1 0 6"],
+ history:["M3 12a9 9 0 1 0 3-6.7","M3 3v5h5","M12 7v5l4 2"]
+ };
+ const iconFor=key=>{
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("width","19");svg.setAttribute("height","19");
+  svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.75");
+  svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
+  for(const path of symbols[key]||[]){const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",path);svg.append(p);}
+  return svg;
+ };
+ const sections=[
+  {title:t("Робочий простір","Workspace"),items:[["dashboard",t("Огляд","Overview")],["users",t("Користувачі","Members")]]},
+  {title:t("Модерація","Moderation"),items:[["requests",t("Верифікація","Verification")],["reports",t("Скарги","Reports")],["market",t("Маркетплейс","Marketplace")]]},
+  {title:t("Керування системою","Platform settings"),items:[["announcements",t("Оголошення","Announcements")],["maintenance",t("Технічні роботи","Maintenance")],["history",t("Журнал дій","Audit log")]]}
+ ];
+ const navButtons=new Map();
+ for(const section of sections){
+  const group=node("div","ui-vatra-admin-nav-section-001");
+  group.append(node("span","vatra-admin-nav-group-title-001",section.title));
+  for(const [key,label] of section.items){
+   const b=button("vatra-admin-nav-button-"+key,"",()=>void render(key));b.dataset.adminTab=key;
+   const caption=node("span","vatra-admin-nav-button-label-001",label),count=node("span","vatra-admin-nav-count-001");
+   count.hidden=true;count.setAttribute("aria-hidden","true");
+   b.append(iconFor(key),caption,count);b.setAttribute("aria-pressed","false");
+   navButtons.set(key,b);group.append(b);
+  }
+  nav.append(group);
+ }
+ nav.append(node("p","vatra-admin-nav-footnote-001",t("Доступно тільки власнику VATRA. Всі рішення фіксуються в журналі.","Owner-only access. Every decision is recorded in the audit log.")));
+ const pageDescriptions={
+  dashboard:t("Актуальний стан VATRA та завдання, які потребують уваги.","Live VATRA metrics and tasks that need attention."),
+  users:t("Переглядайте учасників, знаходьте їх за ID і керуйте доступом.","Browse members, find by ID and manage access."),
+  requests:t("Заявки на підтвердження профілів та видачу позначки.","Review requests for verified badges."),
+  reports:t("Скарги на профілі, що очікують рішення.","Profile reports awaiting a decision."),
+  market:t("Перевірка товарів, скарг та обмежень продавців.","Review listings, reports and seller restrictions."),
+  announcements:t("Оновлення й нові можливості, які побачать учасники після входу.","Updates and new features shown to members after sign-in."),
+  maintenance:t("Керуйте тимчасовим режимом технічних робіт.","Control temporary maintenance mode."),
+  history:t("Прозора історія адміністративних рішень.","Traceable history of administrative decisions.")
+ };
+ const pageLabels=Object.fromEntries(sections.flatMap(group=>group.items));
+ const refreshNavCounts=data=>{for(const [key,field] of [["requests","verification_pending"],["reports","reports_pending"],["market","market_pending"]]){
+  const badge=navButtons.get(key)?.querySelector(".vatra-admin-nav-count-001");
+  if(badge){const value=Number(data?.[field]||0);badge.hidden=value<=0;badge.textContent=String(value);}
+ }};
  async function users(host,selected=""){
- const form=node("form","ui-vatra-admin-lookup-001"),label=node("label","ui-vatra-admin-field-001"),input=node("input","ui-vatra-admin-id-input-001");input.inputMode="numeric";input.placeholder="123";input.value=selected;input.required=true;input.pattern="[1-9][0-9]{0,18}";label.append(node("span","vatra-admin-label-001","VATRA ID"),input);const find=node("button","vatra-admin-primary-001",t("Знайти","Find"));find.type="submit";form.append(label,find);const result=node("div","ui-vatra-admin-member-result-001");host.append(form,result);let searchEpoch=0;
- async function lookup(){const id=input.value.trim();if(!valid(id))return;const n=++searchEpoch;find.disabled=true;result.replaceChildren();try{const row=await rpc("lookup",{p_id:id});if(n!==searchEpoch||!result.isConnected)return;if(!row){result.textContent=t("Користувача не знайдено.","Member not found.");return;}
- const card=box(row.name+" · ID "+row.vatra_id),profile=node("a","vatra-admin-profile-link-001",t("Відкрити профіль","Open profile"));profile.href=new URL("id"+row.vatra_id,root).href;profile.target="_blank";profile.rel="noopener";card.append(profile,node("p","vatra-admin-member-created-001",t("Дата реєстрації: ","Registered: ")+safeDate(row.created_at)),node("p","vatra-admin-member-state-001",t("Стан: ","Status: ")+({active:t("Активний","Active"),blocked:t("Заблоковано","Blocked"),deleted:t("Видалено","Deleted")}[row.state]||row.state)+(row.state==="blocked"&&row.blocked_until?" · "+safeDate(row.blocked_until):"")),node("p","vatra-admin-member-verified-001",row.verified?t("Синя галочка активна","Verified badge active"):t("Без верифікації","Not verified")));
- const reason=reasonField(),actions=node("div","ui-vatra-admin-actions-001"),duration=node("select","ui-vatra-admin-duration-001"),durationLabel=node("label","ui-vatra-admin-field-002");for(const [v,l] of [["",t("Безстроково","Indefinite")],["1",t("1 день","1 day")],["7",t("7 днів","7 days")],["30",t("30 днів","30 days")],["90",t("90 днів","90 days")]])duration.append(new Option(l,v));durationLabel.append(node("span","vatra-admin-label-002",t("Строк блокування","Restriction period")),duration);
- card.append(reason.w);if(row.state!=="deleted"){if(!row.verified)actions.append(actionButton(t("Видати галочку","Grant badge"),"verify",()=>({p_id:id}),reason.i,lookup));else if(id!=="1")actions.append(actionButton(t("Зняти галочку","Revoke badge"),"unverify",()=>({p_id:id}),reason.i,lookup,true));if(id!=="1"){if(row.state==="blocked")actions.append(actionButton(t("Розблокувати","Unblock"),"unblock",()=>({p_id:id}),reason.i,lookup));else{card.append(durationLabel);actions.append(actionButton(t("Заблокувати акаунт","Block account"),"block",()=>({p_id:id,p_days:duration.value?Number(duration.value):null}),reason.i,lookup,true));}}}
- card.append(actions);result.append(card);
- }catch(_){err();}finally{find.disabled=false;}}
- form.addEventListener("submit",e=>{e.preventDefault();void lookup();});if(selected)await lookup();}
+  const intro=node("div","ui-vatra-admin-users-intro-001");
+  intro.append(node("h3","vatra-admin-section-title-001",t("Пошук учасника","Find a member")),node("p","vatra-admin-hint-001",t("Вкажіть VATRA ID або виберіть людину зі списку нижче.","Enter a VATRA ID or choose a member from the list below.")));
+  host.append(intro);
+  const form=node("form","ui-vatra-admin-lookup-001"),label=node("label","ui-vatra-admin-field-001"),input=node("input","ui-vatra-admin-id-input-001");
+  input.type="text";input.inputMode="numeric";input.autocomplete="off";input.placeholder=t("Наприклад, 25","For example, 25");input.value=selected;input.required=true;input.pattern="[1-9][0-9]{0,18}";
+  label.append(node("span","vatra-admin-label-001","VATRA ID"),input);
+  const find=node("button","vatra-admin-primary-001",t("Знайти користувача","Find member"));find.type="submit";
+  form.append(label,find);
+  const result=node("div","ui-vatra-admin-member-result-001");
+  host.append(form,result);
+  let searchEpoch=0;
+  const statusNames={active:t("Активний","Active"),blocked:t("Заблокований","Blocked"),deleted:t("Видалений","Deleted")};
+  const statePill=state=>{const pill=node("span","vatra-admin-state-pill-001",statusNames[state]||state||"—");pill.dataset.state=state||"active";return pill;};
+  async function lookup(){
+   const id=input.value.trim();
+   if(!valid(id)){say(t("Введіть правильний числовий VATRA ID.","Enter a valid numeric VATRA ID."),true);input.focus();return;}
+   const ticket=++searchEpoch;find.disabled=true;result.replaceChildren(node("p","vatra-admin-loading-001",t("Шукаємо користувача…","Looking up member…")));
+   try{
+    const row=await rpc("lookup",{p_id:id});if(ticket!==searchEpoch||!result.isConnected)return;
+    if(!row){result.replaceChildren(node("p","vatra-admin-empty-001",t("Користувача з таким ID не знайдено.","No member found with that ID.")));return;}
+    const card=box(row.name+" · ID "+row.vatra_id),meta=node("div","ui-vatra-admin-member-meta-001"),profile=node("a","vatra-admin-profile-link-001",t("Відкрити профіль","Open profile"));
+    profile.href=new URL("id"+row.vatra_id,root).href;profile.target="_blank";profile.rel="noopener";
+    meta.append(statePill(row.state),node("span","vatra-admin-member-date-001",t("Зареєстровано: ","Registered: ")+safeDate(row.created_at)),node("span","vatra-admin-member-badge-001",row.verified?t("✓ Підтверджений","✓ Verified"):t("Без галочки","Not verified")));
+    card.append(meta,profile);
+    const dangerZone=node("section","ui-vatra-admin-member-tools-001");
+    dangerZone.append(node("h3","vatra-admin-tools-title-001",t("Адміністративні дії","Administrative actions")),node("p","vatra-admin-hint-001",t("Для кожного рішення вкажіть причину. Дія буде записана в журнал.","Provide a reason for each decision. All actions are logged.")));
+    const reason=reasonField(),actions=node("div","ui-vatra-admin-actions-001"),duration=node("select","ui-vatra-admin-duration-001"),durationLabel=node("label","ui-vatra-admin-field-002");
+    for(const [v,l] of [["",t("Безстроково","Indefinite")],["1",t("1 день","1 day")],["7",t("7 днів","7 days")],["30",t("30 днів","30 days")],["90",t("90 днів","90 days")]])duration.append(new Option(l,v));
+    durationLabel.append(node("span","vatra-admin-label-002",t("Строк блокування","Block duration")),duration);
+    dangerZone.append(reason.w);
+    if(row.state!=="deleted"){
+     if(!row.verified)actions.append(actionButton(t("Видати галочку","Grant badge"),"verify",()=>({p_id:id}),reason.i,lookup));
+     else if(id!=="1")actions.append(actionButton(t("Зняти галочку","Remove badge"),"unverify",()=>({p_id:id}),reason.i,lookup,true));
+     if(id!=="1"){
+      if(row.state==="blocked")actions.append(actionButton(t("Розблокувати","Unblock"),"unblock",()=>({p_id:id}),reason.i,lookup));
+      else{dangerZone.append(durationLabel);actions.append(actionButton(t("Заблокувати акаунт","Block account"),"block",()=>({p_id:id,p_days:duration.value?Number(duration.value):null}),reason.i,lookup,true));}
+     }
+    }
+    if(id==="1")dangerZone.append(node("p","vatra-admin-owner-note-001",t("Акаунт власника захищено від блокування.","The owner account is protected from blocking.")));
+    dangerZone.append(actions);card.append(dangerZone);result.replaceChildren(card);
+   }catch(_){if(ticket===searchEpoch&&result.isConnected){result.replaceChildren(node("p","vatra-admin-empty-001",t("Не вдалося отримати дані користувача.","Could not load member details.")));err();}}
+   finally{find.disabled=false;}
+  }
+  form.addEventListener("submit",event=>{event.preventDefault();void lookup();});
+  const directory=box(t("Останні користувачі","Recent members")),directoryHead=node("div","ui-vatra-admin-directory-heading-001"),count=node("span","vatra-admin-directory-count-001"),filter=node("input","vatra-admin-directory-filter-001");
+  filter.type="search";filter.placeholder=t("Фільтр за ім'ям або ID","Filter by name or ID");
+  filter.setAttribute("aria-label",t("Фільтр списку користувачів","Filter member list"));filter.autocomplete="off";
+  directoryHead.append(count,filter);
+  const list=node("div","ui-vatra-admin-directory-list-001");directory.append(directoryHead,list);host.append(directory);
+  list.append(node("p","vatra-admin-loading-001",t("Завантаження користувачів…","Loading members…")));
+  try{
+   const response=await rpc("members");
+   if(!host.isConnected)return;
+   const rows=Array.isArray(response?.items)?response.items:[];
+   const total=Number(response?.total||0);
+   count.textContent=t("Усього: ","Total: ")+total+t(" · Показано останніх: "," · Recent shown: ")+rows.length;
+   const paint=()=>{
+    const term=filter.value.toLocaleLowerCase().trim(),visible=rows.filter(row=>String(row.vatra_id).includes(term)||String(row.name||"").toLocaleLowerCase().includes(term));
+    list.replaceChildren();
+    if(!visible.length){list.append(node("p","vatra-admin-empty-001",term?t("У завантаженому списку немає збігів. Спробуйте пошук за VATRA ID вище.","No matches in the recent list. Try an ID lookup above."):t("Користувачів ще немає.","No members yet.")));return;}
+    for(const row of visible){
+     const item=button("ui-vatra-admin-directory-row-001","",()=>{input.value=String(row.vatra_id);void lookup();result.scrollIntoView({behavior:"smooth",block:"start"});});
+     const identity=node("span","ui-vatra-admin-directory-identity-001"),initial=node("span","vatra-admin-directory-avatar-001",String(row.name||"V").trim().charAt(0).toLocaleUpperCase());
+     const name=node("span","vatra-admin-directory-name-001",row.name||"VATRA"),idLabel=node("span","vatra-admin-directory-id-001","ID "+row.vatra_id);
+     identity.append(initial,name,idLabel);
+     const badges=node("span","ui-vatra-admin-directory-badges-001");badges.append(statePill(row.state));
+     if(row.verified)badges.append(node("span","vatra-admin-directory-verified-001",t("✓ Галочка","✓ Verified")));
+     const date=node("span","vatra-admin-directory-date-001",safeDate(row.created_at));
+     const arrow=node("span","vatra-admin-directory-arrow-001","›");arrow.setAttribute("aria-hidden","true");
+     item.append(identity,badges,date,arrow);list.append(item);
+    }
+   };
+   filter.addEventListener("input",paint);paint();
+  }catch(_){if(host.isConnected){list.replaceChildren(node("p","vatra-admin-empty-001",t("Не вдалося завантажити список учасників.","Could not load member directory.")));err();}}
+  if(selected)await lookup();
+ }
  async function marketView(host,active){
   async function authorize(){
    if(!active())return false;
@@ -146,7 +273,7 @@ export function openPanel(current,isCurrent,ui){
   const validPath=value=>!value||(/^[A-Za-z0-9][A-Za-z0-9/_?&=.#%-]*$/.test(value)&&!value.includes(".."));
   async function refresh(){
    if(!active())return;
-   const {data,error}=await client.from("vatra_announcements").select("id,title_uk,title_en,body_uk,body_en,target_path,active,created_at").order("created_at",{ascending:false}).limit(60);
+   const {data,error}=await client.from("announcements").select("id,title_uk,title_en,body_uk,body_en,target_path,active,created_at").order("created_at",{ascending:false}).limit(60);
    if(error)throw error;
    if(!active())return;
    list.replaceChildren();
@@ -168,7 +295,7 @@ export function openPanel(current,isCurrent,ui){
      if(busy||!active()||!confirm(row.active?t("Приховати оголошення?","Unpublish this announcement?"):t("Показати оголошення користувачам?","Show this announcement to members?")))return;
      busy=true;toggle.disabled=true;
      try{
-      const {data,error}=await client.from("vatra_announcements").update({active:!row.active}).eq("id",row.id).select("id").single();
+      const {data,error}=await client.from("announcements").update({active:!row.active}).eq("id",row.id).select("id").single();
       if(error||!data)throw error||Error("Update not applied");
       if(active()){say(t("Стан оголошення оновлено.","Announcement status updated."));await refresh();}
      }catch(_){if(active())err();}finally{busy=false;toggle.disabled=false;}
@@ -178,7 +305,7 @@ export function openPanel(current,isCurrent,ui){
      if(busy||!active()||!confirm(t("Назавжди видалити оголошення?","Permanently delete this announcement?")))return;
      busy=true;remove.disabled=true;
      try{
-      const {data,error}=await client.from("vatra_announcements").delete().eq("id",row.id).select("id").single();
+      const {data,error}=await client.from("announcements").delete().eq("id",row.id).select("id").single();
       if(error||!data)throw error||Error("Delete not applied");
       if(editing===row.id)reset();
       if(active()){say(t("Оголошення видалено.","Announcement deleted."));await refresh();}
@@ -196,7 +323,7 @@ export function openPanel(current,isCurrent,ui){
    if(Object.values(payload).some(v=>typeof v==="string"&&v.length===0)){say(t("Заповніть усі назви й описи двома мовами.","Complete both language titles and descriptions."),true);return;}
    busy=true;save.disabled=true;
    try{
-    const query=editing?client.from("vatra_announcements").update(payload).eq("id",editing):client.from("vatra_announcements").insert(payload);
+    const query=editing?client.from("announcements").update(payload).eq("id",editing):client.from("announcements").insert(payload);
     const {data,error}=await query.select("id").single();
     if(error||!data)throw error||Error("Write not applied");
     if(active()){say(editing?t("Оголошення оновлено.","Announcement updated."):t("Оголошення створено.","Announcement created."));reset();await refresh();}
@@ -204,8 +331,77 @@ export function openPanel(current,isCurrent,ui){
   });
   try{await refresh();}catch(_){if(active())err();}
  }
- async function render(key,selected=""){tab=key;const stamp=++renderEpoch;for(const [id,b] of navButtons)b.setAttribute("aria-pressed",String(id===key));content.replaceChildren();say("");const host=node("div","ui-vatra-admin-view-001");content.append(host);try{
- if(key==="dashboard"){const data=await rpc("dashboard");if(stamp!==renderEpoch)return;const grid=node("div","ui-vatra-admin-stats-001");for(const [k,label] of [["accounts",t("Користувачі","Members")],["verified",t("Верифіковані","Verified")],["blocked",t("Заблоковані","Blocked")],["posts",t("Публікації","Posts")],["communities",t("Спільноти","Communities")],["market_pending",t("Товари на перевірці","Listings awaiting review")],["verification_pending",t("Заявки на галочку","Verification requests")],["reports_pending",t("Скарги на профілі","Profile reports")]]){const tile=node("section","ui-vatra-admin-stat-001");tile.append(node("strong","vatra-admin-stat-number-001",String(data[k]??0)),node("span","vatra-admin-stat-label-001",label));grid.append(tile);}host.append(grid);}
+ async function render(key,selected=""){
+  if(!Object.hasOwn(pageLabels,key))return;
+  tab=key;const stamp=++renderEpoch;
+  for(const [id,b] of navButtons)b.setAttribute("aria-pressed",String(id===key));
+  content.replaceChildren();content.scrollTop=0;
+  const toolbar=node("div","ui-vatra-admin-page-header-001"),heading=node("div","ui-vatra-admin-page-heading-001");
+  heading.append(node("span","vatra-admin-page-kicker-001",t("ПАНЕЛЬ КЕРУВАННЯ","CONTROL PANEL")),node("h2","vatra-admin-page-title-001",pageLabels[key]),node("p","vatra-admin-page-description-001",pageDescriptions[key]));
+  const reload=button("vatra-admin-refresh-001",t("Оновити","Refresh"),()=>void render(key,selected));
+  toolbar.append(heading,reload);content.append(toolbar);
+  const host=node("div","ui-vatra-admin-view-001");content.append(host);
+  host.append(node("p","vatra-admin-loading-001",t("Завантаження даних…","Loading data…")));
+  if(key!=="dashboard")host.replaceChildren();
+  try{
+   if(key==="dashboard"){
+    const data=await rpc("dashboard");if(stamp!==renderEpoch)return;
+    latestDashboard=data;refreshNavCounts(data);
+    host.replaceChildren();
+    const greeting=node("div","ui-vatra-admin-overview-heading-001");
+    greeting.append(node("h3","vatra-admin-overview-title-001",t("Стан вашої платформи","Your platform at a glance")),node("p","vatra-admin-hint-001",t("Усі числа — актуальні дані Supabase. Натисніть на показник, щоб відкрити розділ.","All numbers are live Supabase data. Select a metric to open its section.")));
+    host.append(greeting);
+    const grid=node("div","ui-vatra-admin-stats-001");
+    const metrics=[
+     ["accounts",t("Користувачі","Members"),"users",t("Зареєстровані акаунти","Registered accounts")],
+     ["verified",t("Верифіковані","Verified"),"requests",t("З підтвердженою позначкою","Members with a verified badge")],
+     ["posts",t("Публікації","Posts"),"dashboard",t("Створені дописи","Published posts")],
+     ["communities",t("Спільноти","Communities"),"dashboard",t("Створені спільноти","Created communities")]
+    ];
+    for(const [field,label,target,note] of metrics){
+     const tile=button("ui-vatra-admin-stat-001","",()=>{if(target!=="dashboard")void render(target);});
+     tile.dataset.tone=field;
+     const top=node("span","ui-vatra-admin-stat-top-001");
+     top.append(iconFor(target==="dashboard"?"dashboard":target),node("span","vatra-admin-stat-label-001",label));
+     tile.append(top,node("strong","vatra-admin-stat-number-001",Number(data?.[field]||0).toLocaleString(document.documentElement.lang==="en"?"en-GB":"uk-UA")),node("span","vatra-admin-stat-note-001",note));
+     if(target!=="dashboard"){const arrow=node("span","vatra-admin-stat-arrow-001","↗");arrow.setAttribute("aria-hidden","true");tile.append(arrow);}
+     else tile.disabled=true;
+     grid.append(tile);
+    }
+    host.append(grid);
+    const two=node("div","ui-vatra-admin-overview-columns-001");
+    const tasks=box(t("Потребує уваги","Needs attention"));
+    tasks.append(node("p","vatra-admin-hint-001",t("Заявки й питання для модерації.","Queues awaiting moderation.")));
+    for(const [field,label,description,target] of [
+     ["verification_pending",t("Заявки на верифікацію","Verification requests"),t("Перевірити профілі й ухвалити рішення","Review profiles and decide"),"requests"],
+     ["reports_pending",t("Скарги на профілі","Profile reports"),t("Опрацювати скарги користувачів","Handle member reports"),"reports"],
+     ["market_pending",t("Товари на модерації","Listings awaiting review"),t("Перевірити товари маркетплейсу","Review marketplace listings"),"market"],
+     ["blocked",t("Заблоковані акаунти","Blocked accounts"),t("Керувати обмеженнями доступу","Manage access restrictions"),"users"]
+    ]){
+     const item=button("ui-vatra-admin-queue-row-001","",()=>void render(target));
+     const textWrap=node("span","ui-vatra-admin-queue-info-001");
+     textWrap.append(node("strong","vatra-admin-queue-title-001",label),node("span","vatra-admin-queue-description-001",description));
+     const number=node("strong","vatra-admin-queue-number-001",String(data?.[field]??0));
+     if(Number(data?.[field])>0)number.dataset.attention="true";
+     item.append(textWrap,number);tasks.append(item);
+    }
+    const tools=box(t("Швидкі дії","Quick actions"));
+    tools.append(node("p","vatra-admin-hint-001",t("Найважливіші операції адміністратора.","Common administration tasks.")));
+    for(const [label,description,target,iconKey] of [
+     [t("Знайти користувача","Find a member"),t("Переглянути профіль, статус або доступ","View profile, status and access"),"users","users"],
+     [t("Нове оголошення","New announcement"),t("Повідомити про оновлення VATRA","Share a VATRA update"),"announcements","announcements"],
+     [t("Технічні роботи","Maintenance"),t("Увімкнути або вимкнути режим","Enable or disable the mode"),"maintenance","maintenance"],
+     [t("Журнал рішень","Audit log"),t("Перевірити останні дії","Review previous decisions"),"history","history"]
+    ]){
+     const item=button("ui-vatra-admin-shortcut-001","",()=>void render(target));
+     const symbol=node("span","vatra-admin-shortcut-icon-001");symbol.append(iconFor(iconKey));
+     const copy=node("span","ui-vatra-admin-shortcut-copy-001");
+     copy.append(node("strong","vatra-admin-shortcut-title-001",label),node("span","vatra-admin-shortcut-note-001",description));
+     const arrow=node("span","vatra-admin-shortcut-arrow-001","›");arrow.setAttribute("aria-hidden","true");
+     item.append(symbol,copy,arrow);tools.append(item);
+    }
+    two.append(tasks,tools);host.append(two);
+   }
  else if(key==="users")await users(host,selected);
  else if(key==="requests"||key==="reports"){const rows=await rpc(key);if(stamp!==renderEpoch)return;const refresh=()=>render(key);if(!rows.length)host.append(node("p","vatra-admin-empty-001",t("Немає відкритих звернень.","No open requests.")));for(const row of rows){const id=String(row.vatra_id??row.target_vatra_id),c=box((row.display_name||"VATRA")+" · ID "+id),reason=reasonField(),actions=node("div","ui-vatra-admin-actions-001");c.append(node("p","vatra-admin-request-copy-001",[row.category,row.reason,row.details].filter(Boolean).join("\n")),node("p","vatra-admin-request-date-001",safeDate(row.created_at)),reason.w);actions.append(button("vatra-admin-secondary-001",t("Керувати акаунтом","Manage member"),()=>void render("users",id)));if(key==="requests"){actions.append(actionButton(t("Схвалити та видати галочку","Approve and grant badge"),"verify",()=>({p_id:id}),reason.i,refresh),actionButton(t("Відхилити","Reject"),"reject_verification",()=>({p_id:id}),reason.i,refresh,true));}else actions.append(actionButton(t("Закрити скаргу","Resolve report"),"resolve_report",()=>({p_report:row.id}),reason.i,refresh));c.append(actions);host.append(c);}}
  else if(key==="market")await marketView(host,()=>isCurrent()&&dialog===d&&d.open&&stamp===renderEpoch);
@@ -236,6 +432,6 @@ export function openPanel(current,isCurrent,ui){
   enabled=result.data.enabled;paint();toggle.disabled=false;
  }
  else if(key==="history"){const {data,error}=await client.from("admin_audit").select("id,target_vatra_id,event,reason,created_at").order("created_at",{ascending:false}).limit(100);if(error)throw error;if(stamp!==renderEpoch)return;const names={verify:t("Видано галочку","Badge granted"),unverify:t("Знято галочку","Badge revoked"),block:t("Заблоковано","Blocked"),unblock:t("Розблоковано","Unblocked"),reject_verification:t("Відхилено заявку","Verification rejected"),resolve_report:t("Закрито скаргу","Report resolved")};if(!data?.length)host.append(node("p","vatra-admin-empty-001",t("Журнал поки порожній.","No activity yet.")));for(const row of data||[]){const c=box((names[row.event]||row.event)+" · ID "+(row.target_vatra_id??"—"));c.append(node("p","vatra-admin-audit-reason-001",row.reason),node("p","vatra-admin-audit-date-001",safeDate(row.created_at)));host.append(c);}}
- }catch(_){if(stamp===renderEpoch)err();}}
+ }catch(_){if(stamp===renderEpoch){host.replaceChildren(node("p","vatra-admin-empty-001",t("Не вдалося завантажити розділ. Перевірте з’єднання і натисніть «Оновити».","Could not load this section. Check your connection and select Refresh.")));err();}}}
  d.showModal();void render("dashboard");
 }
