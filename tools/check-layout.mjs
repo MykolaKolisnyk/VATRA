@@ -1174,6 +1174,8 @@ assert.ok(
  messengerMarkup.includes("assets/js/messenger.js")&&
  messengerRuntime.includes('state.client.rpc("messenger_delete_message"')&&
  messengerRuntime.includes('client.channel("vatra-messenger-"')&&
+ messengerRuntime.includes('cryptoBox().same(messagePeerKey,state.peerKey)')&&
+ messengerRuntime.includes('state.peerChanged')&&
  !messengerRuntime.includes('from("direct_messages")')&&
  !profileBehavior.includes('from("direct_messages")')&&
  !interactionsScript.includes('from("direct_messages")')&&
