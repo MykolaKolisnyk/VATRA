@@ -408,7 +408,7 @@ assert.ok(!offline.includes('assets/js/errors.js')&&!sw.includes('ROOT+"assets/j
  "Offline pages and service worker must not load console-to-toast diagnostics");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
-const ownRe=/\b(?:vt|ui)-[a-z0-9-]+/g;
+const ownRe=/\b(?:ui-[a-z0-9-]+|vatra-[a-z0-9-]+-\d+)\b/g;
 const voidTags=new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 function inspect(path,html){
  const body=html.slice(html.search(/<body\b/i)).replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,"");
@@ -426,7 +426,7 @@ function inspect(path,html){
    if(!voidTags.has(tag)&&!token.endsWith("/>"))stack.push({tag,classes});
   }else if(!token.startsWith("<")&&/[\p{L}\p{N}]/u.test(token.trim())){
    const current=stack.at(-1);
-   if(!current||!/\bvt-[a-z0-9-]+/.test(current.classes))missing.push(token.trim().slice(0,45));
+   if(!current||!(current.classes.match(ownRe)||[]).length)missing.push(token.trim().slice(0,45));
   }
  }
  assert.deepEqual(missing,[],path+": visible text missing unique class");
