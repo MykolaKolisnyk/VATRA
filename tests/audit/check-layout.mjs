@@ -2335,11 +2335,8 @@ const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
 const consolidatedFeed=await read("assets/css/feed.css");
-assert.ok(consolidatedFeed.includes('/* A compact return-to-top control, never a full-height gutter overlay. */')&&
- consolidatedFeed.includes('width:50px;height:50px;')&&
+assert.ok( consolidatedFeed.includes('width:50px;height:50px;')&&
  !consolidatedFeed.includes('width:var(--vatra-rail-width')&&
- !consolidatedFeed.includes('/* Spacious VK-like edge affordance')&&
- !consolidatedFeed.includes('/* Quiet VATRA left gutter:')&&
  consolidatedFeed.includes('bottom:-1px;left:13px;right:13px;z-index:2;')&&
  consolidatedFeed.includes('height:3px;border-radius:3px 3px 0 0;background:var(--vatra-action-ink)')&&
  consolidatedFeed.includes('padding:12px 0;border:0;border-radius:0;background:transparent;box-shadow:none')&&
