@@ -227,9 +227,13 @@
  }
  function keyDialog(mode){
   state.keyDialogMode=mode;
-  $("#messenger-passphrase").value="";errorAt("#messenger-key-error","");
+  $("#messenger-passphrase").value="";$("#messenger-key-confirm").value="";errorAt("#messenger-key-error","");
   const title=$("#messenger-key-title"),description=$("#messenger-key-description"),submit=$("#messenger-key-submit");
   const missing=mode==="missing";
+  const creating=mode==="create";
+  $("#messenger-key-confirm").hidden=!creating;
+  $("#messenger-key-confirm").required=creating;
+  $("#messenger-key-confirm-label").hidden=!creating;
   $("#messenger-key-submit").hidden=missing;
   $("#messenger-passphrase").hidden=missing;
   $("#messenger-key-import").hidden=!missing;
@@ -260,12 +264,31 @@
   event.preventDefault();
   const mode=state.keyDialogMode,pass=$("#messenger-passphrase").value,button=$("#messenger-key-submit");
   if(Array.from(pass).length<14){errorAt("#messenger-key-error",t("Парольна фраза має містити щонайменше 14 символів.","Passphrase must have at least 14 characters."));return;}
+  if(mode==="create"&&pass!==$("#messenger-key-confirm").value){
+   errorAt("#messenger-key-error",t("Парольні фрази не збігаються.","Passphrases do not match."));return;
+  }
   button.disabled=true;errorAt("#messenger-key-error","");
+  // A transient network failure can leave the encrypted local key created but
+  // not registered. Reuse that identity on retry instead of creating a new one.
+  async function registerKey(pub){
+   const {error}=await state.client.from("messenger_keys")
+    .insert({vatra_id:state.own,public_key:pub});
+   if(error){
+    const result=await state.client.from("messenger_keys")
+     .select("public_key").eq("vatra_id",state.own).maybeSingle();
+    if(result.error||!cryptoBox().same(pub,result.data?.public_key))throw error;
+   }
+   state.remotePublic=pub;
+  }
   try{
    if(mode==="create"){
-    const pub=await cryptoBox().create(state.own,pass);
-    const {error}=await state.client.from("messenger_keys").insert({vatra_id:Number(state.own),public_key:pub});
-    if(error)throw error;
+    const saved=await cryptoBox().loadRecord(state.own);
+    let pub;
+    if(saved){
+     await cryptoBox().unlock(state.own,pass,saved.publicKey);
+     pub=saved.publicKey;
+    }else pub=await cryptoBox().create(state.own,pass);
+    await registerKey(pub);
     await downloadBackup();
    }else if(mode==="import"){
     await cryptoBox().importBackup(state.own,state.pendingImport,pass,state.remotePublic);
@@ -274,8 +297,7 @@
     const remote=state.remotePublic||(await cryptoBox().loadRecord(state.own))?.publicKey;
     await cryptoBox().unlock(state.own,pass,remote);
     if(!state.remotePublic){
-     const {error}=await state.client.from("messenger_keys").insert({vatra_id:Number(state.own),public_key:remote});
-     if(error)throw error;
+     await registerKey(remote);
     }
    }
    state.locked=false;$("#messenger-key-dialog").close();
@@ -284,7 +306,7 @@
    if(state.selected)await loadPeerKey();
    await refresh();
   }catch(error){errorAt("#messenger-key-error",error?.message||t("Не вдалося відкрити ключ.","Could not open the key."));}
-  finally{button.disabled=false;$("#messenger-passphrase").value="";syncSend();}
+  finally{button.disabled=false;$("#messenger-passphrase").value="";$("#messenger-key-confirm").value="";syncSend();}
  }
  async function setupKeys(){
   const {data,error}=await state.client.from("messenger_keys").select("public_key").eq("vatra_id",state.own).maybeSingle();
