@@ -176,7 +176,7 @@ assert.ok(auth.includes('let recoveryVerifiedUserId=null;')&&
  !auth.includes('if(!error&&data?.user)reveal();'),
  "Password recovery must be bound to verified identity");
 const registerHtml=await read("create-account.html");
-assert.ok(!registerHtml.includes('vt-create-account-paragraph-02')&&
+assert.ok(!registerHtml.includes('vatra-create-account-paragraph-02')&&
  !Object.hasOwn(uk.__pages["create-account"].nodes,"n51")&&
  !Object.hasOwn(en.__pages["create-account"].nodes,"n51"),
  "Do not duplicate the password requirements in signup or translations");
@@ -203,7 +203,7 @@ for(const name of pages){
  for(const match of markup.matchAll(/<(h[1-6]|p|a|button|input|select|textarea|span|label|li|nav|main|section|div|header|footer|svg|img)(?=[\s>])([^>]*)>/g)){
   const attrs=match[2];
   const classes=attrs.match(/\sclass="([^"]+)"/)?.[1]?.split(/\s+/)||[];
-  assert.ok(classes.length>0&&classes.some(c=>c.startsWith("vt-")||c.startsWith("ui-")),
+  assert.ok(classes.length>0&&classes.some(c=>c.startsWith("vatra-")||c.startsWith("ui-")),
    name+".html: a visible element must have a page-specific style hook: "+match[0].slice(0,120));
  }
 }
@@ -263,7 +263,7 @@ assert.ok(lang.includes('search.placeholder = " ";')&&
  lang.includes('searchShell.append(search,searchHint,clearSearch)')&&
  css.includes('.language-search-shell .vatra-floating-hint{'),
  "Language search must share one floating hint with auth inputs");
-assert.ok(lang.includes('clearSearch.className="language-search-clear vt-language-clear-button"')&&
+assert.ok(lang.includes('clearSearch.className="language-search-clear vatra-language-clear-button"')&&
  lang.includes('search.dispatchEvent(new Event("input",{bubbles:true}))')&&
  css.includes(".language-search-clear{position:absolute;top:50%;right:11px;")&&
  css.includes(".language-search::-webkit-search-cancel-button,"),
@@ -458,10 +458,10 @@ assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-h
 assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,0,
  "Five VATRA orbit slogans must be removed");
 assert.ok(
- landing.includes('class="vt-home-paragraph-01">')&&
- landing.includes('class="vt-home-emphasis-04" data-i18n="n100"')&&
- landing.includes('class="vt-home-description-001" data-i18n="n99"')&&
- !landing.includes('class="vt-home-paragraph-01" data-i18n="n99"')&&
+ landing.includes('class="vatra-home-paragraph-01">')&&
+ landing.includes('class="vatra-home-emphasis-04" data-i18n="n100"')&&
+ landing.includes('class="vatra-home-description-001" data-i18n="n99"')&&
+ !landing.includes('class="vatra-home-paragraph-01" data-i18n="n99"')&&
  (landing.match(/data-i18n="n99"/g)||[]).length===1&&
  (landing.match(/data-i18n="n100"/g)||[]).length===1&&
  uk.__pages.index.nodes.n99.text["0"].includes("Знаходьте своїх людей")&&
@@ -535,8 +535,8 @@ assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша
 assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"')&&
  !landing.includes('class="login-header ui-login-header-001"')&&
  !landing.includes('class="login-header-logo')&&
- !landing.includes('class="login-brand-kicker vt-login-brand-kicker-01"')&&
- landing.includes('class="login-form-kicker vt-login-form-kicker-01"')&&
+ !landing.includes('class="login-brand-kicker vatra-login-brand-kicker-01"')&&
+ landing.includes('class="login-form-kicker vatra-login-form-kicker-01"')&&
  signInCss.includes(".login-form-overline{")&&createAccountCss.includes(".signup-form-overline{")&&
  css.includes("margin:auto;border-radius:28px")&&
  css.includes("border-radius:28px 0 0 28px")&&
@@ -556,10 +556,10 @@ assert.ok(!css.includes(".create-account-page .field:has(input.control)")&&
  "Auth cards must center without reserved space from the former top navigation");
 const register=await read("create-account.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
 assert.ok(!register.includes('class="create-account-header')&&
- !register.includes('class="header-logo vt-create-account-link-01"')&&
+ !register.includes('class="header-logo vatra-create-account-link-01"')&&
  register.includes('class="signup-layout auth-layout ui-signup-layout-001"')&&
  register.includes('class="create-account-back-nav ui-create-account-back-nav-001"')&&
- register.includes('href="./" class="back vt-create-account-link-02"')&&
+ register.includes('href="./" class="back vatra-create-account-link-02"')&&
  css.includes(".auth-layout{")&&!css.includes(".login-layout::before,.signup-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".create-account-back-nav{")&&
  !register.includes('class="signup-brand-top')&&
  register.includes('auth-footer-content ui-create-account-footer-content-001'),
@@ -595,7 +595,7 @@ assert.ok(css.includes(".signup-confirmation-tips p{margin:0;color:var(--soft);f
  "Confirmation secondary typography must use consistent 13–14px rules");
 assert.ok(uk.__pages["create-account"].meta.title==="Створити акаунт"&&
  en.__pages["create-account"].meta.title==="Create account"&&
- !register.includes('href="./" class="vt-create-account-link-10"'),
+ !register.includes('href="./" class="vatra-create-account-link-10"'),
  "Registration tab and account-creation links must use consistent naming");
 assert.ok(captcha.includes('dispose(scope,state);')&&
  captcha.indexOf('dispose(scope,state);')<captcha.indexOf('waiting.resolve(token);')&&
@@ -619,8 +619,8 @@ assert.ok(css.includes('.create-account-main{width:min(calc(100% - 88px),1300px)
 for(const id of ["first-name","last-name","gender","email","password","password-confirm"]){
  assert.ok(register.includes('id="'+id+'"'),"Missing registration control: "+id);
 }
-assert.ok(register.includes('class="create-account-help-trigger vt-create-account-summary-01"')&&
- register.includes('class="create-account-help-link vt-create-account-summary-02"')&&
+assert.ok(register.includes('class="create-account-help-trigger vatra-create-account-summary-01"')&&
+ register.includes('class="create-account-help-link vatra-create-account-summary-02"')&&
  register.includes('href="privacy#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
 for(const [path,ids] of [["index.html",["email","password","saved-password"]],["create-account.html",["first-name","last-name","email","password","password-confirm"]]]){
@@ -668,12 +668,12 @@ for(const [template,target,type] of [
  assert.ok(source.includes(target+'?token_hash={{ .TokenHash }}&amp;type='+type),
   "Wrong token type or destination: "+template);
 }
-assert.ok(register.includes('href="./" class="back vt-create-account-link-02"')&&
+assert.ok(register.includes('href="./" class="back vatra-create-account-link-02"')&&
  !css.includes('.create-account-page[data-signup-confirmation="pending"] .create-account-back-nav{visibility:hidden;pointer-events:none}')&&
  !css.includes('.create-account-back-nav .back{min-height:40px;')&&
  !register.includes('class="signup-login-switch')&&
- register.includes('<a href="./" class="vt-create-account-footer-signin" data-i18n="n247">Увійти</a>')&&
- !css.includes('.create-account-page .footer nav>.vt-create-account-footer-signin{')&&
+ register.includes('<a href="./" class="vatra-create-account-footer-signin" data-i18n="n247">Увійти</a>')&&
+ !css.includes('.create-account-page .footer nav>.vatra-create-account-footer-signin{')&&
  !css.includes('.footer nav>a[href="create-account.html"]{'),
  "Signup should show the mirrored Sign in link ONLY in the footer without altering form layout");
 // Field labels are retained for accessibility, but shown as floating hints on
@@ -686,14 +686,14 @@ for(const path of ["forgot.html","reset.html"]){
   path+" must not repeat captions above the text fields");
 }
 const homeMarkup=await read("index.html");
-assert.ok(homeMarkup.includes('vt-home-saved-field-title-001 vatra-sr-only')&&
+assert.ok(homeMarkup.includes('vatra-home-saved-field-title-001 vatra-sr-only')&&
  !homeMarkup.includes('saved-account-wordmark')&&
  !css.includes('.site .saved-account-wordmark{')&&
  css.includes('.site .saved-account-top{display:flex;align-items:center;justify-content:space-between;gap:10px;')&&
  css.includes('.vatra-sr-only{position:absolute!important;'),
  "Remembered account must have no redundant wordmark or visible top password label");
 assert.ok(!css.includes('.footer nav>a[href="create-account.html"]{')&&
- !css.includes('.create-account-page .footer nav>.vt-create-account-footer-signin{'),
+ !css.includes('.create-account-page .footer nav>.vatra-create-account-footer-signin{'),
  "Footer sign-in and create-account links must use the same shared link typography");
 const allTemplates=await readdir("email-templates");
 assert.deepEqual(allTemplates.filter(f=>f.endsWith(".html")).sort(),
@@ -727,7 +727,7 @@ const returnStart=registrationMarkup.indexOf('<nav class="create-account-back-na
 const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-create-account-div-001">');
 const overlineStart=registrationMarkup.indexOf('<div class="signup-form-overline ui-signup-form-overline-001">');
 const labelsStart=registrationMarkup.indexOf('<div class="signup-overline-labels ui-signup-overline-labels-001">');
-const kickerStart=registrationMarkup.indexOf('class="signup-form-kicker vt-signup-form-kicker-01"');
+const kickerStart=registrationMarkup.indexOf('class="signup-form-kicker vatra-signup-form-kicker-01"');
 assert.ok(formStart>=0&&innerStart>formStart&&
  overlineStart>innerStart&&labelsStart>overlineStart&&kickerStart>labelsStart&&returnStart>kickerStart&&
  !registrationMarkup.includes('data-step-label=')&&
@@ -889,7 +889,7 @@ for(const page of ["terms","privacy","cookies","forgot","reset"]){
 for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!html.includes("policy-eyebrow")&&!html.includes("VATRA · Інформація")&&
- !html.includes('href="terms.html" class="vt-'+page+'-footer-legal'),
+ !html.includes('href="terms.html" class="vatra-'+page+'-footer-legal'),
  page+": redundant document eyebrow and footer navigation must be gone");
 }
 
@@ -932,7 +932,7 @@ for(const page of ["index","create-account","forgot","reset","verify","404"]){
 }
 assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&&
  uk.__pages["create-account"].nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
- !register.includes('href="./" class="vt-create-account-link-10"'),
+ !register.includes('href="./" class="vatra-create-account-link-10"'),
  "Confirmation screen must have one contextual sign-in link");
 for(const page of ["terms","privacy","cookies","forgot","reset"]){
  const html=await read(page+".html");
@@ -945,9 +945,9 @@ assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-
  css.includes(".create-account-page .create-account-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
 assert.ok(
- !forgot.includes('class="header-logo vt-forgot-link-02"')&&
+ !forgot.includes('class="header-logo vatra-forgot-link-02"')&&
  forgot.includes('class="forgot-panel-header ui-forgot-panel-header-001"')&&
- forgot.includes('class="forgot-panel-brand vt-forgot-link-02"')&&
+ forgot.includes('class="forgot-panel-brand vatra-forgot-link-02"')&&
  forgot.includes('src="assets/logo/logo_symbol.svg"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header{display:flex;')&&
  !css.includes('.ui-forgot-main-001>.header-logo{')&&
@@ -971,7 +971,7 @@ assert.ok(
  reset.includes('class="reset-intro ui-reset-intro-001"')&&
  reset.includes('id="reset-title"')&&
  reset.includes('src="assets/logo/logo_symbol.svg"')&&
- !reset.includes('class="header-logo vt-reset-link-02"')&&
+ !reset.includes('class="header-logo vatra-reset-link-02"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;')&&
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px)')&&
  css.includes('box-shadow:0 26px 64px rgba(31,50,96,.075)}')&&
@@ -1000,12 +1000,12 @@ assert.ok(
  "Recovery must not claim email delivery just because Supabase accepts a reset request");
 assert.ok(
  forgot.includes('class="vatra-input-shell ui-forgot-input-shell-001"')&&
- forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-01" aria-hidden="true" data-i18n="n59">Електронна пошта</span>')&&
+ forgot.includes('class="vatra-floating-hint vatra-forgot-floating-hint-01" aria-hidden="true" data-i18n="n59">Електронна пошта</span>')&&
  forgot.includes('class="vatra-input-shell ui-forgot-input-shell-002"')&&
- forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-02" aria-hidden="true" data-i18n="n56"')&&
+ forgot.includes('class="vatra-floating-hint vatra-forgot-floating-hint-02" aria-hidden="true" data-i18n="n56"')&&
  reset.includes('class="vatra-input-shell ui-reset-input-shell-001"')&&
  reset.includes('class="vatra-input-shell ui-reset-input-shell-002"')&&
- reset.includes('class="vatra-floating-hint vt-reset-floating-hint-02" aria-hidden="true" data-i18n="n44"')&&
+ reset.includes('class="vatra-floating-hint vatra-reset-floating-hint-02" aria-hidden="true" data-i18n="n44"')&&
  auth.includes('if(!["login","create-account","forgot","reset"].includes(page))return;')&&
  auth.includes('#recovery-code-form .field:has(input.control)')&&
  uk.__pages.forgot.nodes.n56.text["0"]==="Введіть код"&&
@@ -1052,8 +1052,8 @@ assert.ok(reactionsVerifiedDelete.every(part=>reactionsSource.includes(part))&&
 const profileExtraScript=await read("assets/js/profile.js");
 const scrollRailScript=await read("assets/js/scroll-rail.js");
 assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
- interactionsScript.includes('vt-vatra-post-comments-count-001')&&
- interactionsScript.includes('vt-vatra-post-shares-count-001')&&
+ interactionsScript.includes('vatra-post-comments-count-001')&&
+ interactionsScript.includes('vatra-post-shares-count-001')&&
  interactionsScript.includes('p_limit:pageSize+1')&&
  !interactionsScript.includes('vatra-post-compact-comments')&&
  interactionsScript.includes('navigator.clipboard.writeText(permalink(post))')&&
@@ -1197,8 +1197,8 @@ assert.ok(
  messengerCss.includes(".vatra-messenger-message.is-removing")&&
  messengerCss.includes(".vatra-messenger-page [hidden]{display:none!important}")&&
  (await read("tests/smoke/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
- !messengerMarkup.includes("vt-vatra-")&&
- !messengerCss.includes("vt-vatra-")&&
+ !messengerMarkup.includes("vatra-")&&
+ !messengerCss.includes("vatra-")&&
  messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
  messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
  messengerSchema.includes("GRANT INSERT (vatra_id,public_key)")&&
@@ -1268,7 +1268,7 @@ assert.ok(memberCss.includes("body.profile-page .profile-media-viewer{")&&
  memberCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
  memberCss.includes("body.profile-page .profile-avatar-wrap.is-menu-open .profile-avatar-menu:not([hidden])"),
  "Member photo viewer must fill the screen and story avatar menu must not be clipped");
-assert.ok(sharedCss.includes(".vt-vatra-account")===false ||
+assert.ok(sharedCss.includes(".vatra-account")===false ||
  sharedCss.includes("body.feed-page .feed-account-dropdown > a > svg") &&
  sharedCss.includes("body.feed-page .feed-account-dropdown > button > svg"),
  "Account dropdown SVGs must remain visible after language switching");
@@ -1356,8 +1356,8 @@ for(const page of sharedShellPages){
   page+": VATRA universal search must retain history and its own clear control");
  assert.ok(["ui-vatra-account-profile-icon-001","ui-vatra-account-settings-icon-001",
   "ui-vatra-account-support-icon-001","ui-vatra-account-logout-icon-001"].every(cls=>header.includes(cls))&&
-  header.includes('class="vt-vatra-account-settings-label-001" data-social-uk=')&&
-  header.includes('class="vt-vatra-account-profile-label-001" data-i18n="n48"'),
+  header.includes('class="vatra-account-settings-label-001" data-social-uk=')&&
+  header.includes('class="vatra-account-profile-label-001" data-i18n="n48"'),
   page+": account avatar menu must preserve SVG icons and live translations");
  assert.ok(header.includes('href="vatra-id?view=settings#general" class="feed-menu-settings-link')&&!header.includes("feed-menu-settings-panel")&&!header.includes("data-language-trigger"),page+": Settings opens the settings page directly");
  const nav=header.match(/<nav class="social-top-nav[\s\S]*?<\/nav>/)?.[0]||"";
@@ -1468,7 +1468,7 @@ assert.ok(
  feedMarkup.includes('id="feed-filter-summary"') &&
  feedScript.includes('const describeFilter=()=>{') &&
  feedScript.includes('Date.now()-subscriptionsLoadedAt<60000') &&
- feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{'),
+ feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vatra-feed-filter-summary-001{'),
  "Feed category filters must explain their scope and reuse recent subscriptions");
 
 assert.doesNotThrow(()=>new Function(feedScript),"Feed script must remain valid JavaScript");
@@ -1563,7 +1563,7 @@ assert.ok(
  detailsModule.includes('paragraph.textContent=bio') &&
  detailsModule.includes('paragraph.hidden=!bio') &&
  detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
- !detailsModule.includes('vt-profile-detail-audience-') &&
+ !detailsModule.includes('vatra-profile-detail-audience-') &&
  detailsModule.includes('lab.htmlFor=inputId') &&
  !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-info{') &&
@@ -2060,7 +2060,7 @@ const ownerAdminJs=await read("assets/js/admin.js");
 assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js?rev=')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
 const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
 assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("marketView(host,")&&!ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
-assert.ok((await read("assets/css/feed.css")).includes(".vt-vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vt-vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
+assert.ok((await read("assets/css/feed.css")).includes(".vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
@@ -2077,7 +2077,7 @@ assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  onboardingJs.includes('vatra.onboarding.v1.member.')&&
  onboardingJs.includes('MAX_AGE_MS=30*24*60*60*1000')&&
  onboardingJs.includes('profile_media')&&onboardingJs.includes('community_follows')&&
- onboardingCss.includes('.vt-tour-spotlight-001')&&
+ onboardingCss.includes('.vatra-tour-spotlight-001')&&
  onboardingCss.includes('@media(prefers-reduced-motion:reduce)')&&
  ["welcome","waiting","success","goodbye","explanation"].every(state=>
   onboardingJs.includes("vatryk_"+state+".webp")),
@@ -2163,7 +2163,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
 assert.ok(
  memberCss.includes('body.profile-page .profile-media-viewer[open]{\n display:grid;grid-template-columns:minmax(0,1fr) clamp(318px,25vw,415px)')&&
  systemFeedCss.includes('width:100vw;height:100dvh;')&&
- systemFeedCss.includes('.vt-vatra-post-media-caption-001{')&&
+ systemFeedCss.includes('.vatra-post-media-caption-001{')&&
  profileScript.includes('lastAvatarCommentKey=key;')&&
  profileScript.includes('commentList.replaceChildren(...fresh,...older)')&&
  profileScript.includes('const avatarCommentPages=new Map()')&&
@@ -2173,8 +2173,8 @@ assert.ok(
  feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
  feedScript.includes('else posts.append(batch);')&&
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
- !interactionsScript.includes('vt-vatra-post-audience-hint-001')&&
- !systemFeedCss.includes('.feed-post-audience:hover .vt-vatra-post-audience-hint-001'),
+ !interactionsScript.includes('vatra-post-audience-hint-001')&&
+ !systemFeedCss.includes('.feed-post-audience:hover .vatra-post-audience-hint-001'),
  "All profile/post photos share a fullscreen workspace, cached comments reconcile without flashes and audience markers have no hover");
  
 const feedPhotoActions=await read("assets/js/post-interactions.js");
@@ -2231,11 +2231,11 @@ assert.ok(auth.includes('dialog?.addEventListener("close",()=>removeTooltip?.sup
  auth.includes('removeTooltip?.suppress();')&&
  auth.includes('if(suppressRestore||event?.pointerType==="touch"'),
  "Cancelling the saved-account removal dialog must not show a focus-restored tooltip");
-assert.ok(errorPage.includes('class="error-home-link vt-404-link-002"')&&
+assert.ok(errorPage.includes('class="error-home-link vatra-404-link-002"')&&
  errorPage.includes('class="ui-404-vatryk-001" aria-hidden="true"')&&
  notFoundCss.includes('background-image:url("/VATRA/assets/vatryk/vatryk_detective.webp")')&&
- errorPage.includes('class="vt-404-accessible-title-001"')&&
- errorPage.includes('href="/VATRA/" class="error-home-link vt-404-link-002"')&&
+ errorPage.includes('class="vatra-404-accessible-title-001"')&&
+ errorPage.includes('href="/VATRA/" class="error-home-link vatra-404-link-002"')&&
  errorPage.includes("Такої сторінки немає")&&
  !errorPage.includes('class="account-card error-card')&&
  !errorPage.includes('class="error-code')&&
@@ -2311,8 +2311,8 @@ assert.ok(legalCss.includes('.policy-main{padding:32px 0 32px}')&&
  "Policy documents must share desktop/mobile section spacing with auth pages");
 
 // One VATRA footer line and compact signup eyebrow on both form routes.
-assert.ok(landing.includes('class="vt-home-link-08"')&&
- register.includes('class="vt-create-account-footer-signin"')&&
+assert.ok(landing.includes('class="vatra-home-link-08"')&&
+ register.includes('class="vatra-create-account-footer-signin"')&&
  !css.includes('footer-auth-action')&&
  register.indexOf('<div class="signup-overline-labels')<register.indexOf('<nav class="create-account-back-nav')&&
  !css.includes('position:absolute;\n    top:clamp(16px,1.6vw,25px)')&&
@@ -2348,10 +2348,10 @@ assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
  "All VATRA member areas and outbound navigation use canonical extensionless routes");
-assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
+assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vatra-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
- !landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508">')&&
+ !landing.includes('id="saved-account-return" class="saved-account-return vatra-home-saved-return-001" data-i18n="n508">')&&
  css.includes('.site .saved-account-return:hover,.site .saved-account-return:focus-visible{color:var(--blue);transform:translateX(-2px)')&&
  css.includes('min-height:151px;width:100%')&&
  auth.includes('returnButton.hidden=true')&&auth.includes('returnButton.hidden=false')&&
@@ -2385,9 +2385,9 @@ assert.ok(auth.includes('function replayAuthContent(node)')&&
  !css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]) > :not([hidden]){animation:'),
  "Registration, confirmation and password recovery must reveal whole content blocks");
 const resetNew=await read("reset.html");
-assert.ok(forgot.includes('id="account-link" href="./" class="action primary full recovery-success-action vt-forgot-link-08"')&&
- resetNew.includes('id="recovery-success-link" class="form-note recovery-success-row vt-reset-paragraph-03" hidden')&&
- resetNew.includes('id="account-link" href="./" class="action primary full recovery-success-action vt-reset-link-03" hidden')&&
+assert.ok(forgot.includes('id="account-link" href="./" class="action primary full recovery-success-action vatra-forgot-link-08"')&&
+ resetNew.includes('id="recovery-success-link" class="form-note recovery-success-row vatra-reset-paragraph-03" hidden')&&
+ resetNew.includes('id="account-link" href="./" class="action primary full recovery-success-action vatra-reset-link-03" hidden')&&
  css.includes('.ui-forgot-main-001 .forgot-panel .recovery-success-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px')&&
  css.includes('.ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .control{padding-top:21px;padding-bottom:7px}'),
  "Both recovery paths need identical accessible password fields and full-width success CTA");
