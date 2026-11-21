@@ -155,7 +155,7 @@ assert.ok(auth.includes('function passwordIssue(value){')&&
  auth.includes('code==="same_password"')&&
  !auth.includes('if(status&&heading)heading.after(status);')&&
  !auth.includes('if(status&&step.contains(status))form.before(status);')&&
- authShared.includes('window.VATRA_TOAST.show(message,type)'),
+ authShared.includes('window.VATRA_TOAST.show(message,type,options)'),
  "Signup and both reset flows must share a specific password validator and aligned error placement");
 for(const [page,key,id] of [
  ["create-account","n260","create-account-password-policy"],["forgot","n60","forgot-password-policy"],
@@ -819,12 +819,13 @@ assert.ok(auth.includes('function wireFloatingHints()')&&
  "Both forms must restore floating hints without duplicates");
 assert.ok(auth.includes("FIELD_ERROR_DURATION_MS=5500")&&
  auth.includes("fieldErrorTimers.set(control,setTimeout")&&
- auth.includes('feedback(message,"error");')&&
+ auth.includes('feedback(first.message,"error",{group:"auth-validation"})')&&
+ !auth.includes('feedback(message,"error");')&&
  !auth.includes('wrapper.append(error);')&&
  !css.includes(".field-error{")&&
  !landing.includes('id="response"')&&
  !register.includes('id="response"'),
- "Field validation must expire without constructing hidden or inline error elements");
+ "Field validation must identify one invalid field, expire and avoid hidden or inline error elements");
 assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
  auth.includes('help.addEventListener("pointerenter"'),
  "Gender and email help must open on hover and never overlap");

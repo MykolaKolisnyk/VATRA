@@ -20,9 +20,9 @@ const artwork=Object.freeze({
  maintenance:"vatryk_503.webp"
 });
 const selector=[
- "#profile-media-status","#profile-action-status","#profile-photo-status",
+ "#profile-action-status","#profile-photo-status",
  "#profile-status-error","#profile-edit-message","#profile-report-error",
- "#profile-avatar-finish-error","#profile-cover-edit-error","#profile-compose-status",
+ "#profile-compose-status",
  "#profile-photo-tag-status","#feed-status","#feed-compose-error","#club-status","#club-compose-error",
  "#community-create-status","#community-list-status","#profile-message-status",
  "#messenger-send-status","#messenger-key-error","#messenger-new-error","#messenger-delete-error",
@@ -31,6 +31,11 @@ const selector=[
 ].join(",");
 const seen=new WeakMap(),active=new Set();
 let stack;
+const moveStack=()=>{
+ if(!stack||!stack.isConnected)return;
+ const host=[...document.querySelectorAll("dialog[open]")].at(-1)||document.body;
+ if(stack.parentNode!==host)host.append(stack);
+};
 const isEn=()=>document.documentElement.lang==="en";
 const loading=value=>/^(?:Завантажуємо|Завантаження|Надсилаємо|Створюємо|Зберігаємо|Loading|Uploading|Sending|Saving|Creating|Processing|Шукаємо)[\s.…]/i.test(value);
 function severity(value,kind,source){
@@ -52,14 +57,16 @@ function show(value,kind="info",options){
  if(loading(messageText)&&kind!=="waiting")return null;
  kind=severity(messageText,kind,source);
  const title=String(config.title||"").replace(/\s+/g," ").trim().slice(0,110);
+ const group=typeof config.group==="string"?config.group.slice(0,48):"";
  const href=safeAction(config.href);
  const same=[...active].find(entry=>entry.text===messageText&&entry.kind===kind&&entry.title===title&&entry.node.isConnected);
- if(same){same.restart();return same.node;}
+ if(same)return same.node;
+ if(group)for(const entry of [...active])if(entry.group===group)entry.dismiss(true);
  if(!stack){stack=document.createElement("div");stack.className="vatra-toast-stack-001";stack.setAttribute("aria-label",isEn()?"VATRA notifications":"Повідомлення VATRA");}
  const host=[...document.querySelectorAll("dialog[open]")].at(-1)||document.body;
  if(stack.parentNode!==host)host.append(stack);
  const node=document.createElement("section");node.className="vatra-toast-item-001 vatra-toast-item--"+kind;node.setAttribute("role",kind==="error"?"alert":"status");
- const mascot=document.createElement("img");mascot.className="vatra-toast-mascot-001";mascot.alt="";mascot.setAttribute("aria-hidden","true");mascot.loading="eager";mascot.decoding="async";mascot.width=70;mascot.height=70;mascot.src=new URL("assets/vatryk/"+(artwork[kind]||artwork.info),root).href;
+ const mascot=document.createElement("img");mascot.className="vatra-toast-mascot-001";mascot.alt="";mascot.setAttribute("aria-hidden","true");mascot.loading="eager";mascot.decoding="async";mascot.width=50;mascot.height=50;mascot.src=new URL("assets/vatryk/"+(artwork[kind]||artwork.info),root).href;
  mascot.addEventListener("error",()=>{mascot.style.visibility="hidden";},{once:true});
  const content=document.createElement("div");content.className="vatra-toast-content-001";
  if(title){const heading=document.createElement("strong");heading.className="vatra-toast-title-001";heading.textContent=title;content.append(heading);}
@@ -69,17 +76,17 @@ function show(value,kind="info",options){
  node.append(mascot,content,close);stack.prepend(node);
  let timer=0,removed=false;
  const customDuration=Number(config.duration);
- const duration=Number.isFinite(customDuration)&&customDuration>=1000&&customDuration<=30000?customDuration:kind==="waiting"?0:kind==="new"?11000:kind==="error"?6500:kind==="warning"?5500:4300;
- const dismiss=()=>{
+ const duration=Number.isFinite(customDuration)&&customDuration>=1000&&customDuration<=30000?customDuration:kind==="waiting"?0:kind==="new"?11000:kind==="error"?4800:kind==="warning"?5200:kind==="success"?3600:4200;
+ const dismiss=(instant=false)=>{
   if(removed)return;removed=true;clearTimeout(timer);
-  node.classList.remove("is-visible");node.classList.add("is-leaving");active.delete(entry);
+  active.delete(entry);
+  if(instant){node.remove();return;}
+  node.classList.remove("is-visible");node.classList.add("is-leaving");
   const clean=()=>node.remove();node.addEventListener("transitionend",clean,{once:true});setTimeout(clean,400);
  };
  const restart=()=>{clearTimeout(timer);if(duration)timer=setTimeout(dismiss,duration);};
- const entry={text:messageText,title,kind,node,restart};active.add(entry);
- close.addEventListener("click",dismiss);
- node.addEventListener("pointerenter",()=>clearTimeout(timer));node.addEventListener("pointerleave",restart);
- node.addEventListener("focusin",()=>clearTimeout(timer));node.addEventListener("focusout",event=>{if(!node.contains(event.relatedTarget))restart();});
+ const entry={text:messageText,title,kind,group,node,dismiss};active.add(entry);
+ close.addEventListener("click",()=>dismiss(true));
  requestAnimationFrame(()=>node.classList.add("is-visible"));restart();
  while(active.size>3){const oldest=active.values().next().value;if(oldest===entry)break;oldest.node.querySelector(".vatra-toast-close-001")?.click();}
  return node;
@@ -94,6 +101,7 @@ function inspect(el){
 function visit(el){if(!(el instanceof Element))return;if(el.matches(selector))inspect(el);el.querySelectorAll(selector).forEach(inspect);}
 function init(){
  if(!document.body)return;document.documentElement.classList.add("vatra-toast-enabled");visit(document.body);
+ document.addEventListener("close",event=>{if(event.target instanceof HTMLDialogElement)queueMicrotask(moveStack);},true);
  const watcher=new MutationObserver(records=>{
   const touched=new Set();
   for(const record of records){
@@ -107,7 +115,7 @@ function init(){
 }
 function clear(){for(const entry of [...active])entry.node.querySelector(".vatra-toast-close-001")?.click();}
 window.VATRA_TOAST={show,clear,error:text=>show(text,"error"),success:text=>show(text,"success"),warning:text=>show(text,"warning"),info:text=>show(text,"info"),action:(text,options)=>show(text,"action",options),message:(text,options)=>show(text,"message",options),friends:(text,options)=>show(text,"friends",options),gift:(text,options)=>show(text,"gift",options),new:(text,options)=>show(text,"new",options)};
-for(const [text,kind] of window.VATRA_PENDING_TOASTS||[])show(text,kind);
+for(const [text,kind,options] of window.VATRA_PENDING_TOASTS||[])show(text,kind,options);
 delete window.VATRA_PENDING_TOASTS;
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
