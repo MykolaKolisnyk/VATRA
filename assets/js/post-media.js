@@ -507,7 +507,7 @@ function openFullMedia(url,kind,container){
   restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
   mediaSide.hidden=!restoreMediaPanel;
   mediaFooterShare.hidden=!restoreMediaPanel;
-  const sourceMenu=(postCard||container)?.querySelector("details[data-vatra-post-owner-menu]");
+  const sourceMenu=container?.querySelector(".feed-post-header > details[data-vatra-post-owner-menu]");
   if(sourceMenu){
    const marker=document.createElement("span");
    marker.className="ui-vatra-post-media-menu-origin-001";

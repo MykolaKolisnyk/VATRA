@@ -3033,7 +3033,6 @@ body.feed-page .vatra-profile-post-pinned-001{font:650 12px/1.5 Onest,system-ui,
 }
 
 
-/* Shared dark photo action footer: avatar and post viewers use the same alignment. */
 body.feed-page .vatra-post-media-viewer-frame{flex-direction:column;padding:0}
 body.feed-page .ui-vatra-post-media-viewer-content-001{
  box-sizing:border-box;flex:1 1 0;height:auto;min-height:0;
