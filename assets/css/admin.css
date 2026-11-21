@@ -70,13 +70,13 @@
 .ui-vatra-admin-id-input-001,.ui-vatra-admin-reason-001,.ui-vatra-admin-duration-001,.vatra-admin-directory-filter-001{box-sizing:border-box;width:100%;min-width:0;border:1px solid #d7e0ed;border-radius:10px;padding:11px 12px;background:#fff;color:#273e5b;font:450 14px/1.4 Onest,system-ui,sans-serif;outline:none;transition:border-color .16s,box-shadow .16s}
 .ui-vatra-admin-id-input-001:focus,.ui-vatra-admin-reason-001:focus,.ui-vatra-admin-duration-001:focus,.vatra-admin-directory-filter-001:focus{border-color:#6c9aea;box-shadow:0 0 0 3px #3877df1c}
 .ui-vatra-admin-reason-001{min-height:90px;resize:vertical}
-.vatra-admin-primary-001,.vatra-admin-secondary-001,.vatra-admin-danger-001{border:1px solid transparent;border-radius:10px;min-height:41px;padding:10px 16px;font:680 13px/1.35 Onest,system-ui,sans-serif;cursor:pointer}
-.vatra-admin-primary-001{background:#2865d7;color:#fff;box-shadow:0 3px 8px #2759bc14}
-.vatra-admin-primary-001:hover{background:#1a56c3}
-.vatra-admin-secondary-001{background:#edf3fc;color:#365980}
-.vatra-admin-secondary-001:hover{background:#e1ebf9}
-.vatra-admin-danger-001{background:#fff1f2;border-color:#f9d9de;color:#ad334e}
-.vatra-admin-danger-001:hover{background:#fbe5e9}
+.ui-vatra-admin-dialog-001 :is(.vatra-admin-primary-001,.vatra-admin-secondary-001,.vatra-admin-danger-001){border:1px solid transparent;border-radius:10px;min-height:41px;padding:10px 16px;font:680 13px/1.35 Onest,system-ui,sans-serif;cursor:pointer}
+.ui-vatra-admin-dialog-001 :is(.vatra-admin-primary-001){background:#2865d7;color:#fff;box-shadow:0 3px 8px #2759bc14}
+.ui-vatra-admin-dialog-001 :is(.vatra-admin-primary-001):hover{background:#1a56c3}
+.ui-vatra-admin-dialog-001 :is(.vatra-admin-secondary-001){background:#edf3fc;color:#365980}
+.ui-vatra-admin-dialog-001 :is(.vatra-admin-secondary-001):hover{background:#e1ebf9}
+.ui-vatra-admin-dialog-001 :is(.vatra-admin-danger-001){background:#fff1f2;border-color:#f9d9de;color:#ad334e}
+.ui-vatra-admin-dialog-001 :is(.vatra-admin-danger-001):hover{background:#fbe5e9}
 .ui-vatra-admin-actions-001{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
 .ui-vatra-admin-member-result-001:empty{display:none}
 .ui-vatra-admin-member-meta-001{display:flex;align-items:center;flex-wrap:wrap;gap:11px}

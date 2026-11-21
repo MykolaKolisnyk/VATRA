@@ -35,7 +35,7 @@ function loadAnnouncements(){
 }
 function loadAdmin(){
  if(adminPromise)return adminPromise;
- const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=455e9b4f8be045a6204f8abdb622714a59e3773d",root).href;style.dataset.vatraAdminStyle="true";
+ const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=35b47ed2550d330c0b2be73a03bd0def52f11c53",root).href;style.dataset.vatraAdminStyle="true";
  const ready=new Promise((resolve,reject)=>{style.onload=resolve;style.onerror=()=>reject(Error("Admin styles unavailable"));});
  document.head.append(style);
  adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=8a2f75231da4a22424295cbf159cf9a96e28f305",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
