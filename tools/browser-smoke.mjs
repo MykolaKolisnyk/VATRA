@@ -4584,6 +4584,9 @@ try{
    language==="en"?"Write a post":"Додати публікацію");
   assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
   await profilePage.locator("#profile-edit-open").hover();
+  // The cover action fades out in 160ms; wait for the settled non-hover state.
+  // A real stacking/hover regression still times out instead of being masked.
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="0",{timeout:3000});
   assert.equal(await profilePage.locator("#profile-cover-change").evaluate(el=>getComputedStyle(el).opacity),"0","Cover edit is hidden at rest");
   await profilePage.locator("#profile-cover-image").hover();
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
