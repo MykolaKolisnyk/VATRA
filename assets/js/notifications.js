@@ -490,6 +490,16 @@ function stop(){
  window.VATRA_ADMIN_END?.(run.client,run.id);
  window.VATRA_SEARCH_HISTORY?.setViewer(null);
 }
+function incomingToast(row){
+ if(!row||!window.VATRA_TOAST?.show)return;
+ const kind=String(row.kind||"");
+ const sender=String(row.actor_vatra_id||"");
+ const href=/^[1-9]\d*$/.test(sender)?"id"+sender:"notifications";
+ if(kind==="friend_request")window.VATRA_TOAST.show(t("Нова заявка у друзі","You have a new friend request"),"friends",{href,actionLabel:t("Переглянути","View")});
+ else if(kind==="friend_accepted")window.VATRA_TOAST.show(t("Вашу заявку в друзі прийнято","Your friend request was accepted"),"friends",{href,actionLabel:t("Переглянути","View")});
+ else if(kind==="gift"||kind==="profile_gift")window.VATRA_TOAST.show(t("Ви отримали подарунок!","You've received a gift!"),"gift",{href:"gifts",actionLabel:t("Переглянути","View")});
+ else if(kind==="message"||kind==="new_message")window.VATRA_TOAST.show(t("Нове повідомлення","New message"),"message",{href:"notifications",actionLabel:t("Переглянути","View")});
+}
 function start(c,id){
  if(!c||!validId(id))return;
  if(notificationRun?.client===c&&notificationRun.id===String(id))return;
@@ -525,7 +535,7 @@ function start(c,id){
   if(typeof c.channel==="function")
    liveChannel=c.channel("vatra-notices-"+run.id)
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"member_notifications",
-     filter:"recipient_vatra_id=eq."+run.id},()=>refresh(true))
+     filter:"recipient_vatra_id=eq."+run.id},payload=>{refresh(true);if(notificationRun===run&&!document.hidden)incomingToast(payload?.new);})
     .subscribe(status=>{if(notificationRun===run)subscribed=status==="SUBSCRIBED";});
  }catch(_){subscribed=false;}
 

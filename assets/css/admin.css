@@ -27,9 +27,6 @@
 .vatra-admin-danger-001,.vatra-admin-secondary-001,.vatra-admin-close-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#e9eff8;color:#335479}
 .vatra-admin-danger-001{background:#fbe9eb;color:#a02e40}
 .ui-vatra-admin-dialog-001 button:disabled{opacity:.5;cursor:not-allowed}
-.vatra-admin-status-001{margin:0;padding:10px 24px;color:#266a45;background:#eef8f1;flex:none}
-.vatra-admin-status-001:empty{display:none}
-.vatra-admin-status-001[data-error="true"]{color:#a02e40;background:#fbe9eb}
 @media(max-width:720px){.ui-vatra-admin-dialog-001{width:100vw;height:100dvh;border-radius:0}.ui-vatra-admin-header-001{padding:12px}.ui-vatra-admin-body-001{display:flex;flex-direction:column}.ui-vatra-admin-nav-001{flex-direction:row;overflow-x:auto;flex:none;padding:8px;border-right:0;border-bottom:1px solid #e4eaf3}.ui-vatra-admin-nav-001 button{white-space:nowrap}.ui-vatra-admin-content-001{flex:1;padding:12px}.ui-vatra-admin-stats-001{grid-template-columns:repeat(2,minmax(0,1fr))}.ui-vatra-admin-stat-001,.ui-vatra-admin-box-001{padding:13px}.vatra-admin-title-001{font-size:18px}}
 
 
@@ -45,3 +42,16 @@
 .ui-vatra-admin-market-check-001{accent-color:#2865d8;flex:none;width:18px;height:18px}
 .vatra-admin-market-meta-001{font:500 13px/1.5 Onest,system-ui,sans-serif;color:#65768d;align-self:center}
 .vatra-admin-market-description-001{font:400 15px/1.65 Onest,system-ui,sans-serif;color:#34465f;overflow-wrap:anywhere}
+
+.ui-vatra-admin-announcement-form-001{display:grid;gap:12px}
+.ui-vatra-admin-announcement-field-001{display:grid;gap:6px;min-width:0}
+.vatra-admin-announcement-label-001{font:650 13px/1.35 Onest,system-ui,sans-serif;color:#455976}
+.ui-vatra-admin-announcement-field-001 input,.ui-vatra-admin-announcement-field-001 textarea{box-sizing:border-box;width:100%;min-width:0;padding:11px 12px;border:1px solid #d6e0ed;border-radius:10px;background:#fff;color:#26354b;font:450 14px/1.45 Onest,system-ui,sans-serif;outline-offset:2px}
+.ui-vatra-admin-announcement-field-001 textarea{resize:vertical;min-height:85px}
+.ui-vatra-admin-announcement-publish-001{display:flex;align-items:center;gap:10px;padding:4px 0;font:600 13px/1.4 Onest,system-ui,sans-serif;color:#455976}
+.vatra-admin-announcement-enabled-001{accent-color:#245fcf;width:17px;height:17px}
+.ui-vatra-admin-announcement-list-001{display:grid;gap:12px}
+.vatra-admin-announcement-intro-001,.vatra-admin-announcement-date-001,.vatra-admin-announcement-link-001{color:#65768d;font:450 13px/1.45 Onest,system-ui,sans-serif}
+.vatra-admin-announcement-body-001{font:450 14px/1.5 Onest,system-ui,sans-serif;color:#3a4960}
+.vatra-admin-announcement-state-001{justify-self:start;padding:4px 8px;border-radius:8px;background:#f1f3f6;color:#64748b;font:650 12px/1.25 Onest,system-ui,sans-serif}
+.vatra-admin-announcement-state-001[data-active="true"]{background:#eaf7ef;color:#25704a}

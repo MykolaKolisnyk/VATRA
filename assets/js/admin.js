@@ -3,11 +3,11 @@ export function clearPanel(){dialog?.close();dialog?.remove();dialog=null;}
 export function openPanel(current,isCurrent,ui){
  if(dialog?.open||!isCurrent())return;
  const {root,t,node,button,icon,valid}=ui;
- const client=current.client,d=node("dialog","ui-vatra-admin-dialog-001"),header=node("header","ui-vatra-admin-header-001"),body=node("div","ui-vatra-admin-body-001"),nav=node("nav","ui-vatra-admin-nav-001"),content=node("main","ui-vatra-admin-content-001"),status=node("p","vatra-admin-status-001");dialog=d;d.setAttribute("aria-label","ADMIN PANEL");status.setAttribute("role","status");
- const heading=node("div","ui-vatra-admin-heading-001");heading.append(icon(),node("h1","vatra-admin-title-001","ADMIN PANEL"),node("span","vatra-admin-owner-001","VATRA ID 1"));header.append(heading,button("vatra-admin-close-001",t("Закрити","Close"),()=>d.close()));body.append(nav,content);d.append(header,status,body);document.body.append(d);
+ const client=current.client,d=node("dialog","ui-vatra-admin-dialog-001"),header=node("header","ui-vatra-admin-header-001"),body=node("div","ui-vatra-admin-body-001"),nav=node("nav","ui-vatra-admin-nav-001"),content=node("main","ui-vatra-admin-content-001");dialog=d;d.setAttribute("aria-label","ADMIN PANEL");
+ const heading=node("div","ui-vatra-admin-heading-001");heading.append(icon(),node("h1","vatra-admin-title-001","ADMIN PANEL"),node("span","vatra-admin-owner-001","VATRA ID 1"));header.append(heading,button("vatra-admin-close-001",t("Закрити","Close"),()=>d.close()));body.append(nav,content);d.append(header,body);document.body.append(d);
  d.addEventListener("close",()=>{d.remove();if(dialog===d)dialog=null;},{once:true});
  let tab="dashboard",renderEpoch=0;
- const say=(s,bad=false)=>{status.textContent=s;status.dataset.error=String(bad);};
+ const say=(s,bad=false)=>{if(s)window.VATRA_TOAST?.show(s,bad?"error":"success");};
  async function rpc(action,params={}){if(!isCurrent()||dialog!==d||!d.open)throw Error("Inactive admin session");const {data,error}=await client.rpc("vatra_admin_manage",{p_action:action,...params});if(error||!isCurrent()||dialog!==d||!d.open)throw error||Error("Inactive admin session");return data;}
  const safeDate=v=>v?new Date(v).toLocaleString():"—";
  const box=(title)=>{const el=node("section","ui-vatra-admin-box-001");el.append(node("h2","vatra-admin-box-title-001",title));return el;};
@@ -15,7 +15,7 @@ export function openPanel(current,isCurrent,ui){
  const reasonField=()=>{const w=node("label","ui-vatra-admin-field-001"),i=node("textarea","ui-vatra-admin-reason-001");i.maxLength=1000;i.placeholder=t("Причина рішення (не менше 3 символів)","Decision reason (at least 3 characters)");w.append(node("span","vatra-admin-label-001",t("Причина","Reason")),i);return {w,i};};
  async function mutate(action,params,reason,refresh,btn){if(reason.trim().length<3){say(t("Вкажіть причину рішення.","Enter a decision reason."),true);return;}if(!confirm(t("Підтвердити адміністративну дію?","Confirm this administrative action?")))return;btn.disabled=true;try{await rpc(action,{...params,p_reason:reason.trim()});say(t("Рішення збережено.","Decision saved."));await refresh();}catch(_){err();}finally{btn.disabled=false;}}
  function actionButton(label,action,params,reason,refresh,danger=false){const b=button(danger?"vatra-admin-danger-001":"vatra-admin-primary-001",label,()=>void mutate(action,params(),reason.value,refresh,b));return b;}
- const tabs=[["dashboard",t("Огляд","Overview")],["users",t("Користувачі","Members")],["requests",t("Верифікація","Verification")],["reports",t("Скарги на профілі","Profile reports")],["market",t("Маркетплейс","Marketplace")],["maintenance",t("Технічні роботи","Maintenance")],["history",t("Журнал дій","Audit log")]];
+ const tabs=[["dashboard",t("Огляд","Overview")],["users",t("Користувачі","Members")],["requests",t("Верифікація","Verification")],["reports",t("Скарги на профілі","Profile reports")],["market",t("Маркетплейс","Marketplace")],["maintenance",t("Технічні роботи","Maintenance")],["announcements",t("Оголошення","Announcements")],["history",t("Журнал дій","Audit log")]];
  const navButtons=new Map();for(const [key,label] of tabs){const b=button("vatra-admin-nav-button-"+key,label,()=>void render(key));navButtons.set(key,b);nav.append(b);}
  async function users(host,selected=""){
  const form=node("form","ui-vatra-admin-lookup-001"),label=node("label","ui-vatra-admin-field-001"),input=node("input","ui-vatra-admin-id-input-001");input.inputMode="numeric";input.placeholder="123";input.value=selected;input.required=true;input.pattern="[1-9][0-9]{0,18}";label.append(node("span","vatra-admin-label-001","VATRA ID"),input);const find=node("button","vatra-admin-primary-001",t("Знайти","Find"));find.type="submit";form.append(label,find);const result=node("div","ui-vatra-admin-member-result-001");host.append(form,result);let searchEpoch=0;
@@ -118,11 +118,98 @@ export function openPanel(current,isCurrent,ui){
   }
   await refresh();
  }
+
+ async function announcementPanel(host,active){
+  const form=box(t("Нове оголошення VATRA","New VATRA announcement")),fields=node("form","ui-vatra-admin-announcement-form-001");
+  const intro=node("p","vatra-admin-announcement-intro-001",t("Оголошення показується один раз кожному користувачу після входу. Не відображається на сторінках авторизації.","Each announcement appears once per member after sign-in, never on authentication pages."));
+  form.append(intro,fields);host.append(form);
+  const createField=(tag,cls,label,max,required=true)=>{
+   const wrap=node("label","ui-vatra-admin-announcement-field-001"),element=node(tag,cls),name=node("span","vatra-admin-announcement-label-001",label);
+   element.maxLength=max;element.required=required;
+   if(tag==="textarea"){element.rows=3;}else element.type="text";
+   wrap.append(name,element);fields.append(wrap);return element;
+  };
+  const titleUk=createField("input","vatra-admin-announcement-title-uk-001",t("Заголовок українською","Ukrainian title"),110);
+  const titleEn=createField("input","vatra-admin-announcement-title-en-001",t("Заголовок англійською","English title"),110);
+  const bodyUk=createField("textarea","vatra-admin-announcement-body-uk-001",t("Опис українською","Ukrainian description"),360);
+  const bodyEn=createField("textarea","vatra-admin-announcement-body-en-001",t("Опис англійською","English description"),360);
+  const path=createField("input","vatra-admin-announcement-path-001",t("Внутрішній шлях (необов'язково), наприклад feed або profile","Internal path (optional), e.g. feed or profile"),200,false);
+  const publish=node("label","ui-vatra-admin-announcement-publish-001"),enabled=node("input","vatra-admin-announcement-enabled-001");
+  enabled.type="checkbox";publish.append(enabled,node("span","vatra-admin-announcement-publish-copy-001",t("Опублікувати для користувачів","Publish to members")));fields.append(publish);
+  const actions=node("div","ui-vatra-admin-actions-001"),save=node("button","vatra-admin-primary-001",t("Створити оголошення","Create announcement"));
+  save.type="submit";
+  const cancel=button("vatra-admin-secondary-001",t("Скасувати редагування","Cancel editing"),reset);
+  cancel.hidden=true;actions.append(save,cancel);fields.append(actions);
+  const list=node("div","ui-vatra-admin-announcement-list-001");host.append(list);
+  let editing=null,busy=false;
+  function reset(){editing=null;fields.reset();cancel.hidden=true;save.textContent=t("Створити оголошення","Create announcement");}
+  const validPath=value=>!value||(/^[A-Za-z0-9][A-Za-z0-9/_?&=.#%-]*$/.test(value)&&!value.includes(".."));
+  async function refresh(){
+   if(!active())return;
+   const {data,error}=await client.from("vatra_announcements").select("id,title_uk,title_en,body_uk,body_en,target_path,active,created_at").order("created_at",{ascending:false}).limit(60);
+   if(error)throw error;
+   if(!active())return;
+   list.replaceChildren();
+   if(!data?.length){list.append(node("p","vatra-admin-empty-001",t("Оголошень ще немає.","No announcements yet.")));return;}
+   for(const row of data){
+    const card=box(document.documentElement.lang==="en"?row.title_en:row.title_uk);
+    const state=node("p","vatra-admin-announcement-state-001",row.active?t("Активне","Active"):t("Вимкнене","Inactive"));
+    state.dataset.active=String(row.active);
+    const copy=node("p","vatra-admin-announcement-body-001",document.documentElement.lang==="en"?row.body_en:row.body_uk);
+    const date=node("p","vatra-admin-announcement-date-001",safeDate(row.created_at));
+    card.append(state,copy,date);
+    if(row.target_path)card.append(node("p","vatra-admin-announcement-link-001",row.target_path));
+    const buttons=node("div","ui-vatra-admin-actions-001");
+    buttons.append(button("vatra-admin-secondary-001",t("Редагувати","Edit"),()=>{
+     editing=row.id;titleUk.value=row.title_uk;titleEn.value=row.title_en;bodyUk.value=row.body_uk;bodyEn.value=row.body_en;path.value=row.target_path||"";enabled.checked=row.active;
+     cancel.hidden=false;save.textContent=t("Зберегти зміни","Save changes");titleUk.focus();
+    }));
+    const toggle=button("vatra-admin-secondary-001",row.active?t("Вимкнути","Deactivate"):t("Опублікувати","Publish"),async()=>{
+     if(busy||!active()||!confirm(row.active?t("Приховати оголошення?","Unpublish this announcement?"):t("Показати оголошення користувачам?","Show this announcement to members?")))return;
+     busy=true;toggle.disabled=true;
+     try{
+      const {data,error}=await client.from("vatra_announcements").update({active:!row.active}).eq("id",row.id).select("id").single();
+      if(error||!data)throw error||Error("Update not applied");
+      if(active()){say(t("Стан оголошення оновлено.","Announcement status updated."));await refresh();}
+     }catch(_){if(active())err();}finally{busy=false;toggle.disabled=false;}
+    });
+    buttons.append(toggle);
+    const remove=button("vatra-admin-danger-001",t("Видалити","Delete"),async()=>{
+     if(busy||!active()||!confirm(t("Назавжди видалити оголошення?","Permanently delete this announcement?")))return;
+     busy=true;remove.disabled=true;
+     try{
+      const {data,error}=await client.from("vatra_announcements").delete().eq("id",row.id).select("id").single();
+      if(error||!data)throw error||Error("Delete not applied");
+      if(editing===row.id)reset();
+      if(active()){say(t("Оголошення видалено.","Announcement deleted."));await refresh();}
+     }catch(_){if(active())err();}finally{busy=false;remove.disabled=false;}
+    });
+    buttons.append(remove);card.append(buttons);list.append(card);
+   }
+  }
+  fields.addEventListener("submit",async event=>{
+   event.preventDefault();
+   if(busy||!active())return;
+   const target=path.value.trim();
+   if(!validPath(target)){say(t("Посилання має бути внутрішнім шляхом VATRA без .. і протоколу.","Use an internal VATRA path without .. or a protocol."),true);return;}
+   const payload={title_uk:titleUk.value.trim(),title_en:titleEn.value.trim(),body_uk:bodyUk.value.trim(),body_en:bodyEn.value.trim(),target_path:target||null,active:enabled.checked};
+   if(Object.values(payload).some(v=>typeof v==="string"&&v.length===0)){say(t("Заповніть усі назви й описи двома мовами.","Complete both language titles and descriptions."),true);return;}
+   busy=true;save.disabled=true;
+   try{
+    const query=editing?client.from("vatra_announcements").update(payload).eq("id",editing):client.from("vatra_announcements").insert(payload);
+    const {data,error}=await query.select("id").single();
+    if(error||!data)throw error||Error("Write not applied");
+    if(active()){say(editing?t("Оголошення оновлено.","Announcement updated."):t("Оголошення створено.","Announcement created."));reset();await refresh();}
+   }catch(_){if(active())err();}finally{busy=false;save.disabled=false;}
+  });
+  try{await refresh();}catch(_){if(active())err();}
+ }
  async function render(key,selected=""){tab=key;const stamp=++renderEpoch;for(const [id,b] of navButtons)b.setAttribute("aria-pressed",String(id===key));content.replaceChildren();say("");const host=node("div","ui-vatra-admin-view-001");content.append(host);try{
  if(key==="dashboard"){const data=await rpc("dashboard");if(stamp!==renderEpoch)return;const grid=node("div","ui-vatra-admin-stats-001");for(const [k,label] of [["accounts",t("Користувачі","Members")],["verified",t("Верифіковані","Verified")],["blocked",t("Заблоковані","Blocked")],["posts",t("Публікації","Posts")],["communities",t("Спільноти","Communities")],["market_pending",t("Товари на перевірці","Listings awaiting review")],["verification_pending",t("Заявки на галочку","Verification requests")],["reports_pending",t("Скарги на профілі","Profile reports")]]){const tile=node("section","ui-vatra-admin-stat-001");tile.append(node("strong","vatra-admin-stat-number-001",String(data[k]??0)),node("span","vatra-admin-stat-label-001",label));grid.append(tile);}host.append(grid);}
  else if(key==="users")await users(host,selected);
  else if(key==="requests"||key==="reports"){const rows=await rpc(key);if(stamp!==renderEpoch)return;const refresh=()=>render(key);if(!rows.length)host.append(node("p","vatra-admin-empty-001",t("Немає відкритих звернень.","No open requests.")));for(const row of rows){const id=String(row.vatra_id??row.target_vatra_id),c=box((row.display_name||"VATRA")+" · ID "+id),reason=reasonField(),actions=node("div","ui-vatra-admin-actions-001");c.append(node("p","vatra-admin-request-copy-001",[row.category,row.reason,row.details].filter(Boolean).join("\n")),node("p","vatra-admin-request-date-001",safeDate(row.created_at)),reason.w);actions.append(button("vatra-admin-secondary-001",t("Керувати акаунтом","Manage member"),()=>void render("users",id)));if(key==="requests"){actions.append(actionButton(t("Схвалити та видати галочку","Approve and grant badge"),"verify",()=>({p_id:id}),reason.i,refresh),actionButton(t("Відхилити","Reject"),"reject_verification",()=>({p_id:id}),reason.i,refresh,true));}else actions.append(actionButton(t("Закрити скаргу","Resolve report"),"resolve_report",()=>({p_report:row.id}),reason.i,refresh));c.append(actions);host.append(c);}}
  else if(key==="market")await marketView(host,()=>isCurrent()&&dialog===d&&d.open&&stamp===renderEpoch);
+ else if(key==="announcements")await announcementPanel(host,()=>isCurrent()&&dialog===d&&d.open&&stamp===renderEpoch);
  else if(key==="maintenance"){
   const c=box(t("Технічні роботи","Maintenance"));
   c.append(node("p","vatra-admin-maintenance-copy-001",t("Увімкнення тимчасово перенаправляє відвідувачів на сторінку технічних робіт. Доступ адміністратора зберігається.","Enabling redirects visitors to the maintenance page temporarily. Administrator access is retained.")));
