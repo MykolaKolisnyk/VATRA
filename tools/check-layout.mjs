@@ -2099,6 +2099,21 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
  photoReportNotNull.includes("photo_path IS NOT NULL"),
  "Avatar gallery labels and secure per-photo moderation reporting must remain available");
 
+assert.ok(
+ memberCss.includes('body.profile-page .profile-media-viewer[open]{\n display:grid;grid-template-columns:minmax(0,1fr) clamp(318px,25vw,415px)')&&
+ systemFeedCss.includes('width:100vw;height:100dvh;')&&
+ systemFeedCss.includes('.vt-vatra-post-media-caption-001{')&&
+ profileScript.includes('lastAvatarCommentKey=key;')&&
+ profileScript.includes('commentList.replaceChildren(...fresh,...older)')&&
+ profileScript.includes('const avatarCommentPages=new Map()')&&
+ interactionsScript.includes('entries.replaceChildren(...fresh,...remaining)')&&
+ interactionsScript.includes('void loadComments(true,true)')&&
+ feedScript.includes('const previousFeed=reset?[...visibleFeed]:null;')&&
+ feedScript.includes('if(reset)posts.replaceChildren(batch);else posts.append(batch);')&&
+ !interactionsScript.includes('vt-vatra-post-audience-hint-001')&&
+ !systemFeedCss.includes('.feed-post-audience:hover .vt-vatra-post-audience-hint-001'),
+ "All profile/post photos share a fullscreen workspace, cached comments reconcile without flashes and audience markers have no hover");
+ 
 const feedPhotoActions=await read("assets/js/post-interactions.js");
 const photoLikeGlyph='M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z';
 const photoShareGlyph='M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z';
