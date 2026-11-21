@@ -78,7 +78,7 @@ assert.ok(missingPage.includes('src="/VATRA/assets/js/not-found.js"')&&
  notFoundCss.includes('html.vatra-dynamic-route-pending body.error-page > :not(.vatra-route-loading)'),
  "404 fallback must keep routing in its own module and hide the error page for valid permalinks");
 
-const errors=await read("assets/js/errors.js");
+
 const captcha=await read("assets/js/captcha.js");
 const lang=await read("assets/js/lang.js");
 // These account sections must never show "404 Page not found" in the
@@ -215,12 +215,8 @@ assert.ok(css.includes('@keyframes vatraLanguageBackdrop')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header .back{order:1;'),
  "Recovery navigation and language modal should share VATRA branding and motion");
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
-assert.ok(!errors.includes('window.addEventListener("error"')&&
- !errors.includes('window.addEventListener("unhandledrejection"')&&
- !errors.includes('console[kind]')&&
- !errors.includes('vatra-error-toast')&&
- !auth.includes("VATRA_ERRORS"),
- "Browser console output must stay in DevTools rather than trigger on-page alerts");
+assert.ok(!(await readdir("assets/js")).includes("errors.js")&&!auth.includes("VATRA_ERRORS"),
+ "Retired browser diagnostics must not be recreated");
 assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transparent;opacity:0}')&&
  css.includes('.vatra-floating-hint{')&&
  css.includes('.vatra-input-shell:focus-within .vatra-floating-hint,')&&
@@ -1032,7 +1028,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","assets/js/messenger.js","assets/js/messenger-crypto.js","sw.js"]){
+for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","assets/js/messenger.js","assets/js/messenger-crypto.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
