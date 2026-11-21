@@ -514,12 +514,6 @@ body.profile-page .vt-profile-photo-like-count-001{
  display:inline-block;min-width:1ch;padding:0;margin:0;background:transparent;
  color:#687992;text-align:center;font:650 12px/1.2 "Onest",system-ui,sans-serif
 }
-body.profile-page .vt-profile-message-post-link-001{
- display:inline-flex;margin:4px 0;padding:5px 9px;border-radius:7px;
- background:#e7f0ff;color:#2c62c0;text-decoration:none;
- font:730 12px/1.4 "Onest",system-ui,sans-serif
-}
-body.profile-page .vt-profile-message-post-link-001:hover{text-decoration:underline}
 body.profile-page .profile-photo-comment-filters{
  flex:none;display:grid;grid-template-columns:auto minmax(0,1fr);
  align-items:center;gap:6px 9px;padding:0 16px 11px;border-bottom:1px solid #eef1f7
@@ -1891,8 +1885,7 @@ body.profile-page .social-profile-tabs{padding-left:26px;padding-right:26px}
 body.profile-page .profile-content-panel :is(
  #profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001,
  #profile-communities-empty,#profile-friends-empty,#profile-gifts-empty,
- #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty,
- #profile-inbox-empty):not([hidden]),
+ #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty):not([hidden]),
 body.profile-page #profile-posts-empty:not([hidden]){
  display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:12px;min-height:175px;width:100%;margin:0;padding:25px 14px;
@@ -1902,8 +1895,7 @@ body.profile-page #profile-posts-empty:not([hidden]){
 body.profile-page .profile-content-panel :is(
  #profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001,
  #profile-communities-empty,#profile-friends-empty,#profile-gifts-empty,
- #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty,
- #profile-inbox-empty):not([hidden])::before,
+ #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty):not([hidden])::before,
 body.profile-page #profile-posts-empty:not([hidden])::before{
  content:"";display:block;flex:none;width:57px;height:57px;
  border:1px solid #e0e8fa;border-radius:18px;background-color:#f0f4ff;
@@ -1919,7 +1911,6 @@ body.profile-page #profile-gifts-empty::before{background-image:url('data:image/
 body.profile-page #profile-saved-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M8%204h16v24l-8-5-8%205Z%22%2F%3E%3C%2Fsvg%3E')}
 body.profile-page #profile-archive-stories-empty::before,body.profile-page #profile-archive-posts-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%2224%22%20height%3D%227%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M7%2014v14h18V14m-12%206h6%22%2F%3E%3C%2Fsvg%3E')}
 body.profile-page #profile-posts-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%2220%22%20height%3D%2224%22%20rx%3D%224%22%2F%3E%3Cpath%20d%3D%22M11%2011h10m-10%206h10m-10%206h7%22%2F%3E%3C%2Fsvg%3E')}
-body.profile-page #profile-inbox-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%205h20a3%203%200%200%201%203%203v13a3%203%200%200%201-3%203H13l-8%205v-5H6a3%203%200%200%201-3-3V8a3%203%200%200%201%203-3Zm4%207h13m-13%206h9%22%2F%3E%3C%2Fsvg%3E')}
 @media(max-width:440px){
  body.profile-page .profile-mini-card{padding:16px}
  body.profile-page .profile-content-panel :is(#profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001):not([hidden]){
@@ -2503,7 +2494,7 @@ body.profile-page :is(
  #profile-posts,#profile-friends-preview-list,#profile-gifts-preview-list,
  #profile-friends-list,#profile-gifts-list,#profile-communities-list,
  #profile-photo-gallery,#profile-video-gallery,#profile-clips-gallery,#profile-saved-list,
- #profile-archive-stories-list,#profile-archive-posts-list,#profile-inbox-list
+ #profile-archive-stories-list,#profile-archive-posts-list
 ):not(:has(> *)){
  display:none!important;
 }
@@ -2514,8 +2505,7 @@ body.profile-page #profile-posts-empty:not([hidden]){
 body.profile-page .profile-content-panel :is(
  #profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001,
  #profile-communities-empty,#profile-friends-empty,#profile-gifts-empty,
- #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty,
- #profile-inbox-empty):not([hidden]){
+ #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty):not([hidden]){
  min-height:150px;
 }
 @media(max-width:770px){
