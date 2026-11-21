@@ -453,6 +453,10 @@
           <div class="profile-media-viewer-stage ui-profile-media-viewer-stage-001">
             <button id="profile-media-viewer-close" class="profile-media-viewer-close vt-profile-media-viewer-close-001" type="button" data-shell-aria-uk="Закрити перегляд фото" data-shell-aria-en="Close photo viewer" aria-label="Закрити перегляд фото"><svg class="ui-profile-media-close-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-media-close-path-001" d="M6 6l12 12M18 6 6 18"/></svg></button>
             <h2 id="profile-media-viewer-heading" class="profile-media-viewer-heading vt-profile-media-viewer-heading-001" hidden></h2>
+            <div id="profile-photo-deleted-notice" class="ui-profile-photo-deleted-notice-001" role="status" aria-live="polite" hidden>
+              <span id="profile-photo-deleted-message" class="vt-profile-photo-deleted-message-001">Фотографію видалено.</span>
+              <button id="profile-photo-restore" class="vt-profile-photo-restore-001" type="button">Відновити</button>
+            </div>
             <div id="profile-photo-content" class="ui-profile-photo-content-001">
               <div id="profile-photo-canvas" class="ui-profile-photo-canvas-001">
                 <img id="profile-media-viewer-image" class="profile-media-viewer-image ui-profile-media-viewer-image-001" alt="">
@@ -464,9 +468,9 @@
                 <div id="profile-photo-tag-results" class="ui-profile-photo-tag-results-001" role="listbox" aria-label="Знайдені люди"></div>
                 <button id="profile-photo-tag-cancel" class="vt-profile-photo-tag-cancel-001" type="button">Скасувати</button>
               </div>
-            </div>
             <button id="profile-avatar-prev" class="vt-profile-avatar-prev-001" type="button" aria-label="Попереднє фото" data-shell-aria-uk="Попереднє фото" data-shell-aria-en="Previous photo" hidden><svg class="ui-profile-avatar-prev-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-prev-path-001" d="m15 5-7 7 7 7"/></svg></button>
             <button id="profile-avatar-next" class="vt-profile-avatar-next-001" type="button" aria-label="Наступне фото" data-shell-aria-uk="Наступне фото" data-shell-aria-en="Next photo" hidden><svg class="ui-profile-avatar-next-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-next-path-001" d="m9 5 7 7-7 7"/></svg></button>
+            </div>
             <div id="profile-photo-footer" class="ui-profile-photo-footer-001" role="group" aria-label="Дії з фотографією" hidden>
               <div id="profile-avatar-gallery-toolbar" class="ui-profile-avatar-gallery-toolbar-001" hidden>
                 <span id="profile-avatar-gallery-count" class="vt-profile-avatar-gallery-count-001" aria-live="polite"></span>
