@@ -6,9 +6,11 @@ CREATE TABLE public.messenger_keys(
   public_key jsonb NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT messenger_public_jwk_shape CHECK (
-    public_key->>'kty'='EC' AND public_key->>'crv'='P-256'
-    AND length(public_key->>'x') BETWEEN 42 AND 44
-    AND length(public_key->>'y') BETWEEN 42 AND 44
+    jsonb_typeof(public_key)='object'
+    AND NOT (public_key ? 'd') -- Never store private ECDH scalar in public table.
+    AND public_key->>'kty'='EC' AND public_key->>'crv'='P-256'
+    AND public_key->>'x' ~ '^[A-Za-z0-9_-]{43}$'
+    AND public_key->>'y' ~ '^[A-Za-z0-9_-]{43}$'
   )
 );
 CREATE TABLE public.messenger_messages(
@@ -25,7 +27,14 @@ CREATE TABLE public.messenger_messages(
   deleted_for_sender_at timestamptz,
   deleted_for_recipient_at timestamptz,
   CONSTRAINT messenger_distinct_members CHECK(sender_id<>recipient_id),
-  CONSTRAINT messenger_ciphertext_bounds CHECK(ciphertext IS NULL OR length(ciphertext) BETWEEN 16 AND 12000),
+  CONSTRAINT messenger_ciphertext_bounds CHECK(ciphertext IS NULL OR length(ciphertext) BETWEEN 23 AND 12000),
+  CONSTRAINT messenger_envelope_encoding CHECK (
+    deleted_for_all_at IS NOT NULL OR (
+      nonce ~ '^[A-Za-z0-9_-]{16}$' -- 12-byte GCM nonce
+      AND salt ~ '^[A-Za-z0-9_-]{43}$' -- 32-byte HKDF salt
+      AND ciphertext ~ '^[A-Za-z0-9_-]+$'
+    )
+  ),
   CONSTRAINT messenger_payload_or_tombstone CHECK(
     (deleted_for_all_at IS NULL AND ciphertext IS NOT NULL AND nonce IS NOT NULL AND salt IS NOT NULL
       AND sender_public_key IS NOT NULL AND recipient_public_key IS NOT NULL)
@@ -40,8 +49,12 @@ ALTER TABLE public.messenger_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.messenger_messages ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.messenger_keys FROM PUBLIC,anon,authenticated;
 REVOKE ALL ON public.messenger_messages FROM PUBLIC,anon,authenticated;
-GRANT SELECT,INSERT ON public.messenger_keys TO authenticated;
-GRANT SELECT,INSERT ON public.messenger_messages TO authenticated;
+GRANT SELECT ON public.messenger_keys TO authenticated;
+GRANT INSERT (vatra_id,public_key) ON public.messenger_keys TO authenticated;
+GRANT SELECT ON public.messenger_messages TO authenticated;
+-- The server alone sets created_at and all deletion timestamps.
+GRANT INSERT (id,sender_id,recipient_id,ciphertext,nonce,salt,sender_public_key,recipient_public_key)
+ ON public.messenger_messages TO authenticated;
 CREATE POLICY messenger_keys_read ON public.messenger_keys FOR SELECT TO authenticated USING (true);
 CREATE POLICY messenger_keys_create ON public.messenger_keys FOR INSERT TO authenticated WITH CHECK(
  vatra_id=(SELECT a.vatra_id FROM public.accounts a WHERE a.user_id=(SELECT auth.uid()))
