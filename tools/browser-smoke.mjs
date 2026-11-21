@@ -4437,7 +4437,7 @@ try{
   await profilePage.locator("#profile-avatar-next").click();
   assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
-   (language==="en"?"Profile photo  2 of 2":"Фото профілю  2 із 2"),
+   (language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2"),
    "Own photo captions should have no repeated name or decorative separator");
   const fullscreenAvatar=await profilePage.evaluate(()=>{
    const rect=document.querySelector("#profile-media-viewer").getBoundingClientRect();
