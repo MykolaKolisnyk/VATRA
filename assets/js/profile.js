@@ -2820,11 +2820,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  // Legacy square uploads keep the same crop in the profile and in the viewer.
  const coverViewerDialog=q("#profile-cover-viewer"),coverStage=q("#profile-cover-viewer-stage");
  const coverImage=q("#profile-cover-viewer-image"),coverOriginal=q("#profile-cover-viewer-original");
- let coverEpoch=0,coverFlight=null,coverAnimation=null,coverFadeTimer=null;
+ let coverEpoch=0,coverFlight=null,coverAnimation=null;
  const clearCoverFlight=()=>{
-  if(coverFadeTimer!==null){clearTimeout(coverFadeTimer);coverFadeTimer=null;}
-  coverAnimation?.cancel();coverAnimation=null;
   coverFlight?.remove();coverFlight=null;
+  coverAnimation?.cancel();coverAnimation=null;
  };
  const openCover=()=>{
   const url=photoURLs.cover;
@@ -2835,20 +2834,30 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   clearCoverFlight();coverViewerDialog.classList.remove("is-ready");
   coverOriginal.hidden=true;coverOriginal.removeAttribute("href");
   coverImage.alt=t("Обкладинка профілю","Profile cover photo");
-  let ready=false,arrived=false;
+  let decoded=false,arrived=false,finished=false,decoding=false;
   const finish=()=>{
-   if(ticket!==coverEpoch||!coverViewerDialog.open||!ready||!arrived)return;
+   if(finished||ticket!==coverEpoch||!coverViewerDialog.open||!decoded||!arrived)return;
+   finished=true;
+   // An atomic handoff avoids two semi-transparent pictures overlapping
+   // and prevents a delayed image decode from flashing a blank frame.
    coverViewerDialog.classList.add("is-ready");
-   if(coverFlight){
-    const flight=coverFlight;flight.classList.add("is-fading");
-    coverFadeTimer=setTimeout(()=>{
-     if(coverFlight===flight){flight.remove();coverFlight=null;coverAnimation=null;}
-     coverFadeTimer=null;
-    },190);
-   }
+   clearCoverFlight();
   };
-  coverImage.onload=()=>{if(ticket!==coverEpoch)return;ready=coverImage.naturalWidth>0;finish();};
-  coverImage.onerror=()=>{if(ticket!==coverEpoch)return;coverImage.onload=null;coverViewerDialog.close();};
+  const markDecoded=()=>{
+   if(ticket!==coverEpoch||!coverViewerDialog.open)return;
+   decoded=true;finish();
+  };
+  const prepareImage=()=>{
+   if(decoding||ticket!==coverEpoch||!coverImage.naturalWidth)return;
+   decoding=true;
+   if(typeof coverImage.decode==="function"){
+    void coverImage.decode().then(markDecoded).catch(()=>{
+     if(ticket===coverEpoch&&coverImage.complete&&coverImage.naturalWidth)markDecoded();
+    });
+   }else markDecoded();
+  };
+  coverImage.onload=prepareImage;
+  coverImage.onerror=()=>{if(ticket===coverEpoch&&coverViewerDialog.open)coverViewerDialog.close();};
   coverImage.src=source;
   coverViewerDialog.showModal();
   const destination=coverStage.getBoundingClientRect();
@@ -2875,9 +2884,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    ],{duration:460,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
    void coverAnimation.finished.then(arrivedAtCenter).catch(()=>{});
   }
-  if(coverImage.complete&&coverImage.naturalWidth)queueMicrotask(()=>{
-   if(ticket===coverEpoch){ready=true;finish();}
-  });
+  if(coverImage.complete&&coverImage.naturalWidth)queueMicrotask(prepareImage);
   // Opening a cover never switches to an unverified -original image.
   // New uploads can still open their real, separately saved full original.
   const originalPath=saved?.cover_path?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
