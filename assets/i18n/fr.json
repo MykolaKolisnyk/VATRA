@@ -3070,5 +3070,22 @@
   "Медіафайл тимчасово недоступний.": "Ce média est temporairement indisponible.",
   "Знаходь друзів, переглядай запити та дізнавайся, хто онлайн.": "Trouve des amis, consulte les demandes et vois qui est en ligne.",
   "Переглядай короткі відео та публікуй власні кліпи.": "Regarde des vidéos courtes et publie tes propres clips.",
-  "Знаходь товари, створюй оголошення та зв’язуйся з продавцями.": "Trouve des produits, crée des annonces et contacte les vendeurs."
+  "Знаходь товари, створюй оголошення та зв’язуйся з продавцями.": "Trouve des produits, crée des annonces et contacte les vendeurs.",
+  "Для друзів": "Réservé aux amis",
+  "Лише я": "Moi uniquement",
+  "Учасники спільноти": "Membres de la communauté",
+  "Публічно": "Public",
+  "Дії з публікацією": "Options de la publication",
+  "Керування публікацією": "Gérer la publication",
+  "Архівувати": "Archiver",
+  "Взаємодія з публікацією": "Interactions avec la publication",
+  "Подобається": "J’aime",
+  "Коментарі": "Commentaires",
+  "Поділитися": "Partager",
+  "Зберегти": "Enregistrer",
+  "Збережено": "Enregistré",
+  "Не вдалося змінити збереження.": "Impossible de modifier l’enregistrement.",
+  "Не вдалося змінити збереження. Спробуйте ще раз.": "Impossible de modifier l’enregistrement. Réessayez.",
+  "Вподобання тимчасово недоступні.": "Les mentions J’aime sont temporairement indisponibles.",
+  "Не вдалося змінити вподобання.": "Impossible de modifier la mention J’aime."
 }
