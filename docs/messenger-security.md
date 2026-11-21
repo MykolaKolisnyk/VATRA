@@ -35,4 +35,4 @@ Implement audio/video calling using WebRTC DTLS-SRTP, authenticated RLS-protecte
 - Apply the additive migration to the correct Supabase project before shipping the frontend.
 - Test two authenticated accounts, two browsers and an unauthenticated third party for RLS and key behavior.
 - Test backup export/import, wrong passphrase, key-change warnings, separate deletion scopes, realtime delivery and no plaintext in API/network traces.
-- Run current CI, bilingual and mobile UI tests. Keep this feature as an unmerged PR until verification completes.
+- Run current CI, bilingual and mobile UI tests. PR #240 was merged into main on 2026-11-21, but this does not establish cryptographic security or release readiness: keep Messenger explicitly labeled beta and do not claim Signal/Double Ratchet-grade protection until independent review and real multi-account testing are complete.
