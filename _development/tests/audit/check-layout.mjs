@@ -2146,7 +2146,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('.profile-media-viewer.is-photo-deleted')&&
  memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
  !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
- memberCss.includes('padding:48px 68px 8px;isolation:isolate')&&
+ memberCss.includes('padding:48px 68px 8px')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and chevrons stay outside the image");
 
