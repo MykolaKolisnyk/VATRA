@@ -3032,3 +3032,11 @@ body.profile-page .ui-profile-photo-canvas-001 .profile-media-viewer-image{objec
  body.profile-page .ui-profile-photo-content-001:hover :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001):disabled{opacity:.28;pointer-events:none}
 }
 @media(prefers-reduced-motion:reduce){body.profile-page .ui-profile-photo-content-001 :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001){transition:none}}
+
+body.profile-page .vatra-profile-photo-comment-delete-001{
+ align-self:flex-end;display:inline-flex;margin-left:auto;margin-top:4px;
+ padding:5px 8px;border:0;border-radius:7px;background:transparent;color:#b94c62;
+ font:620 11px Onest,system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .vatra-profile-photo-comment-delete-001:hover{background:#ffedf1}
+body.profile-page .vatra-profile-photo-comment-delete-001:disabled{opacity:.5;cursor:wait}

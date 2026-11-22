@@ -2307,6 +2307,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const footerMore=q("#profile-photo-footer-more");
  const footerReport=q("#profile-photo-report");
  const footerMenu=q("#profile-photo-footer-menu"),originalLink=q("#profile-photo-original");
+ const avatarDownload=q("#profile-photo-download"),avatarOpenAlbum=q("#profile-photo-open-album");
  const setCurrent=q("#profile-photo-set-current"),tagMarkers=q("#profile-photo-tag-markers");
  const tagPicker=q("#profile-photo-tag-picker"),tagSearch=q("#profile-photo-tag-search");
  const tagResults=q("#profile-photo-tag-results"),tagCancel=q("#profile-photo-tag-cancel"),tagStatus=q("#profile-photo-tag-status");
@@ -2341,6 +2342,27 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  mediaDialog.addEventListener("click",event=>{if(!event.target.closest?.(".ui-profile-photo-more-wrap-001"))closeMore();});
  footerShare.addEventListener("click",()=>{closeMore();q("#profile-photo-share").click();});
  originalLink.addEventListener("click",closeMore);
+ avatarDownload.addEventListener("click",async()=>{
+  closeMore();const path=gallery[galleryIndex];
+  if(!path||!photoPath())return;
+  avatarDownload.disabled=true;
+  try{
+   const {data,error}=await client.storage.from("avatars").download(path);
+   if(error||!data)throw error||Error("Avatar unavailable");
+   const url=URL.createObjectURL(data),link=document.createElement("a");
+   link.className="vatra-profile-photo-download-link-001";
+   link.href=url;link.download=path.split("/").pop()||"photo.jpg";
+   document.body.append(link);link.click();link.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),20000);
+  }catch(_){status(t("Не вдалося завантажити фотографію.","Could not download photograph."),true);}
+  finally{avatarDownload.disabled=false;}
+ });
+ avatarOpenAlbum.addEventListener("click",()=>{
+  closeMore();mediaDialog.close();
+  const photoTab=q("#profile-tab-photos");photoTab?.click();
+  const albumTab=document.querySelector(".ui-vatra-albums-controls-001 .vatra-albums-tab-001:nth-child(2)");
+  if(albumTab)albumTab.click();
+ });
  footerReport.addEventListener("click",()=>{
   closeMore();
   if(isMine||locked||!mediaDialog.open)return;
@@ -2687,7 +2709,29 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
      }catch(_){feedback(t("Не вдалося вподобати коментар.","Could not like the comment."),true);}
      finally{reaction.disabled=false;}
     });
-    card.append(reaction);fresh.push(card);
+    card.append(reaction);
+    if(String(item.author_vatra_id)===String(ownId)){
+     const remove=node("button","vatra-profile-photo-comment-delete-001",t("Видалити","Delete"));
+     remove.type="button";remove.setAttribute("aria-label",t("Видалити свій коментар","Delete your comment"));
+     remove.addEventListener("click",async()=>{
+      if(remove.disabled)return;
+      if(!window.confirm(t("Видалити свій коментар?","Delete your comment?")))return;
+      remove.disabled=true;
+      try{
+       const {data,error}=await client.from("avatar_comments").delete()
+        .eq("id",item.id).eq("author_id",userId).select("id").maybeSingle();
+       if(error||!data)throw error||Error("Delete not permitted");
+       avatarCommentPages.clear();
+       card.remove();photoCommentOffset=Math.max(0,photoCommentOffset-1);
+       feedback(t("Коментар видалено.","Comment deleted."));
+      }catch(_){
+       remove.disabled=false;
+       feedback(t("Не вдалося видалити коментар.","Could not delete comment."),true);
+      }
+     });
+     card.append(remove);
+    }
+    fresh.push(card);
    }
    if(!append&&reuse&&rows.length){
     const received=new Set(rows.map(item=>String(item.id)));
@@ -2826,6 +2870,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   footerMore.firstChild.textContent=t("Більше ","More ");
   setCurrent.textContent=t("Зробити фотографією профілю","Make profile photo");
   originalLink.textContent=t("Відкрити оригінал","Open original");
+  avatarDownload.textContent=t("Завантажити","Download");
+  avatarOpenAlbum.textContent=t("Перейти до альбому","Go to album");
   const owner=q("#profile-photo-owner"),ownerPhoto=q("#profile-photo-owner-avatar"),date=q("#profile-photo-kind");
   owner.textContent=q("#profile-heading").textContent;owner.href=memberUrl(targetId);
   void window.VATRA_VERIFIED?.attach(client,owner,targetId);
