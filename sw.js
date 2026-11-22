@@ -9,6 +9,7 @@ const ASSETS=[
  ROOT+"assets/css/not-found.css",
  ROOT+"assets/js/not-found.js",
  ROOT+"assets/css/offline.css",
+ ROOT+"assets/vatryk/vatryk_offline.webp",
  ROOT+"assets/js/offline.js",
  ROOT+"assets/css/sign-in.css",
  ROOT+"assets/css/create-account.css",
