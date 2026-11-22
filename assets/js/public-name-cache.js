@@ -3,6 +3,7 @@
  const caches=new WeakMap();
  const TTL=90_000,MISSING_TTL=15_000,MAX_ENTRIES=256,MAX_BATCH=48;
  const EDGE_COOLDOWN_KEY="vatra-public-names-edge-retry-at-v1";
+ const EDGE_CACHE_ENABLED=window.VATRA_NAME_CACHE_EDGE_ENABLED===true;
  const edgeRetryAt=()=>{
   try{
    const time=Number(sessionStorage.getItem(EDGE_COOLDOWN_KEY));
@@ -52,7 +53,7 @@
   while(state.rows.size>MAX_ENTRIES)state.rows.delete(state.rows.keys().next().value);
  };
  async function fetchMissing(client,ids,state){
-  if(Date.now()>=state.retryRemoteAt&&typeof client?.functions?.invoke==="function"){
+  if(EDGE_CACHE_ENABLED&&Date.now()>=state.retryRemoteAt&&typeof client?.functions?.invoke==="function"){
    try{
     const {data,error}=await client.functions.invoke("public-profile-names",{
      body:{ids:ids.map(Number)}
