@@ -1398,6 +1398,7 @@ const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
+const profileCoverScript=await read("assets/js/profile-cover-editor.js");
 // Only numeric /idN profile permalinks are generated. GitHub Pages serves its
 // 404.html fallback at these addresses, then mounts the real profile markup.
 assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURIComponent(id);')&&
@@ -2109,9 +2110,9 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
  profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar",sourceFile)')&&
  profileScript.includes('const bucketFor=kind=>kind==="avatar"?"avatars":"covers"')&&
- profileScript.includes('void startCoverCrop(fileCover.files[0])')&&
- profileScript.includes('encodeProfileCrop(coverSource,rect,2000,580,"profile-cover",coverSourceMime)')&&
- profileScript.includes('uploadImage(file,"cover",coverSourceFile)')&&
+ profileScript.includes('void startCoverEditor(fileCover.files[0])')&&
+ profileCoverScript.includes('encodeProfileCrop(coverSource,rect,2000,580,"profile-cover",coverSourceMime)')&&
+ profileCoverScript.includes('uploadImage(file,"cover",coverSourceFile)')&&
  !profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
  profileScript.includes('"avatars"')&&
  profileScript.includes('"covers"')&&
@@ -2121,7 +2122,7 @@ assert.ok(profileScript.includes('const originalPath=originalExt?')&&
  profileScript.includes('upload(originalPath,originalFile')&&
  profileScript.includes('mediaImage.src=sourceUrl||url')&&
  profileScript.includes('!/-original\\.(?:jpe?g|png|webp)$/i.test')&&
- profileScript.includes('coverPreviewCanvas.width=mobile?390:1000')&&
+ profileCoverScript.includes('coverPreviewCanvas.width=mobile?390:1000')&&
  memberCss.includes('aspect-ratio:2000/580'),
  "Profile media keeps full originals separate from selected avatar and 2000x580 cover thumbnails");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-story-delete"')&&
@@ -2716,7 +2717,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfil
 
 assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&!profileMarkup.includes('ui-profile-edit-icon-001')&&profileMarkup.includes('class="ui-profile-name-row-001"')&&memberCss.includes('.ui-profile-name-row-001>.profile-edit-open')&&!memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs beside the name as a single styled text action");
 
-assert.ok(memberProfileMarkup.includes('id="profile-cover-edit-dialog"')&&memberProfileMarkup.includes('id="profile-cover-preview-desktop"')&&memberProfileMarkup.includes('id="profile-cover-preview-mobile"')&&profileScript.includes('void startCoverCrop(fileCover.files[0])')&&profileScript.includes('uploadImage(file,"cover",coverSourceFile)')&&!profileScript.includes('uploadImage(fileCover.files[0],"cover")'),"Cover selection requires crop and device preview before explicit saving");
+assert.ok(memberProfileMarkup.includes('id="profile-cover-edit-dialog"')&&memberProfileMarkup.includes('id="profile-cover-preview-desktop"')&&memberProfileMarkup.includes('id="profile-cover-preview-mobile"')&&profileScript.includes('void startCoverEditor(fileCover.files[0])')&&profileCoverScript.includes('uploadImage(file,"cover",coverSourceFile)')&&!profileScript.includes('uploadImage(fileCover.files[0],"cover")'),"Cover selection requires crop and device preview before explicit saving");
 
 for(const dirEntry of await readdir(".")){if(!dirEntry.endsWith(".html"))continue;const html=await read(dirEntry);assert.ok(!/<title>[^<]* · VATRA<\/title>/.test(html),dirEntry+": remove the redundant brand suffix from the browser tab");}
 for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))continue;const catalog=JSON.parse(await read("assets/i18n/"+file));assert.ok(Object.values(catalog.__pages||{}).every(page=>!page.meta?.title?.endsWith(" · VATRA")),file+": localized tab title must be suffix-free");}

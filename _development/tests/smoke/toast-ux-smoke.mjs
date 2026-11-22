@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import vm from "node:vm";
-const [auth,toast,profile,html]=await Promise.all([
- "assets/js/auth-core.js","assets/js/toast.js","assets/js/profile.js","profile.html"
+const [auth,toast,profile,coverEditor,html]=await Promise.all([
+ "assets/js/auth-core.js","assets/js/toast.js","assets/js/profile.js",
+ "assets/js/profile-cover-editor.js","profile.html"
 ].map(path=>readFile(path,"utf8")));
 assert.match(auth,/Оберіть день народження\./);
 assert.match(auth,/Оберіть місяць народження\./);
@@ -12,9 +13,11 @@ assert.doesNotMatch(auth,/feedback\(message,"error"\)/);
 assert.doesNotMatch(auth,/Заповніть це поле\./);
 assert.doesNotMatch(toast,/addEventListener\("pointerenter"/);
 assert.match(toast,/queueMicrotask\(moveStack\)/);
-for(const phrase of ["Фото профілю змінено.","Обкладинку профілю змінено.","vatra-profile-photo-toast"]){
+for(const phrase of ["Фото профілю змінено.","vatra-profile-photo-toast"]){
  assert.ok(profile.includes(phrase),phrase);
 }
+assert.ok(coverEditor.includes('status(t("Обкладинку профілю змінено.","Profile cover updated."))'),
+ "Cover update confirmation remains in the new, on-demand crop editor");
 for(const id of ["profile-media-status","profile-avatar-finish-error","profile-cover-edit-error"]){
  assert.ok(!html.includes('id="'+id+'"'),id);
  assert.ok(!profile.includes('"#'+id+'"'),id);
