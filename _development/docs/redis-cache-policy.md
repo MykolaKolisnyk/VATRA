@@ -48,16 +48,15 @@ credentials into public GitHub Pages files or use Redis for private data.
 
 1. In your Redis provider, obtain the **host, port and password**.
 2. In **VATRA → Supabase → Edge Functions → Secrets** for project
-   `cxrcycxrlkufozomsxcs`, configure for the current **Free-tier development**
+   `cxrcycxrlkufozomsxcs`, configure for the current **Free-tier**
    database (Redis Cloud VATRA, Frankfurt):
    - `REDIS_URL=redis://default:<URL_ENCODED_PASSWORD>@<HOST>:<PORT>`
    - `REDIS_ENABLED=true`
-   - `REDIS_ALLOW_PLAINTEXT_DEV=true`
    The password is the technical Redis database credential, not a VATRA user password.
-   This is an explicit temporary plaintext development configuration: the Redis AUTH
+   This is a temporary plaintext connection: the Redis AUTH
    exchange and public cache traffic are unencrypted on the network. Before public
    launch, upgrade to TLS and change to `rediss://` and
-   `REDIS_ALLOW_PLAINTEXT_DEV=false`.
+   rotate the Redis password.
 3. Never commit Redis credentials or expose them in frontend JavaScript. Configure
    the URL directly in Supabase Edge Function Secrets. With plaintext Redis, cache
    **only public data**, and rotate the Redis password before public launch.
@@ -75,7 +74,7 @@ credentials into public GitHub Pages files or use Redis for private data.
 ## Upgrade to paid Redis Cloud
 
 Enable TLS in Redis Cloud and update `REDIS_URL` to `rediss://...`.
-Keep `REDIS_ALLOW_PLAINTEXT_DEV=false`. Do not add the credentials to GitHub
+Do not add the credentials to GitHub
 Pages. Additional caches must be separately reviewed for visibility/RLS and
 invalidation semantics.
 
@@ -88,13 +87,13 @@ extra network and cold-start overhead. Measure before enabling. Avoid cache
 pollution, per-search-term keys or permanent entries.
 
 
-## Free-tier development routing (2026-11-22)
+## Free-tier routing (2026-11-22)
 
-The owner explicitly requested Redis Cloud Free for pre-release testing.
+The owner requested Redis Cloud Free before public release.
 On the official GitHub Pages host `assets/js/host.js` now enables
 `VATRA_NAME_CACHE_EDGE_ENABLED` and `VATRA_COMMUNITY_EDGE_ENABLED`
 by default, unless explicitly set to `false` before host.js loads.
-These are public non-secret switches; Redis only operates when the three
+These are public non-secret switches; Redis only operates when the two
 Supabase Edge Function secrets above are present and the Redis TCP connection works.
 
 `public-profile-names` uses an authenticated JWT and a five-minute
@@ -110,6 +109,6 @@ shared plaintext Redis. Existing viewer-scoped caches remain in browser
 memory. No Redis secret is stored in the repository.
 
 During the later paid-plan migration, set a TLS `rediss://` URL and
-`REDIS_ALLOW_PLAINTEXT_DEV=false`, rotate any credential used without
+rotate any credential used without
 encryption, and retest authenticated/direct fallback, expiration and hit
 rates before public launch.

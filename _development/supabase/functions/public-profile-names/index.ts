@@ -26,10 +26,8 @@ function validRow(value: unknown): value is PublicName {
 }
 function cacheAllowed(): boolean {
   const url = Deno.env.get("REDIS_URL") || "";
-  if (Deno.env.get("REDIS_ENABLED") !== "true" || !url) return false;
-  if (url.startsWith("rediss://")) return true;
-  // Public display names only: plaintext Redis is an explicit development-only opt-in.
-  return url.startsWith("redis://") && Deno.env.get("REDIS_ALLOW_PLAINTEXT_DEV") === "true";
+  return Deno.env.get("REDIS_ENABLED") === "true" &&
+    (url.startsWith("redis://") || url.startsWith("rediss://"));
 }
 async function redis() {
   if (!cacheAllowed() || Date.now() < retryAfter) return null;
