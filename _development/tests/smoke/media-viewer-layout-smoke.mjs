@@ -120,18 +120,26 @@ assert.ok(
  profileCss.includes("body.profile-page .profile-photo-comment-form{"),
  "Both media viewers must use the same canonical sidebar header, actions, comments, composer and footer metrics"
 );
+const responsiveMediaRules=new Set([
+ "body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){",
+ "body.feed-page :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001){"
+]);
 for(const selector of [
  "body.feed-page .ui-vatra-post-media-side-001 .vatra-post-interactions{",
  "body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{",
  "body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form{",
  "body.feed-page :is(.ui-vatra-post-media-author-001,.profile-media-viewer .profile-photo-info){",
  "body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-action-row,.profile-media-viewer .profile-photo-actions){",
- "body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){",
- "body.feed-page :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001){"
+ ...responsiveMediaRules
 ]){
- assert.equal(postCss.split(selector).length-1,1,
-  "Media viewer CSS must use one canonical layout rule, without duplicate overrides: "+selector);
+ assert.equal(postCss.split(selector).length-1,responsiveMediaRules.has(selector)?2:1,
+  "Media viewer CSS may have one canonical desktop rule and one responsive adjustment only: "+selector);
 }
+assert.ok(
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){padding:8px 12px!important}")&&
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001){min-height:47px;padding:6px 10px;gap:5px}"),
+ "Shared mobile photo panels must keep their intentional responsive spacing"
+);
 assert.ok(
  profile.indexOf("uploading=false")>=0&&
  profile.indexOf("uploading=false")<profile.indexOf("if(!canEdit)return;")&&
