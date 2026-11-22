@@ -21,19 +21,7 @@ for(const action of ["members_page","member_detail","analytics","health","reques
 }
 assert.match(sql,/limit v_limit offset v_page\*v_limit/i);
 assert.match(sql,/pg_trgm/);
-assert.ok(sql.includes("p_payload->>'page' !~ '^[0-9]{1,6}
-assert.match(sql,/admin_profiles_name_search_idx/);
-assert.doesNotMatch(sql,/raw_user_meta_data|auth\.users|password|email/i,"Never expose private identity credentials to admins");
-assert.match(js,/confirmDecision/);
-assert.match(js,/approve\.disabled=input\.value\.trim\(\)!==String\(params\.p_id\)/);
-assert.match(js,/vatra-admin-announcement-starts-001/);
-assert.match(js,/vatra-admin-announcement-ends-001/);
-assert.match(css,/ui-vatra-admin-analytics-cards-001/);
-assert.match(css,/ui-vatra-admin-chart-001/);
-assert.match(css,/ui-vatra-admin-confirm-dialog-001/);
-assert.match(css,/ui-vatra-admin-directory-pagination-001/);
-console.log("VATRA admin security: owner guard, private definer, invoker wrapper, restricted RPC, paginated search, analytics and typed confirmation checked.");
-"),"Page parameter validation must contain a closed and anchored SQL regex");
+assert.ok(sql.includes("p_payload->>'page' !~ '^[0-9]{1,6}$'"),"SQL page validation regex must be correctly closed and anchored");
 assert.match(sql,/admin_profiles_name_search_idx/);
 assert.doesNotMatch(sql,/raw_user_meta_data|auth\.users|password|email/i,"Never expose private identity credentials to admins");
 assert.match(js,/confirmDecision/);
