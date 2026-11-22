@@ -598,9 +598,10 @@ function openFullMedia(url,kind,container){
    const previewPath=item=>item.media_kind==="image"&&
     name(item.preview_path,"image",id)&&item.preview_path.endsWith(".webp")?
     item.preview_path:null;
-   await preSignGallery(client,tiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
+   const imageTiles=tiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
     media_kind:"image",media_path:previewPath(item)||item.media_path
-   })));
+   }));
+   if(imageTiles.length>2)await preSignGallery(client,imageTiles);
    await Promise.allSettled(tiles.map(async({item,tile,index})=>{
     try{
      if(item.media_kind==="video"){
