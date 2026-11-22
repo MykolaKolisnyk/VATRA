@@ -1455,7 +1455,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  menu.addEventListener("keydown",event=>{if(event.key==="Escape"){close();toggle.focus();}});
 
 }
-function setupProfileGallery(client,targetId){
+function setupProfileGallery(client,targetId,ownId,userId){
  for(const settings of [
   {kind:"image",tab:"#profile-tab-photos",list:"#profile-photo-gallery",empty:"#profile-photos-empty",more:"#profile-photos-more"},
   {kind:"video",tab:"#profile-tab-videos",list:"#profile-video-gallery",empty:"#profile-videos-empty",more:"#profile-videos-more"},
@@ -1464,6 +1464,7 @@ function setupProfileGallery(client,targetId){
   const tab=q(settings.tab),list=q(settings.list),empty=q(settings.empty),more=q(settings.more);
   if(!tab||!list||!empty||!more)continue;
   let busy=false,offset=0;
+  const batchSize=settings.kind==="image"?6:12;
   const load=async(append=false)=>{
    if(busy)return;
    busy=true;list.setAttribute("aria-busy","true");more.disabled=true;
@@ -1479,12 +1480,12 @@ function setupProfileGallery(client,targetId){
    try{
     const contains=JSON.stringify([{media_kind:settings.kind}]);
     let query=client.from("feed_posts")
-     .select("id,author_vatra_id,media_kind,media_path,media_items")
+     .select("id,author_vatra_id,body,visibility,comments_enabled,created_at,media_kind,media_path,media_items")
      .eq("author_vatra_id",targetId).eq("is_clip",!!settings.clip)
      .or("media_kind.eq."+settings.kind+",media_items.cs."+contains);
     if(typeof query.is==="function")query=query.is("archived_at",null);
     const {data,error}=await query.order("created_at",{ascending:false}).order("id",{ascending:false})
-     .range(offset,offset+11);
+     .range(offset,offset+batchSize-1);
     if(error)throw error;
     if(!append)list.replaceChildren();
     for(const post of data||[]){
@@ -1498,6 +1499,14 @@ function setupProfileGallery(client,targetId){
       list.append(tile);
       const selected=Array.isArray(post.media_items)&&post.media_items.length?
        {...post,media_items:[item]}:post;
+      if(settings.kind==="image"){
+       tile.addEventListener("click",event=>{
+        const trigger=event.target?.closest?.(".vatra-post-gallery-tile,.vatra-feed-post-media-open-001");
+        if(!trigger)return;
+        event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+        void window.VATRA_POST_MEDIA?.openPostPhoto(client,post,item,{ownId,userId});
+       },true);
+      }
       if(settings.clip){
        const open=node("a","vatra-profile-clip-open-001",t("Відкрити кліп","Open clip"));
        open.href=new URL("clips?clip="+encodeURIComponent(post.id),home).href;
@@ -1506,7 +1515,7 @@ function setupProfileGallery(client,targetId){
      }
     }
     offset+=(data||[]).length;
-    more.hidden=(data||[]).length<12;
+    more.hidden=(data||[]).length<batchSize;
     if(!list.children.length){
      empty.textContent=settings.clip?t("Кліпів поки немає.","No clips yet."):settings.kind==="image"?t("Фотографій поки немає.","No photos yet."):
       t("Відео поки немає.","No videos yet.");
@@ -2344,6 +2353,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  avatarWrap.dataset.vatraSystemAvatar="true";
  avatarWrap.dataset.vatraRingKind="default";
  const canViewPhoto=!locked;
+ window.VATRA_CAN_VIEW_PROFILE_AVATAR=canViewPhoto;
  const status=(text,error=false)=>{
   if(!text)return;
   const kind=error?"error":"success";
@@ -2913,7 +2923,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    probe.src=originalUrl;
   }
  };
- const openMedia=kind=>{
+ const openMedia=(kind,preferredPath=null)=>{
   if(kind!=="avatar"||!canViewPhoto)return;
   const url=photoURLs.avatar;if(!url)return;
   closeAvatarMenu();const ticket=++galleryEpoch;
@@ -2926,7 +2936,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const requested=new URLSearchParams(location.search).get("image");
    const shared=requested&&/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(requested)?
     gallery.findIndex(p=>p.endsWith("/"+requested)):-1;
-   galleryIndex=shared>=0?shared:Math.max(0,gallery.indexOf(selected));
+   const wanted=preferredPath&&typeof preferredPath==="string"&&
+    preferredPath.startsWith(targetId+"/avatar/")?gallery.indexOf(preferredPath):-1;
+   galleryIndex=wanted>=0?wanted:shared>=0?shared:Math.max(0,gallery.indexOf(selected));
    renderGalleryPhoto();
   }).catch(()=>{});
  };
@@ -2942,7 +2954,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();
   hideAvatarUndo();discardAvatarUndo();
  });
- window.VATRA_OPEN_PROFILE_AVATAR=()=>{if(canViewPhoto)openMedia("avatar");};
+ window.VATRA_OPEN_PROFILE_AVATAR=path=>{if(canViewPhoto)openMedia("avatar",path);};
  const openStory=()=>{
   if(!canViewPhoto||!activeStory)return;
   if(Date.parse(activeStory.expires_at)<=Date.now()){
@@ -3616,7 +3628,7 @@ async function start(){
   });
   if(!locked){
    setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
-   setupProfileGallery(client,targetId);
+   setupProfileGallery(client,targetId,ownId,user.id);
    window.VATRA_ALBUMS?.mount({client,targetId,ownId,isMine,userId:user.id});
    setupProfilePostFilters(client,targetId,ownId,user.id);
   }
