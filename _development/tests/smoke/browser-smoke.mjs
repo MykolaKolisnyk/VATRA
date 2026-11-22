@@ -3297,6 +3297,74 @@ try{
   assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
   assert.equal(postFrame.background,"rgb(17, 20, 25)",
    "Post photos must use the same solid dark background as avatar photos");
+  const postSidebar=await feedProbe.evaluate(()=>{
+   const dialog=document.querySelector("#vatra-post-media-viewer");
+   const side=dialog.querySelector(".ui-vatra-post-media-side-001");
+   const initiallyHidden=side.hidden;
+   const node=(tag,className)=>{
+    const element=document.createElement(tag);element.className=className;return element;
+   };
+   const author=node("header","ui-vatra-post-media-author-001");
+   const authorAvatar=node("span","feed-post-avatar");
+   const authorCopy=node("span","feed-post-author");
+   const authorName=node("span","feed-post-name");
+   authorName.textContent="VATRA";
+   const authorDate=node("span","feed-post-date");
+   authorDate.textContent="2 дні тому";
+   authorCopy.append(authorName,authorDate);author.append(authorAvatar,authorCopy);
+   const shell=node("section","vatra-post-interactions");
+   const actions=node("div","vatra-post-action-row");
+   actions.append(node("button","vatra-post-like-001"),node("button","vatra-post-share-toggle-001"));
+   const panel=node("div","vatra-post-comments-panel");
+   const entries=node("div","vatra-post-comment-list");
+   const empty=node("p","vatra-post-comments-empty-001");
+   empty.textContent="Коментарів поки немає. Будьте першими!";
+   entries.append(empty);
+   const form=node("form","vatra-post-comment-form");
+   const portrait=node("span","vatra-post-comment-composer-avatar");
+   const composer=node("div","vatra-post-comment-composer");
+   const inputWrap=node("div","vatra-post-comment-input-wrap");
+   const input=node("textarea","ui-vatra-post-comment-input-001");
+   input.rows=1;
+   const toolbar=node("div","vatra-post-comment-toolbar");
+   toolbar.append(node("button","vatra-post-comment-emoji-001"));
+   inputWrap.append(input,toolbar);composer.append(inputWrap);form.append(portrait,composer);
+   panel.append(entries,form);shell.append(actions,panel);side.replaceChildren(author,shell);
+   side.hidden=false;
+   const bounds=element=>element.getBoundingClientRect();
+   const root=bounds(side),head=bounds(author),row=bounds(actions),
+    list=bounds(entries),footer=bounds(form),pic=bounds(authorAvatar),
+    inputBox=bounds(input);
+   const results={
+    headerHeight:head.height,actionHeight:row.height,formHeight:footer.height,
+    avatarWidth:pic.width,avatarHeight:pic.height,
+    inputHeight:inputBox.height,
+    headToActions:row.top-head.bottom,
+    actionsToComments:list.top-row.bottom,
+    commentsToForm:footer.top-list.bottom,
+    formToBottom:root.bottom-footer.bottom,
+    panelToViewport:innerWidth-root.right,
+    emptyCenterOffset:Math.abs((bounds(empty).top+bounds(empty).bottom)/2-
+     (list.top+list.bottom)/2)
+   };
+   side.replaceChildren();side.hidden=initiallyHidden;
+   return results;
+  });
+  assert.ok(Math.abs(postSidebar.headerHeight-65)<=2&&
+   Math.abs(postSidebar.actionHeight-50)<=2&&
+   Math.abs(postSidebar.formHeight-63)<=3&&
+   Math.abs(postSidebar.avatarWidth-40)<=1&&
+   Math.abs(postSidebar.avatarHeight-40)<=1&&
+   Math.abs(postSidebar.inputHeight-38)<=2,
+   "Fullscreen post panel sections must match the original avatar viewer sizing: "+JSON.stringify(postSidebar));
+  assert.ok(Math.abs(postSidebar.headToActions)<=2&&
+   Math.abs(postSidebar.actionsToComments)<=2&&
+   Math.abs(postSidebar.commentsToForm)<=2&&
+   Math.abs(postSidebar.formToBottom)<=2&&
+   Math.abs(postSidebar.panelToViewport)<=2&&
+   postSidebar.emptyCenterOffset<=3,
+   "Fullscreen photo panel must have flush aligned sections, centered empty comments and no right-side gap: "+JSON.stringify(postSidebar));
+
   await feedProbe.keyboard.press("Escape");
   const removed=await feedProbe.evaluate(async()=>{
    const {client,item,calls}=window.__vatraWebpFixture;
