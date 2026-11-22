@@ -73,6 +73,7 @@ assert.ok(
 );
 assert.ok(
  postCss.includes('.vatra-post-comments-toggle-001{display:none!important}')&&
+ postCss.includes('.vatra-post-shares-count-001{display:none!important}')&&
  postCss.includes('.vatra-post-comment-attach-001{display:none!important}')&&
  postCss.includes('.vatra-post-comment-send-001:disabled{display:none!important}')&&
  postCss.includes('.ui-vatra-post-media-more-toggle-001::after')&&
