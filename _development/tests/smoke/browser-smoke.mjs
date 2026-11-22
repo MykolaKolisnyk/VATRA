@@ -4715,8 +4715,12 @@ try{
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
   const initialCover=await profilePage.locator("#profile-cover-photo").getAttribute("src");
   const coverFixture=await profilePage.evaluate(()=>{const c=document.createElement("canvas");c.width=960;c.height=640;const ctx=c.getContext("2d");ctx.fillStyle="#927fe4";ctx.fillRect(0,0,960,640);ctx.fillStyle="#fff";ctx.fillRect(0,240,960,160);return c.toDataURL("image/png").split(",")[1];});
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-editor.js"]').count(),0,
+   "Opening a profile must not preload the cover crop editor");
   await profilePage.locator("#profile-cover-file").setInputFiles({name:"cover-preview.png",mimeType:"image/png",buffer:Buffer.from(coverFixture,"base64")});
   await profilePage.locator("#profile-cover-edit-dialog").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-editor.js"]').count(),1,
+   "Choosing a new cover must load the cover crop editor once");
   assert.equal(await profilePage.locator("#profile-cover-crop-panel").isVisible(),true);
   await profilePage.locator("#profile-cover-crop-zoom").evaluate(el=>{el.value="1.5";el.dispatchEvent(new Event("input",{bubbles:true}));});
   await profilePage.locator("#profile-cover-edit-step").click();
