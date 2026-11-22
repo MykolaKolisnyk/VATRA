@@ -95,7 +95,8 @@ self.addEventListener("fetch",event=>{
     return fresh;
    }catch(_){return Response.error();}
   }
-  const translation=staticAsset&&/^\\/assets\\/i18n\\/(?:uk|en)\\.json$/.test(url.pathname.slice(ROOT.length-1));
+  const translation=staticAsset&&(url.pathname===ROOT+"assets/i18n/uk.json"||
+   url.pathname===ROOT+"assets/i18n/en.json");
   if(translation){
    const saved=await cache.match(request);
    if(saved){
