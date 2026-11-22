@@ -499,6 +499,12 @@
     return item;
    });
   }
+  function comparePhotos(a,b){
+   const pinnedA=a.pinned_at?Date.parse(a.pinned_at):0;
+   const pinnedB=b.pinned_at?Date.parse(b.pinned_at):0;
+   return pinnedB-pinnedA||Date.parse(b.created_at)-Date.parse(a.created_at)||
+    String(b.id).localeCompare(String(a.id));
+  }
   function makePhotoTile(photo,album){
    const wrap=make("div","ui-vatra-album-photo-card-001");
    const tile=button("vatra-album-photo-tile-001","");
@@ -649,7 +655,7 @@
    }
    head.append(back,titleBox,actions);albumPane.append(head);
    const grid=make("div","ui-vatra-album-photos-grid-001");
-   const photos=state.photoAlbumId===album.id?state.photos:[];
+   const photos=state.photoAlbumId===album.id?[...state.photos].sort(comparePhotos):[];
    if(!photos.length){
     const blank=make("div","ui-vatra-album-photos-empty-001");
     blank.append(svg("ui-vatra-albums-empty-image-001","image"),
@@ -728,7 +734,7 @@
     featured.append(avatarGroup);
    }
    const selected=state.albums.filter(a=>a.show_in_photos);
-   const photos=state.previews.filter(p=>selected.some(a=>a.id===p.album_id));
+   const photos=state.previews.filter(p=>selected.some(a=>a.id===p.album_id)).sort(comparePhotos);
    if(!photos.length)return;
    const head=make("div","ui-vatra-albums-featured-head-001");
    head.append(make("h3","vatra-albums-section-heading-001",t("Фотографії користувача й альбомів","User and album photos")));
