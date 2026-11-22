@@ -540,14 +540,18 @@ function openFullMedia(url,kind,container){
   const postCard=container?.closest(".feed-post-card");
   const postId=container?.dataset.postId||postCard?.dataset.postId;
   const postKind=container?.dataset.postKind||postCard?.dataset.postKind;
-  const clubId=container?.dataset.clubId||postCard?.dataset.clubId;
+  const clubFromPage=location.pathname.match(/(?:^|\/)club([1-9][0-9]*)(?:\/|$)/)?.[1];
+  const clubFromLink=(container?.querySelector('a[href*="club"]')?.getAttribute("href")||
+   postCard?.querySelector('a[href*="club"]')?.getAttribute("href")||"").match(/(?:^|\/)club([1-9][0-9]*)(?:[?\/]|$)/)?.[1];
+  const clubId=container?.dataset.clubId||postCard?.dataset.clubId||clubFromPage||clubFromLink;
+  const groupPost=postKind==="group"||!!clubFromPage;
+  const validClub=/^[1-9][0-9]*$/.test(String(clubId||""));
   const base=location.pathname.startsWith("/VATRA/")?new URL("/VATRA/",location.origin):new URL("/",location.origin);
   const validPost=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(postId||""));
   mediaFooterDownload.hidden=kind!=="image";
-  mediaFooterOpenPost.hidden=!validPost;
-  if(validPost){
-   const path=postKind==="group"&&/^[1-9][0-9]*$/.test(String(clubId||""))?
-    "club"+clubId+"?post="+encodeURIComponent(postId):
+  mediaFooterOpenPost.hidden=!validPost||(groupPost&&!validClub);
+  if(validPost&&(!groupPost||validClub)){
+   const path=groupPost?"club"+clubId+"?post="+encodeURIComponent(postId):
     "feed?post="+encodeURIComponent(postId);
    mediaFooterOpenPost.dataset.href=new URL(path,base).href;
   }
