@@ -304,7 +304,7 @@
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
-  state={signedURLs:new Map(),version:0};
+  state={signedURLs:new Map(),bulkPending:new Map(),version:0};
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
@@ -314,6 +314,7 @@
     if(event==="INITIAL_SESSION")return;
     state.version++;
     state.signedURLs.clear();
+    state.bulkPending.clear();
    });
   }
   return state;
@@ -342,18 +343,28 @@
   await Promise.allSettled([...grouped].map(async([kind,pathSet])=>{
    const paths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
    if(typeof bucket.createSignedUrls!=="function")return;
-   const {data,error}=await bucket.createSignedUrls(paths,ttl);
-   if(error||!Array.isArray(data)||state.version!==version)return;
-   for(let i=0;i<paths.length;i++){
-    const item=data[i];
-    if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
-    try{
-     const url=new URL(item.signedUrl,location.origin);
-     if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
-     signedURLs.set(ttl+":"+kind+":"+paths[i],{
-      expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)
-     });
-    }catch(_){}
+   const pendingKey=JSON.stringify([ttl,kind,paths.slice().sort()]);
+   let pending=state.bulkPending.get(pendingKey);
+   if(!pending){
+    pending=(async()=>{
+     const {data,error}=await bucket.createSignedUrls(paths,ttl);
+     if(error||!Array.isArray(data)||state.version!==version)return;
+     for(let i=0;i<paths.length;i++){
+      const item=data[i];
+      if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
+      try{
+       const url=new URL(item.signedUrl,location.origin);
+       if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
+       signedURLs.set(ttl+":"+kind+":"+paths[i],{
+        expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)
+       });
+      }catch(_){}
+     }
+    })();
+    state.bulkPending.set(pendingKey,pending);
+   }
+   try{await pending;}finally{
+    if(state.bulkPending.get(pendingKey)===pending)state.bulkPending.delete(pendingKey);
    }
   }));
   trimSignedCache(signedURLs);
