@@ -847,7 +847,7 @@ function openFullMedia(url,kind,container){
   author.className="feed-post-author ui-vatra-photo-source-author-001";
   const display=document.createElement("span");
   display.className="feed-post-name vatra-photo-source-name-001";
-  display.textContent=tr("Публікація користувача","Member post");
+  display.textContent=String(document.querySelector("#profile-heading")?.textContent||"").trim()||"VATRA";
   author.append(display);header.append(author);host.append(header);
   const priorDialogs=new Set(document.querySelectorAll("dialog.vatra-post-share-dialog"));
   document.body.append(host);
