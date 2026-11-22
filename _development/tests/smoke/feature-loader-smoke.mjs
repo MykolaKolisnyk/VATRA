@@ -26,8 +26,10 @@ assert.ok(profile.includes('setupLazyProfileAlbums(client,ownId,targetId,user.id
 assert.ok(profile.includes('VATRA_FEATURES.load("story")')&&
  feed.includes('VATRA_FEATURES.load("story")')&&
  profile.includes('VATRA_FEATURES.load("composer")')&&
- feed.includes('VATRA_FEATURES.load("composer")'),
- "Both authenticated routes must load story and composer only on demand");
+ feed.includes('VATRA_FEATURES.load("composer")')&&
+ profile.includes('q("#profile-compose-media")?.click()')&&
+ feed.includes('q("#feed-compose-media")?.click()'),
+ "Both authenticated routes must load story and composer only on demand, while quick-media file pickers retain user activation");
 function fakeBrowser(failFirstStyle=false){
  const window={},requests=[];let rejectOnce=failFirstStyle;
  const document={

@@ -1621,8 +1621,9 @@ function bindPostComposer(client,user,ownId){
    return false;
   }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
  };
- q("#profile-quick-media")?.addEventListener("click",async()=>{
-  if(await openComposer())q("#profile-compose-media-choose")?.click();
+ q("#profile-quick-media")?.addEventListener("click",()=>{
+  void openComposer();
+  q("#profile-compose-media")?.click();
  });
  trigger.addEventListener("click",()=>void openComposer());
  cancel.addEventListener("click",()=>{if(!publishing)dialog.close();});

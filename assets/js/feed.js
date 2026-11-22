@@ -704,8 +704,9 @@
    }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
   };
   q("#feed-compose-open").addEventListener("click",()=>void open());
-  q("#feed-quick-media")?.addEventListener("click",async()=>{
-   if(await open())q("#feed-compose-media-choose")?.click();
+  q("#feed-quick-media")?.addEventListener("click",()=>{
+   void open();
+   q("#feed-compose-media")?.click();
   });
   q("#feed-compose-cancel").addEventListener("click",()=>dialog.close());
   text.addEventListener("input",()=>{counter.textContent=Array.from(text.value).length+" / 2000";});
