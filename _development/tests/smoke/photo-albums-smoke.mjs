@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext,Script} from "node:vm";
 
-const [script,css,html,profile,sql,indexes,redisPolicy]=await Promise.all([
+const [script,css,html,profile,sql,indexes,summarySql,redisPolicy]=await Promise.all([
  "assets/js/photo-albums.js","assets/css/photo-albums.css","profile.html",
  "assets/js/profile.js","_development/supabase/migrations/20261122122000_photo_albums_private_storage.sql",
  "_development/supabase/migrations/20261122123500_album_foreign_key_indexes.sql",
+ "_development/supabase/migrations/20261122134500_photo_album_summary_view.sql",
  "_development/docs/redis-cache-policy.md"
 ].map(path=>readFile(path,"utf8")));
 assert.doesNotThrow(()=>new Script(script),"Album script must parse as JavaScript");
@@ -56,6 +57,28 @@ assert.ok(indexes.includes("album_photos_owner_vatra_id_idx")&&
  indexes.includes("photo_album_comments_author_id_idx")&&
  indexes.includes("photo_album_comments_author_vatra_id_idx"),
  "New album foreign keys must be indexed"
+);
+assert.ok(
+ summarySql.includes("security_invoker = true")&&
+ summarySql.includes("revoke all on public.photo_album_summaries from public, anon")&&
+ summarySql.includes("grant select on public.photo_album_summaries to authenticated")&&
+ summarySql.includes("where p.album_id=a.id order by p.created_at desc")&&
+ summarySql.includes("count(*)::integer"),
+ "Album summary must obey viewer RLS and return indexed covers with exact counts"
+);
+assert.ok(
+ script.includes('client.from("photo_album_summaries")')&&
+ script.includes('.limit(FEATURED_LIMIT)')&&
+ script.includes("const PAGE_SIZE=36,FEATURED_LIMIT=18")&&
+ script.includes(".range(offset,offset+PAGE_SIZE)")&&
+ script.includes("state.photoHasMore")&&
+ script.includes("state.photosBusy")&&
+ script.includes("new IntersectionObserver(entries=>")&&
+ script.includes("pendingSignatures.has(path)")&&
+ script.includes('client.auth?.onAuthStateChange?.(event=>')&&
+ !script.includes(".limit(1000)")&&
+ css.includes(".vatra-albums-more-photos-001{"),
+ "Album photos must be bounded, progressively paged, lazily signed and invalidated after auth"
 );
 assert.ok(
  css.includes("body.profile-page .ui-vatra-albums-grid-001{")&&
