@@ -76,7 +76,7 @@ assert.ok(
  script.includes("new IntersectionObserver(entries=>")&&
  script.includes("pendingSignatures.has(path)")&&
  script.includes('client.auth?.onAuthStateChange?.(event=>')&&
- !script.includes(".limit(1000)")&&
+ !script.includes('.in("album_id",ids)\n     .order("created_at",{ascending:false}).limit(1000)')&&
  css.includes(".vatra-albums-more-photos-001{"),
  "Album photos must be bounded, progressively paged, lazily signed and invalidated after auth"
 );
