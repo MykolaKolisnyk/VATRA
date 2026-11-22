@@ -1,4 +1,4 @@
-const CACHE="vatra-offline-shell-v80";
+const CACHE="vatra-offline-shell-v81";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
@@ -9,6 +9,7 @@ const ASSETS=[
  ROOT+"assets/css/not-found.css",
  ROOT+"assets/js/not-found.js",
  ROOT+"assets/css/offline.css",
+ ROOT+"assets/vatryk/vatryk_offline.webp",
  ROOT+"assets/js/offline.js",
  ROOT+"assets/css/sign-in.css",
  ROOT+"assets/css/create-account.css",
@@ -23,14 +24,21 @@ const ASSETS=[
  ROOT+"assets/logo/logo_app-icon.svg",
  ROOT+"assets/logo/logo_app-icon.webp",
  ROOT+"assets/vatryk/vatryk_detective.webp",
- ROOT+"assets/vatryk/vatryk_offline.webp",
  ROOT+"assets/fonts/Onest-Variable.ttf"
+];
+const INSTALL_ASSETS=[
+ OFFLINE,
+ ROOT+"assets/css/offline.css",
+ ROOT+"assets/vatryk/vatryk_offline.webp",
+ ROOT+"assets/js/offline.js",
+ ROOT+"assets/css/base.css",
+ ROOT+"assets/logo/logo_symbol.svg"
 ];
 self.addEventListener("install",event=>{
  event.waitUntil((async()=>{
   const cache=await caches.open(CACHE);
   await cache.add(new Request(OFFLINE,{cache:"reload"}));
-  await Promise.allSettled(ASSETS.filter(path=>path!==OFFLINE)
+  await Promise.allSettled(INSTALL_ASSETS.filter(path=>path!==OFFLINE)
    .map(path=>cache.add(new Request(path,{cache:"reload"}))));
   await self.skipWaiting();
  })());
@@ -88,8 +96,20 @@ self.addEventListener("fetch",event=>{
     return fresh;
    }catch(_){return Response.error();}
   }
+  const translation=staticAsset&&(url.pathname===ROOT+"assets/i18n/uk.json"||
+   url.pathname===ROOT+"assets/i18n/en.json");
+  if(translation){
+   const saved=await cache.match(request);
+   if(saved){
+    const refresh=fetch(request).then(fresh=>{
+     if(fresh.ok)return cache.put(request,fresh.clone());
+    }).catch(()=>{});
+    event.waitUntil?.(refresh);
+    return saved;
+   }
+  }
   try{
-   const fresh=await fetch(request,{cache:"no-cache"});
+   const fresh=await fetch(request);
    if(fresh.ok)await cache.put(request,fresh.clone()).catch(()=>{});
    return fresh;
   }catch(_){

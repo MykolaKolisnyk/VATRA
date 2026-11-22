@@ -253,7 +253,7 @@
   });
   const timeout = new AbortController();
   const stop = setTimeout(() => timeout.abort(),7000);
-  const translations = localFile ? Promise.resolve({}) : fetch(ROOT + "assets/i18n/" + current + ".json",{signal:timeout.signal,cache:"no-cache"})
+  const translations = localFile ? Promise.resolve({}) : fetch(ROOT + "assets/i18n/" + current + ".json",{signal:timeout.signal,cache:"default"})
     .then(res => { if (!res.ok) throw new Error("translations unavailable"); return res.json(); })
     .catch(() => ({}))
     .finally(() => clearTimeout(stop));

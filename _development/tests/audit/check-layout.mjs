@@ -398,7 +398,8 @@ for(const filename of [...pages,"communities","club","notifications"]){
  assert.ok(!content.includes("/VATRA/favicon.svg")&&!content.includes('href="favicon.svg"'),
   filename+": must not reference a missing root favicon");
 }
-assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
+assert.ok(sw.includes("Promise.allSettled(INSTALL_ASSETS.filter(")&&
+ sw.includes("const INSTALL_ASSETS=["),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
 assert.ok(!offline.includes('assets/js/errors.js')&&!sw.includes('ROOT+"assets/js/errors.js"'),

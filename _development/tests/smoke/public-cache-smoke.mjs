@@ -6,8 +6,8 @@ import { runInNewContext } from "node:vm";
 const source=await readFile("assets/js/public-name-cache.js","utf8");
 let now=Date.parse("2026-11-14T09:00:00Z");
 class TestDate extends Date {static now(){return now;}}
-function build(){
- const window={};
+function build(edgeEnabled=false){
+ const window={VATRA_NAME_CACHE_EDGE_ENABLED:edgeEnabled};
  runInNewContext(source,{window,Date:TestDate,Number,String,Map,Set,WeakMap,Promise,Error});
  return window.VATRA_PUBLIC_NAMES;
 }
@@ -29,7 +29,7 @@ function userClient(author){
 }
 // Two concurrent overlapping batches should fetch each ID at most once.
 {
- const names=build(),a=userClient("A");
+ const names=build(true),a=userClient("A");
  const [one,two]=await Promise.all([
   names.get(a.client,[1,2,3]),names.get(a.client,[2,3,4])
  ]);
@@ -55,9 +55,34 @@ function userClient(author){
  await names.get(a.client,[1]);
  assert.equal(a.calls.length,4,"Sign-in must refresh the new user's names");
 }
+// In production, until a healthy TLS Redis endpoint is verified, skip the failing Edge hop.
+{
+ const names=build();
+ let edgeCalls=0,directCalls=0;
+ const client={
+  functions:{invoke:async()=>{edgeCalls++;throw Error("Unavailable Redis must not be attempted");}},
+  from:table=>{
+   assert.equal(table,"public_profiles");
+   return {select:columns=>{
+    assert.equal(columns,"vatra_id,display_name");
+    return {in:async(_key,ids)=>{
+     directCalls++;
+     assert.equal(_key,"vatra_id");
+     return {data:ids.map(id=>({vatra_id:Number(id),display_name:"Ім'я "+id})),error:null};
+    }};
+   }};
+  }
+ };
+ const result=await names.get(client,[7,8]);
+ assert.equal(result.data.length,2);
+ assert.equal(edgeCalls,0,"A disabled shared cache must not perform failed Edge requests");
+ assert.equal(directCalls,1,"Batch public profile names into one RLS-scoped query");
+ await names.get(client,[7,8]);
+ assert.equal(directCalls,1,"Repeat reads must use the per-session in-memory cache");
+}
 // Missing IDs are negatively cached only briefly (not forever).
 {
- const names=build(),a=userClient("C");
+ const names=build(true),a=userClient("C");
  assert.equal((await names.get(a.client,[9])).data.length,0);
  assert.equal((await names.get(a.client,[9])).data.length,0);
  assert.equal(a.calls.length,1,"Unavailable public IDs should not generate repeated reads");
@@ -67,7 +92,7 @@ function userClient(author){
 }
 // A session change during an unresolved request must not refill the new cache.
 {
- const names=build();
+ const names=build(true);
  let resolveRequest,handler,reads=0;
  const client={
   auth:{onAuthStateChange(fn){handler=fn;return {data:{subscription:{}}};}},
@@ -88,7 +113,7 @@ function userClient(author){
 }
 // Redis outage uses PostgREST RLS directly, with a cooldown and no failed caches.
 {
- const names=build();
+ const names=build(true);
  let edgeCalls=0,directCalls=0;
  const client={
   functions:{invoke:async()=>{edgeCalls++;return {data:null,error:Error("Redis down")};}},

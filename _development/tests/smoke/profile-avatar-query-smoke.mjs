@@ -13,6 +13,9 @@ const ownStart=profile.indexOf("async function loadOwnHeaderAvatar(client,ownId,
 const ownEnd=profile.indexOf("async function start(){",ownStart);
 assert.ok(ownStart>0&&ownEnd>ownStart,"Find profile header-avatar lookup");
 assert.ok(profile.includes("const ownHeaderMedia=loadOwnHeaderAvatar(client,ownId,user.email);"));
+assert.ok(!profile.includes('const findPublic=async(kind)=>{')&&
+ profile.includes('if(response?.error)response=await request();'),
+ "Missing profile_media rows must not trigger slow Storage LIST or redundant database retries");
 assert.ok(profile.includes("const preloadedMedia=isMine?ownHeaderMedia:"),
  "The own profile must use the header response, not request the same row twice");
 assert.ok(profile.includes("window.VATRA_AVATAR?.invalidatePath?.(client,ownId);"),
