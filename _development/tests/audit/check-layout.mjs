@@ -1798,7 +1798,7 @@ assert.ok(
  !publicRedisEdge.includes("SUPABASE_SECRET_KEYS")&&
  publicRedisEdge.includes('Cache-Control": "no-store"')&&
  (await read("_development/docs/redis-cache-policy.md")).includes("15 seconds")&&
- communityScript.includes("const PUBLIC_DIRECTORY_CACHE_ENABLED=true")&&
+ communityScript.includes("const PUBLIC_DIRECTORY_CACHE_ENABLED=window.VATRA_COMMUNITY_EDGE_ENABLED===true")&&
  communityScript.includes('client.functions.invoke("public-community-directory",{method:"GET"})')&&
  communityScript.includes("if(!data){"),
  "Optional Redis must cache only globally public community data, fail open, and keep secrets server-side");
