@@ -101,12 +101,12 @@ assert.ok(
  "Post and avatar viewers must use the same solid dark image matte, without blurred duplicates or the removed right gutter"
 );
 assert.ok(
- postCss.includes("body.feed-page .ui-vatra-post-media-side-001 .vatra-post-interactions{\\n display:flex;flex:1;flex-direction:column;min-height:0;margin:0;padding:0;border:0")&&
- postCss.includes("body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{\\n display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden;")&&
+ postCss.includes("body.feed-page .ui-vatra-post-media-side-001 .vatra-post-interactions{\n display:flex;flex:1;flex-direction:column;min-height:0;margin:0;padding:0;border:0")&&
+ postCss.includes("body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{\n display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden;")&&
  postCss.includes("min-height:65px;")&&
  postCss.includes(".ui-vatra-post-media-author-001 .feed-post-avatar{")&&
  postCss.includes("flex:0 0 40px;width:40px;height:40px")&&
- postCss.includes(".ui-vatra-post-media-side-001 .vatra-post-action-row{\\n flex:none;gap:8px;margin:0;padding:5px 13px;")&&
+ postCss.includes(".ui-vatra-post-media-side-001 .vatra-post-action-row{\n flex:none;gap:8px;margin:0;padding:5px 13px;")&&
  postCss.includes("min-height:63px;")&&
  postCss.includes("align-items:center!important;gap:8px!important;")&&
  postCss.includes("box-sizing:border-box;height:38px;min-height:38px;max-height:112px")&&
