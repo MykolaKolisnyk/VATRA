@@ -17,7 +17,7 @@ assert.ok(
  postCss.includes("object-fit:contain")&&
  !postCss.includes(".ui-vatra-post-media-viewer-content-001::before")&&
  !postCss.includes("--vatra-post-media-backdrop"),
- "Fullscreen post photos must fit their frame against a solid dark background"
+ "Fullscreen post photos must preserve their full proportions without legacy overlays"
 );
 assert.ok(
  postInteractions.includes("filterRow.remove();note.remove();side.append(shell)")&&
@@ -87,5 +87,18 @@ assert.ok(
  postCss.includes('.ui-vatra-post-expanded-image-001{width:100%;height:100%}')&&
  postCss.includes('object-fit:contain'),
  "Fullscreen post photos must reach the viewer edges without black padding stripes while preserving their proportions"
+);
+assert.ok(
+ postMedia.includes("function setPhotoBackdrop(url,kind)")&&
+ postMedia.includes('mediaDialogContent.classList.toggle("has-photo-backdrop",photo)')&&
+ postMedia.includes('mediaDialogContent.replaceChildren(element);setPhotoBackdrop(url,kind);')&&
+ postMedia.includes('mediaDialogContent.replaceChildren(element,prev,next,counter);setPhotoBackdrop(url,item.media_kind);')&&
+ postMedia.includes('setPhotoBackdrop(null,"video")')&&
+ postCss.includes('.ui-vatra-post-media-viewer-content-001.has-photo-backdrop::before')&&
+ postCss.includes('var(--vatra-post-photo-fill)')&&
+ postCss.includes('filter:blur(36px)')&&
+ postCss.includes('.ui-vatra-post-media-viewer-content-001.has-photo-backdrop>.ui-vatra-post-expanded-image-001')&&
+ postCss.includes('object-fit:contain'),
+ "Post photo viewer must soften hard black letterbox edges, update gallery backgrounds, and preserve images"
 );
 console.log("VATRA media viewer layout checks passed.");
