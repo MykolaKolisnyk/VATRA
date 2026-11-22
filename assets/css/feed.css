@@ -3091,6 +3091,18 @@ body.feed-page .ui-vatra-post-media-footer-001 .vatra-post-owner-panel{
  top:auto;bottom:calc(100% + 9px);right:0;width:260px
 }
 body.feed-page .ui-vatra-post-media-side-001 .vatra-post-interactions{border-top:0;padding-top:0}
+body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{
+ margin:0;padding:0;border:0;gap:0
+}
+body.feed-page .ui-vatra-post-media-footer-001 .ui-vatra-post-owner-dots-001{display:none}
+body.feed-page .ui-vatra-post-media-footer-001 .ui-vatra-post-media-more-toggle-001::after{
+ content:"";display:block;flex:none;width:8px;height:8px;
+ margin:0 3px 4px 2px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;
+ transform:rotate(45deg);transition:transform .17s
+}
+body.feed-page .ui-vatra-post-media-footer-001 .vatra-post-owner-menu[open] .ui-vatra-post-media-more-toggle-001::after{
+ transform:translateY(4px) rotate(225deg)
+}
 body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-list:has(> .vatra-post-comments-empty-001:only-child){
  display:flex;align-items:center;justify-content:center
 }
