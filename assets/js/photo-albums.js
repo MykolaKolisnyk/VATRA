@@ -479,7 +479,7 @@
     else{cover.classList.add("is-empty");cover.append(svg("ui-vatra-albums-placeholder-icon-001","image"));}
     const label=make("span","ui-vatra-albums-card-copy-001");
     label.append(make("strong","vatra-albums-card-title-001",t("Фото профілю","Profile photos")),
-     make("span","vatra-albums-card-count-001",t("Фотографій: ","Photos: ")+(state.avatar?.url?1:0)));
+     make("span","vatra-albums-card-count-001",t("Фотографій: ","Photos: ")+(state.avatarList.length?state.avatarList.length+(state.avatarHasMore?"+":""):(state.avatar?.url?1:0))));
     virtual.append(cover,label);virtual.addEventListener("click",()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
     grid.append(virtual);
     for(const album of state.albums)
@@ -657,7 +657,7 @@
    }catch(_){state.avatarHasMore=false;
     if(!state.avatarList.length&&state.avatar?.url&&state.avatar?.path)
      state.avatarList=[{path:state.avatar.path,url:state.avatar.url}];
-   }finally{state.avatarBusy=false;if(state.tab==="photos")renderFeatured();}
+   }finally{state.avatarBusy=false;if(state.tab==="photos")renderFeatured();else if(state.tab==="albums"&&state.loaded)renderAlbumPane();}
   }
   let albumsLoading=null;
   async function loadAlbums(){
@@ -689,7 +689,7 @@
     if(ticket!==state.rev)return;
     state.loaded=true;
     renderFeatured();
-    if(state.tab==="photos"&&window.VATRA_CAN_VIEW_PROFILE_AVATAR===true)
+    if(window.VATRA_CAN_VIEW_PROFILE_AVATAR===true&&!state.avatarChecked)
      void loadAvatarPage();
     if(state.selected&&state.albums.some(a=>a.id===state.selected)){
      state.photos=[];state.photoAlbumId=state.selected;state.photosBusy=true;
@@ -772,7 +772,7 @@
    state.selected=requested;
    queueMicrotask(()=>{photoTab?.click();switchTab("albums");});
   }
-  window.addEventListener("vatra:profile-media-changed",()=>{if(state.loaded)void loadAlbums();});
+  window.addEventListener("vatra:profile-media-changed",()=>{state.avatarChecked=false;state.avatarList=[];state.avatarOffset=0;if(state.loaded)void loadAlbums();});
  }
  window.VATRA_ALBUMS={mount};
 })();
