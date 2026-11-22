@@ -431,7 +431,6 @@ function appendAudience(container,level,isGroup=false){
    if(likeReady)return Promise.resolve();
    if(likePending)return likePending;
    likePending=(async()=>{
-    // Reuse the viewer-scoped engagement snapshot instead of two extra reads.
     const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);
     const current=snapshotMap.get(kind+":"+post.id);
     if(!current)throw Error("Likes unavailable");
@@ -1129,7 +1128,6 @@ function appendAudience(container,level,isGroup=false){
    try{
 
 
-   // Share the same single-flight RPC as the like fallback; no duplicate counts.
    const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);
    if(!shell.isConnected||ticket!==socialTicket)return;
    const current=snapshotMap.get(kind+":"+post.id);
