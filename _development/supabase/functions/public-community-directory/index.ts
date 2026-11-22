@@ -25,11 +25,8 @@ let redisRetryAt = 0;
 
 function cacheEnabled(): boolean {
   const url = Deno.env.get("REDIS_URL") || "";
-  if (Deno.env.get("REDIS_ENABLED") !== "true" || !url) return false;
-  if (url.startsWith("rediss://")) return true;
-  // The Redis Cloud Free tier lacks TLS. This opt-in is for public test data only.
-  return url.startsWith("redis://") &&
-    Deno.env.get("REDIS_ALLOW_PLAINTEXT_DEV") === "true";
+  return Deno.env.get("REDIS_ENABLED") === "true" &&
+    (url.startsWith("redis://") || url.startsWith("rediss://"));
 }
 
 async function redis() {

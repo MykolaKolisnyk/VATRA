@@ -1789,7 +1789,8 @@ const publicRedisEdge=await read("_development/supabase/functions/public-communi
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
  publicRedisEdge.includes('Deno.env.get("REDIS_URL")')&&
- publicRedisEdge.includes('Deno.env.get("REDIS_ALLOW_PLAINTEXT_DEV") === "true"')&&
+ publicRedisEdge.includes('Deno.env.get("REDIS_ENABLED") === "true"')&&
+ !publicRedisEdge.includes("REDIS_ALLOW_PLAINTEXT_DEV")&&
  publicRedisEdge.includes('url.startsWith("rediss://")')&&
  publicRedisEdge.includes('url.startsWith("redis://")')&&
  publicRedisEdge.includes('const CACHE_KEY = "vatra:public:communities:v2:latest100"')&&
