@@ -21,7 +21,7 @@ for(const asset of ["photo-albums.js?rev=","photo-albums.css?rev=",
  "story-editor.js?rev=","story-editor.css?rev=","post-composer-ui.js","post-composer.css"])
  assert.ok(loader.includes(asset),"Loader must own fingerprinted asset "+asset);
 assert.ok(profile.includes('setupLazyProfileAlbums(client,ownId,targetId,user.id,isMine)')&&
- profile.includes('if(validUUID(album))activate();')&&albums.includes("activatePhotos();"),
+ profile.includes('if(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(album||"")))activate();')&&albums.includes("activatePhotos();"),
  "Lazy albums must initialize on tab selection and preserve direct album/photo links");
 assert.ok(profile.includes('VATRA_FEATURES.load("story")')&&
  feed.includes('VATRA_FEATURES.load("story")')&&

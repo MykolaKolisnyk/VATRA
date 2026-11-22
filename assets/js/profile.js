@@ -1574,7 +1574,7 @@ function setupLazyProfileAlbums(client,ownId,targetId,userId,isMine){
  tab.addEventListener("click",onSelection);
  new MutationObserver(onSelection).observe(tab,{attributes:true,attributeFilter:["aria-selected"]});
  const album=new URLSearchParams(location.search).get("album");
- if(validUUID(album))activate();
+ if(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(album||"")))activate();
  else onSelection();
 }
 function bindPostComposer(client,user,ownId){
