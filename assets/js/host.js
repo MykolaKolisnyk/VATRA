@@ -5,6 +5,8 @@
     /^\/VATRA(?:\/|$)/.test(location.pathname);
   window.VATRA_HOST_ALLOWED = allowed;
   if (allowed) {
+    if(window.VATRA_NAME_CACHE_EDGE_ENABLED!==false)window.VATRA_NAME_CACHE_EDGE_ENABLED=true;
+    if(window.VATRA_COMMUNITY_EDGE_ENABLED!==false)window.VATRA_COMMUNITY_EDGE_ENABLED=true;
     const root=new URL("/VATRA/",location.origin);
     const path=location.pathname;
     const maintenancePage=/^\/VATRA\/maintenance(?:\.html)?$/.test(path);

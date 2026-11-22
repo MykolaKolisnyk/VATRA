@@ -47,15 +47,20 @@ low-latency access from Supabase Frankfurt. Do not copy plaintext connection
 credentials into public GitHub Pages files or use Redis for private data.
 
 1. In your Redis provider, obtain the **host, port and password**.
-2. In **VATRA-DE → Supabase → Edge Functions → Secrets** for project
-   `cxrcycxrlkufozomsxcs`, configure the following **only when validated**:
-   - `REDIS_URL=rediss://default:<URL_ENCODED_PASSWORD>@<HOST>:<PORT>`
+2. In **VATRA → Supabase → Edge Functions → Secrets** for project
+   `cxrcycxrlkufozomsxcs`, configure for the current **Free-tier development**
+   database (Redis Cloud VATRA, Frankfurt):
+   - `REDIS_URL=redis://default:<URL_ENCODED_PASSWORD>@<HOST>:<PORT>`
    - `REDIS_ENABLED=true`
-   - `REDIS_ALLOW_PLAINTEXT_DEV=false`
-   If the provider offers only plaintext `redis://`, do not use it for
-   production without a separate security review. Keep Redis disabled instead.
-3. Never commit these secrets, expose them in frontend JavaScript, or share a
-   Redis password in a chat. With plaintext Redis, use **public data only**.
+   - `REDIS_ALLOW_PLAINTEXT_DEV=true`
+   The password is the technical Redis database credential, not a VATRA user password.
+   This is an explicit temporary plaintext development configuration: the Redis AUTH
+   exchange and public cache traffic are unencrypted on the network. Before public
+   launch, upgrade to TLS and change to `rediss://` and
+   `REDIS_ALLOW_PLAINTEXT_DEV=false`.
+3. Never commit Redis credentials or expose them in frontend JavaScript. Configure
+   the URL directly in Supabase Edge Function Secrets. With plaintext Redis, cache
+   **only public data**, and rotate the Redis password before public launch.
 4. Deploy `public-community-directory` and `public-profile-names` with
    JWT verification enabled (default). Test misses, hits, 15/120-second expiry,
    unavailable Redis, and any Cache-Control headers.
@@ -83,8 +88,28 @@ extra network and cold-start overhead. Measure before enabling. Avoid cache
 pollution, per-search-term keys or permanent entries.
 
 
-## Production routing update (2026-11-22)
+## Free-tier development routing (2026-11-22)
 
-The public community Edge endpoint is **opt-in**, not required for opening a directory or a community. Until TLS Redis credentials and `X-VATRA-Cache: hit/miss` are verified with latency measurements, the default browser path reads public community data directly from Supabase PostgREST under RLS. To test the Edge path, set `window.VATRA_COMMUNITY_EDGE_ENABLED=true` before the communities/club script loads. This is a non-secret feature flag only; it does not itself activate Redis.
+The owner explicitly requested Redis Cloud Free for pre-release testing.
+On the official GitHub Pages host `assets/js/host.js` now enables
+`VATRA_NAME_CACHE_EDGE_ENABLED` and `VATRA_COMMUNITY_EDGE_ENABLED`
+by default, unless explicitly set to `false` before host.js loads.
+These are public non-secret switches; Redis only operates when the three
+Supabase Edge Function secrets above are present and the Redis TCP connection works.
 
-Private albums use an RLS-invoker summary view, bounded 36-item photo pages, short-lived per-viewer signed URLs and an 18-item preview. They are **not** stored in Redis. The existing public name Edge endpoint likewise remains opt-in.
+`public-profile-names` uses an authenticated JWT and a five-minute
+client-side cooldown after failed Edge requests; the direct RLS query
+remains the fallback. Communities use anonymous RLS-readable metadata.
+The Redis code has already been deployed to both Edge Functions.
+Confirm live `X-VATRA-Cache: miss` followed by `hit` before claiming
+the Redis Cloud database is connected.
+
+Do not place likes, per-viewer flags, private comments, post bodies,
+private albums, signed URLs, friendships, messages or user secrets in
+shared plaintext Redis. Existing viewer-scoped caches remain in browser
+memory. No Redis secret is stored in the repository.
+
+During the later paid-plan migration, set a TLS `rediss://` URL and
+`REDIS_ALLOW_PLAINTEXT_DEV=false`, rotate any credential used without
+encryption, and retest authenticated/direct fallback, expiration and hit
+rates before public launch.
