@@ -24,12 +24,12 @@ const ASSETS=[
  ROOT+"assets/logo/logo_app-icon.svg",
  ROOT+"assets/logo/logo_app-icon.webp",
  ROOT+"assets/vatryk/vatryk_detective.webp",
- ROOT+"assets/vatryk/vatryk_offline.webp",
  ROOT+"assets/fonts/Onest-Variable.ttf"
 ];
 const INSTALL_ASSETS=[
  OFFLINE,
  ROOT+"assets/css/offline.css",
+ ROOT+"assets/vatryk/vatryk_offline.webp",
  ROOT+"assets/js/offline.js",
  ROOT+"assets/css/base.css",
  ROOT+"assets/logo/logo_symbol.svg"
