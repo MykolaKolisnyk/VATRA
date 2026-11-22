@@ -524,10 +524,15 @@ body.feed-page .vatra-post-gallery-counter-001{
  max-width:100%;max-height:100dvh;
  padding:16px 18px 40px;box-sizing:border-box;overflow:hidden;flex:1 1 0
 }
-.vatra-post-media-close-001{
- position:absolute;z-index:2;top:12px;left:15px;display:grid;place-items:center;
- width:42px;height:42px;border:1px solid #596274;border-radius:50%;
- background:#182132;color:#fff;font:500 28px/1 "Onest",system-ui;cursor:pointer
+body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close){
+ position:absolute;z-index:5;top:18px;left:18px;display:grid;place-items:center;
+ box-sizing:border-box;width:42px;height:42px;padding:0;
+ border:1px solid #596274;border-radius:50%;background:#182132;
+ color:#fff;font:500 28px/1 "Onest",system-ui;cursor:pointer
+}
+body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close):hover{background:#3e4655}
+body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close):focus-visible{
+ outline:2px solid #9bb9ff;outline-offset:2px
 }
 .ui-vatra-post-media-viewer-content-001{
  position:relative;display:flex;align-items:center;justify-content:center;
@@ -1306,7 +1311,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-post-card:hover{
 body.feed-page:not(.profile-page):not(.community-page) .feed-post-body{
  margin:10px 0 1px;line-height:1.55;font-size:14px
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-post-avatar{
+body.feed-page:not(.profile-page):not(.community-page) .feed-post-card .feed-post-avatar{
  width:39px;height:39px
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-quick-compose{
@@ -3013,7 +3018,7 @@ body.feed-page :is(.ui-vatra-post-media-author-001,.profile-media-viewer .profil
  height:70px;min-height:70px;padding:12px 16px;border-bottom:1px solid #e7edf6;background:#fff
 }
 body.feed-page .ui-vatra-post-media-author-001 .feed-post-avatar{
- box-sizing:border-box;flex:0 0 40px;width:40px;height:40px
+ box-sizing:border-box;flex:0 0 40px;width:40px;height:40px;margin:0
 }
 body.feed-page .ui-vatra-post-media-author-001 .feed-post-author{
  flex:1;min-width:0;gap:3px
