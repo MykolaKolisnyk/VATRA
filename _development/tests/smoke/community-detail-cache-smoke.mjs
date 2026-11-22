@@ -8,7 +8,7 @@ const edge=await readFile("_development/supabase/functions/public-community-dire
 const begin=source.indexOf("async function fetchPublicClub(client,number){");
 const end=source.indexOf("async function openClub(",begin);
 assert.ok(begin>=0&&end>begin,"Find the standalone public-club lookup");
-const context={Number,Object};
+const context={Number,Object,window:{VATRA_COMMUNITY_EDGE_ENABLED:true}};
 runInNewContext(source.slice(begin,end)+"\nglobalThis.testLookup=fetchPublicClub;",context);
 const lookup=context.testLookup;
 const club={club_id:17,name:"Відкрита спільнота",description:"Тест",created_at:"2026-11-13T00:00:00Z"};
@@ -64,6 +64,18 @@ function direct(result){
  const answer=await lookup(client,"9007199254740993");
  assert.equal(invoked,0);
  assert.equal(answer.data,null);
+}
+{
+ context.window.VATRA_COMMUNITY_EDGE_ENABLED=false;
+ let edgeCalls=0,directCalls=0;
+ const client={
+  functions:{invoke:async()=>{edgeCalls++;throw Error("Should skip unverified Edge cache");}},
+  from:()=>{directCalls++;return direct({data:club,error:null}).from("communities");}
+ };
+ assert.equal((await lookup(client,"17")).data.club_id,17);
+ assert.equal(edgeCalls,0,"Skip optional Redis endpoint when not verified");
+ assert.equal(directCalls,1,"Use one direct RLS read on default path");
+ context.window.VATRA_COMMUNITY_EDGE_ENABLED=true;
 }
 assert.ok(edge.includes('request.method !== "GET" && request.method !== "POST"')&&
  edge.includes('Object.keys(record).length !== 1')&&
