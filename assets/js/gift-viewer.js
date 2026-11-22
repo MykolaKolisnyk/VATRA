@@ -1,19 +1,7 @@
 
 (()=>{
 "use strict";
-const root=new URL("../../",document.currentScript?.src||"assets/js/gift-viewer.js");
-const catalog=[
- {code:"first_flame",image:"gift_first-flame.webp",
-  uk:"Перший вогник",en:"First flame",
-  descriptionUk:"Перший вогник VATRA — знак початку вашої історії. Його отримує кожен, хто приєднався до VATRA.",
-  descriptionEn:"Your first VATRA flame marks the beginning of your story. Every new member receives one.",
-  eventUk:"Привітальний подарунок",eventEn:"Welcome gift"},
- {code:"beta_member",image:"gift_beta-member.webp",exclusive:true,
-  uk:"БЕТА-учасник",en:"Beta participant",
-  descriptionUk:"Пам’ятний подарунок кожному, хто зареєструвався під час БЕТА-тестування VATRA. Залишається у профілі назавжди.",
-  descriptionEn:"A commemorative gift for everyone who registered during VATRA beta testing. It remains in your profile forever.",
-  eventUk:"За участь у БЕТА-тестуванні",eventEn:"For participating in the beta"}
-];
+if(window.VATRA_HOST_ALLOWED===false)return;
 const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
 const lang=(uk,english)=>{
  const locale=language();
@@ -22,8 +10,6 @@ const lang=(uk,english)=>{
  const translated=window.VATRA_LANGUAGE?.translate?.(uk);
  return typeof translated==="string"&&translated!==uk?translated:uk;
 };
-const byCode=code=>catalog.find(g=>g.code===code)||null;
-const fileUrl=gift=>gift?new URL("assets/gifts/"+gift.image,root).href:null;
 const make=(tag,cls,text)=>{
  const el=document.createElement(tag);el.className=cls;
  if(text!==undefined)el.textContent=text;
@@ -95,12 +81,12 @@ function setup(){
  document.body.append(dialog);
 }
 function open(code){
- const gift=byCode(code);
+ const gift=window.VATRA_GIFTS_CATALOG?.byCode(code);
  if(!gift)return false;
  setup();
  lastFocus=document.activeElement;
  heading.textContent=lang(gift.uk,gift.en);
- picture.style.backgroundImage="url("+JSON.stringify(fileUrl(gift))+")";
+ picture.style.backgroundImage="url("+JSON.stringify(window.VATRA_GIFTS_CATALOG.fileUrl(gift))+")";
  populateEmbers();
  eventText.textContent=lang(gift.eventUk,gift.eventEn);
  description.textContent=lang(gift.descriptionUk,gift.descriptionEn);
@@ -109,6 +95,5 @@ function open(code){
  close.focus({preventScroll:true});
  return true;
 }
-window.VATRA_GIFTS_CATALOG={all:catalog,byCode,fileUrl};
 window.VATRA_GIFT_VIEWER={open};
 })();
