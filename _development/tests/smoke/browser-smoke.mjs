@@ -4370,6 +4370,27 @@ try{
    window.__vatraGiftLimitCalls?.includes(3),null,{timeout:12000});
   assert.equal(await profilePage.evaluate(()=>window.__vatraFriendLimitCalls.includes(300)),false,
    "Opening a profile must not fetch 300 friendships without opening the Friends tab");
+
+  // Real browser smoke for VATRA albums: independent album tab and safe owner editor.
+  await profilePage.locator("#profile-tab-photos").click();
+  await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
+  await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
+  assert.ok((await profilePage.locator(".vatra-albums-card-title-001").first().textContent()).trim().length>0,
+   "The profile photo collection must appear as a built-in album");
+  const albumCreate=profilePage.locator(".ui-vatra-albums-controls-001 .vatra-albums-primary-001");
+  assert.equal(await albumCreate.isVisible(),true,"Only profile owners can create photo albums");
+  await albumCreate.click();
+  assert.equal(await profilePage.locator(".ui-vatra-albums-dialog-001").evaluate(el=>el.open),true);
+  assert.equal(await profilePage.locator(".ui-vatra-albums-visibility-select-001 option").count(),3,
+   "Album privacy must support public, friends and private");
+  assert.equal(await profilePage.locator(".ui-vatra-albums-comments-select-001 option").count(),3,
+   "Album discussions must support viewer permissions");
+  await profilePage.locator(".ui-vatra-albums-title-input-001").fill("Моменти VATRA");
+  await profilePage.locator(".ui-vatra-albums-dialog-actions-001 .vatra-albums-secondary-001").click();
+  assert.equal(await profilePage.locator(".ui-vatra-albums-dialog-001").evaluate(el=>el.open),false,
+   "Cancel dismisses the album editor without creating an album");
+  await profilePage.locator("#profile-tab-posts").click();
+
   assert.equal(await profilePage.evaluate(()=>window.__vatraGiftLimitCalls.includes(100)),false,
    "Opening a profile must not fetch 100 gifts without opening the Gifts tab");
   await profilePage.evaluate(()=>window.VATRA_PROFILE_SHOW_FRIENDS?.());
@@ -4955,6 +4976,14 @@ try{
    "A visitor sees no placeholder when another member has not set a status");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
    language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
+
+  await profilePage.locator("#profile-tab-photos").click();
+  await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
+  await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
+  assert.equal(await profilePage.locator(".ui-vatra-albums-controls-001 .vatra-albums-primary-001").isVisible(),false,
+   "A visitor must not see the create-album action on another member's profile");
+  await profilePage.locator("#profile-tab-posts").click();
+
   // Visitor-only regression: the close handler must never reference the
   // owner-only upload state before it exists.
   await profilePage.locator("#profile-avatar-trigger").click();

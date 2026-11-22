@@ -3636,6 +3636,7 @@ async function start(){
   if(!locked){
    setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
    setupProfileGallery(client,targetId);
+   window.VATRA_ALBUMS?.mount({client,targetId,ownId,isMine,userId:user.id});
    setupProfilePostFilters(client,targetId,ownId,user.id);
   }
 
