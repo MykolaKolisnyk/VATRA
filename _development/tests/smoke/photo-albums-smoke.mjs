@@ -104,6 +104,7 @@ assert.ok(
 
 const photoSchema=await readFile("_development/supabase/migrations/20261122140000_photo_per_image_comments_personal_album.sql","utf8");
 const media=await readFile("assets/js/post-media.js","utf8");
+const gallery=await readFile("assets/js/profile-gallery.js","utf8");
 assert.ok(
  script.includes('t("Фотографії","Photos")')&&
  !script.includes('t("Знімки","Photos")')&&
@@ -115,7 +116,7 @@ assert.ok(
  script.includes('commentsList.prepend(pending)')&&
  script.includes('commentsList.prepend(commentRow')===false&&
  script.includes('const PAGE_SIZE=18,FEATURED_LIMIT=12')&&
- profile.includes("openPostPhoto(client,post,item,{ownId,userId})")&&
+ gallery.includes("openPostPhoto(client,post,item,{ownId,userId})")&&
  profile.includes("window.VATRA_OPEN_PROFILE_AVATAR=path=>")&&
  media.includes("openPostPhoto,renderStory"),
  "Source-aware photographs, direct uploads, per-photo interactions and incremental loading must remain intact"
