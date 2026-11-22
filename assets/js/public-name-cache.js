@@ -19,7 +19,8 @@
   return /^[1-9][0-9]{0,15}$/.test(text)&&Number.isSafeInteger(number)?String(number):null;
  };
  const validName=row=>row&&validId(row.vatra_id)&&
-  typeof row.display_name==="string"&&row.display_name.length>0&&row.display_name.length<=160;
+  typeof row.display_name==="string"&&row.display_name.length>0&&row.display_name.length<=160&&
+  (row.verified===undefined||typeof row.verified==="boolean");
  const stateFor=client=>{
   let state=caches.get(client);
   if(state)return state;
@@ -92,7 +93,8 @@
     for(const id of batch){
      const value=found.get(id);
      remember(state,id,value?
-      {vatra_id:Number(id),display_name:value.display_name}:null);
+      {vatra_id:Number(id),display_name:value.display_name,
+       ...(typeof value.verified==="boolean"?{verified:value.verified}:{})}:null);
     }
    });
    for(const id of batch)state.pending.set(id,task);

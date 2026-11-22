@@ -3,10 +3,10 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient as createSupabaseClient } from "npm:@supabase/supabase-js@2.119.0";
 import { createClient as createRedisClient } from "npm:redis@5.0.1";
 
-type PublicName = { vatra_id: number; display_name: string };
+type PublicName = { vatra_id: number; display_name: string; verified: boolean };
 const TTL_SECONDS = 120;
 const MAX_IDS = 48;
-const PREFIX = "vatra:public:profile-name:v1:";
+const PREFIX = "vatra:public:profile-name:v2:";
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -22,7 +22,8 @@ function validRow(value: unknown): value is PublicName {
   if (!value || typeof value !== "object") return false;
   const row = value as Record<string, unknown>;
   return validId(row.vatra_id) && typeof row.display_name === "string" &&
-    row.display_name.length > 0 && row.display_name.length <= 160;
+    row.display_name.length > 0 && row.display_name.length <= 160 &&
+    typeof row.verified === "boolean";
 }
 function cacheAllowed(): boolean {
   const url = Deno.env.get("REDIS_URL") || "";
@@ -114,9 +115,20 @@ Deno.serve(async (request) => {
     const { data, error } = await client.from("public_profiles")
       .select("vatra_id,display_name").in("vatra_id", missing);
     if (error) return reply([], "unavailable", 503);
+    // Verified status is public to authenticated members under RLS.
+    // Never cache viewer permissions, private posts, or blocked content.
+    const { data: badges, error: badgeError } = await client.from("verified_accounts")
+      .select("vatra_id").in("vatra_id", missing);
+    if (badgeError) return reply([], "unavailable", 503);
+    const verified = new Set((badges || []).filter(item => validId(item.vatra_id))
+      .map(item => item.vatra_id));
     const returned = new Set(missing);
-    const fresh = (data || []).filter(validRow)
-      .filter(item => returned.has(item.vatra_id));
+    const fresh = (data || []).filter(item => validId(item.vatra_id) &&
+      typeof item.display_name === "string" &&
+      item.display_name.length > 0 && item.display_name.length <= 160)
+      .filter(item => returned.has(item.vatra_id))
+      .map(item => ({ vatra_id: item.vatra_id, display_name: item.display_name,
+        verified: verified.has(item.vatra_id) }));
     for (const row of fresh) entries.set(row.vatra_id, row);
     if (fresh.length) {
       try {

@@ -20,7 +20,7 @@ function userClient(author){
    const ids=opts.body.ids;
    calls.push(ids);
    return {data:{data:ids.filter(id=>id!==9).map(id=>({
-    vatra_id:id,display_name:author+" "+id
+    vatra_id:id,display_name:author+" "+id,verified:id%2===0
    }))},error:null};
   }},
   from:()=>{throw Error("Edge cache must avoid unnecessary direct SQL");}
@@ -36,6 +36,8 @@ function userClient(author){
  assert.equal(one.error,null);
  assert.equal(two.error,null);
  assert.equal(one.data.length,3);
+ assert.equal(one.data[0].verified,false);
+ assert.equal(one.data[1].verified,true);
  assert.equal(two.data.length,3);
  assert.equal(a.calls.length,2,"Only first batch and truly new ID should query Edge");
  assert.deepEqual(a.calls.flat().slice().sort((x,y)=>x-y),[1,2,3,4]);
@@ -151,5 +153,16 @@ function userClient(author){
  assert.ok((await names.get(client,[18])).error);
  assert.ok((await names.get(client,[18])).error);
  assert.equal(calls,2,"Failure must not become a cache miss");
+}
+{
+ const {readFileSync}=await import("node:fs");
+ const edge=readFileSync("_development/supabase/functions/public-profile-names/index.ts","utf8");
+ const verified=readFileSync("assets/js/verified.js","utf8");
+ assert.ok(edge.includes('const PREFIX = "vatra:public:profile-name:v2:"')&&
+  edge.includes('client.from("verified_accounts")')&&
+  edge.includes('typeof row.verified === "boolean"'));
+ assert.ok(!edge.includes("service_role")&&!edge.includes("SUPABASE_SECRET_KEYS"));
+ assert.ok(verified.includes("window.VATRA_PUBLIC_NAMES.get(client,batch)")&&
+  verified.includes('client.from("verified_accounts")'));
 }
 console.log("VATRA public-name cache: overlapping singleflight, viewer isolation, auth races, negative TTL, Redis fallback passed.");

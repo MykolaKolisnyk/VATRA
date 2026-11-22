@@ -74,6 +74,10 @@ jobs:
           node _development/tests/audit/check-seo.mjs
           node _development/tests/audit/check-layout.mjs
           node _development/tests/audit/css-cascade-audit.mjs
+      - name: Check public Redis identity/verified cache
+        run: node _development/tests/smoke/public-cache-smoke.mjs
+      - name: Check shared public announcement Redis cache
+        run: node _development/tests/smoke/announcement-cache-smoke.mjs
       - name: Check shared signed media caching
         run: node _development/tests/smoke/media-signed-cache-smoke.mjs
       - name: Check adaptive image preview generation and safe fallback

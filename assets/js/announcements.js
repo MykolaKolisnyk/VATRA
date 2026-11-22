@@ -2,6 +2,19 @@ let generation=0;
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const english=()=>document.documentElement.lang==="en";
 export function stop(){generation++;}
+let announcementRetryAt=0;
+async function activeAnnouncements(client,now){
+ if(window.VATRA_ANNOUNCEMENT_EDGE_ENABLED===true&&Date.now()>=announcementRetryAt&&client.functions?.invoke){
+  try{
+   const {data,error}=await client.functions.invoke("public-announcements",{method:"GET"});
+   if(!error&&Array.isArray(data?.data))return {data:data.data,error:null};
+  }catch(_){}
+  announcementRetryAt=Date.now()+300000;
+ }
+ return client.from("announcements")
+  .select("id,title_uk,title_en,body_uk,body_en,target_path,active,starts_at,ends_at,created_at")
+  .eq("active",true).lte("starts_at",now).order("created_at",{ascending:false}).limit(15);
+}
 export async function start(client,accountId,isCurrent){
  const ticket=++generation;
  const valid=()=>ticket===generation&&isCurrent()&&document.visibilityState!=="prerender";
@@ -9,9 +22,7 @@ export async function start(client,accountId,isCurrent){
  if(!valid()||!client?.from)return;
  try{
   const now=new Date().toISOString();
-  const {data:items,error}=await client.from("announcements")
-   .select("id,title_uk,title_en,body_uk,body_en,target_path,active,starts_at,ends_at,created_at")
-   .eq("active",true).lte("starts_at",now).order("created_at",{ascending:false}).limit(15);
+  const {data:items,error}=await activeAnnouncements(client,now);
   if(error||!Array.isArray(items)||!valid())return;
   const relevant=items.filter(item=>!item.ends_at||item.ends_at>now);
   if(!relevant.length)return;
