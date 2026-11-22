@@ -435,13 +435,7 @@
  }
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null;
-function setPhotoBackdrop(url,kind){
-  const photo=kind==="image"&&typeof url==="string"&&url.length>0;
-  mediaDialogContent.classList.toggle("has-photo-backdrop",photo);
-  if(photo)mediaDialogContent.style.setProperty("--vatra-post-photo-fill","url("+JSON.stringify(url)+")");
-  else mediaDialogContent.style.removeProperty("--vatra-post-photo-fill");
- }
- function openFullMedia(url,kind,container){
+function openFullMedia(url,kind,container){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
    mediaDialog.id="vatra-post-media-viewer";
@@ -491,7 +485,7 @@ function setPhotoBackdrop(url,kind){
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
-    mediaDialogContent.replaceChildren();setPhotoBackdrop(null,"video");restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();mediaFooterDelete.hidden=true;
+    mediaDialogContent.replaceChildren();restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();mediaFooterDelete.hidden=true;
    });
    document.body.append(mediaDialog);
   }
@@ -499,7 +493,7 @@ function setPhotoBackdrop(url,kind){
   element.className=kind==="video"?"ui-vatra-post-expanded-video-001":"ui-vatra-post-expanded-image-001";
   if(kind==="video"){element.controls=true;element.autoplay=true;element.playsInline=true;}
   else element.alt=tr("Фото публікації","Post photo");
-  element.src=url;mediaDialogContent.replaceChildren(element);setPhotoBackdrop(url,kind);
+  element.src=url;mediaDialogContent.replaceChildren(element);
   restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const head=container?.querySelector(".feed-post-header"),identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
   const postCard=container?.closest(".feed-post-card");
@@ -711,7 +705,7 @@ function setPhotoBackdrop(url,kind){
      next.addEventListener("click",()=>{if(index<media.length-1){index++;void render();}});
      const currentVideo=mediaDialogContent.querySelector("video");
      currentVideo?.pause();
-     mediaDialogContent.replaceChildren(element,prev,next,counter);setPhotoBackdrop(url,item.media_kind);
+     mediaDialogContent.replaceChildren(element,prev,next,counter);
     }catch(_){}
    };
    mediaDialog.addEventListener("keydown",event=>{
