@@ -59,7 +59,7 @@ async function openDirectory(client,ownId,userId){
  try{
 
 
-  const PUBLIC_DIRECTORY_CACHE_ENABLED=true;
+  const PUBLIC_DIRECTORY_CACHE_ENABLED=window.VATRA_COMMUNITY_EDGE_ENABLED===true;
   let data=null;
   if(!term&&PUBLIC_DIRECTORY_CACHE_ENABLED&&client.functions?.invoke){
    try{
