@@ -3275,9 +3275,12 @@ try{
    return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,
     caption:dialog.querySelector(".vatra-post-media-caption-001")?.textContent,
     imageFit:getComputedStyle(photo).objectFit,
+    imageWidth:photo.getBoundingClientRect().width,
+    imageHeight:photo.getBoundingClientRect().height,
+    canvasWidth:canvas.getBoundingClientRect().width,
+    canvasHeight:canvas.getBoundingClientRect().height,
     matte:getComputedStyle(canvas,"::before").content,
-    backdrop:canvas.classList.contains("has-photo-backdrop"),
-    backdropImage:getComputedStyle(canvas,"::before").backgroundImage,
+    background:getComputedStyle(canvas).backgroundColor,
     rootGutter:getComputedStyle(document.documentElement).scrollbarGutter};
   });
   assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&
@@ -3288,11 +3291,12 @@ try{
    "Own post photos must not repeat the owner's name or a decorative separator");
   assert.equal(postFrame.rootGutter,"auto","Root scrollbar gutter must not reserve a vertical stripe beside post photos");
   assert.equal(postFrame.imageFit,"contain","Post photos must preserve original proportions");
-  assert.equal(postFrame.matte,'""',"Post photo background must use the soft image backdrop");
-  assert.equal(postFrame.backdrop,true,"Post images must activate the photo-only backdrop");
-  assert.ok(postFrame.backdropImage.includes("linear-gradient")&&
-   postFrame.backdropImage.includes("url("),
-   "The photo backdrop must use the current original image with a dark overlay");
+  assert.ok(Math.abs(postFrame.imageWidth-postFrame.canvasWidth)<=2&&
+   Math.abs(postFrame.imageHeight-postFrame.canvasHeight)<=2,
+   "Post image must use all available black canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
+  assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
+  assert.equal(postFrame.background,"rgb(17, 20, 25)",
+   "Post photos must use the same solid dark background as avatar photos");
   await feedProbe.keyboard.press("Escape");
   const removed=await feedProbe.evaluate(async()=>{
    const {client,item,calls}=window.__vatraWebpFixture;
