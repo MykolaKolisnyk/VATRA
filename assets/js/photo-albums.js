@@ -348,7 +348,6 @@
     intro.append(make("p","vatra-albums-intro-copy-001",t("Зберігайте важливі миті в окремих колекціях.","Keep memorable moments in their own collections.")));
     albumPane.append(intro);
     const grid=make("div","ui-vatra-albums-grid-001");
-    // The current avatar is a virtual album: it stays in its existing avatar storage and viewer.
     const virtual=button("vatra-albums-card-001","");
     const cover=make("span","ui-vatra-albums-cover-001");
     if(state.avatar?.url){const img=make("img","ui-vatra-albums-cover-image-001");img.src=state.avatar.url;img.alt="";cover.append(img);}
