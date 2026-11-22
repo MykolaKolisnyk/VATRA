@@ -831,5 +831,38 @@ function openFullMedia(url,kind,container){
    observer.observe(slot);
   }
  }
- window.VATRA_POST_MEDIA={bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,renderStory,linkifyHashtags,collapsibleBody,signed};
+ async function openPostPhoto(client,post,item,settings={}){
+  if(!client||!post||item?.media_kind!=="image"||
+   !name(item?.media_path,"image",post.author_vatra_id))return;
+  let src;
+  try{src=await signed(client,"image",item.media_path);}catch(_){return;}
+  const host=document.createElement("article");
+  host.className="feed-post-card ui-vatra-photo-source-context-001";
+  host.dataset.postId=post.id;
+  host.dataset.vatraMediaOwnerId=String(post.author_vatra_id);
+  host.style.cssText="position:fixed;left:-99999px;top:0;visibility:hidden;pointer-events:none";
+  const header=document.createElement("header");
+  header.className="feed-post-header ui-vatra-photo-source-header-001";
+  const author=document.createElement("div");
+  author.className="feed-post-author ui-vatra-photo-source-author-001";
+  const display=document.createElement("span");
+  display.className="feed-post-name vatra-photo-source-name-001";
+  display.textContent=tr("Публікація користувача","Member post");
+  author.append(display);header.append(author);host.append(header);
+  const priorDialogs=new Set(document.querySelectorAll("dialog.vatra-post-share-dialog"));
+  document.body.append(host);
+  window.VATRA_POST_INTERACTIONS?.mount?.(client,{...post,kind:"person"},host,{
+   ownId:settings.ownId,userId:settings.userId
+  });
+  const createdDialogs=[...document.querySelectorAll("dialog.vatra-post-share-dialog")]
+   .filter(dialog=>!priorDialogs.has(dialog));
+  try{
+   openFullMedia(src,"image",host);
+   if(mediaDialog?.open)mediaDialog.addEventListener("close",()=>{
+    host.remove();createdDialogs.forEach(dialog=>dialog.remove());
+   },{once:true});
+   else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
+  }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
+ }
+ window.VATRA_POST_MEDIA={bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,openPostPhoto,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();

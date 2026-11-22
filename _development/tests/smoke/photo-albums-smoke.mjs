@@ -68,8 +68,9 @@ assert.ok(
 );
 assert.ok(
  script.includes('client.from("photo_album_summaries")')&&
- script.includes('.limit(FEATURED_LIMIT)')&&
- script.includes("const PAGE_SIZE=36,FEATURED_LIMIT=18")&&
+ script.includes('loadFeaturedPage(true)')&&
+ script.includes('loadAvatarPage(true)')&&
+ script.includes("const PAGE_SIZE=18,FEATURED_LIMIT=12")&&
  script.includes(".range(offset,offset+PAGE_SIZE)")&&
  script.includes("state.photoHasMore")&&
  script.includes("state.photosBusy")&&
@@ -96,4 +97,34 @@ assert.ok(
  !script.includes("redis"),
  "Album privacy cannot be implemented by a shared public Redis cache"
 );
+
+const photoSchema=await readFile("_development/supabase/migrations/20261122140000_photo_per_image_comments_personal_album.sql","utf8");
+const media=await readFile("assets/js/post-media.js","utf8");
+assert.ok(
+ script.includes('t("Фотографії","Photos")')&&
+ !script.includes('t("Знімки","Photos")')&&
+ script.includes('state.uploadMode="personal"')&&
+ script.includes("ensurePersonalAlbum()")&&
+ script.includes("is_personal:true")&&
+ script.includes('photo_id:photo?.id||null')&&
+ script.includes('client.from("album_photo_likes")')&&
+ script.includes('commentsList.prepend(pending)')&&
+ script.includes('commentsList.prepend(commentRow')===false&&
+ script.includes('const PAGE_SIZE=18,FEATURED_LIMIT=12')&&
+ profile.includes("openPostPhoto(client,post,item,{ownId,userId})")&&
+ profile.includes("window.VATRA_OPEN_PROFILE_AVATAR=path=>")&&
+ media.includes("openPostPhoto,renderStory"),
+ "Source-aware photographs, direct uploads, per-photo interactions and incremental loading must remain intact"
+);
+assert.ok(
+ photoSchema.includes("add column if not exists is_personal")&&
+ photoSchema.includes("add column if not exists photo_id uuid references public.album_photos(id) on delete cascade")&&
+ photoSchema.includes("vatra_album_comment_photo_matches_album")&&
+ photoSchema.includes("create table if not exists public.album_photo_likes")&&
+ photoSchema.includes("alter table public.album_photo_likes enable row level security")&&
+ photoSchema.includes("security_invoker = true")&&
+ !photoSchema.includes("security definer"),
+ "Photo source metadata, per-photo comment relationship and like RLS migration must be present"
+);
+
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");
