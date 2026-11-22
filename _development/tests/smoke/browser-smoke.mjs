@@ -3277,7 +3277,8 @@ try{
     imageFit:getComputedStyle(photo).objectFit,
     matte:getComputedStyle(canvas,"::before").content,
     backdrop:canvas.classList.contains("has-photo-backdrop"),
-    backdropImage:getComputedStyle(canvas,"::before").backgroundImage};
+    backdropImage:getComputedStyle(canvas,"::before").backgroundImage,
+    rootGutter:getComputedStyle(document.documentElement).scrollbarGutter};
   });
   assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&
    Math.abs(postFrame.h-postFrame.vh)<=2,
@@ -3285,6 +3286,7 @@ try{
   assert.equal(postFrame.caption,
    language==="en"?"Photo from a post":"Фото з публікації",
    "Own post photos must not repeat the owner's name or a decorative separator");
+  assert.equal(postFrame.rootGutter,"auto","Root scrollbar gutter must not reserve a vertical stripe beside post photos");
   assert.equal(postFrame.imageFit,"contain","Post photos must preserve original proportions");
   assert.equal(postFrame.matte,'""',"Post photo background must use the soft image backdrop");
   assert.equal(postFrame.backdrop,true,"Post images must activate the photo-only backdrop");
