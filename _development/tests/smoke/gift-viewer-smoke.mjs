@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 const read=path=>readFile(path,"utf8");
-const [js,gifts,profile,css,profileCss]=await Promise.all([
- read("assets/js/gift-viewer.js"),read("assets/js/gifts.js"),
+const [catalogScript,js,gifts,profile,css,profileCss]=await Promise.all([
+ read("assets/js/gift-catalog.js"),read("assets/js/gift-viewer.js"),read("assets/js/gifts.js"),
  read("assets/js/profile.js"),read("assets/css/gifts.css"),
  read("assets/css/profile.css")
 ]);
@@ -12,10 +12,15 @@ const png=await readFile("assets/gifts/gift_first-flame.webp");
 assert.ok(png.toString("ascii",0,4)==="RIFF"&&png.toString("ascii",8,12)==="WEBP"&&png.length>1000,
  "The supplied First flame artwork must be the real WebP asset");
 const context={window:{},URL,document:{
- currentScript:{src:"https://example.com/VATRA/assets/js/gift-viewer.js"},
+ currentScript:{src:"https://example.com/VATRA/assets/js/gift-catalog.js"},
  documentElement:{lang:"uk"}
 }};
+runInNewContext(catalogScript,context);
+assert.equal(context.window.VATRA_GIFT_VIEWER,undefined,"The catalogue does not initialize the viewer");
+context.document.currentScript.src="https://example.com/VATRA/assets/js/gift-viewer.js";
 runInNewContext(js,context);
+assert.equal(typeof context.window.VATRA_GIFT_VIEWER.open,"function");
+assert.ok(!js.includes("const catalog=["),"Viewer must not duplicate catalogue metadata");
 const {all,byCode,fileUrl}=context.window.VATRA_GIFTS_CATALOG;
 assert.equal(all.length,2,"Both released gifts belong in the catalogue");
 assert.equal(byCode("beta_member").exclusive,true);
