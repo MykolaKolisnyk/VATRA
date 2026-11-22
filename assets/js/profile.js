@@ -2715,7 +2715,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
      remove.type="button";remove.setAttribute("aria-label",t("Видалити свій коментар","Delete your comment"));
      remove.addEventListener("click",async()=>{
       if(remove.disabled)return;
-      if(!window.confirm(t("Видалити свій коментар?","Delete your comment?")))return;
+      if(!await window.VATRA_PROFILE_CONFIRM?.({
+       title:t("Видалити свій коментар?","Delete your comment?"),
+       description:t("Коментар буде видалено назавжди.","The comment will be permanently deleted."),
+       action:t("Видалити","Delete")
+      }))return;
       remove.disabled=true;
       try{
        const {data,error}=await client.from("avatar_comments").delete()
