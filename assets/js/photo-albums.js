@@ -955,9 +955,12 @@
    }
   });
   const photoTab=document.querySelector("#profile-tab-photos");
-  photoTab&&new MutationObserver(()=>{
-   if(photoTab.getAttribute("aria-selected")==="true"&&!state.loaded)void loadAlbums();
-  }).observe(photoTab,{attributes:true,attributeFilter:["aria-selected"]});
+  const activatePhotos=()=>{
+   if(photoTab?.getAttribute("aria-selected")==="true"&&!state.loaded)void loadAlbums();
+  };
+  if(photoTab)new MutationObserver(activatePhotos).observe(photoTab,
+   {attributes:true,attributeFilter:["aria-selected"]});
+  activatePhotos();
   const photoParams=new URLSearchParams(location.search);
   const requested=photoParams.get("album");
   if(requested&&validUUID(requested)){

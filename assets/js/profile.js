@@ -1535,7 +1535,47 @@ function setupProfileGallery(client,targetId,ownId,userId){
  }
 }
 function bindProfileStoryComposer(client,ownId){
- window.VATRA_STORY_EDITOR.mount({dialog:q("#profile-story-compose-dialog"),trigger:q("#profile-add-story"),client,id:ownId,prefix:"profile-story-compose",onPublished:()=>location.reload()});
+ const trigger=q("#profile-add-story");
+ if(!trigger)return;
+ let pending=false;
+ async function firstClick(){
+  if(pending)return;
+  pending=true;trigger.disabled=true;trigger.setAttribute("aria-busy","true");
+  try{
+   const editor=await window.VATRA_FEATURES.load("story");
+   editor.mount({dialog:q("#profile-story-compose-dialog"),trigger,client,id:ownId,
+    prefix:"profile-story-compose",onPublished:()=>location.reload()});
+   trigger.removeEventListener("click",firstClick);
+   trigger.disabled=false;trigger.click();
+  }catch(_){
+   (window.VATRA_TOAST?.show||((message)=>(window.VATRA_PENDING_TOASTS??=[]).push([message,"error"])))
+    (t("Не вдалося відкрити редактор історій.","Could not open story editor."));
+  }finally{pending=false;trigger.disabled=false;trigger.removeAttribute("aria-busy");}
+ }
+ trigger.addEventListener("click",firstClick);
+}
+function setupLazyProfileAlbums(client,ownId,targetId,userId,isMine){
+ const tab=q("#profile-tab-photos"),section=q("#profile-photos-section");
+ if(!tab||!section)return;
+ let pending=null;
+ function activate(){
+  if(section.dataset.vatraAlbumsReady==="true"||pending)return;
+  pending=window.VATRA_FEATURES.load("albums").then(albums=>
+   albums.mount({client,targetId,ownId,isMine,userId})
+  ).catch(()=>{
+   (window.VATRA_TOAST?.show||((message)=>(window.VATRA_PENDING_TOASTS??=[]).push([message,"error"])))
+    (t("Не вдалося завантажити фотографії.","Could not load photographs."));
+  }).finally(()=>{pending=null;tab.removeAttribute("aria-busy");});
+  tab.setAttribute("aria-busy","true");
+ }
+ function onSelection(){
+  if(tab.getAttribute("aria-selected")==="true")activate();
+ }
+ tab.addEventListener("click",onSelection);
+ new MutationObserver(onSelection).observe(tab,{attributes:true,attributeFilter:["aria-selected"]});
+ const album=new URLSearchParams(location.search).get("album");
+ if(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(album||"")))activate();
+ else onSelection();
 }
 function bindPostComposer(client,user,ownId){
  const trigger=q("#profile-write-post");
@@ -1548,7 +1588,7 @@ function bindPostComposer(client,user,ownId){
  const visibility=q("#profile-compose-visibility");
  const status=q("#profile-compose-status");
  if(!trigger||!dialog||!form||!input||!submit||!validId(ownId))return;
- let publishing=false,picker=null;
+ let publishing=false,picker=null,composerUI=null,composerLoading=null;
  const update=()=>{
   const length=Array.from(input.value).length;
   counter.textContent=length+" / 2000";
@@ -1561,16 +1601,31 @@ function bindPostComposer(client,user,ownId){
   onError:text=>{status.textContent=text;status.hidden=!text;},
   onChange:()=>{update();composerUI?.sync();}
  });
- const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"profile",ownerId:ownId,getFile:()=>picker?.getFiles()?.length>0});
+ const openComposer=async()=>{
+  if(dialog.open)return true;
+  if(!composerLoading){
+   composerLoading=window.VATRA_FEATURES.load("composer").then(module=>{
+    composerUI=module.bind({prefix:"profile",ownerId:ownId,
+     getFile:()=>picker?.getFiles()?.length>0});
+   }).catch(error=>{composerLoading=null;throw error;});
+  }
+  trigger.disabled=true;trigger.setAttribute("aria-busy","true");
+  try{
+   await composerLoading;
+   clearStatus();dialog.showModal();update();composerUI?.open();
+   return true;
+  }catch(_){
+   status.textContent=t("Не вдалося відкрити редактор публікацій.","Could not open post editor.");
+   status.hidden=false;
+   (window.VATRA_TOAST?.show||((message)=>(window.VATRA_PENDING_TOASTS??=[]).push([message,"error"])))(status.textContent);
+   return false;
+  }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
+ };
  q("#profile-quick-media")?.addEventListener("click",()=>{
-  trigger.click();q("#profile-compose-media-choose")?.click();
+  void openComposer();
+  q("#profile-compose-media")?.click();
  });
- trigger.addEventListener("click",()=>{
-  clearStatus();
-  dialog.showModal();
-  update();
-  composerUI?.open();
- });
+ trigger.addEventListener("click",()=>void openComposer());
  cancel.addEventListener("click",()=>{if(!publishing)dialog.close();});
  dialog.addEventListener("cancel",event=>{if(publishing)event.preventDefault();});
  dialog.addEventListener("close",()=>{clearStatus();trigger.focus({preventScroll:true});});
@@ -3692,7 +3747,7 @@ async function start(){
   if(!locked){
    setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
    setupProfileGallery(client,targetId,ownId,user.id);
-   window.VATRA_ALBUMS?.mount({client,targetId,ownId,isMine,userId:user.id});
+   setupLazyProfileAlbums(client,ownId,targetId,user.id,isMine);
    setupProfilePostFilters(client,targetId,ownId,user.id);
   }
 

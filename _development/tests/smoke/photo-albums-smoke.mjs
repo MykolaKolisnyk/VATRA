@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext,Script} from "node:vm";
 
-const [script,css,html,profile,sql,indexes,summarySql,redisPolicy]=await Promise.all([
+const [script,css,html,profile,sql,indexes,summarySql,redisPolicy,featureLoader]=await Promise.all([
  "assets/js/photo-albums.js","assets/css/photo-albums.css","profile.html",
  "assets/js/profile.js","_development/supabase/migrations/20261122122000_photo_albums_private_storage.sql",
  "_development/supabase/migrations/20261122123500_album_foreign_key_indexes.sql",
  "_development/supabase/migrations/20261122134500_photo_album_summary_view.sql",
- "_development/docs/redis-cache-policy.md"
+ "_development/docs/redis-cache-policy.md","assets/js/feature-loader.js"
 ].map(path=>readFile(path,"utf8")));
 assert.doesNotThrow(()=>new Script(script),"Album script must parse as JavaScript");
 const window={};
@@ -15,9 +15,13 @@ runInNewContext(script,{window});
 assert.equal(typeof window.VATRA_ALBUMS?.mount,"function","Album module must export a single mount API");
 
 assert.ok(
- html.includes('assets/js/photo-albums.js?rev=')&&
- html.includes('assets/css/photo-albums.css?rev=')&&
- profile.includes('window.VATRA_ALBUMS?.mount({client,targetId,ownId,isMine,userId:user.id})')&&
+ !html.includes('src="assets/js/photo-albums.js?rev=')&&
+ !html.includes('href="assets/css/photo-albums.css?rev=')&&
+ html.includes('assets/js/feature-loader.js?rev=')&&
+ featureLoader.includes('assets/js/photo-albums.js?rev=')&&
+ featureLoader.includes('assets/css/photo-albums.css?rev=')&&
+ profile.includes('setupLazyProfileAlbums(client,ownId,targetId,user.id,isMine)')&&
+ profile.includes('window.VATRA_FEATURES.load("albums")')&&
  script.includes('section.dataset.vatraAlbumsReady="true"'),
  "Photo albums must initialize once using existing authenticated profile state"
 );

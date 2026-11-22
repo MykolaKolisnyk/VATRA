@@ -3390,7 +3390,10 @@ try{
   console.log("VATRA WebP: private thumbnail, original-on-click and paired cleanup OK");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
+  assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_COMPOSER_UI),false,
+   "Post composer should not load before opening it");
   await feedProbe.locator("#feed-compose-open").click();
+  await feedProbe.locator("#feed-compose-dialog").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.classList.contains("vatra-post-composer-dialog")),true,
    "Feed uses the shared VATRA post editor");
@@ -4038,7 +4041,10 @@ try{
    "A missing story must not create an explanatory row");
   assert.equal(await feedProbe.locator(".feed-stories").evaluate(el=>el.classList.contains("is-empty")),true);
   assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),false);
+  assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_STORY_EDITOR),false,
+   "Story editor should not load before opening it");
   await feedProbe.locator("#feed-create-story").click();
+  await feedProbe.locator("#feed-story-dialog").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true);
   await feedProbe.locator("#feed-story-cancel").click();
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),false);
@@ -4377,6 +4383,7 @@ try{
 
   // Real browser smoke for VATRA albums: independent album tab and safe owner editor.
   await profilePage.locator("#profile-tab-photos").click();
+  await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
   await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
   await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
   assert.ok((await profilePage.locator(".vatra-albums-card-title-001").first().textContent()).trim().length>0,
@@ -4737,6 +4744,7 @@ try{
   await profilePage.locator("#profile-avatar-crop-cancel").click();
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").click();
+  await profilePage.locator("#profile-story-compose-dialog").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),true,
    "Story composer must open in the profile itself");
   await profilePage.locator("#profile-story-compose-cancel").click();
@@ -4875,6 +4883,7 @@ try{
    });
   });
   await profilePage.locator("#profile-tab-photos").click();
+  await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),true,
    "Photo tab must open a real on-demand gallery");
   await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-photo-gallery .profile-media-tile").length===2);
@@ -4897,6 +4906,7 @@ try{
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
    "Only the signed-in member may open the real post creator on their profile");
   await profilePage.locator("#profile-write-post").click();
+  await profilePage.locator("#profile-compose-dialog").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),true);
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(
    el=>el.classList.contains("vatra-post-composer-dialog")),true,
@@ -4982,6 +4992,7 @@ try{
    language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
 
   await profilePage.locator("#profile-tab-photos").click();
+  await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
   await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
   await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
   assert.equal(await profilePage.locator(".ui-vatra-albums-controls-001 .vatra-albums-primary-001").isVisible(),false,
