@@ -1853,7 +1853,8 @@ assert.ok(
  postMediaScript.includes('createSignedUrls(paths,ttl)')&&
  postMediaScript.includes('while(signedURLs.size>256)')&&
  postMediaScript.includes('Promise.allSettled(batch.map(file=>upload(client,id,file)))')&&
- interactionsScript.includes('const [commentsResult,sharesResult]=await Promise.all([')&&
+ interactionsScript.includes('const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);')&&
+ !interactionsScript.includes('const [commentsResult,sharesResult]=await Promise.all([')&&
  interactionsScript.includes('const hydrateSaved=()=>{')&&
  notificationPerfScript.includes('period=subscribed?300000:120000')&&
  notificationPerfScript.includes('Date.now()-lastRefresh<15000')&&
