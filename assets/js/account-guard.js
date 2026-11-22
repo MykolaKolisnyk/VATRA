@@ -30,7 +30,7 @@ async function session(client,id){
  }catch(_){}
 }
 function loadAnnouncements(){
- if(!announcementsPromise)announcementsPromise=import(new URL("assets/js/announcements.js?rev=9813078fb77cef938069ec3023283bf130141992",root).href).then(module=>{announcementsModule=module;return module;}).catch(error=>{announcementsPromise=null;throw error;});
+ if(!announcementsPromise)announcementsPromise=import(new URL("assets/js/announcements.js?rev=00dda73fd10196ae9c9a4085a72c9280934b8d35",root).href).then(module=>{announcementsModule=module;return module;}).catch(error=>{announcementsPromise=null;throw error;});
  return announcementsPromise;
 }
 function loadAdmin(){
