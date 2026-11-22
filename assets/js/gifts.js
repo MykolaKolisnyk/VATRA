@@ -21,7 +21,12 @@ let mine=[],targetId=null;
 const catalog=()=>window.VATRA_GIFTS_CATALOG?.all||[];
 function card(gift,owned){
  const item=make("button","vatra-gifts-card ui-vatra-gifts-card-"+gift.code);
- item.type="button";item.addEventListener("click",()=>window.VATRA_GIFT_VIEWER?.open(gift.code));
+ item.type="button";item.addEventListener("click",async()=>{
+  try{
+   const viewer=await window.VATRA_FEATURES.load("gift");
+   viewer.open(gift.code);
+  }catch(_){window.VATRA_TOAST?.error(t("Не вдалося відкрити подарунок.","Could not open the gift."));}
+ });
  const artwork=make("div","vatra-gifts-card-image ui-vatra-gifts-card-image-"+gift.code);
  const art=make("span","vatra-gifts-card-art ui-vatra-gifts-card-art-"+gift.code);
  art.setAttribute("aria-hidden","true");
