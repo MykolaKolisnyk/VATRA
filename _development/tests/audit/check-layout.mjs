@@ -1256,8 +1256,8 @@ const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
- 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"','href="assets/css/story-editor.css"',
- 'href="assets/css/profile.css"','href="assets/css/photo-albums.css"','href="assets/css/post-composer.css"','href="assets/css/gifts.css"'
+ 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"',
+ 'href="assets/css/profile.css"','href="assets/css/gifts.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
  (await Promise.all(["feed.html","communities.html","club.html","notifications.html"].map(p=>read(p))))
@@ -1387,7 +1387,8 @@ assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
  storyPreviewMarkup.includes('id="feed-friend-stories"')&&
  storyPreviewMarkup.includes('id="feed-compose-open"')&&
  storyPreviewMarkup.includes('id="feed-compose-form"')&&
- storyPreviewMarkup.includes('id="feed-story-dialog"')&&storyPreviewMarkup.includes('assets/js/story-editor.js')&&
+ storyPreviewMarkup.includes('id="feed-story-dialog"')&&storyPreviewMarkup.includes('assets/js/feature-loader.js?rev=')&&
+ !storyPreviewMarkup.includes('src="assets/js/story-editor.js?rev=')&&
  !storyPreviewMarkup.includes("ui-feed-story-preview-001")&&
  !storyPreviewMarkup.includes('data-vatra-coming-soon="stories"'),
  "Feed must show real friend Stories without fabricated previews, then the post composer");
@@ -1426,12 +1427,17 @@ const postMediaScript=await read("assets/js/post-media.js");
 const storyEditorRuntime=await read("assets/js/story-editor.js");
 const storyEditorStyles=await read("assets/css/story-editor.css");
 assert.doesNotThrow(()=>new Function(storyEditorRuntime),"Shared story editor must be valid JavaScript");
-assert.ok(storyPreviewMarkup.includes('assets/js/story-editor.js')&&memberProfileMarkup.includes('assets/js/story-editor.js')&&
+assert.ok(storyPreviewMarkup.includes('assets/js/feature-loader.js?rev=')&&
+ memberProfileMarkup.includes('assets/js/feature-loader.js?rev=')&&
+ !storyPreviewMarkup.includes('src="assets/js/story-editor.js?rev=')&&
+ !memberProfileMarkup.includes('src="assets/js/story-editor.js?rev=')&&
  storyEditorRuntime.includes('canvas.width=W;canvas.height=H')&&storyEditorRuntime.includes('out.width=1080;out.height=1920')&&storyEditorStyles.includes('aspect-ratio:9/16')&&
  storyPreviewMarkup.includes('id="feed-story-view-media"')&&
  !/id="feed-story-text"[^>]*\srequired/.test(storyPreviewMarkup)&&
  memberProfileMarkup.includes('id="profile-story-viewer-media"')&&
- feedScript.includes('VATRA_STORY_EDITOR.mount(')&&profileScript.includes('VATRA_STORY_EDITOR.mount(')&&storyEditorRuntime.includes('VATRA_POST_MEDIA.uploadStory(client,id,fileToPublish)')&&
+ feedScript.includes('VATRA_FEATURES.load("story")')&&
+ profileScript.includes('VATRA_FEATURES.load("story")')&&
+ storyEditorRuntime.includes('VATRA_POST_MEDIA.uploadStory(client,id,fileToPublish)')&&
  profileScript.includes('VATRA_POST_MEDIA?.renderStory(client,')&&
  postMediaScript.includes('"/stories/"')&&
  postMediaScript.includes('createSignedUrl(path,ttl)'),

@@ -678,17 +678,34 @@
   const visibility=q("#feed-compose-visibility");
   const submit=q("#feed-compose-save"),counter=q("#feed-compose-counter");
   const showError=value=>{error.textContent=value;error.hidden=!value;};
+  let composerUI=null,composerLoading=null;
   const picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
    input:"#feed-compose-media",choose:"#feed-compose-media-choose",
    clear:"#feed-compose-media-remove",preview:"#feed-compose-media-preview",
    onError:showError,onChange:()=>composerUI?.sync()
   });
-  const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"feed",ownerId:vatraId,getFile:()=>picker?.getFile()});
   q("#feed-composer-avatar").textContent=initials(displayName);
-  const open=()=>{showError("");dialog.showModal();composerUI?.open();};
-  q("#feed-compose-open").addEventListener("click",open);
-  q("#feed-quick-media")?.addEventListener("click",()=>{
-   open();q("#feed-compose-media-choose")?.click();
+  const open=async()=>{
+   if(dialog.open)return true;
+   if(!composerLoading){
+    composerLoading=window.VATRA_FEATURES.load("composer").then(module=>{
+     composerUI=module.bind({prefix:"feed",ownerId:vatraId,getFile:()=>picker?.getFile()});
+    }).catch(error=>{composerLoading=null;throw error;});
+   }
+   const trigger=q("#feed-compose-open");
+   trigger.disabled=true;trigger.setAttribute("aria-busy","true");
+   try{
+    await composerLoading;
+    showError("");dialog.showModal();composerUI?.open();
+    return true;
+   }catch(_){
+    message(t("Не вдалося відкрити редактор публікацій.","Could not open post editor."),"error");
+    return false;
+   }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
+  };
+  q("#feed-compose-open").addEventListener("click",()=>void open());
+  q("#feed-quick-media")?.addEventListener("click",async()=>{
+   if(await open())q("#feed-compose-media-choose")?.click();
   });
   q("#feed-compose-cancel").addEventListener("click",()=>dialog.close());
   text.addEventListener("input",()=>{counter.textContent=Array.from(text.value).length+" / 2000";});
@@ -720,7 +737,24 @@
    message(t("Публікацію додано.","Post published."),"success");
    void loadPosts(true);
   });
-  window.VATRA_STORY_EDITOR.mount({dialog:q("#feed-story-dialog"),trigger:q("#feed-create-story"),client,id:vatraId,prefix:"feed-story",onPublished:()=>{message(t("Історію опубліковано на 24 години.","Story posted for 24 hours."),"success");void loadStories();}});
+  const storyTrigger=q("#feed-create-story");
+  let storyLoading=false;
+  async function firstStoryClick(){
+   if(storyLoading)return;
+   storyLoading=true;storyTrigger.disabled=true;storyTrigger.setAttribute("aria-busy","true");
+   try{
+    const editor=await window.VATRA_FEATURES.load("story");
+    editor.mount({dialog:q("#feed-story-dialog"),trigger:storyTrigger,client,id:vatraId,
+     prefix:"feed-story",onPublished:()=>{
+      message(t("Історію опубліковано на 24 години.","Story posted for 24 hours."),"success");void loadStories();
+     }});
+    storyTrigger.removeEventListener("click",firstStoryClick);
+    storyTrigger.disabled=false;storyTrigger.click();
+   }catch(_){
+    message(t("Не вдалося відкрити редактор історій.","Could not open story editor."),"error");
+   }finally{storyLoading=false;storyTrigger.disabled=false;storyTrigger.removeAttribute("aria-busy");}
+  }
+  storyTrigger.addEventListener("click",firstStoryClick);
   const storyViewer=q("#feed-story-view");
   q("#feed-story-view-close").addEventListener("click",()=>storyViewer.close());
   storyViewer.addEventListener("close",()=>{
