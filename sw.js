@@ -1,4 +1,4 @@
-const CACHE="vatra-offline-shell-v80";
+const CACHE="vatra-offline-shell-v81";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
@@ -26,11 +26,18 @@ const ASSETS=[
  ROOT+"assets/vatryk/vatryk_offline.webp",
  ROOT+"assets/fonts/Onest-Variable.ttf"
 ];
+const INSTALL_ASSETS=[
+ OFFLINE,
+ ROOT+"assets/css/offline.css",
+ ROOT+"assets/js/offline.js",
+ ROOT+"assets/css/base.css",
+ ROOT+"assets/logo/logo_symbol.svg"
+];
 self.addEventListener("install",event=>{
  event.waitUntil((async()=>{
   const cache=await caches.open(CACHE);
   await cache.add(new Request(OFFLINE,{cache:"reload"}));
-  await Promise.allSettled(ASSETS.filter(path=>path!==OFFLINE)
+  await Promise.allSettled(INSTALL_ASSETS.filter(path=>path!==OFFLINE)
    .map(path=>cache.add(new Request(path,{cache:"reload"}))));
   await self.skipWaiting();
  })());
@@ -88,8 +95,19 @@ self.addEventListener("fetch",event=>{
     return fresh;
    }catch(_){return Response.error();}
   }
+  const translation=staticAsset&&/^\\/assets\\/i18n\\/(?:uk|en)\\.json$/.test(url.pathname.slice(ROOT.length-1));
+  if(translation){
+   const saved=await cache.match(request);
+   if(saved){
+    const refresh=fetch(request).then(fresh=>{
+     if(fresh.ok)return cache.put(request,fresh.clone());
+    }).catch(()=>{});
+    event.waitUntil?.(refresh);
+    return saved;
+   }
+  }
   try{
-   const fresh=await fetch(request,{cache:"no-cache"});
+   const fresh=await fetch(request);
    if(fresh.ok)await cache.put(request,fresh.clone()).catch(()=>{});
    return fresh;
   }catch(_){
