@@ -165,10 +165,10 @@ body.profile-page .vatra-album-viewer-close-001{
 }
 body.profile-page .ui-vatra-album-viewer-bottom-001{
  position:absolute;left:0;right:0;bottom:0;min-height:54px;box-sizing:border-box;
- display:flex;align-items:center;justify-content:space-between;gap:12px;
+ display:flex;align-items:center;justify-content:flex-end;gap:12px;
  padding:9px 20px;background:#1f2024;color:#d4d7df
 }
-body.profile-page .vatra-album-viewer-caption-001{font:620 12px Onest,system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.profile-page .vatra-album-viewer-caption-001{flex:1;min-width:0;font:620 12px Onest,system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body.profile-page .vatra-album-viewer-delete-001{
  display:flex;align-items:center;gap:6px;border:0;border-radius:8px;
  background:none;color:#c9cbd1;padding:8px;cursor:pointer;font:650 12px Onest,system-ui,sans-serif
@@ -228,10 +228,6 @@ body.profile-page .ui-vatra-albums-source-group-001{
 body.profile-page .ui-vatra-albums-source-group-001 .vatra-albums-section-heading-001{
  margin:0 0 2px
 }
-body.profile-page .ui-vatra-album-viewer-bottom-001{
- justify-content:flex-end
-}
-body.profile-page .vatra-album-viewer-caption-001{flex:1;min-width:0}
 body.profile-page :is(.vatra-album-viewer-comments-001,.vatra-album-viewer-like-001){
  display:inline-flex;align-items:center;justify-content:center;gap:7px;
  min-height:38px;padding:7px 11px;border:1px solid #4b5464;border-radius:9px;
