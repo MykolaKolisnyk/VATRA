@@ -715,7 +715,6 @@
     show_in_photos:true,is_personal:true};
    const result=await client.from("photo_albums").insert(values).select("id").single();
    if(result.error){
-    // Another tab may have created the same default album concurrently.
     const retry=await client.from("photo_albums").select("id")
      .eq("owner_vatra_id",Number(ownId)).eq("is_personal",true).maybeSingle();
     if(!retry.error&&retry.data)return retry.data;
@@ -750,7 +749,6 @@
      }
      return true;
     };
-    // Two uploads in flight max; avoid network/Storage spikes on weak devices.
     for(let i=0;i<files.length;i+=2){
      const results=await Promise.allSettled(files.slice(i,i+2).map(uploadOne));
      done+=results.filter(result=>result.status==="fulfilled").length;
