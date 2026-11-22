@@ -1137,7 +1137,8 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  !profileMarkup.includes('id="profile-tab-about"')&&
  !profileMarkup.includes('id="profile-vatra-id"')&&
  (await read("assets/js/profile.js")).includes('setupProfilePresence(')&&
- (await read("assets/js/profile.js")).includes('setupProfileGallery(')&&
+ (await read("assets/js/profile.js")).includes('setupLazyProfileGallery(')&&
+  (await read("assets/js/profile-gallery.js")).includes('window.VATRA_PROFILE_GALLERY=Object.freeze({mount})')&&
  (await read("assets/js/presence.js")).includes('last_seen_at')&&
  (await read("feed.html")).includes('data-feed-filter="communities"')&&
  (await read("feed.html")).includes('class="feed-top-controls ui-feed-top-controls-001"')&&

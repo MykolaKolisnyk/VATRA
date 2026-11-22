@@ -6,7 +6,8 @@ const features=Object.freeze({
  albums:{css:"assets/css/photo-albums.css?rev=0887cf4cfa2d7c442e7774f8520170e6da6d3353",js:"assets/js/photo-albums.js?rev=9092f4df4539418fb1d16744a05914482fdc5501",key:"VATRA_ALBUMS"},
  story:{css:"assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df",js:"assets/js/story-editor.js?rev=ebaa9990cc5873d74531e8bd9a13b2449c3030e2",key:"VATRA_STORY_EDITOR"},
  composer:{css:"assets/css/post-composer.css",js:"assets/js/post-composer-ui.js",key:"VATRA_COMPOSER_UI"},
- gift:{css:"assets/css/gifts.css",js:"assets/js/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"}
+ gift:{css:"assets/css/gifts.css",js:"assets/js/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"},
+ "profile-gallery":{js:"assets/js/profile-gallery.js?rev=2e276147513a80c25912d0b7f371798210a7a516",key:"VATRA_PROFILE_GALLERY"}
 });
 const pending=new Map();
 const loadedStyles=new Set();
@@ -40,7 +41,7 @@ function load(name){
  const definition=features[name];
  if(!definition)return Promise.reject(new Error("Unknown VATRA feature"));
  if(pending.has(name))return pending.get(name);
- const task=stylesheet(definition.css).then(async()=>{
+ const task=(definition.css?stylesheet(definition.css):Promise.resolve()).then(async()=>{
   if(!window[definition.key])await script(definition.js);
   if(!window[definition.key])throw new Error("VATRA feature did not initialize");
   return window[definition.key];

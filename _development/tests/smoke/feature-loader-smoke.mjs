@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext,Script} from "node:vm";
-const [loader,profile,feed,albums,profileHtml,feedHtml,giftsHtml,catalog,viewer]=await Promise.all([
+const [loader,profile,feed,albums,gallery,profileHtml,feedHtml,giftsHtml,catalog,viewer]=await Promise.all([
  "assets/js/feature-loader.js","assets/js/profile.js","assets/js/feed.js",
- "assets/js/photo-albums.js","profile.html","feed.html","gifts.html",
+ "assets/js/photo-albums.js","assets/js/profile-gallery.js","profile.html","feed.html","gifts.html",
  "assets/js/gift-catalog.js","assets/js/gift-viewer.js"
 ].map(path=>readFile(path,"utf8")));
-for(const source of [loader,profile,feed,albums,catalog,viewer])
+for(const source of [loader,profile,feed,albums,gallery,catalog,viewer])
  assert.doesNotThrow(()=>new Script(source),"VATRA feature source must parse");
 for(const [page,html] of [["profile",profileHtml],["feed",feedHtml]]){
  assert.ok(html.includes('assets/js/feature-loader.js?rev='),
@@ -24,6 +24,14 @@ for(const html of [profileHtml,giftsHtml]){
  assert.ok(html.includes('assets/js/feature-loader.js?rev='),"Gift-opening pages need shared loader");
 }
 assert.ok(!profileHtml.includes('href="assets/css/gifts.css"'),"Profile must defer gift styles");
+assert.ok(!profileHtml.includes('src="assets/js/profile-gallery.js'),
+ "Profile galleries must not be included in the initial script list");
+assert.ok(loader.includes('assets/js/profile-gallery.js?rev=')&&
+ profile.includes('setupLazyProfileGallery(client,targetId,ownId,user.id)')&&
+ profile.includes('VATRA_FEATURES.load("profile-gallery")')&&
+ gallery.includes('window.VATRA_PROFILE_GALLERY=Object.freeze({mount})')&&
+ gallery.includes('window.addEventListener("vatra:profile-media-changed",activate)'),
+ "Photo, video and clip galleries are initialized only after opening a media tab");
 assert.ok(giftsHtml.includes('href="assets/css/gifts.css"'),"Collection cards retain gift styles");
 assert.ok(loader.includes("gift-viewer.js?rev=")&&loader.includes('css:"assets/css/gifts.css"')&&
  profile.includes('VATRA_FEATURES.load("gift")'),"Gift viewer loads on click");
@@ -40,8 +48,8 @@ assert.ok(profile.includes('VATRA_FEATURES.load("story")')&&
  profile.includes('q("#profile-compose-media")?.click()')&&
  feed.includes('q("#feed-compose-media")?.click()'),
  "Both authenticated routes must load story and composer only on demand, while quick-media file pickers retain user activation");
-function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false){
- const window={},requests=[];let rejectOnce=failFirstStyle;
+function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGalleryScript=false){
+ const window={},requests=[];let rejectOnce=failFirstStyle,rejectGallery=failFirstGalleryScript;
  const document={
   currentScript:{src:"https://example.com/VATRA/assets/js/feature-loader.js"},
   querySelectorAll(){return preloadedGiftStyle?[{href:"https://example.com/VATRA/assets/css/gifts.css"}]:[];},
@@ -50,6 +58,10 @@ function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false){
    queueMicrotask(()=>{
     if(el.tagName==="LINK"&&rejectOnce){rejectOnce=false;el.onerror?.();return;}
     if(el.tagName==="SCRIPT"){
+     if(el.src.includes("profile-gallery.js")&&rejectGallery){
+      rejectGallery=false;el.onerror?.();return;
+     }
+     if(el.src.includes("profile-gallery.js"))window.VATRA_PROFILE_GALLERY={mount(){}};
      if(el.src.includes("photo-albums.js"))window.VATRA_ALBUMS={mount(){}};
      if(el.src.includes("story-editor.js"))window.VATRA_STORY_EDITOR={mount(){}};
      if(el.src.includes("post-composer-ui.js"))window.VATRA_COMPOSER_UI={bind(){}};
@@ -80,6 +92,19 @@ await browser.window.VATRA_FEATURES.load("composer");
 assert.equal(browser.requests.length,6,"Independent features load only when requested");
 await browser.window.VATRA_FEATURES.load("gift");
 assert.equal(browser.requests.length,8,"Gift viewer is requested only on demand");
+const galleryTask=browser.window.VATRA_FEATURES.load("profile-gallery");
+assert.strictEqual(browser.window.VATRA_FEATURES.load("profile-gallery"),galleryTask,
+ "Concurrent gallery loads must share one Promise");
+await galleryTask;
+assert.equal(browser.requests.length,9,"Gallery JS loads only on demand");
+assert.equal(browser.requests.at(-1).tag,"SCRIPT","Gallery has no separate stylesheet");
+await browser.window.VATRA_FEATURES.load("profile-gallery");
+assert.equal(browser.requests.length,9,"Gallery must not download twice");
+const galleryRetry=fakeBrowser(false,false,true);
+await assert.rejects(galleryRetry.window.VATRA_FEATURES.load("profile-gallery"));
+await galleryRetry.window.VATRA_FEATURES.load("profile-gallery");
+assert.deepEqual(galleryRetry.requests.map(x=>x.tag),["SCRIPT","SCRIPT"],
+ "Gallery network failures can recover on the next media-tab action");
 const giftPage=fakeBrowser(false,true);
 await giftPage.window.VATRA_FEATURES.load("gift");
 assert.deepEqual(giftPage.requests.map(x=>x.tag),["SCRIPT"],"Existing gift stylesheet must be reused");
