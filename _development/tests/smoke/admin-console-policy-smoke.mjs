@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
-const sql=await readFile("_development/supabase/migrations/20261121_admin_console_reporting.sql","utf8");
+const sql=await readFile("_development/supabase/migrations/20261122063417_admin_console_reporting.sql","utf8");
 const js=await readFile("assets/js/admin.js","utf8");
 const css=await readFile("assets/css/admin.css","utf8");
 assert.equal((sql.match(/create or replace function vatra_admin_private\.console_read\(/g)||[]).length,1,"Private reporting function must be defined exactly once");
