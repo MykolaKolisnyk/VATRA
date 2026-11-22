@@ -102,29 +102,50 @@ assert.ok(
  "Post and avatar viewers must use the same solid dark image matte, without blurred duplicates or the removed right gutter"
 );
 assert.ok(
- postCss.includes("body.feed-page .ui-vatra-post-media-side-001 .vatra-post-interactions{\n display:flex;flex:1;flex-direction:column;min-height:0;margin:0;padding:0;border:0")&&
- postCss.includes("body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{\n display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden;")&&
- postCss.includes("min-height:65px;")&&
+ postCss.includes("body.feed-page .ui-vatra-post-media-side-001 .vatra-post-interactions{")&&
+ postCss.includes("body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{")&&
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-author-001,.profile-media-viewer .profile-photo-info){")&&
+ postCss.includes("height:70px;min-height:70px;padding:12px 16px;")&&
  postCss.includes(".ui-vatra-post-media-author-001 .feed-post-avatar{")&&
- postCss.includes("flex:0 0 40px;width:40px;height:40px")&&
- postCss.includes(".ui-vatra-post-media-side-001 .vatra-post-action-row{\n flex:none;gap:8px;margin:0;padding:5px 13px;")&&
- postCss.includes("min-height:63px;")&&
- postCss.includes("align-items:center!important;gap:8px!important;")&&
- postCss.includes("box-sizing:border-box;height:38px;min-height:38px;max-height:112px")&&
- profileCss.includes("body.profile-page .profile-photo-info{")&&
- profileCss.includes("body.profile-page .profile-photo-actions{")&&
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-action-row,.profile-media-viewer .profile-photo-actions){")&&
+ postCss.includes("min-height:50px;gap:8px;margin:0;padding:5px 13px;")&&
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){")&&
+ postCss.includes("min-height:68px;")&&
+ postCss.includes("grid-template-columns:32px minmax(0,1fr)!important")&&
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001){")&&
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-footer-actions-001 > button,.ui-profile-photo-footer-actions-001 button,.ui-profile-photo-footer-actions-001 a){")&&
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-list,.profile-avatar-engagement .profile-photo-comments){")&&
+ !profileCss.includes("body.profile-page .profile-photo-info{")&&
+ !profileCss.includes("body.profile-page .profile-photo-actions{")&&
  profileCss.includes("body.profile-page .profile-photo-comment-form{"),
- "Fullscreen post sidebar must match the original avatar header, action row, and comment composer"
+ "Both media viewers must use the same canonical sidebar header, actions, comments, composer and footer metrics"
 );
+const responsiveMediaRules=new Set([
+ "body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){",
+ "body.feed-page :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001){"
+]);
 for(const selector of [
  "body.feed-page .ui-vatra-post-media-side-001 .vatra-post-interactions{",
  "body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{",
- "body.feed-page .ui-vatra-post-media-side-001 .vatra-post-action-row{",
- "body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form{"
+ "body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form{",
+ "body.feed-page :is(.ui-vatra-post-media-author-001,.profile-media-viewer .profile-photo-info){",
+ "body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-action-row,.profile-media-viewer .profile-photo-actions){",
+ ...responsiveMediaRules
 ]){
- assert.equal(postCss.split(selector).length-1,1,
-  "Fullscreen media sidebar CSS must use one canonical rule, not duplicate overrides: "+selector);
+ assert.equal(postCss.split(selector).length-1,responsiveMediaRules.has(selector)?2:1,
+  "Media viewer CSS may have one canonical desktop rule and one responsive adjustment only: "+selector);
 }
+assert.ok(
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){padding:8px 12px!important}")&&
+ postCss.includes("body.feed-page :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001){min-height:47px;padding:6px 10px;gap:5px}"),
+ "Shared mobile photo panels must keep their intentional responsive spacing"
+);
+assert.ok(
+ profile.indexOf("uploading=false")>=0&&
+ profile.indexOf("uploading=false")<profile.indexOf("if(!canEdit)return;")&&
+ profile.includes('if(!avatarDeleteInProgress&&!uploading)mediaDialog.close();'),
+ "Visitor avatar close must never access uninitialized owner-only upload state"
+);
 assert.ok(
  profile.includes('.or("media_kind.eq."+settings.kind+",media_items.cs."+contains)')&&
  profile.includes('JSON.stringify([{media_kind:settings.kind}])')&&

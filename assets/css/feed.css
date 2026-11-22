@@ -524,10 +524,15 @@ body.feed-page .vatra-post-gallery-counter-001{
  max-width:100%;max-height:100dvh;
  padding:16px 18px 40px;box-sizing:border-box;overflow:hidden;flex:1 1 0
 }
-.vatra-post-media-close-001{
- position:absolute;z-index:2;top:12px;left:15px;display:grid;place-items:center;
- width:42px;height:42px;border:1px solid #596274;border-radius:50%;
- background:#182132;color:#fff;font:500 28px/1 "Onest",system-ui;cursor:pointer
+body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close){
+ position:absolute;z-index:5;top:18px;left:18px;display:grid;place-items:center;
+ box-sizing:border-box;width:42px;height:42px;padding:0;
+ border:1px solid #596274;border-radius:50%;background:#182132;
+ color:#fff;font:500 28px/1 "Onest",system-ui;cursor:pointer
+}
+body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close):hover{background:#3e4655}
+body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close):focus-visible{
+ outline:2px solid #9bb9ff;outline-offset:2px
 }
 .ui-vatra-post-media-viewer-content-001{
  position:relative;display:flex;align-items:center;justify-content:center;
@@ -1306,7 +1311,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-post-card:hover{
 body.feed-page:not(.profile-page):not(.community-page) .feed-post-body{
  margin:10px 0 1px;line-height:1.55;font-size:14px
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-post-avatar{
+body.feed-page:not(.profile-page):not(.community-page) .feed-post-card .feed-post-avatar{
  width:39px;height:39px
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-quick-compose{
@@ -3008,12 +3013,12 @@ body.feed-page .vatra-profile-post-pinned-001{font:650 12px/1.5 Onest,system-ui,
  font:600 13px/1.4 "Onest",system-ui,sans-serif;pointer-events:none
 }
 .ui-vatra-post-media-side-001[hidden]{display:none}
-.ui-vatra-post-media-author-001{
- display:flex;flex:none;align-items:center;gap:11px;box-sizing:border-box;min-height:65px;
- padding:12px 16px;border-bottom:1px solid #e7edf6;background:#fff
+body.feed-page :is(.ui-vatra-post-media-author-001,.profile-media-viewer .profile-photo-info){
+ display:flex;flex:none;align-items:center;gap:11px;box-sizing:border-box;
+ height:70px;min-height:70px;padding:12px 16px;border-bottom:1px solid #e7edf6;background:#fff
 }
 body.feed-page .ui-vatra-post-media-author-001 .feed-post-avatar{
- box-sizing:border-box;flex:0 0 40px;width:40px;height:40px
+ box-sizing:border-box;flex:0 0 40px;width:40px;height:40px;margin:0
 }
 body.feed-page .ui-vatra-post-media-author-001 .feed-post-author{
  flex:1;min-width:0;gap:3px
@@ -3028,18 +3033,23 @@ body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{
  display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden;
  margin:0;padding:0;border:0;border-radius:0;gap:0;background:transparent
 }
-body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-list{
- display:block;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-list{display:block}
+body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-list,.profile-avatar-engagement .profile-photo-comments){
+ flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
  padding:9px 17px 12px;scrollbar-width:thin
 }
-body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form{
- box-sizing:border-box;flex:0 0 auto;grid-template-columns:32px minmax(0,1fr)!important;
- align-items:center!important;gap:8px!important;min-width:0;min-height:63px;
+body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){
+ box-sizing:border-box;flex:0 0 auto;min-height:68px;
  margin:0!important;padding:12px 16px!important;border-top:1px solid #e8edf5;background:#fff
 }
+body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form{
+ grid-template-columns:32px minmax(0,1fr)!important;
+ align-items:center!important;gap:8px!important;min-width:0
+}
 .ui-vatra-post-media-side-001 .vatra-post-comments-toggle-001{display:none!important}
-body.feed-page .ui-vatra-post-media-side-001 .vatra-post-action-row{
- flex:none;gap:8px;margin:0;padding:5px 13px;border-bottom:1px solid #e7edf6
+body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-action-row,.profile-media-viewer .profile-photo-actions){
+ display:flex;flex:none;align-items:center;justify-content:flex-start;box-sizing:border-box;
+ min-height:50px;gap:8px;margin:0;padding:5px 13px;border-bottom:1px solid #e7edf6
 }
 .vatra-post-comments-locked-001{margin:16px;text-align:center;color:#8796ab;font-size:13px}
 .vatra-post-comment-form[hidden]{display:none!important}
@@ -3063,7 +3073,7 @@ body.feed-page .ui-vatra-post-media-viewer-content-001{
  box-sizing:border-box;flex:1 1 0;height:auto;min-height:0;
  padding:0
 }
-body.feed-page .ui-vatra-post-media-footer-001{
+body.feed-page :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001){
  position:relative;z-index:4;display:flex;flex:none;align-items:center;gap:12px;
  box-sizing:border-box;min-height:54px;width:100%;padding:9px 16px 9px 20px;
  background:#1f2024;color:#e7e7ea;font:530 12px/1.4 "Onest",system-ui,sans-serif
@@ -3074,12 +3084,12 @@ body.feed-page .vatra-post-media-caption-001{
  font:650 12px/1.4 "Onest",system-ui,sans-serif
 }
 body.feed-page .ui-vatra-post-media-footer-actions-001{display:flex;flex:none;align-items:center;gap:2px}
-body.feed-page .ui-vatra-post-media-footer-actions-001 > button{
- display:inline-flex;align-items:center;justify-content:center;min-height:34px;
+body.feed-page :is(.ui-vatra-post-media-footer-actions-001 > button,.ui-profile-photo-footer-actions-001 button,.ui-profile-photo-footer-actions-001 a){
+ display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:34px;
  padding:6px 9px;border:0;border-radius:7px;background:transparent;color:#c7c9ce;
- cursor:pointer;font:530 12px/1.3 "Onest",system-ui,sans-serif
+ white-space:nowrap;text-decoration:none;cursor:pointer;font:530 12px/1.3 "Onest",system-ui,sans-serif
 }
-body.feed-page .ui-vatra-post-media-footer-actions-001 > button:hover{background:#ffffff18;color:#fff}
+body.feed-page :is(.ui-vatra-post-media-footer-actions-001 > button,.ui-profile-photo-footer-actions-001 button,.ui-profile-photo-footer-actions-001 a):hover{background:#ffffff18;color:#fff}
 body.feed-page .ui-vatra-post-media-footer-actions-001 > button[hidden]{display:none!important}
 body.feed-page .ui-vatra-post-media-footer-001 .vatra-post-owner-menu{
  width:auto;height:auto;margin:0;align-self:center;z-index:10
@@ -3145,10 +3155,10 @@ body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-attach-001{disp
 body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-toolbar>.vatra-post-comment-send-001:disabled{display:none!important}
 body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form:focus-within .ui-vatra-post-comment-input-001{min-height:62px}
 @media(max-width:680px){
+ body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){padding:8px 12px!important}
  body.feed-page .ui-vatra-post-media-viewer-content-001{padding:0}
- body.feed-page .ui-vatra-post-media-footer-001{min-height:47px;padding:6px 10px;gap:5px}
- body.feed-page .ui-vatra-post-media-footer-actions-001 > button,
- body.feed-page .ui-vatra-post-media-footer-001 .vatra-post-owner-toggle{font-size:11px;padding:5px}
+ body.feed-page :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001){min-height:47px;padding:6px 10px;gap:5px}
+ body.feed-page :is(.ui-vatra-post-media-footer-actions-001 > button,.ui-profile-photo-footer-actions-001 button,.ui-profile-photo-footer-actions-001 a,.ui-vatra-post-media-footer-001 .vatra-post-owner-toggle){font-size:11px;padding:5px}
 }
 @media(prefers-reduced-motion:reduce){
  body.profile-page .ui-profile-photo-more-chevron-001{transition:none}
