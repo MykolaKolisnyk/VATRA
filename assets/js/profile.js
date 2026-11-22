@@ -2277,7 +2277,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const photoURLs={avatar:null,cover:null};
  const visitorStory=q("#profile-visitor-story");
  const prevPhoto=q("#profile-avatar-prev"),nextPhoto=q("#profile-avatar-next"),galleryToolbar=q("#profile-avatar-gallery-toolbar"),galleryCount=q("#profile-avatar-gallery-count"),galleryDelete=q("#profile-avatar-gallery-delete");
- let gallery=[],galleryIndex=0,galleryEpoch=0,menuTimer=null,pendingAvatarUndo=null,avatarDeleteInProgress=false;
+ let gallery=[],galleryIndex=0,galleryEpoch=0,menuTimer=null,pendingAvatarUndo=null,avatarDeleteInProgress=false,uploading=false;
  const deletedNotice=q("#profile-photo-deleted-notice");
  const deletedMessage=q("#profile-photo-deleted-message");
  const restoreAvatarButton=q("#profile-photo-restore");
@@ -3139,7 +3139,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  }catch(_){}
  buttonAvatar.hidden=false;buttonCover.hidden=false;
  const fileTypes={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
- let uploading=false;
  async function uploadImage(file,kind,originalFile=null){
   if(uploading)return false;
   const ext=fileTypes[file?.type];
