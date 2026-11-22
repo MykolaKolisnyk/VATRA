@@ -6,6 +6,8 @@ import {runInNewContext} from "node:vm";
 const source=await readFile("assets/js/post-media.js","utf8");
 const interactions=await readFile("assets/js/post-interactions.js","utf8");
 assert.ok(source.includes("collapsibleBody,signed};"),"Expose the shared signed URL helper");
+assert.ok(source.includes("if(imageTiles.length>2)await preSignGallery(client,imageTiles);"),
+ "Small galleries must avoid the expensive bulk-sign endpoint");
 assert.ok(interactions.includes("getSigned(client,kind,path,300)")&&
  interactions.includes('client.storage.from(bucket).createSignedUrl(path,300)'),
  "Comment attachments must still use the helper with a safe direct fallback");
