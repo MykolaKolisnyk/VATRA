@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
 const read=path=>readFile(path,"utf8");
-const [postMedia,postInteractions,profile,postCss,profileCss,profileHtml]=await Promise.all([
+const [postMedia,postInteractions,profile,postCss,profileCss,profileHtml,verifiedScript]=await Promise.all([
  read("assets/js/post-media.js"),
  read("assets/js/post-interactions.js"),
  read("assets/js/profile.js"),
  read("assets/css/feed.css"),
  read("assets/css/profile.css"),
- read("profile.html")
+ read("profile.html"),
+ read("assets/js/verified.js")
 ]);
 
 assert.ok(
@@ -124,4 +125,21 @@ for(const selector of [
  assert.equal(postCss.split(selector).length-1,1,
   "Fullscreen media sidebar CSS must use one canonical rule, not duplicate overrides: "+selector);
 }
+assert.ok(
+ profile.includes('.or("media_kind.eq."+settings.kind+",media_items.cs."+contains)')&&
+ profile.includes('JSON.stringify([{media_kind:settings.kind}])')&&
+ !profile.includes('query=query.eq("media_kind",settings.kind)')&&
+ profile.includes('for(const item of settings.clip?items.slice(0,1):items)')&&
+ profile.includes('{...post,media_items:[item]}:post')&&
+ profile.includes('window.addEventListener("vatra:profile-media-changed",activate)')&&
+ profile.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))'),
+ "Photo, video and clip profile tabs must load every visible post media attachment, including new media_items-only posts and refreshed uploads"
+);
+assert.ok(
+ profile.includes('window.VATRA_VERIFIED?.attach(client,owner,targetId)')&&
+ verifiedScript.includes(".vatra-profile-photo-owner-001")&&
+ profileCss.includes('body.profile-page .vatra-profile-photo-owner-001{\n display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;')&&
+ postCss.includes('body .vatra-verified-name{'),
+ "Avatar photo header must reuse the real verified-account badge and match the post author name alignment"
+);
 console.log("VATRA media viewer layout checks passed.");
