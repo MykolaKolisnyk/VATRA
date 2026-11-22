@@ -221,7 +221,6 @@ body.profile-page .vatra-albums-more-photos-001{
 body.profile-page .vatra-albums-more-photos-001:hover{background:#ecf3ff}
 body.profile-page .vatra-albums-more-photos-001:disabled{opacity:.56;cursor:wait}
 
-/* Consistent source gallery and individual-photo actions */
 body.profile-page .ui-vatra-albums-source-group-001{
  display:grid;gap:12px;margin:0 0 24px
 }
