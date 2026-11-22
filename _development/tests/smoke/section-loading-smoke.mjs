@@ -115,7 +115,16 @@ for(const [id] of catalog.marketTypes){
 const admin=await readFile("assets/js/admin.js","utf8"),requests=[];
 let permitted=true;
 const actualAdmin=new Function("document","window","URL","location","confirm","Option",admin.replace(/^export /gm,"")+"\nreturn {openPanel,clearPanel};")(doc,{},URL,{assign(){}},()=>true,function Option(text,value){const el=element("option");el.textContent=text;el.value=value;return el;});
-const adminClient={async rpc(name,params){assert.equal(name,"vatra_admin_manage");requests.push(params);return {data:params.p_action==="lookup"?null:{},error:null};}};
+const adminClient={async rpc(name,params){
+ requests.push({...params,rpc_name:name});
+ if(name==="admin_console_read"){
+  if(params.p_action==="members_page")return {data:{total:1,page:0,page_size:25,items:[{vatra_id:17,name:"Профіль",created_at:"2026-11-21T10:00:00Z",verified:false,state:"active"}]},error:null};
+  if(params.p_action==="member_detail")return {data:{posts:0,comments:0,stories:0,reports:0,recent_actions:[]},error:null};
+  throw Error("Unexpected admin read "+params.p_action);
+ }
+ assert.equal(name,"vatra_admin_manage");
+ return {data:params.p_action==="lookup"?{vatra_id:17,name:"Профіль",created_at:"2026-11-21T10:00:00Z",verified:false,state:"active"}:{},error:null};
+}};
 const valid=id=>/^[1-9][0-9]{0,18}$/.test(String(id||""));
 assert.ok(guard.includes("{root,t,node,button,icon,valid}"),"Guard must provide the actual ID validator");
 actualAdmin.openPanel({client:adminClient,id:"1"},()=>permitted,{root:"https://example.com/VATRA/",t:text,node:make,button,icon:()=>element("svg"),valid});
@@ -123,9 +132,17 @@ const adminDialog=doc.body.children.at(-1);
 assert.equal(adminDialog.open,true);
 await byClass(adminDialog,"vatra-admin-nav-button-users").fire("click");
 const form=byClass(adminDialog,"ui-vatra-admin-lookup-001"),input=byClass(form,"ui-vatra-admin-id-input-001");
-input.value="bad";await form.fire("submit");assert.equal(requests.filter(r=>r.p_action==="lookup").length,0);
-input.value="17";await form.fire("submit");assert.equal(requests.filter(r=>r.p_action==="lookup").length,1);
-assert.equal(requests.at(-1).p_id,"17");
-permitted=false;input.value="18";await form.fire("submit");assert.equal(requests.filter(r=>r.p_action==="lookup").length,1,"Expired role context must not issue admin calls");
+input.value="bad";await form.fire("submit");await new Promise(resolve=>setImmediate(resolve));
+assert.equal(requests.filter(r=>r.p_action==="lookup").length,0,"Name search must not perform a member mutation lookup");
+assert.ok(requests.some(r=>r.p_action==="members_page"&&r.p_payload.query==="bad"),"Global member search must be server-side");
+input.value="17";await form.fire("submit");await new Promise(resolve=>setImmediate(resolve));
+assert.ok(requests.some(r=>r.p_action==="members_page"&&r.p_payload.query==="17"),"Exact ID search must use the paginated server API");
+const entry=byClass(adminDialog,"ui-vatra-admin-directory-row-001");
+assert.ok(entry,"Member directory must render a row");
+await entry.fire("click");await new Promise(resolve=>setImmediate(resolve));
+const lookups=requests.filter(r=>r.p_action==="lookup");assert.equal(lookups.length,1);
+assert.equal(lookups[0].p_id,"17");
+permitted=false;input.value="18";await form.fire("submit");await new Promise(resolve=>setImmediate(resolve));
+assert.equal(requests.filter(r=>r.p_action==="members_page"&&r.p_payload.query==="18").length,0,"Expired owner role must not issue admin calls");
 actualAdmin.clearPanel();
-console.log("VATRA lazy forms: five marketplace listing types, category dependencies, validated admin lookup and expired-session protection passed.");
+console.log("VATRA lazy forms: marketplace controls, owner-only server member search, detail lookup and expired-session protection passed.");

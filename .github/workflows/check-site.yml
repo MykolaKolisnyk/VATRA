@@ -57,6 +57,8 @@ jobs:
         run: node _development/tests/smoke/toast-ux-smoke.mjs
       - name: Check professional admin panel navigation and member directory
         run: node _development/tests/smoke/admin-panel-smoke.mjs
+      - name: Check owner-only admin console RPC and reporting safety
+        run: node _development/tests/smoke/admin-console-policy-smoke.mjs
       - name: Check comment thread viewer cache
         run: node _development/tests/smoke/comment-page-cache-smoke.mjs
       - name: Check Feed cursor viewer cache
