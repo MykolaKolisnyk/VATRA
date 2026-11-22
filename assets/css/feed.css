@@ -3094,6 +3094,10 @@ body.feed-page .ui-vatra-post-media-side-001 .vatra-post-interactions{border-top
 body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comments-panel{
  margin:0;padding:0;border:0;gap:0
 }
+body.feed-page .ui-vatra-post-media-author-001 .feed-post-name{
+ font:720 15px/1.4 "Onest",system-ui,sans-serif;color:#34547d
+}
+body.feed-page .ui-vatra-post-media-side-001 .vatra-post-shares-count-001{display:none!important}
 body.feed-page .ui-vatra-post-media-footer-001 .ui-vatra-post-owner-dots-001{display:none}
 body.feed-page .ui-vatra-post-media-footer-001 .ui-vatra-post-media-more-toggle-001::after{
  content:"";display:block;flex:none;width:8px;height:8px;
