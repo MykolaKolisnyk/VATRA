@@ -81,4 +81,11 @@ assert.ok(
  postCss.includes('.ui-vatra-post-expanded-image-001{width:100%;height:100%}'),
  "Fullscreen post media must mirror the original avatar actions, composer, and footer while keeping contained images"
 );
+assert.ok(
+ postCss.includes('body.feed-page .ui-vatra-post-media-viewer-content-001{\n box-sizing:border-box;flex:1 1 0;height:auto;min-height:0;\n padding:0\n}')&&
+ postCss.includes('body.feed-page .ui-vatra-post-media-viewer-content-001{padding:0}')&&
+ postCss.includes('.ui-vatra-post-expanded-image-001{width:100%;height:100%}')&&
+ postCss.includes('object-fit:contain'),
+ "Fullscreen post photos must reach the viewer edges without black padding stripes while preserving their proportions"
+);
 console.log("VATRA media viewer layout checks passed.");
