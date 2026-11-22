@@ -3275,7 +3275,9 @@ try{
    return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,
     caption:dialog.querySelector(".vatra-post-media-caption-001")?.textContent,
     imageFit:getComputedStyle(photo).objectFit,
-    matte:getComputedStyle(canvas,"::before").content};
+    matte:getComputedStyle(canvas,"::before").content,
+    backdrop:canvas.classList.contains("has-photo-backdrop"),
+    backdropImage:getComputedStyle(canvas,"::before").backgroundImage};
   });
   assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&
    Math.abs(postFrame.h-postFrame.vh)<=2,
@@ -3284,7 +3286,11 @@ try{
    language==="en"?"Photo from a post":"Фото з публікації",
    "Own post photos must not repeat the owner's name or a decorative separator");
   assert.equal(postFrame.imageFit,"contain","Post photos must preserve original proportions");
-  assert.equal(postFrame.matte,"none","Post photos must not display a blurred duplicate");
+  assert.equal(postFrame.matte,'""',"Post photo background must use the soft image backdrop");
+  assert.equal(postFrame.backdrop,true,"Post images must activate the photo-only backdrop");
+  assert.ok(postFrame.backdropImage.includes("linear-gradient")&&
+   postFrame.backdropImage.includes("url("),
+   "The photo backdrop must use the current original image with a dark overlay");
   await feedProbe.keyboard.press("Escape");
   const removed=await feedProbe.evaluate(async()=>{
    const {client,item,calls}=window.__vatraWebpFixture;
