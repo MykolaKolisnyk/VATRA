@@ -649,7 +649,7 @@
     for(const item of data||[]){
      if(!/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(item.name||"")||
        /-original\.(?:jpe?g|png|webp)$/i.test(item.name||""))continue;
-     const path=folder+"/"+item.name,url=bucket.getPublicUrl(path)?.data?.publicUrl;
+     const path=folder+"/"+item.name,url=bucket.getPublicUrl(folder+"/"+item.name)?.data?.publicUrl;
      if(url&&!seen.has(path)){state.avatarList.push({path,url});seen.add(path);}
     }
     state.avatarOffset=offset+(data||[]).length;
