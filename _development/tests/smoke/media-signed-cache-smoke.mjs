@@ -145,4 +145,28 @@ assert.equal(a.calls,4,"Different TTL requests must be isolated");
  })})}};
  await assert.rejects(signed(invalid,"image","9/comments/unsafe.png",300));
 }
+
+{
+ let complete,batchCalls=0;
+ const paths=[{media_kind:"image",media_path:"9/posts/a.jpg"},
+  {media_kind:"image",media_path:"9/posts/b.jpg"}];
+ const client={storage:{from:()=>({
+  createSignedUrls(items){
+   batchCalls++;
+   return new Promise(resolve=>{complete=()=>resolve({
+    data:items.map(path=>({path,signedUrl:host+
+     "/storage/v1/object/sign/post-images/"+path+"?token=shared"})),error:null
+   });});
+  },
+  createSignedUrl(){throw Error("Unexpected duplicate individual signature");}
+ })}};
+ const first=preSignGallery(client,paths,300);
+ const concurrent=preSignGallery(client,[...paths].reverse(),300);
+ assert.equal(batchCalls,1,"Concurrent matching gallery batches must share one Storage request");
+ complete();
+ await Promise.all([first,concurrent]);
+ for(const item of paths)
+  assert.match(await signed(client,"image",item.media_path,300),/token=shared$/);
+}
+
 console.log("VATRA signed media cache: viewer isolation, auth invalidation, in-flight races, gallery deduplication and fallback passed.");
