@@ -170,7 +170,7 @@ async function fetchPublicClub(client,number){
 
 
  const numeric=Number(number);
- if(Number.isSafeInteger(numeric)&&numeric>0&&client.functions?.invoke){
+ if(window.VATRA_COMMUNITY_EDGE_ENABLED===true&&Number.isSafeInteger(numeric)&&numeric>0&&client.functions?.invoke){
   try{
    const response=await client.functions.invoke("public-community-directory",{
     body:{club_id:numeric}

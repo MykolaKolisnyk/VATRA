@@ -81,3 +81,10 @@ faster than an extra Edge Function hop. Redis becomes worthwhile when many
 members request the **same public** result and the hit ratio outweighs the
 extra network and cold-start overhead. Measure before enabling. Avoid cache
 pollution, per-search-term keys or permanent entries.
+
+
+## Production routing update (2026-11-22)
+
+The public community Edge endpoint is **opt-in**, not required for opening a directory or a community. Until TLS Redis credentials and `X-VATRA-Cache: hit/miss` are verified with latency measurements, the default browser path reads public community data directly from Supabase PostgREST under RLS. To test the Edge path, set `window.VATRA_COMMUNITY_EDGE_ENABLED=true` before the communities/club script loads. This is a non-secret feature flag only; it does not itself activate Redis.
+
+Private albums use an RLS-invoker summary view, bounded 36-item photo pages, short-lived per-viewer signed URLs and an 18-item preview. They are **not** stored in Redis. The existing public name Edge endpoint likewise remains opt-in.

@@ -5644,6 +5644,7 @@ try{
  // Supabase or Redis database in CI, and never change existing club tests.
  const cachePage=await clubContext.newPage();
  await cachePage.addInitScript(()=>{
+  window.VATRA_COMMUNITY_EDGE_ENABLED=true;
   localStorage.setItem("vatra-test-cache-mode","hit");
   localStorage.setItem("vatra-test-clubs",JSON.stringify([{
    club_id:88,category:"business",name:"Пошукова спільнота",description:"Прямий SQL",

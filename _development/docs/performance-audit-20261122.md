@@ -30,3 +30,14 @@ In the database, 9/10 nonempty post galleries contain **one image**, 1/10 contai
 - Supabase signed media and auth are still request-bound: do not replace RLS with a public bucket or a service-role proxy to gain speed.
 - CI builds a minified `dist/` **artifact**, but current GitHub Pages branch publication is not yet proven to serve this artifact. The deployment source requires a separate verified rollout, not a silent switch to a new workflow.
 - These changes remove avoidable calls; actual improvements in LCP, INP, TTFB and cold/warm visit duration need browser measurements on the live URL after deploy. Run automated browser smoke and authentication/data-access tests before merging.
+
+
+## Follow-up optimization: album and community reads
+
+- Album directories now use `photo_album_summaries`, an authenticated `security_invoker` view backed by existing owner/RLS policies. Album cover paths and exact image counts are derived in PostgreSQL via the indexed album-ID path, rather than downloading all images on every album open.
+- Opening an album retrieves **36 photos per page** (with one lookahead row). A member can explicitly request more. The «Знімки» preview retrieves no more than 18 recent album photos. The previous query could return 1,000 full photo records before the first render.
+- Private album thumbnails sign their URLs only when approaching the viewport; concurrent identical signatures reuse the same promise. Session transitions clear both in-memory URL and in-flight caches. The Service Worker does not cache these signed URLs.
+- Public community directory and detail reads default to **one RLS-scoped PostgREST request**, rather than first invoking an unverified Edge Redis endpoint. After verifying a fast TLS Redis hit/miss in production, setting `window.VATRA_COMMUNITY_EDGE_ENABLED=true` before the page script runs explicitly opts back into the Edge path.
+- No secret keys, private media, message content or user-specific authorization results are put in shared Redis.
+
+The changes remove avoidable network operations; they do not claim an overall LCP/p95 improvement until the live GitHub Pages deployment is remeasured.

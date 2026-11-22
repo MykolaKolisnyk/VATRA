@@ -213,3 +213,10 @@ body.profile-page :is(.vatra-albums-card-001,.vatra-albums-tab-001,.vatra-albums
 @media(prefers-reduced-motion:reduce){
  body.profile-page .ui-vatra-album-photo-image-001,body.profile-page .ui-vatra-albums-cover-001{transition:none!important}
 }
+body.profile-page .vatra-albums-more-photos-001{
+ display:block;min-height:42px;margin:20px auto 8px;padding:9px 20px;
+ border:1px solid #cbd9ed;border-radius:11px;background:#f8fbff;
+ color:#365f9e;font:710 13px/1.4 Onest,system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .vatra-albums-more-photos-001:hover{background:#ecf3ff}
+body.profile-page .vatra-albums-more-photos-001:disabled{opacity:.56;cursor:wait}

@@ -71,23 +71,55 @@
   const uploadInput=make("input","ui-vatra-albums-file-input-001");
   uploadInput.type="file";uploadInput.multiple=true;uploadInput.accept="image/jpeg,image/png,image/webp";uploadInput.hidden=true;
   section.append(uploadInput);
-  const state={albums:[],previews:[],selected:null,currentPhoto:null,avatar:null,tab:"photos",busy:false,loaded:false,rev:0};
-  const signed=new Map();
+  const PAGE_SIZE=36,FEATURED_LIMIT=18;
+  const state={albums:[],previews:[],photos:[],photoAlbumId:null,photoOffset:0,photoHasMore:false,
+   photosBusy:false,photoTicket:0,selected:null,currentPhoto:null,avatar:null,tab:"photos",
+   busy:false,loaded:false,rev:0};
+  const signed=new Map(),pendingSignatures=new Map();
+  let signatureGeneration=0;
+  client.auth?.onAuthStateChange?.(event=>{
+   if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+   signatureGeneration++;signed.clear();pendingSignatures.clear();
+  });
   async function signedUrl(path){
    const old=signed.get(path);
    if(old&&old.until>Date.now())return old.url;
-   const {data,error}=await client.storage.from(BUCKET).createSignedUrl(path,120);
-   if(error||!data?.signedUrl)throw error||Error("Photo URL unavailable");
-   signed.set(path,{url:data.signedUrl,until:Date.now()+100000});
-   if(signed.size>160)signed.delete(signed.keys().next().value);
-   return data.signedUrl;
+   if(pendingSignatures.has(path))return pendingSignatures.get(path);
+   const generation=signatureGeneration;
+   const task=(async()=>{
+    const {data,error}=await client.storage.from(BUCKET).createSignedUrl(path,120);
+    if(error||!data?.signedUrl)throw error||Error("Photo URL unavailable");
+    if(signatureGeneration!==generation)throw Error("Session changed");
+    signed.set(path,{url:data.signedUrl,until:Date.now()+100000});
+    if(signed.size>160)signed.delete(signed.keys().next().value);
+    return data.signedUrl;
+   })();
+   pendingSignatures.set(path,task);
+   try{return await task;}
+   finally{if(pendingSignatures.get(path)===task)pendingSignatures.delete(path);}
   }
+  async function revealImage(image){
+   const path=image.dataset.path;
+   if(!path)return;
+   try{
+    const url=await signedUrl(path);
+    if(image.isConnected&&image.dataset.path===path)image.src=url;
+   }catch(_){if(image.isConnected)image.classList.add("is-unavailable");}
+  }
+  const imageObserver=typeof IntersectionObserver==="function"?
+   new IntersectionObserver(entries=>{
+    for(const entry of entries){
+     if(!entry.isIntersecting)continue;
+     imageObserver.unobserve(entry.target);
+     void revealImage(entry.target);
+    }
+   },{rootMargin:"220px 0px"}):null;
   function paintImage(image,path){
    image.alt="";image.loading="lazy";image.decoding="async";
    if(!path)return;
-   void signedUrl(path).then(url=>{if(image.isConnected&&image.dataset.path===path)image.src=url;})
-    .catch(()=>{image.classList.add("is-unavailable");});
    image.dataset.path=path;
+   if(imageObserver)imageObserver.observe(image);
+   else queueMicrotask(()=>void revealImage(image));
   }
   function loading(el){
    el.replaceChildren(make("p","vatra-albums-hint-001",t("Завантаження альбомів…","Loading albums…")));
@@ -336,7 +368,11 @@
    details.append(make("strong","vatra-albums-card-title-001",album.title),
     make("span","vatra-albums-card-count-001",t("Фотографій: ","Photos: ")+(album.count||0)));
    card.append(cover,details);
-   card.addEventListener("click",()=>{state.selected=album.id;history.replaceState(history.state,"",albumUrl(album.id));renderAlbumPane();});
+   card.addEventListener("click",()=>{
+    state.selected=album.id;history.replaceState(history.state,"",albumUrl(album.id));
+    state.photos=[];state.photoAlbumId=album.id;state.photoHasMore=false;state.photosBusy=true;
+    renderAlbumPane();void loadAlbumPage(album.id);
+   });
    return card;
   }
   function renderAlbumPane(){
@@ -357,10 +393,8 @@
      make("span","vatra-albums-card-count-001",t("Фотографій: ","Photos: ")+(state.avatar?.url?1:0)));
     virtual.append(cover,label);virtual.addEventListener("click",()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
     grid.append(virtual);
-    for(const album of state.albums){
-     const photos=state.previews.filter(p=>p.album_id===album.id);
-     grid.append(albumCard({...album,count:photos.length},photos[0]));
-    }
+    for(const album of state.albums)
+     grid.append(albumCard({...album,count:album.photo_count},album.cover_path?{media_path:album.cover_path}:null));
     albumPane.append(grid);
     if(isMine&&!state.albums.length){
      const note=make("p","vatra-albums-hint-001",t("Створіть перший альбом для подорожей, близьких людей або улюблених подій.","Create your first collection for travels, people or favorite moments."));
@@ -397,12 +431,15 @@
    }
    head.append(back,titleBox,actions);albumPane.append(head);
    const grid=make("div","ui-vatra-album-photos-grid-001");
-   const photos=state.previews.filter(p=>p.album_id===album.id);
+   const photos=state.photoAlbumId===album.id?state.photos:[];
    if(!photos.length){
     const blank=make("div","ui-vatra-album-photos-empty-001");
     blank.append(svg("ui-vatra-albums-empty-image-001","image"),
-     make("p","vatra-albums-hint-001",t("У цьому альбомі поки немає фотографій.","This album has no photos yet.")));
-    if(isMine)blank.append(button("vatra-albums-primary-001",t("Завантажити фото","Upload photos"),()=>uploadInput.click()));
+     make("p","vatra-albums-hint-001",state.photosBusy||album.photo_count>0?
+      t("Завантаження фотографій…","Loading photos…"):
+      t("У цьому альбомі поки немає фотографій.","This album has no photos yet.")));
+    if(isMine&&!state.photosBusy&&album.photo_count===0)
+     blank.append(button("vatra-albums-primary-001",t("Завантажити фото","Upload photos"),()=>uploadInput.click()));
     albumPane.append(blank);
    }else{
     for(const photo of photos){
@@ -412,6 +449,34 @@
      tile.addEventListener("click",()=>void openPhoto(photo,album));grid.append(tile);
     }
     albumPane.append(grid);
+    if(state.photoHasMore){
+     const morePhotos=button("vatra-albums-more-photos-001",
+      t("Показати ще фото","Show more photos"),()=>void loadAlbumPage(album.id,true));
+     morePhotos.disabled=state.photosBusy;albumPane.append(morePhotos);
+    }
+   }
+  }
+  async function loadAlbumPage(albumId,append=false){
+   if(state.photosBusy&&append)return;
+   const ticket=++state.photoTicket;
+   state.photosBusy=true;state.photoAlbumId=albumId;
+   if(!append){state.photoOffset=0;state.photos=[];}
+   try{
+    const offset=state.photoOffset;
+    const {data,error}=await client.from("album_photos")
+     .select("id,album_id,media_path,created_at,caption")
+     .eq("album_id",albumId).order("created_at",{ascending:false})
+     .order("id",{ascending:false}).range(offset,offset+PAGE_SIZE);
+    if(error)throw error;
+    if(ticket!==state.photoTicket||state.selected!==albumId)return;
+    const page=(data||[]).slice(0,PAGE_SIZE);
+    state.photos=append?[...state.photos,...page]:page;
+    state.photoOffset+=page.length;
+    state.photoHasMore=(data||[]).length>PAGE_SIZE;
+   }catch(_){
+    if(ticket===state.photoTicket)notify(t("Не вдалося завантажити фото.","Could not load photos."));
+   }finally{
+    if(ticket===state.photoTicket){state.photosBusy=false;if(state.tab==="albums")renderAlbumPane();}
    }
   }
   function renderFeatured(){
@@ -434,40 +499,53 @@
    }
    featured.append(grid);
   }
+  let albumsLoading=null;
   async function loadAlbums(){
+   if(albumsLoading)return albumsLoading;
    const ticket=++state.rev;
    if(state.tab==="albums")loading(albumPane);
-   const [albumsResult,avatarResult]=await Promise.all([
-    client.from("photo_albums")
-     .select("id,title,description,visibility,comments_mode,show_in_photos,created_at")
-     .eq("owner_vatra_id",targetId).order("created_at",{ascending:false}).limit(200),
-    client.from("profile_media").select("avatar_path").eq("vatra_id",targetId).maybeSingle()
-   ]);
-   if(ticket!==state.rev)return;
-   if(albumsResult.error){
-    albumPane.replaceChildren(make("p","vatra-albums-error-001",t("Не вдалося завантажити альбоми.","Could not load albums.")));
-    return;
-   }
-   state.avatar=null;
-   const av=avatarResult.data?.avatar_path;
-   if(typeof av==="string"&&av.startsWith(targetId+"/avatar/")){
-    const url=client.storage.from("avatars").getPublicUrl(av)?.data?.publicUrl;
-    if(url)state.avatar={url};
-   }
-   state.albums=albumsResult.data||[];
-   state.previews=[];
-   const ids=state.albums.map(a=>a.id);
-   if(ids.length){
-    const {data,error}=await client.from("album_photos")
-     .select("id,album_id,media_path,created_at,caption").in("album_id",ids)
-     .order("created_at",{ascending:false}).limit(1000);
+   const task=(async()=>{
+    const [albumsResult,avatarResult]=await Promise.all([
+     client.from("photo_album_summaries")
+      .select("id,title,description,visibility,comments_mode,show_in_photos,created_at,photo_count,cover_path")
+      .eq("owner_vatra_id",targetId).order("created_at",{ascending:false}).limit(200),
+     client.from("profile_media").select("avatar_path").eq("vatra_id",targetId).maybeSingle()
+    ]);
     if(ticket!==state.rev)return;
-    if(!error)state.previews=data||[];
-    else notify(t("Не вдалося завантажити фотографії альбомів.","Could not load album photos."));
-   }
-   state.loaded=true;
-   renderFeatured();
-   if(state.tab==="albums")renderAlbumPane();
+    if(albumsResult.error){
+     albumPane.replaceChildren(make("p","vatra-albums-error-001",
+      t("Не вдалося завантажити альбоми.","Could not load albums.")));
+     return;
+    }
+    state.avatar=null;
+    const av=avatarResult.data?.avatar_path;
+    if(typeof av==="string"&&av.startsWith(targetId+"/avatar/")){
+     const url=client.storage.from("avatars").getPublicUrl(av)?.data?.publicUrl;
+     if(url)state.avatar={url};
+    }
+    state.albums=albumsResult.data||[];
+    state.previews=[];
+    const featuredIds=state.albums.filter(a=>a.show_in_photos).map(a=>a.id);
+    if(featuredIds.length){
+     const {data,error}=await client.from("album_photos")
+      .select("id,album_id,media_path,created_at,caption").in("album_id",featuredIds)
+      .order("created_at",{ascending:false}).limit(FEATURED_LIMIT);
+     if(ticket!==state.rev)return;
+     if(!error)state.previews=data||[];
+    }
+    state.loaded=true;
+    renderFeatured();
+    if(state.selected&&state.albums.some(a=>a.id===state.selected)){
+     state.photos=[];state.photoAlbumId=state.selected;state.photosBusy=true;
+     if(state.tab==="albums")renderAlbumPane();
+     void loadAlbumPage(state.selected);
+    }else{
+     state.selected=null;
+     if(state.tab==="albums")renderAlbumPane();
+    }
+   })();
+   albumsLoading=task;
+   try{await task;}finally{if(albumsLoading===task)albumsLoading=null;}
   }
   uploadInput.addEventListener("change",async()=>{
    const album=state.albums.find(a=>a.id===state.selected);
@@ -504,7 +582,7 @@
   const requested=new URLSearchParams(location.search).get("album");
   if(requested&&validUUID(requested)){
    state.selected=requested;
-   queueMicrotask(()=>{photoTab?.click();switchTab("albums");void loadAlbums();});
+   queueMicrotask(()=>{photoTab?.click();switchTab("albums");});
   }
   window.addEventListener("vatra:profile-media-changed",()=>{if(state.loaded)void loadAlbums();});
  }
