@@ -399,14 +399,6 @@ body.profile-page .profile-media-viewer{
 }
 body.profile-page .profile-media-viewer:not([open]),
 body.profile-page .profile-story-viewer:not([open]){display:none!important}
-body.profile-page .profile-media-viewer-close{
- position:absolute;top:18px;left:18px;
- z-index:2;display:grid;place-items:center;width:42px;height:42px;
- padding:0;border:1px solid #e8eef550;border-radius:50%;
- background:#292f3bbf;color:#fff;cursor:pointer;
- font:430 28px/1 "Onest",system-ui,sans-serif
-}
-body.profile-page .profile-media-viewer-close:hover{background:#3e4655}
 body.profile-page .profile-media-viewer-heading{
  position:absolute;z-index:1;left:82px;top:22px;right:15px;
  margin:0;color:#f5f7fc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
