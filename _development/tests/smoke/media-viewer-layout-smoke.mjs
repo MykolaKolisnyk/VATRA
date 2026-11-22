@@ -89,16 +89,15 @@ assert.ok(
  "Fullscreen post photos must reach the viewer edges without black padding stripes while preserving their proportions"
 );
 assert.ok(
- postMedia.includes("function setPhotoBackdrop(url,kind)")&&
- postMedia.includes('mediaDialogContent.classList.toggle("has-photo-backdrop",photo)')&&
- postMedia.includes('mediaDialogContent.replaceChildren(element);setPhotoBackdrop(url,kind);')&&
- postMedia.includes('mediaDialogContent.replaceChildren(element,prev,next,counter);setPhotoBackdrop(url,item.media_kind);')&&
- postMedia.includes('setPhotoBackdrop(null,"video")')&&
- postCss.includes('.ui-vatra-post-media-viewer-content-001.has-photo-backdrop::before')&&
- postCss.includes('var(--vatra-post-photo-fill)')&&
- postCss.includes('filter:blur(36px)')&&
- postCss.includes('.ui-vatra-post-media-viewer-content-001.has-photo-backdrop>.ui-vatra-post-expanded-image-001')&&
- postCss.includes('object-fit:contain'),
- "Post photo viewer must soften hard black letterbox edges, update gallery backgrounds, and preserve images"
+ !postMedia.includes("setPhotoBackdrop")&&
+ !postMedia.includes("has-photo-backdrop")&&
+ !postCss.includes(".has-photo-backdrop")&&
+ !postCss.includes("--vatra-post-photo-fill")&&
+ !postCss.includes("filter:blur(36px)")&&
+ postCss.includes("overflow:hidden;background:#111419")&&
+ profileCss.includes("overflow:hidden;background:#111419")&&
+ !postCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
+ postCss.includes("object-fit:contain"),
+ "Post and avatar viewers must use the same solid dark image matte, without blurred duplicates or the removed right gutter"
 );
 console.log("VATRA media viewer layout checks passed.");
