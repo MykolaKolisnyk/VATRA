@@ -790,6 +790,7 @@ body.community-page .ui-community-card-001:hover{
 
 
 html:has(body.feed-page){scrollbar-gutter:stable}
+html:has(#vatra-post-media-viewer[open]){overflow:hidden!important;scrollbar-gutter:auto!important}
 body.feed-page .feed-header{
  position:sticky;top:0;z-index:90;min-height:0;background:rgba(255,255,255,.985);
  border-bottom:1px solid #e9edf7;
