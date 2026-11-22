@@ -162,6 +162,16 @@ assert.ok(
  "Pinned photos must retain source identity and owner-only RLS updates"
 );
 assert.ok(
+ profile.includes("updateAvatarProgress(0,originalFile?3:2")&&
+ profile.includes("updateAvatarProgress(originalPath?2:1")&&
+ profile.includes("updateAvatarProgress(originalPath?3:2")&&
+ profile.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))')&&
+ html.includes('id="profile-avatar-upload-progress"')&&
+ html.includes('id="profile-avatar-upload-progress-bar"')&&
+ html.includes('id="profile-avatar-upload-progress-text"'),
+ "Profile photo upload must show real completed steps and update without full page reload"
+);
+assert.ok(
  profile.includes('client.from("avatar_comments").delete()')&&
  profile.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
  profile.includes('avatarCommentPages.clear()')&&

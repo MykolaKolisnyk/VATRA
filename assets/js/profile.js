@@ -3190,6 +3190,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }
   uploading=true;buttonAvatar.disabled=true;buttonCover.disabled=true;coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
   status(t("Завантажуємо зображення…","Uploading image…"));
+  if(kind==="avatar")updateAvatarProgress(0,originalFile?3:2,t("Підготовка до завантаження…","Preparing upload…"));
   const filename=typeof crypto!=="undefined"&&typeof crypto.randomUUID==="function"?
    crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),
     value=>value.toString(16).padStart(2,"0")).join("");
@@ -3205,12 +3206,14 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     });
     if(originalError)throw originalError;
     uploadedPaths.push(originalPath);
+    if(kind==="avatar")updateAvatarProgress(1,3,t("Оригінал завантажено.","Original uploaded."));
    }
    const {error:uploadError}=await client.storage.from(bucketFor(kind)).upload(path,file,{
     contentType:file.type,cacheControl:"3600",upsert:false
    });
    if(uploadError)throw uploadError;
    uploadedPaths.push(path);
+   if(kind==="avatar")updateAvatarProgress(originalPath?2:1,originalPath?3:2,t("Фотографію завантажено. Зберігаємо профіль…","Photo uploaded. Saving profile…"));
    const column=kind==="avatar"?"avatar_path":"cover_path";
    const values={[column]:path,updated_at:new Date().toISOString()};
    const operation=saved?
@@ -3228,6 +3231,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 
 
    committed=true;
+   if(kind==="avatar")updateAvatarProgress(originalPath?3:2,originalPath?3:2,t("Фото профілю збережено.","Profile photo saved."));
    saved={...saved,...values};
    await display(saved);
    if(kind==="avatar"){
@@ -3236,6 +3240,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
    return true;
   }catch(_){
+   if(kind==="avatar")updateAvatarProgress(0,originalPath?3:2,t("Помилка завантаження.","Upload failed."));
    if(!committed&&uploadedPaths.length)try{await client.storage.from(bucketFor(kind)).remove(uploadedPaths);}catch(_){}
    status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
     "Could not upload the image. Please retry."),true);return false;}
@@ -3245,8 +3250,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }
  }
  const crop=q("#profile-avatar-crop-dialog"),finish=q("#profile-avatar-finish-dialog"),canvas=q("#profile-avatar-crop-canvas"),zoom=q("#profile-avatar-crop-zoom"),preview=q("#profile-avatar-finish-preview"),save=q("#profile-avatar-finish-save");
+ const avatarProgress=q("#profile-avatar-upload-progress");
+ const avatarProgressBar=q("#profile-avatar-upload-progress-bar");
+ const avatarProgressText=q("#profile-avatar-upload-progress-text");
+ const updateAvatarProgress=(done,total,message)=>{
+  avatarProgress.hidden=false;avatarProgressBar.max=total;avatarProgressBar.value=done;
+  avatarProgressText.textContent=message+" ("+done+"/"+total+")";
+ };
  let source=null,sourceFile=null,sourceURL=null,previewURL=null,cropped=null,selection=null,drag=null,transitioning=false,finishing=false,sourceMime="image/webp",coverSourceMime="image/webp";
- const release=()=>{if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=sourceFile=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
+ const release=()=>{avatarProgress.hidden=true;if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=sourceFile=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
  const encodeProfileCrop=async(image,rect,width,height,name,mime="image/webp")=>{const out=document.createElement("canvas");out.width=width;out.height=height;const context=out.getContext("2d");if(!context)throw Error("Canvas unavailable");context.drawImage(image,rect.x,rect.y,rect.w,rect.h,0,0,width,height);const blob=await new Promise(resolve=>out.toBlob(resolve,fileTypes[mime]?mime:"image/webp",.94));if(!blob||!fileTypes[blob.type])throw Error("Image encoding failed");return new File([blob],name+"."+fileTypes[blob.type],{type:blob.type});};
  const constrain=()=>{const max=Math.min(canvas.width,canvas.height);selection.size=clamp(selection.size,max/5,max);selection.x=clamp(selection.x,0,canvas.width-selection.size);selection.y=clamp(selection.y,0,canvas.height-selection.size);zoom.value=String(max/selection.size);};
@@ -3278,7 +3290,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(wantStory){let uploaded=null;try{uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,ownId,photo);const r=await client.from("stories").insert({author_vatra_id:ownId,body:"",theme:0,...uploaded});if(r.error)throw r.error;}catch(_){if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}failures.push(t("історію","story"));}}
   finish.close();release();if(failures.length){status(t("Фото змінено, але не вдалося опублікувати: ","Photo updated, but could not publish: ")+failures.join(", "),true);}else if(wantPost||wantStory){
    try{sessionStorage.setItem("vatra-profile-photo-toast",JSON.stringify({account:ownId,text:t("Фото профілю змінено.","Profile photo updated.")}));}catch(_){}
-   location.reload();
+   window.dispatchEvent(new Event("vatra:profile-media-changed"));
+   status(t("Фото профілю змінено.","Profile photo updated."));
   }else status(t("Фото профілю змінено.","Profile photo updated."));
  }finally{finishing=false;save.disabled=false;q("#profile-avatar-finish-back").disabled=false;}});
  const updateCurrentAvatar=async next=>{

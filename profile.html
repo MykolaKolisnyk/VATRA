@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=163dda687e778993477c96327b0d7d7085e48909">
     <link rel="stylesheet" href="assets/css/feed.css?rev=f39843a4b4de6f64ad30e7a6a98da7cd442f3110">
     <link rel="stylesheet" href="assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=51989f38915e4b6cc02d492279cd572c38f910bb">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=605961e7be614d31d036d18c5d7a4c410ce4c943">
     <link rel="stylesheet" href="assets/css/photo-albums.css?rev=0887cf4cfa2d7c442e7774f8520170e6da6d3353">
     <link rel="stylesheet" href="assets/css/post-composer.css">
     <link rel="stylesheet" href="assets/css/gifts.css">
@@ -37,7 +37,7 @@
     <script defer src="assets/js/guest-view.js?rev=3396dd0c3de7deed25f770ef52c38ae00117a3c5"></script>
     <script defer src="assets/js/story-editor.js?rev=ebaa9990cc5873d74531e8bd9a13b2449c3030e2"></script>
     <script defer src="assets/js/photo-albums.js?rev=af6bff9993817c7e411f3ae3122ac045aea37e6e"></script>
-    <script defer src="assets/js/profile.js?rev=74fe30ec9a544a0a4c8fb67a725195d9c8b5e7e6"></script>
+    <script defer src="assets/js/profile.js?rev=805afc6956468eade2561fc84acb972485457cc7"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=af468d5c51699eefcdf4d88ab75d922fb5cf7cc6"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -549,6 +549,10 @@
 <dialog id="profile-avatar-finish-dialog" class="ui-profile-avatar-finish-dialog-001" aria-labelledby="profile-avatar-finish-title">
   <h2 id="profile-avatar-finish-title" class="vatra-profile-avatar-finish-title-001" data-social-uk="Завершити" data-social-en="Finish">Завершити</h2>
   <img id="profile-avatar-finish-preview" class="ui-profile-avatar-finish-preview-001" alt="">
+  <div id="profile-avatar-upload-progress" class="ui-profile-avatar-upload-progress-001" role="status" aria-live="polite" hidden>
+    <progress id="profile-avatar-upload-progress-bar" class="vatra-profile-avatar-upload-progress-bar-001" max="3" value="0"></progress>
+    <span id="profile-avatar-upload-progress-text" class="vatra-profile-avatar-upload-progress-text-001"></span>
+  </div>
   <p class="vatra-profile-avatar-finish-copy-001" data-social-uk="Опублікуйте нове фото у дописі й історії — зберете більше вподобань і переглядів." data-social-en="Publish your new photo in a post and story to get more likes and views.">Опублікуйте нове фото у дописі й історії — зберете більше вподобань і переглядів.</p>
   <label class="ui-profile-avatar-publish-post-label-001"><input id="profile-avatar-publish-post" class="ui-profile-avatar-publish-post-001" type="checkbox"><span class="vatra-profile-avatar-publish-post-copy-001" data-social-uk="Опублікувати у дописі (для друзів)" data-social-en="Publish in a post (friends)">Опублікувати у дописі (для друзів)</span></label>
   <label class="ui-profile-avatar-publish-story-label-001"><input id="profile-avatar-publish-story" class="ui-profile-avatar-publish-story-001" type="checkbox"><span class="vatra-profile-avatar-publish-story-copy-001" data-social-uk="Опублікувати в історії" data-social-en="Publish in a story">Опублікувати в історії</span></label>
