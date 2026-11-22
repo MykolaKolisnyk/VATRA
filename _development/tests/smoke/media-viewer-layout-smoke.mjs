@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
 const read=path=>readFile(path,"utf8");
-const [postMedia,postInteractions,profile,postCss,profileCss,profileHtml,verifiedScript]=await Promise.all([
+const [postMedia,postInteractions,profile,profileGallery,postCss,profileCss,profileHtml,verifiedScript]=await Promise.all([
  read("assets/js/post-media.js"),
  read("assets/js/post-interactions.js"),
  read("assets/js/profile.js"),
+ read("assets/js/profile-gallery.js"),
  read("assets/css/feed.css"),
  read("assets/css/profile.css"),
  read("profile.html"),
@@ -147,13 +148,14 @@ assert.ok(
  "Visitor avatar close must never access uninitialized owner-only upload state"
 );
 assert.ok(
- profile.includes('.or("media_kind.eq."+settings.kind+",media_items.cs."+contains)')&&
- profile.includes('JSON.stringify([{media_kind:settings.kind}])')&&
- !profile.includes('query=query.eq("media_kind",settings.kind)')&&
- profile.includes('for(const item of settings.clip?items.slice(0,1):items)')&&
- profile.includes('{...post,media_items:[item]}:post')&&
- profile.includes('window.addEventListener("vatra:profile-media-changed",activate)')&&
- profile.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))'),
+ profileGallery.includes('.or("media_kind.eq."+settings.kind+",media_items.cs."+contains)')&&
+ profileGallery.includes('JSON.stringify([{media_kind:settings.kind}])')&&
+ !profileGallery.includes('query=query.eq("media_kind",settings.kind)')&&
+ profileGallery.includes('for(const item of settings.clip?items.slice(0,1):items)')&&
+ profileGallery.includes('{...post,media_items:[item]}:post')&&
+ profileGallery.includes('window.addEventListener("vatra:profile-media-changed",activate)')&&
+ profile.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))')&&
+  profile.includes('setupLazyProfileGallery(client,targetId,ownId,user.id)'),
  "Photo, video and clip profile tabs must load every visible post media attachment, including new media_items-only posts and refreshed uploads"
 );
 assert.ok(
