@@ -60,4 +60,25 @@ assert.ok(
  postInteractions.includes("31457280"),
  "Photo uploads must respect the new 30 MB bucket limit and gallery arrows must fade on hover"
 );
+assert.ok(
+ profile.includes('ui-profile-photo-empty-state-001')&&
+ profileCss.includes('.profile-photo-comments.is-empty{display:flex;align-items:center;justify-content:center')&&
+ postInteractions.includes('function emptyPhotoComments()')&&
+ postInteractions.includes('entries.append(emptyPhotoComments());')&&
+ postInteractions.includes('vatra-post-media-empty-icon-001')&&
+ postCss.includes('.vatra-post-media-empty-expanded-001{display:none}')&&
+ postCss.includes('.vatra-post-comment-list:has(> .vatra-post-comments-empty-001:only-child)')&&
+ postCss.includes('.vatra-post-media-empty-expanded-001{display:block}'),
+ "Post media must match the original avatar viewer's centered empty-comments illustration without changing normal feed comments"
+);
+assert.ok(
+ postCss.includes('.vatra-post-comments-toggle-001{display:none!important}')&&
+ postCss.includes('.vatra-post-shares-count-001{display:none!important}')&&
+ postCss.includes('.vatra-post-comment-attach-001{display:none!important}')&&
+ postCss.includes('.vatra-post-comment-send-001:disabled{display:none!important}')&&
+ postCss.includes('.ui-vatra-post-media-more-toggle-001::after')&&
+ postCss.includes('grid-template-columns:32px minmax(0,1fr)!important')&&
+ postCss.includes('.ui-vatra-post-expanded-image-001{width:100%;height:100%}'),
+ "Fullscreen post media must mirror the original avatar actions, composer, and footer while keeping contained images"
+);
 console.log("VATRA media viewer layout checks passed.");

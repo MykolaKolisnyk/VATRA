@@ -909,6 +909,25 @@ function appendAudience(container,level,isGroup=false){
    }
    return card;
   }
+  function emptyPhotoComments(){
+   const empty=make("p","vatra-post-comments-empty-001");
+   const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   icon.setAttribute("class","vatra-post-media-empty-icon-001");
+   icon.setAttribute("viewBox","0 0 48 48");
+   icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");
+   icon.setAttribute("stroke-width","2.6");
+   icon.setAttribute("stroke-linecap","round");
+   icon.setAttribute("stroke-linejoin","round");
+   icon.setAttribute("aria-hidden","true");
+   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+   path.setAttribute("class","vatra-post-media-empty-path-001");
+   path.setAttribute("d","M16 7h22a5 5 0 0 1 5 5v17a5 5 0 0 1-5 5h-4v8l-10-8h-8a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5ZM6 15a5 5 0 0 0-4 5v14a5 5 0 0 0 5 5h5v5l6-5");
+   icon.append(path);
+   const basic=make("span","vatra-post-media-empty-basic-001",tr("Коментарів поки немає.","No comments yet."));
+   const expanded=make("span","vatra-post-media-empty-expanded-001",tr("Коментарів поки немає. Будьте першими!","No comments yet. Be the first!"));
+   empty.append(icon,basic,expanded);
+   return empty;
+  }
   async function loadComments(reset=false,keepVisible=false){
    if(busy){
 
@@ -968,12 +987,10 @@ function appendAudience(container,level,isGroup=false){
      entries.replaceChildren(...fresh,...remaining);
      if(!rows.length){
       rootReplies.clear();
-      entries.append(make("p","vatra-post-comments-empty-001",
-       tr("Коментарів поки немає.","No comments yet.")));
+      entries.append(emptyPhotoComments());
      }
     }else{
-     if(reset&&!rows.length)entries.append(make("p","vatra-post-comments-empty-001",
-      tr("Коментарів поки немає.","No comments yet.")));
+     if(reset&&!rows.length)entries.append(emptyPhotoComments());
      for(const node of fresh){
       if(!entries.querySelector("#"+CSS.escape(node.id)))entries.append(node);
      }
