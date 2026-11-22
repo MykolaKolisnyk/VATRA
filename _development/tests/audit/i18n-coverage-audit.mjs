@@ -77,6 +77,7 @@ for(const key of socialShellKeys){
 
 const giftRuntime=await readFile("assets/js/gifts.js","utf8");
 const giftViewerRuntime=await readFile("assets/js/gift-viewer.js","utf8");
+const giftCatalogueRuntime=await readFile("assets/js/gift-catalog.js","utf8");
 const giftsMarkup=await readFile("gifts.html","utf8");
 const giftKeys=[
  "У колекції",
@@ -109,6 +110,7 @@ for(const key of giftKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
   "Missing English gift translation: "+key);
  assert.ok(giftRuntime.includes(key)||giftViewerRuntime.includes(key)||
+  giftCatalogueRuntime.includes(key)||
   giftsMarkup.includes('data-social-uk="'+key+'"'),
   "Gift translation has no source reference: "+key);
 }

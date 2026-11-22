@@ -1257,7 +1257,7 @@ const memberCss=await read("assets/css/profile.css");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
  'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"',
- 'href="assets/css/profile.css"','href="assets/css/gifts.css"'
+ 'href="assets/css/profile.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
  (await Promise.all(["feed.html","communities.html","club.html","notifications.html"].map(p=>read(p))))
