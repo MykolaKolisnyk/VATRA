@@ -3347,6 +3347,7 @@ try{
    const results={
     headerHeight:head.height,actionHeight:row.height,formHeight:footer.height,
     avatarWidth:pic.width,avatarHeight:pic.height,
+    avatarNameGap:authorCopy.getBoundingClientRect().left-pic.right,
     inputHeight:inputBox.height,
     headToActions:row.top-head.bottom,
     actionsToComments:list.top-row.bottom,
@@ -3359,9 +3360,10 @@ try{
    side.replaceChildren();side.hidden=initiallyHidden;
    return results;
   });
-  assert.ok(Math.abs(postSidebar.headerHeight-65)<=2&&
+  assert.ok(Math.abs(postSidebar.headerHeight-70)<=2&&
    Math.abs(postSidebar.actionHeight-50)<=2&&
-   Math.abs(postSidebar.formHeight-63)<=3&&
+   Math.abs(postSidebar.formHeight-68)<=3&&
+   Math.abs(postSidebar.avatarNameGap-11)<=2&&
    Math.abs(postSidebar.avatarWidth-40)<=1&&
    Math.abs(postSidebar.avatarHeight-40)<=1&&
    Math.abs(postSidebar.inputHeight-38)<=2,
@@ -4501,6 +4503,25 @@ try{
   await profilePage.locator("#profile-photo-owner .vatra-verified-badge").waitFor({state:"visible",timeout:6000});
   assert.equal(await profilePage.locator("#profile-photo-owner .vatra-verified-badge").count(),1,
    "Verified profile must show the existing badge inside the avatar photo sidebar");
+  const avatarSidebar=await profilePage.evaluate(()=>{
+   const header=document.querySelector(".profile-photo-info"),
+    avatar=document.querySelector("#profile-photo-owner-avatar"),
+    copy=document.querySelector(".ui-profile-photo-owner-copy-001"),
+    actions=document.querySelector(".profile-photo-actions"),
+    composer=document.querySelector(".profile-photo-comment-form"),
+    close=document.querySelector("#profile-media-viewer-close");
+   const bound=el=>el.getBoundingClientRect();
+   return {headerHeight:bound(header).height,actionHeight:bound(actions).height,
+    formHeight:bound(composer).height,avatarWidth:bound(avatar).width,
+    avatarNameGap:bound(copy).left-bound(avatar).right,closeX:bound(close).left,closeY:bound(close).top};
+  });
+  assert.ok(Math.abs(avatarSidebar.headerHeight-70)<=2&&
+   Math.abs(avatarSidebar.actionHeight-50)<=2&&
+   Math.abs(avatarSidebar.formHeight-68)<=3&&
+   Math.abs(avatarSidebar.avatarWidth-40)<=1&&
+   Math.abs(avatarSidebar.avatarNameGap-11)<=2&&
+   Math.abs(avatarSidebar.closeX-18)<=2&&Math.abs(avatarSidebar.closeY-18)<=2,
+   "Avatar viewer must share exact sidebar spacing and close-button geometry with posts: "+JSON.stringify(avatarSidebar));
   assert.ok(/\/avatars\/654321\/avatar\/test-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
   await profilePage.locator("#profile-avatar-next").click();
@@ -4934,6 +4955,19 @@ try{
    "A visitor sees no placeholder when another member has not set a status");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
    language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
+  // Visitor-only regression: the close handler must never reference the
+  // owner-only upload state before it exists.
+  await profilePage.locator("#profile-avatar-trigger").click();
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true,
+   "Visitor avatar should open in the shared photo dialog");
+  await profilePage.locator("#profile-media-viewer-close").click();
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
+   "The close button must work for a friend's avatar (not just our own)");
+  await profilePage.locator("#profile-avatar-trigger").click();
+  await profilePage.keyboard.press("Escape");
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
+   "Escape must also dismiss the friend's avatar and release modal scroll lock");
+
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
   const visitorColumns=await profilePage.locator("#profile-posts-section").evaluate(section=>{
