@@ -2756,6 +2756,8 @@ try{
       vatra_id:999999,state,blocked_until:state==="blocked"?"2099-01-01T00:00:00Z":null
      }]:[],error:null};
     }})}:
+    table==="verified_accounts"?
+    {select:()=>({in:async(_key,ids)=>({data:ids.filter(id=>String(id)==="654321").map(vatra_id=>({vatra_id})),error:null})})}:
     table==="profile_media"?
     {select:()=>({
       eq:(_field,id)=>({maybeSingle:async()=>({
@@ -2788,7 +2790,12 @@ try{
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
        created_at:"2026-11-10T00:00:00Z"}],error:null
     })})}:
-    {select:()=>({filterId:null,clipFilter:null,after:null,before:null,
+    {select:()=>({filterId:null,clipFilter:null,mediaFilter:null,after:null,before:null,
+      or(value){
+       this.mediaFilter=/media_kind\.eq\.(image|video)/.exec(value)?.[1]||null;
+       (window.__vatraGalleryQueries??=[]).push(value);
+       return this;
+      },
       eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else this.filterId=String(id);return this;},
       is(){return this;},
       limit:async function(n){return {data:table==="feed_posts"?window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(0,n):[],error:null};},
@@ -2802,6 +2809,8 @@ try{
        return {data:window.__feedTestPosts.filter(p=>
         (this.filterId===null||String(p.author_vatra_id)===this.filterId)&&
         (this.clipFilter===null||Boolean(p.is_clip)===this.clipFilter)&&
+        (!this.mediaFilter||p.media_kind===this.mediaFilter||
+         (Array.isArray(p.media_items)&&p.media_items.some(item=>item.media_kind===this.mediaFilter)))&&
         (!this.after||new Date(p.created_at)>=new Date(this.after))&&
         (!this.before||new Date(p.created_at)<new Date(this.before))
        ).slice(a,b+1),error:null};
@@ -4489,6 +4498,9 @@ try{
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-avatar-trigger").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
+  await profilePage.locator("#profile-photo-owner .vatra-verified-badge").waitFor({state:"visible",timeout:6000});
+  assert.equal(await profilePage.locator("#profile-photo-owner .vatra-verified-badge").count(),1,
+   "Verified profile must show the existing badge inside the avatar photo sidebar");
   assert.ok(/\/avatars\/654321\/avatar\/test-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
   await profilePage.locator("#profile-avatar-next").click();
@@ -4804,12 +4816,37 @@ try{
    "Detail sections use typography and labels rather than repetitive icons");
   await profilePage.locator(".vatra-profile-details-close-001").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),false);
+  await profilePage.evaluate(()=>{
+   window.__vatraGalleryFixture="00000000-0000-4000-8000-000000000777";
+   window.__feedTestPosts.push({
+    id:window.__vatraGalleryFixture,author_vatra_id:654321,body:"",
+    visibility:"public",is_clip:false,media_kind:null,media_path:null,
+    created_at:"2026-11-22T08:00:00Z",media_items:[
+     {media_kind:"image",media_path:"654321/posts/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.jpg"},
+     {media_kind:"image",media_path:"654321/posts/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.png"},
+     {media_kind:"video",media_path:"654321/posts/cccccccc-cccc-4ccc-8ccc-cccccccccccc.mp4"}
+    ]
+   });
+  });
   await profilePage.locator("#profile-tab-photos").click();
   assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),true,
    "Photo tab must open a real on-demand gallery");
+  await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-photo-gallery .profile-media-tile").length===2);
+  assert.equal(await profilePage.locator("#profile-photo-gallery .profile-media-tile").count(),2,
+   "All photos from media_items-only posts must appear individually in the Photos tab");
+  assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
+   q.includes('media_items.cs.[{"media_kind":"image"}]'))),
+   "Photos query must include modern JSONB attachments on the server");
   await profilePage.locator("#profile-tab-videos").click();
   assert.equal(await profilePage.locator("#profile-videos-section").isVisible(),true,
    "Video tab must open a real on-demand gallery");
+  await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-video-gallery .profile-media-tile").length===1);
+  assert.equal(await profilePage.locator("#profile-video-gallery .profile-media-tile").count(),1,
+   "Video from a mixed attachment post must appear only in the Videos tab");
+  assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
+   q.includes('media_items.cs.[{"media_kind":"video"}]'))),
+   "Videos query must include JSONB media attachments on the server");
+  await profilePage.evaluate(()=>window.__feedTestPosts=window.__feedTestPosts.filter(post=>post.id!==window.__vatraGalleryFixture));
   await profilePage.locator("#profile-tab-posts").click();
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
    "Only the signed-in member may open the real post creator on their profile");
