@@ -3448,6 +3448,10 @@ try{
     from:()=>query,
     storage:{from:bucket=>({upload:async(path,file)=>{window.__vatraSmokeStickerUpload={bucket,path,type:file.type,size:file.size};return {error:null};},remove:async()=>({error:null})})},
     rpc:async(name,args)=>{
+     if(name==="post_engagement_page")return {data:args.p_posts.map(item=>({
+      post_kind:item.kind,post_id:item.id,like_count:0,comment_count:0,
+      share_count:0,viewer_liked:false,viewer_saved:false
+     })),error:null};
      if(name==="comment_reply_counts"){
       window.__vatraSmokeReplyBatches.push(args.p_parents);
       return {data:[{parent_id:rootA,reply_count:2},{parent_id:rootB,reply_count:1}],error:null};
