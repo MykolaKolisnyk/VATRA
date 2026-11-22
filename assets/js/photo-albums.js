@@ -65,7 +65,7 @@
   postTab.setAttribute("aria-pressed","true");albumTab.setAttribute("aria-pressed","false");
   const create=addIcon(button("vatra-albums-primary-001",t("Створити альбом","Create album"),()=>editAlbum(null)),"plus");
   create.hidden=true;
-  const uploadDirect=addIcon(button("vatra-albums-primary-001",t("Додати фотографії","Add photos"),()=>{
+  const uploadDirect=addIcon(button("vatra-albums-direct-upload-001",t("Додати фотографії","Add photos"),()=>{
    state.uploadMode="personal";uploadInput.click();
   }),"upload");
   uploadDirect.hidden=!isMine;
