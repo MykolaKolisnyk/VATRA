@@ -445,7 +445,7 @@
   update();
  }
 
- let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null;
+ let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
 function openFullMedia(url,kind,container){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
@@ -477,6 +477,36 @@ function openFullMedia(url,kind,container){
    mediaFooterActions=document.createElement("nav");
    mediaFooterActions.className="ui-vatra-post-media-footer-actions-001";
    mediaFooterActions.setAttribute("aria-label",tr("Дії з фотографією","Photo actions"));
+   mediaFooterDownload=document.createElement("button");
+   mediaFooterDownload.type="button";
+   mediaFooterDownload.className="vatra-post-media-footer-download-001";
+   mediaFooterDownload.textContent=document.documentElement.lang==="en"?"Download":"Завантажити";
+   mediaFooterDownload.addEventListener("click",async()=>{
+    const image=mediaDialogContent.querySelector("img"),source=image?.currentSrc||image?.src;
+    if(!source||mediaFooterDownload.disabled)return;
+    mediaFooterDownload.disabled=true;
+    try{
+     const response=await fetch(source,{credentials:"omit",cache:"no-store"});
+     if(!response.ok)throw Error("Download unavailable");
+     const data=await response.blob();
+     const ext=data.type==="image/png"?"png":data.type==="image/webp"?"webp":"jpg";
+     const url=URL.createObjectURL(data),anchor=document.createElement("a");
+     anchor.className="vatra-post-media-download-link-001";
+     anchor.href=url;anchor.download="vatra-photo."+ext;
+     document.body.append(anchor);anchor.click();anchor.remove();
+     setTimeout(()=>URL.revokeObjectURL(url),20000);
+    }catch(_){
+     window.VATRA_TOAST?.show?.(document.documentElement.lang==="en"?"Could not download photo.":"Не вдалося завантажити фотографію.");
+    }finally{mediaFooterDownload.disabled=false;}
+   });
+   mediaFooterOpenPost=document.createElement("button");
+   mediaFooterOpenPost.type="button";
+   mediaFooterOpenPost.className="vatra-post-media-footer-open-post-001";
+   mediaFooterOpenPost.addEventListener("click",()=>{
+    const url=mediaFooterOpenPost.dataset.href;
+    if(url)location.assign(url);
+   });
+   mediaFooterOpenPost.textContent=document.documentElement.lang==="en"?"Go to post":"Перейти до публікації";
    mediaFooterShare=document.createElement("button");
    mediaFooterShare.type="button";
    mediaFooterShare.className="vatra-post-media-footer-share-001";
@@ -488,7 +518,7 @@ function openFullMedia(url,kind,container){
    mediaFooterDelete.textContent=tr("Видалити","Delete");
    mediaFooterDelete.hidden=true;
    mediaFooterDelete.addEventListener("click",()=>mediaFooterActions.querySelector(".vatra-post-owner-delete-001")?.click());
-   mediaFooterActions.append(mediaFooterShare,mediaFooterDelete);
+   mediaFooterActions.append(mediaFooterDownload,mediaFooterOpenPost,mediaFooterShare,mediaFooterDelete);
    footer.append(mediaCaption,mediaFooterActions);
    frame.append(close,mediaDialogContent,footer);
    mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001";mediaDialog.append(frame,mediaSide);
@@ -508,6 +538,23 @@ function openFullMedia(url,kind,container){
   restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const head=container?.querySelector(".feed-post-header"),identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
   const postCard=container?.closest(".feed-post-card");
+  const postId=container?.dataset.postId||postCard?.dataset.postId;
+  const postKind=container?.dataset.postKind||postCard?.dataset.postKind;
+  const clubFromPage=location.pathname.match(/(?:^|\/)club([1-9][0-9]*)(?:\/|$)/)?.[1];
+  const clubFromLink=(container?.querySelector('a[href*="club"]')?.getAttribute("href")||
+   postCard?.querySelector('a[href*="club"]')?.getAttribute("href")||"").match(/(?:^|\/)club([1-9][0-9]*)(?:[?\/]|$)/)?.[1];
+  const clubId=container?.dataset.clubId||postCard?.dataset.clubId||clubFromPage||clubFromLink;
+  const groupPost=postKind==="group"||!!clubFromPage;
+  const validClub=/^[1-9][0-9]*$/.test(String(clubId||""));
+  const base=location.pathname.startsWith("/VATRA/")?new URL("/VATRA/",location.origin):new URL("/",location.origin);
+  const validPost=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(postId||""));
+  mediaFooterDownload.hidden=kind!=="image";
+  mediaFooterOpenPost.hidden=!validPost||(groupPost&&!validClub);
+  if(validPost&&(!groupPost||validClub)){
+   const path=groupPost?"club"+clubId+"?post="+encodeURIComponent(postId):
+    "feed?post="+encodeURIComponent(postId);
+   mediaFooterOpenPost.dataset.href=new URL(path,base).href;
+  }
   const ownerId=container?.dataset.vatraMediaOwnerId||postCard?.dataset.vatraMediaOwnerId;
   const viewerId=container?.dataset.vatraViewerId||postCard?.dataset.vatraViewerId;
   const authorName=String(head?.querySelector(".feed-post-name")?.textContent||"").trim();

@@ -27,7 +27,7 @@ for(const marker of [
  'photo_album_comments").delete','show_in_photos','visibility','comments_mode',
  'createSignedUrl(path,120)','upload(path,file,','remove([row.media_path])',
  'window.VATRA_OPEN_PROFILE_AVATAR','navigator.clipboard.writeText(albumUrl(album.id))',
- 'const requested=new URLSearchParams(location.search).get("album")'
+ 'const requested=photoParams.get("album")'
 ]){
  assert.ok(script.includes(marker),"Album implementation missing core function: "+marker);
 }
@@ -125,6 +125,60 @@ assert.ok(
  photoSchema.includes("security_invoker = true")&&
  !photoSchema.includes("security definer"),
  "Photo source metadata, per-photo comment relationship and like RLS migration must be present"
+);
+
+const actionsMigration=await readFile("_development/supabase/migrations/20261122154500_photo_actions_pin_owner_update.sql","utf8");
+assert.ok(
+ script.includes('vatra-post-media-viewer ui-vatra-album-viewer-001')&&
+ script.includes('ui-vatra-post-media-side-001 ui-vatra-album-photo-side-001')&&
+ script.includes("photoSide.append(commentsBox)")&&
+ script.includes('t("Завантажити","Download")')&&
+ script.includes('t("Перейти до альбому","Go to album")')&&
+ script.includes('t("Закріпити","Pin")')&&
+ script.includes('t("Видалити","Delete")')&&
+ script.includes('ui-vatra-album-tile-menu-001')&&
+ script.includes('photoActionButtons(photo,album)')&&
+ script.includes('client.storage.from(BUCKET).download(row.media_path)')&&
+ script.includes('state.pendingPhotoId')&&
+ script.includes('photo_album_comments")')&&
+ css.includes('.ui-vatra-album-photo-side-001')&&
+ css.includes('.ui-vatra-album-tile-menu-items-001'),
+ "Standalone photos must use consistent photo viewer layout with VK-style photo actions on tiles and in full screen"
+);
+assert.ok(
+ script.includes("uploadBar.value=done+failed")&&
+ script.includes('status.textContent=t("Завантажується…","Uploading…")')&&
+ script.includes('uploadGrid.replaceChildren()')&&
+ script.includes('photoLoading.hidden=false')&&
+ script.includes('uploadPreviewUrls=[]'),
+ "Photo upload and image-loading progress must be real and clean up previews"
+);
+assert.ok(
+ actionsMigration.includes("pinned_at")&&
+ actionsMigration.includes("vatra_album_photos_owner_update")&&
+ actionsMigration.includes("vatra_album_photo_preserve_source")&&
+ actionsMigration.includes("raise exception 'Photo source is immutable'")&&
+ !actionsMigration.includes("security definer"),
+ "Pinned photos must retain source identity and owner-only RLS updates"
+);
+assert.ok(
+ profile.includes("updateAvatarProgress(0,originalFile?3:2")&&
+ profile.includes("updateAvatarProgress(originalPath?2:1")&&
+ profile.includes("updateAvatarProgress(originalPath?3:2")&&
+ profile.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))')&&
+ html.includes('id="profile-avatar-upload-progress"')&&
+ html.includes('id="profile-avatar-upload-progress-bar"')&&
+ html.includes('id="profile-avatar-upload-progress-text"'),
+ "Profile photo upload must show real completed steps and update without full page reload"
+);
+assert.ok(
+ profile.includes('client.from("avatar_comments").delete()')&&
+ profile.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
+ profile.includes('avatarCommentPages.clear()')&&
+ profile.includes('avatarDownload.addEventListener("click",async()=>')&&
+ html.includes('id="profile-photo-download"')&&
+ html.includes('id="profile-photo-open-album"'),
+ "Profile photo comments must be deletable only by their own authors and avatar actions must be accessible"
 );
 
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");
