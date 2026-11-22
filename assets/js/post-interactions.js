@@ -431,12 +431,11 @@ function appendAudience(container,level,isGroup=false){
    if(likeReady)return Promise.resolve();
    if(likePending)return likePending;
    likePending=(async()=>{
-    const [total,mine]=await Promise.all([
-     likeFilter(client.from("post_likes").select("liker_id",{count:"exact",head:true})),
-     likeFilter(client.from("post_likes").select("liker_id")).eq("liker_id",userId).limit(1)
-    ]);
-    if(total.error||mine.error)throw total.error||mine.error;
-    likeCount=total.count||0;liked=!!mine.data?.length;likeReady=true;
+    const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);
+    const current=snapshotMap.get(kind+":"+post.id);
+    if(!current)throw Error("Likes unavailable");
+    likeCount=Math.max(0,Number(current.like_count)||0);
+    liked=!!current.viewer_liked;likeReady=true;
     count.textContent=String(Math.max(0,likeCount));
     like.setAttribute("aria-pressed",String(liked));
     like.classList.toggle("is-liked",liked);
@@ -1129,15 +1128,12 @@ function appendAudience(container,level,isGroup=false){
    try{
 
 
-   const [commentsResult,sharesResult]=await Promise.all([
-     client.from("post_comments").select("id",{count:"exact",head:true})
-      .eq("post_kind",kind).eq("post_id",post.id),
-     client.from("feed_posts").select("id",{count:"exact",head:true})
-      .eq("shared_post_kind",kind).eq("shared_post_id",post.id).is("archived_at",null)
-    ]);
-    if(!shell.isConnected||ticket!==socialTicket)return;
-    if(!commentsResult.error)commentsCount.textContent=String(Number(commentsResult.count||0));
-    if(!sharesResult.error)sharesCount.textContent=String(Number(sharesResult.count||0));
+   const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);
+   if(!shell.isConnected||ticket!==socialTicket)return;
+   const current=snapshotMap.get(kind+":"+post.id);
+   if(!current)return;
+   commentsCount.textContent=String(Math.max(0,Number(current.comment_count)||0));
+   sharesCount.textContent=String(Math.max(0,Number(current.share_count)||0));
    }catch(_){ }
   }
   if(snapshot){
