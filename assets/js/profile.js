@@ -1816,7 +1816,12 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   const info=giftInfo(gift.gift_code);
   item.type="button";
   item.setAttribute("aria-label",t("Переглянути подарунок: ","View gift: ")+t(info.uk,info.en));
-  item.addEventListener("click",()=>window.VATRA_GIFT_VIEWER?.open(info.code));
+  item.addEventListener("click",async()=>{
+    try{
+     const viewer=await window.VATRA_FEATURES.load("gift");
+     viewer.open(info.code);
+    }catch(_){window.VATRA_TOAST?.error(t("Не вдалося відкрити подарунок.","Could not open the gift."));}
+   });
   const art=node("span","profile-gift-art ui-profile-gift-art-001");
   art.setAttribute("aria-hidden","true");
   art.style.backgroundImage="url("+JSON.stringify(window.VATRA_GIFTS_CATALOG.fileUrl(info))+")";
