@@ -22,6 +22,18 @@
      const batch=ids.slice(offset,offset+100);
      let verified=new Set(),success=false;
      try{
+      if(window.VATRA_PUBLIC_NAMES?.get){
+       const {data,error}=await window.VATRA_PUBLIC_NAMES.get(client,batch);
+       const names=new Map((data||[]).filter(row=>
+        row&&typeof row.verified==="boolean"&&/^[1-9][0-9]{0,18}$/.test(String(row.vatra_id)))
+        .map(row=>[String(row.vatra_id),row.verified]));
+       if(!error&&batch.every(id=>names.has(id))){
+        verified=new Set(batch.filter(id=>names.get(id)));
+        success=true;
+       }
+      }
+     }catch(_){}
+     if(!success)try{
       const {data,error}=await client.from("verified_accounts").select("vatra_id").in("vatra_id",batch);
       if(!error){verified=new Set((data||[]).map(row=>String(row.vatra_id)));success=true;}
      }catch(_){}

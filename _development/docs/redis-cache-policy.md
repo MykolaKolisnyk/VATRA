@@ -13,10 +13,14 @@ VATRA's Redis caches contain only minimal public data:
   existing Edge Function accepts a strictly validated POST with numeric
   `club_id`. Missing clubs are never cached. Redis failures fall back to
   the same public PostgREST query.
-- **Public profile display names**: `vatra:public:profile-name:v1:<vatra_id>`,
-  only `vatra_id` and `display_name` (no email, phone, status, avatar,
-  preferences, session, permissions or private data), TTL 120 seconds.
-  This Edge endpoint requires a verified user JWT and uses caller RLS.
+- **Public profile identities and verification badges**: `vatra:public:profile-name:v2:<vatra_id>`,
+  only `vatra_id`, `display_name` and `verified` (no email, phone,
+  private status, avatar, preferences, roles, session, permissions or private
+  data), TTL 120 seconds. The Edge Function verifies the user JWT and queries
+  `public_profiles` and `verified_accounts` under caller RLS. The browser's
+  badge helper reuses the public-name response when available and falls back
+  to direct RLS queries otherwise. Revoked verification can remain visible
+  for the duration of the bounded TTL.
 - **Avatar metadata in the browser**: Feed, friend lists and notifications reuse `profile_media` avatar paths for 15 seconds (missing paths for 5 seconds), deduplicate overlapping reads and cap the LRU at 256 entries per Supabase client. Account transitions invalidate cached and in-flight results; failed reads are never cached. The friend lists split larger ID sets into 100-ID batches to avoid truncating results. The short-lived 10-second account-state cache is also invalidated after auth transitions and rejects stale in-flight results. These RLS-scoped values are never sent to Redis.
 - **Comment and Feed cursor caches**: repeated RLS-scoped comment thread pages reuse a bounded 4-second browser-memory cache (32 pages). Feed source cursors are reused for 3 seconds (16 pages), keyed by viewer-specific filters and follow/friend lists. Both combine simultaneous requests, reject stale auth-session responses and clear after successful relevant local writes; network/SQL failures are never cached. Comment likes invalidate comment pages, and new comments invalidate both comment pages and engagement. These are **not** Redis caches; changes made by other users may remain invisible for at most their short TTL.
 - **Browser-only short caches**: public names for 90 seconds per Supabase client (missing names for 15 seconds, overlapping requests deduplicated and cleared on sign-in/sign-out); per-viewer
