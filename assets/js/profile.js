@@ -2353,6 +2353,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  avatarWrap.dataset.vatraSystemAvatar="true";
  avatarWrap.dataset.vatraRingKind="default";
  const canViewPhoto=!locked;
+ window.VATRA_CAN_VIEW_PROFILE_AVATAR=canViewPhoto;
  const status=(text,error=false)=>{
   if(!text)return;
   const kind=error?"error":"success";
@@ -2953,7 +2954,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();
   hideAvatarUndo();discardAvatarUndo();
  });
- window.VATRA_CAN_VIEW_PROFILE_AVATAR=canViewPhoto;
  window.VATRA_OPEN_PROFILE_AVATAR=path=>{if(canViewPhoto)openMedia("avatar",path);};
  const openStory=()=>{
   if(!canViewPhoto||!activeStory)return;
