@@ -272,7 +272,7 @@
    commentsDialog.showModal();void loadComments(album);
   }
   commentsForm.addEventListener("submit",async e=>{
-   e.preventDefault();if(!commentAlbum||!validId(ownId)||!validId(userId)&&!userId)return;
+   e.preventDefault();if(!commentAlbum||!validId(ownId)||!validUUID(userId))return;
    const body=commentsInput.value.trim();if(!body||body.length>1000)return;
    commentsSend.disabled=true;
    try{
@@ -336,7 +336,7 @@
    details.append(make("strong","vatra-albums-card-title-001",album.title),
     make("span","vatra-albums-card-count-001",t("Фотографій: ","Photos: ")+(album.count||0)));
    card.append(cover,details);
-   card.addEventListener("click",()=>{state.selected=album.id;renderAlbumPane();});
+   card.addEventListener("click",()=>{state.selected=album.id;history.replaceState(history.state,"",albumUrl(album.id));renderAlbumPane();});
    return card;
   }
   function renderAlbumPane(){
@@ -384,6 +384,13 @@
    const actions=make("div","ui-vatra-albums-detail-actions-001");
    const commentBtn=addIcon(button("vatra-albums-icon-button-001",t("Обговорення","Discussion"),()=>void openComments(album)),"comments");
    actions.append(commentBtn);
+   const share=button("vatra-albums-icon-button-001",t("Поділитися","Share"),async()=>{
+    try{
+     await navigator.clipboard.writeText(albumUrl(album.id));
+     notify(t("Посилання на альбом скопійовано.","Album link copied."),"success");
+    }catch(_){notify(t("Не вдалося скопіювати посилання.","Could not copy link."));}
+   });
+   actions.append(share);
    if(isMine){
     actions.append(addIcon(button("vatra-albums-icon-button-001",t("Редагувати","Edit"),()=>editAlbum(album)),"settings"),
      addIcon(button("vatra-albums-icon-button-001",t("Додати фото","Add photos"),()=>uploadInput.click()),"upload"),
