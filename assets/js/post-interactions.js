@@ -909,8 +909,6 @@ function appendAudience(container,level,isGroup=false){
    }
    return card;
   }
-  // The same comment data renders in the feed and in the fullscreen photo viewer.
-  // Keep the regular feed's short message, and show the avatar-style empty state in the viewer.
   function emptyPhotoComments(){
    const empty=make("p","vatra-post-comments-empty-001");
    const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
