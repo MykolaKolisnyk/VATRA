@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://mykolakolisnyk.github.io/VATRA/</loc></url>
+  <url><loc>https://mykolakolisnyk.github.io/VATRA/documents</loc></url>
   <url><loc>https://mykolakolisnyk.github.io/VATRA/terms</loc></url>
   <url><loc>https://mykolakolisnyk.github.io/VATRA/privacy</loc></url>
   <url><loc>https://mykolakolisnyk.github.io/VATRA/cookies</loc></url>
-  <url><loc>https://mykolakolisnyk.github.io/VATRA/commerce.html</loc></url>
+  <url><loc>https://mykolakolisnyk.github.io/VATRA/commerce</loc></url>
 </urlset>

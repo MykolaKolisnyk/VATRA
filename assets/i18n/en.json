@@ -6,7 +6,6 @@
   "Прибрати зі збереженого": "Remove from saved",
   "Збережене": "Saved",
   "Більше": "More",
-
   "Спілкування": "Messaging",
   "Знайомтеся й закохуйтеся": "Connect and fall in love",
   "Маркетплейс": "Marketplace",
@@ -313,28 +312,6 @@
   "Не вдалося завантажити стрічку. Оновіть сторінку.": "Could not load the feed. Refresh the page.",
   "Не вдалося підключитися до VATRA.": "Could not connect to VATRA.",
   "__pages": {
-    "maintenance": {
-      "meta": {
-        "title": "Maintenance"
-      },
-      "nodes": {
-        "maintenance-kicker": {
-          "text": {
-            "0": "TEMPORARY BREAK"
-          }
-        },
-        "maintenance-heading": {
-          "text": {
-            "0": "Maintenance"
-          }
-        },
-        "maintenance-copy": {
-          "text": {
-            "0": "Vatryk is working to improve VATRA. The social network will be available again soon. Thank you for your patience!"
-          }
-        }
-      }
-    },
     "404": {
       "meta": {
         "title": "Page not found",
@@ -354,6 +331,28 @@
         "n9": {
           "text": {
             "0": "Go back"
+          }
+        }
+      }
+    },
+    "maintenance": {
+      "meta": {
+        "title": "Maintenance"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "TEMPORARY BREAK"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Maintenance"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk is working to improve VATRA. The social network will be available again soon. Thank you for your patience!"
           }
         }
       }
@@ -643,7 +642,7 @@
         },
         "n65": {
           "text": {
-            "0": "Terms of Service"
+            "0": "Documents"
           }
         },
         "n66": {
@@ -1239,7 +1238,7 @@
         },
         "n19": {
           "text": {
-            "0": "Updated November 18, 2026"
+            "0": "Updated November 23, 2026"
           }
         },
         "n21": {
@@ -1410,18 +1409,18 @@
         },
         "n64": {
           "text": {
-            "0": "When posting listings or selling goods and services, provide accurate descriptions and terms, do not mislead buyers, respect consumer rights, and comply with applicable law."
+            "0": "When posting marketplace listings on VATRA, follow the Marketplace Rules, describe items accurately, do not mislead buyers and respect consumer rights. Prohibited items and services may not be offered through other areas of VATRA."
           }
         },
         "n65": {
           "text": {
-            "0": "Payment, delivery, refund, and liability terms are determined by the particular transaction. ",
-            "1": " — never enter payment-card details in registration fields."
+            "0": "Buyers and sellers arrange payment, delivery and returns in accordance with the law and mandatory consumer rights. ",
+            "1": " and does not arrange delivery. Do not post card details, passwords or verification codes in public comments."
           }
         },
         "n66": {
           "text": {
-            "0": "VATRA registration does not accept payments"
+            "0": "VATRA does not process marketplace payments"
           }
         },
         "n68": {
@@ -1545,6 +1544,16 @@
           "text": {
             "0": "VATRA Commerce Rules"
           }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "All documents"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Platform rules"
+          }
         }
       }
     },
@@ -1604,7 +1613,7 @@
         },
         "n19": {
           "text": {
-            "0": "Updated November 11, 2026"
+            "0": "Updated November 23, 2026"
           }
         },
         "n21": {
@@ -1709,7 +1718,7 @@
         },
         "n47": {
           "text": {
-            "0": "This policy explains which data VATRA processes when you visit the website, create an account, sign in, or reset your password. VATRA aims to process only the information needed to provide available service features."
+            "0": "This policy describes data processing when you use VATRA: browse the site, register, sign in, communicate, publish content, join communities or post listings. It explains the data needed to operate these features, keep them secure and comply with legal obligations."
           }
         },
         "n48": {
@@ -1764,7 +1773,7 @@
         },
         "n60": {
           "text": {
-            "0": "You do not need to provide a phone number or payment details through VATRA’s registration form."
+            "0": "VATRA also processes profile details, posts, comments, messages, uploaded photos and videos, listings, visibility settings and necessary technical information. Who can access content depends on its type and visibility settings. A phone number and payment details are not required to register."
           }
         },
         "n62": {
@@ -1905,6 +1914,16 @@
           "text": {
             "0": "Create account"
           }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "All documents"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Data protection"
+          }
         }
       }
     },
@@ -1964,7 +1983,7 @@
         },
         "n19": {
           "text": {
-            "0": "Updated November 8, 2026"
+            "0": "Updated November 23, 2026"
           }
         },
         "n21": {
@@ -2135,7 +2154,7 @@
         },
         "n71": {
           "text": {
-            "0": "The names of technical session keys may change when the authentication system is updated."
+            "0": "Technical data may be stored in cookies, localStorage and other standard browser storage. The data used depends on sign-in, language preference and the features you use."
           }
         },
         "n73": {
@@ -2247,6 +2266,16 @@
         "n302": {
           "text": {
             "0": "Create account"
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "All documents"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Browser storage"
           }
         }
       }
@@ -2545,7 +2574,7 @@
         },
         "n125": {
           "text": {
-            "0": "Terms of Service"
+            "0": "Documents"
           }
         },
         "n126": {
@@ -2862,7 +2891,7 @@
         },
         "copy-rule-alcohol": {
           "text": {
-            "0": "Alcoholic beverages and kits for producing them may not be offered. Ordinary glasses, bottle holders, coolers and books about beverages are permitted when they do not promote alcohol sales. Alcohol-branded merchandise is not admitted pending a separate VATRA decision."
+            "0": "Alcoholic drinks and kits for making alcohol are not permitted on the VATRA Marketplace. Ordinary glasses, coasters, coolers and books about beverages are allowed if the listing does not promote alcohol sales. Goods intended to advertise alcohol sales are not permitted."
           }
         },
         "head-rule-body": {
@@ -3082,7 +3111,7 @@
         },
         "copy-restricted": {
           "text": {
-            "0": "These categories require dedicated features or seller verification. Until such mechanisms exist, they are unavailable in VATRA Marketplace."
+            "0": "These listing categories are not permitted on the VATRA Marketplace. The restriction applies regardless of payment method, transfer arrangement or listing category."
           }
         },
         "head-limit-tickets": {
@@ -3092,7 +3121,7 @@
         },
         "copy-limit-tickets": {
           "text": {
-            "0": "Ticket sales and resale are not available until an authorized seller verification process is introduced."
+            "0": "Listings offering tickets to events for sale, resale or transfer are not permitted on the VATRA Marketplace."
           }
         },
         "head-limit-vouchers": {
@@ -3102,7 +3131,7 @@
         },
         "copy-limit-vouchers": {
           "text": {
-            "0": "Gift cards, certificates and vouchers are not admitted until a separate verified seller program is launched."
+            "0": "Gift cards, certificates and vouchers may not be offered for sale, exchange or free transfer on the VATRA Marketplace."
           }
         },
         "head-limit-adoption": {
@@ -3112,7 +3141,7 @@
         },
         "copy-limit-adoption": {
           "text": {
-            "0": "The catalogue does not accept live animal rehoming listings. A separate process for verified organizations may be introduced later."
+            "0": "Listings offering the sale, transfer or rehoming of live animals are not permitted on the VATRA Marketplace."
           }
         },
         "head-limit-services": {
@@ -3122,7 +3151,7 @@
         },
         "copy-limit-services": {
           "text": {
-            "0": "Service listings are not admitted until a dedicated feature is launched. Permitted property rental is a separate listing type, not a general services category."
+            "0": "Service listings are not permitted on the VATRA Marketplace. Property rental is a separate listing type and is not part of the general services category."
           }
         },
         "head-safety": {
@@ -3147,7 +3176,7 @@
         },
         "updated": {
           "text": {
-            "0": "Version of November 18, 2026"
+            "0": "Version of November 23, 2026"
           }
         },
         "toc-title": {
@@ -3256,6 +3285,117 @@
           },
           "attrs": {
             "aria-label": "Choose language"
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "All documents"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Marketplace rules"
+          }
+        }
+      }
+    },
+    "documents": {
+      "meta": {
+        "title": "VATRA Documents",
+        "description": "VATRA documents: Terms of Service, Privacy, Cookies and Marketplace Rules.",
+        "og:locale": "en_US",
+        "og:title": "VATRA Documents",
+        "og:description": "Official information and rules for using VATRA."
+      },
+      "nodes": {
+        "docs_back_home_001": {
+          "text": {
+            "0": "Back to VATRA"
+          }
+        },
+        "docs_overline_001": {
+          "text": {
+            "0": "INFORMATION & RULES"
+          }
+        },
+        "docs_title_001": {
+          "text": {
+            "0": "VATRA Documents"
+          }
+        },
+        "docs_intro_001": {
+          "text": {
+            "0": "Important information about using VATRA, protecting personal data and marketplace rules. Choose a document to read."
+          }
+        },
+        "docs_card_01_kicker_001": {
+          "text": {
+            "0": "01 / PLATFORM"
+          }
+        },
+        "docs_card_01_title_001": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "docs_card_01_desc_001": {
+          "text": {
+            "0": "Accounts, community, content, security and rules for using VATRA."
+          }
+        },
+        "docs_card_02_kicker_001": {
+          "text": {
+            "0": "02 / PRIVACY"
+          }
+        },
+        "docs_card_02_title_001": {
+          "text": {
+            "0": "Privacy Policy"
+          }
+        },
+        "docs_card_02_desc_001": {
+          "text": {
+            "0": "What data is used, how it is protected and what rights you have."
+          }
+        },
+        "docs_card_03_kicker_001": {
+          "text": {
+            "0": "03 / BROWSER"
+          }
+        },
+        "docs_card_03_title_001": {
+          "text": {
+            "0": "Cookies"
+          }
+        },
+        "docs_card_03_desc_001": {
+          "text": {
+            "0": "How cookies, local storage and session settings work."
+          }
+        },
+        "docs_card_04_kicker_001": {
+          "text": {
+            "0": "04 / MARKETPLACE"
+          }
+        },
+        "docs_card_04_title_001": {
+          "text": {
+            "0": "Marketplace Rules"
+          }
+        },
+        "docs_card_04_desc_001": {
+          "text": {
+            "0": "Listing requirements, permitted categories, prohibited items and transaction safety."
+          }
+        },
+        "docs_open_001": {
+          "text": {
+            "0": "Read document"
+          }
+        },
+        "docs_footer_001": {
+          "text": {
+            "0": "© 2026 VATRA · Your people. Your stories. Your VATRA."
           }
         }
       }
