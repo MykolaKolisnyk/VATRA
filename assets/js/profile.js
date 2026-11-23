@@ -1076,7 +1076,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  if(more)more.disabled=true;
  try{
   let query=client.from("feed_posts")
-   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,pinned_at,comments_enabled")
+   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,poll,shared_post_kind,shared_post_id,pinned_at,comments_enabled")
    .eq("author_vatra_id",targetId).eq("is_clip",false);
   if(typeof query.is==="function")query=query.is("archived_at",null);
 
@@ -1540,7 +1540,7 @@ function bindPostComposer(client,user,ownId){
  const update=()=>{
   const length=Array.from(input.value).length;
   counter.textContent=length+" / 2000";
-  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length)||length>2000;
+  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length&&!composerUI?.getPoll?.())||length>2000||!!composerUI?.hasInvalidPoll?.()||!!composerUI?.hasInvalidSchedule?.();
  };
  const clearStatus=()=>{status.textContent="";status.hidden=true;};
  picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
@@ -1588,8 +1588,12 @@ function bindPostComposer(client,user,ownId){
   event.preventDefault();
   if(publishing)return;
   const body=input.value.trim(),files=picker?.getFiles()||[];
-  if((!body&&!files.length)||Array.from(body).length>2000){
-   status.textContent=t("Додайте текст, фото або відео (до 2000 символів).","Add text, a photo or video (up to 2000 characters).");
+  const poll=composerUI?.getPoll?.()||null;
+  const publishAt=composerUI?.getScheduledAt?.()||null;
+  if((!body&&!files.length&&!poll)||Array.from(body).length>2000||
+   composerUI?.hasInvalidPoll?.()||composerUI?.hasInvalidSchedule?.()){
+   status.textContent=t("Перевірте текст, опитування та дату публікації.",
+    "Check the text, poll and scheduled date.");
    status.hidden=false;return;
   }
   publishing=true;
@@ -1598,16 +1602,24 @@ function bindPostComposer(client,user,ownId){
   let uploaded=null;
   try{
    if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,files);
-   const {error}=await client.from("feed_posts").insert({
+   const payload={
     author_id:user.id,author_vatra_id:ownId,body,
     visibility:["public","friends","only_me"].includes(visibility?.value)?visibility.value:"public",
-    media_items:uploaded||[]
-   });
+    media_items:uploaded||[],poll
+   };
+   if(publishAt)payload.publish_at=publishAt;
+   const {error}=await client.from(publishAt?"scheduled_feed_posts":"feed_posts").insert(payload);
    if(error)throw error;
    input.value="";picker?.reset();composerUI?.reset();
    dialog.close();
-   await loadPosts(client,ownId,ownId,user.id);
-   window.dispatchEvent(new Event("vatra:profile-media-changed"));
+   if(!publishAt){
+    await loadPosts(client,ownId,ownId,user.id);
+    window.dispatchEvent(new Event("vatra:profile-media-changed"));
+   }else{
+    (window.VATRA_TOAST?.show||((message)=>(window.VATRA_PENDING_TOASTS??=[]).push([message,"success"])))(
+     t("Публікацію заплановано. Вона з’явиться автоматично у вибраний час.",
+      "Post scheduled. It will publish automatically at the selected time."),"success");
+   }
   }catch(error){
    if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
    status.textContent=error?.message||t("Не вдалося опублікувати допис. Повторіть спробу.",
