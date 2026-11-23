@@ -269,9 +269,16 @@ BEGIN
   IF NEW.publish_at<=now()+interval '2 minutes' THEN
    RAISE EXCEPTION 'Schedule at least two minutes in advance' USING ERRCODE='23514';
   END IF;
+  IF NEW.status<>'queued' OR NEW.attempts<>0
+   OR NEW.published_post_id IS NOT NULL
+   OR NEW.last_error IS NOT NULL OR NEW.next_attempt_at IS NOT NULL THEN
+   RAISE EXCEPTION 'Only an untouched pending post may be scheduled' USING ERRCODE='23514';
+  END IF;
+  NEW.created_at=now();
  ELSIF (SELECT auth.uid()) IS NOT NULL THEN
   IF NEW.author_id IS DISTINCT FROM OLD.author_id
     OR NEW.author_vatra_id IS DISTINCT FROM OLD.author_vatra_id
+    OR NEW.created_at IS DISTINCT FROM OLD.created_at
     OR NEW.published_post_id IS DISTINCT FROM OLD.published_post_id
     OR NEW.attempts IS DISTINCT FROM OLD.attempts
     OR NEW.last_error IS DISTINCT FROM OLD.last_error
