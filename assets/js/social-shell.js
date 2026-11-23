@@ -726,6 +726,39 @@
   window.addEventListener("resize",align,{passive:true});
   window.visualViewport?.addEventListener("resize",align,{passive:true});
  }
+ const soundRoot=new URL("../../",document.currentScript?.src||location.href);
+ const soundFiles=Object.freeze({
+  like:"like.mp3",messageIn:"message-in.mp3",messageOut:"message-out.mp3",
+  newFollower:"new-follower.mp3",notification:"notification.mp3"
+ });
+ let soundLastPlayed=0;
+ const playSound=kind=>{
+  const filename=soundFiles[kind];
+  if(!filename||document.hidden||!window.Audio)return false;
+  const now=Date.now();
+  if(now-soundLastPlayed<350)return false;
+  soundLastPlayed=now;
+  try{
+   const audio=new Audio(new URL("assets/sounds/"+filename,soundRoot).href);
+   audio.volume=kind==="like"?.35:.55;
+   const promise=audio.play();promise?.catch?.(()=>{});
+   return true;
+  }catch(_){return false;}
+ };
+ window.VATRA_SOUNDS=Object.freeze({play:playSound});
+ function setupCommentEnter(){
+  document.addEventListener("keydown",event=>{
+   if(event.key!=="Enter"||event.shiftKey||event.ctrlKey||event.metaKey||
+      event.altKey||event.isComposing||event.keyCode===229)return;
+   const input=event.target;
+   if(input?.tagName!=="TEXTAREA")return;
+   const form=input.closest?.("form");
+   if(!form||![...form.classList].some(x=>x.includes("comment")))return;
+   event.preventDefault();event.stopImmediatePropagation();
+   const button=form.querySelector('button[type="submit"]:not(:disabled)');
+   if(button)form.requestSubmit(button);
+  },true);
+ }
  const shellScript=document.currentScript?.src;
  const boot=()=>{
   if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.src=new URL("account-guard.js?rev=75e4057976db3593814de6d14beae75016283fae",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
@@ -736,6 +769,7 @@
   setUpComingSoon();
   setUpStories();
   setUpSiteSearch();
+  setupCommentEnter();
  };
  const bootLocalized=()=>{
 
