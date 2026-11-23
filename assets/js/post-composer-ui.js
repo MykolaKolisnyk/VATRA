@@ -189,7 +189,13 @@ function bind({prefix,ownerId,getFile,client}){
   pollOptions.querySelectorAll(".vatra-post-composer-poll-option-remove").forEach(button=>{
    button.disabled=optionInputs.length<=2;
   });
-  pollHint.textContent=pollEnabled&&!getPoll()?
+  const deadline=pollEnd.value?new Date(pollEnd.value).getTime():null;
+  const planned=getScheduledAt();
+  const deadlineConflict=pollEnabled&&Number.isFinite(deadline)&&planned&&
+   deadline<=new Date(planned).getTime();
+  pollHint.textContent=deadlineConflict?
+   t("Опитування має завершитися після публікації.","Poll must end after publication."):
+   pollEnabled&&!getPoll()?
    t("Заповніть запитання та мінімум два різні варіанти.","Enter a question and two distinct answers."):
    t("Мінімум два різні варіанти відповіді.","Provide at least two different answers.");
   sync();textarea.dispatchEvent(new Event("input",{bubbles:true}));
@@ -341,6 +347,10 @@ function bind({prefix,ownerId,getFile,client}){
       if(!Number.isFinite(selected.getTime())||selected.getTime()<=Date.now()+120000){
        showNotice(t("Виберіть майбутню дату щонайменше через дві хвилини.",
         "Choose a time at least two minutes in the future."));return;
+      }
+      if(item.poll?.closes_at&&selected.getTime()>=new Date(item.poll.closes_at).getTime()){
+       showNotice(t("Опитування має завершитися після публікації.",
+        "Poll must end after publication."));return;
       }
       saveTime.disabled=true;
       try{
