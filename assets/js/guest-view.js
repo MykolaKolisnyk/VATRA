@@ -1,6 +1,6 @@
 (()=>{"use strict";if(window.VATRA_HOST_ALLOWED===false)return;
 const root=new URL("../../",document.currentScript.src);
-const t=(uk,en)=>document.documentElement.lang==="en"?en:(window.VATRA_LANGUAGE?.translate?.(uk)||uk);
+const t=(uk,en)=>{const code=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";if(code==="uk")return uk;const translated=window.VATRA_LANGUAGE?.translate?.(uk);return typeof translated==="string"&&translated!==uk?translated:(code==="en"?en:uk);};
 const node=(tag,cls,value)=>{const e=document.createElement(tag);e.className=cls;if(value!==undefined)e.textContent=value;return e;};
 const link=(cls,label,path)=>{const a=node("a",cls,label);a.href=new URL(path,root).href;return a;};
 const idOK=id=>/^[1-9][0-9]{0,18}$/.test(id||"");
