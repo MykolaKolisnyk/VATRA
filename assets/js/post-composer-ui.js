@@ -54,7 +54,7 @@ const iconUpload=()=>{
  }
  return svg;
 };
-function bind({prefix,ownerId,getFile}){
+function bind({prefix,ownerId,getFile,client}){
  const q=s=>document.querySelector(s);
  const dialog=q("#"+prefix+"-compose-dialog"),form=q("#"+prefix+"-compose-form");
  const title=q("#"+prefix+"-compose-title"),textarea=q("#"+prefix+"-compose-text");
