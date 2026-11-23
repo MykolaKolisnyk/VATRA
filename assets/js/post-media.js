@@ -521,7 +521,7 @@ function openFullMedia(url,kind,container){
    mediaFooterActions.append(mediaFooterDownload,mediaFooterOpenPost,mediaFooterShare,mediaFooterDelete);
    footer.append(mediaCaption,mediaFooterActions);
    frame.append(close,mediaDialogContent,footer);
-   mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001";mediaDialog.append(frame,mediaSide);
+   mediaSide=document.createElement("aside");mediaSide.className="ui-vatra-post-media-side-001 vatra-media-side-unified-001";mediaDialog.append(frame,mediaSide);
    mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
@@ -562,7 +562,7 @@ function openFullMedia(url,kind,container){
   const label=kind==="video"?tr("Відео з публікації","Video from a post"):tr("Фото з публікації","Photo from a post");
   mediaCaption.textContent=ownerId&&viewerId&&ownerId===viewerId?label:
    authorName?label+" "+authorName:label;
-  if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
+  if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001 vatra-media-author-unified-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
   restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
   mediaSide.hidden=!restoreMediaPanel;
   mediaFooterShare.hidden=!restoreMediaPanel;
@@ -906,12 +906,14 @@ function openFullMedia(url,kind,container){
   display.className="feed-post-name vatra-photo-source-name-001";
   display.textContent=String(document.querySelector("#profile-heading")?.textContent||"").trim()||"VATRA";
   author.append(display);
+  void window.VATRA_VERIFIED?.attach?.(client,display,post.author_vatra_id);
   const postedAt=Date.parse(post.created_at||"");
   if(Number.isFinite(postedAt)){
    const when=document.createElement("time");when.className="feed-post-date ui-vatra-photo-source-date-001";
    when.dateTime=new Date(postedAt).toISOString();
-   when.textContent=new Intl.DateTimeFormat(document.documentElement.lang==="en"?"en-US":"uk-UA",
-    {dateStyle:"medium",timeStyle:"short"}).format(postedAt);
+   when.textContent=window.VATRA_PRESENCE?.relative?.(post.created_at,document.documentElement.lang==="en")||
+    new Intl.DateTimeFormat(document.documentElement.lang==="en"?"en-US":"uk-UA",
+     {dateStyle:"medium",timeStyle:"short"}).format(postedAt);
    author.append(when);
   }
   header.append(avatar,author);host.append(header);
