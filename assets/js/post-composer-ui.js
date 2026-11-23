@@ -97,8 +97,8 @@ function bind({prefix,ownerId,getFile}){
  upload.type="button";upload.addEventListener("click",()=>choose.click());
  zone.append(upload);
  zone.append(make("p","vatra-post-composer-zone-note-001",
-  t("До 12 фото чи відео (не більше 4 відео). Можна перетягнути файли сюди.",
-   "Up to 12 photos or videos (maximum 4 videos). You can drop files here.")));
+  t("Фото JPG, PNG, WebP або відео MP4, WebM",
+   "Photos JPG, PNG, WebP or video MP4, WebM")));
 
  mediaControls.classList.add("vatra-post-composer-media-controls");
  zone.append(mediaControls,mediaPreview);
@@ -106,7 +106,7 @@ function bind({prefix,ownerId,getFile}){
  const addMedia=make("button","vatra-post-composer-add-media-001");
  addMedia.type="button";
  addMedia.append(vectorIcon("media","ui-vatra-post-composer-add-media-icon-001"),
-  make("span","vatra-post-composer-add-media-label-001",t("Додати фото / відео","Add photo / video")));
+  make("span","vatra-post-composer-add-media-label-001",t("Додайте фото або відео","Add a photo or video")));
  addMedia.addEventListener("click",()=>choose.click());
  mediaTools.append(addMedia);
  zone.addEventListener("click",event=>{
@@ -189,21 +189,21 @@ function bind({prefix,ownerId,getFile}){
   zone.classList.toggle("has-media",selected);
   mediaTools.classList.toggle("has-media",selected);
   addMedia.setAttribute("aria-label",selected?
-   t("Додати ще фото або відео","Add more photos or videos"):
-   t("Додати фото або відео","Add a photo or video"));
+   t("Додайте фото або відео","Add a photo or video"):
+   t("Додайте фото або відео","Add a photo or video"));
  }
  function setStage(name){
   if(name==="settings"&&!textarea.value.trim()&&!(typeof getFile==="function"&&getFile()))return false;
   view="compose";stage=name;
   edit.hidden=name!=="edit";settings.hidden=name!=="settings";draftsPanel.hidden=true;
   back.hidden=name==="edit";drafts.hidden=name!=="edit";
-  title.textContent=name==="settings"?t("Налаштування публікації","Post settings"):
+  title.textContent=name==="settings"?t("Налаштування","Settings"):
    (language()==="uk"?"Нова публікація":t("Новий пост","New post"));
   if(name==="settings"){
    const body=textarea.value.trim(),selected=mediaPreview?.querySelectorAll(".vatra-gallery-picker-tile").length||0;
    summary.textContent=(body?body.slice(0,155)+(body.length>155?"…":""):
     t("Публікація з медіа","Media post"))+
-    (selected?" · "+selected+" "+t("файлів","files"):"");
+    (selected?" · 📎 "+selected:"");
   }
   next.hidden=name!=="edit";draftSave.hidden=name!=="edit";submit.hidden=name!=="settings";
   tips.hidden=name!=="edit";tip.hidden=true;showNotice("");
