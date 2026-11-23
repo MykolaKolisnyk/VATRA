@@ -342,7 +342,7 @@
   const commentsSend=button("vatra-albums-primary-001 vatra-media-send-unified-001","");
   commentsSend.type="submit";commentsSend.disabled=true;
   commentsSend.setAttribute("aria-label",t("Надіслати","Send"));
-  commentsSend.append(svg("ui-vatra-album-comment-send-icon-001","share"));
+  commentsSend.append(svg("ui-vatra-album-comment-send-icon-001","send"));
   const commentsAvatar=make("span","vatra-album-comment-composer-avatar-001");
   commentsAvatar.setAttribute("aria-hidden","true");
   const commentsComposer=make("div","vatra-media-composer-row-unified-001 vatra-album-comments-composer-001");
