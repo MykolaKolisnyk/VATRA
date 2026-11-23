@@ -350,7 +350,7 @@
    for(const record of result?.data||[]){
     const id=String(record.vatra_id),path=record.avatar_path;
     if(!validId(id)||typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
-    const url=client.storage.from("avatars").getPublicUrl(path)?.data?.publicUrl;
+    const url=client.storage.from("avatars").getPublicUrl(record.avatar_path)?.data?.publicUrl;
     if(url)photos.set(id,url);
    }
    for(const node of nodes){
@@ -362,9 +362,9 @@
   async function paintComposerAvatar(){
    if(!validId(ownId)||!window.VATRA_AVATAR?.paths)return;
    const result=await window.VATRA_AVATAR.paths(client,[ownId]);
-   const path=result?.data?.find(row=>String(row.vatra_id)===String(ownId))?.avatar_path;
-   if(typeof path!=="string"||!path.startsWith(ownId+"/avatar/")||!commentsAvatar.isConnected)return;
-   const url=client.storage.from("avatars").getPublicUrl(path)?.data?.publicUrl;
+   const avatarPath=result?.data?.find(row=>String(row.vatra_id)===String(ownId))?.avatar_path;
+   if(typeof avatarPath!=="string"||!avatarPath.startsWith(ownId+"/avatar/")||!commentsAvatar.isConnected)return;
+   const url=client.storage.from("avatars").getPublicUrl(avatarPath)?.data?.publicUrl;
    if(url)commentsAvatar.style.backgroundImage="url("+JSON.stringify(url)+")";
   }
   function commentRow(item,names){
