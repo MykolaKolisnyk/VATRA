@@ -642,7 +642,7 @@
         },
         "n65": {
           "text": {
-            "0": "Documents"
+            "0": "Terms of Service"
           }
         },
         "n69": {
@@ -842,6 +842,11 @@
           "text": {
             "0": "12–128 characters, uppercase and lowercase Latin letters, a digit and a special character."
           }
+        },
+        "n66": {
+          "text": {
+            "0": "Privacy"
+          }
         }
       }
     },
@@ -968,7 +973,7 @@
         },
         "n49": {
           "text": {
-            "0": "Documents"
+            "0": "Terms of Service"
           }
         },
         "n53": {
@@ -1012,6 +1017,11 @@
         "n60": {
           "text": {
             "0": "12–128 characters, uppercase and lowercase Latin letters, a digit and a special character."
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Privacy"
           }
         }
       }
@@ -1129,7 +1139,7 @@
         },
         "n39": {
           "text": {
-            "0": "Documents"
+            "0": "Terms of Service"
           }
         },
         "n43": {
@@ -1163,6 +1173,11 @@
         "n46": {
           "text": {
             "0": "12–128 characters, uppercase and lowercase Latin letters, a digit and a special character."
+          }
+        },
+        "n40": {
+          "text": {
+            "0": "Privacy"
           }
         }
       }
@@ -2400,7 +2415,7 @@
         },
         "n125": {
           "text": {
-            "0": "Documents"
+            "0": "Terms of Service"
           }
         },
         "n128": {
@@ -2434,6 +2449,11 @@
         "n401": {
           "text": {
             "0": "Email address"
+          }
+        },
+        "n126": {
+          "text": {
+            "0": "Privacy"
           }
         }
       }
