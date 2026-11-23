@@ -1058,13 +1058,13 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationMarkup.includes('id="notifications-sort"')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
- notificationScript.includes('{page:0,size:6},panelLoad')&&
+ notificationScript.includes('{page:0,size:5},panelLoad')&&
  notificationScript.includes('pageLoad(false)')&&
  notificationScript.includes('c.channel("vatra-notices-"+run.id)')&&
  notificationScript.includes('run.client.from("member_notifications")')&&
  (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
- "VATRA notifications must include the private inbox and six-item header preview");
+ "VATRA notifications must include the private inbox and five-item header preview");
 const normalizedSocialHeader=html=>{
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];
  assert.ok(header,"Signed-in VATRA page must have the shared header");
