@@ -3171,14 +3171,29 @@
             "0": "Listing requirements, permitted categories, prohibited items and transaction safety."
           }
         },
-        "docs_open_001": {
+        "docs_footer_001": {
+          "text": {
+            "0": "© 2026 VATRA · Your people. Your stories. Your VATRA."
+          }
+        },
+        "docs_open_01_001": {
           "text": {
             "0": "Read document"
           }
         },
-        "docs_footer_001": {
+        "docs_open_02_001": {
           "text": {
-            "0": "© 2026 VATRA · Your people. Your stories. Your VATRA."
+            "0": "Read document"
+          }
+        },
+        "docs_open_03_001": {
+          "text": {
+            "0": "Read document"
+          }
+        },
+        "docs_open_04_001": {
+          "text": {
+            "0": "Read document"
           }
         }
       }
