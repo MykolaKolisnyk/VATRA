@@ -303,9 +303,6 @@ body.profile-page .ui-vatra-album-photo-side-001 .ui-vatra-album-comments-list-0
  flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;
  padding:10px 16px;scrollbar-width:thin
 }
-body.profile-page .ui-vatra-album-photo-side-001 .ui-vatra-album-comments-form-001{
- flex:none;min-height:72px;padding:10px 12px;border-top:1px solid #e7edf6
-}
 body.profile-page .vatra-album-viewer-share-001{
  border:0;background:none;color:#e7eaf1;padding:8px;cursor:pointer;
  font:650 12px Onest,system-ui,sans-serif
