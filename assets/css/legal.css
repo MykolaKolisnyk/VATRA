@@ -156,7 +156,8 @@ body.vatra-documents-home-001{min-height:100svh;background:radial-gradient(ellip
 }
 @media(max-width:700px){
  .vatra-documents-grid-001{grid-template-columns:1fr;gap:14px}
- .vatra-documents-main-001{width:calc(100% - 32px);padding:27px 0 28px}
+ .vatra-documents-main-001,.vatra-documents-footer-001{width:calc(100% - 32px)}
+ .vatra-documents-main-001{padding:27px 0 28px}
  .vatra-documents-intro-001{margin:10px auto 25px}
  .vatra-documents-card-001{min-height:212px;padding:24px;border-radius:20px}
  .vatra-document-top-001,body.vatra-document-page-001 .policy-main,.vatra-document-footer-001{width:calc(100% - 32px)}
