@@ -35,8 +35,11 @@ const required={
  interactions:['client.from("post_poll_votes")','client.from("post_poll_counts")',
   'client.from("post_poll_voters")','.contains("choices",[index])',
   'data.anonymous','vatra-post-poll-voters-panel-001',
+  'votersPageSize=20','.range(offset,offset+votersPageSize-1)',
+  'vatra-post-poll-voters-more-button-001',
   'function mountPoll(','if(kind==="person"&&post.poll)mountPoll('],
- style:[".vatra-post-composer-poll-question-001",".vatra-post-composer-schedule-date-001"]
+ style:[".vatra-post-composer-poll-question-001",".vatra-post-composer-schedule-date-001",
+  ".vatra-post-poll-voters-more-button-001"]
 };
 const contents={sql,composer,feed,profile,interactions,style};
 for(const [name,patterns] of Object.entries(required))
