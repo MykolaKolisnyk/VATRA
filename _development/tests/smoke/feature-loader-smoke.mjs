@@ -33,6 +33,8 @@ assert.ok(loader.includes('assets/js/profile-avatar-editor.js?rev=')&&
  avatarEditor.includes('window.VATRA_PROFILE_AVATAR_EDITOR=Object.freeze({mount})')&&
  avatarEditor.includes('uploadImage(photo,"avatar",sourceFile)')&&
  avatarEditor.includes('visibility:"friends",media_items:uploaded')&&
+ avatarEditor.includes('cropLoading=true;release()')&&
+ avatarEditor.includes('!finishing&&!cropLoading')&&
  avatarEditor.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))'),
  "Avatar crop editor loads only after choosing a file and preserves optional post/story publication");
 assert.ok(!profileHtml.includes('src="assets/js/profile-cover-editor.js'),
