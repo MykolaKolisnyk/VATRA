@@ -2781,7 +2781,7 @@ body.profile-page .vatra-profile-visitor-story-001[hidden]{display:none!importan
 body.profile-page.feed-page:not(.community-page) .ui-profile-tab-row-001{display:flex;align-items:center;min-width:0;border-top:1px solid #edf0f6}
 body.profile-page.feed-page:not(.community-page) .ui-profile-tab-row-001>.social-profile-tabs{flex:1 1 auto;min-width:0;border-top:0}
 body.profile-page .ui-profile-tab-row-001:has(>.social-profile-tabs[hidden]){display:none}
-body.profile-page.feed-page:not(.community-page) .profile-actions:not(:has(>button:not([hidden]))){display:none}
+body.profile-page.feed-page:not(.community-page) .profile-actions:not(:has(>button:not([hidden]),>details:not([hidden]),>.ui-profile-friend-action-001:not([hidden]))){display:none}
 body.profile-page.feed-page:not(.community-page) .profile-identity:has(#profile-edit-open:not([hidden])){grid-column:2/-1}
 body.profile-page .ui-profile-name-row-001{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;min-width:0}
 body.profile-page .ui-profile-name-row-001>.profile-edit-open{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:42px;max-width:100%;margin:0;padding:9px 16px;border:1px solid transparent;border-radius:11px;background:var(--vatra-action-soft,#edf2fb);color:var(--vatra-action-ink,#365e9a);font:650 14px/1.4 Onest,system-ui,sans-serif;text-align:center;cursor:pointer;transition:background .16s,color .16s}
