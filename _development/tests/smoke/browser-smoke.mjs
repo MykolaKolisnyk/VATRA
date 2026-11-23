@@ -5157,7 +5157,7 @@ try{
    "Profile posts render user input as text, not executable HTML");
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),false);
   assert.equal((await profilePage.locator("#profile-status").textContent()).trim(),
-   language==="en"?"Add a status":"Додайте статус");
+   language==="en"?"Add status":"Додайте статус");
   assert.equal(await profilePage.locator("footer:not(dialog footer), .auth-footer-content").count(),0,
    "The personal profile must not show a page-level or guest legal footer");
   assert.equal(await profilePage.locator("dialog .ui-profile-editor-record-footer-001").count(),1,
