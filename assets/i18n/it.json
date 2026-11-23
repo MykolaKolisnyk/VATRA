@@ -3740,5 +3740,6 @@
   "Не вдалося скасувати голос.": "Impossibile ritirare il voto.",
   "Не вдалося завантажити результати опитування.": "Impossibile caricare i risultati del sondaggio.",
   "Не вдалося опублікувати": "Pubblicazione non riuscita",
-  "Публікація з медіа": "Post multimediale"
+  "Публікація з медіа": "Post multimediale",
+  "Не вдалося зберегти дату публікації.": "Impossibile salvare la data di pubblicazione."
 }
