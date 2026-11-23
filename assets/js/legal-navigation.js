@@ -1,4 +1,3 @@
-/* Navigation on VATRA legal pages: follow only a safe VATRA referrer. */
 (() => {
   function initDocumentNavigation() {
     const back=document.querySelector(".vatra-document-origin-001");
