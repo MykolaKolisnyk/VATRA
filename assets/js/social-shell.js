@@ -484,8 +484,10 @@
 
 
 
-   const left=ox;
-   const width=Math.max(1,Math.min(vw,expanded?Math.max(inputBox.right-left,760):inputBox.right-left));
+   const compact=vw<=600;
+   const width=Math.max(1,Math.min(vw-(compact?12:24),expanded?790:505));
+   const left=compact?ox+6:Math.max(ox+12,
+    Math.min(inputBox.left,ox+vw-width-12));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(headerBottom)+"px";
@@ -746,6 +748,22 @@
   }catch(_){return false;}
  };
  window.VATRA_SOUNDS=Object.freeze({play:playSound});
+ function setupHeaderDismiss(){
+  document.addEventListener("pointerdown",event=>{
+   const header=document.querySelector(".feed-header");
+   if(!header)return;
+   for(const item of header.querySelectorAll("details[open]")){
+    if(!item.contains(event.target))item.open=false;
+   }
+  },true);
+  document.addEventListener("keydown",event=>{
+   if(event.key!=="Escape")return;
+   const header=document.querySelector(".feed-header");
+   const open=[...(header?.querySelectorAll("details[open]")||[])];
+   for(const item of open)item.open=false;
+   if(open.length)open.at(-1)?.querySelector("summary")?.focus();
+  },true);
+ }
  function setupCommentEnter(){
   document.addEventListener("keydown",event=>{
    if(event.key!=="Enter"||event.shiftKey||event.ctrlKey||event.metaKey||
@@ -770,6 +788,7 @@
   setUpStories();
   setUpSiteSearch();
   setupCommentEnter();
+  setupHeaderDismiss();
  };
  const bootLocalized=()=>{
 
