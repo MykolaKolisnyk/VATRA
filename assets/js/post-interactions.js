@@ -828,7 +828,7 @@ function appendAudience(container,level,isGroup=false){
     catch(_){feedback(tr("Не вдалося скопіювати посилання.","Could not copy link."),true);}
    });
    const likeComment=make("button","vatra-post-comment-like-001");
-   likeComment.type="button";likeComment.append(glyph("heart"));
+   likeComment.type="button";likeComment.append(glyph("thumb"));
    const heartCount=make("span","vatra-post-comment-like-count-001");
    likeComment.append(heartCount);
    let likeCount=Number(item.likes)||0,ownLiked=ownLikes.has(item.id);
