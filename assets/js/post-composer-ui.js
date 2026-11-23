@@ -317,6 +317,44 @@ function bind({prefix,ownerId,getFile,client}){
     if(item.status==="failed")time.append(" · "+t("Помилка","Failed"));
     row.append(subject,time);
     if(item.status==="queued"){
+     const reschedule=make("button","vatra-post-composer-queue-edit-001",
+      t("Редагувати","Edit"));
+     reschedule.type="button";
+     const dateEditor=make("div","vatra-post-composer-queue-editor-001");
+     dateEditor.hidden=true;
+     const dateInput=make("input","vatra-post-composer-queue-date-001");
+     dateInput.type="datetime-local";dateInput.value=isoLocal(new Date(item.publish_at));
+     dateInput.setAttribute("aria-label",t("Дата і час публікації","Publication date and time"));
+     const saveTime=make("button","vatra-post-composer-queue-save-001",t("Зберегти","Save"));
+     saveTime.type="button";
+     const closeTime=make("button","vatra-post-composer-queue-close-001",t("Скасувати","Cancel"));
+     closeTime.type="button";
+     closeTime.addEventListener("click",()=>{dateEditor.hidden=true;reschedule.hidden=false;});
+     reschedule.addEventListener("click",()=>{
+      dateInput.min=isoLocal(new Date(Date.now()+180000));
+      reschedule.hidden=true;dateEditor.hidden=false;dateInput.focus({preventScroll:true});
+     });
+     saveTime.addEventListener("click",async()=>{
+      const selected=new Date(dateInput.value);
+      if(!Number.isFinite(selected.getTime())||selected.getTime()<=Date.now()+120000){
+       showNotice(t("Виберіть майбутню дату щонайменше через дві хвилини.",
+        "Choose a time at least two minutes in the future."));return;
+      }
+      saveTime.disabled=true;
+      try{
+       const result=await client.from("scheduled_feed_posts")
+        .update({publish_at:selected.toISOString()}).eq("id",item.id).eq("status","queued")
+        .select("id").maybeSingle();
+       if(result.error||!result.data)throw result.error||Error("Schedule already published");
+       showNotice("");await renderScheduled();
+      }catch(_){
+       showNotice(t("Не вдалося зберегти дату публікації.","Could not save publication date."));
+       saveTime.disabled=false;
+      }
+     });
+     dateEditor.append(dateInput,saveTime,closeTime);
+     row.append(reschedule,dateEditor);
+
      const cancelQueue=make("button","vatra-post-composer-queue-cancel-001",t("Скасувати","Cancel"));
      cancelQueue.type="button";
      cancelQueue.addEventListener("click",async()=>{
