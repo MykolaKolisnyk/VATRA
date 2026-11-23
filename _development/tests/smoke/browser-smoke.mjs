@@ -93,21 +93,16 @@ try{
    document.body.classList.add("profile-page");
    const profileStyle=measure();
    button.click();
-   const expanded=paragraph.lastElementChild===button&&
-    paragraph.textContent.endsWith("#VATRA Показати менше")&&
+   const expanded=paragraph.textContent===original&&
     !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&
-    paragraph.textContent.slice(0,-button.textContent.length-1)===original&&
-    button.getAttribute("aria-expanded")==="true";
-   button.click();
-   const restored=paragraph.textContent.endsWith("… Показати більше")&&
-    paragraph.querySelectorAll(".vatra-feed-post-read-more-001").length===1;
-   return {collapsed,collapsedChecks,expanded,restored,feedStyle,profileStyle};
+    paragraph.querySelectorAll(".vatra-feed-post-read-more-001").length===0;
+   return {collapsed,collapsedChecks,expanded,feedStyle,profileStyle};
   });
-  assert.ok(result.collapsed&&result.expanded&&result.restored,
-   "Read-more must stay inline after post text and preserve hashtags: "+JSON.stringify(result));
+  assert.ok(result.collapsed&&result.expanded,
+   "Read-more must appear inline, expand once and preserve hashtags: "+JSON.stringify(result));
   assert.deepEqual(result.feedStyle,result.profileStyle,
    "Feed and Profile post body typography must match: "+JSON.stringify(result));
-  console.log("VATRA post text: inline expand/collapse and matching Feed/Profile fonts passed.");
+  console.log("VATRA post text: inline one-way expansion and matching Feed/Profile fonts passed.");
  }finally{await bodyTextProbe.close();}
 
  // All three production viewer types must share exact sidebar measurements.
