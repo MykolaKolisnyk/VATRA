@@ -3635,5 +3635,14 @@
   "Видалити повідомлення?": "Delete message?",
   "Ви можете прибрати повідомлення лише в себе або відкликати його для всіх, якщо ви відправник.": "Hide it only for yourself, or revoke it for everyone if you sent it.",
   "Видалити в себе": "Delete for me",
-  "Видалити для всіх": "Delete for everyone"
+  "Видалити для всіх": "Delete for everyone",
+  "Приватні повідомлення VATRA.": "Private messages on VATRA.",
+  "VATRA — стрічка": "VATRA — Feed",
+  "Навігація": "Navigation",
+  "Список розмов": "Conversation list",
+  "Повернутися до розмов": "Back to conversations",
+  "Інформація про розмову": "Conversation information",
+  "Надіслати": "Send",
+  "Закрити деталі": "Close details",
+  "Захистіть свої розмови": "Protect your conversations"
 }
