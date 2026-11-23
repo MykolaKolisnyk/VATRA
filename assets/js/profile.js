@@ -1553,7 +1553,7 @@ function bindPostComposer(client,user,ownId){
   if(dialog.open)return true;
   if(!composerLoading){
    composerLoading=window.VATRA_FEATURES.load("composer").then(module=>{
-    composerUI=module.bind({prefix:"profile",ownerId:ownId,
+    composerUI=module.bind({prefix:"profile",ownerId:ownId,client,
      getFile:()=>picker?.getFiles()?.length>0});
    }).catch(error=>{composerLoading=null;throw error;});
   }
