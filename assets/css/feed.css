@@ -3172,7 +3172,6 @@ body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form:focus-with
 }
 @media(prefers-reduced-motion:reduce){body.feed-page .ui-vatra-post-media-viewer-content-001 :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next){transition:none}}
 
-/* One post-text typography across Feed and Profile; community styling stays independent. */
 body.feed-page:not(.community-page) .feed-post-card > .feed-post-body{
  margin:10px 0 1px;color:#394964;
  font:480 14.5px/1.65 "Onest",system-ui,sans-serif;letter-spacing:.001em
