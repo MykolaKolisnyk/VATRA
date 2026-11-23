@@ -67,6 +67,8 @@ jobs:
         run: node _development/tests/smoke/feed-subscriptions-smoke.mjs
       - name: Check global Feed search cancellation without production queries
         run: node _development/tests/smoke/feed-global-search-smoke.mjs
+      - name: Verify polls and scheduled post contracts
+        run: node _development/tests/smoke/post-planning-smoke.mjs
       - name: Audit unpublished multilingual page catalogs
         run: node _development/tests/audit/i18n-coverage-audit.mjs
       - name: Check SEO and site layout
