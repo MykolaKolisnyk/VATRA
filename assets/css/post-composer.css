@@ -58,9 +58,10 @@ body.profile-page .vatra-post-composer-dialog form{
 .vatra-post-composer-drafts-panel[hidden]{display:none!important}
 .vatra-post-composer-zone{
  display:flex;flex-direction:column;align-items:center;justify-content:center;
- gap:13px;width:100%;min-height:310px;
- padding:26px 20px;margin:0 0 20px;
- border:1.5px dashed #c8d4e8;border-radius:14px;background:#f7f9fe
+ gap:11px;width:100%;min-height:238px;box-sizing:border-box;
+ padding:22px 20px;margin:0 0 10px;
+ border:1.5px dashed #bdcce2;border-radius:15px;background:#f8faff;
+ cursor:pointer;transition:border-color .18s ease,background .18s ease
 }
 .vatra-post-composer-zone .ui-vatra-post-upload-symbol-001{
  display:block;flex:none;margin-top:1px
@@ -87,11 +88,38 @@ body.profile-page .vatra-post-composer-dialog form{
  background:#fceef3;color:#9b4863;border:1px solid #f4d7e2
 }
 .vatra-post-composer-zone .vatra-compose-media-preview{
- width:100%;max-width:450px;align-items:center;margin:0 auto
+ width:100%;max-width:none;align-items:stretch;margin:0 auto;
+ box-sizing:border-box
 }
+.vatra-post-composer-zone.is-dragging{background:#edf4ff;border-color:#4381dd}
+.vatra-post-composer-zone.has-media{
+ min-height:0;padding:10px;margin-bottom:8px;border-style:solid;
+ border-color:#e0e8f4;background:#fff;cursor:default
+}
+.vatra-post-composer-zone.has-media>.ui-vatra-post-upload-symbol-001,
+.vatra-post-composer-zone.has-media>.vatra-post-composer-zone-title-001,
+.vatra-post-composer-zone.has-media>.vatra-post-composer-upload-001,
+.vatra-post-composer-zone.has-media>.vatra-post-composer-zone-note-001{display:none}
+.vatra-post-composer-zone.has-media .vatra-compose-media-preview{border:0;padding:0;background:transparent}
+.vatra-post-composer-zone .vatra-gallery-picker-grid{max-height:330px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.vatra-post-composer-zone .vatra-gallery-picker-tile>img,
+.vatra-post-composer-zone .vatra-gallery-picker-tile>video{height:135px;max-height:135px;object-fit:cover}
+.vatra-post-composer-media-tools{
+ display:flex;justify-content:flex-end;align-items:center;gap:9px;margin:0 0 8px;
+ padding:2px 0 10px;border-bottom:1px solid #e8eef7
+}
+.vatra-post-composer-add-media-001{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ min-height:37px;padding:7px 12px;border:1px solid #dbe7fa;border-radius:10px;
+ background:#f2f6fe;color:#396fcb;cursor:pointer;
+ font:730 12px/1.35 "Onest",system-ui,sans-serif;transition:background .18s ease
+}
+.vatra-post-composer-add-media-001:hover{background:#e5efff}
+.vatra-post-composer-add-media-001:focus-visible{outline:2px solid #7ea7ea;outline-offset:2px}
+.vatra-post-composer-add-media-001 svg{display:block;flex:none;width:18px;height:18px}
 .vatra-post-composer-zone .vatra-compose-media-preview img,
 .vatra-post-composer-zone .vatra-compose-media-preview video{max-height:130px}
-.vatra-post-composer-text-wrap{position:relative;min-height:140px}
+.vatra-post-composer-text-wrap{position:relative;min-height:155px}
 .vatra-post-composer-text-wrap label{display:none!important}
 .vatra-post-composer-text-wrap textarea,
 body.feed-page .vatra-post-composer-dialog textarea,
@@ -173,7 +201,12 @@ body.profile-page .vatra-post-composer-dialog textarea{
  .vatra-post-composer-head{padding:9px 13px;gap:6px;min-height:58px}
  .vatra-post-composer-head h2{font-size:16px!important}
  .vatra-post-composer-edit,.vatra-post-composer-settings,.vatra-post-composer-drafts-panel{padding:12px 14px 16px}
- .vatra-post-composer-zone{min-height:255px;padding:18px 11px;gap:10px}
+ .vatra-post-composer-zone{min-height:175px;padding:16px 11px;gap:9px}
+ .vatra-post-composer-zone.has-media{min-height:0;padding:7px}
+ .vatra-post-composer-zone .vatra-gallery-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .vatra-post-composer-zone .vatra-gallery-picker-tile>img,
+ .vatra-post-composer-zone .vatra-gallery-picker-tile>video{height:110px;max-height:110px}
+ .vatra-post-composer-media-tools{padding-bottom:8px}
  .vatra-post-composer-zone .vatra-post-composer-zone-title-001{font-size:17px}
  .vatra-post-composer-footer{padding:10px 12px;gap:5px}
  .vatra-post-composer-footer-actions{gap:6px}
