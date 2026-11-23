@@ -69,8 +69,8 @@ try{
   await bodyTextProbe.addScriptTag({url:base+"assets/js/post-media.js"});
   const result=await bodyTextProbe.evaluate(()=>{
    const paragraph=document.querySelector("#body-text-probe");
-   const original="Синя галочка у VATRA — більше, ніж просто значок.\\n\\n"+
-    "Це символ довіри та справжності. ".repeat(18)+"\\n\\n#VATRA";
+   const original="Синя галочка у VATRA — більше, ніж просто значок.\n\n"+
+    "Це символ довіри та справжності. ".repeat(18)+"\n\n#VATRA";
    paragraph.textContent=original;
    window.VATRA_POST_MEDIA.linkifyHashtags(paragraph);
    window.VATRA_POST_MEDIA.collapsibleBody(paragraph);
