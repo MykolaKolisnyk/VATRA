@@ -1326,7 +1326,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    const marker=make("span","ui-vatra-media-actions-origin-001");marker.hidden=true;shell.before(marker);
    const wasHidden=panel.hidden;filterRow.remove();note.remove();row.classList.add("vatra-media-actions-unified-001");side.append(shell);panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");side.closest("dialog")?.append(popovers);void loadComments(true,entries.children.length>0);
    const avoidNested=e=>{if(e.target.closest(".vatra-post-comments-toggle-001")){e.preventDefault();e.stopImmediatePropagation();}};side.addEventListener("click",avoidNested,true);
-   return ()=>{side.removeEventListener("click",avoidNested,true);hideMenus();composer.insertBefore(popovers,fileInput);panel.insertBefore(filterRow,entries);panel.insertBefore(note,entries);panel.hidden=wasHidden;commentsButton.setAttribute("aria-expanded",String(!wasHidden));if(marker.isConnected)marker.replaceWith(shell);else shell.remove();};
+   return ()=>{side.removeEventListener("click",avoidNested,true);hideMenus();row.classList.remove("vatra-media-actions-unified-001");composer.insertBefore(popovers,fileInput);panel.insertBefore(filterRow,entries);panel.insertBefore(note,entries);panel.hidden=wasHidden;commentsButton.setAttribute("aria-expanded",String(!wasHidden));if(marker.isConnected)marker.replaceWith(shell);else shell.remove();};
   });
   if(settings.inlineComments)openComments();
  }
