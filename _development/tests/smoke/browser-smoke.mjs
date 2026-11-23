@@ -1446,6 +1446,29 @@ try{
  console.log("VATRA cross alignment and clearing across auth/legal pages: OK");
  // account.html redirects unauthenticated visitors to sign-in; its footer
  // structure is covered by the static checks instead of the guest browser run.
+ // The return link restores the actual preceding VATRA page, and the hub stays reachable.
+ {
+  const legalNav=await context.newPage();
+  await legalNav.goto(base+"documents.html",{waitUntil:"load"});
+  await legalNav.evaluate(()=>{const a=document.createElement("a");a.href="terms.html";document.body.append(a);a.click();});
+  await legalNav.waitForURL(/\/terms(?:\.html)?$/);
+  assert.equal(await legalNav.locator(".vatra-document-origin-001").isVisible(),false,
+   "From documents hub, show only the All documents link");
+  await legalNav.evaluate(()=>{const a=document.createElement("a");a.href="privacy.html";document.body.append(a);a.click();});
+  await legalNav.waitForURL(/\/privacy(?:\.html)?$/);
+  assert.equal(await legalNav.locator(".vatra-document-origin-001").isVisible(),true,
+   "From another VATRA page, the contextual Back link must be visible");
+  const originUrl=await legalNav.locator(".vatra-document-origin-001").getAttribute("href");
+  assert.match(new URL(originUrl,base).pathname,/\/terms(?:\.html)?$/,
+   "Back should restore the referring document, not always send users home");
+  await legalNav.locator(".vatra-document-back-001").click();
+  await legalNav.waitForURL(/\/documents(?:\.html)?$/);
+  assert.equal(await legalNav.locator(".vatra-documents-origin-001").isVisible(),true,
+   "Documents hub should offer return to the referring VATRA document");
+  assert.equal(await legalNav.locator(".vatra-documents-home-link-001").isVisible(),false,
+   "Show one relevant return action on the documents hub");
+  await legalNav.close();
+ }
  for(const route of ["forgot.html","reset.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
@@ -1642,9 +1665,12 @@ try{
      headerHeight:header?.height,tabCount:document.querySelectorAll(".policy-tabs a").length,
      oldNavCount:document.querySelectorAll(".policy-top,.policy-tabs-shell,.policy-top-actions").length,
      documentLinks:links,
+     originBackPresent:!!document.querySelector(".vatra-document-origin-001"),
+     logoPresent:!!document.querySelector(".vatra-documents-identity-001,.vatra-documents-eyebrow-001"),
      fontFamily:getComputedStyle(document.body).fontFamily,
      hasDecorativeRings:(hub?[...document.querySelectorAll(".vatra-documents-card-001")]:[document.querySelector(".policy-header")]).some(el=>el&&["::before","::after"].some(pseudo=>{const style=getComputedStyle(el,pseudo);return style.content!=="none"&&style.content!=="normal"&&style.display!=="none";}))};
    });
+   assert.ok(sizes.originBackPresent&&!sizes.logoPresent,"Legal pages need a contextual back link and no documents logo/overline");
    assert.ok(sizes.fontFamily.includes("Onest")&&!sizes.hasDecorativeRings,
     "Documents must use VATRA Onest typography and no decorative circles: "+route+" "+JSON.stringify(sizes));
    assert.ok(sizes.exists&&sizes.overflow<=3&&sizes.oldNavCount===0&&sizes.tabCount===0,
