@@ -166,6 +166,7 @@ BEGIN
    RAISE EXCEPTION 'Choice is outside poll options' USING ERRCODE='23514';
   END IF;
  END LOOP;
+ IF TG_OP='INSERT' THEN NEW.created_at=now(); END IF;
  NEW.updated_at=now();
  RETURN NEW;
 END;
