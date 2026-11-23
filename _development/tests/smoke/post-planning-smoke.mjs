@@ -11,6 +11,11 @@ const required={
  sql:[
   "ADD COLUMN IF NOT EXISTS poll jsonb","CREATE TABLE IF NOT EXISTS public.post_poll_votes",
   "CREATE TABLE IF NOT EXISTS public.post_poll_counts",
+  "CREATE OR REPLACE VIEW public.post_poll_voters WITH (security_invoker=true)",
+  "Read nonanonymous poll voters for visible posts",
+  "voter_vatra_id bigint NOT NULL",
+  "(posts.poll->>'anonymous')='false'",
+  "NEW.voter_vatra_id FROM public.accounts",
   "CREATE TABLE IF NOT EXISTS public.scheduled_feed_posts",
   "ENABLE ROW LEVEL SECURITY","SELECT auth.uid()",
   "CREATE TRIGGER vatra_poll_vote_guard","CREATE TRIGGER vatra_poll_vote_counts",
@@ -25,6 +30,8 @@ const required={
  feed:["getPoll?.()","getScheduledAt?.()",'client.from(publishAt?"scheduled_feed_posts":"feed_posts")'],
  profile:["getPoll?.()","getScheduledAt?.()",'client.from(publishAt?"scheduled_feed_posts":"feed_posts")'],
  interactions:['client.from("post_poll_votes")','client.from("post_poll_counts")',
+  'client.from("post_poll_voters")','.contains("choices",[index])',
+  'data.anonymous','vatra-post-poll-voters-panel-001',
   'function mountPoll(','if(kind==="person"&&post.poll)mountPoll('],
  style:[".vatra-post-composer-poll-question-001",".vatra-post-composer-schedule-date-001"]
 };
@@ -43,7 +50,8 @@ assert.ok(!composer.includes("setTimeout(()=>form.requestSubmit()"),
 for(const lang of ["en","pl","de","fr","it","ka","bg"]){
  const dict=JSON.parse(await read("assets/i18n/"+lang+".json"));
  for(const key of ["Опитування","Запланувати публікацію","Голосувати",
-  "Дата і час публікації","Заплановані публікації"]){
+  "Дата і час публікації","Заплановані публікації",
+  "Хто проголосував","Не вдалося завантажити учасників."]){
   assert.ok(typeof dict[key]==="string"&&dict[key]!==key,
    lang+": missing translated key: "+key);
  }
