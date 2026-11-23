@@ -3435,7 +3435,7 @@ try{
    const node=(tag,className)=>{
     const element=document.createElement(tag);element.className=className;return element;
    };
-   const author=node("header","ui-vatra-post-media-author-001");
+   const author=node("header","ui-vatra-post-media-author-001 vatra-media-author-unified-001");
    const authorAvatar=node("span","feed-post-avatar");
    const authorCopy=node("span","feed-post-author");
    const authorName=node("span","feed-post-name");
@@ -3444,16 +3444,16 @@ try{
    authorDate.textContent="2 дні тому";
    authorCopy.append(authorName,authorDate);author.append(authorAvatar,authorCopy);
    const shell=node("section","vatra-post-interactions");
-   const actions=node("div","vatra-post-action-row");
+   const actions=node("div","vatra-post-action-row vatra-media-actions-unified-001");
    actions.append(node("button","vatra-post-like-001"),node("button","vatra-post-share-toggle-001"));
    const panel=node("div","vatra-post-comments-panel");
-   const entries=node("div","vatra-post-comment-list");
-   const empty=node("p","vatra-post-comments-empty-001");
+   const entries=node("div","vatra-post-comment-list vatra-media-comments-unified-001");
+   const empty=node("p","vatra-post-comments-empty-001 vatra-media-empty-unified-001");
    empty.textContent="Коментарів поки немає. Будьте першими!";
    entries.append(empty);
-   const form=node("form","vatra-post-comment-form");
+   const form=node("form","vatra-post-comment-form vatra-media-form-unified-001");
    const portrait=node("span","vatra-post-comment-composer-avatar");
-   const composer=node("div","vatra-post-comment-composer");
+   const composer=node("div","vatra-post-comment-composer vatra-media-composer-content-unified-001");
    const inputWrap=node("div","vatra-post-comment-input-wrap");
    const input=node("textarea","ui-vatra-post-comment-input-001");
    input.rows=1;
@@ -3482,14 +3482,14 @@ try{
    side.replaceChildren();side.hidden=initiallyHidden;
    return results;
   });
-  assert.ok(Math.abs(postSidebar.headerHeight-70)<=2&&
-   Math.abs(postSidebar.actionHeight-50)<=2&&
-   Math.abs(postSidebar.formHeight-68)<=3&&
+  assert.ok(Math.abs(postSidebar.headerHeight-89)<=2&&
+   Math.abs(postSidebar.actionHeight-62)<=2&&
+   Math.abs(postSidebar.formHeight-84)<=3&&
    Math.abs(postSidebar.avatarNameGap-11)<=2&&
-   Math.abs(postSidebar.avatarWidth-40)<=1&&
-   Math.abs(postSidebar.avatarHeight-40)<=1&&
-   Math.abs(postSidebar.inputHeight-38)<=2,
-   "Fullscreen post panel sections must match the original avatar viewer sizing: "+JSON.stringify(postSidebar));
+   Math.abs(postSidebar.avatarWidth-50)<=1&&
+   Math.abs(postSidebar.avatarHeight-50)<=1&&
+   Math.abs(postSidebar.inputHeight-40)<=2,
+   "Fullscreen post panel sections must match the shared avatar and album sidebar sizing: "+JSON.stringify(postSidebar));
   assert.ok(Math.abs(postSidebar.headToActions)<=2&&
    Math.abs(postSidebar.actionsToComments)<=2&&
    Math.abs(postSidebar.commentsToForm)<=2&&
