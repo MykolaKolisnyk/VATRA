@@ -82,14 +82,6 @@ REVOKE ALL ON public.post_poll_votes FROM PUBLIC, anon;
 GRANT SELECT,INSERT,UPDATE,DELETE ON public.post_poll_votes TO authenticated;
 CREATE POLICY "Read only own poll votes" ON public.post_poll_votes FOR SELECT TO authenticated
  USING (voter_id=(SELECT auth.uid()) AND EXISTS(SELECT 1 FROM public.feed_posts p WHERE p.id=post_id));
-CREATE POLICY "Read nonanonymous poll voters for visible posts" ON public.post_poll_votes
- FOR SELECT TO authenticated USING (
-  EXISTS(
-   SELECT 1 FROM public.feed_posts p WHERE p.id=post_id
-    AND p.archived_at IS NULL AND p.poll IS NOT NULL
-    AND (p.poll->>'anonymous')='false'
-  )
- );
 CREATE POLICY "Insert own poll vote" ON public.post_poll_votes FOR INSERT TO authenticated
  WITH CHECK (voter_id=(SELECT auth.uid()) AND EXISTS(SELECT 1 FROM public.feed_posts p WHERE p.id=post_id));
 CREATE POLICY "Update own poll vote" ON public.post_poll_votes FOR UPDATE TO authenticated
@@ -97,17 +89,64 @@ CREATE POLICY "Update own poll vote" ON public.post_poll_votes FOR UPDATE TO aut
 CREATE POLICY "Remove own poll vote" ON public.post_poll_votes FOR DELETE TO authenticated
  USING (voter_id=(SELECT auth.uid()));
 
+-- Keep private auth UUIDs only in post_poll_votes (RLS: viewer's own vote).
+-- A separate, server-maintained choice table exposes VATRA profile IDs only
+-- when the poll explicitly identifies its voters.
+CREATE TABLE IF NOT EXISTS public.post_poll_visible_choices (
+ post_id uuid NOT NULL REFERENCES public.feed_posts(id) ON DELETE CASCADE,
+ voter_vatra_id bigint NOT NULL REFERENCES public.member_directory(vatra_id) ON DELETE CASCADE,
+ choices smallint[] NOT NULL,
+ PRIMARY KEY (post_id,voter_vatra_id)
+);
+ALTER TABLE public.post_poll_visible_choices ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.post_poll_visible_choices FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON public.post_poll_visible_choices TO authenticated;
+CREATE POLICY "Read nonanonymous choices on visible posts" ON public.post_poll_visible_choices
+ FOR SELECT TO authenticated USING (
+  EXISTS (
+   SELECT 1 FROM public.feed_posts p WHERE p.id=post_id
+    AND p.archived_at IS NULL AND p.poll IS NOT NULL
+    AND (p.poll->>'anonymous')='false'
+  )
+ );
 CREATE OR REPLACE VIEW public.post_poll_voters WITH (security_invoker=true) AS
  SELECT votes.post_id,votes.choices,votes.voter_vatra_id AS vatra_id,
   coalesce(nullif(btrim(profiles.display_name),''),
    'VATRA ID '||votes.voter_vatra_id::text) AS display_name
- FROM public.post_poll_votes votes
+ FROM public.post_poll_visible_choices votes
  JOIN public.feed_posts posts ON posts.id=votes.post_id
  LEFT JOIN public.public_profiles profiles ON profiles.vatra_id=votes.voter_vatra_id
  WHERE posts.poll IS NOT NULL AND (posts.poll->>'anonymous')='false'
   AND posts.archived_at IS NULL;
 REVOKE ALL ON public.post_poll_voters FROM PUBLIC, anon;
 GRANT SELECT ON public.post_poll_voters TO authenticated;
+
+CREATE OR REPLACE FUNCTION vatra_scheduler.sync_visible_poll_choices()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $body$
+BEGIN
+ IF TG_OP IN ('UPDATE','DELETE') THEN
+  DELETE FROM public.post_poll_visible_choices
+   WHERE post_id=OLD.post_id AND voter_vatra_id=OLD.voter_vatra_id;
+ END IF;
+ IF TG_OP IN ('INSERT','UPDATE') AND EXISTS (
+  SELECT 1 FROM public.feed_posts p
+   WHERE p.id=NEW.post_id AND (p.poll->>'anonymous')='false'
+ ) THEN
+  INSERT INTO public.post_poll_visible_choices(post_id,voter_vatra_id,choices)
+  VALUES(NEW.post_id,NEW.voter_vatra_id,NEW.choices)
+  ON CONFLICT(post_id,voter_vatra_id) DO UPDATE
+   SET choices=excluded.choices;
+ END IF;
+ RETURN NULL;
+END;
+$body$;
+REVOKE ALL ON FUNCTION vatra_scheduler.sync_visible_poll_choices()
+ FROM PUBLIC, anon, authenticated;
+DROP TRIGGER IF EXISTS vatra_sync_visible_poll_choices ON public.post_poll_votes;
+CREATE TRIGGER vatra_sync_visible_poll_choices
+ AFTER INSERT OR UPDATE OR DELETE ON public.post_poll_votes
+ FOR EACH ROW EXECUTE FUNCTION vatra_scheduler.sync_visible_poll_choices();
 
 CREATE TABLE IF NOT EXISTS public.post_poll_counts (
  post_id uuid PRIMARY KEY REFERENCES public.feed_posts(id) ON DELETE CASCADE,
