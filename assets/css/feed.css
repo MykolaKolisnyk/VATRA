@@ -3357,7 +3357,6 @@ body.feed-page .vatra-media-side-unified-001 .vatra-album-comments-emoji-option-
 }
 
 
-/* Poll cards in the shared Feed / Profile post interaction component. */
 .vatra-post-poll{display:flex;flex-direction:column;gap:11px;margin:13px 0 12px;padding:16px 17px;border:1px solid #e0e8f5;border-radius:14px;background:#f9fbff;color:#324866;font-family:"Onest",system-ui,sans-serif}
 .vatra-post-poll-head-001{display:flex;align-items:center;gap:10px}
 .vatra-post-poll-head-001 svg{width:20px;height:20px;flex:none;color:#6386c7}
