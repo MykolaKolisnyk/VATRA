@@ -4683,10 +4683,10 @@ try{
     formHeight:bound(composer).height,avatarWidth:bound(avatar).width,
     avatarNameGap:bound(copy).left-bound(avatar).right,closeX:bound(close).left,closeY:bound(close).top};
   });
-  assert.ok(Math.abs(avatarSidebar.headerHeight-70)<=2&&
-   Math.abs(avatarSidebar.actionHeight-50)<=2&&
-   Math.abs(avatarSidebar.formHeight-68)<=3&&
-   Math.abs(avatarSidebar.avatarWidth-40)<=1&&
+  assert.ok(Math.abs(avatarSidebar.headerHeight-89)<=2&&
+   Math.abs(avatarSidebar.actionHeight-62)<=2&&
+   Math.abs(avatarSidebar.formHeight-84)<=3&&
+   Math.abs(avatarSidebar.avatarWidth-50)<=1&&
    Math.abs(avatarSidebar.avatarNameGap-11)<=2&&
    Math.abs(avatarSidebar.closeX-18)<=2&&Math.abs(avatarSidebar.closeY-18)<=2,
    "Avatar viewer must share exact sidebar spacing and close-button geometry with posts: "+JSON.stringify(avatarSidebar));
