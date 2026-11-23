@@ -105,7 +105,7 @@ body.profile-page .vatra-post-composer-dialog form{
 .vatra-post-composer-zone .vatra-gallery-picker-tile>img,
 .vatra-post-composer-zone .vatra-gallery-picker-tile>video{height:135px;max-height:135px;object-fit:cover}
 .vatra-post-composer-media-tools{
- display:flex;justify-content:flex-end;align-items:center;gap:9px;margin:0 0 8px;
+ display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:9px;margin:0 0 8px;
  padding:2px 0 10px;border-bottom:1px solid #e8eef7
 }
 .vatra-post-composer-add-media-001{
@@ -219,7 +219,6 @@ body.profile-page .vatra-post-composer-dialog textarea{
 .vatra-post-composer-poll[hidden],
 .vatra-post-composer-schedule-date-001[hidden],
 .vatra-post-composer-schedule-hint-001[hidden]{display:none!important}
-.vatra-post-composer-media-tools{justify-content:space-between;flex-wrap:wrap}
 .vatra-post-composer-poll-toggle-001{
  display:inline-flex;align-items:center;gap:8px;min-height:37px;
  padding:7px 12px;border:1px solid #dae5f4;border-radius:10px;
