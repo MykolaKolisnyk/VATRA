@@ -279,8 +279,14 @@ function bind({prefix,ownerId,getFile,client}){
   scheduleInput.hidden=!active;scheduleHint.hidden=!active;
   if(active){scheduleInput.min=isoLocal(new Date(Date.now()+180000));
    if(!scheduleInput.value)scheduleInput.value=isoLocal(new Date(Date.now()+600000));}
+  const planned=getScheduledAt();
+  const pollDeadline=pollEnabled&&pollEnd.value?new Date(pollEnd.value).getTime():null;
+  const deadlineConflict=!!(planned&&Number.isFinite(pollDeadline)&&
+   pollDeadline<=new Date(planned).getTime());
   scheduleHint.textContent=active?
-   (getScheduledAt()?t("Публікацію автоматично додасть сервер у вибраний час.",
+   (deadlineConflict?t("Опитування має завершитися після публікації.",
+      "Poll must end after publication."):
+    planned?t("Публікацію автоматично додасть сервер у вибраний час.",
       "The server will publish automatically at the selected time."):
     t("Виберіть майбутню дату щонайменше через дві хвилини.",
       "Choose a time at least two minutes in the future.")):"";
