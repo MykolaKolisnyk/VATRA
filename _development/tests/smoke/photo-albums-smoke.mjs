@@ -205,4 +205,13 @@ assert.ok(
  !feedCss.includes(".vatra-post-comment-send-001:disabled{display:none!important}"),
  "All photo viewer contexts must preserve author portraits, composer controls and visible send buttons"
 );
+assert.ok(
+ script.includes('commentsForm.append(commentsComposer,emojiPanel)')&&
+ script.includes('commentsInput.addEventListener("input"')&&
+ script.includes('commentsSend.disabled=!commentsInput.value.trim()')&&
+ css.includes("body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-composer-001{")&&
+ css.includes("body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-media-send-unified-001:disabled{")&&
+ css.includes("body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-emoji-panel-001[hidden]"),
+ "Standalone album comment modal must retain a compact, accessible composer after photo-viewer unification"
+);
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");

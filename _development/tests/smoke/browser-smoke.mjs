@@ -110,6 +110,74 @@ try{
   console.log("VATRA post text: inline expand/collapse and matching Feed/Profile fonts passed.");
  }finally{await bodyTextProbe.close();}
 
+ // All three production viewer types must share exact sidebar measurements.
+ const viewerGeometryPage=await context.newPage();
+ try{
+  await viewerGeometryPage.setViewportSize({width:1390,height:900});
+  const variants=[
+   {id:"avatar",side:"profile-avatar-engagement",head:"profile-photo-info",
+    avatar:"ui-profile-photo-owner-avatar-001",actions:"profile-photo-actions",
+    comments:"profile-photo-comments is-empty",form:"profile-photo-comment-form",
+    compose:"ui-profile-photo-composer-row-001 vatra-media-composer-row-unified-001",
+    composerAvatar:"ui-profile-photo-composer-avatar-001",input:"ui-profile-photo-comment-text-001",
+    send:"vatra-media-send-unified-001"},
+   {id:"post",side:"ui-vatra-post-media-side-001",head:"ui-vatra-post-media-author-001",
+    avatar:"feed-post-avatar",actions:"vatra-post-action-row",
+    comments:"vatra-post-comment-list",form:"vatra-post-comment-form",
+    compose:"vatra-media-composer-row-unified-001",
+    composerAvatar:"vatra-post-comment-composer-avatar",input:"ui-vatra-post-comment-input-001",
+    send:"vatra-post-comment-send-001"},
+   {id:"album",side:"ui-vatra-album-photo-side-001",head:"ui-vatra-album-photo-author-001",
+    avatar:"vatra-album-photo-author-avatar-001",actions:"ui-vatra-album-photo-actions-001",
+    comments:"ui-vatra-album-comments-list-001",form:"ui-vatra-album-comments-form-001",
+    compose:"vatra-media-composer-row-unified-001",
+    composerAvatar:"vatra-album-comment-composer-avatar-001",input:"ui-vatra-album-comments-input-001",
+    send:"vatra-media-send-unified-001"}
+  ];
+  const panels=variants.map(v=>'<aside data-kind="'+v.id+'" class="'+v.side+
+   ' vatra-media-side-unified-001" style="width:380px;height:720px;flex:0 0 380px">'+
+   '<header class="'+v.head+' vatra-media-author-unified-001">'+
+   '<a class="'+v.avatar+'"></a><div><strong>Микола Колісник</strong><time>1 день тому</time></div></header>'+
+   '<div class="'+v.actions+' vatra-media-actions-unified-001"><button>♡ 0</button><button>↗</button></div>'+
+   '<div class="'+v.comments+' vatra-media-comments-unified-001">'+
+   '<div class="vatra-media-empty-unified-001"><svg class="vatra-media-empty-icon-unified-001" viewBox="0 0 48 48"></svg>'+
+   '<p>Коментарів поки немає. Будьте першими!</p></div></div>'+
+   '<form class="'+v.form+' vatra-media-form-unified-001"><div class="'+v.compose+'">'+
+   '<span class="'+v.composerAvatar+'"></span><textarea class="'+v.input+'" rows="1"></textarea>'+
+   '<button type="button">☺</button><button class="'+v.send+'" disabled>➜</button></div></form></aside>').join("");
+  await viewerGeometryPage.setContent('<!doctype html><html lang="uk"><head>'+
+   '<link rel="stylesheet" href="'+base+'assets/css/feed.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/profile.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/photo-albums.css"></head>'+
+   '<body class="feed-page profile-page"><main style="display:flex;gap:18px">'+panels+
+   '</main></body></html>',{waitUntil:"load"});
+  const geometry=await viewerGeometryPage.evaluate(()=>{
+   const size=el=>Math.round(el.getBoundingClientRect().height*10)/10;
+   return [...document.querySelectorAll("[data-kind]")].map(side=>{
+    const head=side.querySelector(".vatra-media-author-unified-001");
+    const actions=side.querySelector(".vatra-media-actions-unified-001");
+    const comments=side.querySelector(".vatra-media-comments-unified-001");
+    const form=side.querySelector(".vatra-media-form-unified-001");
+    const portrait=head.querySelector("a");
+    const empty=comments.querySelector(".vatra-media-empty-unified-001");
+    const text=form.querySelector("textarea");
+    return {kind:side.dataset.kind,header:size(head),actions:size(actions),
+     composer:size(form),portrait:size(portrait),input:size(text),
+     emptyOffset:Math.round((empty.getBoundingClientRect().top+
+      empty.getBoundingClientRect().bottom-comments.getBoundingClientRect().top-
+      comments.getBoundingClientRect().bottom)/2)};
+   });
+  });
+  const metrics=["header","actions","composer","portrait","input"];
+  for(const key of metrics){
+   assert.ok(geometry.every(g=>Math.abs(g[key]-geometry[0][key])<=1),
+    "Viewer "+key+" must match across avatar, post and album: "+JSON.stringify(geometry));
+  }
+  assert.ok(geometry.every(g=>Math.abs(g.emptyOffset)<=5),
+   "Empty photo comments must be vertically centered in every viewer: "+JSON.stringify(geometry));
+  console.log("VATRA three viewer sidebars: common author/actions/empty/composer geometry passed.");
+ }finally{await viewerGeometryPage.close();}
+
  // Simulate previously cached stylesheet/JS content after a deployment.
  // This isolated context enables the actual Service Worker (other tests block it).
  const swContext=await browser.newContext({serviceWorkers:"allow"});
@@ -3367,7 +3435,7 @@ try{
    const node=(tag,className)=>{
     const element=document.createElement(tag);element.className=className;return element;
    };
-   const author=node("header","ui-vatra-post-media-author-001");
+   const author=node("header","ui-vatra-post-media-author-001 vatra-media-author-unified-001");
    const authorAvatar=node("span","feed-post-avatar");
    const authorCopy=node("span","feed-post-author");
    const authorName=node("span","feed-post-name");
@@ -3376,16 +3444,16 @@ try{
    authorDate.textContent="2 дні тому";
    authorCopy.append(authorName,authorDate);author.append(authorAvatar,authorCopy);
    const shell=node("section","vatra-post-interactions");
-   const actions=node("div","vatra-post-action-row");
+   const actions=node("div","vatra-post-action-row vatra-media-actions-unified-001");
    actions.append(node("button","vatra-post-like-001"),node("button","vatra-post-share-toggle-001"));
    const panel=node("div","vatra-post-comments-panel");
-   const entries=node("div","vatra-post-comment-list");
-   const empty=node("p","vatra-post-comments-empty-001");
+   const entries=node("div","vatra-post-comment-list vatra-media-comments-unified-001");
+   const empty=node("p","vatra-post-comments-empty-001 vatra-media-empty-unified-001");
    empty.textContent="Коментарів поки немає. Будьте першими!";
    entries.append(empty);
-   const form=node("form","vatra-post-comment-form");
+   const form=node("form","vatra-post-comment-form vatra-media-form-unified-001");
    const portrait=node("span","vatra-post-comment-composer-avatar");
-   const composer=node("div","vatra-post-comment-composer");
+   const composer=node("div","vatra-post-comment-composer vatra-media-composer-content-unified-001");
    const inputWrap=node("div","vatra-post-comment-input-wrap");
    const input=node("textarea","ui-vatra-post-comment-input-001");
    input.rows=1;
@@ -3414,14 +3482,17 @@ try{
    side.replaceChildren();side.hidden=initiallyHidden;
    return results;
   });
-  assert.ok(Math.abs(postSidebar.headerHeight-70)<=2&&
-   Math.abs(postSidebar.actionHeight-50)<=2&&
-   Math.abs(postSidebar.formHeight-68)<=3&&
+  const compactPostSidebar=(feedProbe.viewportSize()?.width||0)<=680;
+  const expectedPostSidebar=compactPostSidebar?
+   {header:78,actions:54,form:72,avatar:46}:{header:89,actions:62,form:84,avatar:50};
+  assert.ok(Math.abs(postSidebar.headerHeight-expectedPostSidebar.header)<=2&&
+   Math.abs(postSidebar.actionHeight-expectedPostSidebar.actions)<=2&&
+   Math.abs(postSidebar.formHeight-expectedPostSidebar.form)<=3&&
    Math.abs(postSidebar.avatarNameGap-11)<=2&&
-   Math.abs(postSidebar.avatarWidth-40)<=1&&
-   Math.abs(postSidebar.avatarHeight-40)<=1&&
-   Math.abs(postSidebar.inputHeight-38)<=2,
-   "Fullscreen post panel sections must match the original avatar viewer sizing: "+JSON.stringify(postSidebar));
+   Math.abs(postSidebar.avatarWidth-expectedPostSidebar.avatar)<=1&&
+   Math.abs(postSidebar.avatarHeight-expectedPostSidebar.avatar)<=1&&
+   Math.abs(postSidebar.inputHeight-40)<=2,
+   "Fullscreen post panel sections must match shared responsive photo sidebar sizing: "+JSON.stringify(postSidebar));
   assert.ok(Math.abs(postSidebar.headToActions)<=2&&
    Math.abs(postSidebar.actionsToComments)<=2&&
    Math.abs(postSidebar.commentsToForm)<=2&&
@@ -4615,10 +4686,10 @@ try{
     formHeight:bound(composer).height,avatarWidth:bound(avatar).width,
     avatarNameGap:bound(copy).left-bound(avatar).right,closeX:bound(close).left,closeY:bound(close).top};
   });
-  assert.ok(Math.abs(avatarSidebar.headerHeight-70)<=2&&
-   Math.abs(avatarSidebar.actionHeight-50)<=2&&
-   Math.abs(avatarSidebar.formHeight-68)<=3&&
-   Math.abs(avatarSidebar.avatarWidth-40)<=1&&
+  assert.ok(Math.abs(avatarSidebar.headerHeight-89)<=2&&
+   Math.abs(avatarSidebar.actionHeight-62)<=2&&
+   Math.abs(avatarSidebar.formHeight-84)<=3&&
+   Math.abs(avatarSidebar.avatarWidth-50)<=1&&
    Math.abs(avatarSidebar.avatarNameGap-11)<=2&&
    Math.abs(avatarSidebar.closeX-18)<=2&&Math.abs(avatarSidebar.closeY-18)<=2,
    "Avatar viewer must share exact sidebar spacing and close-button geometry with posts: "+JSON.stringify(avatarSidebar));

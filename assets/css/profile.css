@@ -2818,7 +2818,7 @@ body.profile-page .ui-profile-photo-composer-row-001{display:flex;align-items:ce
 body.profile-page .ui-profile-photo-composer-avatar-001{flex-basis:32px;width:32px;height:32px;margin-top:0}
 body.profile-page .ui-profile-photo-composer-actions-001{display:none;justify-content:flex-end;gap:8px}
 body.profile-page .profile-photo-comment-form.is-expanded .ui-profile-photo-composer-actions-001{display:flex}
-body.profile-page .profile-photo-comment-form.is-expanded .ui-profile-photo-comment-text-001{height:90px}
+body.profile-page .profile-photo-comment-form.is-expanded .ui-profile-photo-comment-text-001{height:38px}
 body.profile-page .vatra-profile-photo-comment-cancel-001{border:0;border-radius:10px;color:#506584;background:#eef2f8;cursor:pointer;padding:8px 12px;font:650 12px Onest,system-ui,sans-serif}
 body.profile-page .vatra-profile-photo-emoji-toggle-001,body.profile-page .vatra-profile-photo-emoji-001{display:grid;place-items:center;width:32px;height:32px;padding:4px;border:0;border-radius:8px;background:transparent;color:#8291a7;cursor:pointer}
 body.profile-page .ui-profile-photo-emoji-symbol-001{width:22px;height:22px}

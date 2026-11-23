@@ -500,12 +500,12 @@ function appendAudience(container,level,isGroup=false){
        "All accessible comments, including possible spam.");
   };
   updateNote();panel.append(filterRow,note);
-  const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001");
+  const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001 vatra-media-comments-unified-001");
   entries.setAttribute("role","feed");entries.setAttribute("aria-busy","false");
   const more=make("button","vatra-post-comments-more-001",
    tr("Завантажити ще коментарі","Load more comments"));
   more.type="button";more.hidden=true;
-  const form=make("form","vatra-post-comment-form ui-vatra-post-comment-form-001");
+  const form=make("form","vatra-post-comment-form ui-vatra-post-comment-form-001 vatra-media-form-unified-001");
   const input=make("textarea","ui-vatra-post-comment-input-001");
   input.name="vatra_post_comment";input.maxLength=1000;input.rows=1;
   input.placeholder=tr("Коментувати…","Write a comment…");
@@ -518,7 +518,7 @@ function appendAudience(container,level,isGroup=false){
    ownPortrait.style.backgroundImage=headerPortrait.style.backgroundImage;
    ownPortrait.classList.add("has-photo");
   }
-  const composer=make("div","vatra-post-comment-composer ui-vatra-post-comment-composer-001");
+  const composer=make("div","vatra-post-comment-composer ui-vatra-post-comment-composer-001 vatra-media-composer-content-unified-001");
   const replying=make("div","vatra-post-comment-replying ui-vatra-post-comment-replying-001");
   replying.hidden=true;
   const replyingText=make("span","vatra-post-comment-replying-text-001");
@@ -909,9 +909,9 @@ function appendAudience(container,level,isGroup=false){
    return card;
   }
   function emptyPhotoComments(){
-   const empty=make("p","vatra-post-comments-empty-001");
+   const empty=make("p","vatra-post-comments-empty-001 vatra-media-empty-unified-001");
    const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
-   icon.setAttribute("class","vatra-post-media-empty-icon-001");
+   icon.setAttribute("class","vatra-post-media-empty-icon-001 vatra-media-empty-icon-unified-001");
    icon.setAttribute("viewBox","0 0 48 48");
    icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");
    icon.setAttribute("stroke-width","2.6");
@@ -1324,9 +1324,9 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   mediaPanels.set(container,side=>{
    if(!shell.isConnected||commentDialog?.open)return null;
    const marker=make("span","ui-vatra-media-actions-origin-001");marker.hidden=true;shell.before(marker);
-   const wasHidden=panel.hidden;filterRow.remove();note.remove();side.append(shell);panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");side.closest("dialog")?.append(popovers);void loadComments(true,entries.children.length>0);
+   const wasHidden=panel.hidden;filterRow.remove();note.remove();side.append(shell);row.classList.add("vatra-media-actions-unified-001");panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");side.closest("dialog")?.append(popovers);void loadComments(true,entries.children.length>0);
    const avoidNested=e=>{if(e.target.closest(".vatra-post-comments-toggle-001")){e.preventDefault();e.stopImmediatePropagation();}};side.addEventListener("click",avoidNested,true);
-   return ()=>{side.removeEventListener("click",avoidNested,true);hideMenus();composer.insertBefore(popovers,fileInput);panel.insertBefore(filterRow,entries);panel.insertBefore(note,entries);panel.hidden=wasHidden;commentsButton.setAttribute("aria-expanded",String(!wasHidden));if(marker.isConnected)marker.replaceWith(shell);else shell.remove();};
+   return ()=>{side.removeEventListener("click",avoidNested,true);hideMenus();row.classList.remove("vatra-media-actions-unified-001");composer.insertBefore(popovers,fileInput);panel.insertBefore(filterRow,entries);panel.insertBefore(note,entries);panel.hidden=wasHidden;commentsButton.setAttribute("aria-expanded",String(!wasHidden));if(marker.isConnected)marker.replaceWith(shell);else shell.remove();};
   });
   if(settings.inlineComments)openComments();
  }
