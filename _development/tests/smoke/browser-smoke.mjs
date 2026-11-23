@@ -1459,7 +1459,7 @@ try{
   assert.equal(await legalNav.locator(".vatra-document-origin-001").isVisible(),true,
    "From another VATRA page, the contextual Back link must be visible");
   const originUrl=await legalNav.locator(".vatra-document-origin-001").getAttribute("href");
-  assert.ok(new URL(originUrl,base).pathname.endsWith("/terms.html"),
+  assert.match(new URL(originUrl,base).pathname,/\/terms(?:\.html)?$/,
    "Back should restore the referring document, not always send users home");
   await legalNav.locator(".vatra-document-back-001").click();
   await legalNav.waitForURL(/\/documents(?:\.html)?$/);
