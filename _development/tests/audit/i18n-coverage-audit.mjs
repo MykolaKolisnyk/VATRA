@@ -18,7 +18,7 @@ for(const [code,dictionary] of [["uk",uk],["en",en]]){
  const process=dictionary.__pages.commerce.nodes["copy-appeals"].text["0"];
  assert.ok(notice&&!/обраної української або англійської|selected Ukrainian or English/.test(notice),
   code+": cookie language description must remain future-proof");
- assert.ok(code==="uk"?process.includes("«На перевірці»")&&process.includes("модератор"):
+ assert.ok(code==="uk"?process.includes("«На перевірці»")&&process.toLowerCase().includes("модератор"):
   process.includes("Pending review")&&process.includes("moderator"),
   code+": marketplace moderation copy must describe decision before publication");
 }
