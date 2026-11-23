@@ -1089,9 +1089,31 @@ function appendAudience(container,level,isGroup=false){
      else visibleComments.add(node.dataset.commentId);
     }
     const deepComment=new URLSearchParams(location.search).get("comment");
-    if(validUUID(deepComment)){
-     const target=document.getElementById("vatra-comment-"+deepComment);
-     if(target)target.scrollIntoView({block:"center"});
+    if(reset&&validUUID(deepComment)&&
+      new URLSearchParams(location.search).get("post")===post.id){
+     let target=document.getElementById("vatra-comment-"+deepComment);
+     if(!target)try{
+      const result=await client.from("post_comments")
+       .select("id,post_kind,post_id,author_vatra_id,author_id,body,media_kind,media_path,moderation_status,created_at,parent_comment_id")
+       .eq("id",deepComment).eq("post_id",post.id).eq("post_kind",kind).maybeSingle();
+      const found=result.data;
+      if(!result.error&&found&&token===ticket&&panel.isConnected){
+       const people=await authorMap(client,[found]);
+       if(token===ticket){
+        const ownLike=await client.from("post_comment_likes")
+         .select("comment_id").eq("comment_id",found.id).eq("liker_id",userId).maybeSingle();
+        if(token===ticket&&!entries.querySelector("#"+CSS.escape("vatra-comment-"+found.id))){
+         target=renderComment(found,people,new Set(ownLike.data?[found.id]:[]),
+          found.parent_comment_id||found.id,!!found.parent_comment_id);
+         target.classList.add("is-linked-comment");entries.prepend(target);
+        }
+       }
+      }
+     }catch(_){}
+     if(target){
+      target.classList.add("is-linked-comment");
+      target.scrollIntoView({block:"center",behavior:"auto"});
+     }
     }
     feedback("");
    }catch(_){
