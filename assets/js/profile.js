@@ -1,7 +1,7 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
+ const tr=(uk,en)=>{const code=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";if(code==="uk")return uk;const localized=window.VATRA_LANGUAGE?.translate?.(uk);return typeof localized==="string"&&localized!==uk?localized:(code==="en"?en:uk);};
  const select=selector=>document.querySelector(selector);
 
 
