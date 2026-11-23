@@ -895,7 +895,7 @@ function openFullMedia(url,kind,container){
   const avatar=document.createElement("a");
   avatar.className="feed-post-avatar ui-vatra-photo-source-avatar-001";
   avatar.href=new URL("id"+post.author_vatra_id,new URL(".",location.href)).href;
-  avatar.setAttribute("aria-label",tr("Профіль автора","Author profile"));
+  avatar.setAttribute("aria-label",String(document.querySelector("#profile-heading")?.textContent||"VATRA").trim());
   const avatarImage=sourceAvatar?.style.backgroundImage||"";
   if(sourceAvatar?.classList.contains("has-photo")&&avatarImage){
    avatar.style.backgroundImage=avatarImage;avatar.classList.add("has-photo");
