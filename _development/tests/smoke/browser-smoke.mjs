@@ -817,8 +817,8 @@ try{
   nodes.map(node=>node.className.match(/vatra-language-choice-([a-z]+)/)?.[1])),
   ["uk","en","pl","de","fr","it","ka","bg"],
   "VATRA must show exactly eight selected languages and no removed placeholders");
- assert.equal(await page.locator(".language-option:disabled").count(),6,
-  "New translations must not be selectable before complete reviewed dictionaries ship");
+ assert.equal(await page.locator(".language-option:disabled").count(),0,
+  "All eight translated VATRA languages must be selectable");
  await page.locator("#vatra-language-search").fill("English");
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
  await page.waitForFunction(()=>document.documentElement.lang==="en");

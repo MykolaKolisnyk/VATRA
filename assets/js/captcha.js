@@ -25,7 +25,7 @@ function loadProvider() {
  return loader;
 }
 function buildDialog(scope,close) {
- const english=document.documentElement.lang==="en";
+ const tr=(uk,en)=>{const locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";return locale==="uk"?uk:locale==="en"?en:window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
  const overlay=document.createElement("div");
  overlay.className="captcha-backdrop ui-captcha-backdrop-"+scope.id;
  const dialog=document.createElement("section");
@@ -38,26 +38,24 @@ function buildDialog(scope,close) {
  const title=document.createElement("h2");
  title.className="captcha-title vatra-captcha-title-"+scope.id;
  title.id="captcha-title-"+scope.id;
- title.textContent=english?"VATRA security check":"Перевірка безпеки VATRA";
+ title.textContent=tr("Перевірка безпеки VATRA","VATRA security check");
  const description=document.createElement("p");
  description.className="captcha-description vatra-captcha-description-"+scope.id;
  description.id="captcha-description-"+scope.id;
- description.textContent=english
-  ?"Confirm you are not a bot. When verification is complete, we will continue automatically."
-  :"Підтвердьте, що Ви не бот. Після перевірки дія продовжиться автоматично.";
+ description.textContent=tr("Підтвердьте, що Ви не бот. Після перевірки дія продовжиться автоматично.","Confirm you are not a bot. When verification is complete, we will continue automatically.");
  const widget=document.createElement("div");
  widget.className="vatra-captcha ui-captcha-widget-"+scope.id;
  widget.setAttribute("role","group");
- widget.setAttribute("aria-label",english?"Cloudflare verification":"Перевірка Cloudflare");
+ widget.setAttribute("aria-label",tr("Перевірка Cloudflare","Cloudflare verification"));
  const note=document.createElement("p");
  note.className="captcha-note vatra-captcha-note-"+scope.id;
  note.setAttribute("role","status");
- note.textContent=english?"Verifying…":"Триває перевірка…";
+ note.textContent=tr("Триває перевірка…","Verifying…");
  const cancel=document.createElement("button");
  cancel.type="button";
  cancel.className="captcha-cancel vatra-captcha-button-"+scope.id;
- cancel.textContent=english?"Cancel":"Скасувати";
- cancel.setAttribute("aria-label",english?"Cancel security verification":"Скасувати перевірку безпеки");
+ cancel.textContent=tr("Скасувати","Cancel");
+ cancel.setAttribute("aria-label",tr("Скасувати перевірку безпеки","Cancel security verification"));
  dialog.append(title,description,widget,note,cancel);
  overlay.append(dialog);
  const previousFocus=document.activeElement;
@@ -100,7 +98,7 @@ function mount(scope) {
    sitekey:SITE_KEY,
    theme:"light",
    size:"flexible",
-   language:document.documentElement.lang==="en"?"en":"uk",
+   language:document.documentElement.lang||"uk",
    execution:"execute",
    appearance:"always",
    "response-field":false,

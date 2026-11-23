@@ -11,22 +11,28 @@
   const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
   const ROOT=new URL("../../",scriptUrl).pathname;
   const LANGUAGE_KEY = "vatra-language";
-  const validLanguage = value => value === "uk" || value === "en";
+  const supportedLanguages=["uk","en","pl","de","fr","it","ka","bg"];
+  const validLanguage=value=>supportedLanguages.includes(value);
   const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
   function preferred() {
     const choice = saved();
-    if (choice === "uk" || choice === "en") return choice;
+    if (validLanguage(choice)) return choice;
     
     const legacy = new URLSearchParams(location.search).get("locale");
     if (legacy === "uk_UA") return "uk";
     if (legacy === "en_US") return "en";
-    return browserLocale.startsWith("uk") || browserLocale.endsWith("-ua") ? "uk" : "en";
+    const code=browserLocale.split("-")[0];
+    if(validLanguage(code))return code;
+    return browserLocale.endsWith("-ua")?"uk":"en";
   }
 
 
   const current = localFile ? "uk" : preferred();
 
 
+  const titleSources={
+    index:"Вхід","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",messenger:"Месенджер",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
+  };
   const instantEnglishTitles={
     index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",messenger:"Messenger",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
     forgot:"Password recovery",reset:"New password",
@@ -62,9 +68,9 @@
     const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|commerce|documents|offline|404)\.html$/,(_all,route)=>"/"+route);
     if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
   }
-  document.documentElement.lang = current === "en" ? "en" : "uk";
+  document.documentElement.lang=current;
   document.documentElement.dataset.language = current;
-  if (current === "en") {
+  if (current !== "uk") {
     document.documentElement.classList.add("i18n-pending");
     const block = document.createElement("style");
     block.className = "ui-i18n-pending-style";
@@ -80,20 +86,18 @@
       "{animation-play-state:paused!important}";
     document.head.append(block);
   }
-  const nativeLabels = {
-    uk: "Українська", en: "English"
-  };
+  const nativeLabels={uk:"Українська",en:"English",pl:"Polski",de:"Deutsch",fr:"Français",it:"Italiano",ka:"ქართული",bg:"Български"};
 
 
   const languages = [
     ["uk","Українська","Ukrainian","ua",true],
     ["en","English","English","gb",true],
-    ["pl","Polski","Polish","pl"],
-    ["de","Deutsch","German","de"],
-    ["fr","Français","French","fr"],
-    ["it","Italiano","Italian","it"],
-    ["ka","ქართული","Georgian","ge"],
-    ["bg","Български","Bulgarian","bg"]
+    ["pl","Polski","Polish","pl",true],
+    ["de","Deutsch","German","de",true],
+    ["fr","Français","French","fr",true],
+    ["it","Italiano","Italian","it",true],
+    ["ka","ქართული","Georgian","ge",true],
+    ["bg","Български","Bulgarian","bg",true]
   ];
   const flagGroups={
     "europe-a":new Set(["pl","de","fr","it"]),
@@ -217,7 +221,7 @@
 
 
   let staticLocaleLoader=null;
-  if(current==="en")domReady.then(()=>{
+  if(current!=="uk")domReady.then(()=>{
     if(!document.documentElement.classList.contains("i18n-pending"))return;
     const body=document.body;
     if(!body?.matches(".policy-page,.error-page")||
@@ -289,6 +293,14 @@
   const ready=Promise.all([domReady,translations]).then(([,json])=>{
     errors=json&&typeof json==="object"?json:{};
     applyTranslation(errors);
+    if(current!=="uk"&&current!=="en"){
+      const segment=pageFromPath();
+      const source=titleSources[segment]||titleSources["404"];
+      const translated=errors[source];
+      const meta=errors.__pages?.[segment]?.meta?.title;
+      const title=meta||(typeof translated==="string"?translated:null);
+      if(title)document.title=title;
+    }
   }).finally(()=>{
     document.documentElement.classList.remove("i18n-pending");
     if(staticLocaleLoader){
@@ -302,10 +314,17 @@
     translate: raw => (typeof errors[raw] === "string" && errors[raw]) ? errors[raw] : raw
   };
 
-  const english = current === "en";
-  const words = english
-    ? {name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",future:"In development",current:"Selected",close:"Close",empty:"No matching languages"}
-    : {name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено"};
+  const wordsByLanguage={
+    uk:{name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено",clear:"Очистити пошук"},
+    en:{name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",future:"In development",current:"Selected",close:"Close",empty:"No matching languages",clear:"Clear search"},
+    pl:{name:"Język",heading:"Wybierz język",details:"Język interfejsu VATRA",search:"Szukaj języków",future:"W przygotowaniu",current:"Wybrano",close:"Zamknij",empty:"Nie znaleziono języków",clear:"Wyczyść wyszukiwanie"},
+    de:{name:"Sprache",heading:"Sprache auswählen",details:"Sprache der VATRA-Oberfläche",search:"Sprachen suchen",future:"In Entwicklung",current:"Ausgewählt",close:"Schließen",empty:"Keine passenden Sprachen",clear:"Suche löschen"},
+    fr:{name:"Langue",heading:"Choisissez votre langue",details:"Langue de l'interface VATRA",search:"Rechercher une langue",future:"En préparation",current:"Sélectionnée",close:"Fermer",empty:"Aucune langue trouvée",clear:"Effacer la recherche"},
+    it:{name:"Lingua",heading:"Scegli la tua lingua",details:"Lingua dell'interfaccia VATRA",search:"Cerca lingue",future:"In preparazione",current:"Selezionata",close:"Chiudi",empty:"Nessuna lingua trovata",clear:"Cancella la ricerca"},
+    ka:{name:"ენა",heading:"აირჩიეთ ენა",details:"VATRA-ს ინტერფეისის ენა",search:"ენების ძებნა",future:"მზადების პროცესშია",current:"არჩეულია",close:"დახურვა",empty:"ენა ვერ მოიძებნა",clear:"ძიების გასუფთავება"},
+    bg:{name:"Език",heading:"Изберете език",details:"Език на интерфейса на VATRA",search:"Търсене на езици",future:"В подготовка",current:"Избран",close:"Затвори",empty:"Няма намерени езици",clear:"Изчисти търсенето"}
+  };
+  const words=wordsByLanguage[current];
 
   let pickerInitialized=false;
   function initLanguagePicker() {
@@ -320,7 +339,7 @@
     for(const trigger of triggers){
       const id=++triggerOrdinal;
       trigger.replaceChildren();
-      trigger.append(flag(english ? "gb" : "ua"));
+      trigger.append(flag(languages.find(item=>item[0]===current)[3]));
       const label=document.createElement("span");
       label.className="vatra-language-trigger-label-"+id;
       label.textContent=nativeLabels[current];
@@ -393,7 +412,7 @@
     clearSearch.className="language-search-clear vatra-language-clear-button";
     clearSearch.type="button";
     clearSearch.hidden=true;
-    clearSearch.setAttribute("aria-label",english?"Clear search":"Очистити пошук");
+    clearSearch.setAttribute("aria-label",words.clear);
     const clearIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
     clearIcon.setAttribute("viewBox","0 0 24 24");
     clearIcon.setAttribute("aria-hidden","true");

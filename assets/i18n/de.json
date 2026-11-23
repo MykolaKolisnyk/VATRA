@@ -20,7 +20,7 @@
   "Увійдіть у свій акаунт, щоб продовжити користуватися VATRA.": "Melden Sie sich an, um VATRA weiter zu nutzen.",
   "Повторити спробу": "Erneut versuchen",
   "__translation_status": {
-    "dynamic_strings_complete": false,
+    "dynamic_strings_complete": true,
     "email_templates_complete": false,
     "translated_static_pages": [
       "index",
@@ -35,7 +35,9 @@
       "terms",
       "privacy",
       "cookies",
-      "maintenance"
+      "maintenance",
+      "commerce",
+      "documents"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
@@ -1350,36 +1352,6 @@
             "0": "Zum Inhalt springen"
           }
         },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA – Startseite"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Anmelden"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Konto erstellen"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Dokumentabschnitte"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Nutzungsbedingungen"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Datenschutz"
-          }
-        },
         "n17": {
           "text": {
             "0": "Nutzungsbedingungen"
@@ -1651,27 +1623,44 @@
             "1": " · Deine Menschen. Deine Geschichten. Deine VATRA."
           }
         },
-        "n90": {
-          "attrs": {
-            "aria-label": "Weitere Links"
+        "market_rules_title": {
+          "text": {
+            "0": "VATRA-Handelsregeln"
           }
         },
-        "n95": {
+        "market_rules_intro": {
           "text": {
-            "0": "Deutsch"
-          },
-          "attrs": {
-            "aria-label": "Sprache wählen"
+            "0": "Anzeigen und damit verbundene Handelsaktivitäten müssen die gesonderten Marketplace-Regeln einhalten."
           }
         },
-        "n301": {
+        "market_rules_full": {
           "text": {
-            "0": "Anmelden"
+            "0": "Vollständige Handelsregeln lesen"
           }
         },
-        "n302": {
+        "market_rules_toc_desktop": {
           "text": {
-            "0": "Konto erstellen"
+            "0": "VATRA-Handelsregeln"
+          }
+        },
+        "market_rules_toc_mobile": {
+          "text": {
+            "0": "VATRA-Handelsregeln"
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Alle Dokumente"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Plattformregeln"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Zurück"
           }
         }
       }
@@ -1688,36 +1677,6 @@
         "n1": {
           "text": {
             "0": "Zum Inhalt springen"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA – Startseite"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Anmelden"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Konto erstellen"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Dokumentabschnitte"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Nutzungsbedingungen"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Datenschutz"
           }
         },
         "n17": {
@@ -2011,27 +1970,19 @@
             "1": " · Deine Menschen. Deine Geschichten. Deine VATRA."
           }
         },
-        "n97": {
-          "attrs": {
-            "aria-label": "Weitere Links"
+        "docs_back_001": {
+          "text": {
+            "0": "Alle Dokumente"
           }
         },
-        "n102": {
+        "docs_kicker_001": {
           "text": {
-            "0": "Deutsch"
-          },
-          "attrs": {
-            "aria-label": "Sprache wählen"
+            "0": "Datenschutz"
           }
         },
-        "n301": {
+        "docs_back_origin_001": {
           "text": {
-            "0": "Anmelden"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Konto erstellen"
+            "0": "Zurück"
           }
         }
       }
@@ -2048,36 +1999,6 @@
         "n1": {
           "text": {
             "0": "Zum Inhalt springen"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA – Startseite"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Anmelden"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Konto erstellen"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Dokumentabschnitte"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Nutzungsbedingungen"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Datenschutz"
           }
         },
         "n17": {
@@ -2354,27 +2275,696 @@
             "1": " · Deine Menschen. Deine Geschichten. Deine VATRA."
           }
         },
-        "n100": {
-          "attrs": {
-            "aria-label": "Weitere Links"
+        "docs_back_001": {
+          "text": {
+            "0": "Alle Dokumente"
           }
         },
-        "n105": {
+        "docs_kicker_001": {
           "text": {
-            "0": "Deutsch"
-          },
-          "attrs": {
-            "aria-label": "Sprache wählen"
+            "0": "Browsereinstellungen"
           }
         },
-        "n301": {
+        "docs_back_origin_001": {
           "text": {
-            "0": "Anmelden"
+            "0": "Zurück"
+          }
+        }
+      }
+    },
+    "documents": {
+      "meta": {
+        "title": "VATRA-Dokumente",
+        "description": "Wichtige Informationen zur Nutzung der Plattform, zum Schutz personenbezogener Daten und zu den Marketplace-Regeln. Wähle ein Dokument.",
+        "og:locale": "de_DE",
+        "og:title": "VATRA-Dokumente",
+        "og:description": "Wichtige Informationen zur Nutzung der Plattform, zum Schutz personenbezogener Daten und zu den Marketplace-Regeln. Wähle ein Dokument."
+      },
+      "nodes": {
+        "docs_back_home_001": {
+          "text": {
+            "0": "Zurück zu VATRA"
           }
         },
-        "n302": {
+        "docs_title_001": {
           "text": {
-            "0": "Konto erstellen"
+            "0": "VATRA-Dokumente"
+          }
+        },
+        "docs_intro_001": {
+          "text": {
+            "0": "Wichtige Informationen zur Nutzung der Plattform, zum Schutz personenbezogener Daten und zu den Marketplace-Regeln. Wähle ein Dokument."
+          }
+        },
+        "docs_card_01_kicker_001": {
+          "text": {
+            "0": "01 / PLATTFORM"
+          }
+        },
+        "docs_card_01_title_001": {
+          "text": {
+            "0": "Nutzungsbedingungen"
+          }
+        },
+        "docs_card_01_desc_001": {
+          "text": {
+            "0": "Konto, Community, Inhalte, Sicherheit und Regeln für die Nutzung von VATRA."
+          }
+        },
+        "docs_card_02_kicker_001": {
+          "text": {
+            "0": "02 / DATENSCHUTZ"
+          }
+        },
+        "docs_card_02_title_001": {
+          "text": {
+            "0": "Datenschutz"
+          }
+        },
+        "docs_card_02_desc_001": {
+          "text": {
+            "0": "Welche Daten verwendet werden, wie sie geschützt werden und welche Rechte du hast."
+          }
+        },
+        "docs_card_03_kicker_001": {
+          "text": {
+            "0": "03 / BROWSER"
+          }
+        },
+        "docs_card_03_title_001": {
+          "text": {
+            "0": "Cookies"
+          }
+        },
+        "docs_card_03_desc_001": {
+          "text": {
+            "0": "Wie Cookies, lokaler Speicher und Sitzungseinstellungen funktionieren."
+          }
+        },
+        "docs_card_04_kicker_001": {
+          "text": {
+            "0": "04 / MARKETPLACE"
+          }
+        },
+        "docs_card_04_title_001": {
+          "text": {
+            "0": "Handelsregeln"
+          }
+        },
+        "docs_card_04_desc_001": {
+          "text": {
+            "0": "Anforderungen an Anzeigen, erlaubte Kategorien, Verbote und sichere Transaktionen."
+          }
+        },
+        "docs_footer_001": {
+          "text": {
+            "0": "© 2026 VATRA · Deine Menschen. Deine Geschichten. Deine VATRA."
+          }
+        },
+        "docs_open_01_001": {
+          "text": {
+            "0": "Dokument ansehen"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Zurück"
+          }
+        },
+        "docs_open_02_001": {
+          "text": {
+            "0": "Dokument ansehen"
+          }
+        },
+        "docs_open_03_001": {
+          "text": {
+            "0": "Dokument ansehen"
+          }
+        },
+        "docs_open_04_001": {
+          "text": {
+            "0": "Dokument ansehen"
+          }
+        }
+      }
+    },
+    "commerce": {
+      "meta": {
+        "title": "VATRA-Handelsregeln",
+        "description": "Marktplatzregeln für Verkäufer und Käufer: erlaubte Angebote, Verbote, Einschränkungen und Einsprüche.",
+        "og:title": "VATRA-Handelsregeln",
+        "og:description": "Marktplatzregeln für Verkäufer und Käufer: erlaubte Angebote, Verbote, Einschränkungen und Einsprüche.",
+        "og:locale": "de_DE"
+      },
+      "nodes": {
+        "head-overview": {
+          "text": {
+            "0": "Geltungsbereich"
+          }
+        },
+        "copy-overview": {
+          "text": {
+            "0": "Die Regeln gelten für alle Angebote auf dem VATRA-Marktplatz: Verkauf, Tausch, Vermietung und kostenlose Weitergabe sowie zugehörige Fotos, Beschreibungen und Nachrichten. Teilnehmende sind für die Rechtmäßigkeit ihrer Handlungen, die Verfügungsbefugnis über Waren und die Einhaltung von Verbraucherrechten verantwortlich. Verbote gelten auch bei Versuchen, sie über andere Kategorien oder Nachrichten zu umgehen."
+          }
+        },
+        "head-appeals": {
+          "text": {
+            "0": "Verstöße und Einsprüche"
+          }
+        },
+        "copy-appeals": {
+          "text": {
+            "0": "Jede neue Anzeige gelangt zunächst mit dem Status „In Prüfung“ in die manuelle Moderation von VATRA. Bis zur Freigabe ist sie für andere Nutzer nicht sichtbar. Ein Moderator prüft Titel, Beschreibung, Kategorie und Fotos und entscheidet über Freigabe oder Ablehnung mit Begründung. Verkäufer können gegen eine Ablehnung Einspruch einlegen. VATRA kann Anzeigen bei Regelverstößen auch ausblenden oder löschen und den Marktplatzzugang beschränken. Wiederholte oder schwere Verstöße können gemäß Nutzungsbedingungen und Gesetz weitere Maßnahmen gegen das Konto nach sich ziehen. Bei einer falschen Entscheidung oder einem festgestellten Verstoß kontaktiere den Support mit Link oder Anzeigen-ID und einer Erklärung. Übermittle keine vertraulichen Daten."
+          }
+        },
+        "head-prohibited": {
+          "text": {
+            "0": "Verbotene Anzeigen"
+          }
+        },
+        "copy-prohibited": {
+          "text": {
+            "0": "Die folgenden Kategorien sind im Katalog nicht erlaubt. Die Beispiele sind nicht abschließend."
+          }
+        },
+        "index-community": {
+          "text": {
+            "0": "Allgemeine VATRA-Regeln"
+          }
+        },
+        "index-adult": {
+          "text": {
+            "0": "Erwachsenenprodukte und -materialien"
+          }
+        },
+        "index-alcohol": {
+          "text": {
+            "0": "Alkoholische Produkte"
+          }
+        },
+        "index-body": {
+          "text": {
+            "0": "Menschliches Gewebe und biologische Materialien"
+          }
+        },
+        "index-devices": {
+          "text": {
+            "0": "Digitale Datenträger und Geräte"
+          }
+        },
+        "index-discrimination": {
+          "text": {
+            "0": "Diskriminierungsverbot"
+          }
+        },
+        "index-finance": {
+          "text": {
+            "0": "Dokumente, Geld und Finanzprodukte"
+          }
+        },
+        "index-gambling": {
+          "text": {
+            "0": "Glücksspiel"
+          }
+        },
+        "index-hazards": {
+          "text": {
+            "0": "Gefährliche Stoffe und Produkte"
+          }
+        },
+        "index-exploitation": {
+          "text": {
+            "0": "Ausbeutung von Menschen und sexuelle Dienstleistungen"
+          }
+        },
+        "index-jobs": {
+          "text": {
+            "0": "Arbeit und Verdienst"
+          }
+        },
+        "index-animals": {
+          "text": {
+            "0": "Tiere, natürliche Ressourcen und Schutzgebiete"
+          }
+        },
+        "index-medical": {
+          "text": {
+            "0": "Medizinprodukte, Behandlungen und Nahrungsergänzungsmittel"
+          }
+        },
+        "index-deception": {
+          "text": {
+            "0": "Täuschung, Gewalt und Hass"
+          }
+        },
+        "index-no-item": {
+          "text": {
+            "0": "Anzeigen ohne Handelsgegenstand"
+          }
+        },
+        "index-drugs": {
+          "text": {
+            "0": "Arzneimittel, Drogen und Zubehör"
+          }
+        },
+        "index-recalls": {
+          "text": {
+            "0": "Gefährliche und zurückgerufene Produkte"
+          }
+        },
+        "index-stolen": {
+          "text": {
+            "0": "Gestohlenes Eigentum"
+          }
+        },
+        "index-digital": {
+          "text": {
+            "0": "Abonnements, Konten und digitale Güter"
+          }
+        },
+        "index-ip": {
+          "text": {
+            "0": "Rechte am geistigen Eigentum"
+          }
+        },
+        "index-tobacco": {
+          "text": {
+            "0": "Tabak- und Nikotinprodukte"
+          }
+        },
+        "index-cosmetics": {
+          "text": {
+            "0": "Gebrauchte Kosmetika"
+          }
+        },
+        "index-vehicle-parts": {
+          "text": {
+            "0": "Autoteile und Zubehör"
+          }
+        },
+        "index-weapons": {
+          "text": {
+            "0": "Waffen, Munition und Sprengstoffe"
+          }
+        },
+        "head-rule-community": {
+          "text": {
+            "0": "1. Allgemeine VATRA-Regeln"
+          }
+        },
+        "copy-rule-community": {
+          "text": {
+            "0": "Anzeigen, Fotos und Nachrichten zu Geschäften müssen den VATRA-Nutzungsbedingungen entsprechen. Spam, Drohungen, Mobbing, Betrug und die Ausbeutung von Kindern sind verboten."
+          }
+        },
+        "head-rule-adult": {
+          "text": {
+            "0": "2. Erwachsenenprodukte und -materialien"
+          }
+        },
+        "copy-rule-adult": {
+          "text": {
+            "0": "Sexspielzeug, pornografisches Material, Produkte zur sexuellen Stimulation, Kondome und Gleitmittel, getragene Unterwäsche und sexualisierte Bilder sind nicht erlaubt. Darstellungen nackter Kinder oder sexueller Handlungen sind im Katalog unter allen Umständen untersagt."
+          }
+        },
+        "head-rule-alcohol": {
+          "text": {
+            "0": "3. Alkoholische Produkte"
+          }
+        },
+        "copy-rule-alcohol": {
+          "text": {
+            "0": "Auf dem VATRA-Marktplatz sind alkoholische Getränke und Sets zu ihrer Herstellung verboten. Gewöhnliche Gläser, Untersetzer, Kühlbehälter und Bücher über Getränke sind erlaubt, wenn sie keinen Alkohol bewerben. Produkte zur Verkaufsförderung von Alkohol sind nicht erlaubt."
+          }
+        },
+        "head-rule-body": {
+          "text": {
+            "0": "4. Menschliches Gewebe und biologische Materialien"
+          }
+        },
+        "copy-rule-body": {
+          "text": {
+            "0": "Der Handel mit Organen, Zähnen, Nägeln, Blut, Urin, Sperma und anderen menschlichen Geweben oder Körperflüssigkeiten ist verboten. Normale Perücken und Haarteile fallen nicht unter dieses Verbot."
+          }
+        },
+        "head-rule-devices": {
+          "text": {
+            "0": "5. Digitale Datenträger und Geräte"
+          }
+        },
+        "copy-rule-devices": {
+          "text": {
+            "0": "Verboten sind Geräte, die speziell für illegalen Zugang zu Inhalten, die unerlaubte Umgehung von Schutzmaßnahmen, Funkstörungen oder heimliches Abhören eingerichtet sind. Legale Fernbedienungen, Tastaturen und funktionstüchtige gewöhnliche Elektronik sind erlaubt."
+          }
+        },
+        "head-rule-discrimination": {
+          "text": {
+            "0": "6. Diskriminierungsverbot"
+          }
+        },
+        "copy-rule-discrimination": {
+          "text": {
+            "0": "Unrechtmäßige Benachteiligungen von Käufern, Mietern oder Verkäufern aufgrund von Herkunft, ethnischer Zugehörigkeit, Hautfarbe, Staatsangehörigkeit, Nationalität, Religion, Alter, Geschlecht, sexueller Orientierung, Geschlechtsidentität, Familienstand, Behinderung, Gesundheit oder genetischen Merkmalen sind untersagt. Das gilt auch für Wohnungsangebote und Verhandlungen."
+          }
+        },
+        "head-rule-finance": {
+          "text": {
+            "0": "7. Dokumente, Geld und Finanzprodukte"
+          }
+        },
+        "copy-rule-finance": {
+          "text": {
+            "0": "Dokumente und Kopien, Fälschungen, Bargeld, Kryptowährungen, Bankkarten, Schecks, Zahlungsinstrumente, Geldfälschungsgeräte sowie Angebote für Kredite, Versicherungen, Banken und andere Finanzdienstleistungen sind verboten."
+          }
+        },
+        "head-rule-gambling": {
+          "text": {
+            "0": "8. Glücksspiel"
+          }
+        },
+        "copy-rule-gambling": {
+          "text": {
+            "0": "Anzeigen für Casinos, Wetten um Geld, Lotterien, Totalisatoren, Poker oder andere Spiele um Geld oder Wertgegenstände, einschließlich Kryptowährungen, sind nicht erlaubt. Gewöhnliche Brettspiele ohne Geldeinsatz fallen nicht unter diese Regel."
+          }
+        },
+        "head-rule-hazards": {
+          "text": {
+            "0": "9. Gefährliche Stoffe und Produkte"
+          }
+        },
+        "copy-rule-hazards": {
+          "text": {
+            "0": "Biete keine giftigen, ätzenden, explosiven oder leicht entzündlichen Stoffe, gefährlichen Pestizide, Asbest oder chemischen Vorprodukte an, deren Vertrieb die Sicherheit gefährdet. Die bloße Rechtmäßigkeit eines Produkts bedeutet nicht, dass es im Katalog erlaubt ist."
+          }
+        },
+        "head-rule-exploitation": {
+          "text": {
+            "0": "10. Ausbeutung von Menschen und sexuelle Dienstleistungen"
+          }
+        },
+        "copy-rule-exploitation": {
+          "text": {
+            "0": "Angebote zu Menschenhandel, illegalem Transport von Menschen, Zwangsarbeit, Escortdiensten, Prostitution, bezahlten Intimdiensten und sexualisierten Shows sind verboten. Materialien über sexuellen Kindesmissbrauch sind untersagt. Partnervermittlung und Personalvermittlung sind keine Waren für den Katalog."
+          }
+        },
+        "head-rule-jobs": {
+          "text": {
+            "0": "11. Arbeit und Verdienst"
+          }
+        },
+        "copy-rule-jobs": {
+          "text": {
+            "0": "Der Marktplatz ist keine Jobbörse. Veröffentliche keine Stellenangebote, Network-Marketing-Angebote oder Schnell-reich-werden-Systeme. Rechtmäßige Stellenangebote können in dafür zugelassenen VATRA-Bereichen nach den allgemeinen Regeln besprochen werden."
+          }
+        },
+        "head-rule-animals": {
+          "text": {
+            "0": "12. Tiere, natürliche Ressourcen und Schutzgebiete"
+          }
+        },
+        "copy-rule-animals": {
+          "text": {
+            "0": "Lebende Tiere, Körperteile, Produkte geschützter Arten, roher Fisch, rohes Fleisch und Eier sowie Immobilien innerhalb von Naturschutzgebieten sind verboten. Tierarzneimittel und veterinärmedizinische Dienstleistungen sind nicht erlaubt. Käfige, Spielzeug, Halsbänder und anderes legales Haustierzubehör sind erlaubt."
+          }
+        },
+        "head-rule-medical": {
+          "text": {
+            "0": "13. Medizinprodukte, Behandlungen und Nahrungsergänzungsmittel"
+          }
+        },
+        "copy-rule-medical": {
+          "text": {
+            "0": "Verboten sind medizinische Geräte, Geräte zur Krankheitsdiagnose, Kontaktlinsen, Korrekturbrillen, Thermometer, Erste-Hilfe-Sets, Milchpumpen, Injektions- und kosmetische Behandlungen, Heilangebote, medizinische und Säuglingsnahrung sowie Nahrungsergänzungsmittel einschließlich Steroiden, Hormonen, Proteinpulver und Vitaminen. Gewöhnliches Fitnesszubehör und Schwangerschafts- oder Ovulationstests sind erlaubt, sofern keine anderen Regeln verletzt werden."
+          }
+        },
+        "head-rule-deception": {
+          "text": {
+            "0": "14. Täuschung, Gewalt und Hass"
+          }
+        },
+        "copy-rule-deception": {
+          "text": {
+            "0": "Phishing, falsche Preis- und Produktangaben, Zahlungsbetrug, manipulierte Bewertungen, schockierende Gewaltdarstellungen sowie Inhalte, die Rassenhass oder Extremismus fördern, sind verboten. Verwende keine Erniedrigung des Aussehens oder Gesundheitszustands anderer zum Verkauf."
+          }
+        },
+        "head-rule-no-item": {
+          "text": {
+            "0": "15. Anzeigen ohne Handelsgegenstand"
+          }
+        },
+        "copy-rule-no-item": {
+          "text": {
+            "0": "Jede Anzeige muss sich auf ein konkretes Produkt, eine zulässige Immobilie oder die kostenlose Weitergabe eines erlaubten Gegenstands beziehen. Nachrichten, Memes, Spendenaufrufe, die Suche nach verlorenen Gegenständen und Kaufgesuche ohne angebotenes Produkt gehören in andere Bereiche, nicht in den Warenkatalog."
+          }
+        },
+        "head-rule-drugs": {
+          "text": {
+            "0": "16. Arzneimittel, Drogen und Zubehör"
+          }
+        },
+        "copy-rule-drugs": {
+          "text": {
+            "0": "Rezeptpflichtige und rezeptfreie Arzneimittel, Betäubungsmittel, Cannabis und daraus hergestellte Produkte sowie Zubehör für den Drogenkonsum sind nicht erlaubt."
+          }
+        },
+        "head-rule-recalls": {
+          "text": {
+            "0": "17. Gefährliche und zurückgerufene Produkte"
+          }
+        },
+        "copy-rule-recalls": {
+          "text": {
+            "0": "Produkte, die vom Markt genommen, vom Hersteller zurückgerufen oder aus Sicherheitsgründen verboten wurden, dürfen nicht verkauft werden. Prüfe besonders Kinderprodukte, Möbel und Spielzeug. Vergleiche im Zweifel Modell und Serie mit Mitteilungen des Herstellers oder der Aufsichtsbehörde."
+          }
+        },
+        "head-rule-stolen": {
+          "text": {
+            "0": "18. Gestohlenes Eigentum"
+          }
+        },
+        "copy-rule-stolen": {
+          "text": {
+            "0": "Biete keine Gegenstände an, die durch Diebstahl, Betrug oder andere rechtswidrige Handlungen erlangt wurden. Verkäufer müssen über die Gegenstände verfügen dürfen."
+          }
+        },
+        "head-rule-digital": {
+          "text": {
+            "0": "19. Abonnements, Konten und digitale Güter"
+          }
+        },
+        "copy-rule-digital": {
+          "text": {
+            "0": "Der Verkauf von Konten, Zugängen zu Diensten, digitalen Abonnements, Download-Dateien, Aktivierungscodes oder künstlich erzeugten Followern und Reaktionen ist untersagt. Echte physische Datenträger und gewöhnliche Elektronik sind erlaubt, wenn ihr Verkauf rechtmäßig ist."
+          }
+        },
+        "head-rule-ip": {
+          "text": {
+            "0": "20. Rechte am geistigen Eigentum"
+          }
+        },
+        "copy-rule-ip": {
+          "text": {
+            "0": "Gefälschte Markenprodukte, nicht lizenzierte Kopien von Software, Musik, Büchern oder Videos und andere Waren, die Urheber- oder Markenrechte verletzen, sind verboten. Fotos und Beschreibungen dürfen keine Rechte Dritter verletzen."
+          }
+        },
+        "head-rule-tobacco": {
+          "text": {
+            "0": "21. Tabak- und Nikotinprodukte"
+          }
+        },
+        "copy-rule-tobacco": {
+          "text": {
+            "0": "Tabak, Zigaretten, E-Zigaretten, Nikotinprodukte und speziell für ihren Gebrauch bestimmtes Zubehör sind nicht erlaubt."
+          }
+        },
+        "head-rule-cosmetics": {
+          "text": {
+            "0": "22. Gebrauchte Kosmetika"
+          }
+        },
+        "copy-rule-cosmetics": {
+          "text": {
+            "0": "Biete keine gebrauchten Kosmetika oder Kosmetika ohne Originalverpackung an. Neue, ordnungsgemäß verpackte Produkte sind unter Einhaltung der übrigen Regeln erlaubt."
+          }
+        },
+        "head-rule-vehicle-parts": {
+          "text": {
+            "0": "23. Autoteile und Zubehör"
+          }
+        },
+        "copy-rule-vehicle-parts": {
+          "text": {
+            "0": "Illegale, zurückgerufene oder gefährliche Autoteile und Zubehör sind verboten. Legale und funktionstüchtige Komponenten sind erlaubt, wenn Herkunft und Zustand ehrlich beschrieben werden. Weitere Beschränkungen für bestimmte Teile können separat festgelegt werden."
+          }
+        },
+        "head-rule-weapons": {
+          "text": {
+            "0": "24. Waffen, Munition und Sprengstoffe"
+          }
+        },
+        "copy-rule-weapons": {
+          "text": {
+            "0": "Waffen, Munition, Sprengstoffe sowie spezielle Bauteile oder Mittel für ihre illegale Verwendung sind nicht erlaubt. Das Verbot gilt für Verkauf, Tausch und kostenlose Weitergabe."
+          }
+        },
+        "head-restricted": {
+          "text": {
+            "0": "Eingeschränkte Angebote"
+          }
+        },
+        "copy-restricted": {
+          "text": {
+            "0": "Diese Anzeigenkategorien sind auf dem VATRA-Marktplatz unabhängig von Zahlungsmethode, Übergabe oder gewählter Kategorie nicht erlaubt."
+          }
+        },
+        "head-limit-tickets": {
+          "text": {
+            "0": "Veranstaltungstickets"
+          }
+        },
+        "copy-limit-tickets": {
+          "text": {
+            "0": "Anzeigen zum Verkauf, Weiterverkauf oder zur Weitergabe von Veranstaltungstickets sind auf dem VATRA-Marktplatz nicht erlaubt."
+          }
+        },
+        "head-limit-vouchers": {
+          "text": {
+            "0": "Geschenkkarten und Gutscheine"
+          }
+        },
+        "copy-limit-vouchers": {
+          "text": {
+            "0": "Geschenkkarten, Zertifikate und Gutscheine dürfen auf dem VATRA-Marktplatz nicht verkauft, getauscht oder kostenlos weitergegeben werden."
+          }
+        },
+        "head-limit-adoption": {
+          "text": {
+            "0": "Vermittlung von Tieren"
+          }
+        },
+        "copy-limit-adoption": {
+          "text": {
+            "0": "Anzeigen zum Verkauf, zur Weitergabe oder Vermittlung lebender Tiere sind auf dem VATRA-Marktplatz nicht erlaubt."
+          }
+        },
+        "head-limit-services": {
+          "text": {
+            "0": "Dienstleistungen"
+          }
+        },
+        "copy-limit-services": {
+          "text": {
+            "0": "Dienstleistungsanzeigen sind auf dem VATRA-Marktplatz nicht erlaubt. Die Vermietung von Immobilien ist eine gesonderte Anzeigenart und gehört nicht zur allgemeinen Dienstleistungskategorie."
+          }
+        },
+        "head-safety": {
+          "text": {
+            "0": "Anzeigenanforderungen und sichere Geschäfte"
+          }
+        },
+        "copy-safety": {
+          "text": {
+            "0": "Gib den tatsächlichen Preis, Standort, Zustand und Mängel an. Verwende nur eigene oder rechtmäßig nutzbare Fotos. Dupliziere keine Anzeigen, um den Katalog zu manipulieren. VATRA nimmt keine Zahlungen entgegen, organisiert keine Lieferung und garantiert keine Vertragserfüllung. Prüfe Ware und Verkäufer, teile keine Passwörter, Codes oder Bankdaten und öffne keine verdächtigen Links. Gesetzliche Verbraucherrechte bleiben bestehen."
+          }
+        },
+        "title": {
+          "text": {
+            "0": "VATRA-Handelsregeln"
+          }
+        },
+        "intro": {
+          "text": {
+            "0": "Marktplatzregeln für Verkäufer und Käufer: erlaubte Angebote, Verbote, Einschränkungen und Einsprüche."
+          }
+        },
+        "updated": {
+          "text": {
+            "0": "Fassung vom 23. November 2026"
+          }
+        },
+        "toc-title": {
+          "text": {
+            "0": "Auf dieser Seite"
+          }
+        },
+        "desktop-overview": {
+          "text": {
+            "0": "Überblick"
+          }
+        },
+        "desktop-appeals": {
+          "text": {
+            "0": "Verstöße und Einsprüche"
+          }
+        },
+        "desktop-prohibited": {
+          "text": {
+            "0": "Verbotene Anzeigen"
+          }
+        },
+        "desktop-restricted": {
+          "text": {
+            "0": "Eingeschränkte Angebote"
+          }
+        },
+        "desktop-safety": {
+          "text": {
+            "0": "Sichere Geschäfte"
+          }
+        },
+        "toc-mobile": {
+          "text": {
+            "0": "Inhalt"
+          }
+        },
+        "mobile-overview": {
+          "text": {
+            "0": "Überblick"
+          }
+        },
+        "mobile-appeals": {
+          "text": {
+            "0": "Verstöße und Einsprüche"
+          }
+        },
+        "mobile-prohibited": {
+          "text": {
+            "0": "Verbotene Anzeigen"
+          }
+        },
+        "mobile-restricted": {
+          "text": {
+            "0": "Eingeschränkte Angebote"
+          }
+        },
+        "mobile-safety": {
+          "text": {
+            "0": "Sichere Geschäfte"
+          }
+        },
+        "n1": {
+          "text": {
+            "0": "Zum Inhalt springen"
+          }
+        },
+        "n88": {
+          "text": {
+            "1": " · Deine Menschen. Deine Geschichten. Deine VATRA."
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Alle Dokumente"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Marktplatzregeln"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Zurück"
           }
         }
       }
@@ -3094,5 +3684,26 @@
   "Не вдалося змінити збереження.": "Speicherstatus konnte nicht geändert werden.",
   "Не вдалося змінити збереження. Спробуйте ще раз.": "Speicherstatus konnte nicht geändert werden. Bitte versuche es erneut.",
   "Вподобання тимчасово недоступні.": "Gefällt-mir-Angaben sind vorübergehend nicht verfügbar.",
-  "Не вдалося змінити вподобання.": "Gefällt mir konnte nicht geändert werden."
+  "Не вдалося змінити вподобання.": "Gefällt mir konnte nicht geändert werden.",
+  "Немає підключення до інтернету. Перевірте мережу.": "Keine Internetverbindung. Überprüfe deine Verbindung.",
+  "Повідомлення VATRA": "VATRA-Benachrichtigungen",
+  "Дізнатися більше": "Mehr erfahren",
+  "Закрити повідомлення": "Benachrichtigung schließen",
+  "Повернутися вгору": "Nach oben scrollen",
+  "Вгору": "Nach oben",
+  "Перевірка безпеки VATRA": "VATRA-Sicherheitsprüfung",
+  "Підтвердьте, що Ви не бот. Після перевірки дія продовжиться автоматично.": "Bestätige, dass du kein Bot bist. Nach der Überprüfung geht es automatisch weiter.",
+  "Перевірка Cloudflare": "Cloudflare-Überprüfung",
+  "Триває перевірка…": "Überprüfung läuft…",
+  "Скасувати перевірку безпеки": "Sicherheitsprüfung abbrechen",
+  "Не вдалося відкрити ADMIN PANEL.": "ADMIN PANEL konnte nicht geöffnet werden.",
+  "Завантажити": "Herunterladen",
+  "Не вдалося завантажити фотографію.": "Foto konnte nicht heruntergeladen werden.",
+  "Перейти до публікації": "Zum Beitrag",
+  "Фото з альбому «": "Foto aus dem Album „",
+  "Вкажіть ім’я.": "Gib deinen Vornamen ein.",
+  "Вкажіть прізвище.": "Gib deinen Nachnamen ein.",
+  "Введіть електронну пошту.": "Gib deine E-Mail-Adresse ein.",
+  "Повторіть пароль.": "Wiederhole das Passwort.",
+  "Введіть код підтвердження з листа.": "Gib den Bestätigungscode aus der E-Mail ein."
 }

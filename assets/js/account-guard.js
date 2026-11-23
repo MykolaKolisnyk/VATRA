@@ -1,7 +1,7 @@
 (()=>{
 "use strict";
 const root=new URL("../../",document.currentScript.src);
-const t=(uk,en)=>document.documentElement.lang==="en"?en:uk;
+const t=(uk,en)=>{const code=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";if(code==="uk")return uk;if(code==="en")return en;return window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
 const node=(tag,cls,copy)=>{const el=document.createElement(tag);el.className=cls;if(copy!==undefined)el.textContent=copy;return el;};
 const button=(cls,copy,fn)=>{const b=node("button",cls,copy);b.type="button";b.addEventListener("click",fn);return b;};
 const icon=()=>{const ns="http://www.w3.org/2000/svg",s=document.createElementNS(ns,"svg"),p=document.createElementNS(ns,"path");s.setAttribute("viewBox","0 0 24 24");s.setAttribute("fill","none");s.setAttribute("stroke","currentColor");s.setAttribute("stroke-width","1.8");s.setAttribute("stroke-linejoin","round");s.setAttribute("stroke-linecap","round");s.setAttribute("class","ui-vatra-owner-admin-icon-001");p.setAttribute("class","ui-vatra-owner-admin-path-001");s.setAttribute("aria-hidden","true");p.setAttribute("d","M12 2 3 6v6c0 5 4 8 9 10 5-2 9-5 9-10V6L12 2Zm-4 10 3 3 5-6");s.append(p);return s;};

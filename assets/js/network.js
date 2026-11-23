@@ -83,8 +83,7 @@
  });
 
  document.addEventListener("DOMContentLoaded",()=>{
-  const english=document.documentElement.lang==="en";
-  const label=english?"No internet connection. Check your connection.":"Немає підключення до інтернету. Перевірте мережу.";
+  const label=translate("Немає підключення до інтернету. Перевірте мережу.","No internet connection. Check your connection.");
   const banner=document.createElement("div");
   banner.className="network-status vatra-network-status";
   banner.setAttribute("role","status");
@@ -92,6 +91,7 @@
   banner.hidden=true;
   banner.textContent=label;
   document.body.append(banner);
+  window.VATRA_LANGUAGE?.ready?.then(()=>{banner.textContent=translate("Немає підключення до інтернету. Перевірте мережу.","No internet connection. Check your connection.");});
   const update=()=>{
    banner.hidden=navigator.onLine;
    document.body.classList.toggle("is-offline",!navigator.onLine);

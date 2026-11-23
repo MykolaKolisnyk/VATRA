@@ -242,7 +242,7 @@ assert.ok(auth.includes('auth.auth.verifyOtp({email,token,type:"recovery"})'),"P
 assert.ok(auth.includes('auth.auth.resetPasswordForEmail('),"Recovery email request missing");
 assert.ok(auth.includes('auth.auth.updateUser({password})'),"Password update missing");
 assert.ok(auth.includes('preferred_locale:window.VATRA_LANGUAGE?.locale||"uk"')&&
- lang.includes('const validLanguage = value => value === "uk" || value === "en";'),
+ lang.includes('const validLanguage=value=>supportedLanguages.includes(value);'),
  "Signup must store a validated selected email language");
 assert.ok(!auth.includes("signInWithOtp({phone")&&!auth.includes("signUp({phone"),"Phone authentication prohibited");
 assert.ok(lang.includes('fetch(ROOT + "assets/i18n/" + current + ".json"'),"Both JSON dictionaries must be loaded");
@@ -275,7 +275,7 @@ const languageStart=lang.indexOf("  function cookieLanguage() {");
 const languageEnd=lang.indexOf("  function bindLocalizedLinks() {",languageStart);
 assert.ok(languageStart>=0&&languageEnd>languageStart,"Persistent language helper missing");
 const preferences=new Function("document","location","localStorage","ROOT","localFile",
- 'const LANGUAGE_KEY="vatra-language";const validLanguage=value=>value==="uk"||value==="en";'+
+ 'const LANGUAGE_KEY="vatra-language";const validLanguage=value=>["uk","en","pl","de","fr","it","ka","bg"].includes(value);'+
  lang.slice(languageStart,languageEnd)+";return {saved,persist};");
 let cookieValue="",cookieAttributes="";
 const mockDocument={
@@ -289,7 +289,12 @@ const mockStorage={
 };
 const currentHost={protocol:"https:"};
 const firstVisit=preferences(mockDocument,currentHost,mockStorage,"/VATRA/",false);
+firstVisit.persist("pl");
+assert.equal(firstVisit.saved(),"pl","Polish preference must persist in cookie and localStorage");
+firstVisit.persist("ka");
+assert.equal(firstVisit.saved(),"ka","Georgian preference must persist independently of page");
 firstVisit.persist("en");
+
 assert.equal(firstVisit.saved(),"en","Selected English preference must be readable");
 assert.equal(memory.get("vatra-language"),"en","Language must persist in localStorage");
 assert.ok(cookieAttributes.includes("Max-Age=31536000")&&
@@ -337,16 +342,16 @@ assert.ok(host.includes('location.hostname==="mykolakolisnyk.github.io"')&&
  "VATRA must show its public UI only on the official HTTPS origin");
 assert.ok(lang.includes('["uk","Українська","Ukrainian","ua",true]')&&
  lang.includes('["en","English","English","gb",true]')&&
- lang.includes('["pl","Polski","Polish","pl"]')&&
+ lang.includes('["pl","Polski","Polish","pl",true]')&&
  lang.includes("In development")&&lang.includes("У розробці")&&
  lang.includes("assets/flags/"),
- "Language picker must show only the eight requested targets; unpublished translations stay disabled");
+ "Language picker must show all eight translated locale options");
 const languageSection=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
 const languageCodes=[...languageSection.matchAll(/\["([a-z]+)","[^"]+","[^"]+","[a-z]+"/g)].map(match=>match[1]);
 assert.deepEqual(languageCodes,["uk","en","pl","de","fr","it","ka","bg"],
  "Only the owner's eight selected language codes may remain in VATRA");
-assert.equal((languageSection.match(/,true\]/g)||[]).length,2,
- "Only shipped, complete Ukrainian and English dictionaries may be selectable");
+assert.equal((languageSection.match(/,true\]/g)||[]).length,8,
+ "All eight completed language dictionaries must be selectable");
 const flagSymbols=new Set();
 for(const file of ["europe-a","europe-b","europe-c"]){
  const sprite=await read("assets/flags/"+file+".svg");

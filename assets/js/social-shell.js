@@ -693,7 +693,7 @@
  }
  const shellScript=document.currentScript?.src;
  const boot=()=>{
-  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.src=new URL("account-guard.js?rev=0b32d9368ac19715b45a2fbbea2cfadbcdede9fa",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
+  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.src=new URL("account-guard.js?rev=75e4057976db3593814de6d14beae75016283fae",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
   showPendingShell();
   setUpAccountPanel();
   setupRouteMotion();
