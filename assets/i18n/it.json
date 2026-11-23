@@ -6,7 +6,6 @@
   "Прибрати зі збереженого": "Rimuovi dai salvati",
   "Збережене": "Salvati",
   "Більше": "Altro",
-
   "Доступ заборонено": "Accesso negato",
   "Ви не маєте дозволу на виконання цієї дії.": "Non hai l’autorizzazione per eseguire questa azione.",
   "Забагато запитів": "Troppe richieste",
@@ -42,28 +41,6 @@
     "shared_catalog_complete": true
   },
   "__pages": {
-    "maintenance": {
-      "meta": {
-        "title": "Manutenzione"
-      },
-      "nodes": {
-        "maintenance-kicker": {
-          "text": {
-            "0": "PAUSA TEMPORANEA"
-          }
-        },
-        "maintenance-heading": {
-          "text": {
-            "0": "Manutenzione"
-          }
-        },
-        "maintenance-copy": {
-          "text": {
-            "0": "Vatryk sta lavorando per migliorare VATRA. Il social network sarà presto di nuovo disponibile. Grazie per la pazienza!"
-          }
-        }
-      }
-    },
     "404": {
       "meta": {
         "title": "Pagina non trovata",
@@ -83,6 +60,28 @@
         "n9": {
           "text": {
             "0": "Torna indietro"
+          }
+        }
+      }
+    },
+    "maintenance": {
+      "meta": {
+        "title": "Manutenzione"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "PAUSA TEMPORANEA"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Manutenzione"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk sta lavorando per migliorare VATRA. Il social network sarà presto di nuovo disponibile. Grazie per la pazienza!"
           }
         }
       }
@@ -1954,7 +1953,7 @@
         "n77": {
           "text": {
             "0": "In Ucraina tali diritti sono disciplinati, tra le altre norme, dalla ",
-            "1": ". Per gli utenti dello Spazio economico europeo può applicarsi anche il GDPR."
+            "1": "."
           }
         },
         "n78": {
