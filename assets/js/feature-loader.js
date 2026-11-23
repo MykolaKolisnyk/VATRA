@@ -3,7 +3,7 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const root=new URL("../../",document.currentScript?.src||location.href);
 const features=Object.freeze({
- albums:{css:"assets/css/photo-albums.css?rev=6396887b4fde99e26292a1807a341b9a2c7fe587",js:"assets/js/photo-albums.js?rev=f72cb449588de7264039ea9b6bb626825206bbc8",key:"VATRA_ALBUMS"},
+ albums:{css:"assets/css/photo-albums.css?rev=6396887b4fde99e26292a1807a341b9a2c7fe587",js:"assets/js/photo-albums.js?rev=baf641c6084e597b07da5b233ab4c8ea9bcc2581",key:"VATRA_ALBUMS"},
  story:{css:"assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df",js:"assets/js/story-editor.js?rev=ebaa9990cc5873d74531e8bd9a13b2449c3030e2",key:"VATRA_STORY_EDITOR"},
  composer:{css:"assets/css/post-composer.css",js:"assets/js/post-composer-ui.js",key:"VATRA_COMPOSER_UI"},
  gift:{css:"assets/css/gifts.css",js:"assets/js/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"},
