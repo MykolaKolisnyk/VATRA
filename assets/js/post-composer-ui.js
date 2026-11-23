@@ -178,6 +178,8 @@ function bind({prefix,ownerId,getFile,client}){
    (new Set(options.map(x=>x.toLocaleLowerCase()))).size!==options.length)return null;
   const closesAt=pollEnd.value?new Date(pollEnd.value):null;
   if(closesAt&&(!Number.isFinite(closesAt.getTime())||closesAt.getTime()<=Date.now()))return null;
+  const plannedAt=scheduleToggle.checked?getScheduledAt():null;
+  if(closesAt&&plannedAt&&closesAt.getTime()<=new Date(plannedAt).getTime())return null;
   return {question,options,multiple:pollMultiple.checked,
    anonymous:pollAnonymous.checked,allow_revote:pollRevote.checked,
    closes_at:closesAt?closesAt.toISOString():null};
@@ -427,8 +429,8 @@ function bind({prefix,ownerId,getFile,client}){
   if(name==="settings"){
    syncSchedule();
    const body=textarea.value.trim(),selected=mediaPreview?.querySelectorAll(".vatra-gallery-picker-tile").length||0;
-   summary.textContent=(body?body.slice(0,155)+(body.length>155?"…":""):
-    t("Публікація з медіа","Media post"))+
+   const preview=body||getPoll()?.question||t("Публікація з медіа","Media post");
+   summary.textContent=preview.slice(0,155)+(preview.length>155?"…":"")+
     (selected?" · 📎 "+selected:"");
   }
   next.hidden=name!=="edit";draftSave.hidden=name!=="edit";submit.hidden=name!=="settings";
@@ -439,7 +441,8 @@ function bind({prefix,ownerId,getFile,client}){
   draftList.replaceChildren();
   for(const item of read()){
    const row=make("div","vatra-post-composer-draft ui-vatra-post-composer-draft-"+String(item.id).replace(/[^a-z0-9]/gi,""));
-   const pickDraft=make("button","vatra-post-composer-draft-open-001",item.body.slice(0,85)||t("Без тексту","No text"));
+   const pickDraft=make("button","vatra-post-composer-draft-open-001",
+    (item.body||item.poll?.question||t("Без тексту","No text")).slice(0,85));
    pickDraft.type="button";pickDraft.addEventListener("click",()=>{
     selectedId=item.id;textarea.value=item.body;
     if(select)select.value=["public","friends","only_me"].includes(item.visibility)?item.visibility:"public";
