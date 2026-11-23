@@ -6,7 +6,6 @@
   "Прибрати зі збереженого": "Usuń z zapisanych",
   "Збережене": "Zapisane",
   "Більше": "Więcej",
-
   "Доступ заборонено": "Odmowa dostępu",
   "Ви не маєте дозволу на виконання цієї дії.": "Nie masz uprawnień do wykonania tej czynności.",
   "Забагато запитів": "Zbyt wiele żądań",
@@ -42,28 +41,6 @@
     "shared_catalog_complete": true
   },
   "__pages": {
-    "maintenance": {
-      "meta": {
-        "title": "Prace techniczne"
-      },
-      "nodes": {
-        "maintenance-kicker": {
-          "text": {
-            "0": "PRZERWA TECHNICZNA"
-          }
-        },
-        "maintenance-heading": {
-          "text": {
-            "0": "Prace techniczne"
-          }
-        },
-        "maintenance-copy": {
-          "text": {
-            "0": "Vatryk pracuje nad ulepszeniem VATRA. Sieć społecznościowa będzie wkrótce ponownie dostępna. Dziękuję za cierpliwość!"
-          }
-        }
-      }
-    },
     "404": {
       "meta": {
         "title": "Nie znaleziono strony",
@@ -83,6 +60,28 @@
         "n9": {
           "text": {
             "0": "Wróć"
+          }
+        }
+      }
+    },
+    "maintenance": {
+      "meta": {
+        "title": "Prace techniczne"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "PRZERWA TECHNICZNA"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Prace techniczne"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk pracuje nad ulepszeniem VATRA. Sieć społecznościowa będzie wkrótce ponownie dostępna. Dziękuję za cierpliwość!"
           }
         }
       }
@@ -1954,7 +1953,7 @@
         "n77": {
           "text": {
             "0": "W Ukrainie prawa te reguluje między innymi ",
-            "1": ". Użytkowników z Europejskiego Obszaru Gospodarczego mogą również dotyczyć przepisy RODO (GDPR)."
+            "1": "."
           }
         },
         "n78": {
