@@ -179,6 +179,93 @@ function renderEmpty(node){
  node.append(art,make("strong","vatra-notice-empty-title-001",t("Поки немає сповіщень","No notifications yet")),make("span","vatra-notice-empty-description-001",t("Нові сповіщення з'являться тут.","New notifications will appear here.")));
  node.hidden=false;
 }
+const noticeUUID=x=>/^[0-9a-f-]{36}$/i.test(String(x||""));
+async function enrichNotice(record,body,link){
+ const run=notificationRun;
+ if(!run||!["post_like","comment_like","avatar_like","avatar_comment_like"].includes(record.kind))return;
+ try{
+  const kind=record.kind;let content=null,photoPath="",bucket="post-images";
+  if(kind==="avatar_like"){
+   const bits=String(record.event_key||"").split(":");
+   photoPath=bits.length>=4?bits.slice(2,-1).join(":"):"";
+   if(!photoPath.startsWith(String(record.avatar_owner_vatra_id||ownId)+"/avatar/"))photoPath="";
+   bucket="avatars";
+  }else if(noticeUUID(record.target_id)){
+   const table=kind==="comment_like"?"post_comments":kind==="avatar_comment_like"?"avatar_comments":
+    record.target_kind==="group"?"community_posts":"feed_posts";
+   const fields=kind==="comment_like"?"id,body,post_kind,post_id,media_kind,media_path":
+    kind==="avatar_comment_like"?"id,body,owner_vatra_id,avatar_path":
+    "id,body,media_kind,media_path,media_items";
+   const result=await run.client.from(table).select(fields).eq("id",record.target_id).maybeSingle();
+   if(result.error||!result.data)return;
+   content=result.data;
+   if(kind==="comment_like"&&content.post_id){
+    const url=new URL("feed",root);url.searchParams.set("post",content.post_id);
+    url.searchParams.set("comment",record.target_id);link.href=url.href;
+   }
+   if(kind==="avatar_comment_like"){
+    photoPath=String(content.avatar_path||"");bucket="avatars";
+    const url=new URL("id"+content.owner_vatra_id,root);
+    url.searchParams.set("photo","avatar");url.searchParams.set("comment",record.target_id);link.href=url.href;
+   }else{
+    const media=Array.isArray(content.media_items)?content.media_items.find(x=>x?.media_kind==="image"):null;
+    photoPath=String(media?.media_path||(content.media_kind==="image"?content.media_path:"")||"");
+   }
+  }
+  if(run!==notificationRun||!body.isConnected)return;
+  const excerpt=String(content?.body||"").trim().slice(0,175);
+  const label=kind==="comment_like"||kind==="avatar_comment_like"?
+   t("Коментар: ","Comment: "):kind==="post_like"?t("Публікація: ","Post: "):"";
+  const card=make("div","vatra-notice-preview-001");
+  card.textContent=excerpt?label+excerpt+(String(content.body).length>175?"…":""):
+   kind==="avatar_like"?t("Фото профілю","Profile photo"):t("Переглянути публікацію","View the post");
+  body.insertBefore(card,body.querySelector(".vatra-notification-time"));
+  if(bucket==="avatars"&&/^\d+\/avatar\/[A-Za-z0-9._-]+$/.test(photoPath)){
+   const publicUrl=run.client.storage.from("avatars").getPublicUrl(photoPath)?.data?.publicUrl;
+   if(publicUrl){const thumb=make("img","vatra-notice-preview-thumb-001");thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.src=publicUrl;card.prepend(thumb);}
+  }else if(bucket==="post-images"&&/^\d+\/(?:posts|comments)\/[A-Za-z0-9._-]+\.(?:jpg|png|webp)$/i.test(photoPath)){
+   const result=await run.client.storage.from("post-images").createSignedUrl(photoPath,300);
+   if(!result.error&&result.data?.signedUrl&&body.isConnected){
+    const thumb=make("img","vatra-notice-preview-thumb-001");
+    thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.src=result.data.signedUrl;card.prepend(thumb);
+   }
+  }
+ }catch(_){}
+}
+async function friendActions(record,actions,onChange){
+ const run=notificationRun;if(!run||!noticeUUID(record.target_id))return;
+ try{
+  const {data,error}=await run.client.from("friendships").select("id,status")
+   .eq("id",record.target_id).eq("recipient_id",run.id).eq("status","pending").maybeSingle();
+  if(error||!data||run!==notificationRun||!actions.isConnected)return;
+  const row=make("div","vatra-notice-friend-controls-001");
+  const accept=make("button","vatra-notice-friend-accept-001");
+  accept.type="button";
+  accept.append(icon("friend-plus","M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 20v-2a7 7 0 0 1 11-5.8M18 14v7m-3.5-3.5h7"));
+  accept.append(make("span","vatra-notice-friend-accept-copy-001",t("Прийняти","Accept")));
+  accept.setAttribute("aria-label",t("Прийняти заявку в друзі","Accept friend request"));
+  const reject=make("button","vatra-notice-friend-reject-001");
+  reject.type="button";reject.append(icon("friend-reject","M5 5l14 14M19 5 5 19"));
+  reject.setAttribute("aria-label",t("Відхилити заявку в друзі","Decline friend request"));
+  row.append(accept,reject);actions.prepend(row);
+  const decide=async accepted=>{
+   accept.disabled=true;reject.disabled=true;
+   try{
+    const q=accepted?run.client.from("friendships").update({status:"accepted"}):
+     run.client.from("friendships").delete();
+    const {data:changed,error:err}=await q.eq("id",record.target_id)
+     .eq("recipient_id",run.id).eq("status","pending").select("id").maybeSingle();
+    if(err||!changed)throw err||Error("Friendship request unavailable");
+    await remove(record.id);await onChange();
+   }catch(_){
+    accept.disabled=false;reject.disabled=false;
+    window.VATRA_TOAST?.show?.(t("Не вдалося опрацювати заявку в друзі.","Could not process the friend request."),"error");
+   }
+  };
+  accept.addEventListener("click",()=>void decide(true));
+  reject.addEventListener("click",()=>void decide(false));
+ }catch(_){}
+}
 function createRow(record,name,index,onChange,photoUrl,accountState=null){
  const article=make("article","vatra-notification-row ui-vatra-notification-row-"+index);
  if(!record.read_at)article.classList.add("is-unread");
@@ -223,6 +310,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
   timeValue(record.created_at));
  timestamp.dateTime=record.created_at;
  body.append(link,timestamp);
+ void enrichNotice(record,body,link);
  const actions=make("div","vatra-notification-actions ui-vatra-notification-actions-"+index);
  const deleteButton=make("button","vatra-notification-delete vatra-notification-delete-"+index);
  deleteButton.type="button";
@@ -235,6 +323,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
   catch(_){deleteButton.disabled=false;}
  });
  actions.append(deleteButton);
+ if(record.kind==="friend_request")void friendActions(record,actions,onChange);
  const avatarStack=make("div","vatra-notification-avatar-stack ui-vatra-notification-avatar-stack-"+index);
  avatarStack.append(avatar,badgeIcon);
  article.append(mark,avatarStack,body,actions);
