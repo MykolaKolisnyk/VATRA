@@ -1673,6 +1673,46 @@
           "text": {
             "0": "Créer un compte"
           }
+        },
+        "market_rules_title": {
+          "text": {
+            "0": "Règles commerciales de VATRA"
+          }
+        },
+        "market_rules_intro": {
+          "text": {
+            "0": "Les annonces et les activités commerciales associées doivent respecter les règles distinctes du Marketplace."
+          }
+        },
+        "market_rules_full": {
+          "text": {
+            "0": "Lire l'intégralité des règles commerciales"
+          }
+        },
+        "market_rules_toc_desktop": {
+          "text": {
+            "0": "Règles commerciales de VATRA"
+          }
+        },
+        "market_rules_toc_mobile": {
+          "text": {
+            "0": "Règles commerciales de VATRA"
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Tous les documents"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Règles de la plateforme"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Retour"
+          }
         }
       }
     },
@@ -2033,6 +2073,21 @@
           "text": {
             "0": "Créer un compte"
           }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Tous les documents"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Protection des données"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Retour"
+          }
         }
       }
     },
@@ -2375,6 +2430,137 @@
         "n302": {
           "text": {
             "0": "Créer un compte"
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Tous les documents"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Paramètres du navigateur"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Retour"
+          }
+        }
+      }
+    },
+    "documents": {
+      "meta": {
+        "title": "Documents VATRA",
+        "description": "Informations importantes sur l'utilisation de la plateforme, la protection des données personnelles et les règles du Marketplace. Choisissez un document.",
+        "og:locale": "fr_FR",
+        "og:title": "Documents VATRA",
+        "og:description": "Informations importantes sur l'utilisation de la plateforme, la protection des données personnelles et les règles du Marketplace. Choisissez un document."
+      },
+      "nodes": {
+        "docs_back_home_001": {
+          "text": {
+            "0": "Retour à VATRA"
+          }
+        },
+        "docs_title_001": {
+          "text": {
+            "0": "Documents VATRA"
+          }
+        },
+        "docs_intro_001": {
+          "text": {
+            "0": "Informations importantes sur l'utilisation de la plateforme, la protection des données personnelles et les règles du Marketplace. Choisissez un document."
+          }
+        },
+        "docs_card_01_kicker_001": {
+          "text": {
+            "0": "01 / PLATEFORME"
+          }
+        },
+        "docs_card_01_title_001": {
+          "text": {
+            "0": "Conditions d'utilisation"
+          }
+        },
+        "docs_card_01_desc_001": {
+          "text": {
+            "0": "Compte, communauté, contenus, sécurité et règles d'utilisation de VATRA."
+          }
+        },
+        "docs_card_02_kicker_001": {
+          "text": {
+            "0": "02 / CONFIDENTIALITÉ"
+          }
+        },
+        "docs_card_02_title_001": {
+          "text": {
+            "0": "Confidentialité"
+          }
+        },
+        "docs_card_02_desc_001": {
+          "text": {
+            "0": "Quelles données sont utilisées, comment elles sont protégées et quels sont vos droits."
+          }
+        },
+        "docs_card_03_kicker_001": {
+          "text": {
+            "0": "03 / NAVIGATEUR"
+          }
+        },
+        "docs_card_03_title_001": {
+          "text": {
+            "0": "Cookies"
+          }
+        },
+        "docs_card_03_desc_001": {
+          "text": {
+            "0": "Fonctionnement des cookies, du stockage local et des paramètres de session."
+          }
+        },
+        "docs_card_04_kicker_001": {
+          "text": {
+            "0": "04 / MARKETPLACE"
+          }
+        },
+        "docs_card_04_title_001": {
+          "text": {
+            "0": "Règles commerciales"
+          }
+        },
+        "docs_card_04_desc_001": {
+          "text": {
+            "0": "Exigences relatives aux annonces, catégories autorisées, interdictions et sécurité des transactions."
+          }
+        },
+        "docs_footer_001": {
+          "text": {
+            "0": "© 2026 VATRA · Vos proches. Vos histoires. Votre VATRA."
+          }
+        },
+        "docs_open_01_001": {
+          "text": {
+            "0": "Voir le document"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Retour"
+          }
+        },
+        "docs_open_02_001": {
+          "text": {
+            "0": "Voir le document"
+          }
+        },
+        "docs_open_03_001": {
+          "text": {
+            "0": "Voir le document"
+          }
+        },
+        "docs_open_04_001": {
+          "text": {
+            "0": "Voir le document"
           }
         }
       }
