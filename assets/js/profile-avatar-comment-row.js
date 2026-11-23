@@ -19,7 +19,8 @@ function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,no
     author.href=memberUrl(id);
     if(names.has(id))void window.VATRA_VERIFIED?.attach(client,author,id);
     const stamp=node("time","vatra-profile-photo-comment-time-001",dateText(item.created_at));
-    stamp.dateTime=item.created_at;meta.append(author,node("p","vatra-profile-photo-comment-body-001",item.body),stamp);head.append(avatar,meta);
+    const commentText=node("p","vatra-profile-photo-comment-body-001",item.body);
+    stamp.dateTime=item.created_at;meta.append(author,commentText,stamp);head.append(avatar,meta);
     card.append(head);
     if(item.moderation_status==="possible_spam")
      card.append(node("small","vatra-profile-photo-comment-spam-001",t("Можливий спам","Potential spam")));
@@ -63,7 +64,7 @@ function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,no
     card.append(reaction);
     if(String(item.author_vatra_id)===String(ownId)){
      card.classList.add("is-own");
-     const text=meta.querySelector(".vatra-profile-photo-comment-body-001");
+     const text=commentText;
      const edit=node("button","vatra-profile-photo-comment-edit-001 vatra-comment-hover-edit-001");
      edit.type="button";edit.setAttribute("aria-label",t("Редагувати коментар","Edit comment"));
      edit.textContent="✎";
