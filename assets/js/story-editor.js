@@ -8,7 +8,7 @@ const backgrounds=[["#385ee4","#9759df"],["#176fbc","#65c7dc"],["#ed7591","#7f55
 const fonts=[["Onest","Onest"],["Georgia","Georgia"],["Arial","Arial"],["Verdana","Verdana"],["Courier New","Courier New"]];
 const filterNames=[["Оригінал","Original"],["Ватра","Flame"],["Світанок","Dawn"],["Прохолода","Cool"],["Монохром","Mono"],["Вінтаж","Vintage"]];
 const filterValues=[[1,1,1,0],[1.06,1.1,1.24,.12],[1.16,.95,1.15,.1],[1.02,1.07,.9,0],[1,1.12,0,0],[.99,.92,.7,.48]];
-const translate=(uk,en)=>document.documentElement.lang==="en"?en:(window.VATRA_LANGUAGE?.translate?.(uk)||uk);
+const translate=(uk,en)=>{const code=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";if(code==="uk")return uk;const translated=window.VATRA_LANGUAGE?.translate?.(uk);return typeof translated==="string"&&translated!==uk?translated:(code==="en"?en:uk);};
 const node=(tag,cls,value)=>{const el=document.createElement(tag);el.className=cls;if(value!==undefined)el.textContent=value;return el;};
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const fresh=()=>({background:null,media:null,kind:null,texts:[],stickers:[],strokes:[],filter:0,intensity:100,adjust:{brightness:0,contrast:0,warmth:0,saturation:0,vignette:0},caption:""});
