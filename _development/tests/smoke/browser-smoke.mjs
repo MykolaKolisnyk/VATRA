@@ -4431,7 +4431,12 @@ try{
    avatar:document.querySelector("#profile-avatar-wrap").getBoundingClientRect().toJSON(),
    name:document.querySelector("#profile-heading").getBoundingClientRect().toJSON()
   }));
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-viewer.js"]').count(),0,
+   "Cover viewer must not download until the cover is clicked");
   await profilePage.locator("#profile-cover-view").click({position:{x:80,y:80}});
+  await profilePage.locator("#profile-cover-viewer").waitFor({state:"visible",timeout:8000});
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-viewer.js"]').count(),1,
+   "Opening cover viewer must download its implementation once");
   assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),true);
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Opening a cover must not activate the avatar photo dialog");
@@ -4630,6 +4635,9 @@ try{
   // After viewing avatars, the next cover opening must still contain only
   // the cover photo: never reuse a stale avatar frame from the shared gallery.
   await profilePage.locator("#profile-cover-view").click({position:{x:80,y:80}});
+  await profilePage.locator("#profile-cover-viewer").waitFor({state:"visible",timeout:8000});
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-viewer.js"]').count(),1,
+   "Reopening cover viewer must not duplicate its script or handlers");
   assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),true);
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
   assert.equal(await profilePage.locator("#profile-cover-viewer-image").evaluate(el=>el.src),

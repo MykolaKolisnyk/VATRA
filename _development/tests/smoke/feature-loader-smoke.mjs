@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext,Script} from "node:vm";
-const [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,profileHtml,feedHtml,giftsHtml,catalog,viewer]=await Promise.all([
+const [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,profileHtml,feedHtml,giftsHtml,catalog,viewer]=await Promise.all([
  "assets/js/feature-loader.js","assets/js/profile.js","assets/js/feed.js",
- "assets/js/photo-albums.js","assets/js/profile-gallery.js","assets/js/profile-cover-editor.js","assets/js/profile-avatar-editor.js","profile.html","feed.html","gifts.html",
+ "assets/js/photo-albums.js","assets/js/profile-gallery.js","assets/js/profile-cover-editor.js","assets/js/profile-avatar-editor.js","assets/js/profile-cover-viewer.js","profile.html","feed.html","gifts.html",
  "assets/js/gift-catalog.js","assets/js/gift-viewer.js"
 ].map(path=>readFile(path,"utf8")));
-for(const source of [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,catalog,viewer])
+for(const source of [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,catalog,viewer])
  assert.doesNotThrow(()=>new Script(source),"VATRA feature source must parse");
 for(const [page,html] of [["profile",profileHtml],["feed",feedHtml]]){
  assert.ok(html.includes('assets/js/feature-loader.js?rev='),
@@ -24,6 +24,15 @@ for(const html of [profileHtml,giftsHtml]){
  assert.ok(html.includes('assets/js/feature-loader.js?rev='),"Gift-opening pages need shared loader");
 }
 assert.ok(!profileHtml.includes('href="assets/css/gifts.css"'),"Profile must defer gift styles");
+assert.ok(!profileHtml.includes('src="assets/js/profile-cover-viewer.js'),
+ "Cover viewer must not load eagerly");
+assert.ok(loader.includes('assets/js/profile-cover-viewer.js?rev=')&&
+ loader.includes('key:"VATRA_PROFILE_COVER_VIEWER"')&&
+ profile.includes('VATRA_FEATURES.load("cover-viewer")')&&
+ profile.includes('coverView.addEventListener("click",()=>void openCover())')&&
+ coverViewer.includes('window.VATRA_PROFILE_COVER_VIEWER=Object.freeze({mount})')&&
+ coverViewer.includes('const flight=coverPhoto.cloneNode(false)'),
+ "Cover viewer must preserve its full-screen transition while loading only on click");
 assert.ok(!profileHtml.includes('src="assets/js/profile-avatar-editor.js'),
  "Profile must not eagerly load the avatar editor");
 assert.ok(loader.includes('assets/js/profile-avatar-editor.js?rev=')&&
@@ -88,6 +97,7 @@ function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGall
       rejectAvatar=false;el.onerror?.();return;
      }
      if(el.src.includes("profile-avatar-editor.js"))window.VATRA_PROFILE_AVATAR_EDITOR={mount(){}};
+     if(el.src.includes("profile-cover-viewer.js"))window.VATRA_PROFILE_COVER_VIEWER={mount(){}};
      if(el.src.includes("photo-albums.js"))window.VATRA_ALBUMS={mount(){}};
      if(el.src.includes("story-editor.js"))window.VATRA_STORY_EDITOR={mount(){}};
      if(el.src.includes("post-composer-ui.js"))window.VATRA_COMPOSER_UI={bind(){}};
@@ -140,6 +150,11 @@ assert.equal(browser.requests.length,11,"Avatar editor loads only on request");
 assert.equal(browser.requests.at(-1).tag,"SCRIPT","Avatar editor reuses existing profile styles");
 await browser.window.VATRA_FEATURES.load("avatar-editor");
 assert.equal(browser.requests.length,11,"The avatar editor is reused after its first load");
+await browser.window.VATRA_FEATURES.load("cover-viewer");
+assert.equal(browser.requests.length,12,"Cover fullscreen viewer loads only after a request");
+assert.equal(browser.requests.at(-1).tag,"SCRIPT","Cover viewer requires no extra stylesheet");
+await browser.window.VATRA_FEATURES.load("cover-viewer");
+assert.equal(browser.requests.length,12,"Cover fullscreen viewer is reused after first load");
 const avatarRetry=fakeBrowser(false,false,false,true);
 await assert.rejects(avatarRetry.window.VATRA_FEATURES.load("avatar-editor"));
 await avatarRetry.window.VATRA_FEATURES.load("avatar-editor");
