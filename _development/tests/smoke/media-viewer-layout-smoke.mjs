@@ -176,4 +176,40 @@ assert.ok(
  !profileCss.includes('.profile-posts-section .feed-post-body{'),
  "Feed and Profile must use identical post typography with inline, accessible expand/collapse controls"
 );
+const interactions=await read("assets/js/post-interactions.js");
+const albums=await read("assets/js/photo-albums.js");
+assert.ok(
+ profileHtml.includes("profile-avatar-engagement ui-profile-avatar-engagement-001 vatra-media-side-unified-001")&&
+ profileHtml.includes("profile-photo-info ui-profile-photo-info-001 vatra-media-author-unified-001")&&
+ profileHtml.includes("profile-photo-actions ui-profile-photo-actions-001 vatra-media-actions-unified-001")&&
+ profileHtml.includes("profile-photo-comments ui-profile-photo-comments-001 vatra-media-comments-unified-001")&&
+ profileHtml.includes("profile-photo-comment-form ui-profile-photo-comment-form-001 vatra-media-form-unified-001")&&
+ profileHtml.includes("vatra-media-composer-row-unified-001")&&
+ (profileHtml.match(/id="profile-photo-comment-send"/g)||[]).length===1&&
+ profileHtml.includes("ui-profile-photo-send-icon-001")&&
+ profileHtml.includes('class="ui-profile-photo-composer-actions-001" hidden')&&
+ profile.includes('q("#profile-photo-comment-send").setAttribute("aria-label"')&&
+ profile.includes("ui-profile-photo-empty-state-001 vatra-media-empty-unified-001")&&
+ postMedia.includes("ui-vatra-post-media-side-001 vatra-media-side-unified-001")&&
+ postMedia.includes("ui-vatra-post-media-author-001 vatra-media-author-unified-001")&&
+ postMedia.includes("await verifyAuthor()")&&
+ interactions.includes('row.classList.add("vatra-media-actions-unified-001")')&&
+ interactions.includes('row.classList.remove("vatra-media-actions-unified-001")')&&
+ interactions.includes("vatra-post-comment-list ui-vatra-post-comment-list-001 vatra-media-comments-unified-001")&&
+ interactions.includes("vatra-post-comment-form ui-vatra-post-comment-form-001 vatra-media-form-unified-001")&&
+ albums.includes("ui-vatra-album-photo-side-001 vatra-media-side-unified-001")&&
+ albums.includes("ui-vatra-album-photo-author-001 vatra-media-author-unified-001")&&
+ albums.includes("ui-vatra-album-photo-actions-001 vatra-media-actions-unified-001")&&
+ albums.includes("ui-vatra-album-comments-list-001 vatra-media-comments-unified-001")&&
+ albums.includes("ui-vatra-album-comments-form-001 vatra-media-form-unified-001")&&
+ albums.includes("vatra-album-comments-emoji-panel-001")&&
+ albums.includes("vatra-media-empty-icon-unified-001")&&
+ postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-author-unified-001{")&&
+ postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-actions-unified-001{")&&
+ postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-comments-unified-001{")&&
+ postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-form-unified-001{")&&
+ postCss.includes(".vatra-media-send-unified-001")&&
+ !profileHtml.includes('id="profile-photo-comment-send" class="vatra-profile-photo-comment-send-001"'),
+ "Avatar, post and album photo viewer must share the same author/actions/empty/composer contract"
+);
 console.log("VATRA media viewer layout checks passed.");
