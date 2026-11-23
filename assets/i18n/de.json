@@ -3700,5 +3700,10 @@
   "Завантажити": "Herunterladen",
   "Не вдалося завантажити фотографію.": "Foto konnte nicht heruntergeladen werden.",
   "Перейти до публікації": "Zum Beitrag",
-  "Фото з альбому «": "Foto aus dem Album „"
+  "Фото з альбому «": "Foto aus dem Album „",
+  "Вкажіть ім’я.": "Gib deinen Vornamen ein.",
+  "Вкажіть прізвище.": "Gib deinen Nachnamen ein.",
+  "Введіть електронну пошту.": "Gib deine E-Mail-Adresse ein.",
+  "Повторіть пароль.": "Wiederhole das Passwort.",
+  "Введіть код підтвердження з листа.": "Gib den Bestätigungscode aus der E-Mail ein."
 }
