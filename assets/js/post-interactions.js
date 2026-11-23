@@ -503,6 +503,8 @@ function appendAudience(container,level,isGroup=false){
   updateNote();panel.append(filterRow,note);
   const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001 vatra-media-comments-unified-001");
   entries.setAttribute("role","feed");entries.setAttribute("aria-busy","false");
+  const sentinel=make("div","vatra-post-comments-sentinel-001");
+  sentinel.hidden=true;sentinel.setAttribute("aria-hidden","true");
   const more=make("button","vatra-post-comments-more-001",
    tr("Завантажити ще коментарі","Load more comments"));
   more.type="button";more.hidden=true;
@@ -576,11 +578,12 @@ function appendAudience(container,level,isGroup=false){
   composer.append(replying,composerInput,popovers,fileInput,attachmentPreview);
   form.append(ownPortrait,composer);
 
-  panel.append(entries,more,form);shell.append(panel,status);
+  panel.append(entries,sentinel,form);shell.append(panel,status);
   const commentsLocked=kind==="person"&&post.comments_enabled===false;
   if(commentsLocked){form.hidden=true;panel.append(make("p","vatra-post-comments-locked-001",tr("Коментування цієї публікації вимкнено.","Comments on this post are disabled.")));}
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
   const replySize=3;
+  let canLoadMore=false;
   let commentOffset=0,busy=false,ticket=0,pendingReset=false,pendingKeep=false,replyTarget=null,chosenFile=null,emojiMode="emoji",pickerVersion=0,activePack="vatryk",cropVersion=0,cropping=false,submitting=false;
   const rootReplies=new Map();
   const stopReply=()=>{
@@ -735,7 +738,9 @@ function appendAudience(container,level,isGroup=false){
   input.addEventListener("input",updateSend);updateSend();
   const startReply=(rootId,name)=>{
    replyTarget={id:rootId,name};
-   replyingText.textContent=tr("Відповідь для ","Replying to ")+name;
+   replyingText.textContent=tr("Відповідь ","Reply to ")+name;
+   if(!input.value.trim())input.value=name+", ";
+   updateSend();
    replying.hidden=false;hideMenus();
    input.focus();input.scrollIntoView({block:"nearest",behavior:"smooth"});
   };
@@ -936,6 +941,7 @@ function appendAudience(container,level,isGroup=false){
    }
    busy=true;more.disabled=true;entries.setAttribute("aria-busy","true");
    const token=++ticket;
+   if(reset){canLoadMore=false;sentinel.hidden=true;}
    const previousRows=reset&&keepVisible?
     new Map([...entries.children].filter(el=>el.dataset?.commentId)
      .map(el=>[el.dataset.commentId,el])):new Map();
@@ -995,7 +1001,14 @@ function appendAudience(container,level,isGroup=false){
       if(!entries.querySelector("#"+CSS.escape(node.id)))entries.append(node);
      }
     }
-    commentOffset+=rows.length;more.hidden=(data||[]).length<=pageSize;
+    commentOffset+=rows.length;
+    canLoadMore=(data||[]).length>pageSize;
+    sentinel.hidden=!canLoadMore;more.hidden=true;
+    const visibleComments=new Set();
+    for(const node of entries.querySelectorAll("[data-comment-id]")){
+     if(visibleComments.has(node.dataset.commentId))node.remove();
+     else visibleComments.add(node.dataset.commentId);
+    }
     const deepComment=new URLSearchParams(location.search).get("comment");
     if(validUUID(deepComment)){
      const target=document.getElementById("vatra-comment-"+deepComment);
@@ -1072,6 +1085,20 @@ function appendAudience(container,level,isGroup=false){
    queueMicrotask(openComments);
   sort.addEventListener("change",()=>{updateNote();void loadComments(true);});
   more.addEventListener("click",()=>void loadComments(false));
+  if(typeof IntersectionObserver!=="undefined"){
+   const observer=new IntersectionObserver(items=>{
+    if(items.some(item=>item.isIntersecting)&&canLoadMore&&!busy&&!panel.hidden)
+     void loadComments(false);
+   },{rootMargin:"320px 0px"});
+   observer.observe(sentinel);
+  }else{
+   const check=()=>{
+    if(canLoadMore&&!busy&&!panel.hidden&&sentinel.getBoundingClientRect().top<innerHeight+350)
+     void loadComments(false);
+   };
+   document.addEventListener("scroll",check,{passive:true});
+   panel.addEventListener("scroll",check,{passive:true});
+  }
   async function publishComment(sticker=null){
    hideMenus();
    const body=sticker?"":input.value.trim(),file=sticker||chosenFile;
