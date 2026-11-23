@@ -3561,6 +3561,27 @@ try{
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.classList.contains("vatra-post-composer-dialog")),true,
    "Feed uses the shared VATRA post editor");
+  await feedProbe.locator(".vatra-post-composer-poll-toggle-001").click();
+  await feedProbe.locator(".vatra-post-composer-poll-question-001").fill("Що нового?");
+  await feedProbe.locator(".vatra-post-composer-poll-option-input").nth(0).fill("Фото");
+  await feedProbe.locator(".vatra-post-composer-poll-option-input").nth(1).fill("Відео");
+  assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isEnabled(),true,
+   "A valid poll without media or post text must unlock the shared editor");
+  await feedProbe.locator(".vatra-post-composer-next-001").click();
+  const scheduleToggle=feedProbe.locator(".vatra-post-composer-schedule-toggle-001");
+  await scheduleToggle.check();
+  const plannedDate=await feedProbe.evaluate(()=>{
+   const date=new Date(Date.now()+15*60*1000);
+   return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  });
+  await feedProbe.locator(".vatra-post-composer-schedule-date-001").fill(plannedDate);
+  assert.equal(await feedProbe.locator("#feed-compose-save").isEnabled(),true,
+   "Valid future schedule must allow a server-managed publication");
+  await scheduleToggle.uncheck();
+  await feedProbe.locator(".vatra-post-composer-back-001").click();
+  await feedProbe.locator(".vatra-post-composer-poll-toggle-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isDisabled(),true,
+   "Removing the poll should restore empty composer validation");
   await feedProbe.locator("#feed-compose-media").setInputFiles([
    {name:"vatra-test-a.png",mimeType:"image/png",
     buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")},
