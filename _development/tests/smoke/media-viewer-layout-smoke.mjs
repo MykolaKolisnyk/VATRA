@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 
 const read=path=>readFile(path,"utf8");
-const [postMedia,postInteractions,profile,profileGallery,postCss,profileCss,profileHtml,verifiedScript]=await Promise.all([
+const [postMedia,postInteractions,profile,profileGallery,postCss,profileCss,profileHtml,verifiedScript,notifications]=await Promise.all([
  read("assets/js/post-media.js"),
  read("assets/js/post-interactions.js"),
  read("assets/js/profile.js"),
@@ -10,7 +10,8 @@ const [postMedia,postInteractions,profile,profileGallery,postCss,profileCss,prof
  read("assets/css/feed.css"),
  read("assets/css/profile.css"),
  read("profile.html"),
- read("assets/js/verified.js")
+ read("assets/js/verified.js"),
+ read("assets/js/notifications.js")
 ]);
 
 assert.ok(
@@ -33,6 +34,23 @@ assert.ok(
  !profile.includes("commentSort.value")&&
  profile.includes('photoCommentSort="relevant"'),
  "Avatar comments must not display sorting controls"
+);
+assert.ok(
+ profileHtml.includes('id="profile-photo-comments-sentinel"')&&
+ !profileHtml.includes('id="profile-photo-comments-more"')&&
+ profile.includes('photoCommentObserver.observe(photoCommentSentinel)')&&
+ profile.includes('photoCommentLoading||!photoCommentHasMore')&&
+ !profile.includes("photoCommentsMore")&&
+ !profileCss.includes(".vatra-profile-photo-comments-more-001"),
+ "Photo comments must load on scroll without a manual Show more button or duplicate requests"
+);
+assert.ok(
+ profile.includes('async function focusLinkedAvatarComment(path,ticket)')&&
+ profile.includes('if(!append)await focusLinkedAvatarComment(path,ticket)')&&
+ profile.includes('.eq("id",id).eq("owner_vatra_id",targetId).eq("avatar_path",path)')&&
+ notifications.includes('url.searchParams.set("image",photoPath.split("/").pop())')&&
+ profileCss.includes('.profile-photo-comment.is-linked-comment'),
+ "Photo-comment notifications must target the correct historical photo and highlighted comment"
 );
 assert.ok(
  !profileCss.includes("--vatra-profile-photo-backdrop")&&

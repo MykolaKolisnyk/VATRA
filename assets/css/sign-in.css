@@ -158,3 +158,8 @@
   .login-description{font-size:14px;line-height:1.65;margin-bottom:24px}
   .intro-side{padding:25px 18px 30px;gap:16px;border-radius:0 0 21px 21px}
 .site .auth-footer-content{width:calc(100% - 24px);justify-content:center;text-align:center}}
+
+.vatra-login-poster-001{display:grid;place-items:center;flex:0 0 auto;width:100%;max-width:690px;min-height:0;margin:0 auto;overflow:visible}
+.vatra-login-poster-image-001{display:block;width:100%;height:auto;max-height:min(61dvh,630px);object-fit:contain;object-position:center;filter:drop-shadow(0 18px 34px rgba(37,51,111,.08))}
+@media(max-width:1199px){.vatra-login-poster-001{max-width:560px}.vatra-login-poster-image-001{max-height:48dvh}}
+@media(max-width:540px){.vatra-login-poster-001{max-width:100%}.vatra-login-poster-image-001{max-height:none}}

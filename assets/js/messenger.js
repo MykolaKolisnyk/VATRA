@@ -187,7 +187,11 @@
    if(!state.terminating&&version!==state.refreshVersion&&document.visibilityState!=="hidden")void refresh();
   }
  }
- function onChange(){if(document.visibilityState!=="hidden")void refresh();}
+ function onChange(payload){
+  if(payload?.eventType==="INSERT"&&String(payload.new?.recipient_id)===state.own)
+   window.VATRA_SOUNDS?.play?.("messageIn");
+  if(document.visibilityState!=="hidden")void refresh();
+ }
  async function choosePeer(id){
   if(!validId(id)||String(id)===state.own)return;
   state.selected=String(id);state.peerKey=null;state.peerChanged=false;state.chatVersion++;
@@ -220,7 +224,7 @@
    const envelope=await cryptoBox().encrypt(id,state.own,peer,state.peerKey,text);
    const {data,error}=await state.client.from("messenger_messages").insert(envelope).select("id").single();
    if(error||data?.id!==id)throw error||Error("Insert was not confirmed");
-   $("#messenger-compose-text").value="";await refresh();
+   $("#messenger-compose-text").value="";window.VATRA_SOUNDS?.play?.("messageOut");await refresh();
   }catch(_){sendStatus(t("Не вдалося надіслати зашифроване повідомлення. Перевірте доступ і ключ співрозмовника.","Encrypted send failed. Check access and contact key."));}
   finally{state.sendBusy=false;syncSend();}
  }

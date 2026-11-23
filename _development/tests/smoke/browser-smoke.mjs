@@ -678,6 +678,7 @@ try{
   await page.setViewportSize({width,height});
   await page.goto(base,{waitUntil:"domcontentloaded",timeout:20000});
   await waitReady(page);
+  await page.locator(".vatra-login-poster-image-001").evaluate(img=>img.decode());
   const sizes=await page.evaluate(()=>{
    const r=selector=>{const b=document.querySelector(selector)?.getBoundingClientRect();return b?{x:b.x,y:b.y,w:b.width,h:b.height}:null};
    const offenders=[...document.querySelectorAll("body *")].map(node=>({node,b:node.getBoundingClientRect()}))
@@ -699,7 +700,8 @@ try{
      footerAligned:Math.abs(footerContent.left-rect.left)<=2&&Math.abs(footerContent.right-rect.right)<=2,
      authAnimation:getComputedStyle(document.querySelector(".form-box")).animationName,
      fieldGap:getComputedStyle(document.querySelector(".form-box .field-stack")).gap,
-     orbitCount:document.querySelectorAll(".orbit-icon").length,
+     posterReady:(()=>{const img=document.querySelector(".vatra-login-poster-image-001");return !!img&&img.complete&&img.naturalWidth>0;})(),
+     obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol").length,
      brandStartRadius:getComputedStyle(brand)[innerWidth>=1200?"borderTopLeftRadius":"borderBottomLeftRadius"],
      formStartRadius:getComputedStyle(form)[innerWidth>=1200?"borderTopRightRadius":"borderTopLeftRadius"],
      formBackground:getComputedStyle(form).backgroundColor,
@@ -714,7 +716,8 @@ try{
   assert.equal(design.fieldGap,"19px","Login form must have spacious field gaps");
   if(width>=1200&&design.verticallyFits)
    assert.ok(design.centerDelta<=2,"Login card must be vertically centered at "+width+": "+JSON.stringify(design));
-  assert.equal(design.orbitCount,7,"VATRA must show seven orbit icons after retiring business");
+  assert.ok(design.posterReady&&design.obsoleteOrbits===0,
+   "VATRA login must show the loaded original poster without old orbit icons");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
    "Login card must preserve rounded corners at "+width);
@@ -730,30 +733,17 @@ try{
    assert.ok(sizes.form.y<sizes.intro.y,"Mobile must show sign-in before artwork at "+width);
   }
   if(width===360||width===1440){
-   // Verify that the highest orbit icon's tooltip is not lost behind browser chrome.
-   await page.addStyleTag({content:".orbit-track,.orbit-face{animation-play-state:paused!important}"});
-   const topIndex=await page.locator(".orbit-icon").evaluateAll(nodes=>
-    nodes.map((n,i)=>[n.getBoundingClientRect().top,i]).sort((a,b)=>a[0]-b[0])[0][1]);
-   const icon=page.locator(".orbit-icon").nth(topIndex);
-   await icon.hover({force:true});
-   const tooltip=page.locator("#"+await icon.getAttribute("aria-describedby"));
-   await tooltip.waitFor({state:"visible"});
-   const box=await tooltip.boundingBox();
-   assert.ok(box&&box.x>=-1&&box.x+box.width<=width+1&&box.y>=-1&&box.y+box.height<=height+1,
-    "Orbit tooltip outside viewport at "+width+": "+JSON.stringify(box));
-   const crisp=await tooltip.evaluate(el=>({
-    stationary:el.parentElement?.classList.contains("intro-side")===true,
-    transform:getComputedStyle(el).transform,
-    instances:document.querySelectorAll("#"+el.id).length
-   }));
-   assert.ok(crisp.stationary&&crisp.transform==="none"&&crisp.instances===1,
-    "Tooltip should not be rasterized in rotated layers: "+JSON.stringify(crisp));
-   // Pointer-click focus must not leave a stale tooltip after the mouse leaves.
-   await icon.click({force:true});
-   await page.mouse.move(width-3,height-3);
-   await tooltip.waitFor({state:"hidden"});
-   assert.equal(await tooltip.evaluate(el=>el.classList.contains("is-visible")),false,
-    "Orbit tooltip must close when pointer leaves even after a click");
+   const poster=await page.locator(".vatra-login-poster-image-001").evaluate(img=>{
+    const box=img.getBoundingClientRect(),computed=getComputedStyle(img);
+    return {loaded:img.complete&&img.naturalWidth>0,
+     src:new URL(img.getAttribute("src"),location.href).pathname,
+     box:{left:box.left,right:box.right,top:box.top,bottom:box.bottom},
+     fit:computed.objectFit,ratio:img.naturalWidth/img.naturalHeight};
+   });
+   assert.ok(poster.loaded&&poster.src.endsWith("/assets/poster.webp")&&poster.fit==="contain",
+    "Login must render the supplied poster without cropping: "+JSON.stringify(poster));
+   assert.ok(poster.box.right<=width+2&&poster.box.left>=-2,
+    "Login poster must remain within viewport horizontally: "+JSON.stringify(poster));
   }
   console.log("VATRA layout "+width+"x"+height+": OK");
   await page.close();
@@ -1233,8 +1223,8 @@ try{
   if(width>=1200){
    assert.ok(Math.abs(login.cardY-signup.cardY)<=2,
     "Login and signup cards should share the same vertical center at "+width);
-   assert.ok(Math.abs(login.height-signup.height)<=5,
-    "Sign-in and signup card heights differ at "+width+": "+JSON.stringify(snapshots));
+   assert.ok(Math.abs(login.height-signup.height)<=Math.max(56,height*.075),
+    "Distinct login poster and signup artwork must retain comparable card heights at "+width+": "+JSON.stringify(snapshots));
    assert.ok(Math.abs(login.brandWidth-signup.brandWidth)<=2&&
     Math.abs(login.panelWidth-signup.panelWidth)<=2,
     "Auth columns differ at "+width+": "+JSON.stringify(snapshots));
@@ -1633,9 +1623,9 @@ try{
     return {kicker:style(login?".login-form-kicker":".signup-form-kicker"),
       heading:style(login?".form-box h2":".signup-step-heading h1"),
       desc:style(login?".login-description":".signup-step-heading .subtitle"),
-      logo:style(login?".intro-symbol":".signup-brand-symbol"),
+      logo:style(login?".vatra-login-poster-image-001":".signup-brand-symbol"),
       copyAlign:getComputedStyle(document.querySelector(login?".intro-copy":".signup-brand-copy")).textAlign,
-      svg:document.querySelector(login?".intro-symbol":".signup-brand-symbol").getAttribute("src"),
+      svg:document.querySelector(login?".vatra-login-poster-image-001":".signup-brand-symbol").getAttribute("src"),
       primary:getComputedStyle(document.querySelector(login?".form-box .action.primary":".signup-form-panel .action.primary")).backgroundImage};
    });
    assert.equal(v.copyAlign,"center","Promo copy must be centered "+route+" "+width);
@@ -1648,13 +1638,14 @@ try{
     assert.equal(login[key][prop],signup[key][prop],
      "Typography mismatch "+width+" "+key+"."+prop+": "+JSON.stringify(settings));
   assert.equal(login.primary,signup.primary,"CTA gradients must match "+width);
-  assert.equal(login.svg,signup.svg,"Both logos must use same SVG asset "+width);
-  assert.equal(login.logo.animation,signup.logo.animation,"Logo animation differs "+width);
-  assert.equal(login.logo.duration,signup.logo.duration,"Logo motion duration differs "+width);
-  if(width>=1200)
-   assert.ok(Math.abs(login.logo.width-signup.logo.width)<=1,
-    "Brand symbol widths differ "+width+": "+JSON.stringify(settings));
-  console.log("VATRA matching typography & brand logo "+width+"x"+height+": OK");
+  assert.equal(login.svg,"assets/poster.webp","Login must use the original poster at "+width);
+  assert.equal(signup.svg,"assets/logo/logo_symbol.svg","Signup must retain the brand symbol at "+width);
+  assert.equal(login.logo.animation,"none","The login poster must not rotate or pulse at "+width);
+  assert.ok(signup.logo.animation.includes("vatraSignupSymbol"),
+   "Signup brand symbol animation must remain intact at "+width);
+  assert.ok(login.logo.width>0&&(width<1200?signup.logo.width===0:signup.logo.width>0),
+   "Login poster stays visible; signup artwork is intentionally hidden on narrow screens at "+width);
+  console.log("VATRA matching typography & separate login poster "+width+"x"+height+": OK");
  }
  // Standalone legal readers use one return link, and the hub contains four banners.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){

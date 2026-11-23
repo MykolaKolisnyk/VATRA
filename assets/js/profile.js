@@ -2323,6 +2323,11 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
 function setupProfilePresence(client,targetId,ownId,signupGender){
  const caption=q("#profile-last-seen");
  if(!caption||!window.VATRA_PRESENCE)return;
+ if(String(targetId)===String(ownId)){
+  caption.textContent=t("У мережі","Online");
+  caption.hidden=false;caption.dataset.online="true";caption.removeAttribute("title");
+  return;
+ }
  const refresh=async()=>{
   try{
 
@@ -2398,12 +2403,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
 
 
-  const scale=avatarPhoto?
-   Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight):
-   mediaDialog.dataset.kind==="cover"?
-    Math.min(Math.min(roomW,1140)/mediaImage.naturalWidth,
-     Math.min(roomH*.76,680)/mediaImage.naturalHeight):
-    Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
+  const scale=Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
   photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
   photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
  };
@@ -2520,8 +2520,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentForm=q("#profile-photo-comment-form"),commentInput=q("#profile-photo-comment-text");
  const commentSend=q("#profile-photo-comment-send"),commentStatus=q("#profile-photo-status");
  const shareButton=q("#profile-photo-share");
- const photoCommentsMore=q("#profile-photo-comments-more"),photoCommentSort="relevant";
- let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
+ const photoCommentSentinel=q("#profile-photo-comments-sentinel"),photoCommentSort="relevant";
+ let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false,photoCommentHasMore=false;
  let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
 
@@ -2635,7 +2635,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const feedback=(value,bad=false)=>{
   commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
  };
- photoCommentsMore.textContent=t("Показати ще","Show more");
+ photoCommentSentinel.hidden=true;
 
  const avatarCommentPages=new Map(),AVATAR_COMMENT_TTL=12_000,AVATAR_COMMENT_MAX=12;
  client.auth?.onAuthStateChange?.(event=>{
@@ -2670,9 +2670,55 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    throw error;
   }
  };
+ const linkedPhotoSearch=new URLSearchParams(location.search);
+ const linkedAvatarComment=linkedPhotoSearch.get("photo")==="avatar"?
+  linkedPhotoSearch.get("comment"):null;
+ const linkedAvatarImage=linkedPhotoSearch.get("image");
+ let linkedAvatarFocused=false;
+ async function focusLinkedAvatarComment(path,ticket){
+  const id=linkedAvatarComment;
+  if(linkedAvatarFocused||!id||!/^[a-f0-9-]{36}$/i.test(id)||
+   (linkedAvatarImage&&!path.endsWith("/"+linkedAvatarImage)))return;
+  try{
+   let selected=[...commentList.querySelectorAll("[data-comment-id]")]
+    .find(item=>item.dataset.commentId===id);
+   if(!selected){
+    const {data,error}=await client.from("avatar_comments")
+     .select("id,owner_vatra_id,author_vatra_id,author_id,avatar_path,body,moderation_status,created_at")
+     .eq("id",id).eq("owner_vatra_id",targetId).eq("avatar_path",path)
+     .maybeSingle();
+    if(error||!data||ticket!==activityTicket||path!==photoPath())return;
+    const {names,images}=await window.VATRA_POST_INTERACTIONS?.authorMap(client,[data])
+     ||{names:new Map(),images:new Map()};
+    const reaction=await client.from("avatar_comment_likes").select("comment_id")
+     .eq("comment_id",id).eq("liker_id",userId).maybeSingle();
+    const feature=await window.VATRA_FEATURES.load("avatar-comment-row");
+    if(ticket!==activityTicket||path!==photoPath()||!mediaDialog.open)return;
+    selected=feature.create({...data,likes:0},{client,ownId,userId,locale,names,images,
+     ownCommentLikes:new Set(reaction.data?[id]:[]),node,t,memberUrl,dateText,feedback,
+     clearCommentCache:()=>avatarCommentPages.clear(),
+     onDelete:()=>{photoCommentOffset=Math.max(0,photoCommentOffset-1);}});
+    commentList.querySelector(".ui-profile-photo-empty-state-001")?.remove();
+    commentList.classList.remove("is-empty");
+    commentList.prepend(selected);
+   }
+   if(ticket!==activityTicket||path!==photoPath()||!selected)return;
+   linkedAvatarFocused=true;
+   selected.id="vatra-avatar-comment-"+id;
+   selected.classList.add("is-linked-comment");
+   selected.setAttribute("tabindex","-1");
+   requestAnimationFrame(()=>{
+    if(!selected.isConnected||!mediaDialog.open)return;
+    selected.scrollIntoView({block:"center",behavior:"auto"});
+    selected.focus({preventScroll:true});
+   });
+  }catch(_){}
+ }
  async function reloadPhotoActivity(append=false,refreshLikes=true,keepVisible=false){
-  const path=photoPath(),ticket=++activityTicket;
-  if(!path)return;
+  const path=photoPath();
+  if(!path||(append&&(photoCommentLoading||!photoCommentHasMore||!mediaDialog.open)))return;
+  photoCommentLoading=true;
+  const ticket=++activityTicket;
   const key=path+"|"+photoCommentSort;
   const reuse=keepVisible&&lastAvatarCommentKey===key;
   const existing=!append&&reuse?
@@ -2680,10 +2726,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     .map(el=>[el.dataset.commentId,el])):new Map();
   if(!append){
    photoCommentOffset=0;
-   if(!reuse){commentList.replaceChildren();commentList.classList.remove("is-empty");
-    photoCommentsMore.hidden=true;}
+   if(!reuse){commentList.replaceChildren();commentList.classList.remove("is-empty");}
+   photoCommentHasMore=false;photoCommentSentinel.hidden=true;
   }
-  commentList.setAttribute("aria-busy","true");photoCommentsMore.disabled=true;
+  commentList.setAttribute("aria-busy","true");photoCommentSentinel.hidden=true;
   if(!append&&!reuse)feedback(t("Завантаження коментарів…","Loading comments…"));
   try{
    const commentsPromise=avatarCommentPage(path,photoCommentSort,photoCommentOffset);
@@ -2746,16 +2792,33 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
    lastAvatarCommentKey=key;
    photoCommentOffset+=rows.length;
+   if(!append)await focusLinkedAvatarComment(path,ticket);
    
-   photoCommentsMore.hidden=rows.length<12;feedback("");
+   photoCommentHasMore=rows.length===12;
+   photoCommentSentinel.hidden=!photoCommentHasMore;feedback("");
   }catch(_){
    if(ticket===activityTicket)feedback(t("Коментарі поки недоступні.","Comments are temporarily unavailable."),true);
   }finally{
-   if(ticket===activityTicket){commentList.setAttribute("aria-busy","false");photoCommentsMore.disabled=false;}
+   if(ticket===activityTicket){commentList.setAttribute("aria-busy","false");photoCommentLoading=false;}
   }
  }
  
- photoCommentsMore.addEventListener("click",()=>void reloadPhotoActivity(true,false));
+ if(typeof IntersectionObserver==="function"){
+  const photoCommentObserver=new IntersectionObserver(records=>{
+   if(records.some(record=>record.isIntersecting)&&photoCommentHasMore&&
+      !photoCommentLoading&&mediaDialog.open)
+    void reloadPhotoActivity(true,false);
+  },{rootMargin:"280px 0px"});
+  photoCommentObserver.observe(photoCommentSentinel);
+ }else{
+  const loadOnScroll=()=>{
+   if(photoCommentHasMore&&!photoCommentLoading&&mediaDialog.open&&
+      photoCommentSentinel.getBoundingClientRect().top<innerHeight+320)
+    void reloadPhotoActivity(true,false);
+  };
+  mediaDialog.addEventListener("scroll",loadOnScroll,{passive:true});
+  commentList.addEventListener("scroll",loadOnScroll,{passive:true});
+ }
  likesButton.addEventListener("click",async()=>{
   const path=photoPath();if(likeBusy||!path||!validId(ownId))return;
   likeBusy=true;likesButton.disabled=true;feedback("");
