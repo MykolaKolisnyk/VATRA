@@ -7,6 +7,22 @@ const read=async code=>JSON.parse(await readFile("assets/i18n/"+code+".json","ut
 const uk=await read("uk");
 const en=await read("en");
 const codes=["pl","de","fr","it","ka","bg"];
+const cookiesMarkup=await readFile("cookies.html","utf8");
+const commerceMarkup=await readFile("commerce.html","utf8");
+assert.ok(!cookiesMarkup.includes("Збереження обраної української або англійської мови"),
+ "Cookies must not imply VATRA offers only two language options");
+assert.ok(commerceMarkup.includes("ручну модерацію VATRA")&&commerceMarkup.includes("До схвалення"),
+ "Marketplace rules must state manual approval before listings become public");
+for(const [code,dictionary] of [["uk",uk],["en",en]]){
+ const notice=dictionary.__pages.cookies.nodes.n65.text["0"];
+ const process=dictionary.__pages.commerce.nodes["copy-appeals"].text["0"];
+ assert.ok(notice&&!/обраної української або англійської|selected Ukrainian or English/.test(notice),
+  code+": cookie language description must remain future-proof");
+ assert.ok(code==="uk"?process.includes("«На перевірці»")&&process.includes("модератор"):
+  process.includes("Pending review")&&process.includes("moderator"),
+  code+": marketplace moderation copy must describe decision before publication");
+}
+
 const privacyHtml=await readFile("privacy.html","utf8");
 assert.ok(!/\bGDPR\b|\bFacebook\b/i.test(privacyHtml),
  "VATRA privacy HTML must not contain imported platform notices");
