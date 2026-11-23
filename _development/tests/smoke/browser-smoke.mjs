@@ -3482,14 +3482,17 @@ try{
    side.replaceChildren();side.hidden=initiallyHidden;
    return results;
   });
-  assert.ok(Math.abs(postSidebar.headerHeight-89)<=2&&
-   Math.abs(postSidebar.actionHeight-62)<=2&&
-   Math.abs(postSidebar.formHeight-84)<=3&&
+  const compactPostSidebar=(feedProbe.viewportSize()?.width||0)<=680;
+  const expectedPostSidebar=compactPostSidebar?
+   {header:78,actions:54,form:72,avatar:46}:{header:89,actions:62,form:84,avatar:50};
+  assert.ok(Math.abs(postSidebar.headerHeight-expectedPostSidebar.header)<=2&&
+   Math.abs(postSidebar.actionHeight-expectedPostSidebar.actions)<=2&&
+   Math.abs(postSidebar.formHeight-expectedPostSidebar.form)<=3&&
    Math.abs(postSidebar.avatarNameGap-11)<=2&&
-   Math.abs(postSidebar.avatarWidth-50)<=1&&
-   Math.abs(postSidebar.avatarHeight-50)<=1&&
+   Math.abs(postSidebar.avatarWidth-expectedPostSidebar.avatar)<=1&&
+   Math.abs(postSidebar.avatarHeight-expectedPostSidebar.avatar)<=1&&
    Math.abs(postSidebar.inputHeight-40)<=2,
-   "Fullscreen post panel sections must match the shared avatar and album sidebar sizing: "+JSON.stringify(postSidebar));
+   "Fullscreen post panel sections must match shared responsive photo sidebar sizing: "+JSON.stringify(postSidebar));
   assert.ok(Math.abs(postSidebar.headToActions)<=2&&
    Math.abs(postSidebar.actionsToComments)<=2&&
    Math.abs(postSidebar.commentsToForm)<=2&&
