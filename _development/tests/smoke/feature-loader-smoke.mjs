@@ -67,8 +67,8 @@ assert.ok(profile.includes('VATRA_FEATURES.load("story")')&&
  profile.includes('q("#profile-compose-media")?.click()')&&
  feed.includes('q("#feed-compose-media")?.click()'),
  "Both authenticated routes must load story and composer only on demand, while quick-media file pickers retain user activation");
-function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGalleryScript=false){
- const window={},requests=[];let rejectOnce=failFirstStyle,rejectGallery=failFirstGalleryScript;
+function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGalleryScript=false,failFirstAvatarScript=false){
+ const window={},requests=[];let rejectOnce=failFirstStyle,rejectGallery=failFirstGalleryScript,rejectAvatar=failFirstAvatarScript;
  const document={
   currentScript:{src:"https://example.com/VATRA/assets/js/feature-loader.js"},
   querySelectorAll(){return preloadedGiftStyle?[{href:"https://example.com/VATRA/assets/css/gifts.css"}]:[];},
@@ -82,6 +82,9 @@ function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGall
      }
      if(el.src.includes("profile-gallery.js"))window.VATRA_PROFILE_GALLERY={mount(){}};
      if(el.src.includes("profile-cover-editor.js"))window.VATRA_PROFILE_COVER_EDITOR={mount(){}};
+     if(el.src.includes("profile-avatar-editor.js")&&rejectAvatar){
+      rejectAvatar=false;el.onerror?.();return;
+     }
      if(el.src.includes("profile-avatar-editor.js"))window.VATRA_PROFILE_AVATAR_EDITOR={mount(){}};
      if(el.src.includes("photo-albums.js"))window.VATRA_ALBUMS={mount(){}};
      if(el.src.includes("story-editor.js"))window.VATRA_STORY_EDITOR={mount(){}};
@@ -135,6 +138,11 @@ assert.equal(browser.requests.length,11,"Avatar editor loads only on request");
 assert.equal(browser.requests.at(-1).tag,"SCRIPT","Avatar editor reuses existing profile styles");
 await browser.window.VATRA_FEATURES.load("avatar-editor");
 assert.equal(browser.requests.length,11,"The avatar editor is reused after its first load");
+const avatarRetry=fakeBrowser(false,false,false,true);
+await assert.rejects(avatarRetry.window.VATRA_FEATURES.load("avatar-editor"));
+await avatarRetry.window.VATRA_FEATURES.load("avatar-editor");
+assert.deepEqual(avatarRetry.requests.map(x=>x.tag),["SCRIPT","SCRIPT"],
+ "Avatar editor retries after an interrupted script request");
 const galleryRetry=fakeBrowser(false,false,true);
 await assert.rejects(galleryRetry.window.VATRA_FEATURES.load("profile-gallery"));
 await galleryRetry.window.VATRA_FEATURES.load("profile-gallery");
