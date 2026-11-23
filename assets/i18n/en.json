@@ -3747,5 +3747,10 @@
   "Не вдалося відкрити редактор історій.": "Could not open story editor.",
   "Не вдалося видалити.": "Could not delete post.",
   "Відкрити фільтр стрічки": "Open feed filter",
-  "Закрити фільтр стрічки": "Close feed filter"
+  "Закрити фільтр стрічки": "Close feed filter",
+  "Керування акаунтом": "Manage account",
+  "Категорії пошуку": "Search categories",
+  "Розгорнути результати": "Expand results",
+  "Видалити з історії": "Remove from history",
+  "Нещодавно переглянуті": "Recently viewed"
 }
