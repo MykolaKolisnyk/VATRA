@@ -3741,5 +3741,6 @@
   "Не вдалося завантажити результати опитування.": "Impossible de charger les résultats du sondage.",
   "Не вдалося опублікувати": "Échec de publication",
   "Публікація з медіа": "Publication multimédia",
-  "Не вдалося зберегти дату публікації.": "Impossible d’enregistrer la date de publication."
+  "Не вдалося зберегти дату публікації.": "Impossible d’enregistrer la date de publication.",
+  "Опитування має завершитися після публікації.": "Le sondage doit se terminer après la publication."
 }
