@@ -3425,3 +3425,11 @@ body.feed-page .vatra-media-side-unified-001 .vatra-album-comments-emoji-option-
 @media(hover:none){
  .vatra-post-poll-voters-toggle-001{max-height:28px;min-height:23px;opacity:1}
 }
+
+.vatra-post-poll-voters-more-button-001{
+ align-self:flex-start;min-height:28px;padding:4px 2px;border:0;background:transparent;
+ color:#366eb8;font:680 11.5px/1.45 "Onest",system-ui,sans-serif;cursor:pointer
+}
+.vatra-post-poll-voters-more-button-001:hover{text-decoration:underline}
+.vatra-post-poll-voters-more-button-001:focus-visible{outline:2px solid #83a9e6;outline-offset:2px}
+.vatra-post-poll-voters-more-button-001:disabled{opacity:.65;cursor:progress}
