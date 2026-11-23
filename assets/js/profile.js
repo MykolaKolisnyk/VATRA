@@ -2323,6 +2323,11 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
 function setupProfilePresence(client,targetId,ownId,signupGender){
  const caption=q("#profile-last-seen");
  if(!caption||!window.VATRA_PRESENCE)return;
+ if(String(targetId)===String(ownId)){
+  caption.textContent=t("У мережі","Online");
+  caption.hidden=false;caption.dataset.online="true";caption.removeAttribute("title");
+  return;
+ }
  const refresh=async()=>{
   try{
 
@@ -2398,12 +2403,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
 
 
-  const scale=avatarPhoto?
-   Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight):
-   mediaDialog.dataset.kind==="cover"?
-    Math.min(Math.min(roomW,1140)/mediaImage.naturalWidth,
-     Math.min(roomH*.76,680)/mediaImage.naturalHeight):
-    Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
+  const scale=Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
   photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
   photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
  };

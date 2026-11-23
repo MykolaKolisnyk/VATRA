@@ -126,6 +126,12 @@
   };
 
   const afterLayout=()=>requestAnimationFrame(position);
+  document.addEventListener("pointerdown",event=>{
+   if(menu.open&&!menu.contains(event.target))menu.open=false;
+  },{capture:true});
+  document.addEventListener("keydown",event=>{
+   if(event.key==="Escape"&&menu.open){menu.open=false;menu.querySelector("summary")?.focus();}
+  });
   menu.addEventListener("toggle",position);
   menu.addEventListener("toggle",afterLayout);
   if(typeof ResizeObserver!=="undefined"){
@@ -667,7 +673,7 @@
 
  
  function setupRouteMotion(){
-  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
+  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|settings|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
   let navigating=false;
   const to=destination=>{
    let next;
