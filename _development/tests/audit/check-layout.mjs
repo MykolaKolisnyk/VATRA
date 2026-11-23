@@ -1398,6 +1398,7 @@ const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
+const avatarCommentRowScript=await read("assets/js/profile-avatar-comment-row.js");
 const profileCoverScript=await read("assets/js/profile-cover-editor.js");
 const profileCoverViewerScript=await read("assets/js/profile-cover-viewer.js");
 const profileAvatarScript=await read("assets/js/profile-avatar-editor.js");
@@ -2201,6 +2202,14 @@ assert.ok(
  !systemFeedCss.includes('.feed-post-audience:hover .vatra-post-audience-hint-001'),
  "All profile/post photos share a fullscreen workspace, cached comments reconcile without flashes and audience markers have no hover");
  
+assert.ok(
+ profileScript.includes('rows.length?await window.VATRA_FEATURES.load("avatar-comment-row"):null')&&
+ avatarCommentRowScript.includes('client.from("avatar_comment_likes").insert(')&&
+ avatarCommentRowScript.includes('client.from("avatar_comments").delete()')&&
+ avatarCommentRowScript.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
+ avatarCommentRowScript.includes('String(item.author_vatra_id)===String(ownId)'),
+ "Lazy avatar comment cards must retain own-comment deletion and reaction guards"
+);
 const feedPhotoActions=await read("assets/js/post-interactions.js");
 const photoLikeGlyph='M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z';
 const photoShareGlyph='M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z';

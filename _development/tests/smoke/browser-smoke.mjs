@@ -4534,12 +4534,21 @@ try{
   assert.equal((await profilePage.locator("#profile-story-viewer-text").textContent()).trim(),
    "Моя тестова історія");
   await profilePage.locator("#profile-story-viewer-close").click();
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-avatar-comment-row.js"]').count(),0,
+   "Avatar comment cards must not load during initial profile render");
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-avatar-trigger").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
   await profilePage.locator("#profile-photo-owner .vatra-verified-badge").waitFor({state:"visible",timeout:6000});
   assert.equal(await profilePage.locator("#profile-photo-owner .vatra-verified-badge").count(),1,
    "Verified profile must show the existing badge inside the avatar photo sidebar");
+  await profilePage.waitForFunction(()=>
+   document.querySelector("#profile-photo-comments")?.getAttribute("aria-busy")==="false",
+   null,{timeout:8000});
+  const renderedAvatarComments=await profilePage.locator("#profile-photo-comments [data-comment-id]").count();
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-avatar-comment-row.js"]').count(),
+   renderedAvatarComments>0?1:0,
+   "Avatar comment card code must load only when there are comments to display");
   const avatarSidebar=await profilePage.evaluate(()=>{
    const header=document.querySelector(".profile-photo-info"),
     avatar=document.querySelector("#profile-photo-owner-avatar"),

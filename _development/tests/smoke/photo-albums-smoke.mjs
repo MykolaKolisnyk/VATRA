@@ -2,9 +2,10 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext,Script} from "node:vm";
 
-const [script,css,html,profile,sql,indexes,summarySql,redisPolicy,featureLoader]=await Promise.all([
+const [script,css,html,profile,commentRow,sql,indexes,summarySql,redisPolicy,featureLoader]=await Promise.all([
  "assets/js/photo-albums.js","assets/css/photo-albums.css","profile.html",
- "assets/js/profile.js","_development/supabase/migrations/20261122122000_photo_albums_private_storage.sql",
+ "assets/js/profile.js","assets/js/profile-avatar-comment-row.js",
+ "_development/supabase/migrations/20261122122000_photo_albums_private_storage.sql",
  "_development/supabase/migrations/20261122123500_album_foreign_key_indexes.sql",
  "_development/supabase/migrations/20261122134500_photo_album_summary_view.sql",
  "_development/docs/redis-cache-policy.md","assets/js/feature-loader.js"
@@ -177,8 +178,9 @@ assert.ok(
  "Profile photo upload must show real completed steps and update without full page reload"
 );
 assert.ok(
- profile.includes('client.from("avatar_comments").delete()')&&
- profile.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
+ commentRow.includes('client.from("avatar_comments").delete()')&&
+ commentRow.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
+ profile.includes('rows.length?await window.VATRA_FEATURES.load("avatar-comment-row"):null')&&
  profile.includes('avatarCommentPages.clear()')&&
  profile.includes('avatarDownload.addEventListener("click",async()=>')&&
  html.includes('id="profile-photo-download"')&&
