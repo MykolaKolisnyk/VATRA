@@ -42,7 +42,7 @@ let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false;
 const pageURL=()=>new URL("notifications",root).href;
 const timeValue=date=>{
  const parsed=new Date(date);if(!Number.isFinite(parsed.getTime()))return "";
- const relative=window.VATRA_PRESENCE?.relative?.(parsed,language()==="en");
+ const relative=window.VATRA_PRESENCE?.relative?.(parsed,language());
  if(relative)return relative;
  const ms=Math.max(0,Date.now()-parsed.getTime());
  if(ms<300000)return t("щойно","just now");
