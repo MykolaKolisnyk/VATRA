@@ -62,8 +62,41 @@ function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,no
     });
     card.append(reaction);
     if(String(item.author_vatra_id)===String(ownId)){
-     const remove=node("button","vatra-profile-photo-comment-delete-001 vatra-comment-hover-delete-001");
      card.classList.add("is-own");
+     const text=meta.querySelector(".vatra-profile-photo-comment-body-001");
+     const edit=node("button","vatra-profile-photo-comment-edit-001 vatra-comment-hover-edit-001");
+     edit.type="button";edit.setAttribute("aria-label",t("Редагувати коментар","Edit comment"));
+     edit.textContent="✎";
+     edit.addEventListener("click",()=>{
+      if(card.classList.contains("is-deleted-pending")||card.querySelector(".vatra-photo-comment-edit-form-001"))return;
+      const form=node("form","vatra-photo-comment-edit-form-001");
+      const editor=node("textarea","vatra-photo-comment-edit-textarea-001");
+      editor.value=String(item.body||"");editor.maxLength=1000;editor.rows=3;editor.required=true;
+      const actions=node("div","vatra-photo-comment-edit-actions-001");
+      const cancel=node("button","vatra-photo-comment-edit-cancel-001",t("Скасувати","Cancel"));
+      cancel.type="button";
+      const save=node("button","vatra-photo-comment-edit-save-001",t("Зберегти","Save"));
+      save.type="submit";actions.append(cancel,save);form.append(editor,actions);
+      const exit=()=>{form.remove();text.hidden=false;};
+      cancel.addEventListener("click",exit);
+      form.addEventListener("submit",async e=>{
+       e.preventDefault();const value=editor.value.trim();
+       if(!value||value.length>1000||save.disabled)return;
+       if(value===String(item.body||"").trim()){exit();return;}
+       save.disabled=true;cancel.disabled=true;
+       try{
+        const {data,error}=await client.from("avatar_comments").update({body:value})
+         .eq("id",item.id).eq("author_id",userId).select("body").maybeSingle();
+        if(error||!data)throw error||Error("Photo comment edit not confirmed");
+        item.body=data.body;text.textContent=String(data.body||"");
+        clearCommentCache();exit();
+       }catch(_){feedback(t("Не вдалося зберегти коментар.","Could not save comment."),true);}
+       finally{save.disabled=false;cancel.disabled=false;}
+      });
+      text.hidden=true;meta.insertBefore(form,stamp);editor.focus();
+     });
+     card.append(edit);
+     const remove=node("button","vatra-profile-photo-comment-delete-001 vatra-comment-hover-delete-001");
      const cross=document.createElementNS("http://www.w3.org/2000/svg","svg");
      cross.setAttribute("class","ui-vatra-photo-comment-delete-icon-001");
      cross.setAttribute("viewBox","0 0 24 24");
@@ -75,25 +108,39 @@ function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,no
      lines.setAttribute("d","M5 5l14 14M19 5 5 19");
      cross.append(lines);remove.append(cross);
      remove.type="button";remove.setAttribute("aria-label",t("Видалити свій коментар","Delete your comment"));
-     remove.addEventListener("click",async()=>{
-      if(remove.disabled)return;
-      if(!await window.VATRA_PROFILE_CONFIRM?.({
-       title:t("Видалити свій коментар?","Delete your comment?"),
-       description:t("Коментар буде видалено назавжди.","The comment will be permanently deleted."),
-       action:t("Видалити","Delete")
-      }))return;
-      remove.disabled=true;
-      try{
-       const {data,error}=await client.from("avatar_comments").delete()
-        .eq("id",item.id).eq("author_id",userId).select("id").maybeSingle();
-       if(error||!data)throw error||Error("Delete not permitted");
-       clearCommentCache();
-       card.remove();onDelete();
-       feedback(t("Коментар видалено.","Comment deleted."));
-      }catch(_){
-       remove.disabled=false;
-       feedback(t("Не вдалося видалити коментар.","Could not delete comment."),true);
-      }
+     remove.addEventListener("click",()=>{
+      if(remove.disabled||card.classList.contains("is-deleted-pending"))return;
+      remove.disabled=true;edit.disabled=true;
+      card.classList.add("is-deleted-pending");
+      const tomb=node("div","vatra-photo-comment-deleted-001");
+      tomb.append(node("span","vatra-photo-comment-deleted-label-001",t("Коментар видалено","Comment deleted")));
+      const undo=node("button","vatra-photo-comment-undo-001",t("Відновити","Undo"));
+      undo.type="button";tomb.append(undo);
+      head.hidden=true;reaction.hidden=true;edit.hidden=true;remove.hidden=true;card.append(tomb);
+      let settled=false;
+      const restore=()=>{
+       if(settled)return;settled=true;clearTimeout(timer);
+       card.classList.remove("is-deleted-pending");tomb.remove();
+       head.hidden=false;reaction.hidden=false;edit.hidden=false;remove.hidden=false;
+       edit.disabled=false;remove.disabled=false;
+      };
+      const commit=async()=>{
+       if(settled)return;settled=true;undo.disabled=true;
+       try{
+        const {data,error}=await client.from("avatar_comments").delete()
+         .eq("id",item.id).eq("author_id",userId).select("id").maybeSingle();
+        if(error||!data)throw error||Error("Delete not permitted");
+        clearCommentCache();card.remove();onDelete();
+       }catch(_){
+        card.classList.remove("is-deleted-pending");tomb.remove();
+        head.hidden=false;reaction.hidden=false;edit.hidden=false;remove.hidden=false;
+        edit.disabled=false;remove.disabled=false;
+        feedback(t("Не вдалося видалити коментар.","Could not delete comment."),true);
+       }
+      };
+      const timer=setTimeout(()=>void commit(),12000);
+      undo.addEventListener("click",restore);
+      window.addEventListener("pagehide",()=>void commit(),{once:true});
      });
      card.append(remove);
     }
