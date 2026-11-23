@@ -364,3 +364,39 @@ body.profile-page .vatra-album-upload-finish-001:disabled{opacity:.5;cursor:wait
  body.profile-page .ui-vatra-album-viewer-bottom-001{padding:8px 10px}
  body.profile-page .ui-vatra-album-upload-grid-001{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+body.profile-page .ui-vatra-album-comments-dialog-001 .ui-vatra-album-comments-form-001{
+ position:relative;display:block;padding:12px 16px
+}
+body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-composer-001{
+ display:flex;align-items:center;gap:8px;min-width:0;width:100%
+}
+body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comment-composer-avatar-001{
+ flex:0 0 34px;width:34px;height:34px;margin:0;border-radius:50%;background-size:cover
+}
+body.profile-page .ui-vatra-album-comments-dialog-001 .ui-vatra-album-comments-input-001{
+ box-sizing:border-box;flex:1;min-width:0;height:40px;min-height:40px;max-height:100px;
+ resize:none;margin:0;padding:9px 4px;border:0;border-radius:0;
+ background:transparent;color:#435470;font:500 14px/1.45 "Onest",system-ui,sans-serif
+}
+body.profile-page .ui-vatra-album-comments-dialog-001 :is(.vatra-album-comments-emoji-001,.vatra-media-send-unified-001){
+ box-sizing:border-box;display:grid;place-items:center;flex:0 0 34px;
+ width:34px;height:36px;min-height:36px;padding:5px;margin:0;border:0;
+ border-radius:8px;background:transparent;color:#8295b2;cursor:pointer
+}
+body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-media-send-unified-001{color:#396fce}
+body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-media-send-unified-001:disabled{color:#c8d1df;opacity:1;cursor:default}
+body.profile-page .ui-vatra-album-comments-dialog-001 :is(.vatra-album-comments-emoji-001,.vatra-media-send-unified-001) svg{
+ width:22px;height:22px;stroke:currentColor
+}
+body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-emoji-panel-001{
+ position:absolute;z-index:5;bottom:calc(100% + 3px);right:12px;
+ display:grid;grid-template-columns:repeat(6,36px);gap:3px;padding:9px;
+ background:#fff;border:1px solid #dfe7f1;border-radius:12px;box-shadow:0 8px 24px #172b5020
+}
+body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-emoji-panel-001[hidden]{display:none}
+body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-emoji-option-001{
+ border:0;border-radius:7px;background:transparent;font-size:20px;cursor:pointer
+}
+body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-emoji-option-001:hover{background:#edf2fa}
