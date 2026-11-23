@@ -1641,8 +1641,12 @@ try{
      backHref:new URL(document.querySelector(hub?".vatra-documents-home-link-001":".vatra-document-back-001").getAttribute("href"),location.href).pathname,
      headerHeight:header?.height,tabCount:document.querySelectorAll(".policy-tabs a").length,
      oldNavCount:document.querySelectorAll(".policy-top,.policy-tabs-shell,.policy-top-actions").length,
-     documentLinks:links};
+     documentLinks:links,
+     fontFamily:getComputedStyle(document.body).fontFamily,
+     hasDecorativeRings:(hub?[...document.querySelectorAll(".vatra-documents-card-001")]:[document.querySelector(".policy-header")]).some(el=>el&&["::before","::after"].some(pseudo=>{const style=getComputedStyle(el,pseudo);return style.content!=="none"&&style.content!=="normal"&&style.display!=="none";}))};
    });
+   assert.ok(sizes.fontFamily.includes("Onest")&&!sizes.hasDecorativeRings,
+    "Documents must use VATRA Onest typography and no decorative circles: "+route+" "+JSON.stringify(sizes));
    assert.ok(sizes.exists&&sizes.overflow<=3&&sizes.oldNavCount===0&&sizes.tabCount===0,
     "Documents must omit legacy navigation and avoid horizontal overflow: "+width+" "+route+" "+JSON.stringify(sizes));
    assert.ok(Math.abs(sizes.mainLeft-sizes.footLeft)<=2&&Math.abs(sizes.mainRight-sizes.footRight)<=2,
