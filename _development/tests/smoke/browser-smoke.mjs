@@ -1633,12 +1633,12 @@ try{
     const back=rect(hub?".vatra-documents-home-link-001":".vatra-document-back-001");
     const top=rect(".vatra-document-top-001");
     const header=rect(hub?".vatra-documents-intro-001":".policy-header");
-    const links=[...document.querySelectorAll(".vatra-documents-card-001")].map(el=>el.getAttribute("href"));
+    const links=[...document.querySelectorAll(".vatra-documents-card-001")].map(el=>new URL(el.getAttribute("href"),location.href).pathname);
     return {hub,overflow:document.documentElement.scrollWidth-innerWidth,
      exists:!!(main&&footer&&back&&header&&(hub||top)),
      mainLeft:main?.left,mainRight:main?.right,footLeft:footer?.left,footRight:footer?.right,
      topLeft:top?.left,topRight:top?.right,backLeft:back?.left,backRight:back?.right,
-     backHref:document.querySelector(hub?".vatra-documents-home-link-001":".vatra-document-back-001")?.getAttribute("href"),
+     backHref:new URL(document.querySelector(hub?".vatra-documents-home-link-001":".vatra-document-back-001").getAttribute("href"),location.href).pathname,
      headerHeight:header?.height,tabCount:document.querySelectorAll(".policy-tabs a").length,
      oldNavCount:document.querySelectorAll(".policy-top,.policy-tabs-shell,.policy-top-actions").length,
      documentLinks:links};
@@ -1650,10 +1650,10 @@ try{
    assert.ok(sizes.backLeft>=-2&&sizes.backRight<=width+2&&sizes.headerHeight>80,
     "Document back link or hero outside viewport "+width+" "+route+": "+JSON.stringify(sizes));
    if(sizes.hub){
-    assert.equal(sizes.backHref,"./","Documents hub must return to VATRA");
-    assert.deepEqual(sizes.documentLinks,["terms","privacy","cookies","commerce"],"Documents hub needs exactly four banners");
+    assert.equal(sizes.backHref,"/VATRA/","Documents hub must return to VATRA");
+    assert.deepEqual(sizes.documentLinks,["/VATRA/terms","/VATRA/privacy","/VATRA/cookies","/VATRA/commerce"],"Documents hub needs exactly four banners");
    }else{
-    assert.equal(sizes.backHref,"documents","Document back link must target documents hub");
+    assert.equal(sizes.backHref,"/VATRA/documents","Document back link must target documents hub");
     assert.ok(Math.abs(sizes.mainLeft-sizes.topLeft)<=2&&Math.abs(sizes.mainRight-sizes.topRight)<=2,
      "Document return link container must align with content "+route+": "+JSON.stringify(sizes));
    }
