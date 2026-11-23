@@ -30,6 +30,9 @@
   const current = localFile ? "uk" : preferred();
 
 
+  const titleSources={
+    index:"Вхід","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",messenger:"Месенджер",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
+  };
   const instantEnglishTitles={
     index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",messenger:"Messenger",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
     forgot:"Password recovery",reset:"New password",
@@ -290,6 +293,14 @@
   const ready=Promise.all([domReady,translations]).then(([,json])=>{
     errors=json&&typeof json==="object"?json:{};
     applyTranslation(errors);
+    if(current!=="uk"&&current!=="en"){
+      const segment=pageFromPath();
+      const source=titleSources[segment]||titleSources["404"];
+      const translated=errors[source];
+      const meta=errors.__pages?.[segment]?.meta?.title;
+      const title=meta||(typeof translated==="string"?translated:null);
+      if(title)document.title=title;
+    }
   }).finally(()=>{
     document.documentElement.classList.remove("i18n-pending");
     if(staticLocaleLoader){
@@ -303,10 +314,17 @@
     translate: raw => (typeof errors[raw] === "string" && errors[raw]) ? errors[raw] : raw
   };
 
-  const english = current === "en";
-  const words = english
-    ? {name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",future:"In development",current:"Selected",close:"Close",empty:"No matching languages"}
-    : {name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено"};
+  const wordsByLanguage={
+    uk:{name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено",clear:"Очистити пошук"},
+    en:{name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",future:"In development",current:"Selected",close:"Close",empty:"No matching languages",clear:"Clear search"},
+    pl:{name:"Język",heading:"Wybierz język",details:"Język interfejsu VATRA",search:"Szukaj języków",future:"W przygotowaniu",current:"Wybrano",close:"Zamknij",empty:"Nie znaleziono języków",clear:"Wyczyść wyszukiwanie"},
+    de:{name:"Sprache",heading:"Sprache auswählen",details:"Sprache der VATRA-Oberfläche",search:"Sprachen suchen",future:"In Entwicklung",current:"Ausgewählt",close:"Schließen",empty:"Keine passenden Sprachen",clear:"Suche löschen"},
+    fr:{name:"Langue",heading:"Choisissez votre langue",details:"Langue de l'interface VATRA",search:"Rechercher une langue",future:"En préparation",current:"Sélectionnée",close:"Fermer",empty:"Aucune langue trouvée",clear:"Effacer la recherche"},
+    it:{name:"Lingua",heading:"Scegli la tua lingua",details:"Lingua dell'interfaccia VATRA",search:"Cerca lingue",future:"In preparazione",current:"Selezionata",close:"Chiudi",empty:"Nessuna lingua trovata",clear:"Cancella la ricerca"},
+    ka:{name:"ენა",heading:"აირჩიეთ ენა",details:"VATRA-ს ინტერფეისის ენა",search:"ენების ძებნა",future:"მზადების პროცესშია",current:"არჩეულია",close:"დახურვა",empty:"ენა ვერ მოიძებნა",clear:"ძიების გასუფთავება"},
+    bg:{name:"Език",heading:"Изберете език",details:"Език на интерфейса на VATRA",search:"Търсене на езици",future:"В подготовка",current:"Избран",close:"Затвори",empty:"Няма намерени езици",clear:"Изчисти търсенето"}
+  };
+  const words=wordsByLanguage[current];
 
   let pickerInitialized=false;
   function initLanguagePicker() {
