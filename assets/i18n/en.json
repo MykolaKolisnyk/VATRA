@@ -3555,5 +3555,10 @@
   "Завантажити": "Download",
   "Не вдалося завантажити фотографію.": "Could not download photo.",
   "Перейти до публікації": "Go to post",
-  "Фото з альбому «": "Photo from album “"
+  "Фото з альбому «": "Photo from album “",
+  "Вкажіть ім’я.": "Enter your first name.",
+  "Вкажіть прізвище.": "Enter your last name.",
+  "Введіть електронну пошту.": "Enter your email address.",
+  "Повторіть пароль.": "Confirm your password.",
+  "Введіть код підтвердження з листа.": "Enter the verification code from your email."
 }
