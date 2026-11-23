@@ -1398,6 +1398,20 @@ const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
+assert.ok(
+ memberProfileMarkup.includes('id="profile-friend-action"')&&
+ memberProfileMarkup.includes('id="profile-friend-menu"')&&
+ memberProfileMarkup.includes('id="profile-friend-menu-action"')&&
+ memberProfileMarkup.includes('id="profile-more-menu"')&&
+ memberProfileMarkup.includes('id="profile-more-trigger"')&&
+ memberProfileMarkup.indexOf('id="profile-more-menu"')<memberProfileMarkup.indexOf('class="social-profile-tabs')&&
+ profileScript.includes('friendButton.dataset.friendState')&&
+ profileScript.includes('friendMenuOpen(false)')&&
+ profileScript.includes('friendMenuAction.addEventListener("click",()=>void changeFriendship())')&&
+ profileScript.includes('t("Заявку надіслано","Request sent")')&&
+ profileScript.includes('t("Заблокувати ","Block ")+firstName'),
+ "Visitor actions must provide a dropdown for pending friend requests and More actions beside Message"
+);
 const avatarCommentRowScript=await read("assets/js/profile-avatar-comment-row.js");
 const profileCoverScript=await read("assets/js/profile-cover-editor.js");
 const profileCoverViewerScript=await read("assets/js/profile-cover-viewer.js");

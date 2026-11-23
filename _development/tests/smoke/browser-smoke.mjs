@@ -5070,10 +5070,13 @@ try{
    "Visitor's message button needs a persistent line icon");
   assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),false,
    "Friends are accessible from the About-side Friends card, not the main tabs");
+  assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true,
+   "Visitors have a clearly visible More menu beside friend and message actions");
+  await profilePage.locator("#profile-more-trigger").click();
   assert.equal(await profilePage.locator("#profile-report-open").isVisible(),true,
-   "Visitors can open a report dialog for another member");
+   "Visitor's More menu exposes the report action");
   assert.equal(await profilePage.locator("#profile-report-open svg").count(),1,
-   "Report must be one accessible SVG icon without a text label");
+   "Report action retains the accessible SVG icon in the menu");
   // A photo-specific report can open above the existing avatar viewer and
   // binds to a concrete profile-owned avatar path without submitting it.
   const reportTarget="789012/avatar/test-visitor-photo.webp";
@@ -5089,11 +5092,13 @@ try{
   await profilePage.locator("#profile-report-close").click();
   assert.equal(await profilePage.locator("#profile-report-dialog").evaluate(el=>el.open),false);
 
+  await profilePage.locator("#profile-more-trigger").click();
   assert.equal(await profilePage.locator("#profile-block-toggle").isVisible(),true,
-   "Block icon must appear immediately to the left of Report");
+   "The More menu exposes Block next to Report");
   assert.equal(await profilePage.locator("#profile-block-toggle svg").count(),1);
-  assert.equal(await profilePage.locator("#profile-block-toggle").getAttribute("aria-label"),
-   language==="en"?"Block member":"Заблокувати користувача");
+  const firstVisitorName=(await profilePage.locator("#profile-heading").textContent()).trim().split(/\s+/)[0];
+  assert.ok((await profilePage.locator("#profile-block-toggle").getAttribute("aria-label")).includes(firstVisitorName),
+   "Block action must identify only the first name, not the surname");
   assert.equal(await profilePage.locator(".ui-profile-block-member-icon-001").count(),1,
    "VATRA block icon should depict a member with a prohibition marker");
   assert.equal(await profilePage.locator(".ui-profile-report-warning-icon-001").count(),1,
@@ -5106,6 +5111,7 @@ try{
   await profilePage.locator("#profile-confirm-cancel").click();
   assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),false,
    "Cancel closes the dialog without persisting a block");
+  await profilePage.locator("#profile-more-trigger").click();
   await profilePage.locator("#profile-block-toggle").click();
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),false,
@@ -5151,6 +5157,8 @@ try{
   assert.equal(await profilePage.locator(".profile-panels").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-message-button").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true);
+  await profilePage.locator("#profile-more-trigger").click();
   assert.equal(await profilePage.locator("#profile-block-toggle").isVisible(),true);
   assert.ok((await profilePage.locator(".vatra-profile-locked-description-001").textContent()).includes(
    language==="en"?"restricted your access":"обмежив вам доступ"));
