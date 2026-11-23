@@ -12,6 +12,7 @@ const targetPages=Object.keys(uk.__pages);
 const pendingLegalPages=new Set(["commerce","documents"]);
 const pendingLegalTermsKeys=new Set(["market_rules_title","market_rules_intro","market_rules_full","market_rules_toc_desktop","market_rules_toc_mobile"]);
 const pendingLegalReaderKeys=new Set(["docs_back_001","docs_kicker_001"]);
+const retiredBindingsByPage={"index":["n126"],"create-account":["n66"],"forgot":["n50"],"reset":["n40"],"terms":["n11","n12","n3","n301","n302","n6","n7","n9","n90","n95"],"privacy":["n102","n11","n12","n3","n301","n302","n6","n7","n9","n97"],"cookies":["n100","n105","n11","n12","n3","n301","n302","n6","n7","n9"]};
 assert.ok(uk.__pages.commerce&&en.__pages.commerce,"Published commerce page requires both active locales");
 const activePages=["index","404","feed","profile","offline","verify",
  "create-account","forgot","reset","terms","privacy","cookies","maintenance"];
@@ -448,8 +449,11 @@ for(const code of codes){
   assert.ok(localized,code+": missing "+page);
   assert.deepEqual(Object.keys(localized.meta||{}).sort(),Object.keys(original.meta||{}).sort(),
    code+": metadata keys mismatch on "+page);
-  assert.deepEqual(Object.keys(localized.nodes||{}).sort(),Object.keys(original.nodes||{}).sort(),
-   code+": node keys mismatch on "+page);
+  const retired=(retiredBindingsByPage[page]||[]);
+ assert.deepEqual(Object.keys(localized.nodes||{}).filter(key=>!Object.prototype.hasOwnProperty.call(original.nodes,key)).sort(),retired.slice().sort(),
+  code+": unpublished locale has unexpected retired bindings on "+page);
+ assert.deepEqual(Object.keys(localized.nodes||{}).filter(key=>!retired.includes(key)).sort(),Object.keys(original.nodes||{}).sort(),
+  code+": node keys mismatch on "+page);
   for(const [id,node] of Object.entries(original.nodes||{})){
    const translated=localized.nodes[id];
    for(const field of ["text","attrs"]){

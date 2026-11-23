@@ -645,11 +645,6 @@
             "0": "Documents"
           }
         },
-        "n66": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
         "n69": {
           "text": {
             "0": "English"
@@ -976,11 +971,6 @@
             "0": "Documents"
           }
         },
-        "n50": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
         "n53": {
           "text": {
             "0": "English"
@@ -1142,11 +1132,6 @@
             "0": "Documents"
           }
         },
-        "n40": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
         "n43": {
           "text": {
             "0": "English"
@@ -1194,36 +1179,6 @@
         "n1": {
           "text": {
             "0": "Skip to content"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — home"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Create account"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Document sections"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Privacy"
           }
         },
         "n17": {
@@ -1497,29 +1452,6 @@
             "1": " · Your people. Your stories. Your VATRA."
           }
         },
-        "n90": {
-          "attrs": {
-            "aria-label": "Additional links"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "English"
-          },
-          "attrs": {
-            "aria-label": "Choose language"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Create account"
-          }
-        },
         "market_rules_title": {
           "text": {
             "0": "VATRA commerce rules"
@@ -1569,36 +1501,6 @@
         "n1": {
           "text": {
             "0": "Skip to content"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — home"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Create account"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Document sections"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Privacy"
           }
         },
         "n17": {
@@ -1892,29 +1794,6 @@
             "1": " · Your people. Your stories. Your VATRA."
           }
         },
-        "n97": {
-          "attrs": {
-            "aria-label": "Additional links"
-          }
-        },
-        "n102": {
-          "text": {
-            "0": "English"
-          },
-          "attrs": {
-            "aria-label": "Choose language"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Create account"
-          }
-        },
         "docs_back_001": {
           "text": {
             "0": "All documents"
@@ -1939,36 +1818,6 @@
         "n1": {
           "text": {
             "0": "Skip to content"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — home"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Create account"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Document sections"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Privacy"
           }
         },
         "n17": {
@@ -2243,29 +2092,6 @@
         "n98": {
           "text": {
             "1": " · Your people. Your stories. Your VATRA."
-          }
-        },
-        "n100": {
-          "attrs": {
-            "aria-label": "Additional links"
-          }
-        },
-        "n105": {
-          "text": {
-            "0": "English"
-          },
-          "attrs": {
-            "aria-label": "Choose language"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Create account"
           }
         },
         "docs_back_001": {
@@ -2575,11 +2401,6 @@
         "n125": {
           "text": {
             "0": "Documents"
-          }
-        },
-        "n126": {
-          "text": {
-            "0": "Privacy"
           }
         },
         "n128": {
@@ -3244,47 +3065,9 @@
             "0": "Skip to content"
           }
         },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — home"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Create account"
-          }
-        },
         "n88": {
           "text": {
             "1": " · Your people. Your stories. Your VATRA."
-          }
-        },
-        "n90": {
-          "attrs": {
-            "aria-label": "Additional links"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Create account"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "English"
-          },
-          "attrs": {
-            "aria-label": "Choose language"
           }
         },
         "docs_back_001": {
