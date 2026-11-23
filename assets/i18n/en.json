@@ -3595,5 +3595,6 @@
   "Не вдалося скасувати голос.": "Could not withdraw vote.",
   "Не вдалося завантажити результати опитування.": "Could not load poll results.",
   "Не вдалося опублікувати": "Publishing failed",
-  "Публікація з медіа": "Media post"
+  "Публікація з медіа": "Media post",
+  "Не вдалося зберегти дату публікації.": "Could not save publication date."
 }
