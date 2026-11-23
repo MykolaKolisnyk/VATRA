@@ -3700,5 +3700,10 @@
   "Завантажити": "Télécharger",
   "Не вдалося завантажити фотографію.": "Impossible de télécharger la photo.",
   "Перейти до публікації": "Voir la publication",
-  "Фото з альбому «": "Photo de l'album «"
+  "Фото з альбому «": "Photo de l'album «",
+  "Вкажіть ім’я.": "Saisissez votre prénom.",
+  "Вкажіть прізвище.": "Saisissez votre nom.",
+  "Введіть електронну пошту.": "Saisissez votre adresse e-mail.",
+  "Повторіть пароль.": "Confirmez le mot de passe.",
+  "Введіть код підтвердження з листа.": "Saisissez le code de vérification reçu par e-mail."
 }
