@@ -3742,5 +3742,12 @@
   "Не вдалося опублікувати": "Veröffentlichung fehlgeschlagen",
   "Публікація з медіа": "Medienbeitrag",
   "Не вдалося зберегти дату публікації.": "Das Veröffentlichungsdatum konnte nicht gespeichert werden.",
-  "Опитування має завершитися після публікації.": "Die Umfrage muss nach der Veröffentlichung enden."
+  "Опитування має завершитися після публікації.": "Die Umfrage muss nach der Veröffentlichung enden.",
+  "проголосували за цей варіант": "haben für diese Option gestimmt",
+  "І ще ": "Und ",
+  " учасників": " weitere Abstimmende",
+  "Поки немає голосів": "Noch keine Stimmen",
+  "Не вдалося завантажити учасників.": "Abstimmende konnten nicht geladen werden.",
+  "Хто проголосував": "Wer hat abgestimmt?",
+  "Показати, хто проголосував за ": "Abstimmende anzeigen für "
 }
