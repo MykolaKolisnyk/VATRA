@@ -3780,5 +3780,14 @@
   "Видалити повідомлення?": "Nachricht löschen?",
   "Ви можете прибрати повідомлення лише в себе або відкликати його для всіх, якщо ви відправник.": "Sie können die Nachricht nur für sich ausblenden oder für alle widerrufen, wenn Sie sie gesendet haben.",
   "Видалити в себе": "Für mich löschen",
-  "Видалити для всіх": "Für alle löschen"
+  "Видалити для всіх": "Für alle löschen",
+  "Приватні повідомлення VATRA.": "Private Nachrichten auf VATRA.",
+  "VATRA — стрічка": "VATRA — Feed",
+  "Навігація": "Navigation",
+  "Список розмов": "Liste der Unterhaltungen",
+  "Повернутися до розмов": "Zurück zu den Unterhaltungen",
+  "Інформація про розмову": "Informationen zur Unterhaltung",
+  "Надіслати": "Senden",
+  "Закрити деталі": "Details schließen",
+  "Захистіть свої розмови": "Schützen Sie Ihre Unterhaltungen"
 }
