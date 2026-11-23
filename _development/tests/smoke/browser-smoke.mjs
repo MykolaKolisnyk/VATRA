@@ -2678,7 +2678,8 @@ try{
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("title"),null);
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("data-vatra-tooltip"),"Remove saved account");
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("aria-label"),"Remove saved account");
- assert.equal((await savedPage.locator("#saved-account-remove").textContent()).trim(),"Remove","English saved-account removal must show localized text");
+ assert.equal((await savedPage.locator("#saved-account-remove").textContent()).trim(),"",
+  "English saved-account removal stays icon-only; localized text belongs in accessible hint");
  await savedPage.setViewportSize({width:360,height:700});
  await savedPage.locator("#saved-account-remove").hover();
  const smallHint=await savedPage.locator("#vatra-saved-account-tooltip").evaluate(node=>{
