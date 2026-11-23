@@ -174,11 +174,13 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
  const mark=make("span","vatra-notification-unread ui-vatra-notification-unread-"+index);
  mark.setAttribute("aria-hidden","true");
  const badgeIcon=make("span","vatra-notification-kind ui-vatra-notification-kind-"+index);
- const path=record.kind.startsWith("friend")?
-  "M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21v-2a8 8 0 0 1 12.5-6.5M19 14v6m-3-3h6":
-  record.kind.includes("comment")?
-  "M4 5h16v13H9l-5 3V5ZM8 10h8M8 14h5":
-  "M20.8 5.9c-1.4-1.7-4.1-1.7-5.6 0L12 9.1 8.8 5.9c-1.5-1.7-4.2-1.7-5.6 0-1.5 1.8-1.1 4.6.6 6.3L12 20l8.2-7.8c1.7-1.7 2.1-4.5.6-6.3Z";
+ const path=record.kind==="friend_accepted"?
+  "M12.5 11.8a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2ZM3.5 20v-1.1a7 7 0 0 1 11-5.6M15.5 17l2.3 2.3 4.2-4.7":
+  record.kind==="friend_request"?
+  "M12 11.8a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2ZM3.5 20v-1.2a7.1 7.1 0 0 1 11.1-5.7M18 14v7m-3.5-3.5h7":
+  record.kind.endsWith("_like")?
+  "M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z":
+  "M4 5h16v13H9l-5 3V5ZM8 10h8M8 14h5";
  badgeIcon.append(icon("event-"+index,path));
  const avatar=make("a","vatra-notification-avatar ui-vatra-notification-avatar-"+index);
  avatar.href=new URL("id"+record.actor_vatra_id,root).href;
@@ -215,14 +217,16 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
  deleteButton.type="button";
  deleteButton.append(icon("delete-"+index,"M7 7h10m-9 0 .7 12h6.6L16 7M10 7V5h4v2M10.5 10.5v5m3-5v5"));
  deleteButton.setAttribute("aria-label",t("Видалити сповіщення","Delete notification"));
- deleteButton.title=t("Видалити","Delete");
+ deleteButton.setAttribute("data-vatra-hint",t("Видалити","Delete"));
  deleteButton.addEventListener("click",async()=>{
   deleteButton.disabled=true;
   try{await remove(record.id);await onChange();}
   catch(_){deleteButton.disabled=false;}
  });
  actions.append(deleteButton);
- article.append(mark,avatar,badgeIcon,body,actions);
+ const avatarStack=make("div","vatra-notification-avatar-stack ui-vatra-notification-avatar-stack-"+index);
+ avatarStack.append(avatar,badgeIcon);
+ article.append(mark,avatarStack,body,actions);
  return article;
 }
 async function renderRows(list,status,opts,onChange,prev,next,pageLabel){

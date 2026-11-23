@@ -5236,7 +5236,19 @@ try{
    "Friends are accessible from the About-side Friends card, not the main tabs");
   assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true,
    "Visitors have a clearly visible More menu beside friend and message actions");
+  await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="outgoing";});
+  await profilePage.locator("#profile-friend-button").hover();
+  await profilePage.locator("#profile-friend-menu-action").waitFor({state:"visible"});
+  await profilePage.locator("#profile-friend-menu-action").hover();
+  await profilePage.waitForTimeout(430);
+  assert.equal(await profilePage.locator("#profile-friend-menu-action").isVisible(),true,
+   "Request cancellation must remain reachable while moving from button into submenu");
+  const friendColor=await profilePage.locator("#profile-friend-menu").evaluate(el=>getComputedStyle(el).backgroundColor);
+  assert.equal(friendColor,"rgb(255, 255, 255)","Friend-request submenu must match white VATRA surfaces");
+  await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="none";});
   await profilePage.locator("#profile-more-trigger").click();
+  const moreColor=await profilePage.locator("#profile-more-panel").evaluate(el=>getComputedStyle(el).backgroundColor);
+  assert.equal(moreColor,"rgb(255, 255, 255)","More submenu must not have a dark visual theme");
   assert.equal(await profilePage.locator("#profile-report-open").isVisible(),true,
    "Visitor's More menu exposes the report action");
   assert.equal(await profilePage.locator("#profile-report-open svg").count(),1,

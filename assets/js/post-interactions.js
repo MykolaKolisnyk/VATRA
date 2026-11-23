@@ -257,7 +257,7 @@ function appendAudience(container,level,isGroup=false){
   const path=document.createElementNS(ns,"path");
   if(visibility==="only_me")path.setAttribute("d","M7 10V7a5 5 0 0 1 10 0v3M5.5 10.5h13v10h-13z");
   else if(visibility==="public")path.setAttribute("d","M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18");
-  else if(visibility==="friends")path.setAttribute("d","M8 12a3.1 3.1 0 1 0 0-6.2A3.1 3.1 0 0 0 8 12ZM16 12a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2ZM1.8 20v-1.1a6.2 6.2 0 0 1 8.2-5.8M22.2 20v-1.1a6.2 6.2 0 0 0-8.2-5.8M7.8 21v-1a4.2 4.2 0 0 1 8.4 0v1");
+  else if(visibility==="friends")path.setAttribute("d","M12.1 8a3.1 3.1 0 1 1-6.2 0 3.1 3.1 0 1 1 6.2 0ZM3.2 19.7v-1.5c0-3 2.2-4.8 5.8-4.8s5.8 1.8 5.8 4.8v1.5M16.6 5.3a3 3 0 0 1 0 5.9M17.6 14.1c2.1.5 3.2 2 3.2 4.1v1.5");
   else path.setAttribute("d","M12 11.1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM5.1 12.5a2.3 2.3 0 1 0 0-4.6M18.9 12.5a2.3 2.3 0 1 0 0-4.6M6.4 20.6v-2a5.6 5.6 0 0 1 11.2 0v2M1.6 19v-1.2c0-2 1.2-3.8 3-4.6M22.4 19v-1.2c0-2-1.2-3.8-3-4.6");
   symbol.append(path);marker.append(symbol);
   container.append(marker);
@@ -828,7 +828,7 @@ function appendAudience(container,level,isGroup=false){
     catch(_){feedback(tr("Не вдалося скопіювати посилання.","Could not copy link."),true);}
    });
    const likeComment=make("button","vatra-post-comment-like-001");
-   likeComment.type="button";likeComment.append(glyph("heart"));
+   likeComment.type="button";likeComment.append(glyph("thumb"));
    const heartCount=make("span","vatra-post-comment-like-count-001");
    likeComment.append(heartCount);
    let likeCount=Number(item.likes)||0,ownLiked=ownLikes.has(item.id);

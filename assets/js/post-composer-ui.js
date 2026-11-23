@@ -25,6 +25,7 @@ const vectorIcon=(name,cls)=>{
  path.setAttribute("d",{
   back:"m14.5 5-7 7 7 7",
   drafts:"M5 6h14M5 12h14M5 18h9",
+  media:"M3 5h18v14H3zM6 16l4-4 3 3 3-4 3 4M8 9h.01",
   close:"M6 6l12 12M18 6 6 18"
  }[name]);
  svg.append(path);return svg;
@@ -96,17 +97,48 @@ function bind({prefix,ownerId,getFile}){
  upload.type="button";upload.addEventListener("click",()=>choose.click());
  zone.append(upload);
  zone.append(make("p","vatra-post-composer-zone-note-001",
-  t("Фото JPG, PNG, WebP або відео MP4, WebM","Photos JPG, PNG, WebP or video MP4, WebM")));
+  t("Фото JPG, PNG, WebP або відео MP4, WebM",
+   "Photos JPG, PNG, WebP or video MP4, WebM")));
 
  mediaControls.classList.add("vatra-post-composer-media-controls");
  zone.append(mediaControls,mediaPreview);
+ const mediaTools=make("div","vatra-post-composer-media-tools ui-vatra-post-composer-media-tools-001");
+ const addMedia=make("button","vatra-post-composer-add-media-001");
+ addMedia.type="button";
+ addMedia.append(vectorIcon("media","ui-vatra-post-composer-add-media-icon-001"),
+  make("span","vatra-post-composer-add-media-label-001",t("Додайте фото або відео","Add a photo or video")));
+ addMedia.addEventListener("click",()=>choose.click());
+ mediaTools.append(addMedia);
+ zone.addEventListener("click",event=>{
+  if(!zone.classList.contains("has-media")&&
+   !event.target.closest("button,.vatra-compose-media-preview"))choose.click();
+ });
+ zone.addEventListener("dragover",event=>{
+  if(!Array.from(event.dataTransfer?.types||[]).includes("Files"))return;
+  event.preventDefault();zone.classList.add("is-dragging");event.dataTransfer.dropEffect="copy";
+ });
+ zone.addEventListener("dragleave",event=>{
+  if(!zone.contains(event.relatedTarget))zone.classList.remove("is-dragging");
+ });
+ zone.addEventListener("drop",event=>{
+  zone.classList.remove("is-dragging");
+  if(!event.dataTransfer?.files?.length)return;
+  event.preventDefault();
+  try{
+   const transfer=new DataTransfer();
+   for(const file of event.dataTransfer.files)transfer.items.add(file);
+   picker.files=transfer.files;
+   picker.dispatchEvent(new Event("change",{bubbles:true}));
+  }catch(_){showNotice(t("Не вдалося додати файли перетягуванням. Скористайтеся кнопкою.",
+   "Could not add files by dragging. Use the upload button."));}
+ });
  const textWrap=make("div","vatra-post-composer-text-wrap ui-vatra-post-composer-text-wrap-001");
  const label=form.querySelector('label[for="'+prefix+'-compose-text"]');
  if(label)textWrap.append(label);
  textarea.placeholder=t("Напишіть що-небудь…","Write something…");
  textarea.rows=4;
  textWrap.append(textarea,counter);
- edit.append(zone,textWrap);
+ edit.append(zone,mediaTools,textWrap);
 
  const settings=make("section","vatra-post-composer-settings ui-vatra-post-composer-settings-001");
  settings.hidden=true;
@@ -150,14 +182,29 @@ function bind({prefix,ownerId,getFile}){
  const notice=make("p","vatra-post-composer-notice-001");notice.hidden=true;
  const showNotice=value=>{notice.textContent=value;notice.hidden=!value;};
  function sync(){
-  next.disabled=!textarea.value.trim()&&!(typeof getFile==="function"&&getFile());
+  const hasMedia=!!(typeof getFile==="function"&&getFile());
+  const hasContent=!!textarea.value.trim()||hasMedia;
+  next.disabled=!hasContent;
+  const selected=!!mediaPreview?.querySelector(".vatra-gallery-picker-tile");
+  zone.classList.toggle("has-media",selected);
+  mediaTools.classList.toggle("has-media",selected);
+  addMedia.setAttribute("aria-label",selected?
+   t("Додайте фото або відео","Add a photo or video"):
+   t("Додайте фото або відео","Add a photo or video"));
  }
  function setStage(name){
   if(name==="settings"&&!textarea.value.trim()&&!(typeof getFile==="function"&&getFile()))return false;
   view="compose";stage=name;
   edit.hidden=name!=="edit";settings.hidden=name!=="settings";draftsPanel.hidden=true;
   back.hidden=name==="edit";drafts.hidden=name!=="edit";
-  title.textContent=name==="settings"?t("Налаштування","Settings"):(language()==="uk"?"Нова публікація":t("Новий пост","New post"));
+  title.textContent=name==="settings"?t("Налаштування","Settings"):
+   (language()==="uk"?"Нова публікація":t("Новий пост","New post"));
+  if(name==="settings"){
+   const body=textarea.value.trim(),selected=mediaPreview?.querySelectorAll(".vatra-gallery-picker-tile").length||0;
+   summary.textContent=(body?body.slice(0,155)+(body.length>155?"…":""):
+    t("Публікація з медіа","Media post"))+
+    (selected?" · 📎 "+selected:"");
+  }
   next.hidden=name!=="edit";draftSave.hidden=name!=="edit";submit.hidden=name!=="settings";
   tips.hidden=name!=="edit";tip.hidden=true;showNotice("");
   sync();return true;
@@ -193,6 +240,7 @@ function bind({prefix,ownerId,getFile}){
  textarea.addEventListener("input",sync);
  picker?.addEventListener("change",()=>queueMicrotask(sync));
  q("#"+prefix+"-compose-media-remove")?.addEventListener("click",()=>queueMicrotask(sync));
+ mediaPreview?.addEventListener("click",()=>queueMicrotask(sync));
  draftSave.addEventListener("click",()=>{
   const body=textarea.value.trim();
   if(!body){showNotice(t("Напишіть текст для збереження чернетки.","Write some text to save as a draft."));return;}
@@ -211,7 +259,7 @@ function bind({prefix,ownerId,getFile}){
  form.append(error,notice,footer);
  setStage("edit");
  return {
-  open(){setStage("edit");edit.scrollTop=0;upload.focus({preventScroll:true});},
+  open(){setStage("edit");edit.scrollTop=0;textarea.focus({preventScroll:true});},
   reset(){if(selectedId){persist(read().filter(x=>x.id!==selectedId));selectedId=null;}setStage("edit");},
   step(){return stage;},setStage,sync
  };

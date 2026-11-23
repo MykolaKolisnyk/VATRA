@@ -2143,18 +2143,27 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   const friendAction=q("#profile-friend-action"),friendMenu=q("#profile-friend-menu");
   const friendMenuAction=q("#profile-friend-menu-action"),friendMenuLabel=q("#profile-friend-menu-label");
   friendAction.hidden=false;friendButton.hidden=false;
-  let relation=null,busy=false;
+  let relation=null,busy=false,friendMenuCloseTimer=null;
   const friendMenuOpen=state=>{
+   clearTimeout(friendMenuCloseTimer);
+   friendMenuCloseTimer=null;
    const available=["outgoing","friends"].includes(friendButton.dataset.friendState);
    friendMenu.hidden=!(state&&available);
    friendButton.setAttribute("aria-expanded",String(!friendMenu.hidden));
   };
+  const scheduleFriendMenuClose=()=>{
+   clearTimeout(friendMenuCloseTimer);
+   friendMenuCloseTimer=setTimeout(()=>{
+    if(!friendAction.matches(":hover")&&!friendAction.contains(document.activeElement))friendMenuOpen(false);
+   },340);
+  };
   friendButton.setAttribute("aria-haspopup","menu");
   friendButton.setAttribute("aria-controls","profile-friend-menu");
   friendAction.addEventListener("mouseenter",()=>friendMenuOpen(true));
-  friendAction.addEventListener("mouseleave",()=>friendMenuOpen(false));
+  friendAction.addEventListener("mouseleave",scheduleFriendMenuClose);
+  friendMenu.addEventListener("mouseenter",()=>friendMenuOpen(true));
   friendAction.addEventListener("focusout",event=>{
-   if(!friendAction.contains(event.relatedTarget))friendMenuOpen(false);
+   if(!friendAction.contains(event.relatedTarget))scheduleFriendMenuClose();
   });
   document.addEventListener("click",event=>{
    if(!friendAction.contains(event.target))friendMenuOpen(false);
