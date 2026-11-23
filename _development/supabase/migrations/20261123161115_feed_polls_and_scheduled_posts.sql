@@ -28,6 +28,8 @@ EXCEPTION WHEN others THEN RETURN false;
 END;
 $body$;
 REVOKE ALL ON FUNCTION public.vatra_poll_valid(jsonb) FROM PUBLIC, anon, authenticated;
+-- INSERT checks must be able to evaluate this pure immutable validator.
+GRANT EXECUTE ON FUNCTION public.vatra_poll_valid(jsonb) TO authenticated;
 
 ALTER TABLE public.feed_posts
  ADD COLUMN IF NOT EXISTS poll jsonb;
