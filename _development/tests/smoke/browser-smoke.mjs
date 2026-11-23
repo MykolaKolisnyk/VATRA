@@ -110,6 +110,74 @@ try{
   console.log("VATRA post text: inline expand/collapse and matching Feed/Profile fonts passed.");
  }finally{await bodyTextProbe.close();}
 
+ // All three production viewer types must share exact sidebar measurements.
+ const viewerGeometryPage=await context.newPage();
+ try{
+  await viewerGeometryPage.setViewportSize({width:1390,height:900});
+  const variants=[
+   {id:"avatar",side:"profile-avatar-engagement",head:"profile-photo-info",
+    avatar:"ui-profile-photo-owner-avatar-001",actions:"profile-photo-actions",
+    comments:"profile-photo-comments is-empty",form:"profile-photo-comment-form",
+    compose:"ui-profile-photo-composer-row-001 vatra-media-composer-row-unified-001",
+    composerAvatar:"ui-profile-photo-composer-avatar-001",input:"ui-profile-photo-comment-text-001",
+    send:"vatra-media-send-unified-001"},
+   {id:"post",side:"ui-vatra-post-media-side-001",head:"ui-vatra-post-media-author-001",
+    avatar:"feed-post-avatar",actions:"vatra-post-action-row",
+    comments:"vatra-post-comment-list",form:"vatra-post-comment-form",
+    compose:"vatra-media-composer-row-unified-001",
+    composerAvatar:"vatra-post-comment-composer-avatar",input:"ui-vatra-post-comment-input-001",
+    send:"vatra-post-comment-send-001"},
+   {id:"album",side:"ui-vatra-album-photo-side-001",head:"ui-vatra-album-photo-author-001",
+    avatar:"vatra-album-photo-author-avatar-001",actions:"ui-vatra-album-photo-actions-001",
+    comments:"ui-vatra-album-comments-list-001",form:"ui-vatra-album-comments-form-001",
+    compose:"vatra-media-composer-row-unified-001",
+    composerAvatar:"vatra-album-comment-composer-avatar-001",input:"ui-vatra-album-comments-input-001",
+    send:"vatra-media-send-unified-001"}
+  ];
+  const panels=variants.map(v=>'<aside data-kind="'+v.id+'" class="'+v.side+
+   ' vatra-media-side-unified-001" style="width:380px;height:720px;flex:0 0 380px">'+
+   '<header class="'+v.head+' vatra-media-author-unified-001">'+
+   '<a class="'+v.avatar+'"></a><div><strong>Микола Колісник</strong><time>1 день тому</time></div></header>'+
+   '<div class="'+v.actions+' vatra-media-actions-unified-001"><button>♡ 0</button><button>↗</button></div>'+
+   '<div class="'+v.comments+' vatra-media-comments-unified-001">'+
+   '<div class="vatra-media-empty-unified-001"><svg class="vatra-media-empty-icon-unified-001" viewBox="0 0 48 48"></svg>'+
+   '<p>Коментарів поки немає. Будьте першими!</p></div></div>'+
+   '<form class="'+v.form+' vatra-media-form-unified-001"><div class="'+v.compose+'">'+
+   '<span class="'+v.composerAvatar+'"></span><textarea class="'+v.input+'" rows="1"></textarea>'+
+   '<button type="button">☺</button><button class="'+v.send+'" disabled>➜</button></div></form></aside>').join("");
+  await viewerGeometryPage.setContent('<!doctype html><html lang="uk"><head>'+
+   '<link rel="stylesheet" href="'+base+'assets/css/feed.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/profile.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/photo-albums.css"></head>'+
+   '<body class="feed-page profile-page"><main style="display:flex;gap:18px">'+panels+
+   '</main></body></html>',{waitUntil:"load"});
+  const geometry=await viewerGeometryPage.evaluate(()=>{
+   const size=el=>Math.round(el.getBoundingClientRect().height*10)/10;
+   return [...document.querySelectorAll("[data-kind]")].map(side=>{
+    const head=side.querySelector(".vatra-media-author-unified-001");
+    const actions=side.querySelector(".vatra-media-actions-unified-001");
+    const comments=side.querySelector(".vatra-media-comments-unified-001");
+    const form=side.querySelector(".vatra-media-form-unified-001");
+    const portrait=head.querySelector("a");
+    const empty=comments.querySelector(".vatra-media-empty-unified-001");
+    const text=form.querySelector("textarea");
+    return {kind:side.dataset.kind,header:size(head),actions:size(actions),
+     composer:size(form),portrait:size(portrait),input:size(text),
+     emptyOffset:Math.round((empty.getBoundingClientRect().top+
+      empty.getBoundingClientRect().bottom-comments.getBoundingClientRect().top-
+      comments.getBoundingClientRect().bottom)/2)};
+   });
+  });
+  const metrics=["header","actions","composer","portrait","input"];
+  for(const key of metrics){
+   assert.ok(geometry.every(g=>Math.abs(g[key]-geometry[0][key])<=1),
+    "Viewer "+key+" must match across avatar, post and album: "+JSON.stringify(geometry));
+  }
+  assert.ok(geometry.every(g=>Math.abs(g.emptyOffset)<=5),
+   "Empty photo comments must be vertically centered in every viewer: "+JSON.stringify(geometry));
+  console.log("VATRA three viewer sidebars: common author/actions/empty/composer geometry passed.");
+ }finally{await viewerGeometryPage.close();}
+
  // Simulate previously cached stylesheet/JS content after a deployment.
  // This isolated context enables the actual Service Worker (other tests block it).
  const swContext=await browser.newContext({serviceWorkers:"allow"});
