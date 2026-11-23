@@ -46,10 +46,10 @@ const timeValue=date=>{
  if(relative)return relative;
  const ms=Math.max(0,Date.now()-parsed.getTime());
  if(ms<300000)return t("щойно","just now");
- if(ms<3600000){const n=Math.floor(ms/300000)*5;return language()==="en"?n+" minutes ago":n+" хвилин тому";}
- if(ms<86400000){const n=Math.floor(ms/3600000);return language()==="en"?n+" hours ago":n+" год тому";}
- const n=Math.floor(ms/86400000);
- return language()==="en"?n+" days ago":n+" днів тому";
+ const formatter=new Intl.RelativeTimeFormat(dateLocales[language()]||"uk-UA",{numeric:"auto"});
+ if(ms<3600000)return formatter.format(-Math.max(1,Math.floor(ms/300000)*5),"minute");
+ if(ms<86400000)return formatter.format(-Math.max(1,Math.floor(ms/3600000)),"hour");
+ return formatter.format(-Math.max(1,Math.floor(ms/86400000)),"day");
 };
 const hrefFor=record=>{
  const path=record.kind==="friend_request"||record.kind==="friend_accepted"?
