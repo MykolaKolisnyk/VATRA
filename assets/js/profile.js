@@ -1599,7 +1599,7 @@ function bindPostComposer(client,user,ownId){
   publishing=true;
   update();
   clearStatus();
-  let uploaded=null;
+  let uploaded=null,postSaved=false;
   try{
    if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,files);
    const payload={
@@ -1610,10 +1610,12 @@ function bindPostComposer(client,user,ownId){
    if(publishAt)payload.publish_at=publishAt;
    const {error}=await client.from(publishAt?"scheduled_feed_posts":"feed_posts").insert(payload);
    if(error)throw error;
+   postSaved=true;
    input.value="";picker?.reset();composerUI?.reset();
    dialog.close();
    if(!publishAt){
-    await loadPosts(client,ownId,ownId,user.id);
+    try{await loadPosts(client,ownId,ownId,user.id);}
+    catch(_){window.VATRA_TOAST?.show?.(t("Публікацію додано.","Post published."),"success");}
     window.dispatchEvent(new Event("vatra:profile-media-changed"));
    }else{
     (window.VATRA_TOAST?.show||((message)=>(window.VATRA_PENDING_TOASTS??=[]).push([message,"success"])))(
@@ -1621,10 +1623,13 @@ function bindPostComposer(client,user,ownId){
       "Post scheduled. It will publish automatically at the selected time."),"success");
    }
   }catch(error){
-   if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
-   status.textContent=error?.message||t("Не вдалося опублікувати допис. Повторіть спробу.",
-    "Could not publish the post. Please try again.");
-   status.hidden=false;
+   if(uploaded&&!postSaved)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
+   if(postSaved){window.VATRA_TOAST?.show?.(t("Публікацію додано.","Post published."),"success");}
+   else{
+    status.textContent=error?.message||t("Не вдалося опублікувати допис. Повторіть спробу.",
+     "Could not publish the post. Please try again.");
+    status.hidden=false;
+   }
   }finally{publishing=false;update();}
  });
  update();
