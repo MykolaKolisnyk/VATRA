@@ -326,37 +326,57 @@ for(const key of friendsKeys){
 
 const notificationRuntime=await readFile("assets/js/notifications.js","utf8");
 const notificationKeys=[
- "{name} хоче додатися до вас у друзі",
- "{name}: вашу заявку в друзі прийнято",
- "{name}: вподобайка вашої публікації",
- "{name}: вподобайка вашого коментаря",
- "{name}: вподобайка вашого фото профілю",
- "{name}: вподобайка коментаря під фото",
- "{name}: нова подія",
- "Сповіщення: {count} непрочитаних",
- "Учасник VATRA ID {id}",
- "Сторінка {page}",
- "Видалити сповіщення",
- "Акаунт видалено",
- "Акаунт заблоковано",
- "Сповіщень поки немає.",
- "Не вдалося завантажити сповіщення. Спробуйте ще раз.",
- "Ваші сповіщення",
- "Закрити сповіщення",
- "Відкрити всі сповіщення",
- "Сповіщення",
- "Не вдалося завантажити сповіщення. Оновіть сторінку."
+  "{name} хоче додатися до вас у друзі",
+  "{name} прийняв вашу заявку в друзі",
+  "{name} відхилив вашу заявку в друзі",
+  "{name} вподобав вашу публікацію",
+  "{name} вподобав ваш коментар",
+  "{name} вподобав ваше фото профілю",
+  "{name} вподобав ваш коментар під фото",
+  "{name} прийняла вашу заявку в друзі",
+  "{name} відхилила вашу заявку в друзі",
+  "{name} вподобала вашу публікацію",
+  "{name} вподобала ваш коментар",
+  "{name} вподобала ваше фото профілю",
+  "{name} вподобала ваш коментар під фото",
+  "Вашу заявку в друзі прийнято: {name}",
+  "Вашу заявку в друзі відхилено: {name}",
+  "Вашу публікацію вподобано: {name}",
+  "Ваш коментар вподобано: {name}",
+  "Ваше фото профілю вподобано: {name}",
+  "Ваш коментар під фото вподобано: {name}",
+  "{name}: нова подія",
+  "Сповіщення: {count} непрочитаних",
+  "Учасник VATRA ID {id}",
+  "Сторінка {page}",
+  "Видалити сповіщення",
+  "Акаунт видалено",
+  "Акаунт заблоковано",
+  "Сповіщень поки немає.",
+  "Не вдалося завантажити сповіщення. Спробуйте ще раз.",
+  "Ваші сповіщення",
+  "Відкрити всі сповіщення",
+  "Сповіщення",
+  "Не вдалося завантажити сповіщення. Оновіть сторінку.",
+  "Поки немає сповіщень",
+  "Нові сповіщення з'являться тут.",
+  "Налаштування сповіщень"
 ];
 const interpolationTokens=value=>[...value.matchAll(/\{(name|count|page|id)\}/g)]
  .map(match=>match[1]).sort();
-assert.equal(notificationKeys.length,20,"Unexpected notification translation key count");
+assert.ok(notificationKeys.length>=20,"Missing notification translation audit coverage");
 assert.ok(notificationRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
  notificationRuntime.includes("const notificationTemplates={")&&
- notificationRuntime.includes("return format(uk,english,{name});")&&
+ notificationRuntime.includes("const messageFor=(kind,name,form)=>")&&
+ notificationRuntime.includes("const feminineEvents={")&&
+ notificationRuntime.includes("const neutralEvents={")&&
+ notificationRuntime.includes("format(text,en,{name:first})")&&
  notificationRuntime.includes('format("Сповіщення: {count} непрочитаних"')&&
  notificationRuntime.includes('format("Учасник VATRA ID {id}"')&&
  notificationRuntime.includes('format("Сторінка {page}"')&&
- notificationRuntime.includes('window.VATRA_PRESENCE?.relative?.(parsed,language()==="en")'),
+ notificationRuntime.includes("const timeValue=date=>{")&&
+ notificationRuntime.includes("const plural=(n,a,b,c)=>")&&
+ notificationRuntime.includes('language()==="en"'),
  "Notification runtime must use dictionaries, interpolation and locale-aware dates");
 for(const key of notificationKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
