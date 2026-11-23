@@ -35,7 +35,9 @@
       "terms",
       "privacy",
       "cookies",
-      "maintenance"
+      "maintenance",
+      "commerce",
+      "documents"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
@@ -1350,36 +1352,6 @@
             "0": "Vai al contenuto"
           }
         },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — pagina iniziale"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Accedi"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Crea un account"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Sezioni dei documenti"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Condizioni d'uso"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
         "n17": {
           "text": {
             "0": "Condizioni d'uso"
@@ -1651,29 +1623,6 @@
             "1": " · Le tue persone. Le tue storie. La tua VATRA."
           }
         },
-        "n90": {
-          "attrs": {
-            "aria-label": "Altri collegamenti"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "Italiano"
-          },
-          "attrs": {
-            "aria-label": "Scegli la lingua"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Accedi"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Crea un account"
-          }
-        },
         "market_rules_title": {
           "text": {
             "0": "Regole commerciali VATRA"
@@ -1728,36 +1677,6 @@
         "n1": {
           "text": {
             "0": "Vai al contenuto"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — pagina iniziale"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Accedi"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Crea un account"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Sezioni dei documenti"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Condizioni d'uso"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Privacy"
           }
         },
         "n17": {
@@ -2051,29 +1970,6 @@
             "1": " · Le tue persone. Le tue storie. La tua VATRA."
           }
         },
-        "n97": {
-          "attrs": {
-            "aria-label": "Altri collegamenti"
-          }
-        },
-        "n102": {
-          "text": {
-            "0": "Italiano"
-          },
-          "attrs": {
-            "aria-label": "Scegli la lingua"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Accedi"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Crea un account"
-          }
-        },
         "docs_back_001": {
           "text": {
             "0": "Tutti i documenti"
@@ -2103,36 +1999,6 @@
         "n1": {
           "text": {
             "0": "Vai al contenuto"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — pagina iniziale"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Accedi"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Crea un account"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Sezioni dei documenti"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Condizioni d'uso"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Privacy"
           }
         },
         "n17": {
@@ -2407,29 +2273,6 @@
         "n98": {
           "text": {
             "1": " · Le tue persone. Le tue storie. La tua VATRA."
-          }
-        },
-        "n100": {
-          "attrs": {
-            "aria-label": "Altri collegamenti"
-          }
-        },
-        "n105": {
-          "text": {
-            "0": "Italiano"
-          },
-          "attrs": {
-            "aria-label": "Scegli la lingua"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Accedi"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Crea un account"
           }
         },
         "docs_back_001": {
