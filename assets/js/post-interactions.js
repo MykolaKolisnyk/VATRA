@@ -31,6 +31,7 @@
    const el=document.createElementNS("http://www.w3.org/2000/svg","path");
    el.setAttribute("d",d);svg.append(el);
   };
+  if(type==="poll")path("M4 4h16v16H4zM8 16v-5M12 16V8M16 16v-3");
   if(type==="thumb")path("M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z");
   if(type==="comments")path("M20.5 11.3c0 4.8-3.9 8.6-8.6 8.6-1.4 0-2.9-.3-4.2-1L3 20l1.6-4.5a8.5 8.5 0 1 1 15.9-4.2Z");
   if(type==="bookmark")path("M6.5 3.5h11a1 1 0 0 1 1 1V21L12 16.8 5.5 21V4.5a1 1 0 0 1 1-1Z");
@@ -334,6 +335,119 @@ function appendAudience(container,level,isGroup=false){
   header.append(details);
   return details;
  }
+ function mountPoll(client,post,container,userId){
+  const data=post.poll;
+  if(!data||!Array.isArray(data.options)||data.options.length<2)return;
+  const poll=make("section","vatra-post-poll ui-vatra-post-poll-001");
+  poll.setAttribute("aria-label",tr("Опитування","Poll"));
+  const head=make("div","vatra-post-poll-head-001");
+  head.append(glyph("poll"),make("h3","vatra-post-poll-question-001",data.question));
+  const choicesWrap=make("div","vatra-post-poll-choices-001");
+  const footer=make("div","vatra-post-poll-footer-001");
+  const summary=make("span","vatra-post-poll-summary-001");
+  const resultsToggle=make("button","vatra-post-poll-results-toggle-001",
+   tr("Результати","Results"));resultsToggle.type="button";
+  const submit=make("button","vatra-post-poll-submit-001",tr("Голосувати","Vote"));
+  submit.type="button";submit.hidden=!data.multiple;submit.disabled=true;
+  const withdraw=make("button","vatra-post-poll-withdraw-001",tr("Скасувати голос","Withdraw vote"));
+  withdraw.type="button";withdraw.hidden=true;
+  const status=make("p","vatra-post-poll-status-001");status.hidden=true;
+  status.setAttribute("role","status");
+  footer.append(summary,resultsToggle,withdraw,submit);
+  poll.append(head,choicesWrap,status,footer);
+  container.append(poll);
+  let selected=[],ownVote=null,counts=[],total=0,showResults=false,busy=false;
+  const closeAt=data.closes_at?new Date(data.closes_at).getTime():null;
+  const closed=()=>closeAt&&Date.now()>=closeAt;
+  const hasVote=()=>Array.isArray(ownVote);
+  const message=(value)=>{status.textContent=value;status.hidden=!value;};
+  const refresh=()=>{
+   choicesWrap.replaceChildren();
+   const reveal=showResults||hasVote()||closed();
+   data.options.forEach((option,i)=>{
+    const row=make("button","vatra-post-poll-choice-001 ui-vatra-post-poll-choice-"+i);
+    row.type="button";row.disabled=busy||!!closed()||
+     (hasVote()&&data.allow_revote===false)||!userId;
+    const label=make("span","vatra-post-poll-choice-label-001",option);
+    const selectedNow=selected.includes(i),voted=ownVote?.includes(i);
+    row.classList.toggle("is-selected",!!selectedNow);
+    row.setAttribute("aria-pressed",String(selectedNow));
+    const n=Math.max(0,Number(counts[i])||0),percent=total?Math.round(n*100/total):0;
+    if(reveal){
+     const bar=make("span","vatra-post-poll-bar-001");
+     bar.style.width=percent+"%";bar.setAttribute("aria-hidden","true");
+     const nLabel=make("span","vatra-post-poll-percent-001",percent+"%");
+     row.append(bar,label,nLabel);
+    }else row.append(label);
+    if(voted)row.classList.add("is-voted");
+    row.addEventListener("click",()=>{
+     if(busy||row.disabled)return;
+     if(data.multiple){
+      selected=selectedNow?selected.filter(x=>x!==i):[...selected,i].sort((a,b)=>a-b);
+      refresh();
+     }else{selected=[i];void vote();}
+    });
+    choicesWrap.append(row);
+   });
+   summary.textContent=total+" "+tr("голосів","votes")+
+    (closed()?" · "+tr("Завершено","Closed"):
+      closeAt?" · "+new Intl.DateTimeFormat(dateLocales[language()]||"uk-UA",
+       {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}).format(closeAt):"");
+   resultsToggle.textContent=showResults?tr("Приховати результати","Hide results"):
+    tr("Переглянути результати","View results");
+   submit.hidden=!data.multiple||!!closed()||(hasVote()&&data.allow_revote===false);
+   submit.disabled=busy||!selected.length||!userId||
+    (hasVote()&&selected.length===ownVote.length&&selected.every(i=>ownVote.includes(i)));
+   withdraw.hidden=!hasVote()||!data.allow_revote||!!closed();
+  };
+  const hydrate=async()=>{
+   if(!userId)return;
+   const [totalResponse,voteResponse]=await Promise.all([
+    client.from("post_poll_counts").select("counts,total_voters").eq("post_id",post.id).maybeSingle(),
+    client.from("post_poll_votes").select("choices").eq("post_id",post.id)
+     .eq("voter_id",userId).maybeSingle()
+   ]);
+   if(totalResponse.error||voteResponse.error)throw totalResponse.error||voteResponse.error;
+   counts=Array.isArray(totalResponse.data?.counts)?totalResponse.data.counts:[];
+   total=Math.max(0,Number(totalResponse.data?.total_voters)||0);
+   ownVote=Array.isArray(voteResponse.data?.choices)?voteResponse.data.choices.map(Number):null;
+   selected=ownVote?[...ownVote]:[];
+   refresh();
+  };
+  async function vote(){
+   if(busy||!userId||!selected.length||closed())return;
+   busy=true;refresh();message("");
+   try{
+    const operation=hasVote()?
+     client.from("post_poll_votes").update({choices:selected})
+      .eq("post_id",post.id).eq("voter_id",userId):
+     client.from("post_poll_votes").insert({post_id:post.id,voter_id:userId,choices:selected});
+    const response=await operation;
+    if(response.error)throw response.error;
+    showResults=true;
+    await hydrate();
+   }catch(error){
+    message(error?.message||tr("Не вдалося зберегти голос.","Could not save vote."));
+   }finally{busy=false;refresh();}
+  }
+  submit.addEventListener("click",()=>void vote());
+  resultsToggle.addEventListener("click",()=>{showResults=!showResults;refresh();});
+  withdraw.addEventListener("click",async()=>{
+   if(busy||!hasVote()||!data.allow_revote||closed())return;
+   busy=true;refresh();message("");
+   try{
+    const r=await client.from("post_poll_votes").delete()
+     .eq("post_id",post.id).eq("voter_id",userId);
+    if(r.error)throw r.error;
+    ownVote=null;selected=[];showResults=false;await hydrate();
+   }catch(error){message(error?.message||tr("Не вдалося скасувати голос.","Could not withdraw vote."));}
+   finally{busy=false;refresh();}
+  });
+  refresh();
+  void hydrate().catch(()=>{message(tr("Не вдалося завантажити результати опитування.",
+   "Could not load poll results."));});
+ }
+
  const mediaPanels=new WeakMap();
  function mount(client,post,container,settings={}){
   const kind=post?.kind==="group"?"group":"person";
@@ -342,6 +456,7 @@ function appendAudience(container,level,isGroup=false){
   if(validId(ownId))container.dataset.vatraViewerId=ownId;
   const snapshot=settings.engagement?.post_id===post.id&&settings.engagement?.post_kind===kind?
    settings.engagement:null;
+  if(kind==="person"&&post.poll)mountPoll(client,post,container,userId);
   const shell=make("section","vatra-post-interactions ui-vatra-post-interactions-001");
   shell.setAttribute("aria-label",tr("Взаємодія з публікацією","Post interactions"));
   const row=make("div","vatra-post-action-row ui-vatra-post-action-row-001");
