@@ -3356,7 +3356,6 @@ body.feed-page .vatra-media-side-unified-001 .vatra-album-comments-emoji-option-
  body.feed-page .vatra-media-side-unified-001 button{transition:none!important}
 }
 
-/* VATRA notification panel: quiet hover actions, content previews, adaptive lists. */
 body.feed-page .vatra-notification-row{
  grid-template-columns:46px minmax(0,1fr) 30px;gap:12px;align-items:start;
  padding:16px 17px;overflow:visible;
@@ -3439,7 +3438,6 @@ body.notifications-page .notifications-main .notifications-content .vatra-notifi
 }
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-notification-row .vatra-notification-delete{transition:none;transform:none}}
 
-/* Inline author comment editing and accessible short-term deletion undo. */
 body.feed-page .vatra-post-comment .vatra-post-comment-edit-001{
  display:grid;place-items:center;flex:none;width:25px;height:25px;padding:3px;
  border:0;border-radius:7px;background:transparent;color:#8599b6;
