@@ -536,8 +536,9 @@ function openFullMedia(url,kind,container){
   else element.alt=tr("Фото публікації","Post photo");
   element.src=url;mediaDialogContent.replaceChildren(element);
   restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
-  const head=container?.querySelector(".feed-post-header"),identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
-  const postCard=container?.closest(".feed-post-card");
+  const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
+  const head=container?.querySelector(".feed-post-header")||postCard?.querySelector(".feed-post-header");
+  const identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
   const postId=container?.dataset.postId||postCard?.dataset.postId;
   const postKind=container?.dataset.postKind||postCard?.dataset.postKind;
   const clubFromPage=location.pathname.match(/(?:^|\/)club([1-9][0-9]*)(?:\/|$)/)?.[1];
@@ -890,12 +891,30 @@ function openFullMedia(url,kind,container){
   host.style.cssText="position:fixed;left:-99999px;top:0;visibility:hidden;pointer-events:none";
   const header=document.createElement("header");
   header.className="feed-post-header ui-vatra-photo-source-header-001";
+  const sourceAvatar=document.querySelector("#profile-avatar");
+  const avatar=document.createElement("a");
+  avatar.className="feed-post-avatar ui-vatra-photo-source-avatar-001";
+  avatar.href=new URL("id"+post.author_vatra_id,new URL(".",location.href)).href;
+  avatar.setAttribute("aria-label",tr("Профіль автора","Author profile"));
+  const avatarImage=sourceAvatar?.style.backgroundImage||"";
+  if(sourceAvatar?.classList.contains("has-photo")&&avatarImage){
+   avatar.style.backgroundImage=avatarImage;avatar.classList.add("has-photo");
+  }
   const author=document.createElement("div");
   author.className="feed-post-author ui-vatra-photo-source-author-001";
   const display=document.createElement("span");
   display.className="feed-post-name vatra-photo-source-name-001";
   display.textContent=String(document.querySelector("#profile-heading")?.textContent||"").trim()||"VATRA";
-  author.append(display);header.append(author);host.append(header);
+  author.append(display);
+  const postedAt=Date.parse(post.created_at||"");
+  if(Number.isFinite(postedAt)){
+   const when=document.createElement("time");when.className="feed-post-date ui-vatra-photo-source-date-001";
+   when.dateTime=new Date(postedAt).toISOString();
+   when.textContent=new Intl.DateTimeFormat(document.documentElement.lang==="en"?"en-US":"uk-UA",
+    {dateStyle:"medium",timeStyle:"short"}).format(postedAt);
+   author.append(when);
+  }
+  header.append(avatar,author);host.append(header);
   const priorDialogs=new Set(document.querySelectorAll("dialog.vatra-post-share-dialog"));
   document.body.append(host);
   window.VATRA_POST_INTERACTIONS?.mount?.(client,{...post,kind:"person"},host,{
