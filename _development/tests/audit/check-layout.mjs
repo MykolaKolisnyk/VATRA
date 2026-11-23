@@ -1238,7 +1238,7 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-story-viewer"')&&
  profileBehavior.includes('client.from("stories")')&&
  profileBehavior.includes('avatarWrap.classList.toggle("has-active-story",hasStory)')&&
- profileBehavior.includes('coverView.addEventListener("click",openCover)')&&
+ profileBehavior.includes('coverView.addEventListener("click",()=>void openCover())')&&
  profileBehavior.includes('mediaDialog.showModal()'),
  "Avatar story ring and original photo/cover viewer must be backed by real profile media and stories");
 const preflightMemberCss=await read("assets/css/profile.css");
@@ -1399,6 +1399,7 @@ const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
 const profileCoverScript=await read("assets/js/profile-cover-editor.js");
+const profileCoverViewerScript=await read("assets/js/profile-cover-viewer.js");
 const profileAvatarScript=await read("assets/js/profile-avatar-editor.js");
 // Only numeric /idN profile permalinks are generated. GitHub Pages serves its
 // 404.html fallback at these addresses, then mounts the real profile markup.
@@ -2146,9 +2147,11 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-footer"')&&
 assert.ok(memberProfileMarkup.includes('id="profile-cover-viewer"')&&
  memberProfileMarkup.includes('id="profile-cover-viewer-image"')&&
  memberProfileMarkup.includes('id="profile-cover-viewer-stage"')&&
- profileScript.includes('const openCover=()=>{')&&
- profileScript.includes('coverView.addEventListener("click",openCover)')&&
- profileScript.includes('const flight=coverPhoto.cloneNode(false)')&&
+ profileScript.includes('const openCover=async()=>{')&&
+  profileScript.includes('VATRA_FEATURES.load("cover-viewer")')&&
+  profileCoverViewerScript.includes('const openCover=()=>{')&&
+ profileScript.includes('coverView.addEventListener("click",()=>void openCover())')&&
+ profileCoverViewerScript.includes('const flight=coverPhoto.cloneNode(false)')&&
  !profileScript.includes('openMedia("cover")')&&
  !memberCss.includes('.profile-media-viewer[data-kind="cover"]')&&
  memberCss.includes('aspect-ratio:2000 / 580')&&
