@@ -290,6 +290,37 @@ function bind({prefix,ownerId,getFile,client}){
   t("Чернетки зберігаються лише в цьому браузері. Фото та відео не зберігаються.",
    "Drafts are saved in this browser only. Photos and videos are not stored.")));
  draftsPanel.append(draftList);
+ const scheduleHeading=make("h3","vatra-post-composer-queue-heading-001",t("Заплановані публікації","Scheduled posts"));
+ const scheduleList=make("div","vatra-post-composer-queue-list-001");
+ draftsPanel.append(scheduleHeading,scheduleList);
+ async function renderScheduled(){
+  scheduleList.replaceChildren(make("p","vatra-post-composer-queue-status-001",t("Завантаження…","Loading…")));
+  if(!client)return;
+  try{
+   const {data,error}=await client.from("scheduled_feed_posts")
+    .select("id,body,poll,publish_at,status")
+    .eq("author_vatra_id",ownerId).in("status",["queued","failed"])
+    .order("publish_at",{ascending:true}).limit(30);
+   if(error)throw error;
+   scheduleList.replaceChildren();
+   for(const item of data||[]){
+    const row=make("div","vatra-post-composer-queue-item-001");
+    const subject=make("span","vatra-post-composer-queue-subject-001",
+     String(item.body||item.poll?.question||t("Публікація з медіа","Media post")).slice(0,90));
+    const time=make("time","vatra-post-composer-queue-time-001",
+     new Intl.DateTimeFormat(language()==="uk"?"uk-UA":"en-GB",
+      {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(item.publish_at)));
+    time.dateTime=item.publish_at;
+    if(item.status==="failed")time.append(" · "+t("Помилка","Failed"));
+    row.append(subject,time);scheduleList.append(row);
+   }
+   if(!data?.length)scheduleList.append(make("p","vatra-post-composer-queue-empty-001",
+    t("Запланованих дописів поки немає.","No scheduled posts yet.")));
+  }catch(_){
+   scheduleList.replaceChildren(make("p","vatra-post-composer-queue-error-001",
+    t("Не вдалося завантажити заплановані дописи.","Could not load scheduled posts.")));
+  }
+ }
 
  const footer=make("div","vatra-post-composer-footer ui-vatra-post-composer-footer-001");
  const left=make("div","vatra-post-composer-footer-left ui-vatra-post-composer-footer-left-001");
