@@ -3616,5 +3616,11 @@
   "Ваш коментар під фото вподобано: {name}": "Komentarz pod Twoim zdjęciem otrzymał polubienie od {name}",
   "Поки немає сповіщень": "Brak nowych powiadomień",
   "Нові сповіщення з'являться тут.": "Nowe powiadomienia pojawią się tutaj.",
-  "Налаштування сповіщень": "Ustawienia powiadomień"
+  "Налаштування сповіщень": "Ustawienia powiadomień",
+  "Прийняти заявку в друзі": "Zaakceptuj zaproszenie do znajomych",
+  "Відхилити заявку в друзі": "Odrzuć zaproszenie do znajomych",
+  "Переглянути публікацію": "Zobacz post",
+  "Фото профілю": "Zdjęcie profilowe",
+  "Коментар: ": "Komentarz: ",
+  "Публікація: ": "Post: "
 }

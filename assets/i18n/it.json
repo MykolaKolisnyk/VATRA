@@ -3616,5 +3616,11 @@
   "Ваш коментар під фото вподобано: {name}": "{name} ha messo Mi piace a un commento sotto la tua foto",
   "Поки немає сповіщень": "Ancora nessuna notifica",
   "Нові сповіщення з'являться тут.": "Le nuove notifiche appariranno qui.",
-  "Налаштування сповіщень": "Impostazioni delle notifiche"
+  "Налаштування сповіщень": "Impostazioni delle notifiche",
+  "Прийняти заявку в друзі": "Accetta richiesta di amicizia",
+  "Відхилити заявку в друзі": "Rifiuta richiesta di amicizia",
+  "Переглянути публікацію": "Visualizza il post",
+  "Фото профілю": "Foto profilo",
+  "Коментар: ": "Commento: ",
+  "Публікація: ": "Post: "
 }
