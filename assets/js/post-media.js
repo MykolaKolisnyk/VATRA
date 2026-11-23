@@ -435,13 +435,13 @@
   paragraph.dataset.vatraCollapsed="true";
   let expanded=false;
   const update=()=>{
-   paragraph.textContent=expanded?full:compact;
+   paragraph.textContent=expanded?full.trimEnd():compact;
    linkifyHashtags(paragraph);
    button.textContent=expanded?tr("Показати менше","Show less"):tr("Показати більше","Show more");
    button.setAttribute("aria-expanded",String(expanded));
+   paragraph.append(document.createTextNode(" "),button);
   };
   button.addEventListener("click",()=>{expanded=!expanded;update();});
-  paragraph.insertAdjacentElement("afterend",button);
   update();
  }
 
