@@ -3742,5 +3742,12 @@
   "Не вдалося опублікувати": "Échec de publication",
   "Публікація з медіа": "Publication multimédia",
   "Не вдалося зберегти дату публікації.": "Impossible d’enregistrer la date de publication.",
-  "Опитування має завершитися після публікації.": "Le sondage doit se terminer après la publication."
+  "Опитування має завершитися після публікації.": "Le sondage doit se terminer après la publication.",
+  "проголосували за цей варіант": "ont voté pour cette option",
+  "І ще ": "Et ",
+  " учасників": " autres participants",
+  "Поки немає голосів": "Aucun vote pour le moment",
+  "Не вдалося завантажити учасників.": "Impossible de charger les votants.",
+  "Хто проголосував": "Qui a voté ?",
+  "Показати, хто проголосував за ": "Afficher les votants pour "
 }
