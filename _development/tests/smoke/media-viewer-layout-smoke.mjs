@@ -77,7 +77,7 @@ assert.ok(
  postCss.includes('.vatra-post-comments-toggle-001{display:none!important}')&&
  postCss.includes('.vatra-post-shares-count-001{display:none!important}')&&
  postCss.includes('.vatra-post-comment-attach-001{display:none!important}')&&
- postCss.includes('.vatra-post-comment-send-001:disabled{display:none!important}')&&
+ postCss.includes('.vatra-post-comment-send-001:disabled{opacity:.42;cursor:not-allowed}')&&
  postCss.includes('.ui-vatra-post-media-more-toggle-001::after')&&
  postCss.includes('grid-template-columns:32px minmax(0,1fr)!important')&&
  postCss.includes('.ui-vatra-post-expanded-image-001{width:100%;height:100%;flex:0 0 100%;object-position:center}'),
