@@ -529,12 +529,6 @@ body.profile-page .vatra-profile-photo-comment-spam-001{
  display:inline-block;margin:6px 0 0 51px;padding:3px 8px;
  border-radius:8px;color:#91652f;background:#fff4e4;font-size:11px
 }
-body.profile-page .vatra-profile-photo-comments-more-001{
- flex:none;align-self:center;min-height:34px;margin:6px 0;padding:7px 16px;
- border:0;border-radius:9px;background:#eef3fe;color:#3868c7;cursor:pointer;
- font:700 12px/1.4 "Onest",system-ui,sans-serif
-}
-body.profile-page .vatra-profile-photo-comments-more-001[hidden]{display:none!important}
 body.profile-page .profile-photo-comment{
  position:relative;padding:13px 30px 8px 0;border:0;min-width:0
 }
