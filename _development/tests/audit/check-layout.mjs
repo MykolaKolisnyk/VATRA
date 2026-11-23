@@ -1399,6 +1399,7 @@ const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
 const profileCoverScript=await read("assets/js/profile-cover-editor.js");
+const profileAvatarScript=await read("assets/js/profile-avatar-editor.js");
 // Only numeric /idN profile permalinks are generated. GitHub Pages serves its
 // 404.html fallback at these addresses, then mounts the real profile markup.
 assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURIComponent(id);')&&
@@ -2108,7 +2109,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-file"')&&
  profileScript.includes('from("profile_media")')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
- profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar",sourceFile)')&&
+ profileScript.includes('startAvatarEditor(fileAvatar.files[0])')&&profileAvatarScript.includes('uploadImage(photo,"avatar",sourceFile)')&&
  profileScript.includes('const bucketFor=kind=>kind==="avatar"?"avatars":"covers"')&&
  profileScript.includes('void startCoverEditor(fileCover.files[0])')&&
  profileCoverScript.includes('encodeProfileCrop(coverSource,rect,2000,580,"profile-cover",coverSourceMime)')&&
@@ -2712,7 +2713,7 @@ assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(coun
 const publicFriendSQL=await read("_development/supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
 const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
 
-assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])])')&&
+assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileAvatarScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])])')&&
  profileScript.includes('storage.upload(undo.path,undo.thumbnail'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");
 
 assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&!profileMarkup.includes('ui-profile-edit-icon-001')&&profileMarkup.includes('class="ui-profile-name-row-001"')&&memberCss.includes('.ui-profile-name-row-001>.profile-edit-open')&&!memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs beside the name as a single styled text action");
