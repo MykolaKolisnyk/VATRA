@@ -18,9 +18,9 @@
 .site .saved-account-content{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%}
 .site .saved-account-content.is-revealing{animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .site .saved-account-top{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin:0 0 14px}
-.site .saved-account-remove{position:relative;z-index:2;display:grid;place-items:center;margin-left:auto;width:38px;height:38px;padding:8px;border:1px solid #e2e9f4;border-radius:11px;background:#f6f8fd;color:#65738b;cursor:pointer;transition:background .18s,color .18s}
-.site .saved-account-remove:hover{background:#eef3ff;color:#285fd0}
-.site .saved-account-remove svg{width:21px;height:21px}
+.site .saved-account-remove{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;margin-left:auto;min-height:36px;padding:7px 13px;border:1px solid transparent;border-radius:999px;background:transparent;color:#697b98;font:675 12px/1.4 "Onest",system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background .18s,color .18s,border-color .18s}
+.site .saved-account-remove:hover,.site .saved-account-remove:focus-visible{background:#eff4ff;color:#285fd0;border-color:#dce6fa}
+.site .saved-account-remove:focus-visible{outline:2px solid #8caaff;outline-offset:2px}
 
 .site .vatra-saved-tooltip{position:fixed;z-index:13000;display:block;width:max-content;max-width:min(248px,calc(100vw - 24px));padding:10px 13px;border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766;box-shadow:0 12px 30px rgba(26,44,92,.14);font-family:"Onest",Inter,system-ui,sans-serif;font-size:12px;font-weight:650;line-height:1.45;letter-spacing:0;text-align:left;white-space:normal;overflow-wrap:anywhere;pointer-events:none;opacity:0;transform:translateY(-4px);transition:opacity .16s ease,transform .16s ease}
 .site .vatra-saved-tooltip.is-visible{opacity:1;transform:translateY(0)}

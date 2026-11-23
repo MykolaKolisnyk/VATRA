@@ -2003,7 +2003,7 @@
         },
         "n65": {
           "text": {
-            "0": "Remembering the selected Ukrainian or English language"
+            "0": "Saving the selected VATRA interface language. Available languages depend on translation readiness."
           }
         },
         "n66": {
@@ -2587,7 +2587,7 @@
         },
         "copy-appeals": {
           "text": {
-            "0": "VATRA may reject, hide or remove listings and restrict Marketplace access for violations. Repeated or serious violations may result in additional account actions under the Terms of Service and law. If a decision is mistaken or you find a violation, contact support with the listing URL or ID and an explanation. Do not send confidential information."
+            "0": "Each new listing first enters VATRA's manual moderation queue with a Pending review status. It is not visible to other users until approved. A moderator reviews the title, description, category and photos before approving the listing or rejecting it with a reason. Sellers can appeal a rejection. VATRA may also hide or remove listings and restrict Marketplace access for rule violations. Repeated or serious violations may lead to additional account measures under the Terms of Service and applicable law. If a decision is mistaken or you find a violation, contact support with the listing URL or ID and an explanation. Do not send confidential information."
           }
         },
         "head-prohibited": {

@@ -1446,28 +1446,47 @@ try{
  console.log("VATRA cross alignment and clearing across auth/legal pages: OK");
  // account.html redirects unauthenticated visitors to sign-in; its footer
  // structure is covered by the static checks instead of the guest browser run.
- // The return link restores the actual preceding VATRA page, and the hub stays reachable.
+ // Legal navigation must keep the original VATRA entry page through hub-reader cycles.
  {
   const legalNav=await context.newPage();
-  await legalNav.goto(base+"documents.html",{waitUntil:"load"});
-  await legalNav.evaluate(()=>{const a=document.createElement("a");a.href="terms.html";document.body.append(a);a.click();});
+  await legalNav.goto(base,{waitUntil:"load"});
+  await legalNav.evaluate(()=>{
+   const anchor=document.createElement("a");anchor.href="terms.html";anchor.className="vatra-test-legal-entry-001";
+   document.body.append(anchor);anchor.click();
+  });
   await legalNav.waitForURL(/\/terms(?:\.html)?$/);
-  assert.equal(await legalNav.locator(".vatra-document-origin-001").isVisible(),false,
-   "From documents hub, show only the All documents link");
-  await legalNav.evaluate(()=>{const a=document.createElement("a");a.href="privacy.html";document.body.append(a);a.click();});
-  await legalNav.waitForURL(/\/privacy(?:\.html)?$/);
   assert.equal(await legalNav.locator(".vatra-document-origin-001").isVisible(),true,
-   "From another VATRA page, the contextual Back link must be visible");
-  const originUrl=await legalNav.locator(".vatra-document-origin-001").getAttribute("href");
-  assert.match(new URL(originUrl,base).pathname,/\/terms(?:\.html)?$/,
-   "Back should restore the referring document, not always send users home");
+   "Opening Terms from VATRA must show the original return link");
+  assert.equal(new URL(await legalNav.locator(".vatra-document-origin-001").getAttribute("href"),base).pathname,
+   "/VATRA/","Terms must return to the original VATRA page");
   await legalNav.locator(".vatra-document-back-001").click();
   await legalNav.waitForURL(/\/documents(?:\.html)?$/);
   assert.equal(await legalNav.locator(".vatra-documents-origin-001").isVisible(),true,
-   "Documents hub should offer return to the referring VATRA document");
-  assert.equal(await legalNav.locator(".vatra-documents-home-link-001").isVisible(),false,
-   "Show one relevant return action on the documents hub");
+   "Hub must preserve the entry page rather than return to Terms");
+  assert.equal(new URL(await legalNav.locator(".vatra-documents-origin-001").getAttribute("href"),base).pathname,
+   "/VATRA/","Hub must remember VATRA as the original entry page");
+  assert.equal(await legalNav.locator(".vatra-documents-home-link-001").isVisible(),false);
+  await legalNav.locator(".vatra-documents-card-001").first().click();
+  await legalNav.waitForURL(/\/terms(?:\.html)?$/);
+  assert.equal(await legalNav.locator(".vatra-document-origin-001").isVisible(),true,
+   "Opening Terms again must not erase the original return link");
+  assert.equal(new URL(await legalNav.locator(".vatra-document-origin-001").getAttribute("href"),base).pathname,
+   "/VATRA/","Terms after hub must return to original VATRA page");
+  assert.equal(await legalNav.locator(".vatra-document-back-001").isVisible(),true);
+  await legalNav.locator(".vatra-document-origin-001").click();
+  await legalNav.waitForURL(url=>url.pathname==="/VATRA/"||url.pathname==="/VATRA/index.html");
   await legalNav.close();
+  const direct=await context.newPage();
+  await direct.goto(base+"documents.html",{waitUntil:"load"});
+  assert.equal(await direct.locator(".vatra-documents-origin-001").isVisible(),false,
+   "Direct document-hub visit must not reuse another tab's origin");
+  assert.equal(await direct.locator(".vatra-documents-home-link-001").isVisible(),true);
+  await direct.locator(".vatra-documents-card-001").first().click();
+  await direct.waitForURL(/\/terms(?:\.html)?$/);
+  assert.equal(await direct.locator(".vatra-document-origin-001").isVisible(),false,
+   "Direct document visit must not invent an external return target");
+  assert.equal(await direct.locator(".vatra-document-back-001").isVisible(),true);
+  await direct.close();
  }
  for(const route of ["forgot.html","reset.html"]){
   const probe=await context.newPage();
@@ -2632,6 +2651,8 @@ try{
  // The remove action needs one branded, localized hint; native title would
  // display the browser's dark tooltip and ignore the VATRA design system.
  const removeHint=savedPage.locator("#saved-account-remove");
+ assert.equal(await removeHint.locator("svg").count(),0,"Saved-account removal must use a text action, not a trash icon");
+ assert.equal((await removeHint.textContent()).trim(),"Прибрати","Saved-account remove label must be readable");
  assert.equal(await removeHint.getAttribute("title"),null);
  assert.equal(await removeHint.getAttribute("data-vatra-tooltip"),"Вилучити збережений акаунт");
  assert.equal(await removeHint.getAttribute("aria-label"),"Вилучити збережений акаунт");
@@ -2660,6 +2681,7 @@ try{
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("title"),null);
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("data-vatra-tooltip"),"Remove saved account");
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("aria-label"),"Remove saved account");
+ assert.equal((await savedPage.locator("#saved-account-remove").textContent()).trim(),"Remove","English saved-account removal must show localized text");
  await savedPage.setViewportSize({width:360,height:700});
  await savedPage.locator("#saved-account-remove").hover();
  const smallHint=await savedPage.locator("#vatra-saved-account-tooltip").evaluate(node=>{

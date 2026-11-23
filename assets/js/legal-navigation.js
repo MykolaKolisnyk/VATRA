@@ -1,21 +1,39 @@
 (() => {
-  function initDocumentNavigation() {
-    const back=document.querySelector(".vatra-document-origin-001");
-    if(!back)return;
-    const ref=document.referrer;
-    if(!ref)return;
-    let previous;
-    try { previous=new URL(ref); } catch { return; }
-    const root=new URL("./",location.href).pathname;
-    const clean=path=>path.replace(/\/+$/,"").replace(/\.html$/i,"");
-    if(previous.origin!==location.origin||!previous.pathname.startsWith(root)||
-       clean(previous.pathname)===clean(location.pathname))return;
-    const isHub=document.body.classList.contains("vatra-documents-home-001");
-    if(!isHub&&clean(previous.pathname)===clean(root+"documents"))return;
-    back.href=previous.href;
-    back.hidden=false;
-    if(isHub)document.querySelector(".vatra-documents-home-link-001")?.setAttribute("hidden","");
+  const key="vatra-legal-origin-v1";
+  const duration=30*60*1000;
+  const root=new URL("./",location.href).pathname;
+  const canonical=path=>path.replace(/\/+$/,"").replace(/\.html$/i,"");
+  const legal=new Set(["documents","terms","privacy","cookies","commerce"].map(name=>canonical(root+name)));
+  const inVATRA=url=>url.origin===location.origin&&url.pathname.startsWith(root);
+  const navigate=performance.getEntriesByType("navigation")[0]?.type||"navigate";
+  const back=document.querySelector(".vatra-document-origin-001");
+  if(!back)return;
+  let previous=null;
+  try{if(document.referrer)previous=new URL(document.referrer);}catch(_){}
+  const isDifferent=previous&&inVATRA(previous)&&canonical(previous.pathname)!==canonical(location.pathname);
+  const fromLegal=isDifferent&&legal.has(canonical(previous.pathname));
+  const fromOutside=isDifferent&&!fromLegal;
+  const read=()=>{
+    try{
+      const state=JSON.parse(sessionStorage.getItem(key)||"null");
+      if(!state||typeof state.path!=="string"||typeof state.at!=="number"||
+         Date.now()-state.at>duration||state.at>Date.now()){
+        sessionStorage.removeItem(key);return null;
+      }
+      const url=new URL(state.path,location.origin);
+      if(!inVATRA(url)||legal.has(canonical(url.pathname)))return null;
+      return url.pathname;
+    }catch(_){return null;}
+  };
+  if(fromOutside){
+    try{sessionStorage.setItem(key,JSON.stringify({path:previous.pathname,at:Date.now()}));}catch(_){}
+  }else if(!fromLegal&&navigate==="navigate"){
+    try{sessionStorage.removeItem(key);}catch(_){}
   }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initDocumentNavigation,{once:true});
-  else initDocumentNavigation();
+  const origin=fromOutside?previous.pathname:read();
+  if(!origin)return;
+  back.href=origin;
+  back.hidden=false;
+  if(document.body.classList.contains("vatra-documents-home-001"))
+    document.querySelector(".vatra-documents-home-link-001")?.setAttribute("hidden","");
 })();
