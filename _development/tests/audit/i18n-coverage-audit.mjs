@@ -39,13 +39,13 @@ for(const [locale,catalog] of [["uk",uk],["en",en]]){
 
 const targetPages=Object.keys(uk.__pages);
 // Newly introduced legal material is live only in UK/EN. Other locales remain disabled pending legal translation.
-const pendingLegalPages=new Set(["commerce","documents"]);
-const pendingLegalTermsKeys=new Set(["market_rules_title","market_rules_intro","market_rules_full","market_rules_toc_desktop","market_rules_toc_mobile"]);
-const pendingLegalReaderKeys=new Set(["docs_back_001","docs_back_origin_001","docs_kicker_001"]);
-const retiredBindingsByPage={"terms":["n11","n12","n3","n301","n302","n6","n7","n9","n90","n95"],"privacy":["n102","n11","n12","n3","n301","n302","n6","n7","n9","n97"],"cookies":["n100","n105","n11","n12","n3","n301","n302","n6","n7","n9"]};
+const pendingLegalPages=new Set();
+const pendingLegalTermsKeys=new Set();
+const pendingLegalReaderKeys=new Set();
+const retiredBindingsByPage={};
 assert.ok(uk.__pages.commerce&&en.__pages.commerce,"Published commerce page requires both active locales");
 const activePages=["index","404","feed","profile","offline","verify",
- "create-account","forgot","reset","terms","privacy","cookies","maintenance"];
+ "create-account","forgot","reset","terms","privacy","cookies","maintenance","commerce","documents"];
 const dynamicKeys=Object.keys(en).filter(key=>key!=="__pages");
 // Account sign-in, validation, recovery, connection, post and session status
 // messages must be localized as one coherent release batch across all six languages.
@@ -446,16 +446,17 @@ for(const key of authRuntimeKeys){
 }
 
 
-assert.ok(langJs.includes('const validLanguage = value => value === "uk" || value === "en";'),
- "Do not publish incomplete translations as selectable languages");
+assert.ok(langJs.includes('supportedLanguages=["uk","en","pl","de","fr","it","ka","bg"]')&&
+ langJs.includes("const validLanguage=value=>supportedLanguages.includes(value);"),
+ "Language selection must accept only the eight fully published locales");
 const pickerEntries=langJs.slice(langJs.indexOf("  const languages = ["),
  langJs.indexOf("  const flagGroups="));
 const pickerCodes=[...pickerEntries.matchAll(/\["([a-z]{2})","[^"]+","[^"]+","[a-z]{2}"(,true)?\]/g)]
  .map(match=>({code:match[1],enabled:!!match[2]}));
 assert.deepEqual(pickerCodes.map(item=>item.code),["uk","en",...codes],
  "Only eight requested language options may remain");
-assert.deepEqual(pickerCodes.filter(item=>item.enabled).map(item=>item.code),["uk","en"],
- "Unfinished languages must remain unavailable");
+assert.deepEqual(pickerCodes.filter(item=>item.enabled).map(item=>item.code),["uk","en",...codes],
+ "All eight verified languages must be selectable");
 for(const code of codes){
  const dictionary=await read(code);
  assert.ok(!/GDPR|DSGVO|RGPD|RODO/i.test(JSON.stringify(dictionary.__pages?.privacy?.nodes?.n77?.text||{})),
@@ -463,8 +464,8 @@ for(const code of codes){
  const status=dictionary.__translation_status;
  assert.deepEqual(status.translated_static_pages,activePages,
   code+": localized static page manifest must match all thirteen page catalogs");
- assert.equal(status.dynamic_strings_complete,false,
-  code+": locale-specific JavaScript paths still require localization before launch");
+ assert.equal(status.dynamic_strings_complete,true,
+  code+": dynamic UI translations must be complete before launch");
  assert.equal(status.shared_catalog_complete,true,
   code+": all shared UK-source translation keys must be present before publishing");
  assert.equal(status.email_templates_complete,false,
@@ -472,7 +473,7 @@ for(const code of codes){
  assert.equal(status.legal_review_complete,false,
   code+": legal translations require expert review before launch");
  assert.deepEqual(Object.keys(dictionary.__pages).sort(),[...activePages].sort(),
-  code+": no translated page may be missing or have extra keys");
+  code+": all 15 published page catalogs must be complete");
  let texts=0,unchanged=0;
  for(const page of activePages){
   const source=uk.__pages[page];
@@ -574,10 +575,10 @@ for(const code of codes){
  for(const key of Object.keys(dictionary).filter(key=>!key.startsWith("__")))
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": invalid shared translation for "+key);
- assert.deepEqual(targetPages.filter(page=>!pendingLegalPages.has(page)).sort(),Object.keys(dictionary.__pages).sort(),
-  code+": all 13 static pages must be present in the catalog");
+ assert.deepEqual(targetPages.sort(),Object.keys(dictionary.__pages).sort(),
+  code+": all static pages must be present in the catalog");
  console.log("VATRA "+code+": "+activePages.length+"/"+targetPages.length+
   " static page catalogs; "+texts+" UI fields; "+covered+"/"+dynamicKeys.length+
   " shared translation keys; locale-specific JavaScript, legal review and email templates pending");
 }
-console.log("VATRA unpublished locale integrity and rollout gate: OK");
+console.log("VATRA eight-language page and dynamic locale integrity: OK; beta email templates excluded");
