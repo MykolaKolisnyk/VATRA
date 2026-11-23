@@ -106,7 +106,7 @@ async function authorNames(rows){
    (window.VATRA_AVATAR?.paths?.(client,ids)||
     client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)),
    window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map()),
-   client.from("profile_presence").select("vatra_id,form").in("vatra_id",ids)
+   Promise.resolve().then(()=>client.from("profile_presence").select("vatra_id,form").in("vatra_id",ids))
   ]);
   if(results[2].status==="fulfilled")for(const [id,state] of results[2].value)states.set(id,state);
   if(results[3].status==="fulfilled"&&!results[3].value.error)
