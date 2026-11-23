@@ -213,7 +213,6 @@ body.profile-page .vatra-post-composer-dialog textarea{
  .vatra-post-composer-footer button{padding:9px 10px}
 }
 
-/* Polls and server-side scheduling share the existing VATRA composer. */
 .vatra-post-composer-edit.has-poll .vatra-post-composer-zone:not(.has-media){display:none}
 .vatra-post-composer-edit.has-poll .vatra-post-composer-text-wrap{min-height:105px}
 .vatra-post-composer-poll[hidden],
