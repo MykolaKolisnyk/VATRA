@@ -689,7 +689,7 @@
    if(dialog.open)return true;
    if(!composerLoading){
     composerLoading=window.VATRA_FEATURES.load("composer").then(module=>{
-     composerUI=module.bind({prefix:"feed",ownerId:vatraId,getFile:()=>picker?.getFile()});
+     composerUI=module.bind({prefix:"feed",ownerId:vatraId,client,getFile:()=>picker?.getFile()});
     }).catch(error=>{composerLoading=null;throw error;});
    }
    const trigger=q("#feed-compose-open");
