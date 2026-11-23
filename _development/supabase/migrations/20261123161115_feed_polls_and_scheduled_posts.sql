@@ -128,8 +128,12 @@ DECLARE poll_data jsonb; vote_index smallint;
 BEGIN
  IF TG_OP='DELETE' THEN
   SELECT p.poll INTO poll_data FROM public.feed_posts p WHERE p.id=OLD.post_id AND p.archived_at IS NULL;
-  IF poll_data IS NOT NULL AND (poll_data->>'allow_revote')::boolean IS FALSE THEN
-   RAISE EXCEPTION 'The poll author disabled withdrawal' USING ERRCODE='23514';
+  IF poll_data IS NOT NULL AND (
+    (poll_data->>'allow_revote')::boolean IS FALSE
+    OR (NULLIF(poll_data->>'closes_at','') IS NOT NULL
+      AND (poll_data->>'closes_at')::timestamptz <= now())
+  ) THEN
+   RAISE EXCEPTION 'Voting is closed or withdrawal is disabled' USING ERRCODE='23514';
   END IF;
   RETURN OLD;
  END IF;
