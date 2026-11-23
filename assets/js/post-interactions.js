@@ -779,7 +779,7 @@ function appendAudience(container,level,isGroup=false){
   function renderComment(item,people,ownLikes,rootId,isReply=false,initialReplyCount=0){
    const id=String(item.author_vatra_id);
    const name=people.names.get(id)||tr("Користувач VATRA","VATRA member");
-   const card=make("article","vatra-post-comment ui-vatra-post-comment-001");
+   const card=make("article","vatra-post-comment ui-vatra-post-comment-001 vatra-media-comment-row-001");
    card.id="vatra-comment-"+item.id;card.dataset.commentId=item.id;
    if(isReply)card.classList.add("is-reply");
    const avatar=make("a","vatra-comment-avatar ui-vatra-comment-avatar-001");
@@ -800,7 +800,7 @@ function appendAudience(container,level,isGroup=false){
    }
    const authorRow=make("div","ui-vatra-comment-author-row-001");authorRow.append(author);
    if(String(item.author_vatra_id)===String(ownId)&&userId){
-    const remove=make("button","vatra-post-comment-delete-001");remove.type="button";remove.setAttribute("aria-label",tr("Видалити","Delete"));remove.title=tr("Видалити","Delete");remove.append(glyph("x"));
+    const remove=make("button","vatra-post-comment-delete-001 vatra-comment-hover-delete-001");card.classList.add("is-own");remove.type="button";remove.setAttribute("aria-label",tr("Видалити","Delete"));remove.title=tr("Видалити","Delete");remove.append(glyph("x"));
     remove.addEventListener("click",async()=>{if(remove.disabled)return;remove.disabled=true;try{
      const result=await client.from("post_comments").delete().eq("id",item.id).eq("author_id",userId).select("id").maybeSingle();
      if(result.error||String(result.data?.id)!==String(item.id))throw result.error||Error("Comment not removed");

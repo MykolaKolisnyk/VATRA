@@ -4,7 +4,7 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,node,t,memberUrl,dateText,feedback,clearCommentCache,onDelete}){
     const id=String(item.author_vatra_id);
     const member=names.get(id)||t("Учасник VATRA","VATRA member");
-    const card=node("article","profile-photo-comment ui-profile-photo-comment-001");
+    const card=node("article","profile-photo-comment ui-profile-photo-comment-001 vatra-media-comment-row-001");
     card.dataset.commentId=String(item.id);
     const head=node("div","profile-photo-comment-head ui-profile-photo-comment-head-001");
     const avatar=node("a","profile-photo-comment-avatar ui-profile-photo-comment-avatar-001",
@@ -62,7 +62,18 @@ function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,no
     });
     card.append(reaction);
     if(String(item.author_vatra_id)===String(ownId)){
-     const remove=node("button","vatra-profile-photo-comment-delete-001",t("Видалити","Delete"));
+     const remove=node("button","vatra-profile-photo-comment-delete-001 vatra-comment-hover-delete-001");
+     card.classList.add("is-own");
+     const cross=document.createElementNS("http://www.w3.org/2000/svg","svg");
+     cross.setAttribute("class","ui-vatra-photo-comment-delete-icon-001");
+     cross.setAttribute("viewBox","0 0 24 24");
+     cross.setAttribute("width","18");cross.setAttribute("height","18");
+     cross.setAttribute("fill","none");cross.setAttribute("stroke","currentColor");
+     cross.setAttribute("stroke-width","1.8");cross.setAttribute("stroke-linecap","round");
+     cross.setAttribute("aria-hidden","true");
+     const lines=document.createElementNS("http://www.w3.org/2000/svg","path");
+     lines.setAttribute("d","M5 5l14 14M19 5 5 19");
+     cross.append(lines);remove.append(cross);
      remove.type="button";remove.setAttribute("aria-label",t("Видалити свій коментар","Delete your comment"));
      remove.addEventListener("click",async()=>{
       if(remove.disabled)return;

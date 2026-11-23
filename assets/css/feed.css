@@ -2550,9 +2550,24 @@ body.feed-page .vatra-post-comment-media img{
 body.feed-page .vatra-post-comment-media.is-vatra-sticker{border-radius:0;overflow:visible;margin:6px 0 4px}
 body.feed-page .vatra-post-comment-media.is-vatra-sticker img{width:auto;height:auto;max-width:min(100%,144px);max-height:144px;border-radius:0;object-fit:contain}
 body.feed-page .ui-vatra-comment-author-row-001{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0}
-body.feed-page .vatra-post-comment-delete-001{display:grid;place-items:center;flex:none;width:25px;height:25px;border:0;background:transparent;color:#8999b0;cursor:pointer;border-radius:6px;padding:3px}
-body.feed-page .vatra-post-comment-delete-001:hover{background:#edf2f8;color:#c14d5b}
-body.feed-page .vatra-post-comment-delete-001 svg{width:16px;height:16px;display:block}
+body.feed-page .vatra-comment-hover-delete-001{
+ display:grid;place-items:center;flex:none;width:28px;height:28px;
+ padding:4px;border:0;border-radius:8px;background:transparent;
+ color:#8190a7;cursor:pointer;
+ transition:opacity .22s ease,transform .22s ease,background .18s ease,color .18s ease
+}
+body.feed-page .vatra-comment-hover-delete-001 svg{display:block;width:18px;height:18px;flex:none}
+body.feed-page .vatra-comment-hover-delete-001:hover{background:#fff0f3;color:#be475f}
+body.feed-page .vatra-comment-hover-delete-001:disabled{opacity:.55;cursor:wait}
+body.profile-page .vatra-profile-photo-comment-delete-001{position:absolute;top:9px;right:1px}
+@media (hover:hover) and (pointer:fine){
+ body.feed-page .vatra-media-comment-row-001.is-own:not(:hover):not(:focus-within) .vatra-comment-hover-delete-001:not(:disabled){
+  opacity:0;transform:translateY(-3px);pointer-events:none
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ body.feed-page .vatra-comment-hover-delete-001{transition:none}
+}
 body.feed-page .vatra-post-comment-media video{
  display:block;width:min(100%,350px);max-height:360px;
  background:#18212f;border-radius:11px
