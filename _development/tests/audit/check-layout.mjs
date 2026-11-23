@@ -1330,7 +1330,7 @@ for(const page of sharedShellPages){
   header.includes('class="vatra-account-settings-label-001" data-social-uk=')&&
   header.includes('class="vatra-account-profile-label-001" data-i18n="n48"'),
   page+": account avatar menu must preserve SVG icons and live translations");
- assert.ok(header.includes('href="vatra-id?view=settings#general" class="feed-menu-settings-link')&&!header.includes("feed-menu-settings-panel")&&!header.includes("data-language-trigger"),page+": Settings opens the settings page directly");
+ assert.ok(header.includes('href="settings" class="feed-menu-settings-link')&&!header.includes("feed-menu-settings-panel")&&!header.includes("data-language-trigger"),page+": Settings opens the settings page directly");
  const nav=header.match(/<nav class="social-top-nav[\s\S]*?<\/nav>/)?.[0]||"";
  const controls=header.match(/<div class="feed-header-controls[\s\S]*?<\/header>/)?.[0]||"";
  assert.ok(nav.indexOf("ui-social-top-feed-001")<nav.indexOf("ui-social-top-friends-001")&&
