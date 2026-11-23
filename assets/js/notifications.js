@@ -66,29 +66,51 @@ const hrefFor=r=>{
 };
 const notificationTemplates={
  friend_request:["{name} хоче додатися до вас у друзі","{name} wants to add you as a friend"],
- friend_accepted:["{name} прийняв(ла) вашу заявку в друзі","{name} accepted your friend request"],
- friend_declined:["{name} відхилив(ла) вашу заявку в друзі","{name} declined your friend request"],
- post_like:["{name} вподобав(ла) вашу публікацію","{name} liked your post"],
- comment_like:["{name} вподобав(ла) ваш коментар","{name} liked your comment"],
- avatar_like:["{name} вподобав(ла) ваше фото профілю","{name} liked your profile photo"],
- avatar_comment_like:["{name} вподобав(ла) ваш коментар під фото","{name} liked your photo comment"]
+ friend_accepted:["{name} прийняв вашу заявку в друзі","{name} accepted your friend request"],
+ friend_declined:["{name} відхилив вашу заявку в друзі","{name} declined your friend request"],
+ post_like:["{name} вподобав вашу публікацію","{name} liked your post"],
+ comment_like:["{name} вподобав ваш коментар","{name} liked your comment"],
+ avatar_like:["{name} вподобав ваше фото профілю","{name} liked your profile photo"],
+ avatar_comment_like:["{name} вподобав ваш коментар під фото","{name} liked your photo comment"]
 };
-const messageFor=(kind,name)=>{
+const feminineEvents={
+ friend_accepted:"{name} прийняла вашу заявку в друзі",
+ friend_declined:"{name} відхилила вашу заявку в друзі",
+ post_like:"{name} вподобала вашу публікацію",
+ comment_like:"{name} вподобала ваш коментар",
+ avatar_like:"{name} вподобала ваше фото профілю",
+ avatar_comment_like:"{name} вподобала ваш коментар під фото"
+};
+const neutralEvents={
+ friend_accepted:"Вашу заявку в друзі прийнято: {name}",
+ friend_declined:"Вашу заявку в друзі відхилено: {name}",
+ post_like:"Вашу публікацію вподобано: {name}",
+ comment_like:"Ваш коментар вподобано: {name}",
+ avatar_like:"Ваше фото профілю вподобано: {name}",
+ avatar_comment_like:"Ваш коментар під фото вподобано: {name}"
+};
+const messageFor=(kind,name,form)=>{
+ const first=String(name||"").trim().split(/\s+/u)[0]||name;
  const [uk,en]=notificationTemplates[kind]||["{name}: нова подія","{name}: new activity"];
- return format(uk,en,{name:String(name||"").trim().split(/\s+/u)[0]||name});
+ const text=form==="feminine"?feminineEvents[kind]||uk:
+  form==="masculine"?uk:neutralEvents[kind]||uk;
+ return language()==="uk"?format(text,en,{name:first}):format(uk,en,{name:first});
 };
 async function authorNames(rows){
  const ids=[...new Set(rows.map(x=>String(x.actor_vatra_id)).filter(validId))];
- const names=new Map(),avatars=new Map(),states=new Map();
+ const names=new Map(),avatars=new Map(),states=new Map(),forms=new Map();
  if(ids.length)try{
   const results=await Promise.allSettled([
    (window.VATRA_PUBLIC_NAMES?.get(client,ids)||
     client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids)),
    (window.VATRA_AVATAR?.paths?.(client,ids)||
     client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)),
-   window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
+   window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map()),
+   client.from("profile_presence").select("vatra_id,form").in("vatra_id",ids)
   ]);
   if(results[2].status==="fulfilled")for(const [id,state] of results[2].value)states.set(id,state);
+  if(results[3].status==="fulfilled"&&!results[3].value.error)
+   for(const row of results[3].value.data||[])forms.set(String(row.vatra_id),row.form);
   const profiles=results[0].status==="fulfilled"?results[0].value:{error:true};
   const media=results[1].status==="fulfilled"?results[1].value:{error:true};
   if(!profiles.error)for(const item of profiles.data||[])
@@ -104,7 +126,7 @@ async function authorNames(rows){
    }catch(_){}
   }
  }catch(_){}
- return {names,avatars,states};
+ return {names,avatars,states,forms};
 }
 function hiddenNotificationKinds(id){
  try{const value=JSON.parse(localStorage.getItem("vatra:notification-display:"+id)||"[]");return Array.isArray(value)?value.filter(x=>typeof x==="string"&&Object.hasOwn(notificationTemplates,x)):[];}catch(_){return [];}
@@ -266,7 +288,7 @@ async function friendActions(record,actions,onChange){
   reject.addEventListener("click",()=>void decide(false));
  }catch(_){}
 }
-function createRow(record,name,index,onChange,photoUrl,accountState=null){
+function createRow(record,name,index,onChange,photoUrl,accountState=null,form=null){
  const article=make("article","vatra-notification-row ui-vatra-notification-row-"+index);
  if(!record.read_at)article.classList.add("is-unread");
  const mark=make("span","vatra-notification-unread ui-vatra-notification-unread-"+index);
@@ -296,7 +318,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
   picture.src=photoUrl;
  }
  const body=make("div","vatra-notification-content ui-vatra-notification-content-"+index);
- const link=make("a","vatra-notification-link vatra-notification-link-"+index,messageFor(record.kind,name));
+ const link=make("a","vatra-notification-link vatra-notification-link-"+index,messageFor(record.kind,name,form));
  link.href=hrefFor(record);
  link.addEventListener("click",async event=>{
   if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
@@ -354,7 +376,7 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
     state==="blocked"?t("Акаунт заблоковано","Account blocked"):
     names.get(id)||format("Учасник VATRA ID {id}","VATRA member ID {id}",{id});
    return createRow(record,name,String(opts.page*opts.size+i+1),
-    onChange,avatars.get(id),state);
+    onChange,avatars.get(id),state,forms.get(id));
   });
   list.replaceChildren(...nodes);
   if(!rows.length){
@@ -667,7 +689,7 @@ async function pageLoad(append=false){
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
     state==="blocked"?t("Акаунт заблоковано","Account blocked"):
     authors.names.get(id)||format("Учасник VATRA ID {id}","VATRA member ID {id}",{id});
-   list.append(createRow(row,name,String(index),()=>pageLoad(false),authors.avatars.get(id),state));
+   list.append(createRow(row,name,String(index),()=>pageLoad(false),authors.avatars.get(id),state,authors.forms.get(id)));
   }
   sectionPage=page;
   more.hidden=!result.hasNext;
