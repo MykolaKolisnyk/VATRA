@@ -2643,11 +2643,13 @@ try{
   "Saved account must not display a redundant VATRA wordmark");
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),false);
  assert.equal(await savedPage.locator("#password").inputValue(),"");
- // The remove action needs one branded, localized hint; native title would
- // display the browser's dark tooltip and ignore the VATRA design system.
+ // The icon-only remove action must retain its accessible, localized hint;
+ // native title would display the browser's dark tooltip outside VATRA styling.
  const removeHint=savedPage.locator("#saved-account-remove");
- assert.equal(await removeHint.locator("svg").count(),0,"Saved-account removal must use a text action, not a trash icon");
- assert.equal((await removeHint.textContent()).trim(),"Прибрати","Saved-account remove label must be readable");
+ assert.equal(await removeHint.locator("svg[aria-hidden='true']").count(),1,
+  "Saved-account removal must use one accessible SVG icon, not text");
+ assert.equal((await removeHint.textContent()).trim(),"",
+  "Saved-account remove action must not show a redundant text label");
  assert.equal(await removeHint.getAttribute("title"),null);
  assert.equal(await removeHint.getAttribute("data-vatra-tooltip"),"Вилучити збережений акаунт");
  assert.equal(await removeHint.getAttribute("aria-label"),"Вилучити збережений акаунт");
