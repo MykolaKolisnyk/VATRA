@@ -1864,13 +1864,21 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
 
 
 function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
- const button=q("#profile-block-toggle");
+ const button=q("#profile-block-toggle"),moreMenu=q("#profile-more-menu");
  if(!button||isMine||!validId(ownId)||!validId(targetId))return;
+ if(moreMenu)moreMenu.hidden=false;
+ const rawFirst=String(q("#profile-heading")?.textContent||"").trim().split(/\s+/)[0].slice(0,60);
+ const accusative=name=>/[аА]$/.test(name)?name.slice(0,-1)+(name.endsWith("А")?"У":"у"):
+  /[яЯ]$/.test(name)?name.slice(0,-1)+(name.endsWith("Я")?"Ю":"ю"):name;
+ const firstName=rawFirst&&!/^[\d·]+$/.test(rawFirst)?accusative(rawFirst):"";
  button.hidden=false;
  let blocked=!!blockAccess?.blockedByMe,busy=false;
  const paint=()=>{
-  const label=blocked?t("Розблокувати користувача","Unblock member"):
-   t("Заблокувати користувача","Block member");
+  const label=blocked?
+   (firstName?t("Розблокувати ","Unblock ")+firstName:t("Розблокувати користувача","Unblock member")):
+   (firstName?t("Заблокувати ","Block ")+firstName:t("Заблокувати користувача","Block member"));
+  const actionLabel=q("#profile-block-action-label");
+  if(actionLabel)actionLabel.textContent=label;
   button.dataset.blocked=String(blocked);
   button.setAttribute("aria-label",label);
   button.title=label;
@@ -1878,6 +1886,7 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
  paint();
  button.addEventListener("click",async()=>{
   if(busy)return;
+  if(moreMenu)moreMenu.open=false;
   const approved=await window.VATRA_PROFILE_CONFIRM(blocked?{
    title:t("Розблокувати користувача?","Unblock this member?"),
    description:t("Користувач знову зможе переглядати доступний йому вміст вашої сторінки та звертатися до вас.",
@@ -1918,6 +1927,18 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
 
 function setupProfileReports(client,ownId,targetId,isMine,locked){
  if(isMine)return;
+ const more=q("#profile-more-menu");
+ if(more){
+  more.addEventListener("click",event=>{
+   if(event.target.closest("#profile-report-open"))more.open=false;
+  });
+  document.addEventListener("click",event=>{
+   if(more.open&&!more.contains(event.target))more.open=false;
+  });
+  document.addEventListener("keydown",event=>{
+   if(event.key==="Escape"&&more.open){more.open=false;event.preventDefault();}
+  });
+ }
  const dialog=q("#profile-report-dialog"),open=q("#profile-report-open");
  const back=q("#profile-report-back"),close=q("#profile-report-close");
  const content=q("#profile-report-content"),error=q("#profile-report-error");
@@ -2119,8 +2140,28 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  if(!isMine){
   messageButton.hidden=false;
   messageButton.addEventListener("click",()=>void openConversation(targetId));
-  friendButton.hidden=false;
+  const friendAction=q("#profile-friend-action"),friendMenu=q("#profile-friend-menu");
+  const friendMenuAction=q("#profile-friend-menu-action"),friendMenuLabel=q("#profile-friend-menu-label");
+  friendAction.hidden=false;friendButton.hidden=false;
   let relation=null,busy=false;
+  const friendMenuOpen=state=>{
+   const available=["outgoing","friends"].includes(friendButton.dataset.friendState);
+   friendMenu.hidden=!(state&&available);
+   friendButton.setAttribute("aria-expanded",String(!friendMenu.hidden));
+  };
+  friendButton.setAttribute("aria-haspopup","menu");
+  friendButton.setAttribute("aria-controls","profile-friend-menu");
+  friendAction.addEventListener("mouseenter",()=>friendMenuOpen(true));
+  friendAction.addEventListener("mouseleave",()=>friendMenuOpen(false));
+  friendAction.addEventListener("focusout",event=>{
+   if(!friendAction.contains(event.relatedTarget))friendMenuOpen(false);
+  });
+  document.addEventListener("click",event=>{
+   if(!friendAction.contains(event.target))friendMenuOpen(false);
+  });
+  document.addEventListener("keydown",event=>{
+   if(event.key==="Escape"&&!friendMenu.hidden){friendMenuOpen(false);friendButton.focus();}
+  });
   const pair="and(requester_id.eq."+ownId+",recipient_id.eq."+targetId+
    "),and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")";
   const refreshFriend=async()=>{
@@ -2131,14 +2172,22 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    const outgoing=String(relation?.requester_id)===String(ownId);
    friendButton.dataset.friendState=relation?.status==="accepted"?"friends":
     relation?.status==="pending"?(outgoing?"outgoing":"incoming"):"none";
-   q("#profile-friend-label").textContent=relation?.status==="accepted"?t("У друзях · Видалити","Friends · Remove"):
-    relation?.status==="pending"?(outgoing?t("Заявку надіслано · Скасувати","Request sent · Cancel"):
-     t("Прийняти заявку","Accept request")):t("Додати в друзі","Add friend");
+   const state=friendButton.dataset.friendState;
+   q("#profile-friend-label").textContent=state==="friends"?t("У друзях","Friends"):
+    state==="outgoing"?t("Заявку надіслано","Request sent"):
+    state==="incoming"?t("Прийняти заявку","Accept request"):t("Долучити до друзів","Add friend");
+   friendMenuLabel.textContent=state==="friends"?t("Видалити з друзів","Remove friend"):
+    t("Скасувати заявку","Cancel request");
+   friendButton.setAttribute("aria-label",q("#profile-friend-label").textContent);
+   friendButton.dataset.friendBusy="false";
+   friendMenuOpen(false);
   };
-  q("#profile-friend-label").textContent=t("Додати в друзі","Add friend");
+  q("#profile-friend-label").textContent=t("Долучити до друзів","Add friend");
   void refreshFriend().catch(()=>show(actionStatus,t("Статус дружби недоступний.","Friendship status unavailable.")));
-  friendButton.addEventListener("click",async()=>{
-   if(busy)return;
+  const changeFriendship=async()=>{
+    if(busy)return;
+    friendMenuOpen(false);
+
    busy=true;friendButton.disabled=true;show(actionStatus,"");
    try{
     const result=!relation?
@@ -2163,7 +2212,14 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
     }
    }catch(_){show(actionStatus,t("Не вдалося виконати дію.","Could not complete the action."));}
    finally{busy=false;friendButton.disabled=false;}
+  };
+  friendButton.addEventListener("click",()=>{
+   if(["outgoing","friends"].includes(friendButton.dataset.friendState)){
+    friendMenuOpen(friendMenu.hidden);return;
+   }
+   void changeFriendship();
   });
+  friendMenuAction.addEventListener("click",()=>void changeFriendship());
  }
  loadFriends=async()=>{
   friends.replaceChildren();friendsEmpty.hidden=true;
