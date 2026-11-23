@@ -6,7 +6,6 @@
   "Прибрати зі збереженого": "Retirer des éléments enregistrés",
   "Збережене": "Enregistrés",
   "Більше": "Plus",
-
   "Доступ заборонено": "Accès refusé",
   "Ви не маєте дозволу на виконання цієї дії.": "Vous n’avez pas l’autorisation d’effectuer cette action.",
   "Забагато запитів": "Trop de requêtes",
@@ -42,28 +41,6 @@
     "shared_catalog_complete": true
   },
   "__pages": {
-    "maintenance": {
-      "meta": {
-        "title": "Maintenance"
-      },
-      "nodes": {
-        "maintenance-kicker": {
-          "text": {
-            "0": "INTERRUPTION TEMPORAIRE"
-          }
-        },
-        "maintenance-heading": {
-          "text": {
-            "0": "Maintenance"
-          }
-        },
-        "maintenance-copy": {
-          "text": {
-            "0": "Vatryk travaille à améliorer VATRA. Le réseau social sera bientôt de nouveau disponible. Merci de votre patience !"
-          }
-        }
-      }
-    },
     "404": {
       "meta": {
         "title": "Page introuvable",
@@ -83,6 +60,28 @@
         "n9": {
           "text": {
             "0": "Retour"
+          }
+        }
+      }
+    },
+    "maintenance": {
+      "meta": {
+        "title": "Maintenance"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "INTERRUPTION TEMPORAIRE"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Maintenance"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk travaille à améliorer VATRA. Le réseau social sera bientôt de nouveau disponible. Merci de votre patience !"
           }
         }
       }
@@ -1954,7 +1953,7 @@
         "n77": {
           "text": {
             "0": "En Ukraine, ces droits sont notamment régis par la ",
-            "1": ". Le RGPD peut également s’appliquer aux utilisateurs de l’Espace économique européen."
+            "1": "."
           }
         },
         "n78": {

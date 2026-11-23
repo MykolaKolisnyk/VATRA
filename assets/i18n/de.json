@@ -6,7 +6,6 @@
   "Прибрати зі збереженого": "Aus Gespeichert entfernen",
   "Збережене": "Gespeichert",
   "Більше": "Mehr",
-
   "Доступ заборонено": "Zugriff verweigert",
   "Ви не маєте дозволу на виконання цієї дії.": "Sie haben keine Berechtigung, diese Aktion auszuführen.",
   "Забагато запитів": "Zu viele Anfragen",
@@ -42,28 +41,6 @@
     "shared_catalog_complete": true
   },
   "__pages": {
-    "maintenance": {
-      "meta": {
-        "title": "Wartungsarbeiten"
-      },
-      "nodes": {
-        "maintenance-kicker": {
-          "text": {
-            "0": "KURZE UNTERBRECHUNG"
-          }
-        },
-        "maintenance-heading": {
-          "text": {
-            "0": "Wartungsarbeiten"
-          }
-        },
-        "maintenance-copy": {
-          "text": {
-            "0": "Vatryk arbeitet daran, VATRA zu verbessern. Das soziale Netzwerk ist bald wieder verfügbar. Danke für deine Geduld!"
-          }
-        }
-      }
-    },
     "404": {
       "meta": {
         "title": "Seite nicht gefunden",
@@ -83,6 +60,28 @@
         "n9": {
           "text": {
             "0": "Zurück"
+          }
+        }
+      }
+    },
+    "maintenance": {
+      "meta": {
+        "title": "Wartungsarbeiten"
+      },
+      "nodes": {
+        "maintenance-kicker": {
+          "text": {
+            "0": "KURZE UNTERBRECHUNG"
+          }
+        },
+        "maintenance-heading": {
+          "text": {
+            "0": "Wartungsarbeiten"
+          }
+        },
+        "maintenance-copy": {
+          "text": {
+            "0": "Vatryk arbeitet daran, VATRA zu verbessern. Das soziale Netzwerk ist bald wieder verfügbar. Danke für deine Geduld!"
           }
         }
       }
@@ -1954,7 +1953,7 @@
         "n77": {
           "text": {
             "0": "In der Ukraine werden diese Rechte insbesondere durch das ",
-            "1": "geregelt. Für Nutzer im Europäischen Wirtschaftsraum kann auch die DSGVO gelten."
+            "1": " geregelt."
           }
         },
         "n78": {

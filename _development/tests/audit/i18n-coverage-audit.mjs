@@ -7,6 +7,20 @@ const read=async code=>JSON.parse(await readFile("assets/i18n/"+code+".json","ut
 const uk=await read("uk");
 const en=await read("en");
 const codes=["pl","de","fr","it","ka","bg"];
+const privacyHtml=await readFile("privacy.html","utf8");
+assert.ok(!/\bGDPR\b|\bFacebook\b/i.test(privacyHtml),
+ "VATRA privacy HTML must not contain imported platform notices");
+for(const [locale,catalog] of [["uk",uk],["en",en]]){
+ const nodes=catalog.__pages.privacy.nodes;
+ assert.ok(!/\bGDPR\b|\bFacebook\b/i.test(JSON.stringify(nodes)),
+  locale+": privacy translations must be specific to VATRA");
+ for(const name of ["Supabase","GitHub Pages","Cloudflare Turnstile","jsDelivr"]){
+  assert.ok(nodes.n67.text["0"].includes(name),locale+": missing data provider "+name);
+ }
+ assert.ok(nodes.n69.text["0"].includes("Frankfurt")||nodes.n69.text["0"].includes("Франкфурт"),
+  locale+": missing Supabase project region");
+}
+
 const targetPages=Object.keys(uk.__pages);
 // Newly introduced legal material is live only in UK/EN. Other locales remain disabled pending legal translation.
 const pendingLegalPages=new Set(["commerce","documents"]);
@@ -428,6 +442,8 @@ assert.deepEqual(pickerCodes.filter(item=>item.enabled).map(item=>item.code),["u
  "Unfinished languages must remain unavailable");
 for(const code of codes){
  const dictionary=await read(code);
+ assert.ok(!/GDPR|DSGVO|RGPD|RODO/i.test(JSON.stringify(dictionary.__pages?.privacy?.nodes?.n77?.text||{})),
+  code+": pending privacy translation must not include obsolete EU notice");
  const status=dictionary.__translation_status;
  assert.deepEqual(status.translated_static_pages,activePages,
   code+": localized static page manifest must match all thirteen page catalogs");

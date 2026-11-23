@@ -1565,7 +1565,7 @@
         },
         "n27": {
           "text": {
-            "0": "Who receives technical data"
+            "0": "Third-party services"
           }
         },
         "n28": {
@@ -1610,7 +1610,7 @@
         },
         "n39": {
           "text": {
-            "0": "Who receives technical data"
+            "0": "Third-party services"
           }
         },
         "n40": {
@@ -1640,7 +1640,7 @@
         },
         "n47": {
           "text": {
-            "0": "This policy describes data processing when you use VATRA: browse the site, register, sign in, communicate, publish content, join communities or post listings. It explains the data needed to operate these features, keep them secure and comply with legal obligations."
+            "0": "This policy explains how VATRA processes information when you browse the website, create an account, sign in, communicate, publish content, participate in communities or post listings. It describes why data is used, which outside services are involved, how information is retained and your rights."
           }
         },
         "n48": {
@@ -1710,22 +1710,22 @@
         },
         "n64": {
           "text": {
-            "0": "Depending on the data and circumstances, the legal basis for processing may be performance of the Terms of Service, compliance with law, necessary security measures, or your consent."
+            "0": "Depending on the information and circumstances, processing may rely on your consent, the need to provide VATRA under its terms, compliance with legal requirements or legitimate interests of users and the platform owner where permitted by law."
           }
         },
         "n66": {
           "text": {
-            "0": "Who receives technical data"
+            "0": "Third-party services"
           }
         },
         "n67": {
           "text": {
-            "0": "VATRA uses service providers for authentication, website hosting, and delivery of technical resources. These providers may process technical request data, such as your IP address and browser details, when delivering their services. To ask about the providers and data processing arrangements, contact "
+            "0": "VATRA uses external services including Supabase (registration, sign-in, database and files), GitHub Pages (website hosting), Cloudflare Turnstile (bot protection for forms) and jsDelivr (delivery of technical libraries). These providers may receive IP addresses, browser information and request details. Supabase also processes account information and content you make available on VATRA. If you have questions about data processing, contact "
           }
         },
         "n69": {
           "text": {
-            "0": "Your password is transmitted to the authentication service over HTTPS and is not stored in the website’s public HTML or JavaScript. Data transfers and storage may depend on the infrastructure used by each provider."
+            "0": "VATRA's main Supabase project is hosted in the Central EU region (Frankfurt, Germany), where its primary database, authentication and file storage operate. Other providers or their contractors may technically process certain data in other countries, depending on the service. Passwords are transmitted to the authentication service over HTTPS and are not embedded in public website source code."
           }
         },
         "n71": {
@@ -1735,12 +1735,12 @@
         },
         "n72": {
           "text": {
-            "0": "Account data is retained for as long as necessary to maintain your account or comply with legal obligations. You can remove browser session data through your browser settings; signing out of VATRA ends the local session."
+            "0": "Account information is retained while the account is used and the information is needed to provide VATRA features. Posts, photos, comments and other content remain until deleted or until processing is no longer necessary. Some information may be kept longer where required by law or needed to protect rights and security. You can clear session and preference information stored in your browser using its settings."
           }
         },
         "n73": {
           "text": {
-            "0": "Retention periods for technical logs depend on service and provider settings. To request deletion of an account or personal data, contact vatra.support@gmail.com. Verification of account ownership may be required before fulfilling the request."
+            "0": "Retention periods for technical logs, service records and backups depend on each provider's settings and policies. After information is deleted, some copies may remain temporarily in backup systems. To request access to, correction of or deletion of your data, email vatra.support@gmail.com. We may need to verify account ownership to protect your information."
           }
         },
         "n75": {
@@ -1755,8 +1755,8 @@
         },
         "n77": {
           "text": {
-            "0": "In Ukraine, your rights are governed, among other laws, by the ",
-            "1": ". The GDPR may also apply to users in the European Economic Area."
+            "0": "In Ukraine, personal data rights are set out in the ",
+            "1": ". You can contact VATRA using the address provided here if you have questions about exercising these rights."
           }
         },
         "n78": {
