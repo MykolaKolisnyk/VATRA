@@ -3438,3 +3438,63 @@ body.notifications-page .notifications-content .vatra-notification-link{font-siz
  body.notifications-page .notifications-content .vatra-notification-row{padding:15px 10px}
 }
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-notification-delete{transition:none;transform:none}}
+
+/* Inline author comment editing and accessible short-term deletion undo. */
+body.feed-page .vatra-post-comment .vatra-post-comment-edit-001{
+ display:grid;place-items:center;flex:none;width:25px;height:25px;padding:3px;
+ border:0;border-radius:7px;background:transparent;color:#8599b6;
+ opacity:0;transform:translateY(3px);cursor:pointer;
+ transition:opacity .17s ease,transform .17s ease,background .17s ease,color .17s
+}
+body.feed-page .vatra-post-comment .vatra-post-comment-edit-001 svg{
+ display:block;width:16px;height:16px;stroke-width:1.75
+}
+body.feed-page .vatra-post-comment:hover .vatra-post-comment-edit-001,
+body.feed-page .vatra-post-comment:focus-within .vatra-post-comment-edit-001{
+ opacity:1;transform:translateY(0)
+}
+body.feed-page .vatra-post-comment .vatra-post-comment-edit-001:hover{
+ color:#346ec9;background:#edf3ff
+}
+body.feed-page .vatra-post-comment .vatra-post-comment-edit-001[hidden],
+body.feed-page .vatra-post-comment :is(.vatra-post-comment-content,.vatra-comment-avatar)[hidden]{
+ display:none!important
+}
+body.feed-page .vatra-comment-edit-form-001{
+ display:flex;flex-direction:column;gap:8px;margin:8px 0 10px
+}
+body.feed-page .vatra-comment-edit-input-001{
+ box-sizing:border-box;display:block;width:100%;min-height:62px;max-height:190px;
+ resize:vertical;padding:10px 11px;border:1px solid #99baf1;border-radius:10px;
+ background:#fff;color:#334965;outline:none;font:540 13px/1.5 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-comment-edit-input-001:focus{border-color:#4081d9;box-shadow:0 0 0 2px #cfe3ff}
+body.feed-page .vatra-comment-edit-actions-001{display:flex;justify-content:flex-end;gap:8px}
+body.feed-page .vatra-comment-edit-actions-001 button{
+ min-height:32px;padding:7px 13px;border:1px solid #dce5f4;border-radius:8px;
+ background:#f2f6fd;color:#436184;font:650 11.5px "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.feed-page .vatra-comment-edit-actions-001 .vatra-comment-edit-save-001{
+ border-color:#3e72cf;background:#3e72cf;color:#fff
+}
+body.feed-page .vatra-comment-edit-actions-001 button:disabled{opacity:.5;cursor:progress}
+body.feed-page .vatra-comment-edit-error-001{color:#b14f60;font:520 12px/1.4 "Onest",system-ui,sans-serif}
+body.feed-page .vatra-comment-deleted-001{
+ display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+ width:100%;min-height:45px;padding:10px 13px;
+ box-sizing:border-box;border-radius:10px;background:#f5f7fb;
+ color:#8390a4;font:570 13px/1.5 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-comment-deleted-001 .vatra-comment-undo-001{
+ border:0;background:transparent;color:#356fbf;font:730 13px/1.5 "Onest",system-ui,sans-serif;
+ cursor:pointer;padding:3px
+}
+body.feed-page .vatra-comment-undo-001:hover{text-decoration:underline}
+body.feed-page .vatra-post-comments-sentinel-001{height:1px;width:100%;pointer-events:none}
+body.feed-page .vatra-post-comments-sentinel-001[hidden]{display:none!important}
+@media(hover:none){
+ body.feed-page .vatra-post-comment .vatra-post-comment-edit-001{opacity:1;transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+ body.feed-page .vatra-post-comment .vatra-post-comment-edit-001{transition:none;transform:none}
+}
