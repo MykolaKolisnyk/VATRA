@@ -2707,8 +2707,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    commentList.classList.toggle("is-empty",!append&&!rows.length);
    if(!append&&!rows.length){
     if(reuse)commentList.replaceChildren();
-    const placeholder=node("div","ui-profile-photo-empty-state-001"),symbol=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS("http://www.w3.org/2000/svg","path");
-    symbol.setAttribute("class","ui-profile-photo-empty-icon-001");symbol.setAttribute("viewBox","0 0 48 48");symbol.setAttribute("fill","none");symbol.setAttribute("stroke","currentColor");symbol.setAttribute("stroke-width","2.6");symbol.setAttribute("stroke-linecap","round");symbol.setAttribute("stroke-linejoin","round");symbol.setAttribute("aria-hidden","true");p.setAttribute("d","M16 7h22a5 5 0 0 1 5 5v17a5 5 0 0 1-5 5h-4v8l-10-8h-8a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5ZM6 15a5 5 0 0 0-4 5v14a5 5 0 0 0 5 5h5v5l6-5");symbol.append(p);
+    const placeholder=node("div","ui-profile-photo-empty-state-001 vatra-media-empty-unified-001"),symbol=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    symbol.setAttribute("class","ui-profile-photo-empty-icon-001 vatra-media-empty-icon-unified-001");symbol.setAttribute("viewBox","0 0 48 48");symbol.setAttribute("fill","none");symbol.setAttribute("stroke","currentColor");symbol.setAttribute("stroke-width","2.6");symbol.setAttribute("stroke-linecap","round");symbol.setAttribute("stroke-linejoin","round");symbol.setAttribute("aria-hidden","true");p.setAttribute("d","M16 7h22a5 5 0 0 1 5 5v17a5 5 0 0 1-5 5h-4v8l-10-8h-8a5 5 0 0 1-5-5V12a5 5 0 0 1 5-5ZM6 15a5 5 0 0 0-4 5v14a5 5 0 0 0 5 5h5v5l6-5");symbol.append(p);
     placeholder.append(symbol,node("p","vatra-profile-photo-no-comments-001",t("Коментарів поки немає. Будьте першими!","No comments yet. Be the first!")));commentList.append(placeholder);
    }
    const commentRowModule=rows.length?await window.VATRA_FEATURES.load("avatar-comment-row"):null;
@@ -2796,7 +2796,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  q("#profile-photo-like-label").textContent=t("Подобається","Like");
  q("#profile-photo-share-label").textContent=t("Поділитися","Share");
  q("#profile-photo-comment-text").placeholder=t("Коментувати…","Comment…");
- q("#profile-photo-comment-send").textContent=t("Надіслати","Send");
+ q("#profile-photo-comment-send").setAttribute("aria-label",t("Надіслати","Send"));
  q(".vatra-profile-photo-comment-label-001").textContent=t("Ваш коментар","Your comment");
  const composerAvatar=q("#profile-photo-composer-avatar"),emojiToggle=q("#profile-photo-emoji-toggle"),emojiPanel=q("#profile-photo-emoji-panel"),cancelComment=q("#profile-photo-comment-cancel");
  const setEmojiOpen=open=>{emojiPanel.hidden=!open;emojiToggle.setAttribute("aria-expanded",String(open));};
