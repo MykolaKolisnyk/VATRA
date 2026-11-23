@@ -3,7 +3,8 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const validId=x=>/^[1-9][0-9]{0,18}$/.test(String(x??""));
 const grammar=gender=>gender==="male"?"masculine":gender==="female"?"feminine":"neutral";
-const activeWindow=90000; 
+const activeWindow=150000;
+const HEARTBEAT_INTERVAL_MS=45000,RETRY_INTERVAL_MS=12000;
 let active=null;
 function stop(){
  const state=active;
@@ -17,69 +18,64 @@ function start(client,ownId,gender){
  if(!client||!validId(ownId))return Promise.resolve(false);
  const id=String(ownId);
  if(active?.client===client&&active.id===id)return active.promise;
- stop(); 
+ stop();
  const state={client,id,controller:new AbortController(),interval:null,
-  authSubscription:null,updating:false,promise:null};
+  authSubscription:null,updating:false,promise:null,lastSuccessAt:0,lastAttemptAt:0,failed:false};
  active=state;
- const table="profile_presence";
  const touchKey="vatra:presence-touch:"+id;
- const readTouch=()=>{try{const value=Number(sessionStorage.getItem(touchKey)||0);return value<=Date.now()?value:0;}catch(_){return 0;}};
- const rememberTouch=()=>{try{sessionStorage.setItem(touchKey,String(Date.now()));}catch(_){}};
+ const readTouch=()=>{
+  try{const value=Number(sessionStorage.getItem(touchKey)||0);return value<=Date.now()?value:0;}
+  catch(_){return 0;}
+ };
+ const rememberTouch=()=>{
+  try{sessionStorage.setItem(touchKey,String(Date.now()));}catch(_){}
+ };
+ state.lastSuccessAt=readTouch();
  const update=async()=>{
   if(active!==state||state.updating||document.visibilityState==="hidden")return false;
-  state.updating=true;
+  state.updating=true;state.lastAttemptAt=Date.now();
   try{
-   const {error}=await client.from(table).update({last_seen_at:new Date().toISOString(),form:grammar(gender)})
-    .eq("vatra_id",id);
-   if(error)throw error;
-   if(active===state)rememberTouch();
-   return active===state;
-  }catch(_){return false;}
-  finally{state.updating=false;}
+   const {data,error}=await client.from("profile_presence")
+    .upsert({vatra_id:id,last_seen_at:new Date().toISOString(),form:grammar(gender)},
+     {onConflict:"vatra_id"}).select("vatra_id").maybeSingle();
+   if(error||String(data?.vatra_id)!==id)throw error||Error("Presence heartbeat not confirmed");
+   if(active!==state)return false;
+   state.lastSuccessAt=Date.now();state.failed=false;
+   rememberTouch();
+   return true;
+  }catch(_){
+   if(active===state){state.failed=true;state.lastAttemptAt=Date.now();}
+   return false;
+  }finally{state.updating=false;}
  };
-
+ const pulse=(force=false)=>{
+  if(active!==state||state.updating||document.visibilityState==="hidden")return;
+  const now=Date.now();
+  const due=now-state.lastSuccessAt>=HEARTBEAT_INTERVAL_MS;
+  const attemptGap=state.failed?RETRY_INTERVAL_MS:Math.min(HEARTBEAT_INTERVAL_MS,force?5000:HEARTBEAT_INTERVAL_MS);
+  if((!due&&!state.failed)||now-state.lastAttemptAt<attemptGap)return;
+  void update();
+ };
  try{
   state.authSubscription=client.auth?.onAuthStateChange?.(event=>{
    if(event==="SIGNED_OUT"&&active===state)stop();
   })?.data?.subscription||null;
  }catch(_){}
- window.addEventListener("pagehide",()=>{if(active===state)stop();},
-  {once:true,signal:state.controller.signal});
+ window.addEventListener("pagehide",event=>{
+  if(active===state&&!event?.persisted)stop();
+ },{signal:state.controller.signal});
+ window.addEventListener("pageshow",()=>pulse(true),{signal:state.controller.signal});
+ window.addEventListener("focus",()=>pulse(true),{signal:state.controller.signal});
+ window.addEventListener("online",()=>pulse(true),{signal:state.controller.signal});
+ document.addEventListener("visibilitychange",()=>pulse(true),
+  {passive:true,signal:state.controller.signal});
+ state.interval=setInterval(()=>pulse(false),20000);
  state.promise=(async()=>{
-  try{
-   if(Date.now()-readTouch()>=60000){
-   const {data,error}=await client.from(table).select("vatra_id,form")
-    .eq("vatra_id",id).maybeSingle();
-   if(active!==state)return false;
-   if(error)throw error;
-   if(!data){
-    const result=await client.from(table).insert({vatra_id:id,form:grammar(gender)});
-    if(active!==state)return false;
-    if(result.error)throw result.error;
-    rememberTouch();
-   }else await update();
-   }
-   if(active!==state)return false;
-
-   let lastTouch=readTouch()||0;
-   const pulse=()=>{
-    if(active!==state||document.visibilityState==="hidden"||
-     Date.now()-lastTouch<60000)return;
-    lastTouch=Date.now();
-    void update();
-   };
-   state.interval=setInterval(pulse,30000);
-   document.addEventListener("visibilitychange",pulse,
-    {passive:true,signal:state.controller.signal});
-   return true;
-  }catch(_){
-   if(active===state)stop();
-   return false;
-  }
+  if(Date.now()-state.lastSuccessAt>=HEARTBEAT_INTERVAL_MS)return update();
+  return true;
  })();
  return state.promise;
 }
-
 
 
 const PRESENCE_READ_TTL_MS=15_000,PRESENCE_MISSING_TTL_MS=5_000,PRESENCE_CACHE_MAX=64;

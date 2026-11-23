@@ -93,21 +93,16 @@ try{
    document.body.classList.add("profile-page");
    const profileStyle=measure();
    button.click();
-   const expanded=paragraph.lastElementChild===button&&
-    paragraph.textContent.endsWith("#VATRA Показати менше")&&
+   const expanded=paragraph.textContent===original&&
     !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&
-    paragraph.textContent.slice(0,-button.textContent.length-1)===original&&
-    button.getAttribute("aria-expanded")==="true";
-   button.click();
-   const restored=paragraph.textContent.endsWith("… Показати більше")&&
-    paragraph.querySelectorAll(".vatra-feed-post-read-more-001").length===1;
-   return {collapsed,collapsedChecks,expanded,restored,feedStyle,profileStyle};
+    paragraph.querySelectorAll(".vatra-feed-post-read-more-001").length===0;
+   return {collapsed,collapsedChecks,expanded,feedStyle,profileStyle};
   });
-  assert.ok(result.collapsed&&result.expanded&&result.restored,
-   "Read-more must stay inline after post text and preserve hashtags: "+JSON.stringify(result));
+  assert.ok(result.collapsed&&result.expanded,
+   "Read-more must appear inline, expand once and preserve hashtags: "+JSON.stringify(result));
   assert.deepEqual(result.feedStyle,result.profileStyle,
    "Feed and Profile post body typography must match: "+JSON.stringify(result));
-  console.log("VATRA post text: inline expand/collapse and matching Feed/Profile fonts passed.");
+  console.log("VATRA post text: inline one-way expansion and matching Feed/Profile fonts passed.");
  }finally{await bodyTextProbe.close();}
 
  // All three production viewer types must share exact sidebar measurements.
@@ -2648,11 +2643,13 @@ try{
   "Saved account must not display a redundant VATRA wordmark");
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),false);
  assert.equal(await savedPage.locator("#password").inputValue(),"");
- // The remove action needs one branded, localized hint; native title would
- // display the browser's dark tooltip and ignore the VATRA design system.
+ // The icon-only remove action must retain its accessible, localized hint;
+ // native title would display the browser's dark tooltip outside VATRA styling.
  const removeHint=savedPage.locator("#saved-account-remove");
- assert.equal(await removeHint.locator("svg").count(),0,"Saved-account removal must use a text action, not a trash icon");
- assert.equal((await removeHint.textContent()).trim(),"Прибрати","Saved-account remove label must be readable");
+ assert.equal(await removeHint.locator("svg[aria-hidden='true']").count(),1,
+  "Saved-account removal must use one accessible SVG icon, not text");
+ assert.equal((await removeHint.textContent()).trim(),"",
+  "Saved-account remove action must not show a redundant text label");
  assert.equal(await removeHint.getAttribute("title"),null);
  assert.equal(await removeHint.getAttribute("data-vatra-tooltip"),"Вилучити збережений акаунт");
  assert.equal(await removeHint.getAttribute("aria-label"),"Вилучити збережений акаунт");
@@ -2681,7 +2678,8 @@ try{
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("title"),null);
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("data-vatra-tooltip"),"Remove saved account");
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("aria-label"),"Remove saved account");
- assert.equal((await savedPage.locator("#saved-account-remove").textContent()).trim(),"Remove","English saved-account removal must show localized text");
+ assert.equal((await savedPage.locator("#saved-account-remove").textContent()).trim(),"",
+  "English saved-account removal stays icon-only; localized text belongs in accessible hint");
  await savedPage.setViewportSize({width:360,height:700});
  await savedPage.locator("#saved-account-remove").hover();
  const smallHint=await savedPage.locator("#vatra-saved-account-tooltip").evaluate(node=>{
