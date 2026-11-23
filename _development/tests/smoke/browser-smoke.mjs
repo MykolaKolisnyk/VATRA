@@ -1643,8 +1643,8 @@ try{
   assert.equal(login.logo.animation,"none","The login poster must not rotate or pulse at "+width);
   assert.ok(signup.logo.animation.includes("vatraSignupSymbol"),
    "Signup brand symbol animation must remain intact at "+width);
-  assert.ok(login.logo.width>0&&signup.logo.width>0,
-   "Both distinct sign-in and signup artworks must have a visible size at "+width);
+  assert.ok(login.logo.width>0&&(width<1200?signup.logo.width===0:signup.logo.width>0),
+   "Login poster stays visible; signup artwork is intentionally hidden on narrow screens at "+width);
   console.log("VATRA matching typography & separate login poster "+width+"x"+height+": OK");
  }
  // Standalone legal readers use one return link, and the hub contains four banners.
