@@ -35,6 +35,15 @@ assert.ok(
  "Avatar comments must not display sorting controls"
 );
 assert.ok(
+ profileHtml.includes('id="profile-photo-comments-sentinel"')&&
+ !profileHtml.includes('id="profile-photo-comments-more"')&&
+ profile.includes('photoCommentObserver.observe(photoCommentSentinel)')&&
+ profile.includes('photoCommentLoading||!photoCommentHasMore')&&
+ !profile.includes("photoCommentsMore")&&
+ !profileCss.includes(".vatra-profile-photo-comments-more-001"),
+ "Photo comments must load on scroll without a manual Show more button or duplicate requests"
+);
+assert.ok(
  !profileCss.includes("--vatra-profile-photo-backdrop")&&
  !profile.includes("--vatra-profile-photo-backdrop")&&
  profileCss.includes("object-fit:contain")&&
