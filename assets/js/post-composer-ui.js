@@ -312,7 +312,26 @@ function bind({prefix,ownerId,getFile,client}){
       {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(item.publish_at)));
     time.dateTime=item.publish_at;
     if(item.status==="failed")time.append(" · "+t("Помилка","Failed"));
-    row.append(subject,time);scheduleList.append(row);
+    row.append(subject,time);
+    if(item.status==="queued"){
+     const cancelQueue=make("button","vatra-post-composer-queue-cancel-001",t("Скасувати","Cancel"));
+     cancelQueue.type="button";
+     cancelQueue.addEventListener("click",async()=>{
+      cancelQueue.disabled=true;
+      try{
+       const result=await client.from("scheduled_feed_posts")
+        .update({status:"cancelled"}).eq("id",item.id).eq("status","queued")
+        .select("id").maybeSingle();
+       if(result.error||!result.data)throw result.error||Error("Schedule already published");
+       void renderScheduled();
+      }catch(_){
+       showNotice(t("Не вдалося скасувати публікацію.","Could not cancel the post."));
+       cancelQueue.disabled=false;
+      }
+     });
+     row.append(cancelQueue);
+    }
+    scheduleList.append(row);
    }
    if(!data?.length)scheduleList.append(make("p","vatra-post-composer-queue-empty-001",
     t("Запланованих дописів поки немає.","No scheduled posts yet.")));
