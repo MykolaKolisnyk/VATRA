@@ -40,38 +40,42 @@ let open=false,liveChannel=null,refreshBusy=false,refreshQueued=false;
 let notificationRun=null,panelLoadPending=null,panelLoadQueued=false;
 let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false;
 const pageURL=()=>new URL("notifications",root).href;
+const plural=(n,a,b,c)=>{const x=n%100,d=n%10;return n+" "+(d===1&&x!==11?a:d>=2&&d<=4&&(x<12||x>14)?b:c)};
 const timeValue=date=>{
- const parsed=new Date(date);if(!Number.isFinite(parsed.getTime()))return "";
- const relative=window.VATRA_PRESENCE?.relative?.(parsed,language()==="en");
- if(relative)return relative;
- const ms=Math.max(0,Date.now()-parsed.getTime());
- if(ms<300000)return t("щойно","just now");
- if(ms<3600000){const n=Math.floor(ms/300000)*5;return language()==="en"?n+" minutes ago":n+" хвилин тому";}
- if(ms<86400000){const n=Math.floor(ms/3600000);return language()==="en"?n+" hours ago":n+" год тому";}
- const n=Math.floor(ms/86400000);
- return language()==="en"?n+" days ago":n+" днів тому";
+ const d=new Date(date),ms=Math.max(0,Date.now()-d.getTime());if(!Number.isFinite(d.getTime()))return "";
+ if(ms<60000)return t("щойно","just now");
+ const n=Math.floor(ms/60000),h=Math.floor(ms/3600000),days=Math.floor(ms/86400000);
+ if(ms<3600000)return language()==="en"?n+" minute"+(n===1?"":"s")+" ago":plural(n,"хвилину","хвилини","хвилин")+" тому";
+ if(ms<86400000)return language()==="en"?h+" hour"+(h===1?"":"s")+" ago":plural(h,"годину","години","годин")+" тому";
+ if(days<30)return language()==="en"?days+" days ago":plural(days,"день","дні","днів")+" тому";
+ const m=Math.floor(days/30);if(days<365)return language()==="en"?m+" months ago":plural(m,"місяць","місяці","місяців")+" тому";
+ const y=Math.floor(days/365);return language()==="en"?y+" years ago":plural(y,"рік","роки","років")+" тому";
 };
-const hrefFor=record=>{
- const path=record.kind==="friend_request"||record.kind==="friend_accepted"?
-  "id"+record.actor_vatra_id:
-  record.target_kind==="avatar"||record.target_kind==="avatar_comment"?
-   "id"+(record.avatar_owner_vatra_id||ownId):
-   record.target_kind==="group"?"communities":
-    "feed"+(record.context_id||record.target_id?"?post="+encodeURIComponent(record.context_id||record.target_id):"");
- return new URL(path,root).href;
+const hrefFor=r=>{
+ if(["friend_request","friend_accepted","friend_declined"].includes(r.kind))
+  return new URL("id"+r.actor_vatra_id,root).href;
+ if(["avatar","avatar_comment"].includes(r.target_kind)){
+  const u=new URL("id"+(r.avatar_owner_vatra_id||ownId),root);u.searchParams.set("photo","avatar");
+  if(r.target_kind==="avatar_comment"&&r.target_id)u.searchParams.set("comment",r.target_id);
+  return u.href;
+ }
+ const u=new URL("feed",root);
+ if(r.context_id||r.target_id)u.searchParams.set("post",r.context_id||r.target_id);
+ if(r.target_kind==="post_comment"&&r.target_id)u.searchParams.set("comment",r.target_id);
+ return u.href;
 };
 const notificationTemplates={
  friend_request:["{name} хоче додатися до вас у друзі","{name} wants to add you as a friend"],
- friend_accepted:["{name}: вашу заявку в друзі прийнято","{name} accepted your friend request"],
- post_like:["{name}: вподобайка вашої публікації","{name} liked your post"],
- comment_like:["{name}: вподобайка вашого коментаря","{name} liked your comment"],
- avatar_like:["{name}: вподобайка вашого фото профілю","{name} liked your profile photo"],
- avatar_comment_like:["{name}: вподобайка коментаря під фото","{name} liked your photo comment"]
+ friend_accepted:["{name} прийняв(ла) вашу заявку в друзі","{name} accepted your friend request"],
+ friend_declined:["{name} відхилив(ла) вашу заявку в друзі","{name} declined your friend request"],
+ post_like:["{name} вподобав(ла) вашу публікацію","{name} liked your post"],
+ comment_like:["{name} вподобав(ла) ваш коментар","{name} liked your comment"],
+ avatar_like:["{name} вподобав(ла) ваше фото профілю","{name} liked your profile photo"],
+ avatar_comment_like:["{name} вподобав(ла) ваш коментар під фото","{name} liked your photo comment"]
 };
 const messageFor=(kind,name)=>{
- const [uk,english]=notificationTemplates[kind]||
-  ["{name}: нова подія","{name}: new activity"];
- return format(uk,english,{name});
+ const [uk,en]=notificationTemplates[kind]||["{name}: нова подія","{name}: new activity"];
+ return format(uk,en,{name:String(name||"").trim().split(/\s+/u)[0]||name});
 };
 async function authorNames(rows){
  const ids=[...new Set(rows.map(x=>String(x.actor_vatra_id)).filter(validId))];
@@ -136,7 +140,7 @@ async function fetchRows({page,size,filter="all",sort="new"}){
  const run=notificationRun;
  if(!run)return {rows:[],hasNext:false};
  let query=run.client.from("member_notifications").select(
-  "id,actor_vatra_id,kind,target_kind,target_id,context_id,avatar_owner_vatra_id,read_at,created_at")
+  "id,actor_vatra_id,kind,target_kind,target_id,context_id,avatar_owner_vatra_id,event_key,read_at,created_at")
   .eq("recipient_vatra_id",run.id);
  query=applyDisplayFilter(query,run.id);
  if(filter==="unread")query=query.is("read_at",null);
@@ -167,6 +171,13 @@ async function remove(id){
   .eq("recipient_vatra_id",run.id).eq("id",id);
  if(error)throw error;
  if(run===notificationRun)void unreadCount();
+}
+function renderEmpty(node){
+ node.replaceChildren();
+ const art=make("span","vatra-notice-empty-illustration-001");
+ art.append(icon("bell-off","M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9ZM10 21h4M4 4l16 16"));
+ node.append(art,make("strong","vatra-notice-empty-title-001",t("Поки немає сповіщень","No notifications yet")),make("span","vatra-notice-empty-description-001",t("Нові сповіщення з'являться тут.","New notifications will appear here.")));
+ node.hidden=false;
 }
 function createRow(record,name,index,onChange,photoUrl,accountState=null){
  const article=make("article","vatra-notification-row ui-vatra-notification-row-"+index);
@@ -215,7 +226,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null){
  const actions=make("div","vatra-notification-actions ui-vatra-notification-actions-"+index);
  const deleteButton=make("button","vatra-notification-delete vatra-notification-delete-"+index);
  deleteButton.type="button";
- deleteButton.append(icon("delete-"+index,"M7 7h10m-9 0 .7 12h6.6L16 7M10 7V5h4v2M10.5 10.5v5m3-5v5"));
+ deleteButton.append(icon("delete-"+index,"M5 5l14 14M19 5 5 19"));
  deleteButton.setAttribute("aria-label",t("Видалити сповіщення","Delete notification"));
  deleteButton.setAttribute("data-vatra-hint",t("Видалити","Delete"));
  deleteButton.addEventListener("click",async()=>{
@@ -258,8 +269,7 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
   });
   list.replaceChildren(...nodes);
   if(!rows.length){
-   status.textContent=t("Сповіщень поки немає.","No notifications yet.");
-   status.hidden=false;
+   renderEmpty(status);
   }
   if(prev)prev.disabled=opts.page===0;
   if(next)next.disabled=!hasNext;
@@ -280,7 +290,7 @@ async function panelLoad(){
  const task=(async()=>{
   const list=panelItems;
   const rows=await renderRows(list,pick("#vatra-notification-panel-empty"),
-   {page:0,size:6},panelLoad,null,null,null);
+   {page:0,size:5},panelLoad,null,null,null);
   if(!open||run!==notificationRun)return;
 
   const unread=rows.filter(row=>!row.read_at).map(row=>row.id);
@@ -342,11 +352,11 @@ function headerUI(){
  panel.setAttribute("aria-label",t("Ваші сповіщення","Your notifications"));
  const heading=make("div","vatra-notification-panel-heading ui-vatra-notification-panel-heading-001");
  const title=make("h2","vatra-notification-title-001",t("Сповіщення","Notifications"));
- const close=make("button","vatra-notification-close-001");
- close.type="button";close.append(icon("close","M5 5l14 14M19 5 5 19"));
- close.setAttribute("aria-label",t("Закрити сповіщення","Close notifications"));
- close.addEventListener("click",()=>{closePanel();bell.focus();});
- heading.append(title,close);
+ const settings=make("a","vatra-notification-settings-001");
+ settings.href=new URL("settings#notifications",root).href;
+ settings.append(icon("settings","M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM20 12a8 8 0 0 0-.2-1.8l1.5-1.4-2-3.4-2 .7A8 8 0 0 0 14.4 5L14 3h-4l-.4 2A8 8 0 0 0 6.7 6l-2-.7-2 3.4 1.5 1.4a8 8 0 0 0 0 3.8l-1.5 1.4 2 3.4 2-.7A8 8 0 0 0 9.6 19l.4 2h4l.4-2a8 8 0 0 0 2.9-1.1l2 .7 2-3.4-1.5-1.4A8 8 0 0 0 20 12Z"));
+ settings.setAttribute("aria-label",t("Налаштування сповіщень","Notification settings"));
+ heading.append(title,settings);
  panelItems=make("div","vatra-notification-list ui-vatra-notification-panel-list-001");
  const empty=make("p","vatra-notification-panel-empty-001");
  empty.id="vatra-notification-panel-empty";empty.hidden=true;
@@ -502,7 +512,7 @@ function incomingToast(row){
  if(kind==="friend_request")window.VATRA_TOAST.show(t("Нова заявка у друзі","You have a new friend request"),"friends",{href,actionLabel:t("Переглянути","View")});
  else if(kind==="friend_accepted")window.VATRA_TOAST.show(t("Вашу заявку в друзі прийнято","Your friend request was accepted"),"friends",{href,actionLabel:t("Переглянути","View")});
  else if(kind==="gift"||kind==="profile_gift")window.VATRA_TOAST.show(t("Ви отримали подарунок!","You've received a gift!"),"gift",{href:"gifts",actionLabel:t("Переглянути","View")});
- else if(kind==="message"||kind==="new_message")window.VATRA_TOAST.show(t("Нове повідомлення","New message"),"message",{href:"notifications",actionLabel:t("Переглянути","View")});
+ else if(kind==="friend_declined")window.VATRA_TOAST.show(t("Вашу заявку в друзі відхилено","Your friend request was declined"),"friends",{href,actionLabel:t("Переглянути","View")});
 }
 function start(c,id){
  if(!c||!validId(id))return;
@@ -573,7 +583,7 @@ async function pageLoad(append=false){
   sectionPage=page;
   more.hidden=!result.hasNext;
   if(!list.children.length){
-   empty.hidden=false;empty.textContent=t("Сповіщень поки немає.","No notifications yet.");
+   renderEmpty(empty);
   }
  }catch(_){
   if(run!==notificationRun)return;
