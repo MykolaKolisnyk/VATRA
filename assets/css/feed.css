@@ -1832,11 +1832,6 @@ body.feed-page .feed-header .feed-account-dropdown{
 }
 body.feed-page .vatra-search-panel{border-top:0!important
 }
-.vatra-notification-panel{
- border-radius:0 0 16px 16px!important;border-top:0!important;
- box-shadow:0 20px 42px rgba(33,52,97,.17)
-}
-.vatra-notification-row{position:relative;align-items:center}
 .vatra-notification-avatar{
  flex:none;display:block;width:41px;height:41px;border:1px solid #d5e0f2;border-radius:50%;
  background-color:#edf2f9;background-position:center;background-size:cover;
