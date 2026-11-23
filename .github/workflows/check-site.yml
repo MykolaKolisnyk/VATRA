@@ -30,7 +30,8 @@ jobs:
   validate:
     needs: development
     if: needs.development.outputs.present == 'true'
-    runs-on: ubuntu-latest
+    # Ubuntu 26.04 lacks dependencies required by the pinned Playwright browser set.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Check avatar state cache safety
