@@ -3152,7 +3152,7 @@ body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-input-wrap .ui-
  background:transparent;font-size:14px
 }
 body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-attach-001{display:none!important}
-body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-toolbar>.vatra-post-comment-send-001:disabled{display:none!important}
+body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-toolbar>.vatra-post-comment-send-001:disabled{opacity:.42;cursor:not-allowed}
 body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form:focus-within .ui-vatra-post-comment-input-001{min-height:62px}
 @media(max-width:680px){
  body.feed-page :is(.ui-vatra-post-media-side-001 .vatra-post-comment-form,.profile-media-viewer .profile-photo-comment-form){padding:8px 12px!important}
