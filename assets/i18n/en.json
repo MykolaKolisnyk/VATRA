@@ -1501,6 +1501,11 @@
           "text": {
             "0": "Platform rules"
           }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Back"
+          }
         }
       }
     },
@@ -1818,6 +1823,11 @@
           "text": {
             "0": "Data protection"
           }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Back"
+          }
         }
       }
     },
@@ -2117,6 +2127,11 @@
         "docs_kicker_001": {
           "text": {
             "0": "Browser storage"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Back"
           }
         }
       }
@@ -3099,6 +3114,11 @@
           "text": {
             "0": "Marketplace rules"
           }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Back"
+          }
         }
       }
     },
@@ -3114,11 +3134,6 @@
         "docs_back_home_001": {
           "text": {
             "0": "Back to VATRA"
-          }
-        },
-        "docs_overline_001": {
-          "text": {
-            "0": "INFORMATION & RULES"
           }
         },
         "docs_title_001": {
@@ -3214,6 +3229,11 @@
         "docs_open_04_001": {
           "text": {
             "0": "Read document"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Back"
           }
         }
       }
