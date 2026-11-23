@@ -442,6 +442,8 @@ assert.deepEqual(pickerCodes.filter(item=>item.enabled).map(item=>item.code),["u
  "Unfinished languages must remain unavailable");
 for(const code of codes){
  const dictionary=await read(code);
+ assert.ok(!/GDPR|DSGVO|RGPD|RODO/i.test(JSON.stringify(dictionary.__pages?.privacy?.nodes?.n77?.text||{})),
+  code+": pending privacy translation must not include obsolete EU notice");
  const status=dictionary.__translation_status;
  assert.deepEqual(status.translated_static_pages,activePages,
   code+": localized static page manifest must match all thirteen page catalogs");
