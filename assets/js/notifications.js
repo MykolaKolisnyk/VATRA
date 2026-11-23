@@ -228,11 +228,19 @@ async function enrichNotice(record,body,link){
    if(kind==="avatar_comment_like"){
     photoPath=String(content.avatar_path||"");bucket="avatars";
     const url=new URL("id"+content.owner_vatra_id,root);
-    url.searchParams.set("photo","avatar");url.searchParams.set("comment",record.target_id);link.href=url.href;
+    url.searchParams.set("photo","avatar");
+    if(photoPath)url.searchParams.set("image",photoPath.split("/").pop());
+    url.searchParams.set("comment",record.target_id);link.href=url.href;
    }else{
     const media=Array.isArray(content.media_items)?content.media_items.find(x=>x?.media_kind==="image"):null;
     photoPath=String(media?.media_path||(content.media_kind==="image"?content.media_path:"")||"");
    }
+  }
+  if(bucket==="avatars"&&photoPath&&kind==="avatar_like"){
+   const url=new URL("id"+(record.avatar_owner_vatra_id||ownId),root);
+   url.searchParams.set("photo","avatar");
+   url.searchParams.set("image",photoPath.split("/").pop());
+   link.href=url.href;
   }
   if(run!==notificationRun||!body.isConnected)return;
   const excerpt=String(content?.body||"").trim().slice(0,175);

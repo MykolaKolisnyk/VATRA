@@ -2670,6 +2670,50 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    throw error;
   }
  };
+ const linkedPhotoSearch=new URLSearchParams(location.search);
+ const linkedAvatarComment=linkedPhotoSearch.get("photo")==="avatar"?
+  linkedPhotoSearch.get("comment"):null;
+ const linkedAvatarImage=linkedPhotoSearch.get("image");
+ let linkedAvatarFocused=false;
+ async function focusLinkedAvatarComment(path,ticket){
+  const id=linkedAvatarComment;
+  if(linkedAvatarFocused||!id||!/^[a-f0-9-]{36}$/i.test(id)||
+   (linkedAvatarImage&&!path.endsWith("/"+linkedAvatarImage)))return;
+  try{
+   let selected=[...commentList.querySelectorAll("[data-comment-id]")]
+    .find(item=>item.dataset.commentId===id);
+   if(!selected){
+    const {data,error}=await client.from("avatar_comments")
+     .select("id,owner_vatra_id,author_vatra_id,author_id,avatar_path,body,moderation_status,created_at")
+     .eq("id",id).eq("owner_vatra_id",targetId).eq("avatar_path",path)
+     .maybeSingle();
+    if(error||!data||ticket!==activityTicket||path!==photoPath())return;
+    const {names,images}=await window.VATRA_POST_INTERACTIONS?.authorMap(client,[data])
+     ||{names:new Map(),images:new Map()};
+    const reaction=await client.from("avatar_comment_likes").select("comment_id")
+     .eq("comment_id",id).eq("liker_id",userId).maybeSingle();
+    const feature=await window.VATRA_FEATURES.load("avatar-comment-row");
+    if(ticket!==activityTicket||path!==photoPath()||!mediaDialog.open)return;
+    selected=feature.create({...data,likes:0},{client,ownId,userId,locale,names,images,
+     ownCommentLikes:new Set(reaction.data?[id]:[]),node,t,memberUrl,dateText,feedback,
+     clearCommentCache:()=>avatarCommentPages.clear(),
+     onDelete:()=>{photoCommentOffset=Math.max(0,photoCommentOffset-1);}});
+    commentList.querySelector(".ui-profile-photo-empty-state-001")?.remove();
+    commentList.classList.remove("is-empty");
+    commentList.prepend(selected);
+   }
+   if(ticket!==activityTicket||path!==photoPath()||!selected)return;
+   linkedAvatarFocused=true;
+   selected.id="vatra-avatar-comment-"+id;
+   selected.classList.add("is-linked-comment");
+   selected.setAttribute("tabindex","-1");
+   requestAnimationFrame(()=>{
+    if(!selected.isConnected||!mediaDialog.open)return;
+    selected.scrollIntoView({block:"center",behavior:"auto"});
+    selected.focus({preventScroll:true});
+   });
+  }catch(_){}
+ }
  async function reloadPhotoActivity(append=false,refreshLikes=true,keepVisible=false){
   const path=photoPath();
   if(!path||(append&&(photoCommentLoading||!photoCommentHasMore||!mediaDialog.open)))return;
@@ -2748,6 +2792,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
    lastAvatarCommentKey=key;
    photoCommentOffset+=rows.length;
+   if(!append)await focusLinkedAvatarComment(path,ticket);
    
    photoCommentHasMore=rows.length===12;
    photoCommentSentinel.hidden=!photoCommentHasMore;feedback("");
