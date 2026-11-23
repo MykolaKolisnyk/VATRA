@@ -71,6 +71,7 @@ CREATE TRIGGER vatra_feed_poll_guard BEFORE INSERT OR UPDATE OF poll
 CREATE TABLE IF NOT EXISTS public.post_poll_votes (
  post_id uuid NOT NULL REFERENCES public.feed_posts(id) ON DELETE CASCADE,
  voter_id uuid NOT NULL REFERENCES public.accounts(user_id) ON DELETE CASCADE,
+ voter_vatra_id bigint NOT NULL REFERENCES public.member_directory(vatra_id) ON DELETE CASCADE,
  choices smallint[] NOT NULL,
  created_at timestamptz NOT NULL DEFAULT now(),
  updated_at timestamptz NOT NULL DEFAULT now(),
@@ -81,12 +82,32 @@ REVOKE ALL ON public.post_poll_votes FROM PUBLIC, anon;
 GRANT SELECT,INSERT,UPDATE,DELETE ON public.post_poll_votes TO authenticated;
 CREATE POLICY "Read only own poll votes" ON public.post_poll_votes FOR SELECT TO authenticated
  USING (voter_id=(SELECT auth.uid()) AND EXISTS(SELECT 1 FROM public.feed_posts p WHERE p.id=post_id));
+CREATE POLICY "Read nonanonymous poll voters for visible posts" ON public.post_poll_votes
+ FOR SELECT TO authenticated USING (
+  EXISTS(
+   SELECT 1 FROM public.feed_posts p WHERE p.id=post_id
+    AND p.archived_at IS NULL AND p.poll IS NOT NULL
+    AND (p.poll->>'anonymous')='false'
+  )
+ );
 CREATE POLICY "Insert own poll vote" ON public.post_poll_votes FOR INSERT TO authenticated
  WITH CHECK (voter_id=(SELECT auth.uid()) AND EXISTS(SELECT 1 FROM public.feed_posts p WHERE p.id=post_id));
 CREATE POLICY "Update own poll vote" ON public.post_poll_votes FOR UPDATE TO authenticated
  USING (voter_id=(SELECT auth.uid())) WITH CHECK (voter_id=(SELECT auth.uid()));
 CREATE POLICY "Remove own poll vote" ON public.post_poll_votes FOR DELETE TO authenticated
  USING (voter_id=(SELECT auth.uid()));
+
+CREATE OR REPLACE VIEW public.post_poll_voters WITH (security_invoker=true) AS
+ SELECT votes.post_id,votes.choices,votes.voter_vatra_id AS vatra_id,
+  coalesce(nullif(btrim(profiles.display_name),''),
+   'VATRA ID '||votes.voter_vatra_id::text) AS display_name
+ FROM public.post_poll_votes votes
+ JOIN public.feed_posts posts ON posts.id=votes.post_id
+ LEFT JOIN public.public_profiles profiles ON profiles.vatra_id=votes.voter_vatra_id
+ WHERE posts.poll IS NOT NULL AND (posts.poll->>'anonymous')='false'
+  AND posts.archived_at IS NULL;
+REVOKE ALL ON public.post_poll_voters FROM PUBLIC, anon;
+GRANT SELECT ON public.post_poll_voters TO authenticated;
 
 CREATE TABLE IF NOT EXISTS public.post_poll_counts (
  post_id uuid PRIMARY KEY REFERENCES public.feed_posts(id) ON DELETE CASCADE,
@@ -142,6 +163,7 @@ BEGIN
  END IF;
  IF TG_OP='UPDATE' AND (NEW.post_id IS DISTINCT FROM OLD.post_id
   OR NEW.voter_id IS DISTINCT FROM OLD.voter_id
+  OR NEW.voter_vatra_id IS DISTINCT FROM OLD.voter_vatra_id
   OR NEW.created_at IS DISTINCT FROM OLD.created_at) THEN
   RAISE EXCEPTION 'Vote identity cannot change' USING ERRCODE='23514';
  END IF;
@@ -166,7 +188,14 @@ BEGIN
    RAISE EXCEPTION 'Choice is outside poll options' USING ERRCODE='23514';
   END IF;
  END LOOP;
- IF TG_OP='INSERT' THEN NEW.created_at=now(); END IF;
+ IF TG_OP='INSERT' THEN
+  SELECT a.vatra_id INTO NEW.voter_vatra_id FROM public.accounts a
+   WHERE a.user_id=NEW.voter_id;
+  IF NEW.voter_vatra_id IS NULL THEN
+   RAISE EXCEPTION 'Voter account is unavailable' USING ERRCODE='42501';
+  END IF;
+  NEW.created_at=now();
+ END IF;
  NEW.updated_at=now();
  RETURN NEW;
 END;
