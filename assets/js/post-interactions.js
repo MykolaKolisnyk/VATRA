@@ -361,8 +361,8 @@ function appendAudience(container,level,isGroup=false){
   const closed=()=>closeAt&&Date.now()>=closeAt;
   const hasVote=()=>Array.isArray(ownVote);
   const message=(value)=>{status.textContent=value;status.hidden=!value;};
-  const votersCache=new Map(),votersPending=new Map();
-  const populateVoters=(panel,rows,count)=>{
+  const votersCache=new Map(),votersPending=new Map(),votersPageSize=20;
+  const populateVoters=(index,panel,rows,count,complete=false)=>{
    if(!panel.isConnected)return;
    const header=make("strong","vatra-post-poll-voters-heading-001",
     count+" "+tr("проголосували за цей варіант","voted for this option"));
@@ -381,34 +381,60 @@ function appendAudience(container,level,isGroup=false){
    if(!list.childElementCount)list.append(make("span","vatra-post-poll-voters-empty-001",
     tr("Поки немає голосів","No votes yet")));
    panel.replaceChildren(header,list);
-   if(count>rows.length)panel.append(make("span","vatra-post-poll-voters-more-001",
-    tr("І ще ","And ")+(count-rows.length)+tr(" учасників"," more voters")));
+   if(!complete&&count>rows.length){
+    const more=make("button","vatra-post-poll-voters-more-button-001",
+     tr("Завантажити ще","Load more"));
+    more.type="button";
+    more.addEventListener("click",()=>{
+     more.disabled=true;
+     more.textContent=tr("Завантаження…","Loading…");
+     loadVoters(index,panel,count,true);
+    });
+    panel.append(more);
+   }
   };
-  const loadVoters=(index,panel,count)=>{
+  const loadVoters=(index,panel,count,append=false)=>{
    if(data.anonymous)return;
    const cached=votersCache.get(index);
-   if(cached&&Date.now()-cached.at<30000){
-    populateVoters(panel,cached.rows,count);return;
+   if(!append&&cached&&Date.now()-cached.at<30000){
+    populateVoters(index,panel,cached.rows,count,cached.complete);
+    return;
    }
-   panel.replaceChildren(make("span","vatra-post-poll-voters-loading-001",
-    tr("Завантаження…","Loading…")));
+   if(append&&cached?.complete)return;
+   const previous=append&&cached?cached.rows:[];
+   if(!append&&!votersPending.has(index)){
+    panel.replaceChildren(make("span","vatra-post-poll-voters-loading-001",
+     tr("Завантаження…","Loading…")));
+   }
    let promise=votersPending.get(index);
    if(!promise){
+    const offset=previous.length;
     promise=(async()=>{
      const {data:rows,error}=await client.from("post_poll_voters")
       .select("vatra_id,display_name").eq("post_id",post.id)
-      .contains("choices",[index]).order("vatra_id",{ascending:true}).limit(12);
+      .contains("choices",[index]).order("vatra_id",{ascending:true})
+      .range(offset,offset+votersPageSize-1);
      if(error)throw error;
-     votersCache.set(index,{rows:rows||[],at:Date.now()});
-     return rows||[];
+     const batch=rows||[];
+     const all=[...previous,...batch];
+     const result={rows:all,complete:batch.length<votersPageSize||all.length>=count,at:Date.now()};
+     votersCache.set(index,result);
+     return result;
     })();
     votersPending.set(index,promise);
     void promise.finally(()=>votersPending.delete(index)).catch(()=>{});
    }
-   void promise.then(rows=>populateVoters(panel,rows,count)).catch(()=>{
-    if(panel.isConnected)panel.replaceChildren(make("span","vatra-post-poll-voters-error-001",
-     tr("Не вдалося завантажити учасників.","Could not load voters.")));
-   });
+   void promise.then(result=>populateVoters(index,panel,result.rows,count,result.complete))
+    .catch(()=>{
+     if(!panel.isConnected)return;
+     const previousResult=votersCache.get(index);
+     if(previousResult?.rows?.length){
+      populateVoters(index,panel,previousResult.rows,count,previousResult.complete);
+      panel.append(make("span","vatra-post-poll-voters-error-001",
+       tr("Не вдалося завантажити учасників.","Could not load voters.")));
+     }else panel.replaceChildren(make("span","vatra-post-poll-voters-error-001",
+      tr("Не вдалося завантажити учасників.","Could not load voters.")));
+    });
   };
   const refresh=()=>{
    choicesWrap.replaceChildren();
