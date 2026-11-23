@@ -21,7 +21,7 @@ BEGIN
  FOR option_text IN SELECT jsonb_array_elements_text(value->'options') LOOP
   IF char_length(btrim(option_text)) NOT BETWEEN 1 AND 120 THEN RETURN false; END IF;
  END LOOP;
- IF (SELECT count(DISTINCT lower(btrim(option))) FROM jsonb_array_elements_text(value->'options') AS option)
+ IF (SELECT count(DISTINCT lower(btrim(choice))) FROM jsonb_array_elements_text(value->'options') AS answer(choice))
      <> jsonb_array_length(value->'options') THEN RETURN false; END IF;
  RETURN true;
 EXCEPTION WHEN others THEN RETURN false;
