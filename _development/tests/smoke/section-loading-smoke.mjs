@@ -105,7 +105,9 @@ assert.ok(byClass(guidance,"vatra-market-rules-link-003"),"Standalone commerce r
 assert.ok(byClass(listing,"ui-vatra-market-accept-checkbox-001").required,"Rules acceptance remains mandatory");
 assert.ok(!market.includes('toolbarNav.append(mode,action,moderationNotice)')&&!market.includes('vatra-market-rules-link-001'),"Routine guidance and rules link must not occupy the catalogue sidebar");
 const commerce=await readFile("commerce.html","utf8");
-assert.ok(!commerce.includes("policy-tabs-shell"),"Commerce rules must not share general legal-document navigation");
+assert.ok(!commerce.includes("policy-tabs-shell")&&commerce.includes('href="documents" class="vatra-document-back-001"'),"Commerce rules must return directly to documents without the old navigation");
+const documents=await readFile("documents.html","utf8");
+for(const page of ["terms","privacy","cookies","commerce"])assert.ok(documents.includes('href="'+page+'" aria-labelledby="vatra-documents-title-'+page+'-001"'),"Documents index must link "+page);
 for(const [id] of catalog.marketTypes){
  const pick=byClass(listing,"vatra-market-type-"+id);assert.ok(pick,"Missing listing type "+id);await pick.fire("click");
  assert.equal(byClass(listing,"ui-vatra-market-editor-sidebar-001").hidden,false);

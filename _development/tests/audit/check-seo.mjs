@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
 const BASE="https://mykolakolisnyk.github.io/VATRA/";
-const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline","maintenance"];
-const publicPages=new Set(["index","terms","privacy","cookies","commerce"]);
+const pages=["index","404","create-account","forgot","reset","verify","feed","profile","documents","terms","privacy","cookies","commerce","offline","maintenance"];
+const publicPages=new Set(["index","documents","terms","privacy","cookies","commerce"]);
 const sensitive=new Set(["404","create-account","forgot","reset","verify","feed","profile"]);
 const css=await read("assets/css/base.css");
 const privateMessenger=await read("messenger.html");
@@ -35,13 +35,15 @@ for(const page of pages){
    assert.ok(html.includes(tag),filename+": "+tag+" missing");
   }
   assert.ok(html.includes('name="robots" content="index,follow'),filename+": must be indexable");
-  const url=BASE+(page==="index"?"":page==="commerce"?"commerce.html":page);
+  const url=BASE+(page==="index"?"":page);
   assert.ok(html.includes('href="'+url+'"'),filename+": canonical URL should be unique");
   assert.ok(sitemap.includes('<loc>'+url+'</loc>'),filename+": missing sitemap URL");
  }
  if(page==="maintenance")assert.ok(html.includes('name="robots" content="noindex,nofollow"'),"Maintenance must not be indexed");
  if(sensitive.has(page))assert.ok(html.includes('name="robots" content="noindex,follow"'),filename+": sensitive page should not be indexed");
  if(page==="index")assert.ok(html.includes('type="application/ld+json"'),"Missing website structured data");
+ if(["terms","privacy","cookies","commerce"].includes(page))assert.ok(html.includes('href="documents" class="vatra-document-back-001"')&&!html.includes("policy-navigation-header")&&!html.includes("policy-tabs-shell"),page+": documents may expose only the return-to-documents header link");
+ if(page==="documents")for(const target of ["terms","privacy","cookies","commerce"])assert.ok(html.includes('href="'+target+'" aria-labelledby="vatra-documents-title-'+target+'-001"'),"Documents hub must link all four policies");
  const ukMeta=uk.__pages[page].meta,enMeta=en.__pages[page].meta;
  assert.ok(ukMeta.title&&enMeta.title&&ukMeta.title!==enMeta.title,filename+": localized titles missing");
  assert.ok(Object.keys(uk.__pages[page].nodes).length>=(page==="404"?2:3),filename+": Ukrainian dictionary incomplete");

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline","maintenance"];
+const pages=["index","404","create-account","forgot","reset","verify","feed","profile","documents","terms","privacy","cookies","commerce","offline","maintenance"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
 const authBaseCss=await read("assets/css/base.css");
 const signInCss=await read("assets/css/sign-in.css");
@@ -835,7 +835,7 @@ assert.ok(css.includes("align-items:start")&&css.includes(".signup-form-panel .t
 for(const page of pages.filter(p=>p!=="offline"&&p!=="verify")){
  const html=await read(page+".html");
  if(page==="maintenance")assert.ok(!html.includes("data-language-trigger")&&!/<(?:header|footer|button)\b/.test(html),"Maintenance display must contain no language picker, header, footer or action buttons");
- else if(!["404","feed","profile"].includes(page))assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
+ else if(!["404","feed","profile","documents","terms","privacy","cookies","commerce"].includes(page))assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("assets/js/lang.js")&&!html.includes("assets/js/errors.js"),page+": localization runtime required, console toasts forbidden");
  assert.ok(html.includes("assets/css/base.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
@@ -845,7 +845,7 @@ assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger
 // All public pages use the same footer structure; the full-width background
 // remains separate from the centered content. Documents have a working
 // single-row header independent of the former signup header styles.
-const footerNames=pages.filter(p=>!["404","offline","feed","profile","verify","maintenance"].includes(p));
+const footerNames=pages.filter(p=>!["404","offline","feed","profile","verify","maintenance","documents","terms","privacy","cookies","commerce"].includes(p));
 const feedFooter=await read("feed.html"),profileMarkup=await read("profile.html");
 assert.ok(!feedFooter.includes("<footer")&&!profileMarkup.includes("<footer"),
  "Signed-in VATRA must not show the guest-site footer");
@@ -855,12 +855,13 @@ for(const page of footerNames){
  assert.ok(html.includes('class="auth-footer-content ui-'+tag+'-footer-content-001"'),
   page+": missing shared centered footer container");
 }
-for(const page of ["terms","privacy","cookies"]){
+for(const page of ["terms","privacy","cookies","commerce"]){
  const html=await read(page+".html");
- assert.ok(html.includes('class="policy-top-inner ui-'+page+'-top-inner-001"')&&
-  html.includes('class="policy-navigation-header policy-top ui-'+page+'-header-001"')&&
+ assert.ok(html.includes('href="documents" class="vatra-document-back-001"')&&
+  html.includes('class="vatra-document-kicker-001"')&&
+  !html.includes("policy-navigation-header")&&!html.includes("policy-tabs-shell")&&
   html.includes("assets/css/legal.css"),
-  page+": documents need a functioning unified header and fresh stylesheet");
+  page+": documents must have one return-to-documents link and no shared navigation");
 }
 for(const page of ["verify"]){
  const html=await read(page+".html"),prefix=page==="verify"?"account":page;
@@ -886,7 +887,7 @@ assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
  !auth.includes("wireStableInputHints"),
  "Login and signup floating hints must use original translated text");
-for(const page of ["terms","privacy","cookies","forgot","reset"]){
+for(const page of ["forgot","reset"]){
  const html=await read(page+".html");
  assert.ok(html.includes('data-i18n="n301">Увійти</a>')&&
  html.includes('data-i18n="n302">Створити акаунт</a>')&&
@@ -922,12 +923,12 @@ assert.ok(!register.includes("Особистий VATRA ID")&&
  signupTags.every((tag,i)=>uk.__pages["create-account"].nodes["n"+signupKeys[i]]?.text["0"]===tag&&
  en.__pages["create-account"].nodes["n"+signupKeys[i]]?.text["0"]===englishSignupTags[i]),
  "All seven hashtags must display in Ukrainian and translate correctly into English");
-for(const page of ["terms","privacy","cookies"]){
+for(const page of ["terms","privacy","cookies","commerce"]){
  const html=await read(page+".html");
- assert.ok(!html.includes('policy-nav-icon')&&
- !html.includes('>Усі документи</a>')&&
- (html.match(/<nav class="policy-tabs[^"]*"[^>]*>/g)||[]).length===1,
- page+": only three text tabs should remain in legal navigation");
+ assert.ok(!html.includes("policy-tabs-shell")&&
+  (html.match(/class="vatra-document-back-001"/g)||[]).length===1&&
+  html.includes('href="documents"'),
+  page+": one return link must replace the old document tabs");
 }
 assert.ok(!legalCss.includes(".policy-cards")&&
  !legalCss.includes(".policy-summary")&&!legalCss.includes(".policy-end")&&
@@ -942,7 +943,7 @@ assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&
  uk.__pages["create-account"].nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
  !register.includes('href="./" class="vatra-create-account-link-10"'),
  "Confirmation screen must have one contextual sign-in link");
-for(const page of ["terms","privacy","cookies","forgot","reset"]){
+for(const page of ["forgot","reset"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('>Вхід</a>')&&html.includes('>Увійти</a>')&&
   uk.__pages[page].nodes.n301.text["0"]==="Увійти",

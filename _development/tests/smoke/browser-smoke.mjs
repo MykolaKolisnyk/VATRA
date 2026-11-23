@@ -1404,11 +1404,11 @@ try{
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
  console.log("VATRA floating hints, error spacing, and temporary validation: OK");
  // Each page uses the same language modal with a centered SVG X.
- for(const route of ["","create-account.html","terms.html"]){
+ for(const route of ["","create-account.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
-  if(route!=="terms.html")await waitReady(probe);
+  await waitReady(probe);
   await probe.locator("[data-language-trigger]").click();
   const search=probe.locator("#vatra-language-search");
   assert.equal(await probe.locator(".language-search-shell .vatra-floating-hint").count(),1,
@@ -1446,8 +1446,7 @@ try{
  console.log("VATRA cross alignment and clearing across auth/legal pages: OK");
  // account.html redirects unauthenticated visitors to sign-in; its footer
  // structure is covered by the static checks instead of the guest browser run.
- for(const route of ["terms.html","terms.html","privacy.html","cookies.html",
-  "forgot.html","reset.html"]){
+ for(const route of ["forgot.html","reset.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"load"});
@@ -1459,8 +1458,9 @@ try{
    "Create account CTA missing from "+route+": "+JSON.stringify(links));
   assert.equal(links.filter(x=>x.href==="/VATRA/").length,1,
    "Sign-in CTA missing from "+route+": "+JSON.stringify(links));
-  if(["terms.html","terms.html","privacy.html","cookies.html"].includes(route))
-   assert.equal(links.length,2,"Legal page footer must not repeat its document tabs");
+  for(const target of ["/VATRA/terms","/VATRA/privacy","/VATRA/cookies"])
+   assert.equal(links.filter(x=>x.href===target).length,1,
+    "Keep original document footer links "+route+": "+target);
   await probe.close();
  }
  // Footers must render navigation links uniformly — no boxed sign-in button.
@@ -1542,7 +1542,7 @@ try{
  // Page-to-page footer typography: legal links and language controls use
  // one readable Onest scale, while copyright remains visually secondary.
  let baselineFooterAppearance=null;
- for(const route of ["","create-account.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html"]){
+ for(const route of ["","create-account.html","forgot.html","reset.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
@@ -1573,11 +1573,6 @@ try{
   if(!baselineFooterAppearance)baselineFooterAppearance=footerTypography.style;
   else assert.deepEqual(footerTypography.style,baselineFooterAppearance,
    "Footer border, background, spacing, navigation and link height must match across page types: "+route);
-  if(["terms.html","privacy.html","cookies.html"].includes(route)){
-   const legalMotion=await probe.locator(".policy-header").evaluate(el=>getComputedStyle(el).animationName);
-    const shellMotion=await probe.locator(".policy-main").evaluate(el=>getComputedStyle(el).animationName);
-    assert.ok(legalMotion==="vatraAuthReveal"&&shellMotion==="none");
-  }
   await probe.close();
  }
  console.log("VATRA guest footer links and account creation labels: OK");
@@ -1624,53 +1619,47 @@ try{
     "Brand symbol widths differ "+width+": "+JSON.stringify(settings));
   console.log("VATRA matching typography & brand logo "+width+"x"+height+": OK");
  }
- // Regression coverage for all four legal pages and supporting auth pages,
- // checking actual browser geometry instead of just matching CSS strings.
+ // Standalone legal readers use one return link, and the hub contains four banners.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
-  for(const route of ["terms.html","terms.html","privacy.html","cookies.html"]){
+  for(const route of ["documents.html","terms.html","privacy.html","cookies.html","commerce.html"]){
    const docs=await context.newPage();
    await docs.setViewportSize({width,height});
    await docs.goto(base+route,{waitUntil:"load"});
    const sizes=await docs.evaluate(()=>{
-    const box=s=>document.querySelector(s)?.getBoundingClientRect();
-    const main=box(".policy-main"),footer=box(".auth-footer-content"),top=box(".policy-top-inner");
-    const logo=box(".policy-top .header-logo"),actions=box(".policy-top-actions");
-    const header=box(".policy-top"),pageFoot=box(".footer");
-    return {overflow:document.documentElement.scrollWidth-innerWidth,
-      exists:!!(main&&footer&&top&&logo&&actions&&header&&pageFoot),
-      mainLeft:main?.left,mainRight:main?.right,
-      footLeft:footer?.left,footRight:footer?.right,
-      topLeft:top?.left,topRight:top?.right,
-      logoRight:logo?.right,actionLeft:actions?.left,actionRight:actions?.right,
-      logoMid:logo?(logo.top+logo.bottom)/2:0,
-      actionMid:actions?(actions.top+actions.bottom)/2:0,
-      headerHeight:header?.height,footerWidth:pageFoot?.width,
-      policyPaddingTop:parseFloat(getComputedStyle(document.querySelector(".policy-main")).paddingTop),
-      policyPaddingBottom:parseFloat(getComputedStyle(document.querySelector(".policy-main")).paddingBottom),
-      visibleDocumentGap:pageFoot?.top-document.querySelector(".policy-copy").getBoundingClientRect().bottom,
-      tabCount:document.querySelectorAll(".policy-tabs a").length,
-      linksCount:document.querySelectorAll(".footer nav a").length};
+    const hub=document.body.classList.contains("vatra-documents-home-001");
+    const rect=selector=>document.querySelector(selector)?.getBoundingClientRect();
+    const main=rect(hub?".vatra-documents-main-001":".policy-main");
+    const footer=rect(hub?".vatra-documents-footer-001":".vatra-document-footer-001");
+    const back=rect(hub?".vatra-documents-home-link-001":".vatra-document-back-001");
+    const top=rect(".vatra-document-top-001");
+    const header=rect(hub?".vatra-documents-intro-001":".policy-header");
+    const links=[...document.querySelectorAll(".vatra-documents-card-001")].map(el=>new URL(el.getAttribute("href"),location.href).pathname);
+    return {hub,overflow:document.documentElement.scrollWidth-innerWidth,
+     exists:!!(main&&footer&&back&&header&&(hub||top)),
+     mainLeft:main?.left,mainRight:main?.right,footLeft:footer?.left,footRight:footer?.right,
+     topLeft:top?.left,topRight:top?.right,backLeft:back?.left,backRight:back?.right,
+     backHref:new URL(document.querySelector(hub?".vatra-documents-home-link-001":".vatra-document-back-001").getAttribute("href"),location.href).pathname,
+     headerHeight:header?.height,tabCount:document.querySelectorAll(".policy-tabs a").length,
+     oldNavCount:document.querySelectorAll(".policy-top,.policy-tabs-shell,.policy-top-actions").length,
+     documentLinks:links};
    });
-   assert.ok(sizes.exists,"Policy header or footer missing at "+width+" "+route);
-   const expectedGap=width<1200?32:40;
-   assert.ok(Math.abs(sizes.policyPaddingTop-expectedGap)<1&&
-    Math.abs(sizes.policyPaddingBottom-expectedGap)<1&&
-    sizes.visibleDocumentGap>=expectedGap-1,
-    "VATRA document spacing must match the shared auth gutters at "+width+" "+route+": "+JSON.stringify(sizes));
-   assert.ok(sizes.overflow<=3,"Document horizontal overflow at "+width+" "+route+": "+JSON.stringify(sizes));
+   assert.ok(sizes.exists&&sizes.overflow<=3&&sizes.oldNavCount===0&&sizes.tabCount===0,
+    "Documents must omit legacy navigation and avoid horizontal overflow: "+width+" "+route+" "+JSON.stringify(sizes));
    assert.ok(Math.abs(sizes.mainLeft-sizes.footLeft)<=2&&Math.abs(sizes.mainRight-sizes.footRight)<=2,
-    "Document footer is not aligned with content at "+width+" "+route+": "+JSON.stringify(sizes));
-   assert.ok(Math.abs(sizes.mainLeft-sizes.topLeft)<=2&&Math.abs(sizes.mainRight-sizes.topRight)<=2,
-    "Document header and content do not align at "+width+" "+route+": "+JSON.stringify(sizes));
-   assert.ok(sizes.logoRight<=sizes.actionLeft+2&&Math.abs(sizes.logoMid-sizes.actionMid)<=3,
-    "Document logo and login/signup controls must appear in one row at "+width+" "+route);
-   assert.ok(sizes.actionRight<=width+1&&sizes.headerHeight<=110,
-    "Document header wraps or extends beyond viewport at "+width+" "+route);
-   assert.equal(sizes.tabCount,3,"Only the three actual legal documents belong in navigation at "+width+" "+route);
-   assert.equal(sizes.linksCount,2,"Document footer must only show Sign in and Create account at "+width+" "+route);
+    "Document footer/content alignment at "+width+" "+route+": "+JSON.stringify(sizes));
+   assert.ok(sizes.backLeft>=-2&&sizes.backRight<=width+2&&sizes.headerHeight>80,
+    "Document back link or hero outside viewport "+width+" "+route+": "+JSON.stringify(sizes));
+   if(sizes.hub){
+    assert.equal(sizes.backHref,"/VATRA/","Documents hub must return to VATRA");
+    assert.deepEqual(sizes.documentLinks,["/VATRA/terms","/VATRA/privacy","/VATRA/cookies","/VATRA/commerce"],"Documents hub needs exactly four banners");
+   }else{
+    assert.equal(sizes.backHref,"/VATRA/documents","Document back link must target documents hub");
+    assert.ok(Math.abs(sizes.mainLeft-sizes.topLeft)<=2&&Math.abs(sizes.mainRight-sizes.topRight)<=2,
+     "Document return link container must align with content "+route+": "+JSON.stringify(sizes));
+   }
    await docs.close();
   }
-  console.log("VATRA document header/content/footer geometry "+width+"x"+height+": OK");
+  console.log("VATRA documents hub/readers geometry "+width+"x"+height+": OK");
  }
  for(const route of ["forgot.html","reset.html"]){
   const other=await context.newPage();
@@ -6006,15 +5995,12 @@ try{
      await view.close();
     }
    }
-   // Public documents and 404 have their own responsive headers and TOCs.
-   // Check them at portrait, landscape and desktop widths in BOTH UI languages.
+   // Check 404, the document hub and all four readers on mobile and desktop in both languages.
    for(const language of ["uk","en"]){
-    // A saved language cookie takes precedence over localStorage on VATRA.
-    // Match both sources before each native/engine locale matrix.
     await auditContext.addCookies([{name:"vatra-language",value:language,url:base}]);
     for(const viewport of [{width:320,height:700},{width:390,height:844},
      {width:844,height:390},{width:768,height:1024},{width:1440,height:900}]){
-     for(const route of ["404.html","terms.html","privacy.html","cookies.html"]){
+     for(const route of ["404.html","documents.html","terms.html","privacy.html","cookies.html","commerce.html"]){
       const legal=await auditContext.newPage();
       try{
        const errors=[];
@@ -6025,29 +6011,30 @@ try{
        await legal.waitForFunction(lang=>document.documentElement.lang===lang&&
         !document.documentElement.classList.contains("i18n-pending"),language,{timeout:15000});
        const layout=await legal.evaluate(()=>{
-        const selectors=[".footer",".auth-footer-content",
-         document.body.classList.contains("policy-page")?".policy-main":".error-main"];
+        const missing=document.body.classList.contains("error-page");
+        const hub=document.body.classList.contains("vatra-documents-home-001");
+        const selectors=missing?[".error-main"]:hub?
+         [".vatra-documents-main-001",".vatra-documents-footer-001"]:
+         [".policy-main",".vatra-document-top-001",".vatra-document-footer-001"];
         const outside=selectors.filter(sel=>{
          const r=document.querySelector(sel)?.getBoundingClientRect();
          return r&&r.width>0&&(r.left< -3||r.right>innerWidth+3);
         });
         return {overflow:document.documentElement.scrollWidth-innerWidth,outside,
          documentLang:document.documentElement.lang,
-         headerHeight:document.querySelector(".policy-top,.account-top")?.getBoundingClientRect().height,
-         footerHeight:document.querySelector(".footer")?.getBoundingClientRect().height,
-         errors:[...document.querySelectorAll("img")].filter(i=>!i.complete&&i.getClientRects().length>0).length};
+         headerHeight:document.querySelector(".vatra-document-top-001,.vatra-documents-intro-001")?.getBoundingClientRect().height,
+         footerHeight:document.querySelector(".vatra-document-footer-001,.vatra-documents-footer-001")?.getBoundingClientRect().height};
        });
        assert.ok(layout.overflow<=3&&layout.outside.length===0&&
         (route==="404.html"?layout.headerHeight===undefined&&layout.footerHeight===undefined:layout.headerHeight>30&&layout.footerHeight>40)&&layout.documentLang===language,
         engine+" "+language+" "+viewport.width+"x"+viewport.height+" "+route+
-        ": legal/404 responsive geometry invalid "+JSON.stringify(layout));
-       assert.deepEqual(errors,[],
-        engine+" "+language+" "+route+" uncaught JavaScript errors");
+        ": document/404 responsive geometry invalid "+JSON.stringify(layout));
+       assert.deepEqual(errors,[],engine+" "+language+" "+route+" JavaScript errors");
       }finally{await legal.close();}
      }
     }
    }
-   console.log("VATRA "+engine+" legal/404 bilingual viewport matrix: 2 languages x 5 sizes x 4 pages passed");
+   console.log("VATRA "+engine+" documents/404 bilingual viewport matrix passed");
    await auditContext.close();
    if(engine!=="chromium"){
     // Verify actual translated entrance events in other rendering engines too.
