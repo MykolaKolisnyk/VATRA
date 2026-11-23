@@ -528,7 +528,7 @@ try{
  await localeBootContext.route("**/assets/js/host.js",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
  }));
- await localeBootContext.route("**/assets/i18n/en.json",async route=>{
+ await localeBootContext.route("**/assets/i18n/en.json*",async route=>{
   await new Promise(resolve=>setTimeout(resolve,850));
   await route.continue();
  });
@@ -610,7 +610,7 @@ try{
        }
        if(language==="en"){
         // Make the translation fetch deliberately slower than the reveal.
-        await view.route("**/assets/i18n/en.json",async route=>{
+        await view.route("**/assets/i18n/en.json*",async route=>{
          await new Promise(resolve=>setTimeout(resolve,1050));
          await route.continue();
         });
