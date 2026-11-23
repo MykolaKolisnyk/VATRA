@@ -188,4 +188,21 @@ assert.ok(
  "Profile photo comments must be deletable only by their own authors and avatar actions must be accessible"
 );
 
+const feedCss=await readFile("assets/css/feed.css","utf8");
+assert.ok(
+ script.includes('const portrait=make("a","vatra-album-comment-avatar-001")')&&
+ script.includes('void paintAvatars(portraits,ticket)')&&
+ script.includes('window.VATRA_AVATAR.paths(client,ids)')&&
+ script.includes('const commentsAvatar=make("span","vatra-album-comment-composer-avatar-001")')&&
+ script.includes('void paintComposerAvatar()')&&
+ script.includes('photoAuthorImage.classList.toggle("has-photo"')&&
+ css.includes(".vatra-album-comment-avatar-001")&&
+ css.includes(".vatra-album-comment-composer-avatar-001")&&
+ css.includes(".ui-vatra-album-photo-author-001")&&
+ media.includes('header.append(avatar,author);host.append(header)')&&
+ media.includes('const head=container?.querySelector(".feed-post-header")||postCard?.querySelector(".feed-post-header")')&&
+ feedCss.includes(".vatra-post-comment-send-001:disabled{opacity:.42;cursor:not-allowed}")&&
+ !feedCss.includes(".vatra-post-comment-send-001:disabled{display:none!important}"),
+ "All photo viewer contexts must preserve author portraits, composer controls and visible send buttons"
+);
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");
