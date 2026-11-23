@@ -660,7 +660,13 @@ function start(c,id){
   if(typeof c.channel==="function")
    liveChannel=c.channel("vatra-notices-"+run.id)
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"member_notifications",
-     filter:"recipient_vatra_id=eq."+run.id},payload=>{refresh(true);if(notificationRun===run&&!document.hidden)incomingToast(payload?.new);})
+     filter:"recipient_vatra_id=eq."+run.id},payload=>{
+       refresh(true);
+       if(notificationRun===run&&!document.hidden){
+        window.VATRA_SOUNDS?.play?.(["friend_request","friend_accepted","friend_declined"].includes(payload?.new?.kind)?"newFollower":"notification");
+        incomingToast(payload?.new);
+       }
+      })
     .subscribe(status=>{if(notificationRun===run)subscribed=status==="SUBSCRIBED";});
  }catch(_){subscribed=false;}
 
