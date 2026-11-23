@@ -114,7 +114,7 @@ function bind({prefix,ownerId,getFile}){
    !event.target.closest("button,.vatra-compose-media-preview"))choose.click();
  });
  zone.addEventListener("dragover",event=>{
-  if(!event.dataTransfer?.types?.includes("Files"))return;
+  if(!Array.from(event.dataTransfer?.types||[]).includes("Files"))return;
   event.preventDefault();zone.classList.add("is-dragging");event.dataTransfer.dropEffect="copy";
  });
  zone.addEventListener("dragleave",event=>{
