@@ -460,83 +460,39 @@ for(const page of pages){
 }
 const landing=await read("index.html");
 const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/logo_symbol.svg"');
-const features=["chat","communities","photos","video","music","marketplace","clips"];
-assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,7,"Seven evenly spaced orbit icons required");
-assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
-assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-home-div-009"),
- "Keep the restored description under VATRA artwork without bringing back outer slogan pills");
-assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,0,
- "Five VATRA orbit slogans must be removed");
+// VATRA now displays the original poster on sign-in; animated orbit remains retired.
+assert.ok(
+ landing.includes('class="vatra-login-poster-001 ui-home-poster-001"')&&
+ landing.includes('class="vatra-login-poster-image-001 ui-home-poster-image-001" src="assets/poster.webp"')&&
+ !landing.includes('class="intro-symbol ui-home-img-002"')&&
+ !landing.includes('class="intro-circle')&&
+ !landing.includes('class="orbit-node')&&
+ !landing.includes('class="orbit-track'),
+ "Login must display only the original VATRA poster, without previous orbital icons");
+assert.ok(signInCss.includes(".vatra-login-poster-001{")&&
+ signInCss.includes(".vatra-login-poster-image-001{")&&
+ signInCss.includes("object-fit:contain"),
+ "Login poster must retain its dimensions and aspect ratio at every breakpoint");
 assert.ok(
  landing.includes('class="vatra-home-paragraph-01">')&&
  landing.includes('class="vatra-home-emphasis-04" data-i18n="n100"')&&
  landing.includes('class="vatra-home-description-001" data-i18n="n99"')&&
- !landing.includes('class="vatra-home-paragraph-01" data-i18n="n99"')&&
  (landing.match(/data-i18n="n99"/g)||[]).length===1&&
  (landing.match(/data-i18n="n100"/g)||[]).length===1&&
  uk.__pages.index.nodes.n99.text["0"].includes("Знаходьте своїх людей")&&
  en.__pages.index.nodes.n99.text["0"].includes("Find your people"),
- "Landing description must have its own translatable text node to prevent duplicated copy");
-assert.ok(!landing.includes("feature-business")&&
- !landing.includes("ua-orbit-tip-business")&&
- !css.includes(".feature-business{")&&
- !css.includes(".orbit-track-inner .orbit-node:nth-child(8)")&&
- uk.__pages.index.nodes.n3.attrs["aria-label"].includes("сім")&&
- en.__pages.index.nodes.n3.attrs["aria-label"].includes("seven"),
- "Retired business icon and tooltip must be absent in both languages");
-const orbitPositions=[...landing.matchAll(/<div class="orbit-node orbit-feature feature-([a-z-]+) [^"]+" style="--angle:([-\d.]+)deg;--counter-angle:([-\d.]+)deg"/g)];
-assert.equal(orbitPositions.length,7,"All seven orbit nodes must declare their positions");
-orbitPositions.forEach((position,i)=>{
- const angle=Number(position[2]),counter=Number(position[3]);
- assert.equal(position[1],features[i],"Orbit icon order must remain stable");
- assert.ok(Math.abs(angle-(-90+i*360/7))<.001&&Math.abs(angle+counter)<.001,
-  "Orbit nodes must be precisely spaced around the full circle");
-});
-for(const feature of features){
- assert.ok(landing.includes('feature-'+feature+' ui-inner-node-'),"Missing feature "+feature);
- assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
- assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
-}
-assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
- css.includes('width:clamp(112px,15vw,180px)')&&
- css.includes('width:clamp(44px,8.6cqw,61px)'),
- "Expanded orbit, central V, and seven icons must be scaled consistently");
+ "Landing description must remain translated and appear only once");
 assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
  css.includes('font-size:clamp(31px,2.55vw,40px)')&&
  css.includes("max-width:69ch")&&
  css.includes(".intro-copy p{margin:0;color:var(--soft);font-size:15px"),
- "Landing columns must be equal and welcome text consistently readable on large and small screens");
-for(const name of features){
- assert.ok(css.includes(".feature-"+name+"{--icon-color:")&&
-  landing.includes('class="ui-orbit-'+name+'-svg"'),
-  "Every VATRA vector icon must use a dedicated color and valid inline SVG");
-}
-assert.ok(css.includes("svg{shape-rendering:geometricPrecision}")&&
- css.includes(".language-option .language-flag{width:36px;height:27px"),
- "SVG icons and language flags must retain high-precision rendering");
-assert.ok(lang.includes('add("path",{fill:"#012169",d:"M0 0h640v480H0z"})')&&
- lang.includes("chevron.setAttribute(\"viewBox\",\"0 0 24 24\")"),
- "Language flag and chevron vectors must use precise geometry");
-assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
-assert.ok(!css.includes(".orbit-note")&&
- css.includes("height:clamp(340px,calc(var(--inner-radius) * 2 + 64px),498px)")&&
- css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0 auto;text-align:center}"),
- "VATRA welcome text must be centered below logo and no obsolete orbit slogans remain");
-assert.ok(auth.includes("function wireOrbitTooltips()")&&
- auth.includes('panel.append(tip);')&&
- auth.includes('icon.addEventListener("mouseleave",hide);')&&
- auth.includes('icon.addEventListener("pointerdown",()=>{hide();icon.blur();});')&&
- auth.includes('tip.classList.add("is-visible")')&&
- css.includes(".orbit-tooltip.is-visible{visibility:visible;opacity:1}")&&
- !css.includes(".orbit-tooltip.is-below"),
- "Tooltip text must remain outside the rotating icon layers");
-assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
- signInCss.includes(".intro-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
- createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
- !css.includes("vatraCoreBreath")&&
- landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/logo_symbol.svg"')&&
+ "Landing columns and welcome description must be consistently readable");
+assert.ok(createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
  registerHtmlHasBrandedSymbol,
- "Both auth logos must be identical symbols with the same animation and size");
+ "Registration retains its brand icon while sign-in uses the original poster");
+assert.ok(css.includes(".language-option .language-flag{width:36px;height:27px")&&
+ lang.includes('add("path",{fill:"#012169",d:"M0 0h640v480H0z"})'),
+ "Language flags must remain precise");
 assert.ok(auth.includes("function wireFloatingHints()")&&
  css.includes(".signup-form-panel .field:has(input.control)>span:first-child{")&&
  css.includes(".create-account-page .create-account-help-panel")&&css.includes(".vatra-error-stack"),
