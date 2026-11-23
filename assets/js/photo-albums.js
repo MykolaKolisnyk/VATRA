@@ -35,6 +35,7 @@
    like:"M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z",
    share:"M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z",
    send:"M5 12h14m-6-6 6 6-6 6",
+   smile:"M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM8 14a4 4 0 0 0 8 0M9 9h.01M15 9h.01",
    upload:"M12 16V3m-5 5 5-5 5 5M4 17v4h16v-4",
    settings:"M4 7h16M7 7v4M4 17h16M17 13v4",
    trash:"M4 7h16M10 11v7m4-7v7M6 7l1 14h10l1-14M9 7V4h6v3",
@@ -346,7 +347,8 @@
   const commentsAvatar=make("span","vatra-album-comment-composer-avatar-001");
   commentsAvatar.setAttribute("aria-hidden","true");
   const commentsComposer=make("div","vatra-media-composer-row-unified-001 vatra-album-comments-composer-001");
-  const commentsEmoji=button("vatra-album-comments-emoji-001","☺");
+  const commentsEmoji=button("vatra-album-comments-emoji-001","");
+  commentsEmoji.append(svg("ui-vatra-album-comment-emoji-icon-001","smile"));
   commentsEmoji.setAttribute("aria-label",t("Емодзі","Emoji"));
   commentsEmoji.setAttribute("aria-expanded","false");
   const emojiPanel=make("div","vatra-album-comments-emoji-panel-001");emojiPanel.hidden=true;
