@@ -44,7 +44,7 @@ function start(client,ownId,gender){
    rememberTouch();
    return true;
   }catch(_){
-   if(active===state)state.failed=true;
+   if(active===state){state.failed=true;state.lastAttemptAt=Date.now();}
    return false;
   }finally{state.updating=false;}
  };
