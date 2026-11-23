@@ -321,8 +321,11 @@ function bind({prefix,ownerId,getFile,client}){
       try{
        const result=await client.from("scheduled_feed_posts")
         .update({status:"cancelled"}).eq("id",item.id).eq("status","queued")
-        .select("id").maybeSingle();
+        .select("id,media_items").maybeSingle();
        if(result.error||!result.data)throw result.error||Error("Schedule already published");
+       if(result.data.media_items?.length){
+        try{await window.VATRA_POST_MEDIA?.removeGallery?.(client,result.data.media_items);}catch(_){}
+       }
        void renderScheduled();
       }catch(_){
        showNotice(t("Не вдалося скасувати публікацію.","Could not cancel the post."));
