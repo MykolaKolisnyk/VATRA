@@ -3106,3 +3106,36 @@ body.profile-page .profile-actions{gap:7px}
   min-height:42px;height:42px;padding:9px 12px
  }
 }
+
+/* Photo comments share the inline edit/undo pattern of post comments. */
+body.profile-page .vatra-profile-photo-comment-edit-001{
+ position:absolute;right:42px;top:10px;display:grid;place-items:center;
+ width:27px;height:27px;padding:3px;border:0;border-radius:8px;
+ background:transparent;color:#8597b1;font:700 20px "Onest",system-ui,sans-serif;
+ opacity:0;cursor:pointer;transition:opacity .18s,color .18s,background .18s
+}
+body.profile-page .profile-photo-comment:hover .vatra-profile-photo-comment-edit-001,
+body.profile-page .profile-photo-comment:focus-within .vatra-profile-photo-comment-edit-001{opacity:1}
+body.profile-page .vatra-profile-photo-comment-edit-001:hover{background:#edf3ff;color:#3f76d0}
+body.profile-page .profile-photo-comment [hidden]{display:none!important}
+body.profile-page .vatra-photo-comment-edit-form-001{display:flex;flex-direction:column;gap:8px;margin:9px 0}
+body.profile-page .vatra-photo-comment-edit-textarea-001{
+ width:100%;min-height:65px;box-sizing:border-box;resize:vertical;
+ padding:10px;border:1px solid #8aaef0;border-radius:10px;
+ outline:none;background:#fff;color:#334c6e;font:540 13px/1.5 "Onest",system-ui,sans-serif
+}
+body.profile-page .vatra-photo-comment-edit-actions-001{display:flex;justify-content:flex-end;gap:7px}
+body.profile-page .vatra-photo-comment-edit-actions-001 button{
+ padding:7px 13px;min-height:32px;border:1px solid #dfe7f3;border-radius:8px;
+ background:#edf3fc;color:#4773b7;font:670 12px "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .vatra-photo-comment-edit-actions-001 .vatra-photo-comment-edit-save-001{background:#3e72cf;border-color:#3e72cf;color:#fff}
+body.profile-page .vatra-photo-comment-deleted-001{
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:49px;
+ width:100%;padding:10px 14px;border:1px solid #edf1f6;border-radius:10px;
+ box-sizing:border-box;color:#8291a8;background:#f7f9fd;
+ font:550 13px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vatra-photo-comment-undo-001{padding:2px;border:0;background:transparent;color:#3773bf;font:730 13px "Onest",system-ui,sans-serif;cursor:pointer}
+@media(hover:none){body.profile-page .vatra-profile-photo-comment-edit-001{opacity:1}}
+@media(prefers-reduced-motion:reduce){body.profile-page .vatra-profile-photo-comment-edit-001{transition:none}}
