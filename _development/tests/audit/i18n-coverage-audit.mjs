@@ -356,7 +356,7 @@ assert.ok(notificationRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")
  notificationRuntime.includes('format("Сповіщення: {count} непрочитаних"')&&
  notificationRuntime.includes('format("Учасник VATRA ID {id}"')&&
  notificationRuntime.includes('format("Сторінка {page}"')&&
- notificationRuntime.includes('window.VATRA_PRESENCE?.relative?.(parsed,language()==="en")'),
+ notificationRuntime.includes('window.VATRA_PRESENCE?.relative?.(parsed,language())'),
  "Notification runtime must use dictionaries, interpolation and locale-aware dates");
 for(const key of notificationKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
@@ -379,6 +379,8 @@ for(const source of [feedRuntime,profileRuntime]){
   source.includes('t("VATRA — Стрічка","VATRA — Feed")'),
   "Feed/profile must apply translated shell controls and native date formats");
 }
+assert.ok(profileRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)"),
+ "Profile controls must resolve the active locale dictionary");
 assert.ok(profileRuntime.includes('t("У мережі","Online")'),
  "Online presence label must be localized");
 
