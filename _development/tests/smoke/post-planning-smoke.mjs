@@ -19,7 +19,7 @@ const required={
   "REVOKE ALL ON FUNCTION vatra_scheduler.publish_due_posts() FROM PUBLIC, anon, authenticated",
   "cron.schedule('vatra-publish-scheduled-feed'",
  ],
- composer:["function getPoll()","function getScheduledAt()","publish_at","post_poll_votes"],
+ composer:["function getPoll()","const getScheduledAt=()=>","const pollQuestion=","const scheduleInput="],
  feed:["getPoll?.()","getScheduledAt?.()",'client.from(publishAt?"scheduled_feed_posts":"feed_posts")'],
  profile:["getPoll?.()","getScheduledAt?.()",'client.from(publishAt?"scheduled_feed_posts":"feed_posts")'],
  interactions:['client.from("post_poll_votes")','client.from("post_poll_counts")',
