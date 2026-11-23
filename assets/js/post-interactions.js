@@ -257,7 +257,8 @@ function appendAudience(container,level,isGroup=false){
   const path=document.createElementNS(ns,"path");
   if(visibility==="only_me")path.setAttribute("d","M7 10V7a5 5 0 0 1 10 0v3M5.5 10.5h13v10h-13z");
   else if(visibility==="public")path.setAttribute("d","M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18");
-  else path.setAttribute("d","M15.5 10a3 3 0 1 0-6 0 3 3 0 0 0 6 0ZM4 21v-1a8 8 0 0 1 16 0v1M5.5 9a2.5 2.5 0 0 0 0 5M18.5 9a2.5 2.5 0 0 1 0 5");
+  else if(visibility==="friends")path.setAttribute("d","M8 12a3.1 3.1 0 1 0 0-6.2A3.1 3.1 0 0 0 8 12ZM16 12a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2ZM1.8 20v-1.1a6.2 6.2 0 0 1 8.2-5.8M22.2 20v-1.1a6.2 6.2 0 0 0-8.2-5.8M7.8 21v-1a4.2 4.2 0 0 1 8.4 0v1");
+  else path.setAttribute("d","M12 11.1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM5.1 12.5a2.3 2.3 0 1 0 0-4.6M18.9 12.5a2.3 2.3 0 1 0 0-4.6M6.4 20.6v-2a5.6 5.6 0 0 1 11.2 0v2M1.6 19v-1.2c0-2 1.2-3.8 3-4.6M22.4 19v-1.2c0-2-1.2-3.8-3-4.6");
   symbol.append(path);marker.append(symbol);
   container.append(marker);
  }
@@ -778,7 +779,7 @@ function appendAudience(container,level,isGroup=false){
   function renderComment(item,people,ownLikes,rootId,isReply=false,initialReplyCount=0){
    const id=String(item.author_vatra_id);
    const name=people.names.get(id)||tr("Користувач VATRA","VATRA member");
-   const card=make("article","vatra-post-comment ui-vatra-post-comment-001");
+   const card=make("article","vatra-post-comment ui-vatra-post-comment-001 vatra-media-comment-row-001");
    card.id="vatra-comment-"+item.id;card.dataset.commentId=item.id;
    if(isReply)card.classList.add("is-reply");
    const avatar=make("a","vatra-comment-avatar ui-vatra-comment-avatar-001");
@@ -799,7 +800,7 @@ function appendAudience(container,level,isGroup=false){
    }
    const authorRow=make("div","ui-vatra-comment-author-row-001");authorRow.append(author);
    if(String(item.author_vatra_id)===String(ownId)&&userId){
-    const remove=make("button","vatra-post-comment-delete-001");remove.type="button";remove.setAttribute("aria-label",tr("Видалити","Delete"));remove.title=tr("Видалити","Delete");remove.append(glyph("x"));
+    const remove=make("button","vatra-post-comment-delete-001 vatra-comment-hover-delete-001");card.classList.add("is-own");remove.type="button";remove.setAttribute("aria-label",tr("Видалити","Delete"));remove.title=tr("Видалити","Delete");remove.append(glyph("x"));
     remove.addEventListener("click",async()=>{if(remove.disabled)return;remove.disabled=true;try{
      const result=await client.from("post_comments").delete().eq("id",item.id).eq("author_id",userId).select("id").maybeSingle();
      if(result.error||String(result.data?.id)!==String(item.id))throw result.error||Error("Comment not removed");

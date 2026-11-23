@@ -11,7 +11,7 @@ const features=Object.freeze({
  "cover-editor":{js:"assets/js/profile-cover-editor.js?rev=95d2182c4b03c53a74e7b9ebdbc9761d585898b9",key:"VATRA_PROFILE_COVER_EDITOR"},
  "avatar-editor":{js:"assets/js/profile-avatar-editor.js?rev=48b7f406f71f4833379842d6b59bb804f5ee87ff",key:"VATRA_PROFILE_AVATAR_EDITOR"},
  "cover-viewer":{js:"assets/js/profile-cover-viewer.js?rev=2b1285daeb16ac2e55e71ea75eb6f05b226ebc91",key:"VATRA_PROFILE_COVER_VIEWER"},
- "avatar-comment-row":{js:"assets/js/profile-avatar-comment-row.js?rev=852eb4bb6c5c57412a39cac1a515a76761876ab1",key:"VATRA_PROFILE_AVATAR_COMMENT_ROW"}
+ "avatar-comment-row":{js:"assets/js/profile-avatar-comment-row.js?rev=d2348f2578ca2e86bd7ffcb8ba96efcd8e421d3d",key:"VATRA_PROFILE_AVATAR_COMMENT_ROW"}
 });
 const pending=new Map();
 const loadedStyles=new Set();

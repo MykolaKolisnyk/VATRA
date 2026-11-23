@@ -505,23 +505,23 @@ body.profile-page .vatra-profile-photo-like-count-001{
  display:inline-block;min-width:1ch;padding:0;margin:0;background:transparent;
  color:#687992;text-align:center;font:650 12px/1.2 "Onest",system-ui,sans-serif
 }
-body.profile-page .profile-photo-comment-head{display:flex;align-items:center;gap:10px;min-width:0}
+body.profile-page .profile-photo-comment-head{display:grid;grid-template-columns:35px minmax(0,1fr);align-items:start;gap:11px;min-width:0}
 body.profile-page .profile-photo-comment-avatar{
- display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;
+ display:grid;place-items:center;flex:0 0 35px;width:35px;height:35px;
  border:2px solid #fff;border-radius:50%;background:linear-gradient(135deg,#396fe8,#9156d8);
  background-size:cover;background-repeat:no-repeat;background-position:center;
  box-shadow:0 0 0 1px #d8e3f7;color:#fff;letter-spacing:-.03em;
  text-decoration:none;font:760 12px/1 "Onest",system-ui,sans-serif
 }
 body.profile-page .profile-photo-comment-avatar.has-photo{color:transparent}
-body.profile-page .profile-photo-comment-meta{min-width:0}
+body.profile-page .profile-photo-comment-meta{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 body.profile-page a.vatra-profile-photo-comment-name-001{text-decoration:none}
 body.profile-page a.vatra-profile-photo-comment-name-001:hover{text-decoration:underline}
 body.profile-page .vatra-profile-photo-comment-like-001{
- display:inline-flex;align-items:center;gap:6px;
- position:absolute;right:3px;bottom:8px;margin:0;padding:5px 6px;border:0;border-radius:8px;
- color:#677c9a;background:transparent;cursor:pointer;
- font:650 11px/1.4 "Onest",system-ui,sans-serif
+ display:inline-flex;align-items:center;gap:5px;
+ position:absolute;right:3px;bottom:7px;margin:0;padding:4px 6px;border:0;border-radius:8px;
+ color:#90a1b7;background:transparent;cursor:pointer;
+ font:650 11.5px/1.4 "Onest",system-ui,sans-serif
 }
 body.profile-page .vatra-profile-photo-comment-like-001:hover{background:#eef3fd}
 body.profile-page .vatra-profile-photo-comment-like-001[aria-pressed="true"]{color:#c84b86}
@@ -536,12 +536,12 @@ body.profile-page .vatra-profile-photo-comments-more-001{
 }
 body.profile-page .vatra-profile-photo-comments-more-001[hidden]{display:none!important}
 body.profile-page .profile-photo-comment{
- position:relative;padding:13px 30px 13px 4px;border-bottom:1px solid #eef1f7
+ position:relative;padding:13px 30px 8px 0;border:0;min-width:0
 }
-body.profile-page .vatra-profile-photo-comment-name-001{display:block;font-size:13px;color:#2b3c59;font-weight:760}
-body.profile-page .vatra-profile-photo-comment-time-001{display:block;margin-top:3px;font-size:11px;color:#94a0b2}
+body.profile-page .vatra-profile-photo-comment-name-001{display:block;font:760 13.5px/1.35 "Onest",system-ui,sans-serif;color:#263d60}
+body.profile-page .vatra-profile-photo-comment-time-001{display:block;margin-top:3px;font:490 11.5px/1.4 "Onest",system-ui,sans-serif;color:#8999b0}
 body.profile-page .vatra-profile-photo-comment-body-001{
- margin:3px 0 0;font-size:14px;line-height:1.55;
+ margin:2px 0 0;color:#31415a;font:480 13.5px/1.52 "Onest",system-ui,sans-serif;
  overflow-wrap:anywhere;white-space:pre-wrap
 }
 body.profile-page .vatra-profile-photo-no-comments-001{font-size:13px;color:#8292aa;line-height:1.5}
@@ -2325,32 +2325,6 @@ body.profile-page :is(.profile-mini-more,.vatra-profile-about-more-001) svg{
  width:17px;height:17px;flex:none;stroke:currentColor;transform:none!important
 }
 body.profile-page .vatra-profile-about-more-001 svg{transform:rotate(180deg)!important}
-body.profile-page .profile-quick-compose:not([hidden]){
- display:flex;align-items:center;gap:11px;min-height:75px;padding:13px 15px;
- border:1px solid #e2eaf5;border-radius:16px;background:#fff;
- box-shadow:0 6px 20px rgba(35,54,95,.045)
-}
-body.profile-page .profile-compose-avatar{
- flex:none;display:block;width:42px;height:42px;border:2px solid #fff;border-radius:50%;
- background:#edf2f8 var(--vatra-default-avatar) center / cover no-repeat;
- box-shadow:0 0 0 1px #dce5f2
-}
-body.profile-page .vatra-profile-write-post-001{
- flex:1;min-width:0;min-height:45px;padding:11px 15px;
- border:0;border-radius:12px;background:#f1f4f9;
- color:#617999;text-align:left;font:650 13.5px/1.35 "Onest",system-ui,sans-serif;
- cursor:pointer
-}
-body.profile-page .vatra-profile-write-post-001:hover{background:#e9eef8}
-body.profile-page .vatra-profile-quick-media-001{
- flex:none;display:grid;place-items:center;width:46px;height:45px;
- border:0;border-radius:12px;background:#f1f5ff;color:#597fce;cursor:pointer
-}
-body.profile-page .vatra-profile-quick-media-001:hover{background:#e8efff}
-body.profile-page .vatra-profile-quick-media-001 svg{display:block;width:23px;height:23px}
-body.profile-page .profile-quick-compose button:focus-visible{
- outline:2px solid #608bf0;outline-offset:2px
-}
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  margin-top:-38px!important
 }
@@ -2381,10 +2355,6 @@ body.profile-page .vatra-profile-clips-empty-001::before{
 }
 @media(max-width:600px){
  body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{margin-top:-24px!important}
- body.profile-page .profile-quick-compose:not([hidden]){min-height:64px;padding:9px;gap:8px}
- body.profile-page .profile-compose-avatar{width:36px;height:36px}
- body.profile-page .vatra-profile-write-post-001{min-height:42px;padding:9px 10px}
- body.profile-page .vatra-profile-quick-media-001{width:42px;height:42px}
 }
 
 
@@ -3027,13 +2997,7 @@ body.profile-page .ui-profile-photo-canvas-001 .profile-media-viewer-image{objec
 }
 @media(prefers-reduced-motion:reduce){body.profile-page .ui-profile-photo-content-001 :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001){transition:none}}
 
-body.profile-page .vatra-profile-photo-comment-delete-001{
- align-self:flex-end;display:inline-flex;margin-left:auto;margin-top:4px;
- padding:5px 8px;border:0;border-radius:7px;background:transparent;color:#b94c62;
- font:620 11px Onest,system-ui,sans-serif;cursor:pointer
-}
-body.profile-page .vatra-profile-photo-comment-delete-001:hover{background:#ffedf1}
-body.profile-page .vatra-profile-photo-comment-delete-001:disabled{opacity:.5;cursor:wait}
+
 
 body.profile-page .ui-profile-avatar-upload-progress-001{
  display:grid;gap:9px;margin:12px 0;padding:10px 13px;border-radius:10px;

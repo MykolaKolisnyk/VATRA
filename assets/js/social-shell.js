@@ -66,12 +66,41 @@
   const header=document.querySelector(".feed-header");
   if(!menu||!dropdown||!header)return;
   if(!dropdown.querySelector(".vatra-account-manage-001")){
-   const root=new URL("../../",shellScript||location.href),manage=make("a","vatra-account-manage-001"),brand=make("span","ui-vatra-account-id-brand-001"),symbol=make("img","ui-vatra-account-id-symbol-001");
-   manage.href=new URL("vatra-id",root).href;symbol.src=new URL("assets/logo/logo_symbol.svg",root).href;symbol.alt="";brand.append(symbol,make("span","vatra-account-id-label-001","ID"));
-   manage.append(make("span","vatra-account-manage-label-001",tr("Керування акаунтом","Manage account")),brand);dropdown.prepend(manage);
+   const root=new URL("../../",shellScript||location.href);
+   const manage=make("a","vatra-account-manage-001");
+   const brand=make("span","ui-vatra-account-id-brand-001");
+   const symbol=make("img","ui-vatra-account-id-symbol-001");
+   symbol.src=new URL("assets/logo/logo_symbol.svg",root).href;
+   symbol.alt="";brand.append(symbol);
+   manage.href=new URL("vatra-id",root).href;
+   manage.append(brand,
+    make("span","vatra-account-manage-label-001",tr("Керування акаунтом","Manage account")),
+    make("small","vatra-account-id-label-001","ID"));
+   (dropdown.querySelector(".feed-account-profile")||dropdown.firstElementChild)?.after(manage);
   }
   const support=dropdown.querySelector(".feed-menu-support"),settings=dropdown.querySelector(".feed-menu-settings-link");
   if(support&&settings)settings.before(support);
+  const icon=(anchor,kind)=>{
+   const svg=anchor?.querySelector("svg");
+   if(!svg)return;
+   const ns="http://www.w3.org/2000/svg",makePath=d=>{
+    const path=document.createElementNS(ns,"path");
+    path.setAttribute("d",d);return path;
+   };
+   svg.replaceChildren();
+   svg.setAttribute("viewBox","0 0 24 24");
+   svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");
+   svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");
+   svg.setAttribute("stroke-linejoin","round");
+   if(kind==="settings"){
+    svg.append(makePath("M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"),
+     makePath("M19.2 12c0-.5-.05-1-.16-1.46l1.74-1.37-1.8-3.12-2.12.86a7.7 7.7 0 0 0-2.5-1.44L14 3h-4l-.36 2.47a7.7 7.7 0 0 0-2.5 1.44l-2.12-.86-1.8 3.12 1.74 1.37a7 7 0 0 0 0 2.92l-1.74 1.37 1.8 3.12 2.12-.86a7.7 7.7 0 0 0 2.5 1.44L10 21h4l.36-2.47a7.7 7.7 0 0 0 2.5-1.44l2.12.86 1.8-3.12-1.74-1.37c.11-.46.16-.96.16-1.46Z"));
+   }else{
+    svg.append(makePath("M4 14v-3a8 8 0 0 1 16 0v3"),
+     makePath("M5 13h2v7H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2ZM17 13h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2v-7ZM19 20c0 1.5-1.5 2-4 2h-2"));
+   }
+  };
+  icon(settings,"settings");icon(support,"support");
 
 
 
