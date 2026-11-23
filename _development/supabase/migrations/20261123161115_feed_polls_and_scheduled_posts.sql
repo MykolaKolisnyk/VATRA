@@ -3,6 +3,9 @@
 -- Additive tables and an optional feed_posts.poll column; preserve existing posts.
 BEGIN;
 
+CREATE SCHEMA IF NOT EXISTS vatra_scheduler;
+REVOKE ALL ON SCHEMA vatra_scheduler FROM PUBLIC, anon, authenticated;
+
 CREATE OR REPLACE FUNCTION public.vatra_poll_valid(value jsonb)
 RETURNS boolean LANGUAGE plpgsql IMMUTABLE SET search_path = ''
 AS $body$
@@ -162,8 +165,6 @@ CREATE POLICY "Read counts for visible polls" ON public.post_poll_counts FOR SEL
  USING (EXISTS(SELECT 1 FROM public.feed_posts p WHERE p.id=post_id AND p.poll IS NOT NULL));
 
 -- Counts are initialized inside the post INSERT transaction, never by clients.
-CREATE SCHEMA IF NOT EXISTS vatra_scheduler;
-REVOKE ALL ON SCHEMA vatra_scheduler FROM PUBLIC, anon, authenticated;
 CREATE OR REPLACE FUNCTION vatra_scheduler.initialize_poll()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $body$
