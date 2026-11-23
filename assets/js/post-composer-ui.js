@@ -26,6 +26,9 @@ const vectorIcon=(name,cls)=>{
   back:"m14.5 5-7 7 7 7",
   drafts:"M5 6h14M5 12h14M5 18h9",
   media:"M3 5h18v14H3zM6 16l4-4 3 3 3-4 3 4M8 9h.01",
+  poll:"M4 4h16v16H4zM8 15V11M12 15V7M16 15v-4",
+  calendar:"M4 6h16v15H4zM4 10h16M8 3v5M16 3v5",
+  plus:"M12 5v14M5 12h14",
   close:"M6 6l12 12M18 6 6 18"
  }[name]);
  svg.append(path);return svg;
@@ -109,6 +112,96 @@ function bind({prefix,ownerId,getFile}){
   make("span","vatra-post-composer-add-media-label-001",t("Додайте фото або відео","Add a photo or video")));
  addMedia.addEventListener("click",()=>choose.click());
  mediaTools.append(addMedia);
+ const pollToggle=make("button","vatra-post-composer-poll-toggle-001");
+ pollToggle.type="button";
+ pollToggle.append(vectorIcon("poll","ui-vatra-post-composer-poll-icon-001"),
+  make("span","vatra-post-composer-poll-label-001",t("Опитування","Poll")));
+ pollToggle.setAttribute("aria-expanded","false");
+ mediaTools.prepend(pollToggle);
+ const pollSection=make("section","vatra-post-composer-poll ui-vatra-post-composer-poll-001");
+ pollSection.hidden=true;
+ const pollHeading=make("h3","vatra-post-composer-poll-heading-001",t("Опитування","Poll"));
+ const pollQuestion=make("input","vatra-post-composer-poll-question-001");
+ pollQuestion.type="text";pollQuestion.maxLength=240;
+ pollQuestion.placeholder=t("Запитання опитування","Poll question");
+ pollQuestion.setAttribute("aria-label",pollQuestion.placeholder);
+ const pollOptions=make("div","vatra-post-composer-poll-options-001");
+ const pollAdd=make("button","vatra-post-composer-poll-add-001");
+ pollAdd.type="button";
+ pollAdd.append(vectorIcon("plus","ui-vatra-post-composer-poll-add-icon-001"),
+  make("span","vatra-post-composer-poll-add-label-001",t("Додати варіант","Add option")));
+ const pollSettings=make("div","vatra-post-composer-poll-settings-001");
+ const pollCheck=(field,uk,en)=>{
+  const label=make("label","vatra-post-composer-poll-setting-001 vatra-post-composer-poll-setting-"+field);
+  const check=make("input","vatra-post-composer-poll-check-"+field);
+  check.type="checkbox";label.append(check,make("span","vatra-post-composer-poll-text-"+field,t(uk,en)));
+  pollSettings.append(label);return check;
+ };
+ const pollMultiple=pollCheck("multiple","Можна вибрати кілька варіантів","Allow multiple choices");
+ const pollAnonymous=pollCheck("anonymous","Анонімне голосування","Anonymous voting");
+ const pollRevote=pollCheck("revote","Дозволити зміну голосу","Allow changing a vote");
+ pollRevote.checked=true;
+ const pollEndLabel=make("label","vatra-post-composer-poll-end-label-001",
+  t("Завершити опитування (необов’язково)","Poll end time (optional)"));
+ const pollEnd=make("input","vatra-post-composer-poll-end-001");
+ pollEnd.type="datetime-local";pollEnd.setAttribute("aria-label",pollEndLabel.textContent);
+ pollEndLabel.append(pollEnd);
+ const pollHint=make("p","vatra-post-composer-poll-hint-001",
+  t("Мінімум два різні варіанти відповіді.","Provide at least two different answers."));
+ pollSection.append(pollHeading,pollQuestion,pollOptions,pollAdd,pollSettings,pollEndLabel,pollHint);
+ let pollEnabled=false,optionInputs=[];
+ function addPollOption(value=""){
+  if(optionInputs.length>=10)return;
+  const index=optionInputs.length;
+  const row=make("div","vatra-post-composer-poll-option-row ui-vatra-post-poll-option-"+index);
+  const input=make("input","vatra-post-composer-poll-option-input ui-vatra-post-poll-input-"+index);
+  input.type="text";input.maxLength=120;input.value=value;
+  input.placeholder=t("Варіант відповіді","Answer option")+" "+(index+1);
+  input.setAttribute("aria-label",input.placeholder);
+  input.addEventListener("input",onPollChange);
+  const remove=make("button","vatra-post-composer-poll-option-remove ui-vatra-post-poll-remove-"+index);
+  remove.type="button";remove.setAttribute("aria-label",t("Прибрати варіант","Remove option"));
+  remove.append(vectorIcon("close","ui-vatra-post-poll-remove-icon-"+index));
+  remove.disabled=optionInputs.length<2;
+  remove.addEventListener("click",()=>{
+   optionInputs=optionInputs.filter(x=>x!==input);row.remove();
+   optionInputs.forEach((node,i)=>{node.placeholder=t("Варіант відповіді","Answer option")+" "+(i+1);});
+   onPollChange();
+  });
+  row.append(input,remove);pollOptions.append(row);optionInputs.push(input);
+  pollAdd.disabled=optionInputs.length>=10;
+ }
+ function getPoll(){
+  if(!pollEnabled)return null;
+  const question=pollQuestion.value.trim();
+  const options=optionInputs.map(input=>input.value.trim()).filter(Boolean);
+  if(!question||options.length<2||options.length>10||
+   (new Set(options.map(x=>x.toLocaleLowerCase()))).size!==options.length)return null;
+  const closesAt=pollEnd.value?new Date(pollEnd.value):null;
+  if(closesAt&&(!Number.isFinite(closesAt.getTime())||closesAt.getTime()<=Date.now()))return null;
+  return {question,options,multiple:pollMultiple.checked,
+   anonymous:pollAnonymous.checked,allow_revote:pollRevote.checked,
+   closes_at:closesAt?closesAt.toISOString():null};
+ }
+ function onPollChange(){
+  pollHint.textContent=pollEnabled&&!getPoll()?
+   t("Заповніть запитання та мінімум два різні варіанти.","Enter a question and two distinct answers."):
+   t("Мінімум два різні варіанти відповіді.","Provide at least two different answers.");
+  sync();textarea.dispatchEvent(new Event("input",{bubbles:true}));
+ }
+ const togglePoll=enabled=>{
+  pollEnabled=!!enabled;pollSection.hidden=!pollEnabled;
+  pollToggle.setAttribute("aria-expanded",String(pollEnabled));
+  pollToggle.classList.toggle("is-active",pollEnabled);
+  edit.classList.toggle("has-poll",pollEnabled);
+  if(pollEnabled&&!optionInputs.length){addPollOption();addPollOption();}
+  onPollChange();
+  if(pollEnabled)pollQuestion.focus({preventScroll:true});
+ };
+ pollToggle.addEventListener("click",()=>togglePoll(!pollEnabled));
+ pollAdd.addEventListener("click",()=>{addPollOption();onPollChange();optionInputs.at(-1)?.focus();});
+ for(const field of [pollQuestion,pollMultiple,pollAnonymous,pollRevote,pollEnd])
+  field.addEventListener("input",onPollChange);
  zone.addEventListener("click",event=>{
   if(!zone.classList.contains("has-media")&&
    !event.target.closest("button,.vatra-compose-media-preview"))choose.click();
@@ -138,7 +231,7 @@ function bind({prefix,ownerId,getFile}){
  textarea.placeholder=t("Напишіть що-небудь…","Write something…");
  textarea.rows=4;
  textWrap.append(textarea,counter);
- edit.append(zone,mediaTools,textWrap);
+ edit.append(zone,mediaTools,textWrap,pollSection);
 
  const settings=make("section","vatra-post-composer-settings ui-vatra-post-composer-settings-001");
  settings.hidden=true;
@@ -152,6 +245,42 @@ function bind({prefix,ownerId,getFile}){
   t("Публікація з’явиться одразу після натискання «Опублікувати».",
    "Your post will appear as soon as you press Publish."));
  settings.append(localOnly);
+ const scheduleBox=make("div","vatra-post-composer-schedule-box-001");
+ const scheduleLabel=make("label","vatra-post-composer-schedule-toggle-label-001");
+ const scheduleToggle=make("input","vatra-post-composer-schedule-toggle-001");
+ scheduleToggle.type="checkbox";
+ scheduleLabel.append(scheduleToggle,vectorIcon("calendar","ui-vatra-post-composer-schedule-icon-001"),
+  make("span","vatra-post-composer-schedule-title-001",t("Запланувати публікацію","Schedule publication")));
+ const scheduleInput=make("input","vatra-post-composer-schedule-date-001");
+ scheduleInput.type="datetime-local";scheduleInput.setAttribute("aria-label",
+  t("Дата і час публікації","Publication date and time"));
+ scheduleInput.hidden=true;
+ const scheduleHint=make("p","vatra-post-composer-schedule-hint-001");
+ scheduleHint.hidden=true;
+ const isoLocal=(date)=>new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
+ const getScheduledAt=()=>{
+  if(!scheduleToggle.checked)return null;
+  const date=new Date(scheduleInput.value);
+  return Number.isFinite(date.getTime())&&date.getTime()>Date.now()+120000?date.toISOString():null;
+ };
+ const syncSchedule=()=>{
+  const active=scheduleToggle.checked;
+  scheduleInput.hidden=!active;scheduleHint.hidden=!active;
+  if(active){scheduleInput.min=isoLocal(new Date(Date.now()+180000));
+   if(!scheduleInput.value)scheduleInput.value=isoLocal(new Date(Date.now()+600000));}
+  scheduleHint.textContent=active?
+   (getScheduledAt()?t("Публікацію автоматично додасть сервер у вибраний час.",
+      "The server will publish automatically at the selected time."):
+    t("Виберіть майбутню дату щонайменше через дві хвилини.",
+      "Choose a time at least two minutes in the future.")):"";
+  submit.textContent=active?t("Запланувати","Schedule"):t("Опублікувати","Publish");
+  localOnly.hidden=active;
+  sync();
+ };
+ scheduleLabel.addEventListener("change",syncSchedule);
+ scheduleInput.addEventListener("change",syncSchedule);
+ scheduleBox.append(scheduleLabel,scheduleInput,scheduleHint);
+ settings.append(scheduleBox);
  const draftsPanel=make("section","vatra-post-composer-drafts-panel ui-vatra-post-composer-drafts-001");
  draftsPanel.hidden=true;
  const draftList=make("div","vatra-post-composer-draft-list ui-vatra-post-composer-draft-list-001");
@@ -184,7 +313,9 @@ function bind({prefix,ownerId,getFile}){
  function sync(){
   const hasMedia=!!(typeof getFile==="function"&&getFile());
   const hasContent=!!textarea.value.trim()||hasMedia;
-  next.disabled=!hasContent;
+  next.disabled=!(hasContent||getPoll())||(pollEnabled&&!getPoll());
+  if(stage==="settings")submit.disabled=(pollEnabled&&!getPoll())||
+   (scheduleToggle.checked&&!getScheduledAt());
   const selected=!!mediaPreview?.querySelector(".vatra-gallery-picker-tile");
   zone.classList.toggle("has-media",selected);
   mediaTools.classList.toggle("has-media",selected);
@@ -193,13 +324,14 @@ function bind({prefix,ownerId,getFile}){
    t("Додайте фото або відео","Add a photo or video"));
  }
  function setStage(name){
-  if(name==="settings"&&!textarea.value.trim()&&!(typeof getFile==="function"&&getFile()))return false;
+  if(name==="settings"&&!textarea.value.trim()&&!(typeof getFile==="function"&&getFile())&&!getPoll())return false;
   view="compose";stage=name;
   edit.hidden=name!=="edit";settings.hidden=name!=="settings";draftsPanel.hidden=true;
   back.hidden=name==="edit";drafts.hidden=name!=="edit";
   title.textContent=name==="settings"?t("Налаштування","Settings"):
    (language()==="uk"?"Нова публікація":t("Новий пост","New post"));
   if(name==="settings"){
+   syncSchedule();
    const body=textarea.value.trim(),selected=mediaPreview?.querySelectorAll(".vatra-gallery-picker-tile").length||0;
    summary.textContent=(body?body.slice(0,155)+(body.length>155?"…":""):
     t("Публікація з медіа","Media post"))+
@@ -218,6 +350,17 @@ function bind({prefix,ownerId,getFile}){
     selectedId=item.id;textarea.value=item.body;
     if(select)select.value=["public","friends","only_me"].includes(item.visibility)?item.visibility:"public";
     textarea.dispatchEvent(new Event("input",{bubbles:true}));
+    togglePoll(!!item.poll);
+    if(item.poll){
+     pollQuestion.value=item.poll.question||"";
+     optionInputs=[];pollOptions.replaceChildren();
+     for(const option of item.poll.options||[])addPollOption(option);
+     pollMultiple.checked=!!item.poll.multiple;pollAnonymous.checked=!!item.poll.anonymous;
+     pollRevote.checked=item.poll.allow_revote!==false;
+     pollEnd.value=item.poll.closes_at?isoLocal(new Date(item.poll.closes_at)):"";
+    }
+    scheduleToggle.checked=!!item.scheduled_at;
+    scheduleInput.value=item.scheduled_at?isoLocal(new Date(item.scheduled_at)):"";
     setStage("edit");textarea.focus();
    });
    const remove=make("button","vatra-post-composer-draft-remove-001");
@@ -243,10 +386,10 @@ function bind({prefix,ownerId,getFile}){
  mediaPreview?.addEventListener("click",()=>queueMicrotask(sync));
  draftSave.addEventListener("click",()=>{
   const body=textarea.value.trim();
-  if(!body){showNotice(t("Напишіть текст для збереження чернетки.","Write some text to save as a draft."));return;}
+  if(!body&&!getPoll()){showNotice(t("Напишіть текст для збереження чернетки.","Write some text to save as a draft."));return;}
   const drafts=read(),now=Date.now(),id=selectedId||String(now);
   const others=drafts.filter(x=>x.id!==id);
-  const worked=persist([{id,body:body.slice(0,2000),visibility:select?.value||"public",at:now},...others]);
+  const worked=persist([{id,body:body.slice(0,2000),visibility:select?.value||"public",poll:getPoll(),scheduled_at:getScheduledAt(),at:now},...others]);
   if(worked){selectedId=id;showNotice(picker?.files?.length?
    t("Текст збережено. Доданий файл потрібно вибрати знову при публікації.",
     "Text saved. You must reselect your file when publishing."):
@@ -260,7 +403,16 @@ function bind({prefix,ownerId,getFile}){
  setStage("edit");
  return {
   open(){setStage("edit");edit.scrollTop=0;textarea.focus({preventScroll:true});},
-  reset(){if(selectedId){persist(read().filter(x=>x.id!==selectedId));selectedId=null;}setStage("edit");},
+  reset(){
+   if(selectedId){persist(read().filter(x=>x.id!==selectedId));selectedId=null;}
+   pollEnabled=false;pollSection.hidden=true;optionInputs=[];pollOptions.replaceChildren();
+   pollQuestion.value="";pollEnd.value="";pollMultiple.checked=false;
+   pollAnonymous.checked=false;pollRevote.checked=true;pollToggle.classList.remove("is-active");
+   scheduleToggle.checked=false;scheduleInput.value="";syncSchedule();
+   setStage("edit");
+  },
+  getPoll,getScheduledAt,hasInvalidPoll:()=>pollEnabled&&!getPoll(),
+  hasInvalidSchedule:()=>scheduleToggle.checked&&!getScheduledAt(),
   step(){return stage;},setStage,sync
  };
 }
