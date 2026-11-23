@@ -169,8 +169,6 @@ function wireRememberedAccount(){
   const label=translate("Вилучити збережений акаунт");
   removeButton.setAttribute("aria-label",label);
   removeButton.setAttribute("data-vatra-tooltip",label);
-  const caption=removeButton.querySelector(".vatra-home-saved-remove-label-001");
-  if(caption)caption.textContent=q("#saved-remove-confirm")?.textContent?.trim()||label;
   removeTooltip=wireSavedAccountTooltip(removeButton);
  }
  const parts=remembered.name.split(/\s+/).filter(Boolean);
