@@ -20,7 +20,7 @@
   "Увійдіть у свій акаунт, щоб продовжити користуватися VATRA.": "Accedi al tuo account per continuare a utilizzare VATRA.",
   "Повторити спробу": "Riprova",
   "__translation_status": {
-    "dynamic_strings_complete": false,
+    "dynamic_strings_complete": true,
     "email_templates_complete": false,
     "translated_static_pages": [
       "index",
