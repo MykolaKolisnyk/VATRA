@@ -12,7 +12,10 @@ const required={
   "ADD COLUMN IF NOT EXISTS poll jsonb","CREATE TABLE IF NOT EXISTS public.post_poll_votes",
   "CREATE TABLE IF NOT EXISTS public.post_poll_counts",
   "CREATE OR REPLACE VIEW public.post_poll_voters WITH (security_invoker=true)",
-  "Read nonanonymous poll voters for visible posts",
+  "CREATE TABLE IF NOT EXISTS public.post_poll_visible_choices",
+  "Read nonanonymous choices on visible posts",
+  "vatra_scheduler.sync_visible_poll_choices()",
+  "CREATE TRIGGER vatra_sync_visible_poll_choices",
   "voter_vatra_id bigint NOT NULL",
   "(posts.poll->>'anonymous')='false'",
   "NEW.voter_vatra_id FROM public.accounts",
@@ -39,6 +42,14 @@ const contents={sql,composer,feed,profile,interactions,style};
 for(const [name,patterns] of Object.entries(required))
  for(const expected of patterns)
   assert.ok(contents[name].includes(expected),name+": missing "+expected);
+assert.ok(!sql.includes("Read nonanonymous poll voters for visible posts"),
+ "Private auth user IDs must not become queryable to other voters.");
+assert.ok(sql.includes("REVOKE ALL ON public.post_poll_visible_choices FROM PUBLIC, anon, authenticated")&&
+ sql.includes("GRANT SELECT ON public.post_poll_visible_choices TO authenticated"),
+ "The public identity mapping must be read-only and RLS-limited.");
+assert.ok(sql.indexOf("CREATE SCHEMA IF NOT EXISTS vatra_scheduler")<
+ sql.indexOf("vatra_scheduler.sync_visible_poll_choices()"),
+ "The private schema must exist before poll sync triggers.");
 assert.ok(sql.includes("USING (voter_id=(SELECT auth.uid())"),
  "Vote read policy must be scoped to the authenticated voter.");
 assert.ok(sql.includes("EXISTS(SELECT 1 FROM public.feed_posts"),
