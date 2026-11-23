@@ -3741,5 +3741,6 @@
   "Не вдалося завантажити результати опитування.": "Umfrageergebnisse konnten nicht geladen werden.",
   "Не вдалося опублікувати": "Veröffentlichung fehlgeschlagen",
   "Публікація з медіа": "Medienbeitrag",
-  "Не вдалося зберегти дату публікації.": "Das Veröffentlichungsdatum konnte nicht gespeichert werden."
+  "Не вдалося зберегти дату публікації.": "Das Veröffentlichungsdatum konnte nicht gespeichert werden.",
+  "Опитування має завершитися після публікації.": "Die Umfrage muss nach der Veröffentlichung enden."
 }
