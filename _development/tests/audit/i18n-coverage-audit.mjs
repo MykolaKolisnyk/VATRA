@@ -12,7 +12,7 @@ const targetPages=Object.keys(uk.__pages);
 const pendingLegalPages=new Set(["commerce","documents"]);
 const pendingLegalTermsKeys=new Set(["market_rules_title","market_rules_intro","market_rules_full","market_rules_toc_desktop","market_rules_toc_mobile"]);
 const pendingLegalReaderKeys=new Set(["docs_back_001","docs_kicker_001"]);
-const retiredBindingsByPage={"index":["n126"],"create-account":["n66"],"forgot":["n50"],"reset":["n40"],"terms":["n11","n12","n3","n301","n302","n6","n7","n9","n90","n95"],"privacy":["n102","n11","n12","n3","n301","n302","n6","n7","n9","n97"],"cookies":["n100","n105","n11","n12","n3","n301","n302","n6","n7","n9"]};
+const retiredBindingsByPage={"terms":["n11","n12","n3","n301","n302","n6","n7","n9","n90","n95"],"privacy":["n102","n11","n12","n3","n301","n302","n6","n7","n9","n97"],"cookies":["n100","n105","n11","n12","n3","n301","n302","n6","n7","n9"]};
 assert.ok(uk.__pages.commerce&&en.__pages.commerce,"Published commerce page requires both active locales");
 const activePages=["index","404","feed","profile","offline","verify",
  "create-account","forgot","reset","terms","privacy","cookies","maintenance"];
