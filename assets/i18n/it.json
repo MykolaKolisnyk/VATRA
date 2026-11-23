@@ -3684,5 +3684,21 @@
   "Не вдалося змінити збереження.": "Impossibile modificare il salvataggio.",
   "Не вдалося змінити збереження. Спробуйте ще раз.": "Impossibile modificare il salvataggio. Riprova.",
   "Вподобання тимчасово недоступні.": "I Mi piace sono temporaneamente non disponibili.",
-  "Не вдалося змінити вподобання.": "Impossibile modificare il Mi piace."
+  "Не вдалося змінити вподобання.": "Impossibile modificare il Mi piace.",
+  "Немає підключення до інтернету. Перевірте мережу.": "Nessuna connessione Internet. Controlla la rete.",
+  "Повідомлення VATRA": "Notifiche VATRA",
+  "Дізнатися більше": "Scopri di più",
+  "Закрити повідомлення": "Chiudi la notifica",
+  "Повернутися вгору": "Scorri in alto",
+  "Вгору": "In alto",
+  "Перевірка безпеки VATRA": "Verifica di sicurezza VATRA",
+  "Підтвердьте, що Ви не бот. Після перевірки дія продовжиться автоматично.": "Conferma di non essere un bot. Dopo la verifica, l'azione proseguirà automaticamente.",
+  "Перевірка Cloudflare": "Verifica Cloudflare",
+  "Триває перевірка…": "Verifica in corso…",
+  "Скасувати перевірку безпеки": "Annulla la verifica di sicurezza",
+  "Не вдалося відкрити ADMIN PANEL.": "Impossibile aprire il PANNELLO ADMIN.",
+  "Завантажити": "Scarica",
+  "Не вдалося завантажити фотографію.": "Impossibile scaricare la foto.",
+  "Перейти до публікації": "Vai al post",
+  "Фото з альбому «": "Foto dall'album «"
 }
