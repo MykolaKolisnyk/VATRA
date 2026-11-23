@@ -3889,5 +3889,10 @@
   "Не вдалося відкрити редактор історій.": "Story-Editor konnte nicht geöffnet werden.",
   "Не вдалося видалити.": "Beitrag konnte nicht gelöscht werden.",
   "Відкрити фільтр стрічки": "Feed-Filter öffnen",
-  "Закрити фільтр стрічки": "Feed-Filter schließen"
+  "Закрити фільтр стрічки": "Feed-Filter schließen",
+  "Керування акаунтом": "Konto verwalten",
+  "Категорії пошуку": "Suchkategorien",
+  "Розгорнути результати": "Ergebnisse erweitern",
+  "Видалити з історії": "Aus Verlauf entfernen",
+  "Нещодавно переглянуті": "Zuletzt angesehen"
 }
