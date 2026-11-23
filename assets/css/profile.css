@@ -3054,7 +3054,6 @@ body.profile-page .vatra-profile-avatar-upload-progress-text-001{
 }
 
 
-/* Visitor actions: keep friend requests and safety controls beside the profile name. */
 body.profile-page .ui-profile-friend-action-001,
 body.profile-page .ui-profile-more-menu-001{position:relative;flex:0 0 auto;min-width:0}
 body.profile-page :is(.ui-profile-friend-action-001,.ui-profile-more-menu-001)[hidden],
