@@ -77,7 +77,7 @@ assert.ok(
  postCss.includes('.vatra-post-comments-toggle-001{display:none!important}')&&
  postCss.includes('.vatra-post-shares-count-001{display:none!important}')&&
  postCss.includes('.vatra-post-comment-attach-001{display:none!important}')&&
- postCss.includes('.vatra-post-comment-send-001:disabled{display:none!important}')&&
+ postCss.includes('.vatra-post-comment-send-001:disabled{opacity:.42;cursor:not-allowed}')&&
  postCss.includes('.ui-vatra-post-media-more-toggle-001::after')&&
  postCss.includes('grid-template-columns:32px minmax(0,1fr)!important')&&
  postCss.includes('.ui-vatra-post-expanded-image-001{width:100%;height:100%;flex:0 0 100%;object-position:center}'),
@@ -164,5 +164,16 @@ assert.ok(
  profileCss.includes('body.profile-page .vatra-profile-photo-owner-001{\n display:inline-flex;align-items:center;gap:5px;max-width:100%;min-width:0;')&&
  postCss.includes('body .vatra-verified-name{'),
  "Avatar photo header must reuse the real verified-account badge and match the post author name alignment"
+);
+assert.ok(
+ postMedia.includes('paragraph.append(document.createTextNode(" "),button);')&&
+ postMedia.includes('expanded?full.trimEnd():compact')&&
+ !postMedia.includes('paragraph.insertAdjacentElement("afterend",button)')&&
+ postCss.includes('body.feed-page .feed-post-body > .vatra-feed-post-read-more-001{')&&
+ postCss.includes('display:inline;margin:0;padding:0;border:0;background:transparent;')&&
+ postCss.includes('body.feed-page:not(.community-page) .feed-post-card > .feed-post-body{')&&
+ postCss.includes('font:480 14.5px/1.65 "Onest",system-ui,sans-serif;letter-spacing:.001em')&&
+ !profileCss.includes('.profile-posts-section .feed-post-body{'),
+ "Feed and Profile must use identical post typography with inline, accessible expand/collapse controls"
 );
 console.log("VATRA media viewer layout checks passed.");

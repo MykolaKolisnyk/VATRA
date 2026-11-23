@@ -669,9 +669,6 @@ body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-po
 body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-name{
  color:#34445f;font:760 14px/1.4 "Onest",system-ui,sans-serif
 }
-body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-body{
- margin:10px 0 1px;color:#394964;}
-
 
 body.profile-page .profile-posts-section .feed-post-placeholder{
  display:flex;flex-direction:column;gap:13px;min-height:122px;padding:17px 18px;
@@ -709,9 +706,6 @@ body.profile-page .profile-actions .profile-message-button{
  background:#edf2fb;border:1px solid #dce5f6;color:#3f628f
 }
 body.profile-page .profile-name{letter-spacing:-.038em;font-weight:790;text-rendering:optimizeLegibility}
-body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-body{
- font:480 14.5px/1.68 "Onest",system-ui,sans-serif
-}
 body.profile-page .profile-info{box-shadow:0 7px 24px rgba(39,60,108,.05)}
 @media(max-width:710px){
  body.profile-page .profile-actions{justify-content:flex-start}

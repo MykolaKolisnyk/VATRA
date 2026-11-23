@@ -249,8 +249,9 @@
   });
   const photoSide=make("aside","ui-vatra-post-media-side-001 ui-vatra-album-photo-side-001");
   const photoAuthor=make("header","ui-vatra-post-media-author-001 ui-vatra-album-photo-author-001");
-  const photoAuthorImage=make("img","vatra-album-photo-author-avatar-001");
-  photoAuthorImage.alt="";photoAuthorImage.width=42;photoAuthorImage.height=42;
+  const photoAuthorImage=make("a","vatra-album-photo-author-avatar-001");
+  photoAuthorImage.href=new URL("id"+targetId,new URL(".",location.href)).href;
+  photoAuthorImage.setAttribute("aria-label",t("Профіль автора","Author profile"));
   const photoAuthorName=make("a","vatra-album-photo-author-name-001",t("Учасник VATRA","VATRA member"));
   photoAuthorName.href=new URL("id"+targetId,new URL(".",location.href)).href;
   photoAuthor.append(photoAuthorImage,photoAuthorName);
@@ -330,7 +331,9 @@
   commentsInput.maxLength=1000;commentsInput.rows=2;commentsInput.required=true;
   commentsInput.placeholder=t("Ваш коментар…","Write a comment…");
   const commentsSend=button("vatra-albums-primary-001",t("Надіслати","Send"));commentsSend.type="submit";
-  commentsForm.append(commentsInput,commentsSend);
+  const commentsAvatar=make("span","vatra-album-comment-composer-avatar-001");
+  commentsAvatar.setAttribute("aria-hidden","true");
+  commentsForm.append(commentsAvatar,commentsInput,commentsSend);
   commentsBox.append(commentsHead,commentsList,commentsForm);commentsDialog.append(commentsBox);
   document.body.append(commentsDialog);
   let commentAlbum=null,commentPhoto=null,commentOffset=0,commentsTicket=0,commentLoading=false;
@@ -338,15 +341,44 @@
   commentsMore.hidden=true;commentsBox.insertBefore(commentsMore,commentsForm);
   const sameDiscussion=(album,photo)=>commentAlbum?.id===album?.id&&
    (commentPhoto?.id||null)===(photo?.id||null);
+  async function paintAvatars(nodes,ticket){
+   if(!nodes.length||!window.VATRA_AVATAR?.paths)return;
+   const ids=[...new Set(nodes.map(node=>node.dataset.vatraId).filter(validId))];
+   const result=await window.VATRA_AVATAR.paths(client,ids);
+   if(ticket!==commentsTicket)return;
+   const photos=new Map();
+   for(const record of result?.data||[]){
+    const id=String(record.vatra_id),path=record.avatar_path;
+    if(!validId(id)||typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
+    const url=client.storage.from("avatars").getPublicUrl(record.avatar_path)?.data?.publicUrl;
+    if(url)photos.set(id,url);
+   }
+   for(const node of nodes){
+    if(!node.isConnected)continue;
+    const url=photos.get(node.dataset.vatraId);
+    if(url){node.style.backgroundImage="url("+JSON.stringify(url)+")";node.classList.add("has-photo");}
+   }
+  }
+  async function paintComposerAvatar(){
+   if(!validId(ownId)||!window.VATRA_AVATAR?.paths)return;
+   const result=await window.VATRA_AVATAR.paths(client,[ownId]);
+   const avatarPath=result?.data?.find(row=>String(row.vatra_id)===String(ownId))?.avatar_path;
+   if(typeof avatarPath!=="string"||!avatarPath.startsWith(ownId+"/avatar/")||!commentsAvatar.isConnected)return;
+   const url=client.storage.from("avatars").getPublicUrl(avatarPath)?.data?.publicUrl;
+   if(url)commentsAvatar.style.backgroundImage="url("+JSON.stringify(url)+")";
+  }
   function commentRow(item,names){
    const row=make("article","ui-vatra-album-comment-001");
    row.dataset.commentId=String(item.id);
    const info=make("div","ui-vatra-album-comment-author-001");
    const author=make("a","vatra-album-comment-name-001",names.get(String(item.author_vatra_id))||t("Учасник VATRA","VATRA member"));
    author.href=new URL("id"+item.author_vatra_id,new URL(".",location.href)).href;
+   const portrait=make("a","vatra-album-comment-avatar-001");
+   portrait.href=author.href;portrait.dataset.vatraId=String(item.author_vatra_id);
+   portrait.setAttribute("aria-label",t("Профіль автора коментаря","Comment author profile"));
    info.append(author,make("time","vatra-album-comment-date-001",
     new Intl.DateTimeFormat(lang()==="en"?"en-US":"uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(new Date(item.created_at))));
-   row.append(info,make("p","vatra-album-comment-body-001",item.body));
+   row.append(portrait,info,make("p","vatra-album-comment-body-001",item.body));
    if(isMine||String(item.author_id)===String(userId)){
     const remove=button("vatra-album-comment-delete-001",t("Видалити","Delete"),async()=>{
      if(!await askDelete(t("Видалити коментар?","Delete comment?"),t("Коментар буде видалено без відновлення.","This comment cannot be restored.")))return;
@@ -381,7 +413,12 @@
     const names=new Map((result?.data||[]).map(r=>[String(r.vatra_id),r.display_name]));
     if(!append)commentsList.replaceChildren();
     if(!append&&!rows.length)commentsList.append(make("p","vatra-albums-hint-001",t("Коментарів поки немає. Почніть розмову.","No comments yet. Start the conversation.")));
-    for(const item of rows)commentsList.append(commentRow(item,names));
+    const portraits=[];
+    for(const item of rows){
+     const row=commentRow(item,names);commentsList.append(row);
+     const portrait=row.querySelector(".vatra-album-comment-avatar-001");if(portrait)portraits.push(portrait);
+    }
+    void paintAvatars(portraits,ticket);
     commentOffset+=rows.length;commentsMore.hidden=(data||[]).length<=10;
    }catch(_){
     if(ticket===commentsTicket&&!append&&sameDiscussion(album,photo))
@@ -392,7 +429,7 @@
   async function openComments(album,photo=null){
    commentAlbum=album;commentPhoto=photo;commentOffset=0;
    commentsTitle.textContent=photo?t("Коментарі до фотографії","Photo comments"):t("Коментарі до альбому","Album comments");
-   commentsInput.value="";
+   commentsInput.value="";void paintComposerAvatar();
    commentsForm.hidden=album.comments_mode==="off";
    if(album.comments_mode==="friends"&&!isMine){
     const {data,error}=await client.from("friendships").select("id")
@@ -533,8 +570,8 @@
    photoLoading.hidden=false;photoLoading.textContent=t("Завантаження фотографії…","Loading photograph…");
    photoLike.disabled=true;paintPhotoLike();
    photoMoreItems.replaceChildren(...photoActionButtons(row,album));
-   photoAuthorImage.hidden=!state.avatar?.url;
-   if(state.avatar?.url)photoAuthorImage.src=state.avatar.url;
+   photoAuthorImage.style.backgroundImage=state.avatar?.url?"url("+JSON.stringify(state.avatar.url)+")":"";
+   photoAuthorImage.classList.toggle("has-photo",!!state.avatar?.url);
    photoAuthorName.textContent=document.querySelector("#profile-heading")?.textContent?.trim()||t("Учасник VATRA","VATRA member");
    photoDialog.showModal();void loadPhotoLikes(row);void openComments(album,row);
    void (async()=>{

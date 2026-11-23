@@ -56,6 +56,60 @@ try{
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
  await runMessengerBrowserSmoke({browser,base});
 
+ // Collapsible posts must place the toggle after the final text/hashtag,
+ // never as a separate block. Feed and Profile must calculate the same font.
+ const bodyTextProbe=await context.newPage();
+ try{
+  await bodyTextProbe.setContent('<!doctype html><html lang="uk"><head>'+
+   '<link rel="stylesheet" href="'+base+'assets/css/feed.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/profile.css"></head>'+
+   '<body class="feed-page"><section class="profile-posts-section">'+
+   '<article class="feed-post-card"><p id="body-text-probe" class="feed-post-body"></p>'+
+   '</article></section></body></html>',{waitUntil:"load"});
+  await bodyTextProbe.addScriptTag({url:base+"assets/js/post-media.js"});
+  const result=await bodyTextProbe.evaluate(()=>{
+   const paragraph=document.querySelector("#body-text-probe");
+   const original="Синя галочка у VATRA — більше, ніж просто значок.\n\n"+
+    "Це символ довіри та справжності. ".repeat(18)+"\n\n#VATRA";
+   paragraph.textContent=original;
+   window.VATRA_POST_MEDIA.linkifyHashtags(paragraph);
+   window.VATRA_POST_MEDIA.collapsibleBody(paragraph);
+   const button=paragraph.querySelector(".vatra-feed-post-read-more-001");
+   const collapsedChecks={
+    exists:!!button,
+    nested:button?.parentElement===paragraph,
+    last:paragraph.lastElementChild===button,
+    suffix:paragraph.textContent.endsWith("… Показати більше"),
+    aria:button?.getAttribute("aria-expanded")==="false",
+    inline:["inline","inline-block"].includes(button?getComputedStyle(button).display:"")
+   };
+   const collapsed=Object.values(collapsedChecks).every(Boolean);
+   const measure=()=>{
+    const style=getComputedStyle(paragraph);
+    return ["fontFamily","fontSize","fontWeight","lineHeight","letterSpacing","color","marginTop"]
+     .map(key=>style[key]);
+   };
+   const feedStyle=measure();
+   document.body.classList.add("profile-page");
+   const profileStyle=measure();
+   button.click();
+   const expanded=paragraph.lastElementChild===button&&
+    paragraph.textContent.endsWith("#VATRA Показати менше")&&
+    !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&
+    paragraph.textContent.slice(0,-button.textContent.length-1)===original&&
+    button.getAttribute("aria-expanded")==="true";
+   button.click();
+   const restored=paragraph.textContent.endsWith("… Показати більше")&&
+    paragraph.querySelectorAll(".vatra-feed-post-read-more-001").length===1;
+   return {collapsed,collapsedChecks,expanded,restored,feedStyle,profileStyle};
+  });
+  assert.ok(result.collapsed&&result.expanded&&result.restored,
+   "Read-more must stay inline after post text and preserve hashtags: "+JSON.stringify(result));
+  assert.deepEqual(result.feedStyle,result.profileStyle,
+   "Feed and Profile post body typography must match: "+JSON.stringify(result));
+  console.log("VATRA post text: inline expand/collapse and matching Feed/Profile fonts passed.");
+ }finally{await bodyTextProbe.close();}
+
  // Simulate previously cached stylesheet/JS content after a deployment.
  // This isolated context enables the actual Service Worker (other tests block it).
  const swContext=await browser.newContext({serviceWorkers:"allow"});
