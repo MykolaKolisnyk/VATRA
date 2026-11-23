@@ -3087,8 +3087,7 @@ body.profile-page .profile-actions{position:relative;z-index:10;overflow:visible
  body.profile-page .ui-profile-more-panel-001{right:0}
 }
 
-/* Compact profile friendship controls; keep touch targets usable. */
-body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button{
+body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]){
  box-sizing:border-box;min-height:38px;height:38px;padding:7px 11px;gap:7px;
  border-radius:9px;font:680 12px/1.35 "Onest",system-ui,sans-serif;
  box-shadow:0 3px 9px rgba(63,104,206,.09)
@@ -3096,18 +3095,17 @@ body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend
 body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button svg{
  width:16px;height:16px
 }
-body.profile-page .profile-actions > button:not([hidden]){
+body.profile-page .profile-actions > button:not([hidden]):where(button){
  min-height:38px;padding:7px 12px;border-radius:9px;
  font:680 12px/1.35 "Onest",system-ui,sans-serif
 }
-body.profile-page .profile-actions{gap:7px}
+body.profile-page .profile-actions:not([hidden]){gap:7px}
 @media(max-width:600px){
- body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button{
+ body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]){
   min-height:42px;height:42px;padding:9px 12px
  }
 }
 
-/* Photo comments share the inline edit/undo pattern of post comments. */
 body.profile-page .vatra-profile-photo-comment-edit-001{
  position:absolute;right:42px;top:10px;display:grid;place-items:center;
  width:27px;height:27px;padding:3px;border:0;border-radius:8px;
