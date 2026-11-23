@@ -368,7 +368,7 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
   const run=notificationRun;
   const {rows,hasNext}=await fetchRows(opts);
   if(run!==notificationRun)return [];
-  const {names,avatars,states}=await authorNames(rows);
+  const {names,avatars,states,forms}=await authorNames(rows);
   if(run!==notificationRun)return [];
   const nodes=rows.map((record,i)=>{
    const id=String(record.actor_vatra_id),state=states.get(id);
