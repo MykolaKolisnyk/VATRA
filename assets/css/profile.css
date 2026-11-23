@@ -3137,3 +3137,6 @@ body.profile-page .vatra-photo-comment-deleted-001{
 body.profile-page .vatra-photo-comment-undo-001{padding:2px;border:0;background:transparent;color:#3773bf;font:730 13px "Onest",system-ui,sans-serif;cursor:pointer}
 @media(hover:none){body.profile-page .vatra-profile-photo-comment-edit-001{opacity:1}}
 @media(prefers-reduced-motion:reduce){body.profile-page .vatra-profile-photo-comment-edit-001{transition:none}}
+
+.vatra-profile-photo-comments-sentinel-001{min-height:1px;width:100%;pointer-events:none}
+.vatra-profile-photo-comments-sentinel-001[hidden]{display:none!important}
