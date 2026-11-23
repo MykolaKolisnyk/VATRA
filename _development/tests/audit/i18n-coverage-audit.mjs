@@ -597,7 +597,8 @@ const runtimeTranslationKeys=source=>{
 };
 for(const [section,source,minKeys] of [
  ["marketplace",await readFile("assets/js/marketplace.js","utf8"),80],
- ["post-interactions",postInteractionsRuntime,100]
+ ["post-interactions",postInteractionsRuntime,100],
+ ["profile",profileRuntime,245]
 ]){
  const keys=runtimeTranslationKeys(source);
  assert.ok(keys.length>=minKeys,section+": translation-key scan unexpectedly incomplete");
