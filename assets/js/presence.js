@@ -150,10 +150,23 @@ function plural(n,one,few,many){
  const last=n%100,tail=n%10;
  return n+" "+(tail===1&&last!==11?one:tail>=2&&tail<=4&&(last<12||last>14)?few:many);
 }
-function relative(value,english=false,now=Date.now()){
+const dateLocales={uk:"uk-UA",en:"en-GB",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
+const languageCode=value=>value===true?"en":typeof value==="string"&&Object.hasOwn(dateLocales,value)?value:"uk";
+function relative(value,language=false,now=Date.now()){
  const date=value instanceof Date?value:new Date(value);
  if(!Number.isFinite(date.getTime()))return "";
- const ms=Math.max(0,now-date.getTime());
+ const ms=Math.max(0,now-date.getTime()),code=languageCode(language);
+ if(code!=="uk"&&code!=="en"){
+  const relativeTime=new Intl.RelativeTimeFormat(dateLocales[code],{numeric:"auto"});
+  if(ms<300000)return relativeTime.format(0,"second");
+  const [quantity,unit]=ms<3600000?[Math.floor(ms/300000)*5,"minute"]:
+   ms<86400000?[Math.floor(ms/3600000),"hour"]:
+   ms<2592000000?[Math.floor(ms/86400000),"day"]:
+   ms<31536000000?[Math.floor(ms/2592000000),"month"]:
+   [Math.floor(ms/31536000000),"year"];
+  return relativeTime.format(-quantity,unit);
+ }
+ const english=code==="en";
  if(ms<300000)return english?"just now":"щойно";
  const minutes=Math.floor(ms/300000)*5;
  if(ms<3600000)return english?minutes+" minutes ago":plural(minutes,"хвилину","хвилини","хвилин")+" тому";
@@ -166,16 +179,20 @@ function relative(value,english=false,now=Date.now()){
  const years=Math.floor(ms/31536000000);
  return english?years+" year"+(years===1?"":"s")+" ago":plural(years,"рік","роки","років")+" тому";
 }
-function format(record,english=false){
+function format(record,language=false){
  const date=record?.last_seen_at?new Date(record.last_seen_at):null;
  if(!date||!Number.isFinite(date.getTime()))return {online:false,text:"",date:null};
  const elapsed=Date.now()-date.getTime();
  const online=elapsed>=-30000&&elapsed<=activeWindow;
  if(online)return {online:true,text:"",date};
- const ago=relative(date,english);
+ const code=languageCode(language),ago=relative(date,code);
+ if(code!=="uk"&&code!=="en"){
+  const source="Остання активність: ";
+  const translated=window.VATRA_LANGUAGE?.translate?.(source);
+  return {online:false,text:(typeof translated==="string"&&translated!==source?translated:source)+ago,date};
+ }
  const verb=record.form==="masculine"?"Заходив":record.form==="feminine"?"Заходила":null;
- return {online:false,text:english?"Last seen "+ago:verb?verb+" "+ago:"Остання активність: "+ago,date};
+ return {online:false,text:code==="en"?"Last seen "+ago:verb?verb+" "+ago:"Остання активність: "+ago,date};
 }
-
 window.VATRA_PRESENCE={start,load,format,grammar,relative};
 })();
