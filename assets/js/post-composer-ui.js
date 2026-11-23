@@ -149,10 +149,10 @@ function bind({prefix,ownerId,getFile,client}){
  const pollHint=make("p","vatra-post-composer-poll-hint-001",
   t("Мінімум два різні варіанти відповіді.","Provide at least two different answers."));
  pollSection.append(pollHeading,pollQuestion,pollOptions,pollAdd,pollSettings,pollEndLabel,pollHint);
- let pollEnabled=false,optionInputs=[];
+ let pollEnabled=false,optionInputs=[],optionSerial=0;
  function addPollOption(value=""){
   if(optionInputs.length>=10)return;
-  const index=optionInputs.length;
+  const index=optionSerial++;
   const row=make("div","vatra-post-composer-poll-option-row ui-vatra-post-poll-option-"+index);
   const input=make("input","vatra-post-composer-poll-option-input ui-vatra-post-poll-input-"+index);
   input.type="text";input.maxLength=120;input.value=value;
@@ -162,14 +162,13 @@ function bind({prefix,ownerId,getFile,client}){
   const remove=make("button","vatra-post-composer-poll-option-remove ui-vatra-post-poll-remove-"+index);
   remove.type="button";remove.setAttribute("aria-label",t("Прибрати варіант","Remove option"));
   remove.append(vectorIcon("close","ui-vatra-post-poll-remove-icon-"+index));
-  remove.disabled=optionInputs.length<2;
   remove.addEventListener("click",()=>{
    optionInputs=optionInputs.filter(x=>x!==input);row.remove();
-   optionInputs.forEach((node,i)=>{node.placeholder=t("Варіант відповіді","Answer option")+" "+(i+1);});
+   optionInputs.forEach((node,i)=>{node.placeholder=t("Варіант відповіді","Answer option")+" "+(i+1);node.setAttribute("aria-label",node.placeholder);});
    onPollChange();
   });
   row.append(input,remove);pollOptions.append(row);optionInputs.push(input);
-  pollAdd.disabled=optionInputs.length>=10;
+  onPollChange();
  }
  function getPoll(){
   if(!pollEnabled)return null;
@@ -184,6 +183,10 @@ function bind({prefix,ownerId,getFile,client}){
    closes_at:closesAt?closesAt.toISOString():null};
  }
  function onPollChange(){
+  pollAdd.disabled=optionInputs.length>=10;
+  pollOptions.querySelectorAll(".vatra-post-composer-poll-option-remove").forEach(button=>{
+   button.disabled=optionInputs.length<=2;
+  });
   pollHint.textContent=pollEnabled&&!getPoll()?
    t("Заповніть запитання та мінімум два різні варіанти.","Enter a question and two distinct answers."):
    t("Мінімум два різні варіанти відповіді.","Provide at least two different answers.");
