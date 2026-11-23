@@ -18,6 +18,10 @@ BEGIN
   OR jsonb_typeof(value->'anonymous') IS DISTINCT FROM 'boolean'
   OR jsonb_typeof(value->'allow_revote') IS DISTINCT FROM 'boolean' THEN RETURN false; END IF;
  IF value ? 'closes_at' AND jsonb_typeof(value->'closes_at') NOT IN ('string','null') THEN RETURN false; END IF;
+ IF EXISTS (
+  SELECT 1 FROM jsonb_array_elements(value->'options') AS choices(item)
+  WHERE jsonb_typeof(item) <> 'string'
+ ) THEN RETURN false; END IF;
  FOR option_text IN SELECT jsonb_array_elements_text(value->'options') LOOP
   IF char_length(btrim(option_text)) NOT BETWEEN 1 AND 120 THEN RETURN false; END IF;
  END LOOP;
@@ -132,7 +136,9 @@ BEGIN
  IF NEW.voter_id IS DISTINCT FROM (SELECT auth.uid()) THEN
   RAISE EXCEPTION 'Vote must belong to the signed-in account' USING ERRCODE='42501';
  END IF;
- IF TG_OP='UPDATE' AND (NEW.post_id IS DISTINCT FROM OLD.post_id OR NEW.voter_id IS DISTINCT FROM OLD.voter_id) THEN
+ IF TG_OP='UPDATE' AND (NEW.post_id IS DISTINCT FROM OLD.post_id
+  OR NEW.voter_id IS DISTINCT FROM OLD.voter_id
+  OR NEW.created_at IS DISTINCT FROM OLD.created_at) THEN
   RAISE EXCEPTION 'Vote identity cannot change' USING ERRCODE='23514';
  END IF;
  SELECT p.poll INTO poll_data FROM public.feed_posts p
@@ -264,7 +270,8 @@ BEGIN
     OR NEW.author_vatra_id IS DISTINCT FROM OLD.author_vatra_id
     OR NEW.published_post_id IS DISTINCT FROM OLD.published_post_id
     OR NEW.attempts IS DISTINCT FROM OLD.attempts
-    OR NEW.last_error IS DISTINCT FROM OLD.last_error THEN
+    OR NEW.last_error IS DISTINCT FROM OLD.last_error
+    OR NEW.next_attempt_at IS DISTINCT FROM OLD.next_attempt_at THEN
    RAISE EXCEPTION 'Protected schedule fields cannot be edited' USING ERRCODE='42501';
   END IF;
   IF OLD.status<>'queued' OR NEW.status NOT IN ('queued','cancelled') THEN
