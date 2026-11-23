@@ -9,8 +9,9 @@
  const translate=(uk,en)=>{const l=locale();if(l==="en")return en;const value=window.VATRA_LANGUAGE?.translate?.(uk);return typeof value==="string"&&value!==uk?value:uk;};
  const t=translate;
  const validId=value=>/^[1-9][0-9]{0,18}$/.test(String(value));
- const time=date=>new Intl.DateTimeFormat(locale()==="en"?"en-US":"uk-UA",{hour:"2-digit",minute:"2-digit"}).format(new Date(date));
- const day=date=>new Intl.DateTimeFormat(locale()==="en"?"en-US":"uk-UA",{day:"numeric",month:"long",year:"numeric"}).format(new Date(date));
+ const dateLocales={uk:"uk-UA",en:"en-GB",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
+ const time=date=>new Intl.DateTimeFormat(dateLocales[locale()]||"uk-UA",{hour:"2-digit",minute:"2-digit"}).format(new Date(date));
+ const day=date=>new Intl.DateTimeFormat(dateLocales[locale()]||"uk-UA",{day:"numeric",month:"long",year:"numeric"}).format(new Date(date));
  const node=(tag,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;};
  const state={client:null,user:null,own:null,selected:null,rows:[],names:new Map(),locked:true,terminating:false,peerKey:null,peerLoading:false,peerRequestVersion:0,peerChanged:false,keyDialogMode:"",pendingImport:null,
   refreshVersion:0,chatVersion:0,refreshPending:false,sendBusy:false,deleteId:null,subscription:null,poll:null};
@@ -23,6 +24,22 @@
   $("#messenger-search").placeholder=t("Пошук за ім'ям або VATRA ID","Search name or VATRA ID");
   $("#messenger-compose-text").placeholder=t("Напишіть повідомлення…","Type your message…");
   $("#messenger-passphrase").placeholder=t("Не менше 14 символів","At least 14 characters");
+  const dictionary=raw=>window.VATRA_LANGUAGE?.translate?.(raw)||raw;
+  for(const element of document.querySelectorAll("[aria-label],[title]")){
+   for(const attribute of ["aria-label","title"]){
+    const source=element.getAttribute(attribute);
+    if(source&&/[А-Яа-яІіЇїЄєҐґ]/.test(source)){
+     const translated=dictionary(source);
+     if(translated!==source)element.setAttribute(attribute,translated);
+    }
+   }
+  }
+  const messageLabel=document.querySelector('label[for="messenger-compose-text"]');
+  if(messageLabel)messageLabel.textContent=t("Ваше повідомлення","Your message");
+  $("#messenger-key-title").textContent=t("Захистіть свої розмови","Protect your conversations");
+  $("#messenger-key-submit").textContent=t("Продовжити","Continue");
+  const meta=document.querySelector('meta[name="description"]');
+  if(meta)meta.content=t("Приватні повідомлення VATRA.","Private messages on VATRA.");
  }
  const ownRow=row=>String(row.sender_id)===state.own;
  const hiddenRow=row=>!!row.deleted_for_all_at||(ownRow(row)?!!row.deleted_for_sender_at:!!row.deleted_for_recipient_at);
