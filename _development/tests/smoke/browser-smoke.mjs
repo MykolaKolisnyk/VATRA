@@ -4738,13 +4738,22 @@ try{
   await profilePage.locator("#profile-add-story").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-avatar-remove").isVisible(),true);
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-avatar-editor.js"]').count(),0,
+   "Viewing the profile and cover editor must not load the avatar crop editor");
   await profilePage.locator("#profile-avatar-file").setInputFiles({name:"avatar-preview.png",mimeType:"image/png",buffer:onePixelPng});
   await profilePage.locator("#profile-avatar-crop-dialog").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-avatar-editor.js"]').count(),1,
+   "Selecting avatar media must load the avatar crop editor once");
   await profilePage.locator("#profile-avatar-crop-next").click();
   await profilePage.locator("#profile-avatar-finish-dialog").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-publish-post").isChecked(),false,"Sharing must be opt-in");
   assert.equal(await profilePage.locator("#profile-avatar-publish-story").isChecked(),false);
   await profilePage.locator("#profile-avatar-finish-back").click();
+  await profilePage.locator("#profile-avatar-crop-cancel").click();
+  await profilePage.locator("#profile-avatar-file").setInputFiles({name:"avatar-again.png",mimeType:"image/png",buffer:onePixelPng});
+  await profilePage.locator("#profile-avatar-crop-dialog").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-avatar-editor.js"]').count(),1,
+   "Reopening avatar cropping must reuse its existing script and listeners");
   await profilePage.locator("#profile-avatar-crop-cancel").click();
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").click();
