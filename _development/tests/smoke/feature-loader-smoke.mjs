@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext,Script} from "node:vm";
-const [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,profileHtml,feedHtml,giftsHtml,catalog,viewer]=await Promise.all([
+const [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,commentRows,profileHtml,feedHtml,giftsHtml,catalog,viewer]=await Promise.all([
  "assets/js/feature-loader.js","assets/js/profile.js","assets/js/feed.js",
- "assets/js/photo-albums.js","assets/js/profile-gallery.js","assets/js/profile-cover-editor.js","assets/js/profile-avatar-editor.js","assets/js/profile-cover-viewer.js","profile.html","feed.html","gifts.html",
+ "assets/js/photo-albums.js","assets/js/profile-gallery.js","assets/js/profile-cover-editor.js","assets/js/profile-avatar-editor.js","assets/js/profile-cover-viewer.js","assets/js/profile-avatar-comment-row.js","profile.html","feed.html","gifts.html",
  "assets/js/gift-catalog.js","assets/js/gift-viewer.js"
 ].map(path=>readFile(path,"utf8")));
-for(const source of [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,catalog,viewer])
+for(const source of [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,commentRows,catalog,viewer])
  assert.doesNotThrow(()=>new Script(source),"VATRA feature source must parse");
 for(const [page,html] of [["profile",profileHtml],["feed",feedHtml]]){
  assert.ok(html.includes('assets/js/feature-loader.js?rev='),
@@ -24,6 +24,16 @@ for(const html of [profileHtml,giftsHtml]){
  assert.ok(html.includes('assets/js/feature-loader.js?rev='),"Gift-opening pages need shared loader");
 }
 assert.ok(!profileHtml.includes('href="assets/css/gifts.css"'),"Profile must defer gift styles");
+assert.ok(!profileHtml.includes('src="assets/js/profile-avatar-comment-row.js'),
+ "Avatar comment cards must not preload during profile render");
+assert.ok(loader.includes('assets/js/profile-avatar-comment-row.js?rev=')&&
+ loader.includes('key:"VATRA_PROFILE_AVATAR_COMMENT_ROW"')&&
+ profile.includes('rows.length?await window.VATRA_FEATURES.load("avatar-comment-row"):null')&&
+ commentRows.includes('window.VATRA_PROFILE_AVATAR_COMMENT_ROW=Object.freeze({create})')&&
+ commentRows.includes('client.from("avatar_comments").delete()')&&
+ commentRows.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
+ commentRows.includes('client.from("avatar_comment_likes").insert('),
+ "Comment cards must load on demand and retain ownership-filtered deletion and reactions");
 assert.ok(!profileHtml.includes('src="assets/js/profile-cover-viewer.js'),
  "Cover viewer must not load eagerly");
 assert.ok(loader.includes('assets/js/profile-cover-viewer.js?rev=')&&
@@ -98,6 +108,7 @@ function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGall
      }
      if(el.src.includes("profile-avatar-editor.js"))window.VATRA_PROFILE_AVATAR_EDITOR={mount(){}};
      if(el.src.includes("profile-cover-viewer.js"))window.VATRA_PROFILE_COVER_VIEWER={mount(){}};
+     if(el.src.includes("profile-avatar-comment-row.js"))window.VATRA_PROFILE_AVATAR_COMMENT_ROW={create(){}};
      if(el.src.includes("photo-albums.js"))window.VATRA_ALBUMS={mount(){}};
      if(el.src.includes("story-editor.js"))window.VATRA_STORY_EDITOR={mount(){}};
      if(el.src.includes("post-composer-ui.js"))window.VATRA_COMPOSER_UI={bind(){}};
@@ -155,6 +166,14 @@ assert.equal(browser.requests.length,12,"Cover fullscreen viewer loads only afte
 assert.equal(browser.requests.at(-1).tag,"SCRIPT","Cover viewer requires no extra stylesheet");
 await browser.window.VATRA_FEATURES.load("cover-viewer");
 assert.equal(browser.requests.length,12,"Cover fullscreen viewer is reused after first load");
+const commentsTask=browser.window.VATRA_FEATURES.load("avatar-comment-row");
+assert.strictEqual(browser.window.VATRA_FEATURES.load("avatar-comment-row"),commentsTask,
+ "Concurrent avatar comment card loads share the same Promise");
+await commentsTask;
+assert.equal(browser.requests.length,13,"Avatar comment cards load only when requested");
+assert.equal(browser.requests.at(-1).tag,"SCRIPT","Avatar comment UI has no extra stylesheet");
+await browser.window.VATRA_FEATURES.load("avatar-comment-row");
+assert.equal(browser.requests.length,13,"Avatar comment cards are reused");
 const avatarRetry=fakeBrowser(false,false,false,true);
 await assert.rejects(avatarRetry.window.VATRA_FEATURES.load("avatar-editor"));
 await avatarRetry.window.VATRA_FEATURES.load("avatar-editor");
@@ -174,4 +193,67 @@ await retry.window.VATRA_FEATURES.load("albums");
 assert.deepEqual(retry.requests.map(x=>x.tag),["LINK","LINK","SCRIPT"],
  "Failure must recover on retry");
 await assert.rejects(browser.window.VATRA_FEATURES.load("unknown"));
-console.log("VATRA lazy features: no eager payload, CSS before JS, deduplication, deep links and retry passed.");
+// Avatar comment cards must preserve action ownership and cache invalidation.
+class CommentElement{
+ constructor(tag,cls="",copy=""){
+  this.tagName=tag.toUpperCase();this.className=cls;this.textContent=copy;
+  this.children=[];this.dataset={};this.style={};this.attributes={};this.listeners={};
+  this.disabled=false;this.removed=false;
+  this.classList={add(){},remove(){}};
+ }
+ append(...parts){this.children.push(...parts);}
+ setAttribute(name,value){this.attributes[name]=String(value);}
+ addEventListener(name,callback){this.listeners[name]=callback;}
+ remove(){this.removed=true;}
+}
+const commentWindow={VATRA_PROFILE_CONFIRM:async()=>true,VATRA_VERIFIED:{attach(){}}};
+runInNewContext(commentRows,{
+ window:commentWindow,
+ document:{createElementNS(_namespace,tag){return new CommentElement(tag);}}
+},{filename:"profile-avatar-comment-row.js"});
+const rowOps=[];let cacheInvalidations=0,deletedNotifications=0;
+const apiClient={
+ from(table){
+  return {
+   insert(values){rowOps.push({table,action:"insert",values});return Promise.resolve({error:null});},
+   delete(){
+    rowOps.push({table,action:"delete"});
+    const filter={
+     eq(field,value){rowOps.push({table,field,value});return this;},
+     select(){return this;},
+     async maybeSingle(){return {data:{id:"31"},error:null};},
+     then(resolve){resolve({error:null});}
+    };
+    return filter;
+   }
+  };
+ }
+};
+const rowItem={id:"31",author_vatra_id:"8",created_at:"2026-01-01T00:00:00Z",
+ body:"Тестовий коментар",likes:2};
+const context={
+ client:apiClient,ownId:"9",userId:"user-8",locale:"uk-UA",
+ names:new Map([["8","Автор"]]),images:new Map(),
+ ownCommentLikes:new Set(),
+ node:(tag,cls,copy)=>new CommentElement(tag,cls,copy),
+ t:uk=>uk,memberUrl:id=>"/VATRA/id"+id,dateText:()=>("Дата"),
+ feedback:()=>{},clearCommentCache:()=>{cacheInvalidations++;},
+ onDelete:()=>{deletedNotifications++;}
+};
+const otherCard=commentWindow.VATRA_PROFILE_AVATAR_COMMENT_ROW.create(rowItem,context);
+assert.equal(otherCard.children.filter(el=>el.className.includes("comment-delete")).length,0,
+ "Other members must not get a delete button for an avatar comment");
+const likeAction=otherCard.children.find(el=>el.className.includes("comment-like"));
+await likeAction.listeners.click();
+assert.equal(likeAction.attributes["aria-pressed"],"true","Like action must update only after success");
+assert.equal(cacheInvalidations,1,"Comment reactions must invalidate cached comment pages");
+const ownCard=commentWindow.VATRA_PROFILE_AVATAR_COMMENT_ROW.create(rowItem,
+ {...context,ownId:"8"});
+const deleteAction=ownCard.children.find(el=>el.className.includes("comment-delete"));
+assert.ok(deleteAction,"Owner must keep the delete action");
+await deleteAction.listeners.click();
+assert.equal(ownCard.removed,true,"Confirmed own comment must disappear");
+assert.equal(deletedNotifications,1,"Deletion must update comment pagination");
+assert.ok(rowOps.some(op=>op.table==="avatar_comments"&&op.field==="author_id"&&op.value==="user-8"),
+ "Delete query must constrain the author id, not just the comment id");
+console.log("VATRA lazy features: no eager payload, CSS before JS, deduplication, deep links, owner-only comment actions and retry passed.");
