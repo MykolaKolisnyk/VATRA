@@ -143,7 +143,7 @@ function person(item,index){
  profile.href=new URL("id"+id,root).href;
  if(!state)void window.VATRA_VERIFIED?.attach(client,profile,id);
  const secondary=make("span","vatra-friends-subtitle-"+index,
-  stateFor(item)==="accepted"?(online(id)?t("Онлайн","Online"):(window.VATRA_PRESENCE?.format(presence.get(id),language()==="en").text||t("Друг у VATRA","VATRA friend"))):
+  stateFor(item)==="accepted"?(online(id)?t("Онлайн","Online"):(window.VATRA_PRESENCE?.format(presence.get(id),language()).text||t("Друг у VATRA","VATRA friend"))):
   stateFor(item)==="incoming"?t("Хоче додатися до друзів","Wants to add you"):
   t("Запит надіслано","Request sent"));
  details.append(profile,secondary);
