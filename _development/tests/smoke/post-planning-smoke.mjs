@@ -1,0 +1,49 @@
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+const read=path=>readFile(path,"utf8");
+const [sql,composer,feed,profile,interactions,style]=await Promise.all([
+ read("_development/supabase/migrations/20261123161115_feed_polls_and_scheduled_posts.sql"),
+ read("assets/js/post-composer-ui.js"),read("assets/js/feed.js"),
+ read("assets/js/profile.js"),read("assets/js/post-interactions.js"),
+ read("assets/css/post-composer.css")
+]);
+const required={
+ sql:[
+  "ADD COLUMN IF NOT EXISTS poll jsonb","CREATE TABLE IF NOT EXISTS public.post_poll_votes",
+  "CREATE TABLE IF NOT EXISTS public.post_poll_counts",
+  "CREATE TABLE IF NOT EXISTS public.scheduled_feed_posts",
+  "ENABLE ROW LEVEL SECURITY","SELECT auth.uid()",
+  "CREATE TRIGGER vatra_poll_vote_guard","CREATE TRIGGER vatra_poll_vote_counts",
+  "SECURITY DEFINER SET search_path = ''",
+  "FOR UPDATE SKIP LOCKED",
+  "REVOKE ALL ON FUNCTION vatra_scheduler.publish_due_posts() FROM PUBLIC, anon, authenticated",
+  "cron.schedule('vatra-publish-scheduled-feed'",
+ ],
+ composer:["function getPoll()","function getScheduledAt()","publish_at","post_poll_votes"],
+ feed:["getPoll?.()","getScheduledAt?.()",'client.from(publishAt?"scheduled_feed_posts":"feed_posts")'],
+ profile:["getPoll?.()","getScheduledAt?.()",'client.from(publishAt?"scheduled_feed_posts":"feed_posts")'],
+ interactions:['client.from("post_poll_votes")','client.from("post_poll_counts")',
+  'function mountPoll(','if(kind==="person"&&post.poll)mountPoll('],
+ style:[".vatra-post-composer-poll-question-001",".vatra-post-composer-schedule-date-001"]
+};
+const contents={sql,composer,feed,profile,interactions,style};
+for(const [name,patterns] of Object.entries(required))
+ for(const expected of patterns)
+  assert.ok(contents[name].includes(expected),name+": missing "+expected);
+assert.ok(sql.includes("USING (voter_id=(SELECT auth.uid())"),
+ "Vote read policy must be scoped to the authenticated voter.");
+assert.ok(sql.includes("EXISTS(SELECT 1 FROM public.feed_posts"),
+ "Poll counters must be restricted by visible feed posts.");
+assert.ok(sql.includes("status='queued'")&&sql.includes("status='published'"),
+ "Scheduled posts need a durable queue/published lifecycle.");
+assert.ok(!composer.includes("setTimeout(()=>form.requestSubmit()"),
+ "Scheduling must never use a browser timer for publishing.");
+for(const lang of ["en","pl","de","fr","it","ka","bg"]){
+ const dict=JSON.parse(await read("assets/i18n/"+lang+".json"));
+ for(const key of ["Опитування","Запланувати публікацію","Голосувати",
+  "Дата і час публікації","Заплановані публікації"]){
+  assert.ok(typeof dict[key]==="string"&&dict[key]!==key,
+   lang+": missing translated key: "+key);
+ }
+}
+console.log("VATRA post planning: secure poll counters, UI and server queue contracts verified.");
