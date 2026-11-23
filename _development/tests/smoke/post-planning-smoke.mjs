@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const [sql,composer,feed,profile,interactions,style]=await Promise.all([
+const [sql,composer,feed,profile,interactions,style,feedStyle]=await Promise.all([
  read("_development/supabase/migrations/20261123161115_feed_polls_and_scheduled_posts.sql"),
  read("assets/js/post-composer-ui.js"),read("assets/js/feed.js"),
  read("assets/js/profile.js"),read("assets/js/post-interactions.js"),
- read("assets/css/post-composer.css")
+ read("assets/css/post-composer.css"),read("assets/css/feed.css")
 ]);
 const required={
  sql:[
@@ -38,10 +38,10 @@ const required={
   'votersPageSize=20','.range(offset,offset+votersPageSize-1)',
   'vatra-post-poll-voters-more-button-001',
   'function mountPoll(','if(kind==="person"&&post.poll)mountPoll('],
- style:[".vatra-post-composer-poll-question-001",".vatra-post-composer-schedule-date-001",
-  ".vatra-post-poll-voters-more-button-001"]
+ style:[".vatra-post-composer-poll-question-001",".vatra-post-composer-schedule-date-001"],
+ feedStyle:[".vatra-post-poll-voters-more-button-001"]
 };
-const contents={sql,composer,feed,profile,interactions,style};
+const contents={sql,composer,feed,profile,interactions,style,feedStyle};
 for(const [name,patterns] of Object.entries(required))
  for(const expected of patterns)
   assert.ok(contents[name].includes(expected),name+": missing "+expected);
