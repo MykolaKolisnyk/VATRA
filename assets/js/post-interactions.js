@@ -361,6 +361,55 @@ function appendAudience(container,level,isGroup=false){
   const closed=()=>closeAt&&Date.now()>=closeAt;
   const hasVote=()=>Array.isArray(ownVote);
   const message=(value)=>{status.textContent=value;status.hidden=!value;};
+  const votersCache=new Map(),votersPending=new Map();
+  const populateVoters=(panel,rows,count)=>{
+   if(!panel.isConnected)return;
+   const header=make("strong","vatra-post-poll-voters-heading-001",
+    count+" "+tr("проголосували за цей варіант","voted for this option"));
+   const list=make("div","vatra-post-poll-voters-list-001");
+   for(const person of rows){
+    const id=String(person.vatra_id||"");
+    if(!validId(id))continue;
+    const name=String(person.display_name||"VATRA ID "+id);
+    const link=make("a","vatra-post-poll-voters-person-001");
+    link.href=new URL("id"+id,relativeRoot()).href;
+    const avatar=make("span","vatra-post-poll-voters-avatar-001",name.trim().charAt(0).toLocaleUpperCase());
+    avatar.setAttribute("aria-hidden","true");
+    link.append(avatar,make("span","vatra-post-poll-voters-name-001",name));
+    list.append(link);
+   }
+   if(!list.childElementCount)list.append(make("span","vatra-post-poll-voters-empty-001",
+    tr("Поки немає голосів","No votes yet")));
+   panel.replaceChildren(header,list);
+   if(count>rows.length)panel.append(make("span","vatra-post-poll-voters-more-001",
+    tr("І ще ","And ")+(count-rows.length)+tr(" учасників"," more voters")));
+  };
+  const loadVoters=(index,panel,count)=>{
+   if(data.anonymous)return;
+   const cached=votersCache.get(index);
+   if(cached&&Date.now()-cached.at<30000){
+    populateVoters(panel,cached.rows,count);return;
+   }
+   panel.replaceChildren(make("span","vatra-post-poll-voters-loading-001",
+    tr("Завантаження…","Loading…")));
+   let promise=votersPending.get(index);
+   if(!promise){
+    promise=(async()=>{
+     const {data:rows,error}=await client.from("post_poll_voters")
+      .select("vatra_id,display_name").eq("post_id",post.id)
+      .contains("choices",[index]).order("vatra_id",{ascending:true}).limit(12);
+     if(error)throw error;
+     votersCache.set(index,{rows:rows||[],at:Date.now()});
+     return rows||[];
+    })();
+    votersPending.set(index,promise);
+    void promise.finally(()=>votersPending.delete(index)).catch(()=>{});
+   }
+   void promise.then(rows=>populateVoters(panel,rows,count)).catch(()=>{
+    if(panel.isConnected)panel.replaceChildren(make("span","vatra-post-poll-voters-error-001",
+     tr("Не вдалося завантажити учасників.","Could not load voters.")));
+   });
+  };
   const refresh=()=>{
    choicesWrap.replaceChildren();
    const reveal=showResults||hasVote()||closed();
@@ -387,7 +436,30 @@ function appendAudience(container,level,isGroup=false){
       refresh();
      }else{selected=[i];void vote();}
     });
-    choicesWrap.append(row);
+    const wrap=make("div","vatra-post-poll-choice-wrap-001 ui-vatra-post-poll-wrap-"+i);
+    wrap.append(row);
+    if(!data.anonymous&&n>0){
+     const panel=make("div","vatra-post-poll-voters-panel-001");
+     panel.hidden=true;panel.setAttribute("role","tooltip");
+     const show=()=>{panel.hidden=false;loadVoters(i,panel,n);};
+     const hide=()=>{panel.hidden=true;};
+     wrap.addEventListener("pointerenter",event=>{if(event.pointerType!=="touch")show();});
+     wrap.addEventListener("pointerleave",hide);
+     wrap.addEventListener("focusin",show);
+     wrap.addEventListener("focusout",event=>{
+      if(!wrap.contains(event.relatedTarget))hide();
+     });
+     const who=make("button","vatra-post-poll-voters-toggle-001",
+      tr("Хто проголосував","Who voted"));
+     who.type="button";
+     who.setAttribute("aria-label",tr("Показати, хто проголосував за ","Show voters for ")+option);
+     who.addEventListener("click",event=>{
+      event.stopPropagation();
+      if(panel.hidden)show();else hide();
+     });
+     wrap.append(who,panel);
+    }
+    choicesWrap.append(wrap);
    });
    summary.textContent=total+" "+tr("голосів","votes")+
     (closed()?" · "+tr("Завершено","Closed"):
@@ -424,7 +496,7 @@ function appendAudience(container,level,isGroup=false){
      client.from("post_poll_votes").insert({post_id:post.id,voter_id:userId,choices:selected});
     const response=await operation;
     if(response.error)throw response.error;
-    showResults=true;
+    showResults=true;votersCache.clear();
     await hydrate();
    }catch(error){
     message(error?.message||tr("Не вдалося зберегти голос.","Could not save vote."));
@@ -439,7 +511,7 @@ function appendAudience(container,level,isGroup=false){
     const r=await client.from("post_poll_votes").delete()
      .eq("post_id",post.id).eq("voter_id",userId);
     if(r.error)throw r.error;
-    ownVote=null;selected=[];showResults=false;await hydrate();
+    ownVote=null;selected=[];showResults=false;votersCache.clear();await hydrate();
    }catch(error){message(error?.message||tr("Не вдалося скасувати голос.","Could not withdraw vote."));}
    finally{busy=false;refresh();}
   });
