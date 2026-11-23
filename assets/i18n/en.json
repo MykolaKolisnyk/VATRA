@@ -3596,5 +3596,6 @@
   "Не вдалося завантажити результати опитування.": "Could not load poll results.",
   "Не вдалося опублікувати": "Publishing failed",
   "Публікація з медіа": "Media post",
-  "Не вдалося зберегти дату публікації.": "Could not save publication date."
+  "Не вдалося зберегти дату публікації.": "Could not save publication date.",
+  "Опитування має завершитися після публікації.": "Poll must end after publication."
 }
