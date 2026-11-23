@@ -583,4 +583,29 @@ for(const code of codes){
   " static page catalogs; "+texts+" UI fields; "+covered+"/"+dynamicKeys.length+
   " shared translation keys; locale-specific JavaScript, legal review and email templates pending");
 }
+// Prevent source additions in released marketplace and post-comment controls
+// from silently falling back to Ukrainian in a non-Ukrainian locale.
+const runtimeTranslationKeys=source=>{
+ const seen=new Set();
+ const calls=/\b(?:t|tr)\s*\(\s*("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')\s*,\s*(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g;
+ for(const match of source.matchAll(calls)){
+  const literal=match[1];
+  const key=literal.startsWith('"')?JSON.parse(literal):literal.slice(1,-1).replace(/\\'/g,"'");
+  if(/[\u0400-\u04ff]/.test(key))seen.add(key);
+ }
+ return [...seen];
+};
+for(const [section,source,minKeys] of [
+ ["marketplace",await readFile("assets/js/marketplace.js","utf8"),80],
+ ["post-interactions",postInteractionsRuntime,100]
+]){
+ const keys=runtimeTranslationKeys(source);
+ assert.ok(keys.length>=minKeys,section+": translation-key scan unexpectedly incomplete");
+ for(const code of ["en","pl","de","fr","it","ka","bg"]){
+  const dictionary=await read(code);
+  const missing=keys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
+  assert.deepEqual(missing,[],code+": "+section+" source strings still untranslated");
+ }
+}
+
 console.log("VATRA eight-language page and dynamic locale integrity: OK; beta email templates excluded");
