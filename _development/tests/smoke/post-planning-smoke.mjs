@@ -14,6 +14,7 @@ const required={
   "CREATE TABLE IF NOT EXISTS public.scheduled_feed_posts",
   "ENABLE ROW LEVEL SECURITY","SELECT auth.uid()",
   "CREATE TRIGGER vatra_poll_vote_guard","CREATE TRIGGER vatra_poll_vote_counts",
+  "Voting is closed or withdrawal is disabled",
   "SECURITY DEFINER SET search_path = ''",
   "FOR UPDATE SKIP LOCKED",
   "REVOKE ALL ON FUNCTION vatra_scheduler.publish_due_posts() FROM PUBLIC, anon, authenticated",
