@@ -5,7 +5,7 @@
  const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id||""));
  const validUUID=id=>/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(id||""));
  const lang=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
- const t=(uk,en)=>lang()==="en"?en:uk;
+ const t=(uk,en)=>{const code=lang();if(code==="uk")return uk;const translated=window.VATRA_LANGUAGE?.translate?.(uk);return typeof translated==="string"&&translated!==uk?translated:(code==="en"?en:uk);};
  const make=(tag,cls,text)=>{
   const el=document.createElement(tag);el.className=cls;
   if(text!==undefined)el.textContent=String(text);return el;
