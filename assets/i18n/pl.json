@@ -1673,6 +1673,46 @@
           "text": {
             "0": "Utwórz konto"
           }
+        },
+        "market_rules_title": {
+          "text": {
+            "0": "Zasady handlu VATRA"
+          }
+        },
+        "market_rules_intro": {
+          "text": {
+            "0": "Ogłoszenia i związane z nimi działania handlowe muszą być zgodne z osobnymi zasadami Marketplace."
+          }
+        },
+        "market_rules_full": {
+          "text": {
+            "0": "Przeczytaj pełne zasady handlu"
+          }
+        },
+        "market_rules_toc_desktop": {
+          "text": {
+            "0": "Zasady handlu VATRA"
+          }
+        },
+        "market_rules_toc_mobile": {
+          "text": {
+            "0": "Zasady handlu VATRA"
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Wszystkie dokumenty"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Zasady platformy"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Wstecz"
+          }
         }
       }
     },
@@ -2033,6 +2073,21 @@
           "text": {
             "0": "Utwórz konto"
           }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Wszystkie dokumenty"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Ochrona danych"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Wstecz"
+          }
         }
       }
     },
@@ -2375,6 +2430,698 @@
         "n302": {
           "text": {
             "0": "Utwórz konto"
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Wszystkie dokumenty"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Ustawienia przeglądarki"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Wstecz"
+          }
+        }
+      }
+    },
+    "documents": {
+      "meta": {
+        "title": "Dokumenty VATRA",
+        "description": "Ważne informacje o korzystaniu z platformy, ochronie danych osobowych i zasadach Marketplace. Wybierz dokument.",
+        "og:locale": "pl_PL",
+        "og:title": "Dokumenty VATRA",
+        "og:description": "Ważne informacje o korzystaniu z platformy, ochronie danych osobowych i zasadach Marketplace. Wybierz dokument."
+      },
+      "nodes": {
+        "docs_back_home_001": {
+          "text": {
+            "0": "Wróć do VATRA"
+          }
+        },
+        "docs_title_001": {
+          "text": {
+            "0": "Dokumenty VATRA"
+          }
+        },
+        "docs_intro_001": {
+          "text": {
+            "0": "Ważne informacje o korzystaniu z platformy, ochronie danych osobowych i zasadach Marketplace. Wybierz dokument."
+          }
+        },
+        "docs_card_01_kicker_001": {
+          "text": {
+            "0": "01 / PLATFORMA"
+          }
+        },
+        "docs_card_01_title_001": {
+          "text": {
+            "0": "Warunki korzystania"
+          }
+        },
+        "docs_card_01_desc_001": {
+          "text": {
+            "0": "Konto, społeczność, treści, bezpieczeństwo i zasady korzystania z VATRA."
+          }
+        },
+        "docs_card_02_kicker_001": {
+          "text": {
+            "0": "02 / PRYWATNOŚĆ"
+          }
+        },
+        "docs_card_02_title_001": {
+          "text": {
+            "0": "Prywatność"
+          }
+        },
+        "docs_card_02_desc_001": {
+          "text": {
+            "0": "Jakie dane są wykorzystywane, jak są chronione i jakie prawa Ci przysługują."
+          }
+        },
+        "docs_card_03_kicker_001": {
+          "text": {
+            "0": "03 / PRZEGLĄDARKA"
+          }
+        },
+        "docs_card_03_title_001": {
+          "text": {
+            "0": "Pliki cookie"
+          }
+        },
+        "docs_card_03_desc_001": {
+          "text": {
+            "0": "Jak działają pliki cookie, pamięć lokalna i ustawienia sesji."
+          }
+        },
+        "docs_card_04_kicker_001": {
+          "text": {
+            "0": "04 / MARKETPLACE"
+          }
+        },
+        "docs_card_04_title_001": {
+          "text": {
+            "0": "Zasady handlu"
+          }
+        },
+        "docs_card_04_desc_001": {
+          "text": {
+            "0": "Wymagania dotyczące ogłoszeń, dozwolone kategorie, zakazy i bezpieczeństwo transakcji."
+          }
+        },
+        "docs_footer_001": {
+          "text": {
+            "0": "© 2026 VATRA · Twoi ludzie. Twoje historie. Twoja VATRA."
+          }
+        },
+        "docs_open_01_001": {
+          "text": {
+            "0": "Zobacz dokument"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Wstecz"
+          }
+        },
+        "docs_open_02_001": {
+          "text": {
+            "0": "Zobacz dokument"
+          }
+        },
+        "docs_open_03_001": {
+          "text": {
+            "0": "Zobacz dokument"
+          }
+        },
+        "docs_open_04_001": {
+          "text": {
+            "0": "Zobacz dokument"
+          }
+        }
+      }
+    },
+    "commerce": {
+      "meta": {
+        "title": "Zasady handlu VATRA",
+        "description": "Zasady Marketplace dla sprzedających i kupujących: dozwolone oferty, zakazy, ograniczenia i procedury odwoławcze.",
+        "og:title": "Zasady handlu VATRA",
+        "og:description": "Zasady Marketplace dla sprzedających i kupujących: dozwolone oferty, zakazy, ograniczenia i procedury odwoławcze.",
+        "og:locale": "pl_PL"
+      },
+      "nodes": {
+        "head-overview": {
+          "text": {
+            "0": "Zakres stosowania"
+          }
+        },
+        "copy-overview": {
+          "text": {
+            "0": "Zasady obejmują wszystkie oferty w Marketplace VATRA: sprzedaż, wymianę, wynajem i nieodpłatne przekazanie, a także powiązane zdjęcia, opisy i wiadomości. Uczestnicy odpowiadają za legalność swoich działań, prawo do rozporządzania towarem oraz przestrzeganie praw konsumentów. Zakazy dotyczą również prób obchodzenia zasad poprzez inne kategorie lub wiadomości."
+          }
+        },
+        "head-appeals": {
+          "text": {
+            "0": "Naruszenia i odwołania"
+          }
+        },
+        "copy-appeals": {
+          "text": {
+            "0": "Każde nowe ogłoszenie trafia najpierw do ręcznej moderacji VATRA ze statusem „Oczekuje na sprawdzenie”. Przed zatwierdzeniem nie jest widoczne dla innych użytkowników. Moderator sprawdza tytuł, opis, kategorię i zdjęcia, po czym zatwierdza ogłoszenie albo odrzuca je z uzasadnieniem. Sprzedający może odwołać się od decyzji. VATRA może także ukrywać lub usuwać ogłoszenia i ograniczać dostęp do Marketplace za naruszenie zasad. Powtarzające się lub poważne naruszenia mogą skutkować dalszymi działaniami wobec konta zgodnie z Warunkami korzystania i prawem. W przypadku błędnej decyzji lub zauważenia naruszenia skontaktuj się z pomocą, podaj link lub identyfikator ogłoszenia i opisz sytuację. Nie przesyłaj danych poufnych."
+          }
+        },
+        "head-prohibited": {
+          "text": {
+            "0": "Zabronione ogłoszenia"
+          }
+        },
+        "copy-prohibited": {
+          "text": {
+            "0": "Poniższe kategorie nie są dopuszczone do katalogu. Przykłady nie stanowią wyczerpującej listy."
+          }
+        },
+        "index-community": {
+          "text": {
+            "0": "Ogólne zasady VATRA"
+          }
+        },
+        "index-adult": {
+          "text": {
+            "0": "Produkty i materiały dla dorosłych"
+          }
+        },
+        "index-alcohol": {
+          "text": {
+            "0": "Produkty alkoholowe"
+          }
+        },
+        "index-body": {
+          "text": {
+            "0": "Tkanki ludzkie i materiały biologiczne"
+          }
+        },
+        "index-devices": {
+          "text": {
+            "0": "Nośniki cyfrowe i urządzenia"
+          }
+        },
+        "index-discrimination": {
+          "text": {
+            "0": "Zakaz dyskryminacji"
+          }
+        },
+        "index-finance": {
+          "text": {
+            "0": "Dokumenty, pieniądze i produkty finansowe"
+          }
+        },
+        "index-gambling": {
+          "text": {
+            "0": "Hazard"
+          }
+        },
+        "index-hazards": {
+          "text": {
+            "0": "Niebezpieczne substancje i wyroby"
+          }
+        },
+        "index-exploitation": {
+          "text": {
+            "0": "Wykorzystywanie ludzi i usługi seksualne"
+          }
+        },
+        "index-jobs": {
+          "text": {
+            "0": "Praca i zarobki"
+          }
+        },
+        "index-animals": {
+          "text": {
+            "0": "Zwierzęta, zasoby naturalne i tereny chronione"
+          }
+        },
+        "index-medical": {
+          "text": {
+            "0": "Produkty medyczne, zabiegi i suplementy"
+          }
+        },
+        "index-deception": {
+          "text": {
+            "0": "Oszustwa, przemoc i nienawiść"
+          }
+        },
+        "index-no-item": {
+          "text": {
+            "0": "Ogłoszenia bez przedmiotu transakcji"
+          }
+        },
+        "index-drugs": {
+          "text": {
+            "0": "Leki, narkotyki i akcesoria"
+          }
+        },
+        "index-recalls": {
+          "text": {
+            "0": "Produkty niebezpieczne i wycofane"
+          }
+        },
+        "index-stolen": {
+          "text": {
+            "0": "Skradzione mienie"
+          }
+        },
+        "index-digital": {
+          "text": {
+            "0": "Subskrypcje, konta i towary cyfrowe"
+          }
+        },
+        "index-ip": {
+          "text": {
+            "0": "Prawa własności intelektualnej"
+          }
+        },
+        "index-tobacco": {
+          "text": {
+            "0": "Wyroby tytoniowe i nikotynowe"
+          }
+        },
+        "index-cosmetics": {
+          "text": {
+            "0": "Używane kosmetyki"
+          }
+        },
+        "index-vehicle-parts": {
+          "text": {
+            "0": "Części samochodowe i akcesoria"
+          }
+        },
+        "index-weapons": {
+          "text": {
+            "0": "Broń, amunicja i materiały wybuchowe"
+          }
+        },
+        "head-rule-community": {
+          "text": {
+            "0": "1. Ogólne zasady VATRA"
+          }
+        },
+        "copy-rule-community": {
+          "text": {
+            "0": "Ogłoszenia, zdjęcia i korespondencja związana z transakcjami muszą być zgodne z Warunkami korzystania z VATRA. Zakazane są spam, groźby, nękanie, oszustwa i wykorzystywanie dzieci."
+          }
+        },
+        "head-rule-adult": {
+          "text": {
+            "0": "2. Produkty i materiały dla dorosłych"
+          }
+        },
+        "copy-rule-adult": {
+          "text": {
+            "0": "Nie są dozwolone zabawki erotyczne, materiały pornograficzne, produkty wspomagające aktywność seksualną, prezerwatywy i lubrykanty, używana bielizna ani seksualizowane obrazy. W katalogu bezwzględnie zabronione są wizerunki nagich dzieci i czynności seksualnych."
+          }
+        },
+        "head-rule-alcohol": {
+          "text": {
+            "0": "3. Produkty alkoholowe"
+          }
+        },
+        "copy-rule-alcohol": {
+          "text": {
+            "0": "Marketplace VATRA nie zezwala na napoje alkoholowe ani zestawy do ich wytwarzania. Zwykłe kieliszki, podstawki, chłodziarki i książki o napojach są dozwolone, jeśli nie promują alkoholu. Produkty reklamujące jego sprzedaż są zabronione."
+          }
+        },
+        "head-rule-body": {
+          "text": {
+            "0": "4. Tkanki ludzkie i materiały biologiczne"
+          }
+        },
+        "copy-rule-body": {
+          "text": {
+            "0": "Nie wolno handlować organami, zębami, paznokciami, krwią, moczem, nasieniem ani innymi ludzkimi tkankami i płynami ustrojowymi. Zakaz nie obejmuje zwykłych peruk i tupetów."
+          }
+        },
+        "head-rule-devices": {
+          "text": {
+            "0": "5. Nośniki cyfrowe i urządzenia"
+          }
+        },
+        "copy-rule-devices": {
+          "text": {
+            "0": "Zabronione są urządzenia specjalnie skonfigurowane do pirackiego dostępu do treści, nielegalnego omijania zabezpieczeń, zakłócania sygnałów radiowych lub ukrytego podsłuchu. Legalne piloty, klawiatury i sprawne zwykłe urządzenia elektroniczne są dozwolone."
+          }
+        },
+        "head-rule-discrimination": {
+          "text": {
+            "0": "6. Zakaz dyskryminacji"
+          }
+        },
+        "copy-rule-discrimination": {
+          "text": {
+            "0": "Niedozwolone są bezprawne ograniczenia wobec kupujących, najemców lub sprzedających ze względu na rasę, pochodzenie etniczne, kolor skóry, obywatelstwo, narodowość, wyznanie, wiek, płeć, orientację seksualną, tożsamość płciową, stan cywilny, niepełnosprawność, zdrowie lub cechy genetyczne. Dotyczy to także ofert mieszkaniowych i negocjacji."
+          }
+        },
+        "head-rule-finance": {
+          "text": {
+            "0": "7. Dokumenty, pieniądze i produkty finansowe"
+          }
+        },
+        "copy-rule-finance": {
+          "text": {
+            "0": "Zakazane są dokumenty i ich kopie, podróbki, gotówka, kryptowaluty, karty bankowe, czeki, instrumenty płatnicze, sprzęt do fałszowania pieniędzy oraz oferty kredytów, ubezpieczeń, usług bankowych i innych usług finansowych."
+          }
+        },
+        "head-rule-gambling": {
+          "text": {
+            "0": "8. Hazard"
+          }
+        },
+        "copy-rule-gambling": {
+          "text": {
+            "0": "Nie wolno zamieszczać ofert kasyn, zakładów pieniężnych, loterii, zakładów wzajemnych, pokera ani innych gier o pieniądze lub wartościowe przedmioty, w tym kryptowaluty. Zwykłe gry planszowe bez stawek nie są objęte tym zakazem."
+          }
+        },
+        "head-rule-hazards": {
+          "text": {
+            "0": "9. Niebezpieczne substancje i wyroby"
+          }
+        },
+        "copy-rule-hazards": {
+          "text": {
+            "0": "Nie oferuj substancji toksycznych, żrących, wybuchowych ani łatwopalnych, niebezpiecznych pestycydów, azbestu ani prekursorów chemicznych stanowiących zagrożenie dla bezpieczeństwa. Zgodność produktu z prawem sama w sobie nie oznacza dopuszczenia go do katalogu."
+          }
+        },
+        "head-rule-exploitation": {
+          "text": {
+            "0": "10. Wykorzystywanie ludzi i usługi seksualne"
+          }
+        },
+        "copy-rule-exploitation": {
+          "text": {
+            "0": "Zabronione są oferty handlu ludźmi, nielegalnego przewozu osób, pracy przymusowej, eskorty, prostytucji, płatnych usług intymnych i seksualizowanych pokazów. Materiały przedstawiające seksualne wykorzystywanie dzieci są zakazane. Pośrednictwo matrymonialne i rekrutacja pracowników nie są towarami katalogu."
+          }
+        },
+        "head-rule-jobs": {
+          "text": {
+            "0": "11. Praca i zarobki"
+          }
+        },
+        "copy-rule-jobs": {
+          "text": {
+            "0": "Marketplace nie jest tablicą ogłoszeń o pracy. Nie publikuj ofert zatrudnienia, marketingu sieciowego ani sposobów na szybkie wzbogacenie się. Legalne oferty pracy można omawiać w dozwolonych sekcjach VATRA zgodnie z ogólnymi warunkami."
+          }
+        },
+        "head-rule-animals": {
+          "text": {
+            "0": "12. Zwierzęta, zasoby naturalne i tereny chronione"
+          }
+        },
+        "copy-rule-animals": {
+          "text": {
+            "0": "Zakazane są żywe zwierzęta, części ich ciał, wyroby z gatunków chronionych, surowe ryby, mięso i jaja oraz nieruchomości na terenach rezerwatów przyrody. Leki i usługi weterynaryjne są niedozwolone. Dozwolone są klatki, zabawki, obroże i inne legalne akcesoria dla zwierząt domowych."
+          }
+        },
+        "head-rule-medical": {
+          "text": {
+            "0": "13. Produkty medyczne, zabiegi i suplementy"
+          }
+        },
+        "copy-rule-medical": {
+          "text": {
+            "0": "Zakazane są urządzenia medyczne, sprzęt do diagnozowania chorób, soczewki kontaktowe, okulary korekcyjne, termometry, apteczki, laktatory, zabiegi iniekcyjne i kosmetologiczne, oferty leczenia, żywność medyczna i preparaty do żywienia niemowląt oraz suplementy, w tym sterydy, hormony, odżywki białkowe i witaminy. Zwykłe akcesoria fitness oraz testy ciążowe i owulacyjne są dozwolone, o ile nie naruszają innych zasad."
+          }
+        },
+        "head-rule-deception": {
+          "text": {
+            "0": "14. Oszustwa, przemoc i nienawiść"
+          }
+        },
+        "copy-rule-deception": {
+          "text": {
+            "0": "Zakazane są phishing, fałszywe ceny i opisy, wyłudzanie płatności, manipulowanie opiniami, drastyczne obrazy przemocy oraz treści promujące nienawiść rasową lub ekstremizm. Nie wykorzystuj upokarzania czyjegoś wyglądu lub stanu zdrowia do sprzedaży produktów."
+          }
+        },
+        "head-rule-no-item": {
+          "text": {
+            "0": "15. Ogłoszenia bez przedmiotu transakcji"
+          }
+        },
+        "copy-rule-no-item": {
+          "text": {
+            "0": "Każde ogłoszenie musi dotyczyć konkretnego produktu, dozwolonej nieruchomości albo nieodpłatnego przekazania dozwolonego przedmiotu. Wiadomości, memy, zbiórki, poszukiwanie zgubionych rzeczy i zapytania o zakup bez oferowanego towaru należą do innych sekcji, a nie do katalogu."
+          }
+        },
+        "head-rule-drugs": {
+          "text": {
+            "0": "16. Leki, narkotyki i akcesoria"
+          }
+        },
+        "copy-rule-drugs": {
+          "text": {
+            "0": "Niedozwolone są leki na receptę i bez recepty, narkotyki, konopie i produkty z nich wytwarzane oraz akcesoria przeznaczone do używania narkotyków."
+          }
+        },
+        "head-rule-recalls": {
+          "text": {
+            "0": "17. Produkty niebezpieczne i wycofane"
+          }
+        },
+        "copy-rule-recalls": {
+          "text": {
+            "0": "Nie wolno sprzedawać produktów wycofanych z obrotu, objętych akcją wycofania producenta ani zakazanych z powodów bezpieczeństwa. Szczególnie uważnie sprawdzaj produkty dziecięce, meble i zabawki. W razie wątpliwości porównaj model i serię z komunikatami producenta lub organu nadzoru."
+          }
+        },
+        "head-rule-stolen": {
+          "text": {
+            "0": "18. Skradzione mienie"
+          }
+        },
+        "copy-rule-stolen": {
+          "text": {
+            "0": "Nie wolno oferować przedmiotów pochodzących z kradzieży, oszustwa ani innych nielegalnych źródeł. Sprzedający musi mieć prawo do dysponowania własnością."
+          }
+        },
+        "head-rule-digital": {
+          "text": {
+            "0": "19. Subskrypcje, konta i towary cyfrowe"
+          }
+        },
+        "copy-rule-digital": {
+          "text": {
+            "0": "Zakaz obejmuje sprzedaż kont, dostępów do usług, subskrypcji cyfrowych, plików do pobrania, kodów aktywacyjnych oraz sztucznego zwiększania liczby obserwujących i reakcji. Oryginalne fizyczne płyty i zwykła elektronika są dozwolone, jeżeli ich sprzedaż jest zgodna z prawem."
+          }
+        },
+        "head-rule-ip": {
+          "text": {
+            "0": "20. Prawa własności intelektualnej"
+          }
+        },
+        "copy-rule-ip": {
+          "text": {
+            "0": "Zakazane są podrobione produkty markowe, nielicencjonowane kopie programów, muzyki, książek i filmów oraz inne towary naruszające prawa autorskie lub znaki towarowe. Zdjęcia i opisy nie mogą naruszać praw osób trzecich."
+          }
+        },
+        "head-rule-tobacco": {
+          "text": {
+            "0": "21. Wyroby tytoniowe i nikotynowe"
+          }
+        },
+        "copy-rule-tobacco": {
+          "text": {
+            "0": "Niedozwolone są tytoń, papierosy, e-papierosy, produkty nikotynowe i akcesoria specjalnie przeznaczone do ich używania."
+          }
+        },
+        "head-rule-cosmetics": {
+          "text": {
+            "0": "22. Używane kosmetyki"
+          }
+        },
+        "copy-rule-cosmetics": {
+          "text": {
+            "0": "Nie oferuj używanych kosmetyków ani kosmetyków bez oryginalnego opakowania. Nowe, odpowiednio zapakowane produkty są dozwolone z zastrzeżeniem pozostałych zasad."
+          }
+        },
+        "head-rule-vehicle-parts": {
+          "text": {
+            "0": "23. Części samochodowe i akcesoria"
+          }
+        },
+        "copy-rule-vehicle-parts": {
+          "text": {
+            "0": "Zakazane są nielegalne, wycofane lub niebezpieczne części samochodowe i akcesoria. Legalne, sprawne części są dozwolone, jeśli sprzedający rzetelnie opisuje ich pochodzenie i stan. Dodatkowe ograniczenia dotyczące określonych części mogą zostać wprowadzone osobno."
+          }
+        },
+        "head-rule-weapons": {
+          "text": {
+            "0": "24. Broń, amunicja i materiały wybuchowe"
+          }
+        },
+        "copy-rule-weapons": {
+          "text": {
+            "0": "Niedozwolone są broń, amunicja, materiały wybuchowe ani specjalistyczne części lub środki przeznaczone do ich bezprawnego użycia. Zakaz obejmuje sprzedaż, wymianę i nieodpłatne przekazanie."
+          }
+        },
+        "head-restricted": {
+          "text": {
+            "0": "Oferty objęte ograniczeniami"
+          }
+        },
+        "copy-restricted": {
+          "text": {
+            "0": "Te kategorie ogłoszeń nie są dopuszczone do Marketplace VATRA niezależnie od sposobu zapłaty, przekazania produktu lub wybranej kategorii."
+          }
+        },
+        "head-limit-tickets": {
+          "text": {
+            "0": "Bilety na wydarzenia"
+          }
+        },
+        "copy-limit-tickets": {
+          "text": {
+            "0": "Marketplace VATRA nie zezwala na oferty sprzedaży, odsprzedaży ani przekazywania biletów na wydarzenia."
+          }
+        },
+        "head-limit-vouchers": {
+          "text": {
+            "0": "Karty podarunkowe i vouchery"
+          }
+        },
+        "copy-limit-vouchers": {
+          "text": {
+            "0": "Marketplace VATRA nie zezwala na karty podarunkowe, certyfikaty i vouchery jako przedmiot sprzedaży, wymiany lub bezpłatnego przekazania."
+          }
+        },
+        "head-limit-adoption": {
+          "text": {
+            "0": "Oddawanie zwierząt"
+          }
+        },
+        "copy-limit-adoption": {
+          "text": {
+            "0": "Marketplace VATRA nie zezwala na ogłoszenia dotyczące sprzedaży, przekazywania lub adopcji żywych zwierząt."
+          }
+        },
+        "head-limit-services": {
+          "text": {
+            "0": "Usługi"
+          }
+        },
+        "copy-limit-services": {
+          "text": {
+            "0": "Marketplace VATRA nie zezwala na ogłoszenia usług. Wynajem nieruchomości stanowi osobny rodzaj oferty i nie należy do ogólnej kategorii usług."
+          }
+        },
+        "head-safety": {
+          "text": {
+            "0": "Wymagania dla ogłoszeń i bezpieczeństwo transakcji"
+          }
+        },
+        "copy-safety": {
+          "text": {
+            "0": "Podawaj prawdziwą cenę, lokalizację, stan i wady produktu. Dodawaj wyłącznie własne zdjęcia lub takie, do których masz prawa. Nie powielaj ogłoszeń w celu manipulowania katalogiem. VATRA nie przyjmuje płatności, nie organizuje dostaw i nie gwarantuje wykonania transakcji. Sprawdzaj produkt i sprzedającego, nie udostępniaj haseł, kodów ani danych bankowych i nie otwieraj podejrzanych linków. Prawa konsumentów wynikające z przepisów pozostają w mocy."
+          }
+        },
+        "title": {
+          "text": {
+            "0": "Zasady handlu VATRA"
+          }
+        },
+        "intro": {
+          "text": {
+            "0": "Zasady Marketplace dla sprzedających i kupujących: dozwolone oferty, zakazy, ograniczenia i procedury odwoławcze."
+          }
+        },
+        "updated": {
+          "text": {
+            "0": "Wersja z 23 listopada 2026 r."
+          }
+        },
+        "toc-title": {
+          "text": {
+            "0": "Na tej stronie"
+          }
+        },
+        "desktop-overview": {
+          "text": {
+            "0": "Przegląd"
+          }
+        },
+        "desktop-appeals": {
+          "text": {
+            "0": "Naruszenia i odwołania"
+          }
+        },
+        "desktop-prohibited": {
+          "text": {
+            "0": "Zabronione ogłoszenia"
+          }
+        },
+        "desktop-restricted": {
+          "text": {
+            "0": "Oferty objęte ograniczeniami"
+          }
+        },
+        "desktop-safety": {
+          "text": {
+            "0": "Bezpieczeństwo transakcji"
+          }
+        },
+        "toc-mobile": {
+          "text": {
+            "0": "Spis treści"
+          }
+        },
+        "mobile-overview": {
+          "text": {
+            "0": "Przegląd"
+          }
+        },
+        "mobile-appeals": {
+          "text": {
+            "0": "Naruszenia i odwołania"
+          }
+        },
+        "mobile-prohibited": {
+          "text": {
+            "0": "Zabronione ogłoszenia"
+          }
+        },
+        "mobile-restricted": {
+          "text": {
+            "0": "Oferty objęte ograniczeniami"
+          }
+        },
+        "mobile-safety": {
+          "text": {
+            "0": "Bezpieczeństwo transakcji"
+          }
+        },
+        "n1": {
+          "text": {
+            "0": "Przejdź do treści"
+          }
+        },
+        "n88": {
+          "text": {
+            "1": " · Twoi ludzie. Twoje historie. Twoja VATRA."
+          }
+        },
+        "docs_back_001": {
+          "text": {
+            "0": "Wszystkie dokumenty"
+          }
+        },
+        "docs_kicker_001": {
+          "text": {
+            "0": "Zasady Marketplace"
+          }
+        },
+        "docs_back_origin_001": {
+          "text": {
+            "0": "Wstecz"
           }
         }
       }
