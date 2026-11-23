@@ -3684,5 +3684,21 @@
   "Не вдалося змінити збереження.": "Impossible de modifier l’enregistrement.",
   "Не вдалося змінити збереження. Спробуйте ще раз.": "Impossible de modifier l’enregistrement. Réessayez.",
   "Вподобання тимчасово недоступні.": "Les mentions J’aime sont temporairement indisponibles.",
-  "Не вдалося змінити вподобання.": "Impossible de modifier la mention J’aime."
+  "Не вдалося змінити вподобання.": "Impossible de modifier la mention J’aime.",
+  "Немає підключення до інтернету. Перевірте мережу.": "Aucune connexion Internet. Vérifiez votre connexion.",
+  "Повідомлення VATRA": "Notifications VATRA",
+  "Дізнатися більше": "En savoir plus",
+  "Закрити повідомлення": "Fermer la notification",
+  "Повернутися вгору": "Remonter en haut",
+  "Вгору": "Haut",
+  "Перевірка безпеки VATRA": "Vérification de sécurité VATRA",
+  "Підтвердьте, що Ви не бот. Після перевірки дія продовжиться автоматично.": "Confirmez que vous n'êtes pas un robot. L'action se poursuivra automatiquement après la vérification.",
+  "Перевірка Cloudflare": "Vérification Cloudflare",
+  "Триває перевірка…": "Vérification en cours…",
+  "Скасувати перевірку безпеки": "Annuler la vérification de sécurité",
+  "Не вдалося відкрити ADMIN PANEL.": "Impossible d'ouvrir le PANNEAU D'ADMINISTRATION.",
+  "Завантажити": "Télécharger",
+  "Не вдалося завантажити фотографію.": "Impossible de télécharger la photo.",
+  "Перейти до публікації": "Voir la publication",
+  "Фото з альбому «": "Photo de l'album «"
 }
