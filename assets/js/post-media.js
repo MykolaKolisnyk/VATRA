@@ -906,7 +906,7 @@ function openFullMedia(url,kind,container){
   display.className="feed-post-name vatra-photo-source-name-001";
   display.textContent=String(document.querySelector("#profile-heading")?.textContent||"").trim()||"VATRA";
   author.append(display);
-  void window.VATRA_VERIFIED?.attach?.(client,display,post.author_vatra_id);
+  const verifyAuthor=()=>window.VATRA_VERIFIED?.attach?.(client,display,post.author_vatra_id);
   const postedAt=Date.parse(post.created_at||"");
   if(Number.isFinite(postedAt)){
    const when=document.createElement("time");when.className="feed-post-date ui-vatra-photo-source-date-001";
@@ -925,6 +925,7 @@ function openFullMedia(url,kind,container){
   const createdDialogs=[...document.querySelectorAll("dialog.vatra-post-share-dialog")]
    .filter(dialog=>!priorDialogs.has(dialog));
   try{
+   try{await verifyAuthor();}catch(_){}
    openFullMedia(src,"image",host);
    if(mediaDialog?.open)mediaDialog.addEventListener("close",()=>{
     host.remove();createdDialogs.forEach(dialog=>dialog.remove());
