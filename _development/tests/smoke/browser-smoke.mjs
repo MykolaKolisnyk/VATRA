@@ -75,11 +75,15 @@ try{
    window.VATRA_POST_MEDIA.linkifyHashtags(paragraph);
    window.VATRA_POST_MEDIA.collapsibleBody(paragraph);
    const button=paragraph.querySelector(".vatra-feed-post-read-more-001");
-   const collapsed=!!button&&button.parentElement===paragraph&&
-    paragraph.lastElementChild===button&&
-    paragraph.textContent.endsWith("… Показати більше")&&
-    button.getAttribute("aria-expanded")==="false"&&
-    getComputedStyle(button).display==="inline";
+   const collapsedChecks={
+    exists:!!button,
+    nested:button?.parentElement===paragraph,
+    last:paragraph.lastElementChild===button,
+    suffix:paragraph.textContent.endsWith("… Показати більше"),
+    aria:button?.getAttribute("aria-expanded")==="false",
+    inline:["inline","inline-block"].includes(button?getComputedStyle(button).display:"")
+   };
+   const collapsed=Object.values(collapsedChecks).every(Boolean);
    const measure=()=>{
     const style=getComputedStyle(paragraph);
     return ["fontFamily","fontSize","fontWeight","lineHeight","letterSpacing","color","marginTop"]
@@ -97,7 +101,7 @@ try{
    button.click();
    const restored=paragraph.textContent.endsWith("… Показати більше")&&
     paragraph.querySelectorAll(".vatra-feed-post-read-more-001").length===1;
-   return {collapsed,expanded,restored,feedStyle,profileStyle};
+   return {collapsed,collapsedChecks,expanded,restored,feedStyle,profileStyle};
   });
   assert.ok(result.collapsed&&result.expanded&&result.restored,
    "Read-more must stay inline after post text and preserve hashtags: "+JSON.stringify(result));
