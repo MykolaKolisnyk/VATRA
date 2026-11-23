@@ -10,6 +10,12 @@ CREATE OR REPLACE FUNCTION private.notify_friend_declined()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $function$
 BEGIN
+  -- A withdrawn or declined pending request must not linger in the receiver's inbox.
+  IF OLD.status='pending' THEN
+    DELETE FROM public.member_notifications
+     WHERE recipient_vatra_id=OLD.recipient_id
+       AND event_key='friend_request:'||OLD.id::text;
+  END IF;
   -- Only declining recipients trigger this notice. Cancelling a sent request does not.
   IF OLD.status='pending' AND EXISTS (
      SELECT 1 FROM public.accounts a
