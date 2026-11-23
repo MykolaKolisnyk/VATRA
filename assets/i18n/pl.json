@@ -3684,5 +3684,21 @@
   "Не вдалося змінити збереження.": "Nie udało się zmienić stanu zapisu posta.",
   "Не вдалося змінити збереження. Спробуйте ще раз.": "Nie udało się zmienić stanu zapisu posta. Spróbuj ponownie.",
   "Вподобання тимчасово недоступні.": "Polubienia są tymczasowo niedostępne.",
-  "Не вдалося змінити вподобання.": "Nie udało się zmienić polubienia."
+  "Не вдалося змінити вподобання.": "Nie udało się zmienić polubienia.",
+  "Немає підключення до інтернету. Перевірте мережу.": "Brak połączenia z internetem. Sprawdź połączenie.",
+  "Повідомлення VATRA": "Powiadomienia VATRA",
+  "Дізнатися більше": "Dowiedz się więcej",
+  "Закрити повідомлення": "Zamknij powiadomienie",
+  "Повернутися вгору": "Przewiń na górę",
+  "Вгору": "Do góry",
+  "Перевірка безпеки VATRA": "Kontrola bezpieczeństwa VATRA",
+  "Підтвердьте, що Ви не бот. Після перевірки дія продовжиться автоматично.": "Potwierdź, że nie jesteś botem. Po weryfikacji automatycznie przejdziemy dalej.",
+  "Перевірка Cloudflare": "Weryfikacja Cloudflare",
+  "Триває перевірка…": "Trwa weryfikacja…",
+  "Скасувати перевірку безпеки": "Anuluj weryfikację bezpieczeństwa",
+  "Не вдалося відкрити ADMIN PANEL.": "Nie udało się otworzyć PANELU ADMINISTRATORA.",
+  "Завантажити": "Pobierz",
+  "Не вдалося завантажити фотографію.": "Nie udało się pobrać zdjęcia.",
+  "Перейти до публікації": "Przejdź do posta",
+  "Фото з альбому «": "Zdjęcie z albumu „"
 }
