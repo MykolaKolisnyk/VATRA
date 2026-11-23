@@ -5995,15 +5995,12 @@ try{
      await view.close();
     }
    }
-   // Public documents and 404 have their own responsive headers and TOCs.
-   // Check them at portrait, landscape and desktop widths in BOTH UI languages.
+   // Check 404, the document hub and all four readers on mobile and desktop in both languages.
    for(const language of ["uk","en"]){
-    // A saved language cookie takes precedence over localStorage on VATRA.
-    // Match both sources before each native/engine locale matrix.
     await auditContext.addCookies([{name:"vatra-language",value:language,url:base}]);
     for(const viewport of [{width:320,height:700},{width:390,height:844},
      {width:844,height:390},{width:768,height:1024},{width:1440,height:900}]){
-     for(const route of ["404.html","terms.html","privacy.html","cookies.html"]){
+     for(const route of ["404.html","documents.html","terms.html","privacy.html","cookies.html","commerce.html"]){
       const legal=await auditContext.newPage();
       try{
        const errors=[];
@@ -6014,29 +6011,30 @@ try{
        await legal.waitForFunction(lang=>document.documentElement.lang===lang&&
         !document.documentElement.classList.contains("i18n-pending"),language,{timeout:15000});
        const layout=await legal.evaluate(()=>{
-        const selectors=[".footer",".auth-footer-content",
-         document.body.classList.contains("policy-page")?".policy-main":".error-main"];
+        const missing=document.body.classList.contains("error-page");
+        const hub=document.body.classList.contains("vatra-documents-home-001");
+        const selectors=missing?[".error-main"]:hub?
+         [".vatra-documents-main-001",".vatra-documents-footer-001"]:
+         [".policy-main",".vatra-document-top-001",".vatra-document-footer-001"];
         const outside=selectors.filter(sel=>{
          const r=document.querySelector(sel)?.getBoundingClientRect();
          return r&&r.width>0&&(r.left< -3||r.right>innerWidth+3);
         });
         return {overflow:document.documentElement.scrollWidth-innerWidth,outside,
          documentLang:document.documentElement.lang,
-         headerHeight:document.querySelector(".policy-top,.account-top")?.getBoundingClientRect().height,
-         footerHeight:document.querySelector(".footer")?.getBoundingClientRect().height,
-         errors:[...document.querySelectorAll("img")].filter(i=>!i.complete&&i.getClientRects().length>0).length};
+         headerHeight:document.querySelector(".vatra-document-top-001,.vatra-documents-intro-001")?.getBoundingClientRect().height,
+         footerHeight:document.querySelector(".vatra-document-footer-001,.vatra-documents-footer-001")?.getBoundingClientRect().height};
        });
        assert.ok(layout.overflow<=3&&layout.outside.length===0&&
         (route==="404.html"?layout.headerHeight===undefined&&layout.footerHeight===undefined:layout.headerHeight>30&&layout.footerHeight>40)&&layout.documentLang===language,
         engine+" "+language+" "+viewport.width+"x"+viewport.height+" "+route+
-        ": legal/404 responsive geometry invalid "+JSON.stringify(layout));
-       assert.deepEqual(errors,[],
-        engine+" "+language+" "+route+" uncaught JavaScript errors");
+        ": document/404 responsive geometry invalid "+JSON.stringify(layout));
+       assert.deepEqual(errors,[],engine+" "+language+" "+route+" JavaScript errors");
       }finally{await legal.close();}
      }
     }
    }
-   console.log("VATRA "+engine+" legal/404 bilingual viewport matrix: 2 languages x 5 sizes x 4 pages passed");
+   console.log("VATRA "+engine+" documents/404 bilingual viewport matrix passed");
    await auditContext.close();
    if(engine!=="chromium"){
     // Verify actual translated entrance events in other rendering engines too.
