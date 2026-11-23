@@ -4142,5 +4142,8 @@
   "Користувач ще не додав інформацію про себе.": "This user has not added any about-me information yet.",
   "Вітаю! Мене цікавить оголошення «": "Hello! I'm interested in the listing “",
   "». Воно ще актуальне?": "”. Is it still available?",
-  "Не вдалося завантажити профіль. Оновіть сторінку.": "Could not load profile. Reload the page."
+  "Не вдалося завантажити профіль. Оновіть сторінку.": "Could not load profile. Reload the page.",
+  "Розкажіть про себе": "Tell us about yourself",
+  "Видалити публікацію?": "Delete this post?",
+  "Показати ще": "Show more"
 }
