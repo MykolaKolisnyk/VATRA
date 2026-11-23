@@ -1528,10 +1528,10 @@ body.feed-page .feed-brand-search.vatra-search-active .feed-search-input{transfo
 body.feed-page .feed-header .feed-account-dropdown{
  left:var(--vatra-account-dropdown-left,0px);right:auto;width:min(370px,calc(100vw - 20px));}
 
-body.feed-page .feed-post-body + .vatra-feed-post-read-more-001{
- margin:7px 0 0;padding:4px 0;border:0;background:transparent;
- color:#3268d8;font:690 13px/1.4 "Onest",system-ui,sans-serif;
- cursor:pointer;transition:color .18s ease
+body.feed-page .feed-post-body > .vatra-feed-post-read-more-001{
+ display:inline;margin:0;padding:0;border:0;background:transparent;
+ color:#3268d8;font:690 13.5px/1.65 "Onest",system-ui,sans-serif;
+ white-space:nowrap;cursor:pointer;transition:color .18s ease
 }
 body.feed-page .vatra-feed-post-read-more-001:hover{text-decoration:underline;color:#2455b7}
 body.feed-page .feed-header-avatar:not(.has-photo),
@@ -3171,3 +3171,9 @@ body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form:focus-with
  body.feed-page .ui-vatra-post-media-viewer-content-001:hover :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):disabled{opacity:.25;pointer-events:none}
 }
 @media(prefers-reduced-motion:reduce){body.feed-page .ui-vatra-post-media-viewer-content-001 :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next){transition:none}}
+
+/* One post-text typography across Feed and Profile; community styling stays independent. */
+body.feed-page:not(.community-page) .feed-post-card > .feed-post-body{
+ margin:10px 0 1px;color:#394964;
+ font:480 14.5px/1.65 "Onest",system-ui,sans-serif;letter-spacing:.001em
+}
