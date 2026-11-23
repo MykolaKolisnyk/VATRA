@@ -36,7 +36,7 @@ const moveStack=()=>{
  const host=[...document.querySelectorAll("dialog[open]")].at(-1)||document.body;
  if(stack.parentNode!==host)host.append(stack);
 };
-const isEn=()=>document.documentElement.lang==="en";
+const t=uk=>window.VATRA_LANGUAGE?.translate?.(uk)||uk;
 const loading=value=>/^(?:Завантажуємо|Завантаження|Надсилаємо|Створюємо|Зберігаємо|Loading|Uploading|Sending|Saving|Creating|Processing|Шукаємо)[\s.…]/i.test(value);
 function severity(value,kind,source){
  const flag=source?.dataset?.status||source?.dataset?.kind||source?.dataset?.state;
@@ -62,7 +62,7 @@ function show(value,kind="info",options){
  const same=[...active].find(entry=>entry.text===messageText&&entry.kind===kind&&entry.title===title&&entry.node.isConnected);
  if(same)return same.node;
  if(group)for(const entry of [...active])if(entry.group===group)entry.dismiss(true);
- if(!stack){stack=document.createElement("div");stack.className="vatra-toast-stack-001";stack.setAttribute("aria-label",isEn()?"VATRA notifications":"Повідомлення VATRA");}
+ if(!stack){stack=document.createElement("div");stack.className="vatra-toast-stack-001";stack.setAttribute("aria-label",t("Повідомлення VATRA"));}
  const host=[...document.querySelectorAll("dialog[open]")].at(-1)||document.body;
  if(stack.parentNode!==host)host.append(stack);
  const node=document.createElement("section");node.className="vatra-toast-item-001 vatra-toast-item--"+kind;node.setAttribute("role",kind==="error"?"alert":"status");
@@ -71,8 +71,8 @@ function show(value,kind="info",options){
  const content=document.createElement("div");content.className="vatra-toast-content-001";
  if(title){const heading=document.createElement("strong");heading.className="vatra-toast-title-001";heading.textContent=title;content.append(heading);}
  const message=document.createElement("p");message.className="vatra-toast-text-001";message.textContent=messageText;content.append(message);
- if(href){const link=document.createElement("a");link.className="vatra-toast-action-001";link.href=href;link.textContent=String(config.actionLabel|| (isEn()?"Learn more":"Дізнатися більше")).slice(0,60);content.append(link);}
- const close=document.createElement("button");close.type="button";close.className="vatra-toast-close-001";close.textContent="×";close.setAttribute("aria-label",isEn()?"Dismiss notification":"Закрити повідомлення");
+ if(href){const link=document.createElement("a");link.className="vatra-toast-action-001";link.href=href;link.textContent=String(config.actionLabel|| (t("Дізнатися більше"))).slice(0,60);content.append(link);}
+ const close=document.createElement("button");close.type="button";close.className="vatra-toast-close-001";close.textContent="×";close.setAttribute("aria-label",t("Закрити повідомлення"));
  node.append(mascot,content,close);stack.prepend(node);
  let timer=0,removed=false;
  const customDuration=Number(config.duration);
