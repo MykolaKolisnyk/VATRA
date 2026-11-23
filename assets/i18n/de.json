@@ -3684,5 +3684,21 @@
   "Не вдалося змінити збереження.": "Speicherstatus konnte nicht geändert werden.",
   "Не вдалося змінити збереження. Спробуйте ще раз.": "Speicherstatus konnte nicht geändert werden. Bitte versuche es erneut.",
   "Вподобання тимчасово недоступні.": "Gefällt-mir-Angaben sind vorübergehend nicht verfügbar.",
-  "Не вдалося змінити вподобання.": "Gefällt mir konnte nicht geändert werden."
+  "Не вдалося змінити вподобання.": "Gefällt mir konnte nicht geändert werden.",
+  "Немає підключення до інтернету. Перевірте мережу.": "Keine Internetverbindung. Überprüfe deine Verbindung.",
+  "Повідомлення VATRA": "VATRA-Benachrichtigungen",
+  "Дізнатися більше": "Mehr erfahren",
+  "Закрити повідомлення": "Benachrichtigung schließen",
+  "Повернутися вгору": "Nach oben scrollen",
+  "Вгору": "Nach oben",
+  "Перевірка безпеки VATRA": "VATRA-Sicherheitsprüfung",
+  "Підтвердьте, що Ви не бот. Після перевірки дія продовжиться автоматично.": "Bestätige, dass du kein Bot bist. Nach der Überprüfung geht es automatisch weiter.",
+  "Перевірка Cloudflare": "Cloudflare-Überprüfung",
+  "Триває перевірка…": "Überprüfung läuft…",
+  "Скасувати перевірку безпеки": "Sicherheitsprüfung abbrechen",
+  "Не вдалося відкрити ADMIN PANEL.": "ADMIN PANEL konnte nicht geöffnet werden.",
+  "Завантажити": "Herunterladen",
+  "Не вдалося завантажити фотографію.": "Foto konnte nicht heruntergeladen werden.",
+  "Перейти до публікації": "Zum Beitrag",
+  "Фото з альбому «": "Foto aus dem Album „"
 }
