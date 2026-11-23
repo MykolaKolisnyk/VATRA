@@ -35,7 +35,9 @@
       "terms",
       "privacy",
       "cookies",
-      "maintenance"
+      "maintenance",
+      "commerce",
+      "documents"
     ],
     "legal_review_complete": false,
     "shared_catalog_complete": true
@@ -1350,36 +1352,6 @@
             "0": "Przejdź do treści"
           }
         },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — strona główna"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Zaloguj się"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Utwórz konto"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Sekcje dokumentów"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Warunki korzystania"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Prywatność"
-          }
-        },
         "n17": {
           "text": {
             "0": "Warunki korzystania"
@@ -1651,29 +1623,6 @@
             "1": " · Twoi ludzie. Twoje historie. Twoja VATRA."
           }
         },
-        "n90": {
-          "attrs": {
-            "aria-label": "Dodatkowe odnośniki"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "Polski"
-          },
-          "attrs": {
-            "aria-label": "Wybierz język"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Zaloguj się"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Utwórz konto"
-          }
-        },
         "market_rules_title": {
           "text": {
             "0": "Zasady handlu VATRA"
@@ -1728,36 +1677,6 @@
         "n1": {
           "text": {
             "0": "Przejdź do treści"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — strona główna"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Zaloguj się"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Utwórz konto"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Sekcje dokumentów"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Warunki korzystania"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Prywatność"
           }
         },
         "n17": {
@@ -2051,29 +1970,6 @@
             "1": " · Twoi ludzie. Twoje historie. Twoja VATRA."
           }
         },
-        "n97": {
-          "attrs": {
-            "aria-label": "Dodatkowe odnośniki"
-          }
-        },
-        "n102": {
-          "text": {
-            "0": "Polski"
-          },
-          "attrs": {
-            "aria-label": "Wybierz język"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Zaloguj się"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Utwórz konto"
-          }
-        },
         "docs_back_001": {
           "text": {
             "0": "Wszystkie dokumenty"
@@ -2103,36 +1999,6 @@
         "n1": {
           "text": {
             "0": "Przejdź do treści"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — strona główna"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Zaloguj się"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Utwórz konto"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Sekcje dokumentów"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Warunki korzystania"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Prywatność"
           }
         },
         "n17": {
@@ -2407,29 +2273,6 @@
         "n98": {
           "text": {
             "1": " · Twoi ludzie. Twoje historie. Twoja VATRA."
-          }
-        },
-        "n100": {
-          "attrs": {
-            "aria-label": "Dodatkowe odnośniki"
-          }
-        },
-        "n105": {
-          "text": {
-            "0": "Polski"
-          },
-          "attrs": {
-            "aria-label": "Wybierz język"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Zaloguj się"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Utwórz konto"
           }
         },
         "docs_back_001": {
