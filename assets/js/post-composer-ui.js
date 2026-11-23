@@ -407,7 +407,7 @@ function bind({prefix,ownerId,getFile,client}){
   view="drafts";edit.hidden=true;settings.hidden=true;draftsPanel.hidden=false;
   back.hidden=false;drafts.hidden=true;next.hidden=true;draftSave.hidden=true;
   tips.hidden=true;submit.hidden=true;
-  title.textContent=t("Чернетки","Drafts");renderDrafts();showNotice("");
+  title.textContent=t("Чернетки","Drafts");renderDrafts();void renderScheduled();showNotice("");
  });
  back.addEventListener("click",()=>setStage("edit"));
  next.addEventListener("click",()=>{if(setStage("settings"))select?.focus({preventScroll:true});});
