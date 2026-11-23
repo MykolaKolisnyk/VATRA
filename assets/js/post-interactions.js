@@ -463,6 +463,7 @@ function appendAudience(container,level,isGroup=false){
     if(result.error||(liked&&String(result.data?.liker_id)!==String(userId)))
      throw result.error||Error("Post like was not removed");
     liked=!liked;likeCount+=liked?1:-1;
+    if(liked)window.VATRA_SOUNDS?.play?.("like");
     like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
     count.textContent=String(Math.max(0,likeCount));
     invalidateEngagement(client);
@@ -854,6 +855,7 @@ function appendAudience(container,level,isGroup=false){
      if(result.error||(ownLiked&&String(result.data?.comment_id)!==String(item.id)))
       throw result.error||Error("Comment like was not removed");
      ownLiked=!ownLiked;likeCount+=ownLiked?1:-1;renderLike();
+     if(ownLiked)window.VATRA_SOUNDS?.play?.("like");
      invalidateComments(client);
     }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update like."),true);}
     finally{likeComment.disabled=false;}
