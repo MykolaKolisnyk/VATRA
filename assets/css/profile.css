@@ -2325,32 +2325,6 @@ body.profile-page :is(.profile-mini-more,.vatra-profile-about-more-001) svg{
  width:17px;height:17px;flex:none;stroke:currentColor;transform:none!important
 }
 body.profile-page .vatra-profile-about-more-001 svg{transform:rotate(180deg)!important}
-body.profile-page .profile-quick-compose:not([hidden]){
- display:flex;align-items:center;gap:11px;min-height:75px;padding:13px 15px;
- border:1px solid #e2eaf5;border-radius:16px;background:#fff;
- box-shadow:0 6px 20px rgba(35,54,95,.045)
-}
-body.profile-page .profile-compose-avatar{
- flex:none;display:block;width:42px;height:42px;border:2px solid #fff;border-radius:50%;
- background:#edf2f8 var(--vatra-default-avatar) center / cover no-repeat;
- box-shadow:0 0 0 1px #dce5f2
-}
-body.profile-page .vatra-profile-write-post-001{
- flex:1;min-width:0;min-height:45px;padding:11px 15px;
- border:0;border-radius:12px;background:#f1f4f9;
- color:#617999;text-align:left;font:650 13.5px/1.35 "Onest",system-ui,sans-serif;
- cursor:pointer
-}
-body.profile-page .vatra-profile-write-post-001:hover{background:#e9eef8}
-body.profile-page .vatra-profile-quick-media-001{
- flex:none;display:grid;place-items:center;width:46px;height:45px;
- border:0;border-radius:12px;background:#f1f5ff;color:#597fce;cursor:pointer
-}
-body.profile-page .vatra-profile-quick-media-001:hover{background:#e8efff}
-body.profile-page .vatra-profile-quick-media-001 svg{display:block;width:23px;height:23px}
-body.profile-page .profile-quick-compose button:focus-visible{
- outline:2px solid #608bf0;outline-offset:2px
-}
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  margin-top:-38px!important
 }
@@ -2381,10 +2355,6 @@ body.profile-page .vatra-profile-clips-empty-001::before{
 }
 @media(max-width:600px){
  body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{margin-top:-24px!important}
- body.profile-page .profile-quick-compose:not([hidden]){min-height:64px;padding:9px;gap:8px}
- body.profile-page .profile-compose-avatar{width:36px;height:36px}
- body.profile-page .vatra-profile-write-post-001{min-height:42px;padding:9px 10px}
- body.profile-page .vatra-profile-quick-media-001{width:42px;height:42px}
 }
 
 

@@ -238,18 +238,34 @@ body.feed-page .feed-story-preview .vatra-feed-story-live-name-001{
  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;
  font:760 12px/1.35 "Onest",sans-serif;text-shadow:0 1px 5px rgba(18,32,64,.26)
 }
-body.feed-page .feed-quick-compose{
- display:flex;align-items:center;gap:11px;min-height:63px;padding:10px 14px;
- border:1px solid #e1e7f0;border-radius:16px;background:#fff;
- box-shadow:0 4px 15px rgba(32,52,94,.04)
+body.feed-page .vatra-quick-compose-001:not([hidden]){
+ display:flex;align-items:center;gap:11px;min-height:72px;padding:11px 15px;
+ border:1px solid #e1e8f3;border-radius:17px;background:#fff;
+ box-shadow:0 5px 17px rgba(32,52,94,.045)
 }
-body.feed-page .feed-composer-avatar{width:39px;height:39px;font-size:13px}
-body.feed-page .feed-compose-open{
- flex:1;min-height:40px;padding:9px 14px;border:0;border-radius:11px;
- background:#f1f3f7;color:#63748e;text-align:left;cursor:pointer;
- font:620 14px/1.45 "Onest",system-ui,sans-serif;transition:background .2s
+body.feed-page .vatra-quick-compose-avatar-001{
+ display:block;flex:0 0 42px;width:42px;height:42px;
+ border:2px solid #fff;border-radius:50%;color:transparent;
+ background:#edf2f8 var(--vatra-default-avatar) center/cover no-repeat;
+ box-shadow:0 0 0 1px #dce5f2
 }
-body.feed-page .feed-compose-open:hover{background:#e9effa;color:#3559a9}
+body.feed-page .vatra-quick-compose-open-001{
+ flex:1;min-width:0;min-height:46px;padding:10px 15px;
+ border:0;border-radius:12px;background:#f1f4f9;
+ color:#617999;text-align:left;cursor:pointer;
+ font:650 14px/1.4 "Onest",system-ui,sans-serif;
+ transition:background .18s ease,color .18s ease
+}
+body.feed-page .vatra-quick-compose-open-001:hover{background:#e9eef8;color:#345cb1}
+body.feed-page .vatra-quick-compose-media-001{
+ display:grid;place-items:center;flex:0 0 48px;width:48px;height:46px;
+ padding:0;border:0;border-radius:12px;
+ background:#f1f5ff;color:#547acb;cursor:pointer;
+ transition:background .18s ease,color .18s ease
+}
+body.feed-page .vatra-quick-compose-media-001:hover{background:#e8efff;color:#3265be}
+body.feed-page .vatra-quick-compose-media-icon-001{display:block;width:26px;height:26px;overflow:visible}
+body.feed-page .vatra-quick-compose-001 button:focus-visible{outline:2px solid #608bf0;outline-offset:2px}
 body.feed-page .feed-post-community{display:inline-block;max-width:100%;margin-top:3px;color:#4e74be;font:670 12px/1.3 "Onest",sans-serif;text-decoration:none}
 body.feed-page .feed-post-community:hover{text-decoration:underline}
 body.feed-page .feed-compose-dialog,
@@ -304,12 +320,7 @@ body.feed-page .vatra-compose-preview-caption{
  max-width:100%;color:#687b97;font:540 12px/1.4 "Onest",system-ui,sans-serif;
  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
 }
-body.feed-page .feed-quick-media{
- flex:none;display:grid;place-items:center;width:41px;height:41px;
- padding:0;border:0;border-radius:10px;background:#f2f6fd;
- color:#5175aa;cursor:pointer
-}
-body.feed-page .feed-quick-media:hover{background:#e7effe;color:#2b65d4}
+
 
 body.feed-page .feed-post-body .vatra-feed-post-hashtag-001{
  color:#3469db;font-weight:720;text-decoration:none;overflow-wrap:anywhere
@@ -730,9 +741,10 @@ body.community-page .club-posts{display:flex;flex-direction:column;gap:14px}
 body.community-page .ui-club-post-head-001{justify-content:space-between;flex-wrap:wrap}
 body.community-page .vatra-club-posts-empty-001{padding:23px;border:1px solid #e0e6f2;border-radius:14px;background:#fff;color:#778aa4;font-size:13px}
 @media(max-width:610px){
- body.feed-page .feed-quick-compose{padding:11px;min-height:66px;gap:10px}
- body.feed-page .feed-composer-avatar{width:38px;height:38px}
- body.feed-page .feed-compose-open{min-height:39px;font-size:13px}
+ body.feed-page .vatra-quick-compose-001:not([hidden]){min-height:64px;padding:9px;gap:8px}
+ body.feed-page .vatra-quick-compose-avatar-001{width:36px;height:36px;flex-basis:36px}
+ body.feed-page .vatra-quick-compose-open-001{min-height:42px;padding:9px 10px;font-size:13px}
+ body.feed-page .vatra-quick-compose-media-001{width:42px;height:42px;flex-basis:42px}
 }
 
 body.feed-page.community-page .ui-communities-title-row-001{
@@ -1313,9 +1325,6 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-post-body{
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-post-card .feed-post-avatar{
  width:39px;height:39px
-}
-body.feed-page:not(.profile-page):not(.community-page) .feed-quick-compose{
- padding:10px 14px;min-height:61px;border-radius:16px
 }
 body.feed-page .feed-stories{position:relative;min-width:0}
 body.feed-page .feed-story-preview .feed-story-author-avatar{
@@ -2229,14 +2238,6 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button:focus
 
 
 
-body.feed-page:not(.profile-page):not(.community-page) .feed-quick-media{
- width:52px;min-width:52px;min-height:49px;
- display:grid;place-items:center;
- background:#f4f6ff;color:#4a72c7
-}
-body.feed-page:not(.profile-page):not(.community-page) .ui-feed-quick-media-icon-001{
- display:block;width:27px;height:27px;overflow:visible
-}
 body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create{
  display:grid;grid-template-columns:44px minmax(0,1fr);
  grid-template-rows:auto auto;align-content:center;align-items:center;
