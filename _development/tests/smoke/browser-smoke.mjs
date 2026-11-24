@@ -701,7 +701,9 @@ try{
      authAnimation:getComputedStyle(document.querySelector(".form-box")).animationName,
      fieldGap:getComputedStyle(document.querySelector(".form-box .field-stack")).gap,
      posterReady:(()=>{const img=document.querySelector(".vatra-login-poster-image-001");return !!img&&img.complete&&img.naturalWidth>0;})(),
-     obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol").length,
+     obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol,.intro-circle,.intro-art").length,
+     posterWidth:document.querySelector(".vatra-login-poster-image-001").getBoundingClientRect().width,
+     posterBefore:getComputedStyle(brand,"::before").content,
      brandStartRadius:getComputedStyle(brand)[innerWidth>=1200?"borderTopLeftRadius":"borderBottomLeftRadius"],
      formStartRadius:getComputedStyle(form)[innerWidth>=1200?"borderTopRightRadius":"borderTopLeftRadius"],
      formBackground:getComputedStyle(form).backgroundColor,
@@ -718,6 +720,8 @@ try{
    assert.ok(design.centerDelta<=2,"Login card must be vertically centered at "+width+": "+JSON.stringify(design));
   assert.ok(design.posterReady&&design.obsoleteOrbits===0,
    "VATRA login must show the loaded original poster without old orbit icons");
+  assert.ok(design.posterWidth>=sizes.intro.w*.91,"Poster must occupy at least 91% of the intro column at "+width+": "+JSON.stringify(design));
+  assert.equal(design.posterBefore,"none","Retired decorative pseudo-element must not be rendered");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
    "Login card must preserve rounded corners at "+width);

@@ -471,7 +471,11 @@ assert.ok(
  "Login must display only the original VATRA poster, without previous orbital icons");
 assert.ok(signInCss.includes(".vatra-login-poster-001{")&&
  signInCss.includes(".vatra-login-poster-image-001{")&&
- signInCss.includes("object-fit:contain"),
+ signInCss.includes("object-fit:contain")&&
+ !/\.(?:orbit-|intro-circle|intro-art|intro-symbol)/.test(signInCss)&&
+ !/vatraOrbitClockwise|vatraIconUpright|vatraGlyphFloat/.test(css)&&
+ !(await read("assets/js/sign-in.js")).includes("wireOrbitTooltips")&&
+ !signInCss.includes(".intro-side:before"),
  "Login poster must retain its dimensions and aspect ratio at every breakpoint");
 assert.ok(
  landing.includes('class="vatra-home-paragraph-01">')&&
@@ -841,9 +845,8 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
  en.__pages.index.nodes.n128.text["0"]==="Create account"&&
  uk.__pages["create-account"].nodes.n59.text["0"]==="Створити акаунт",
  "Create account must be the unified account creation action");
-assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
- css.includes('.field.is-invalid .control{border-color:#e49aa7'),
- "Orbit size and visual validation details must be updated");
+assert.ok(css.includes('.field.is-invalid .control{border-color:#e49aa7'),
+ "Invalid field visual feedback must remain visible");
 assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
  !auth.includes("wireStableInputHints"),
