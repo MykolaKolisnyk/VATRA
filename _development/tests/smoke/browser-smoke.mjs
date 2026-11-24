@@ -933,7 +933,7 @@ try{
  await wizard.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(wizard);
  const progressColors=()=>wizard.locator(".signup-progress-segment").evaluateAll(nodes=>nodes.map(node=>({color:getComputedStyle(node).backgroundColor,image:getComputedStyle(node).backgroundImage})));
- assert.deepEqual(await progressColors(),[{color:"rgb(36, 100, 215)",image:"none"},{color:"rgb(230, 235, 246)",image:"none"}],"Signup step one uses VATRA blue and a neutral inactive segment");
+ assert.deepEqual(await progressColors(),[{color:"rgb(22, 72, 240)",image:"none"},{color:"rgb(230, 235, 246)",image:"none"}],"Signup step one uses VATRA blue and a neutral inactive segment");
  assert.ok(await wizard.locator(".signup-brand").evaluate(node=>["::before","::after"].every(pseudo=>["none","normal"].includes(getComputedStyle(node,pseudo).content))),"Remove corner ornaments from registration while retaining the central logo");
  assert.equal(await wizard.locator('.signup-step[data-create-account-step="2"]').isVisible(),false,"Second step must start hidden");
  await wizard.locator("#create-account-next").click();
@@ -950,8 +950,8 @@ try{
  await wizard.locator("#create-account-next").click();
  await wizard.locator('.signup-step[data-create-account-step="2"]').waitFor({state:"visible"});
  assert.equal(await wizard.locator(".signup-progress").getAttribute("aria-valuenow"),"2","Progress should announce step two");
- await wizard.waitForFunction(()=>[...document.querySelectorAll(".signup-progress-segment")].every(node=>getComputedStyle(node).backgroundColor==="rgb(36, 100, 215)"&&getComputedStyle(node).backgroundImage==="none"));
- assert.deepEqual(await progressColors(),[{color:"rgb(36, 100, 215)",image:"none"},{color:"rgb(36, 100, 215)",image:"none"}],"Both completed signup segments use the same VATRA blue");
+ await wizard.waitForFunction(()=>[...document.querySelectorAll(".signup-progress-segment")].every((node,index)=>getComputedStyle(node).backgroundColor===["rgb(22, 72, 240)","rgb(250, 71, 125)"][index]&&getComputedStyle(node).backgroundImage==="none"));
+ assert.deepEqual(await progressColors(),[{color:"rgb(22, 72, 240)",image:"none"},{color:"rgb(250, 71, 125)",image:"none"}],"Completed signup segments use the blue and coral-pink VATRA logo colors");
  assert.equal(await wizard.locator('.signup-step[data-create-account-step="1"]').isVisible(),false,"Identity step should be hidden");
  await wizard.locator(".create-account-help-email summary").hover();
  await wizard.waitForFunction(()=>document.querySelector(".create-account-help-email")?.open===true);
