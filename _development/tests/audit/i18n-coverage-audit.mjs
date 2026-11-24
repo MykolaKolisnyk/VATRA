@@ -602,3 +602,15 @@ for(const code of codes){
   " shared translation keys; locale-specific JavaScript, legal review and email templates pending");
 }
 console.log("VATRA eight-language page and dynamic locale integrity: OK; beta email templates excluded");
+
+
+const clipsRuntime=await readFile("assets/js/clips.js","utf8");
+const clipsDynamicKeys=[...new Set([...clipsRuntime.matchAll(/\bt\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")/g)]
+ .map(match=>JSON.parse(match[1])))];
+assert.ok(clipsDynamicKeys.length>=28,"Clips localization coverage must include all dynamic controls");
+for(const code of ["en",...codes]){
+ const dictionary=code==="en"?en:await read(code);
+ for(const key of clipsDynamicKeys)assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+  code+": missing Clips translation: "+key);
+}
+console.log("VATRA Clips: complete dynamic label coverage in seven non-Ukrainian locales.");
