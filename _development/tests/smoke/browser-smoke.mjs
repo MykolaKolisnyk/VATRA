@@ -720,8 +720,10 @@ try{
    assert.ok(design.centerDelta<=2,"Login card must be vertically centered at "+width+": "+JSON.stringify(design));
   assert.ok(design.heroReady&&design.obsoleteOrbits===0,
    "VATRA login must show the loaded original hero without old orbit icons");
-  const minHeroWidth=sizes.intro.w*.91;
-  assert.ok(design.heroWidth>=minHeroWidth-2,"Hero must fill the available column regardless of viewport height at "+width+": "+JSON.stringify(design));
+  const desktopHero=width>=1200;
+  const minHeroWidth=sizes.intro.w*(desktopHero?.77:.91);
+  assert.ok(design.heroWidth>=minHeroWidth-2,"Hero must remain readable regardless of viewport height at "+width+": "+JSON.stringify(design));
+  if(desktopHero)assert.ok(design.heroWidth<=sizes.intro.w*.85+2,"Hero must not dominate the login form at "+width+": "+JSON.stringify(design));
   const artwork=await page.locator(".vatra-login-hero-image-001").evaluate(img=>{
    const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
    const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0,256,256);
@@ -735,7 +737,8 @@ try{
    return {width:Math.max(0,right-left+1)/256*box.width,panelWidth:panel.width,
     top:box.top+top/256*box.height,bottom:box.top+(bottom+1)/256*box.height,panelTop:panel.top,copyTop:copy.top};
   });
-  assert.ok(artwork.width>=artwork.panelWidth*.65,"Visible artwork must occupy most of the left panel: "+JSON.stringify(artwork));
+  assert.ok(artwork.width>=artwork.panelWidth*(desktopHero?.55:.65),"Visible artwork must stay comfortably readable: "+JSON.stringify(artwork));
+  if(desktopHero)assert.ok(artwork.width<=artwork.panelWidth*.75,"Visible artwork must leave generous space around the illustration: "+JSON.stringify(artwork));
   assert.ok(artwork.top>=artwork.panelTop-1&&artwork.bottom<=artwork.copyTop+1,"Visible artwork must not be clipped or overlap the description: "+JSON.stringify(artwork));
   assert.equal(design.heroBefore,"none","Retired decorative pseudo-element must not be rendered");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
@@ -2732,7 +2735,7 @@ try{
  const savedViewport=savedPage.viewportSize();
  await savedPage.setViewportSize({width:1536,height:740});
  const savedHero=await savedPage.locator(".vatra-login-hero-image-001").evaluate(img=>({width:img.getBoundingClientRect().width,panel:img.closest(".intro-side").getBoundingClientRect().width}));
- assert.ok(savedHero.width>=savedHero.panel*.91-2,"Remembered account must not shrink the login hero: "+JSON.stringify(savedHero));
+ assert.ok(savedHero.width>=savedHero.panel*.77-2&&savedHero.width<=savedHero.panel*.85+2,"Remembered account must retain a balanced login hero: "+JSON.stringify(savedHero));
  if(savedViewport)await savedPage.setViewportSize(savedViewport);
  const savedOverviewHeight=await savedPage.locator("#saved-account-panel").evaluate(node=>node.getBoundingClientRect().height);
  const overviewNote=await savedPage.locator(".saved-account-note").evaluate(node=>({
