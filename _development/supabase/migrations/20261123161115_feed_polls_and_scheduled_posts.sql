@@ -88,9 +88,21 @@ CREATE POLICY "Read only own poll votes" ON public.post_poll_votes FOR SELECT TO
 CREATE POLICY "Insert own poll vote" ON public.post_poll_votes FOR INSERT TO authenticated
  WITH CHECK (voter_id=(SELECT auth.uid()) AND EXISTS(SELECT 1 FROM public.feed_posts p WHERE p.id=post_id));
 CREATE POLICY "Update own poll vote" ON public.post_poll_votes FOR UPDATE TO authenticated
- USING (voter_id=(SELECT auth.uid())) WITH CHECK (voter_id=(SELECT auth.uid()));
+ USING (voter_id=(SELECT auth.uid()) AND EXISTS (
+  SELECT 1 FROM public.feed_posts p WHERE p.id=post_id AND p.archived_at IS NULL
+   AND p.poll IS NOT NULL AND (p.poll->>'allow_revote')='true'
+   AND (NULLIF(p.poll->>'closes_at','') IS NULL OR (p.poll->>'closes_at')::timestamptz>now())
+ )) WITH CHECK (voter_id=(SELECT auth.uid()));
+-- Client withdrawals require a visible, active poll and explicit permission.
+-- FK cascades bypass RLS so deleting an account/post remains possible.
 CREATE POLICY "Remove own poll vote" ON public.post_poll_votes FOR DELETE TO authenticated
- USING (voter_id=(SELECT auth.uid()));
+ USING (voter_id=(SELECT auth.uid()) AND EXISTS (
+  SELECT 1 FROM public.feed_posts p WHERE p.id=post_id AND p.archived_at IS NULL
+   AND p.poll IS NOT NULL AND (p.poll->>'allow_revote')='true'
+   AND (NULLIF(p.poll->>'closes_at','') IS NULL OR (p.poll->>'closes_at')::timestamptz>now())
+ ));
+CREATE INDEX IF NOT EXISTS post_poll_votes_voter_id_idx ON public.post_poll_votes(voter_id);
+CREATE INDEX IF NOT EXISTS post_poll_votes_vatra_id_idx ON public.post_poll_votes(voter_vatra_id);
 
 -- Keep private auth UUIDs only in post_poll_votes (RLS: viewer's own vote).
 -- A separate, server-maintained choice table exposes VATRA profile IDs only
@@ -101,6 +113,8 @@ CREATE TABLE IF NOT EXISTS public.post_poll_visible_choices (
  choices smallint[] NOT NULL,
  PRIMARY KEY (post_id,voter_vatra_id)
 );
+CREATE INDEX IF NOT EXISTS post_poll_visible_choices_vatra_id_idx
+ ON public.post_poll_visible_choices(voter_vatra_id);
 ALTER TABLE public.post_poll_visible_choices ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.post_poll_visible_choices FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON public.post_poll_visible_choices TO authenticated;
@@ -187,17 +201,9 @@ RETURNS trigger LANGUAGE plpgsql SET search_path = ''
 AS $body$
 DECLARE poll_data jsonb; vote_index smallint;
 BEGIN
- IF TG_OP='DELETE' THEN
-  SELECT p.poll INTO poll_data FROM public.feed_posts p WHERE p.id=OLD.post_id AND p.archived_at IS NULL;
-  IF poll_data IS NOT NULL AND (
-    (poll_data->>'allow_revote')::boolean IS FALSE
-    OR (NULLIF(poll_data->>'closes_at','') IS NOT NULL
-      AND (poll_data->>'closes_at')::timestamptz <= now())
-  ) THEN
-   RAISE EXCEPTION 'Voting is closed or withdrawal is disabled' USING ERRCODE='23514';
-  END IF;
-  RETURN OLD;
- END IF;
+ -- Direct client withdrawals are checked by the DELETE policy. Do not
+ -- block FK cascades when a voter or post is removed, even for closed polls.
+ IF TG_OP='DELETE' THEN RETURN OLD; END IF;
  IF NEW.voter_id IS DISTINCT FROM (SELECT auth.uid()) THEN
   RAISE EXCEPTION 'Vote must belong to the signed-in account' USING ERRCODE='42501';
  END IF;
@@ -316,6 +322,10 @@ CREATE INDEX IF NOT EXISTS scheduled_feed_posts_due_idx
  ON public.scheduled_feed_posts(publish_at,id) WHERE status='queued';
 CREATE INDEX IF NOT EXISTS scheduled_feed_posts_owner_idx
  ON public.scheduled_feed_posts(author_id,created_at DESC);
+CREATE INDEX IF NOT EXISTS scheduled_feed_posts_author_vatra_id_idx
+ ON public.scheduled_feed_posts(author_vatra_id);
+CREATE INDEX IF NOT EXISTS scheduled_feed_posts_published_post_id_idx
+ ON public.scheduled_feed_posts(published_post_id) WHERE published_post_id IS NOT NULL;
 ALTER TABLE public.scheduled_feed_posts ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.scheduled_feed_posts FROM PUBLIC, anon;
 GRANT SELECT,INSERT,UPDATE,DELETE ON public.scheduled_feed_posts TO authenticated;

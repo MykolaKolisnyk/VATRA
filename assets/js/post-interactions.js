@@ -520,12 +520,12 @@ function appendAudience(container,level,isGroup=false){
      client.from("post_poll_votes").update({choices:selected})
       .eq("post_id",post.id).eq("voter_id",userId):
      client.from("post_poll_votes").insert({post_id:post.id,voter_id:userId,choices:selected});
-    const response=await operation;
-    if(response.error)throw response.error;
+    const response=await operation.select("post_id").maybeSingle();
+    if(response.error||!response.data)throw response.error||Error("Vote unavailable");
     showResults=true;votersCache.clear();
     await hydrate();
    }catch(error){
-    message(error?.message||tr("Не вдалося зберегти голос.","Could not save vote."));
+    message(tr("Не вдалося зберегти голос.","Could not save vote."));
    }finally{busy=false;refresh();}
   }
   submit.addEventListener("click",()=>void vote());
@@ -535,10 +535,10 @@ function appendAudience(container,level,isGroup=false){
    busy=true;refresh();message("");
    try{
     const r=await client.from("post_poll_votes").delete()
-     .eq("post_id",post.id).eq("voter_id",userId);
-    if(r.error)throw r.error;
+     .eq("post_id",post.id).eq("voter_id",userId).select("post_id").maybeSingle();
+    if(r.error||!r.data)throw r.error||Error("Vote unavailable");
     ownVote=null;selected=[];showResults=false;votersCache.clear();await hydrate();
-   }catch(error){message(error?.message||tr("Не вдалося скасувати голос.","Could not withdraw vote."));}
+   }catch(error){message(tr("Не вдалося скасувати голос.","Could not withdraw vote."));}
    finally{busy=false;refresh();}
   });
   refresh();
