@@ -3,7 +3,7 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const root=new URL("../../",document.currentScript?.src||location.href);
 const features=Object.freeze({
- albums:{css:"assets/css/photo-albums.css?rev=66a1dfb750e637ea8c0bf3a331a9cdca0f50bf3e",js:"assets/js/photo-albums.js?rev=1a5c0a3cf0e844ac8af7a393f1340bf8bc9627a7",key:"VATRA_ALBUMS"},
+ albums:{css:"assets/css/photo-albums.css?rev=2ec5a15b372881f0d98b7dea5e2813cf88a99aec",js:"assets/js/photo-albums.js?rev=d84215ac90cccf66e5a76d8a2af309dc3ac8d219",key:"VATRA_ALBUMS"},
  story:{css:"assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df",js:"assets/js/story-editor.js?rev=ebaa9990cc5873d74531e8bd9a13b2449c3030e2",key:"VATRA_STORY_EDITOR"},
  composer:{css:"assets/css/post-composer.css?rev=c26566635080adbef9c89af2bf2813633eb4fc9a",js:"assets/js/post-composer-ui.js?rev=524917dad85c0582691b0b7f85185cf430b0dbbc",key:"VATRA_COMPOSER_UI"},
  gift:{css:"assets/css/gifts.css",js:"assets/js/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"},

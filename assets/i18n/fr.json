@@ -3630,5 +3630,13 @@
   "Видалити вибрані фотографії?": "Supprimer les photos sélectionnées ?",
   "Не всі фотографії видалено.": "Certaines photos n’ont pas été supprimées.",
   "Вибрати фотографію": "Sélectionner la photo",
-  "Вибрати декілька": "Sélectionner plusieurs photos"
+  "Вибрати декілька": "Sélectionner plusieurs photos",
+  "Перемістити": "Déplacer",
+  "Фотографії відновлено.": "Photos restaurées.",
+  "Фотографії архівовано.": "Photos archivées.",
+  "Перемістити фотографії": "Déplacer les photos",
+  "Доступні альбоми з таким самим або суворішим рівнем приватності.": "Les albums disponibles ont un niveau de confidentialité identique ou plus strict.",
+  "Фотографії переміщено.": "Photos déplacées.",
+  "Не вдалося перемістити фотографії.": "Impossible de déplacer les photos.",
+  "Архів порожній.": "Les archives sont vides."
 }

@@ -3485,5 +3485,13 @@
   "Видалити вибрані фотографії?": "Delete selected photos?",
   "Не всі фотографії видалено.": "Not all photos were deleted.",
   "Вибрати фотографію": "Select photo",
-  "Вибрати декілька": "Select multiple"
+  "Вибрати декілька": "Select multiple",
+  "Перемістити": "Move",
+  "Фотографії відновлено.": "Photos restored.",
+  "Фотографії архівовано.": "Photos archived.",
+  "Перемістити фотографії": "Move photos",
+  "Доступні альбоми з таким самим або суворішим рівнем приватності.": "Available albums have the same or stricter privacy.",
+  "Фотографії переміщено.": "Photos moved.",
+  "Не вдалося перемістити фотографії.": "Could not move photos.",
+  "Архів порожній.": "Archive is empty."
 }

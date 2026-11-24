@@ -167,6 +167,10 @@ jobs:
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
         run: node _development/tests/smoke/messenger-rls-smoke.mjs
+      - name: Verify photo descriptions, archive and album moves on disposable PostgreSQL
+        env:
+          DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
+        run: node _development/tests/smoke/photo-management-rls-smoke.mjs
 
   minified-assets:
     needs: development
