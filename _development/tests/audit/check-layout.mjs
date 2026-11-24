@@ -1505,7 +1505,8 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('batch.append(same&&oldElement?oldElement:card(item,engagement))')&&
+ feedScript.includes('batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement))')&&
+ feedScript.includes('try{return card(post,engagement);}catch(error)')&&
  feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
  feedScript.includes('else posts.append(batch);')&&
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
@@ -2538,7 +2539,7 @@ const batchedFeedPosts=await read("assets/js/feed.js");
 const batchedProfilePosts=await read("assets/js/profile.js");
 const batchedClubPosts=clubRuntime;
 assert.ok(
- batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:card(item,engagement))")&&
+ batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement))")&&
  batchedFeedPosts.includes("if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}")&&
  batchedFeedPosts.includes("else posts.append(batch);")&&
  batchedFeedPosts.includes("const keepExisting=reset&&scope===lastFeedScope")&&
