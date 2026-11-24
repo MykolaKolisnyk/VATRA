@@ -5114,7 +5114,12 @@ try{
   assert.equal(await profilePage.locator("#profile-photo-gallery .profile-media-tile").count(),2,
    "All photos from media_items-only posts must appear individually in the Photos tab");
   const galleryTiles=profilePage.locator("#profile-photo-gallery .profile-media-tile");
-  await galleryTiles.first().locator(".vatra-post-gallery-tile").click();
+  const firstGalleryPhoto=galleryTiles.first().locator(".vatra-post-gallery-tile");
+  await firstGalleryPhoto.waitFor({state:"visible"});
+  const tileGeometry=await firstGalleryPhoto.boundingBox();
+  assert.ok(tileGeometry&&tileGeometry.width>30&&tileGeometry.height>30&&Math.abs(tileGeometry.width-tileGeometry.height)<2,
+   "A gallery photo must fill a visible square clickable surface regardless of preview loading");
+  await firstGalleryPhoto.click();
   const photoViewer=profilePage.locator("#vatra-post-media-viewer");
   await photoViewer.waitFor({state:"visible"});
   const photoCounter=photoViewer.locator(".vatra-post-gallery-counter-001");
