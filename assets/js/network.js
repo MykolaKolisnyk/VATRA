@@ -69,7 +69,8 @@
   let host=document.body;
   if(!locked){
    const feed=document.querySelector(".feed-main");
-   if(feed&&!feed.closest("[hidden]"))host=feed;
+   if(feed&&!feed.closest("[hidden]")&&document.body.dataset.authReady==="true"&&
+    !document.body.classList.contains("vatra-shell-pending"))host=feed;
   }
   if(host===document.body){
    panel.dataset.fullpage="true";
