@@ -20,7 +20,7 @@ runInNewContext(source,{URL,Request,Response,TextEncoder,Uint8Array,Array,Promis
  caches:{open:async()=>cache,match:async()=>null},
  fetch:async()=>{networkCalls++;if(networkGate)await networkGate;if(!online)throw Error("offline");return new Response(body,{status:200});}});
 function request(path){
- let result;handlers.get("fetch")({request:new Request(base+path),respondWith(p){result=p;},waitUntil(p){background.push(p);}});return result;
+ let result;handlers.get("fetch")({request:new Request(new URL(path,base)),respondWith(p){result=p;},waitUntil(p){background.push(p);}});return result;
 }
 const first="assets/js/clips.js?rev="+hash(body);
 assert.equal(await (await request(first)).text(),body);
