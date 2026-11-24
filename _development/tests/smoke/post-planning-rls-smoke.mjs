@@ -57,7 +57,7 @@ try{
  `);
  const migration=await readFile("_development/supabase/migrations/20261123161115_feed_polls_and_scheduled_posts.sql","utf8");
  await db.query(migration);
- const [alice,bob,carol]=await rows("select user_id,vatra_id from public.accounts order by vatra_id limit 3");
+ const [alice,bob,carol]=await rows("select user_id,vatra_id from public.accounts order by vatra_id offset 3 limit 3");
  assert.ok(carol);
  const poll=(anonymous,allow_revote=true)=>JSON.stringify({question:"Test poll",options:["A","B"],multiple:false,anonymous,allow_revote});
  const create=async(anonymous,allow_revote=true,visibility="public")=>(await rows(
