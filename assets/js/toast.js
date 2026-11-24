@@ -24,8 +24,7 @@ const selector=[
  "#profile-status-error","#profile-edit-message","#profile-report-error",
  "#profile-compose-status",
  "#profile-photo-tag-status","#feed-status","#feed-compose-error","#club-status","#club-compose-error",
- "#community-create-status","#community-list-status","#profile-message-status",
- "#messenger-send-status","#messenger-key-error","#messenger-new-error","#messenger-delete-error",
+ "#community-create-status","#community-list-status",
  ".vatra-section-dialog-status-001",".vatra-post-interactions-status-001",
  ".vatra-profile-photo-comment-status-001"
 ].join(",");

@@ -1359,7 +1359,7 @@
         },
         "n47": {
           "text": {
-            "0": "VATRA est une plateforme sociale ukrainienne dédiée aux échanges, aux profils personnels, au fil d’actualité, à la messagerie, aux rencontres, aux communautés, aux photos, à la musique, aux vidéos, aux clips et à la marketplace. Ces conditions définissent les règles d’utilisation du site et de votre compte."
+            "0": "VATRA est une plateforme sociale ukrainienne dédiée aux échanges, aux profils personnels, au fil d’actualité, aux rencontres, aux communautés, aux photos, à la musique, aux vidéos, aux clips et à la marketplace. Ces conditions définissent les règles d’utilisation du site et de votre compte."
           }
         },
         "n48": {
@@ -2314,7 +2314,7 @@
         },
         "copy-overview": {
           "text": {
-            "0": "Ces règles s'appliquent à toutes les offres du Marketplace VATRA : vente, échange, location et don, ainsi qu'aux photos, descriptions et messages associés. Les participants sont responsables de la légalité de leurs actes, de leur droit de disposer des biens et du respect des droits des consommateurs. Les interdictions couvrent aussi les tentatives de contournement via d'autres catégories ou messages."
+            "0": "Ces règles s'appliquent à toutes les offres du Marketplace VATRA : vente, échange, location et don, ainsi qu'aux photos et descriptions associées. Les participants sont responsables de la légalité de leurs actes, de leur droit de disposer des biens et du respect des droits des consommateurs. Les interdictions couvrent aussi les tentatives de contournement via d'autres catégories."
           }
         },
         "head-appeals": {
@@ -2464,7 +2464,7 @@
         },
         "copy-rule-community": {
           "text": {
-            "0": "Les annonces, photos et échanges liés aux transactions doivent respecter les Conditions d'utilisation de VATRA. Le spam, les menaces, le harcèlement, la fraude et l'exploitation des enfants sont interdits."
+            "0": "Les annonces et photos doivent respecter les Conditions d'utilisation de VATRA. Le spam, les menaces, le harcèlement, la fraude et l'exploitation des enfants sont interdits."
           }
         },
         "head-rule-adult": {
@@ -3022,7 +3022,7 @@
   "Захист акаунта": "Sécurité du compte",
   "Обмеження та відповідальність": "Restrictions et responsabilité",
   "Документи та звернення": "Documents et contact",
-  "VATRA — українська соціальна платформа для спілкування, особистих сторінок, стрічки, месенджера, знайомств, спільнот, фотографій, музики, відео, кліпів і маркетплейсу. Ці умови визначають правила використання сайту та Вашого акаунта.": "VATRA est une plateforme sociale ukrainienne dédiée aux échanges, aux profils personnels, au fil d’actualité, à la messagerie, aux rencontres, aux communautés, aux photos, à la musique, aux vidéos, aux clips et à la marketplace. Ces conditions définissent les règles d’utilisation du site et de votre compte.",
+  "VATRA — українська соціальна платформа для спілкування, особистих сторінок, стрічки, знайомств, спільнот, фотографій, музики, відео, кліпів і маркетплейсу. Ці умови визначають правила використання сайту та Вашого акаунта.": "VATRA est une plateforme sociale ukrainienne dédiée aux échanges, aux profils personnels, au fil d’actualité, aux rencontres, aux communautés, aux photos, à la musique, aux vidéos, aux clips et à la marketplace. Ces conditions définissent les règles d’utilisation du site et de votre compte.",
   "Користуючись доступними функціями VATRA, Ви погоджуєтеся дотримуватися цих правил і чинного законодавства. Якщо Ви не погоджуєтеся з умовами, не створюйте акаунт і не користуйтеся захищеними функціями.": "En utilisant les fonctionnalités disponibles de VATRA, vous acceptez de respecter ces règles et le droit applicable. Si vous n’acceptez pas ces conditions, ne créez pas de compte et n’utilisez pas les fonctionnalités protégées.",
   "Для реєстрації потрібно вказати ім’я, прізвище, дату народження, електронну пошту та створити пароль. Стать можна не зазначати. Для використання VATRA потрібно бути": "Pour vous inscrire, vous devez indiquer votre prénom, votre nom, votre date de naissance et votre adresse e-mail, puis créer un mot de passe. Le genre est facultatif. Pour utiliser VATRA, vous devez avoir",
   "і дотримуватися суворіших вікових вимог, якщо вони діють у Вашій країні.": "et respecter toute limite d’âge plus élevée applicable dans votre pays.",
@@ -3251,7 +3251,6 @@
   "Тут з’являться короткі відео. Розділ готується до запуску.": "De courtes vidéos apparaîtront ici. Cette rubrique est en préparation.",
   "Тут можна буде знаходити й пропонувати товари. Розділ у розробці.": "Vous pourrez y découvrir et proposer des articles. Cette rubrique est en développement.",
   "Повідомлення": "Messages",
-  "Тут буде повноцінне особисте листування. Месенджер ще розробляється.": "Une messagerie privée complète sera disponible ici. Elle est encore en développement.",
   "Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.": "Les notifications vous aideront à suivre les activités et les réponses. De nouvelles fonctions arrivent.",
   "Тут з’явиться музичний простір VATRA. Функція ще в розробці.": "L’espace musical de VATRA apparaîtra ici. Cette fonction est en développement.",
   "Твій профіль": "Votre profil",
@@ -3392,7 +3391,6 @@
   "Нещодавні": "Récents",
   "Очистити всю історію": "Effacer tout l’historique",
   "Історії": "Stories",
-  "Месенджер": "Messagerie",
   "Меню акаунта": "Menu du compte",
   "Кількість запитів: {count}": "Nombre de recherches : {count}",
   "Ваша історія": "Votre story",
@@ -3425,7 +3423,6 @@
   "Ваш друг у VATRA": "Votre ami sur VATRA",
   "Хоче додатися до друзів": "Souhaite vous ajouter",
   "Запит надіслано": "Demande envoyée",
-  "Профіль і повідомлення": "Profil et messages",
   "Прийняти": "Accepter",
   "Видалити з друзів": "Retirer des amis",
   "Відхилити": "Refuser",

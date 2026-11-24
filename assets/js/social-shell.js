@@ -238,15 +238,6 @@
     item.addEventListener("click",()=>location.assign(new URL(page,location.href).href));
     continue;
    }
-   if(item.dataset.vatraComingSoon==="messenger"){
-    item.removeAttribute("data-vatra-coming-soon");
-    item.removeAttribute("aria-disabled");item.removeAttribute("title");item.disabled=false;
-    item.addEventListener("click",()=>{
-     hideTooltip();
-     location.assign(new URL("messenger.html",new URL("./",location.href)).href);
-    });
-    continue;
-   }
    if(item.dataset.vatraComingSoon==="notifications"){
     item.removeAttribute("data-vatra-coming-soon");continue;
    }
@@ -730,7 +721,7 @@
  }
  const soundRoot=new URL("../../",document.currentScript?.src||location.href);
  const soundFiles=Object.freeze({
-  like:"like.mp3",messageIn:"message-in.mp3",messageOut:"message-out.mp3",
+  like:"like.mp3",
   newFollower:"new-follower.mp3",notification:"notification.mp3"
  });
  let soundLastPlayed=0;

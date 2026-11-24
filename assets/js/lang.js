@@ -31,10 +31,10 @@
 
 
   const titleSources={
-    index:"Вхід","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",messenger:"Месенджер",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
+    index:"Вхід","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
   };
   const instantEnglishTitles={
-    index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",messenger:"Messenger",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
+    index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
     forgot:"Password recovery",reset:"New password",
     "404":"Page not found",
     terms:"Terms of Service",commerce:"Commerce Rules",documents:"VATRA Documents",privacy:"Privacy",
@@ -630,7 +630,7 @@
   ".vatra-post-comment-dialog-content",".vatra-gallery-picker-grid",
   ".vatra-search-history",".vatra-search-live-results",".feed-account-dropdown",
   ".vatra-notification-panel",".vatra-post-share-dialog",".vatra-post-comment-emoji-scroll",
-  ".profile-message-history",".profile-compose-dialog",".profile-photo-comments",
+  ".profile-compose-dialog",".profile-photo-comments",
   ".vatra-profile-details-content",".profile-report-content",
   ".profile-confirm-dialog",
   ".vatra-post-composer-edit",".vatra-post-composer-settings",

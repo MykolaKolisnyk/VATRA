@@ -4,7 +4,6 @@
 
 ```text
 VATRA/
-├── index.html, feed.html, profile.html, messenger.html, …
 ├── 404.html, offline.html, maintenance.html, sw.js
 ├── assets/
 │   ├── js/                JavaScript сайту
@@ -42,4 +41,3 @@ node _development/tools/build-static.mjs
 
 `_development/supabase/` — лише вихідні файли, не сама база даних. Видалення папки з GitHub не видаляє вже застосовані SQL-міграції, базу та розгорнуті Edge Functions у Supabase.
 
-Безпека Messenger описана в `_development/docs/messenger-security.md`; поточне шифрування ще потребує незалежної перевірки.

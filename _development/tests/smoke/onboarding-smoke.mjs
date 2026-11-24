@@ -91,7 +91,7 @@ const route=[...source.matchAll(/\{selector:"([^"]+)"/g)].map(match=>match[1]);
 assert.deepEqual(Array.from(route),[
  "#feed-search-form",".ui-social-top-feed-001",".ui-social-top-friends-001",
  ".ui-social-top-communities-001",".ui-social-top-clips-001",
- ".ui-social-top-marketplace-001",".ui-shell-header-messenger-001",
+ ".ui-social-top-marketplace-001",
  ".ui-feed-notifications-button-001",".ui-feed-music-button-001",
  ".feed-account-toggle",".feed-account-toggle","#feed-filter-toggle",
  "#feed-compose-open","#feed-create-story"

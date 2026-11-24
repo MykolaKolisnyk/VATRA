@@ -1313,7 +1313,7 @@
         },
         "n47": {
           "text": {
-            "0": "VATRA is a Ukrainian social platform for communication, personal pages, feeds, messaging, connections, communities, photos, music, videos, clips, and a marketplace. These terms govern the website and your account."
+            "0": "VATRA is a Ukrainian social platform for communication, personal pages, feeds, connections, communities, photos, music, videos, clips, and a marketplace. These terms govern the website and your account."
           }
         },
         "n48": {
@@ -2467,7 +2467,7 @@
         },
         "copy-overview": {
           "text": {
-            "0": "These rules cover all VATRA Marketplace offers: sale, exchange, rental and free transfer, as well as related photos, descriptions and communications. Participants are responsible for lawful conduct, the right to dispose of items and consumer rights. Prohibitions also apply to attempts to circumvent the rules through different categories or messages."
+            "0": "These rules cover all VATRA Marketplace offers: sale, exchange, rental and free transfer, as well as related photos and descriptions. Participants are responsible for lawful conduct, the right to dispose of items and consumer rights. Prohibitions also apply to attempts to circumvent the rules through different categories."
           }
         },
         "head-appeals": {
@@ -2617,7 +2617,7 @@
         },
         "copy-rule-community": {
           "text": {
-            "0": "Listings, photos and transaction-related messages must comply with the VATRA Terms of Service. Spam, threats, harassment, fraud and child exploitation are prohibited."
+            "0": "Listings and photos must comply with the VATRA Terms of Service. Spam, threats, harassment, fraud and child exploitation are prohibited."
           }
         },
         "head-rule-adult": {
@@ -3190,7 +3190,6 @@
   "Тут з’являться короткі відео. Розділ готується до запуску.": "Short videos will appear here. This section is preparing for launch.",
   "Тут можна буде знаходити й пропонувати товари. Розділ у розробці.": "Here you'll be able to discover and list items. This section is in development.",
   "Повідомлення": "Messages",
-  "Тут буде повноцінне особисте листування. Месенджер ще розробляється.": "Private messaging will be available here. The messenger is still in development.",
   "Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.": "Notifications help you follow activity and replies. More features are being added.",
   "Тут з’явиться музичний простір VATRA. Функція ще в розробці.": "This will be VATRA's music space. The feature is still in development.",
   "Твій профіль": "Your profile",
@@ -3245,7 +3244,6 @@
   "Нещодавні": "Recent",
   "Очистити всю історію": "Clear all searches",
   "Історії": "Stories",
-  "Месенджер": "Messenger",
   "Меню акаунта": "Account menu",
   "Кількість запитів: {count}": "Searches: {count}",
   "Ваша історія": "Your story",
@@ -3278,7 +3276,6 @@
   "Ваш друг у VATRA": "Your VATRA friend",
   "Хоче додатися до друзів": "Wants to add you",
   "Запит надіслано": "Request sent",
-  "Профіль і повідомлення": "Profile and messages",
   "Прийняти": "Accept",
   "Видалити з друзів": "Remove friend",
   "Відхилити": "Decline",
