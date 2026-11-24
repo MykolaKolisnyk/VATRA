@@ -304,14 +304,14 @@
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
-  state={signedURLs:new Map(),bulkPending:new Map(),version:0};
+  state={signedURLs:new Map(),bulkPending:new Map(),version:0,active:0,queue:[],viewer:null,token:null};
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
-   client.auth.onAuthStateChange(event=>{
-
-
-
-    if(event==="INITIAL_SESSION")return;
+   client.auth.onAuthStateChange((event,session)=>{
+    const viewer=session?.user?.id||null,token=session?.access_token||null;
+    if(event==="INITIAL_SESSION"){state.viewer=viewer;state.token=token;return;}
+    if(event==="SIGNED_IN"&&viewer&&token&&viewer===state.viewer&&token===state.token)return;
+    state.viewer=viewer;state.token=token;
     state.version++;
     state.signedURLs.clear();
     state.bulkPending.clear();
@@ -327,54 +327,71 @@
   while(signedURLs.size>256)signedURLs.delete(signedURLs.keys().next().value);
  };
  let firstImages=0;
+ const SIGN_LIMIT=4,SIGN_TIMEOUT=12000;
+ function scheduleSigning(state,version,task){
+  return new Promise((resolve,reject)=>{
+   const start=()=>{
+    if(state.version!==version){reject(Error("Session changed while signing media"));return;}
+    state.active++;
+    let timer;
+    const deadline=new Promise((_,fail)=>{timer=setTimeout(()=>fail(Error("Media signing timed out")),SIGN_TIMEOUT);});
+    Promise.race([Promise.resolve().then(task),deadline]).then(resolve,reject).finally(()=>{
+     clearTimeout(timer);state.active--;
+     while(state.active<SIGN_LIMIT&&state.queue.length)state.queue.shift()();
+    });
+   };
+   if(state.active<SIGN_LIMIT)start();else state.queue.push(start);
+  });
+ }
 
 
  async function preSignGallery(client,items,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
-  const version=state.version,grouped=new Map();
+  const version=state.version,grouped=new Map(),waiting=new Set();
   for(const item of items||[]){
    const kind=item?.media_kind,path=item?.media_path;
    if(!["image","video"].includes(kind)||typeof path!=="string")continue;
    const key=ttl+":"+kind+":"+path;
-   if(signedURLs.get(key)?.expiry>Date.now())continue;
+   const cached=signedURLs.get(key),pending=state.bulkPending.get(key);
+   if(cached?.expiry>Date.now()){waiting.add(cached.promise);continue;}
+   if(pending){waiting.add(pending);continue;}
    if(!grouped.has(kind))grouped.set(kind,new Set());
    grouped.get(kind).add(path);
   }
-  await Promise.allSettled([...grouped].map(async([kind,pathSet])=>{
+  for(const [kind,pathSet] of grouped){
    const paths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
-   if(typeof bucket.createSignedUrls!=="function")return;
-   const pendingKey=JSON.stringify([ttl,kind,paths.slice().sort()]);
-   let pending=state.bulkPending.get(pendingKey);
-   if(!pending){
-    pending=(async()=>{
-     const {data,error}=await bucket.createSignedUrls(paths,ttl);
-     if(error||!Array.isArray(data)||state.version!==version)return;
-     for(let i=0;i<paths.length;i++){
-      const item=data[i];
-      if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
-      try{
-       const url=new URL(item.signedUrl,location.origin);
-       if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
-       signedURLs.set(ttl+":"+kind+":"+paths[i],{
-        expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)
-       });
-      }catch(_){}
-     }
-    })();
-    state.bulkPending.set(pendingKey,pending);
-   }
-   try{await pending;}finally{
-    if(state.bulkPending.get(pendingKey)===pending)state.bulkPending.delete(pendingKey);
-   }
-  }));
+   if(typeof bucket.createSignedUrls!=="function")continue;
+   const keys=paths.map(path=>ttl+":"+kind+":"+path);
+   const pending=(async()=>{
+    const {data,error}=await scheduleSigning(state,version,()=>bucket.createSignedUrls(paths,ttl));
+    if(error||!Array.isArray(data)||state.version!==version)return;
+    for(let i=0;i<paths.length;i++){
+     const item=data[i];
+     if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
+     try{
+      const url=new URL(item.signedUrl,location.origin);
+      if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
+      signedURLs.set(keys[i],{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)});
+     }catch(_){}
+    }
+   })();
+   for(const key of keys)state.bulkPending.set(key,pending);
+   waiting.add(pending);
+   void pending.finally(()=>{
+    for(const key of keys)if(state.bulkPending.get(key)===pending)state.bulkPending.delete(key);
+   }).catch(()=>{});
+  }
+  await Promise.allSettled([...waiting]);
   trimSignedCache(signedURLs);
  }
  async function signed(client,kind,path,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
   const version=state.version,key=ttl+":"+kind+":"+path;
+  const bulk=state.bulkPending.get(key);
+  if(bulk){await bulk.catch(()=>{});if(state.version!==version)throw Error("Session changed while signing media");}
   const entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
-  const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl).then(({data,error})=>{
+  const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl)).then(({data,error})=>{
 
    if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
@@ -389,6 +406,15 @@
   signedURLs.set(key,{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise});
   trimSignedCache(signedURLs);
   return promise;
+ }
+ async function forgetFailedSignedURL(client,kind,path,failedURL,ttl=3600){
+  const state=signedURLCaches.get(client),key=ttl+":"+kind+":"+path;
+  const entry=state?.signedURLs.get(key);
+  if(!entry)return;
+  try{
+   const url=await entry.promise;
+   if(url===failedURL&&state.signedURLs.get(key)===entry)state.signedURLs.delete(key);
+  }catch(_){}
  }
  async function renderStory(client,story,slot,preview=false,allowExpired=false){
   if(!slot)return;
@@ -680,24 +706,32 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     const extra=document.createElement("span");extra.className="vatra-post-gallery-extra-001";
     extra.textContent="+"+(media.length-5);tile.append(extra);
    }
-   tile.addEventListener("click",()=>void openGallery(index));
+   tile.addEventListener("click",()=>{
+    if(tile.getAttribute("aria-busy")==="true")return;
+    if(tile.classList.contains("is-gallery-unavailable")){void loadTiles(true);return;}
+    void openGallery(index);
+   });
    slot.append(tile);
    return {item,tile,index};
   });
   container.append(slot);
   const priority=++firstImages;
   let begun=false;
-  async function loadTiles(){
-   if(begun||!slot.isConnected)return;
+  async function loadTiles(retry=false){
+   if((begun&&!retry)||!slot.isConnected)return;
    begun=true;
    const previewPath=item=>item.media_kind==="image"&&
     name(item.preview_path,"image",id)&&item.preview_path.endsWith(".webp")?
     item.preview_path:null;
-   const imageTiles=tiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
+   const activeTiles=retry?tiles.filter(({tile})=>tile.classList.contains("is-gallery-unavailable")):tiles;
+   const imageTiles=activeTiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
     media_kind:"image",media_path:previewPath(item)||item.media_path
    }));
    if(imageTiles.length>2)await preSignGallery(client,imageTiles);
-   await Promise.allSettled(tiles.map(async({item,tile,index})=>{
+   await Promise.allSettled(activeTiles.map(async({item,tile,index})=>{
+    tile.classList.remove("is-gallery-unavailable");
+    tile.querySelector(".vatra-gallery-unavailable-001")?.remove();
+    tile.setAttribute("aria-busy","true");
     try{
      if(item.media_kind==="video"){
       tile.classList.add("is-gallery-ready");
@@ -719,7 +753,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
        candidate.classList.add("is-gallery-pending");
        tile.prepend(candidate);
        try{await loadImageSource(candidate,src);}
-       catch(error){candidate.remove();throw error;}
+       catch(error){candidate.remove();await forgetFailedSignedURL(client,"image",path,src);throw error;}
        candidate.classList.remove("is-gallery-pending");
        element=candidate;break;
       }catch(_){}
@@ -741,18 +775,25 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      notice.className="vatra-gallery-unavailable-001";
      notice.textContent=tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable.");
      tile.append(notice);
-    }
+    }finally{tile.removeAttribute("aria-busy");}
    }));
   }
-  queueMicrotask(()=>{
-   if(!slot.isConnected)return;
-   if(priority<=2||typeof IntersectionObserver==="undefined"){void loadTiles();return;}
+  const startWhenMounted=()=>{
+   if(!slot.isConnected)return false;
+   if(priority<=2||typeof IntersectionObserver==="undefined"){void loadTiles();return true;}
    const observer=new IntersectionObserver(entries=>{
     if(entries.some(entry=>entry.isIntersecting||entry.intersectionRatio>0)){
      observer.disconnect();void loadTiles();
     }
    },{rootMargin:"440px 0px",threshold:0});
-   observer.observe(slot);
+   observer.observe(slot);return true;
+  };
+  queueMicrotask(()=>{
+   if(startWhenMounted())return;
+   if(typeof MutationObserver!=="function")return;
+   const observer=new MutationObserver(()=>{if(startWhenMounted()){observer.disconnect();clearTimeout(timer);}});
+   const timer=setTimeout(()=>observer.disconnect(),15000);
+   observer.observe(document.documentElement,{childList:true,subtree:true});
   });
   async function openGallery(startIndex){
    let index=startIndex,active=true;
@@ -888,12 +929,18 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     image.alt=tr("Фото до публікації","Post photo");
     image.decoding="async";image.loading="eager";
     if(priority<=2)image.fetchPriority="high";
-    await loadImageSource(image,src);
+    try{await loadImageSource(image,src);}
+    catch(error){await forgetFailedSignedURL(client,"image",path,src);throw error;}
     if(!slot.isConnected)return;
     const frame=document.createElement("button");
     frame.className="vatra-feed-post-media-open-001";frame.type="button";
     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
-    frame.addEventListener("click",()=>openFullMedia(src,"image",container,post,client));
+    frame.addEventListener("click",async()=>{
+     try{
+      const current=await signed(client,"image",path);
+      if(frame.isConnected)openFullMedia(current,"image",container,post,client);
+     }catch(_){failure(tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable."));}
+    });
     frame.append(image);
     slot.replaceChildren(frame);slot.classList.remove("is-loading-media");
     slot.classList.add("is-ready-media");
@@ -905,6 +952,10 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    const notice=document.createElement("p");
    notice.className="vatra-feed-post-media-error-001";notice.textContent=message;
    slot.replaceChildren(notice);
+   const retry=document.createElement("button");retry.type="button";retry.className="vatra-feed-post-media-open-001";
+   retry.textContent=tr("Повторити","Retry");
+   retry.addEventListener("click",()=>{begun=false;slot.classList.add("is-loading-media");slot.replaceChildren(placeholder);void load();});
+   slot.append(retry);
   }
 
   if(priority<=2||typeof IntersectionObserver==="undefined")void load();

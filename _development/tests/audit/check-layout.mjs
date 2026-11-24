@@ -1505,13 +1505,14 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('batch.append(same&&oldElement?oldElement:card(item,engagement))')&&
+ feedScript.includes('batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement))')&&
+ feedScript.includes('try{return card(post,engagement);}catch(error)')&&
  feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
  feedScript.includes('else posts.append(batch);')&&
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
- profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
+ profileScript.includes('const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,blockAccess,prepared}))')&&
  profileScript.includes('void mediaPromise.catch(()=>{')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
@@ -1536,7 +1537,7 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  detailsModule.includes('profile-editor-page-visibility') &&
  detailsModule.includes('from("profile_details")') &&
  detailsModule.includes('from("profile_preferences")') &&
- detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
+ detailsModule.includes('window.VATRA_PROFILE_DETAILS={prepare,init,open:()=>openEditor()}') &&
  memberCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
 assert.ok(
@@ -2455,7 +2456,7 @@ const publicNameEdge=await read("_development/supabase/functions/public-profile-
 assert.doesNotThrow(()=>new Function(publicNameBrowser),
  "Shared public-name cache must parse in supported browsers");
 assert.ok(
- publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get}')&&
+ publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get,bindViewer}')&&
  publicNameBrowser.includes('client.functions.invoke("public-profile-names"')&&
  publicNameBrowser.includes('pauseEdge(state);')&&
  publicNameBrowser.includes('sessionStorage.setItem(EDGE_COOLDOWN_KEY')&&
@@ -2538,7 +2539,7 @@ const batchedFeedPosts=await read("assets/js/feed.js");
 const batchedProfilePosts=await read("assets/js/profile.js");
 const batchedClubPosts=clubRuntime;
 assert.ok(
- batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:card(item,engagement))")&&
+ batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement))")&&
  batchedFeedPosts.includes("if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}")&&
  batchedFeedPosts.includes("else posts.append(batch);")&&
  batchedFeedPosts.includes("const keepExisting=reset&&scope===lastFeedScope")&&

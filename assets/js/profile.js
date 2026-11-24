@@ -154,10 +154,7 @@
   line.setAttribute("d",paths[kind]||paths.user);element.append(line);return element;
  };
  let openEditor=()=>{};
- async function init({client,ownId,targetId,isMine,blockAccess=null}){
-  const card=select("#profile-about-card");
-  const paragraph=select("#profile-about-text");
-  const emptyInfo=select("#profile-about-empty");
+ function prepare({client,ownId,targetId,isMine}){
 
 
   const preferenceQuery=client.from("profile_preferences")
@@ -171,7 +168,13 @@
    Promise.resolve({data:[],error:null});
   const ownerDetailsQuery=isMine?client.from("profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId):Promise.resolve(null);
-  const [preference,friendship,ownerDetails]=await Promise.all([preferenceQuery,friendshipQuery,ownerDetailsQuery]);
+  return Promise.all([preferenceQuery,friendshipQuery,ownerDetailsQuery]);
+ }
+ async function init({client,ownId,targetId,isMine,blockAccess=null,prepared=null}){
+  const card=select("#profile-about-card");
+  const paragraph=select("#profile-about-text");
+  const emptyInfo=select("#profile-about-empty");
+  const [preference,friendship,ownerDetails]=await (prepared||prepare({client,ownId,targetId,isMine}));
 
   let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
   const isFriend=!friendship.error&&!!friendship.data?.length;
@@ -918,7 +921,7 @@
   showGroup("profile");
   return {locked:false};
  }
- window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()};
+ window.VATRA_PROFILE_DETAILS={prepare,init,open:()=>openEditor()};
 })();
 
 
@@ -1003,6 +1006,7 @@ const finish=()=>{
 const gateError=message=>{
  const loader=q("#profile-loading");
  if(!loader)return;
+ loader.hidden=false;
  loader.dataset.loadingError="true";
  loader.setAttribute("role","alert");
  const label=loader.querySelector(".vatra-auth-loading-caption");
@@ -1094,8 +1098,8 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   if(ticket!==profilePostsRequest)return;
   if(error)throw error;
   const rows=data||[];
-  const engagement=await (window.VATRA_POST_INTERACTIONS?.prefetchEngagement(
-   client,rows.map(post=>({...post,kind:"person"})))||Promise.resolve(new Map()));
+  const engagement=window.VATRA_POST_INTERACTIONS?.prefetchEngagement(
+   client,rows.map(post=>({...post,kind:"person"})))||Promise.resolve(new Map());
   if(ticket!==profilePostsRequest)return;
   const batch=document.createDocumentFragment();
   for(const post of rows){
@@ -1164,7 +1168,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,article);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,article);
    window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"person"},article,{
-    ownId,userId,engagement:engagement.get("person:"+post.id),
+    ownId,userId,engagementPromise:engagement,
     onShared:()=>{if(String(ownId)===String(targetId))
      void loadPosts(client,targetId,ownId,userId);}
    });
@@ -3443,17 +3447,24 @@ async function loadOwnHeaderAvatar(client,ownId,email){
   return {data:null,error};
  }
 }
+function profileDeadline(task,ms=15000){
+ let timer;
+ return Promise.race([Promise.resolve(task),new Promise((_,reject)=>{
+  timer=setTimeout(()=>reject(Error("Profile request timed out")),ms);
+ })]).finally(()=>clearTimeout(timer));
+}
 async function start(){
- await window.VATRA_LANGUAGE?.ready;
- localizeSocial();
- if(!window.supabase?.createClient){
-  gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));return;
- }
  try{
+  await profileDeadline(window.VATRA_LANGUAGE?.ready,5000);
+  localizeSocial();
+  if(!window.supabase?.createClient){
+   gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));return;
+  }
   const client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
   });
-  const {data,error}=await client.auth.getUser();
+  const {data,error}=await profileDeadline(client.auth.getUser());
+  if(error&&![401,403].includes(Number(error.status))&&error.name!=="AuthSessionMissingError"&&!["session_expired","session_not_found","refresh_token_not_found","refresh_token_already_used","bad_jwt"].includes(error.code))throw error;
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
    const id=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1];
    if(!data?.user?.id&&id&&await window.VATRA_GUEST?.profile(client,id))return;
@@ -3469,12 +3480,14 @@ async function start(){
   const first=Array.from(nameParts[0]||"V")[0]||"V";
   const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
   const ownAvatar=(first+last).toLocaleUpperCase(locale);
-  const {data:account,error:accountError}=await client.from("accounts")
-   .select("vatra_id").eq("user_id",user.id).maybeSingle();
-  const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
+  const {data:account,error:accountError}=await profileDeadline(client.from("accounts")
+   .select("vatra_id").eq("user_id",user.id).maybeSingle());
+  const ownId=String(account?.vatra_id??"");
+  if(accountError||!validId(ownId))throw accountError||Error("Account unavailable");
+  window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   if(ownId){
-   void window.VATRA_PRESENCE?.start(client,ownId,metadata.gender);
-   window.VATRA_NOTIFICATIONS?.start(client,ownId);
+   try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,ownId,metadata.gender)).catch(()=>{});}catch(_){}
+   try{window.VATRA_NOTIFICATIONS?.start(client,ownId);}catch(_){}
   }
   const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   window.VATRA_AVATAR?.setHeader({client,email:user.email,name:headerName,initials:ownAvatar,id:ownId});
@@ -3512,26 +3525,29 @@ async function start(){
 
 
   const isMine=targetId===ownId;
+  const prepared=profileDeadline(window.VATRA_PROFILE_DETAILS.prepare({client,ownId,targetId,isMine}));
+  void prepared.catch(()=>{});
   const blockQuery=!isMine&&validId(ownId)?
    Promise.resolve().then(()=>client.from("member_blocks")
     .select("blocker_vatra_id,blocked_vatra_id")
     .or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),"+
         "and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")")
     .limit(2)):Promise.resolve({data:[],error:null});
-  const [directoryOutcome,publicOutcome,stateOutcome,blockOutcome]=await Promise.allSettled([
+  const [directoryOutcome,publicOutcome,stateOutcome,blockOutcome]=await profileDeadline(Promise.allSettled([
    client.from("member_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
    Promise.resolve().then(()=>client.from("public_profiles")
     .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()),
    window.VATRA_AVATAR?.states(client,[targetId])||Promise.resolve(new Map()),
    blockQuery
-  ]);
+  ]));
   const publicState=stateOutcome.status==="fulfilled"?stateOutcome.value.get(targetId):null;
   if(publicState==="deleted"||publicState==="blocked"){missingProfile(publicState);return;}
   if(directoryOutcome.status==="rejected")throw directoryOutcome.reason;
   const {data:member,error:directoryError}=directoryOutcome.value;
   if(directoryError)throw directoryError;
   if(!member){missingProfile("not-found");return;}
+  if(!isMine&&(blockOutcome.status!=="fulfilled"||blockOutcome.value.error))throw Error("Profile block check unavailable");
   const blockAccess={blockedByMe:false,blockedByThem:false};
   if(blockOutcome.status==="fulfilled"&&!blockOutcome.value.error){
    for(const item of blockOutcome.value.data||[]){
@@ -3589,7 +3605,7 @@ async function start(){
    Promise.resolve().then(()=>client.from("profile_media")
     .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
     .catch(()=>({data:null,error:true}));
-  const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess});
+  const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,blockAccess,prepared}));
   const locked=access?.locked===true;
   const memberBlocked=blockAccess.blockedByMe||blockAccess.blockedByThem;
   if(!memberBlocked&&(publicName||isMine))void window.VATRA_VERIFIED?.attach(client,q("#profile-heading"),targetId);
@@ -3655,7 +3671,6 @@ async function start(){
   const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id);
 
 
-  if(locked)await mediaPromise;
   finish();
   void mediaPromise.catch(()=>{
    q("#profile-cover-image")?.classList.remove("is-loading-media");
