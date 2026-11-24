@@ -321,7 +321,26 @@
   photoDelete.hidden=!isMine;photoActions.append(photoLike,photoActionShare,photoComments);
   photoBottom.append(photoCaption,photoShare,photoMore);
   photoStage.append(photoClose,photoContent,photoBottom);
-  photoSide.append(photoAuthor,photoActions);
+  const photoDescription=make("div","vatra-media-description-001");
+  const photoDescriptionCopy=make("p","vatra-media-description-copy-001");
+  const photoDescriptionEdit=button("vatra-media-description-edit-001",t("Редагувати опис","Edit description"));
+  const photoDescriptionForm=make("form","vatra-media-description-form-001");photoDescriptionForm.hidden=true;
+  const photoDescriptionInput=make("textarea","vatra-media-description-input-001");photoDescriptionInput.maxLength=512;photoDescriptionInput.rows=3;
+  photoDescriptionInput.setAttribute("aria-label",t("Редагувати опис","Edit description"));
+  const photoDescriptionSave=button("vatra-media-description-save-001",t("Зберегти","Save"));photoDescriptionSave.type="submit";
+  const photoDescriptionCancel=button("vatra-media-description-cancel-001",t("Скасувати","Cancel"));
+  const paintDescription=()=>{photoDescriptionCopy.textContent=state.currentPhoto?.caption||"";photoDescriptionCopy.hidden=!photoDescriptionCopy.textContent;photoDescriptionEdit.hidden=!isMine;photoDescription.hidden=!isMine&&!photoDescriptionCopy.textContent;photoDescriptionForm.hidden=true;};
+  photoDescriptionEdit.onclick=()=>{photoDescriptionInput.value=state.currentPhoto?.caption||"";photoDescriptionForm.hidden=false;photoDescriptionCopy.hidden=true;photoDescriptionEdit.hidden=true;photoDescriptionInput.focus();};
+  photoDescriptionCancel.onclick=paintDescription;
+  photoDescriptionForm.onsubmit=async event=>{event.preventDefault();const row=state.currentPhoto;if(!isMine||!row||photoDescriptionSave.disabled)return;photoDescriptionSave.disabled=true;photoDescriptionCancel.disabled=true;
+   try{const {data,error}=await client.from("album_photos").update({caption:photoDescriptionInput.value.trim()}).eq("id",row.id).eq("owner_vatra_id",ownId).select("id,caption").maybeSingle();
+    if(error||!data)throw Error("Not saved");row.caption=data.caption;for(const item of [...state.photos,...state.previews])if(item.id===row.id)item.caption=data.caption;if(state.currentPhoto===row)paintDescription();}
+   catch(_){notify(t("Не вдалося зберегти.","Could not save."));}
+   finally{photoDescriptionSave.disabled=photoDescriptionCancel.disabled=false;}
+  };
+  photoDescriptionForm.append(photoDescriptionInput,photoDescriptionSave,photoDescriptionCancel);
+  photoDescription.append(photoDescriptionCopy,photoDescriptionEdit,photoDescriptionForm);
+  photoSide.append(photoAuthor,photoActions,photoDescription);
   photoDialog.append(photoStage,photoSide);
   photoDialog.addEventListener("click",e=>{if(e.target===photoDialog)photoDialog.close();});
   photoDialog.addEventListener("close",()=>{
@@ -576,6 +595,10 @@
     [t("Поділитися","Share"),()=>void sharePhoto(row,album),false]
    ];
    if(isMine)items.push(
+    [t("Зробити фотографією профілю","Make profile photo"),async()=>{
+     try{const {data,error}=await client.storage.from(BUCKET).download(row.media_path);if(error||!data)throw Error("Photo unavailable");if(photoDialog.open)photoDialog.close();await window.VATRA_USE_PHOTO_AS_AVATAR?.(data);}
+     catch(_){notify(t("Не вдалося відкрити фото.","Could not open photo."));}
+    },false],
     [row.pinned_at?t("Відкріпити","Unpin"):t("Закріпити","Pin"),()=>void togglePin(row),false],
     [t("Видалити","Delete"),()=>void removePhoto(row),true]
    );
@@ -608,10 +631,13 @@
     action.addEventListener("click",()=>{menu.open=false;});
     list.append(action);
    }
-   menu.append(trigger,list);wrap.append(menu);return wrap;
+   menu.append(trigger,list);wrap.append(menu);
+   menu.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")menu.open=true;});
+   menu.addEventListener("pointerleave",event=>{if(event.pointerType==="mouse")menu.open=false;});
+   return wrap;
   }
   async function openPhoto(row,album){
-   state.currentPhoto=row;
+   state.currentPhoto=row;paintDescription();
    photoCaption.textContent=album.is_personal?t("Фото користувача","Member photo"):
     t("Фото з альбому «","Photo from album “")+album.title+(lang()==="en"?"”":"»");
    photoDelete.hidden=!isMine;

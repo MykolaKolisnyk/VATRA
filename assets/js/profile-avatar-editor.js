@@ -2,13 +2,13 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 function mount({client,ownId,userId,q,t,status,fileAvatar,fileTypes,uploadImage,
- encodeProfileCrop,clamp,canvasPoint,avatarProgress,parentBusy}){
+ encodeProfileCrop,clamp,canvasPoint,parentBusy}){
  const crop=q("#profile-avatar-crop-dialog"),finish=q("#profile-avatar-finish-dialog");
  const canvas=q("#profile-avatar-crop-canvas"),zoom=q("#profile-avatar-crop-zoom");
  const preview=q("#profile-avatar-finish-preview"),save=q("#profile-avatar-finish-save");
  let source=null,sourceFile=null,sourceURL=null,previewURL=null,cropped=null;
  let selection=null,drag=null,transitioning=false,finishing=false,cropLoading=false,sourceMime="image/webp";
- const release=()=>{avatarProgress.hidden=true;if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=sourceFile=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
+ const release=()=>{if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=sourceFile=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
  const constrain=()=>{const max=Math.min(canvas.width,canvas.height);selection.size=clamp(selection.size,max/5,max);selection.x=clamp(selection.x,0,canvas.width-selection.size);selection.y=clamp(selection.y,0,canvas.height-selection.size);zoom.value=String(max/selection.size);};
  const draw=()=>{if(!source||!selection)return;constrain();const ctx=canvas.getContext("2d"),{x,y,size}=selection;
   ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);ctx.save();ctx.fillStyle="rgba(15,23,42,.58)";ctx.beginPath();ctx.rect(0,0,canvas.width,canvas.height);ctx.arc(x+size/2,y+size/2,size/2,0,Math.PI*2,true);ctx.fill("evenodd");ctx.restore();ctx.fillStyle="#fff";

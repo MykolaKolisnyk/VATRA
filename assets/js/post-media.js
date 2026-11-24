@@ -448,7 +448,7 @@
  }
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
-function openFullMedia(url,kind,container){
+function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
    mediaDialog.id="vatra-post-media-viewer";
@@ -565,6 +565,29 @@ function openFullMedia(url,kind,container){
   mediaCaption.textContent=ownerId&&viewerId&&ownerId===viewerId?label:
    authorName?label+" "+authorName:label;
   if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001 vatra-media-author-unified-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
+  if(post){
+   const description=document.createElement("div");description.className="vatra-media-description-001";
+   const copy=document.createElement("p");copy.className="vatra-media-description-copy-001";copy.textContent=String(post.body||"");copy.hidden=!copy.textContent;
+   description.append(copy);
+   const mine=!!client&&postKind!=="group"&&ownerId&&viewerId&&ownerId===viewerId;
+   if(mine){
+    const edit=document.createElement("button");edit.type="button";edit.className="vatra-media-description-edit-001";edit.textContent=tr("Редагувати опис","Edit description");
+    const form=document.createElement("form");form.className="vatra-media-description-form-001";form.hidden=true;
+    const input=document.createElement("textarea");input.className="vatra-media-description-input-001";input.maxLength=2000;input.rows=3;input.setAttribute("aria-label",edit.textContent);
+    const save=document.createElement("button");save.type="submit";save.className="vatra-media-description-save-001";save.textContent=tr("Зберегти","Save");
+    const cancel=document.createElement("button");cancel.type="button";cancel.className="vatra-media-description-cancel-001";cancel.textContent=tr("Скасувати","Cancel");
+    form.append(input,save,cancel);description.append(edit,form);
+    edit.onclick=()=>{input.value=String(post.body||"");form.hidden=false;copy.hidden=true;edit.hidden=true;input.focus();};
+    const finish=()=>{form.hidden=true;edit.hidden=false;copy.hidden=!copy.textContent;};
+    cancel.onclick=finish;
+    form.onsubmit=async event=>{event.preventDefault();if(save.disabled)return;save.disabled=cancel.disabled=true;
+     try{const body=input.value.trim();const {data,error}=await client.from("feed_posts").update({body}).eq("id",post.id).eq("author_vatra_id",ownerId).select("id,body").maybeSingle();if(error||!data)throw Error("Not saved");post.body=data.body;copy.textContent=data.body;finish();window.dispatchEvent(new Event("vatra:profile-media-changed"));}
+     catch(_){window.VATRA_TOAST?.show?.(tr("Не вдалося зберегти.","Could not save."),"error");}
+     finally{save.disabled=cancel.disabled=false;}
+    };
+   }
+   if(copy.textContent||mine)mediaSide.append(description);
+  }
   restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
   mediaSide.hidden=!restoreMediaPanel;
   mediaFooterShare.hidden=!restoreMediaPanel;
@@ -726,7 +749,7 @@ function openFullMedia(url,kind,container){
    try{
     const initial=await signed(client,current.media_kind,current.media_path);
     if(!slot.isConnected)return;
-    openFullMedia(initial,current.media_kind,container);
+    openFullMedia(initial,current.media_kind,container,post,client);
    }catch(_){return;}
    const controller=new AbortController();
    mediaDialog.addEventListener("close",()=>{active=false;controller.abort();},{once:true});
@@ -825,7 +848,7 @@ function openFullMedia(url,kind,container){
      const expand=document.createElement("button");expand.type="button";
      expand.className="vatra-feed-post-video-expand-001";
      expand.textContent=tr("На весь екран","Fullscreen");
-     expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video",container);});
+     expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video",container,post,client);});
      video.src=src;
      slot.replaceChildren(video,expand);
 
@@ -859,7 +882,7 @@ function openFullMedia(url,kind,container){
     const frame=document.createElement("button");
     frame.className="vatra-feed-post-media-open-001";frame.type="button";
     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
-    frame.addEventListener("click",()=>openFullMedia(src,"image",container));
+    frame.addEventListener("click",()=>openFullMedia(src,"image",container,post,client));
     frame.append(image);
     slot.replaceChildren(frame);slot.classList.remove("is-loading-media");
     slot.classList.add("is-ready-media");
@@ -890,6 +913,7 @@ function openFullMedia(url,kind,container){
   host.className="feed-post-card ui-vatra-photo-source-context-001";
   host.dataset.postId=post.id;
   host.dataset.vatraMediaOwnerId=String(post.author_vatra_id);
+  host.dataset.vatraViewerId=String(settings.ownId||"");host.dataset.postKind="person";
   host.style.cssText="position:fixed;left:-99999px;top:0;visibility:hidden;pointer-events:none";
   const header=document.createElement("header");
   header.className="feed-post-header ui-vatra-photo-source-header-001";
@@ -928,7 +952,7 @@ function openFullMedia(url,kind,container){
    .filter(dialog=>!priorDialogs.has(dialog));
   try{
    try{await verifyAuthor();}catch(_){}
-   openFullMedia(src,"image",host);
+   openFullMedia(src,"image",host,post,client,true);
    if(mediaDialog?.open)mediaDialog.addEventListener("close",()=>{
     host.remove();createdDialogs.forEach(dialog=>dialog.remove());
    },{once:true});

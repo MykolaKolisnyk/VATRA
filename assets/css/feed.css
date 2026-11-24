@@ -3496,3 +3496,11 @@ body.feed-page .vatra-post-comments-sentinel-001[hidden]{display:none!important}
 @media(prefers-reduced-motion:reduce){
  body.feed-page .vatra-post-comment .vatra-post-comment-edit-001{transition:none;transform:none}
 }
+
+/* Shared photo description: source text remains separate from comments. */
+.vatra-media-description-001{flex:0 0 auto;max-height:32%;overflow:auto;padding:12px 20px;border-bottom:1px solid var(--border-color,#e2e8f0);color:inherit;white-space:normal}
+.vatra-media-description-copy-001{margin:0 0 6px;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}
+.vatra-media-description-edit-001,.vatra-media-description-save-001,.vatra-media-description-cancel-001{border:0;background:transparent;color:inherit;cursor:pointer;font:inherit;padding:6px 8px}
+.vatra-media-description-edit-001{color:#4879ac;padding-left:0}
+.vatra-media-description-input-001{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #aab7c8;border-radius:8px;background:transparent;color:inherit;font:inherit;resize:vertical}
+.vatra-media-description-form-001[hidden],.vatra-media-description-001 [hidden],.vatra-media-description-001[hidden]{display:none!important}
