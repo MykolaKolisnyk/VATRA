@@ -2818,6 +2818,8 @@ try{
  // Test-only fake thumbnails must never hit live Supabase Storage.
  await feedContext.route("**/storage/v1/object/sign/post-images/12/posts/**",route=>
   route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+ await feedContext.route("**/storage/v1/object/sign/post-images/654321/posts/**",route=>
+  route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
  // A click-to-play fixture must not request the real Supabase Storage project.
  await feedContext.route("**/storage/v1/object/sign/videos/12/posts/00000000-0000-4000-8000-000000000123.mp4**",
   route=>route.abort("blockedbyclient"));
