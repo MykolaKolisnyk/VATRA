@@ -144,3 +144,40 @@ assert.equal(headerCalls[0][3],"18/avatar/profile.webp");
 assert.ok((await ownEnv.loadOwnerMedia(ownClient,"bad","invalid@example.invalid")).error);
 assert.equal(ownQueries,1,"Invalid IDs cannot hit the database");
 console.log("VATRA profile media: bounded 205-friend batching, deleted/blocked avatar safety, owner reuse and cache invalidation passed.");
+
+
+// The avatar history cache is local to a mounted profile. A deletion always
+// obtains a fresh list, and stale responses after mutations cannot repopulate it.
+{
+ const begin=profile.indexOf("function createAvatarGalleryLoader(");
+ const finish=profile.indexOf("async function setupProfileMedia(",begin);
+ assert.ok(begin>=0&&finish>begin);
+ const env={};
+ runInNewContext(profile.slice(begin,finish)+"\nglobalThis.makeLoader=createAvatarGalleryLoader;",env);
+ let calls=0,clock=1000,resolveRead;
+ const loader=env.makeLoader(()=>{calls++;return new Promise(resolve=>{resolveRead=resolve;});},()=>clock);
+ const one=loader.get(),two=loader.get();
+ await Promise.resolve();assert.equal(calls,1);
+ resolveRead(["first"]);assert.deepEqual(Array.from(await one),["first"]);
+ const second=await two;second.push("wrong");
+ assert.deepEqual(Array.from(await loader.get()),["first"]);assert.equal(calls,1);
+ clock+=15001;
+ const expired=loader.get();await Promise.resolve();assert.equal(calls,2);
+ resolveRead(["new"]);assert.deepEqual(Array.from(await expired),["new"]);
+ const fresh=loader.get(true);await Promise.resolve();assert.equal(calls,3);
+ resolveRead(["verified"]);assert.deepEqual(Array.from(await fresh),["verified"]);
+ loader.invalidate();const old=loader.get();const rejected=assert.rejects(old,/Avatar gallery changed/);
+ await Promise.resolve();const oldResolve=resolveRead;
+ loader.invalidate();const current=loader.get();await Promise.resolve();
+ oldResolve(["obsolete"]);await rejected;
+ resolveRead(["current"]);assert.deepEqual(Array.from(await current),["current"]);
+ assert.deepEqual(Array.from(await loader.get()),["current"]);assert.equal(calls,5);
+ const other=env.makeLoader(async()=>["other"],()=>clock);
+ assert.deepEqual(Array.from(await other.get()),["other"]);
+ assert.deepEqual(Array.from(await loader.get()),["current"]);
+ const fail=env.makeLoader(async()=>{throw Error("Network unavailable");});
+ await assert.rejects(fail.get(),/Network unavailable/);
+ await assert.rejects(fail.get(),/Network unavailable/);
+ assert.ok(profile.includes("await listAvatarGallery(true)"),"Deletion must not use a cached file listing");
+}
+console.log("VATRA avatar history: single-flight, TTL, fresh mutation lookup and stale-response isolation passed.");
