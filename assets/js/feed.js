@@ -421,11 +421,14 @@
  function feedPageState(client){
   let state=feedPageCaches.get(client);
   if(state)return state;
-  state={entries:new Map(),generation:0};
+  state={entries:new Map(),generation:0,viewer:typeof user!=="undefined"?user?.id||null:null};
   feedPageCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
-   client.auth.onAuthStateChange(event=>{
+   client.auth.onAuthStateChange((event,session)=>{
     if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+    const next=session?.user?.id||null;
+    if(event==="SIGNED_IN"&&next&&next===state.viewer)return;
+    state.viewer=next;
     state.generation++;state.entries.clear();
    });
   }
@@ -515,8 +518,8 @@
     query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\$&")+"%");
    const sourceKey=JSON.stringify([source.kind,feedFilter,searchTerm,source.offset,
     [...personIds].sort(),isPerson?[]:[...followedClubs.keys()].sort()]);
-   const {data,error}=await readFeedPage(client,sourceKey,()=>query.order("created_at",{ascending:false})
-    .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1));
+   const {data,error}=await readFeedPage(client,sourceKey,()=>feedDeadline(query.order("created_at",{ascending:false})
+    .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1)));
    if(error){if(isPerson)throw error;source.done=true;return;}
    const raw=data||[];
    source.offset+=raw.length;
@@ -568,7 +571,7 @@
    if(version!==feedRequestVersion)return;
    stage="posts";
    if(!sourceState)sourceState=makeSourceState();
-   const page=await feedDeadline(takePage());
+   const page=await takePage();
    if(version!==feedRequestVersion)return;
    const requested=reset?new URLSearchParams(location.search).get("post"):null;
    if(feedFilter==="all"&&requested&&/^[a-f0-9-]{36}$/i.test(requested)&&!searchTerm&&
