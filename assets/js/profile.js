@@ -2926,7 +2926,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   galleryDelete.hidden=!canEdit;
   footerReport.hidden=isMine||locked;
   setCurrent.hidden=!canEdit||current||!mediaDialog.dataset.fromPhotos;
-  footerShare.hidden=isMine;
+  footerShare.hidden=isMine;q("#profile-photo-share").hidden=isMine;
   footerShare.textContent=t("Поділитися","Share");
   footerReport.textContent=t("Поскаржитися на фото","Report photo");
   galleryDelete.textContent=t("Видалити","Delete");
@@ -3000,9 +3000,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   hideAvatarUndo();discardAvatarUndo();
  });
  window.VATRA_OPEN_PROFILE_AVATAR=path=>{if(canViewPhoto)openMedia("avatar",path);};
- window.VATRA_SET_HISTORY_AVATAR=async path=>{if(!canEdit||!path?.startsWith(ownId+"/avatar/"))return false;
+ window.VATRA_SET_HISTORY_AVATAR=async path=>{if(!canEdit||uploading||avatarFeaturePending||avatarEditor?.busy()||pendingAvatarUndo||!path?.startsWith(ownId+"/avatar/"))return false;
+  uploading=true;
   try{await updateCurrentAvatar(path);window.VATRA_AVATAR?.invalidatePath?.(client,ownId);await display(saved);window.dispatchEvent(new Event("vatra:profile-media-changed"));return true;}
   catch(_){status(t("Не вдалося змінити фото профілю.","Could not update profile photo."),true);return false;}
+  finally{uploading=false;}
  };
  const openStory=()=>{
   if(!canViewPhoto||!activeStory)return;

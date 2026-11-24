@@ -47,12 +47,16 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
        {...post,media_items:[item]}:post;
       if(settings.kind==="image"){
        if(String(ownId)===String(targetId)){
+        const selectionRow={id:"post:"+post.id+":"+item.media_path,source:"post",post_id:post.id,media_path:item.media_path};
+        const selectPhoto=()=>tile.dispatchEvent(new CustomEvent("vatra:select-post-photo",{bubbles:true,detail:selectionRow}));
+        const mark=node("button","vatra-album-select-photo-001","○");mark.type="button";mark.dataset.vatraSelectPhoto=selectionRow.id;mark.hidden=true;mark.setAttribute("aria-label",t("Вибрати фотографію","Select photo"));mark.addEventListener("click",selectPhoto);tile.append(mark);
         const details=node("details","ui-vatra-album-tile-menu-001"),trigger=node("summary","vatra-album-tile-menu-trigger-001","•••"),menu=node("div","ui-vatra-album-tile-menu-items-001");
         trigger.setAttribute("aria-label",t("Дії з фотографією","Photo actions"));
         const action=(uk,en,handler)=>{const button=node("button","vatra-album-photo-menu-item-001",t(uk,en));button.type="button";button.onclick=()=>{details.open=false;void handler();};menu.append(button);};
         action("Завантажити","Download",async()=>{try{const {data,error}=await client.storage.from("post-images").download(item.media_path);if(error||!data)throw Error("Unavailable");const url=URL.createObjectURL(data),link=node("a","vatra-album-download-link-001");link.href=url;link.download=item.media_path.split("/").pop();document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),20000);}catch(_){window.VATRA_TOAST?.show?.(t("Не вдалося завантажити фотографію.","Could not download photo."),"error");}});
         action("Перейти до публікації","Go to post",()=>location.assign(new URL("feed?post="+encodeURIComponent(post.id),home)));
         action("Зробити фотографією профілю","Make profile photo",async()=>{try{const {data,error}=await client.storage.from("post-images").download(item.media_path);if(error||!data)throw Error("Unavailable");await window.VATRA_USE_PHOTO_AS_AVATAR?.(data);}catch(_){window.VATRA_TOAST?.show?.(t("Не вдалося відкрити фото.","Could not open photo."),"error");}});
+        action("Вибрати декілька","Select multiple",selectPhoto);
         details.append(trigger,menu);tile.append(details);
         details.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")details.open=true;});details.addEventListener("pointerleave",event=>{if(event.pointerType==="mouse")details.open=false;});
        }
@@ -60,6 +64,7 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
         const trigger=event.target?.closest?.(".vatra-post-gallery-tile,.vatra-feed-post-media-open-001");
         if(!trigger)return;
         event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+        if(tile.closest(".vatra-album-selection-active-001")){tile.querySelector("[data-vatra-select-photo]")?.click();return;}
         void window.VATRA_POST_MEDIA?.openPostPhoto(client,post,item,{ownId,userId});
        },true);
       }
@@ -70,6 +75,7 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
       }else void window.VATRA_POST_MEDIA?.mount(client,selected,tile);
      }
     }
+    if(settings.kind==="image")list.dispatchEvent(new CustomEvent("vatra:photo-tiles-rendered",{bubbles:true}));
     offset+=(data||[]).length;
     more.hidden=(data||[]).length<batchSize;
     if(!list.children.length){

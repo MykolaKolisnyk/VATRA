@@ -11,13 +11,13 @@ alter table public.avatar_photo_descriptions enable row level security;
 revoke all on public.avatar_photo_descriptions from public,anon,authenticated;
 grant select,insert,update,delete on public.avatar_photo_descriptions to authenticated;
 create function public.vatra_avatar_description_preserve_source() returns trigger
- language plpgsql set search_path='' as $
+ language plpgsql set search_path='' as $$
 begin
  if (new.owner_vatra_id,new.avatar_path) is distinct from (old.owner_vatra_id,old.avatar_path) then
   raise exception 'Avatar source is immutable' using errcode='23514';
  end if;
  return new;
-end $;
+end $$;
 revoke all on function public.vatra_avatar_description_preserve_source() from public,anon,authenticated;
 create trigger vatra_avatar_description_preserve_source before update on public.avatar_photo_descriptions
  for each row execute function public.vatra_avatar_description_preserve_source();
@@ -45,14 +45,14 @@ create policy avatar_description_active on public.avatar_photo_descriptions as r
 alter table public.album_photos add column archived_at timestamptz;
 alter table public.album_photos drop constraint album_photo_path_check;
 alter table public.album_photos add constraint album_photo_path_check check (
- media_path ~ ('^'||owner_vatra_id::text||'/albums/[0-9a-f-]{36}/[0-9a-f-]{36}[.](jpg|jpeg|png|webp)));
+ media_path ~ ('^'||owner_vatra_id::text||'/albums/[0-9a-f-]{36}/[0-9a-f-]{36}[.](jpg|jpeg|png|webp)$'));
 alter table public.album_photos add constraint album_photos_id_album_unique unique(id,album_id);
 alter table public.photo_album_comments drop constraint photo_album_comments_photo_id_fkey;
 alter table public.photo_album_comments add constraint photo_album_comments_photo_album_fkey
  foreign key(photo_id,album_id) references public.album_photos(id,album_id)
  on update cascade on delete cascade;
 create or replace function public.vatra_album_photo_preserve_source()
-returns trigger language plpgsql set search_path='' as $
+returns trigger language plpgsql set search_path='' as $$
 declare old_visibility text; new_visibility text;
 begin
  if tg_op='INSERT' then
@@ -79,7 +79,7 @@ begin
   end if;
  end if;
  return new;
-end $;
+end $$;
 drop trigger vatra_album_photo_preserve_source on public.album_photos;
 create trigger vatra_album_photo_preserve_source before insert or update on public.album_photos
  for each row execute function public.vatra_album_photo_preserve_source();

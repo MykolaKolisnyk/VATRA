@@ -210,3 +210,5 @@ assert.ok(script.includes("selectedPhotos=new Map()")&&script.includes("selectPh
 const photoActions=await readFile("_development/supabase/migrations/20261124065500_avatar_photo_descriptions.sql","utf8");
 assert.ok(photoActions.includes("on update cascade on delete cascade")&&photoActions.includes("Moving a photo must not expand its audience")&&photoActions.includes("vatra_album_photos_archive_visibility"),"Logical moves preserve discussion and never widen the audience; archive is owner-only");
 assert.ok(script.includes("chooseDestination")&&script.includes("loadArchive")&&script.includes('update({album_id:select.value,pinned_at:null})'),"Photo move and archive must use owner-scoped writes");
+
+assert.ok(gallery.includes("vatra:select-post-photo")&&script.includes('source:"avatar"')&&script.includes("downloadSource(row)")&&script.includes("bulkDelete.hidden=bulkMove.hidden=bulkArchive.hidden=mixed"),"Mixed source selection must not delete or move entire posts or current avatars");

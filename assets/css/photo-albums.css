@@ -401,7 +401,6 @@ body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-emoj
 }
 body.profile-page .ui-vatra-album-comments-dialog-001 .vatra-album-comments-emoji-option-001:hover{background:#edf2fa}
 
-/* Own-photo menus and selection, shared across source tiles. */
 body.profile-page #profile-photo-gallery .profile-media-tile{position:relative;overflow:visible}
 body.profile-page #profile-photo-gallery .profile-media-tile:is(:hover,:focus-within) .ui-vatra-album-tile-menu-001{opacity:1;visibility:visible;transform:none}
 body.profile-page .ui-vatra-album-tile-menu-001[open]{z-index:20}
@@ -424,3 +423,5 @@ body.profile-page .vatra-album-bulk-menu-001{position:relative;z-index:22}
 body.profile-page .vatra-album-bulk-more-001{cursor:pointer;list-style:none;border-radius:8px;padding:8px 15px;background:#e7edf5;color:#315d8b;font-weight:650}
 body.profile-page .vatra-album-bulk-menu-items-001{position:absolute;right:0;top:100%;min-width:200px;display:grid;gap:3px;padding:8px;border:1px solid #dfe5ed;border-radius:12px;background:#fff;box-shadow:0 8px 28px #172d4626}
 body.profile-page .vatra-album-bulk-menu-001:not([open]) .vatra-album-bulk-menu-items-001{display:none}
+
+body.profile-page .vatra-album-bulk-menu-items-001 button[hidden]{display:none!important}
