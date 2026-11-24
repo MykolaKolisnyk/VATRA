@@ -105,3 +105,13 @@ function instance(){
  assert.equal((await next).get("person:"+uuid).viewer_liked,false);
 }
 console.log("VATRA engagement cache: single-flight, short hit, invalidation failure fallback and auth transitions passed.");
+
+const feed=await readFile("assets/js/feed.js","utf8");
+const profile=await readFile("assets/js/profile.js","utf8");
+assert.ok(feed.includes("const engagement=window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)")&&
+ feed.includes("engagementPromise:engagement")&&profile.includes("ownId,userId,engagementPromise:engagement"),
+ "Feed and profile must pass a shared pending page snapshot instead of waiting before rendering cards");
+assert.ok(full.includes("const initialSnapshot=initialEngagement?Promise.resolve(initialEngagement)")&&
+ full.includes("let current=await initialSnapshot")&&full.includes("const current=await initialSnapshot")&&
+ full.includes("if(!shell.isConnected||ticket!==socialTicket)return;"),
+ "Like, save and social counts must reuse the page snapshot and ignore stale social refreshes");

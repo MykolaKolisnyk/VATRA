@@ -1512,7 +1512,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
- profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
+ profileScript.includes('const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,blockAccess,prepared}))')&&
  profileScript.includes('void mediaPromise.catch(()=>{')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
@@ -1537,7 +1537,7 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  detailsModule.includes('profile-editor-page-visibility') &&
  detailsModule.includes('from("profile_details")') &&
  detailsModule.includes('from("profile_preferences")') &&
- detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
+ detailsModule.includes('window.VATRA_PROFILE_DETAILS={prepare,init,open:()=>openEditor()}') &&
  memberCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
 assert.ok(
@@ -2456,7 +2456,7 @@ const publicNameEdge=await read("_development/supabase/functions/public-profile-
 assert.doesNotThrow(()=>new Function(publicNameBrowser),
  "Shared public-name cache must parse in supported browsers");
 assert.ok(
- publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get}')&&
+ publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get,bindViewer}')&&
  publicNameBrowser.includes('client.functions.invoke("public-profile-names"')&&
  publicNameBrowser.includes('pauseEdge(state);')&&
  publicNameBrowser.includes('sessionStorage.setItem(EDGE_COOLDOWN_KEY')&&

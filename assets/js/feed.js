@@ -308,7 +308,7 @@
    if(post.shared_post_id)optionalFeedFeature("shared preview",()=>window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,item));
    optionalFeedFeature("interactions",()=>window.VATRA_POST_INTERACTIONS?.mount(client,post,item,{
     ownId:vatraId,userId:user?.id,
-    engagement:engagement?.get(post.kind+":"+post.id),
+    engagementPromise:engagement,
     onShared:()=>{invalidateFeedPages(client);void loadPosts(true);}
    }));
   return item;
@@ -591,12 +591,11 @@
     }
    }
    stage="metadata";
-   const [,,engagementResult]=await Promise.allSettled([
+   const engagement=feedDeadline(Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||new Map()),4000).catch(error=>{reportFeedFailure("engagement",error);return new Map();});
+   await Promise.allSettled([
     feedDeadline(loadPublicNames(page.map(p=>p.author_vatra_id)),4000),
-    feedDeadline(loadAvatars(page.map(p=>p.author_vatra_id)),4000),
-    feedDeadline(window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||Promise.resolve(new Map()),4000)
+    feedDeadline(loadAvatars(page.map(p=>p.author_vatra_id)),4000)
    ]);
-   const engagement=engagementResult.status==="fulfilled"&&engagementResult.value instanceof Map?engagementResult.value:new Map();
    stage="render";
    if(version!==feedRequestVersion)return;
    const batch=document.createDocumentFragment();
@@ -869,6 +868,7 @@
    const profile=await feedDeadline(client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle());
    if(profile.error||!validId(profile.data?.vatra_id))throw profile.error||Error("Account unavailable");
    vatraId=String(profile.data.vatra_id);
+   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
 
    const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
    window.VATRA_AVATAR?.setHeader({client,email:user.email,name:headerName,initials:initials(displayName),id:vatraId});
