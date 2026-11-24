@@ -2361,6 +2361,25 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
 }
 
 
+function createAvatarGalleryLoader(read,now=Date.now){
+ let cached=null,pending=null,epoch=0;
+ const invalidate=()=>{epoch++;cached=null;pending=null;};
+ const get=(fresh=false)=>{
+  if(!fresh&&cached&&now()<cached.expires)return Promise.resolve([...cached.paths]);
+  if(!fresh&&pending)return pending.then(paths=>[...paths]);
+  if(fresh)invalidate();
+  const version=epoch;
+  let request;
+  request=Promise.resolve().then(read).then(paths=>{
+   if(epoch!==version)throw Error("Avatar gallery changed");
+   cached={paths:[...paths],expires:now()+15000};
+   return paths;
+  }).finally(()=>{if(pending===request)pending=null;});
+  pending=request;
+  return request.then(paths=>[...paths]);
+ };
+ return {get,invalidate};
+}
 async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false,preloadedMedia=null){
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),systemCover=q("#profile-cover-system"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
@@ -2896,7 +2915,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>1000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
  mediaDialog.addEventListener("click",e=>{if(!emojiPanel.hidden&&!emojiPanel.contains(e.target)&&!emojiToggle.contains(e.target))setEmojiOpen(false);});
  mediaDialog.addEventListener("close",resetPhotoComposer);
- const listAvatarGallery=async()=>{
+ const readAvatarGallery=async()=>{
   const current=saved?.avatar_path,folder=targetId+"/avatar",bucket=client.storage.from("avatars"),files=[];
   if(typeof bucket.list!=="function")return current?[current]:[];
   for(let offset=0;offset<2000;offset+=100){
@@ -2907,6 +2926,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }
   return [...new Set([...(current?[current]:[]),...files])].filter(path=>getPublicPath(path,"avatar"));
  };
+ const avatarGalleryLoader=createAvatarGalleryLoader(readAvatarGallery);
+ const listAvatarGallery=avatarGalleryLoader.get;
+ window.addEventListener("vatra:profile-media-changed",avatarGalleryLoader.invalidate);
+ client.auth?.onAuthStateChange?.((event,session)=>{
+  if(event==="SIGNED_OUT"||(session?.user?.id&&session.user.id!==userId))avatarGalleryLoader.invalidate();
+ });
  const renderGalleryPhoto=()=>{
   const path=gallery[galleryIndex],url=getPublicPath(path,"avatar");if(!url)return;
   const current=path===saved?.avatar_path;
@@ -3204,7 +3229,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(!ext||!file?.size||file.size>31457280){
    status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);return false;
   }
-  uploading=true;buttonAvatar.disabled=true;buttonCover.disabled=true;coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
+  uploading=true;if(kind==="avatar")avatarGalleryLoader.invalidate();
+  buttonAvatar.disabled=true;buttonCover.disabled=true;coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
   status(t("Завантажуємо зображення…","Uploading image…"));
   const filename=typeof crypto!=="undefined"&&typeof crypto.randomUUID==="function"?
    crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),
@@ -3256,7 +3282,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
     "Could not upload the image. Please retry."),true);return false;}
   finally{
-   uploading=false;buttonAvatar.disabled=false;buttonCover.disabled=false;coverChange.disabled=false;changePhoto.disabled=false;removePhoto.disabled=false;
+   uploading=false;if(kind==="avatar")avatarGalleryLoader.invalidate();
+   buttonAvatar.disabled=false;buttonCover.disabled=false;coverChange.disabled=false;changePhoto.disabled=false;removePhoto.disabled=false;
    fileAvatar.value="";fileCover.value="";
   }
  }
@@ -3271,7 +3298,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    .update({avatar_path:next,updated_at:new Date().toISOString()})
    .eq("vatra_id",ownId).select("vatra_id,avatar_path").maybeSingle();
   if(r.error||!r.data||r.data.avatar_path!==next)throw Error("Avatar change not saved");
-  saved={...saved,avatar_path:next};
+  saved={...saved,avatar_path:next};avatarGalleryLoader.invalidate();
  };
  const avatarType=path=>/\.png$/i.test(path)?"image/png":/\.webp$/i.test(path)?"image/webp":"image/jpeg";
  async function removeAvatarPath(path){
@@ -3284,16 +3311,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     "You can restore the deleted photo in this viewer until you close it."),
    action:t("Видалити","Delete")
   }))return;
-  uploading=true;avatarDeleteInProgress=true;galleryEpoch++;removePhoto.disabled=galleryDelete.disabled=true;
+  uploading=true;avatarDeleteInProgress=true;galleryEpoch++;avatarGalleryLoader.invalidate();removePhoto.disabled=galleryDelete.disabled=true;
   const previous=saved?.avatar_path||null;
   let changed=false,previewUrl=null;
   try{
    const storage=client.storage.from("avatars");
 
-   const thumb=await storage.download(path);
-   if(thumb.error||!(thumb.data instanceof Blob))throw Error("Could not back up avatar");
    const originalPath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
-   const full=await storage.download(originalPath);
+   const [thumb,full]=await Promise.all([storage.download(path),storage.download(originalPath)]);
+   if(thumb.error||!(thumb.data instanceof Blob))throw Error("Could not back up avatar");
    const missingOriginal=full.error&&(
     String(full.error.status||full.error.statusCode||"")==="404"||
     /not found|does not exist|No such file/i.test(String(full.error.message||"")));
@@ -3301,19 +3327,20 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const fullBlob=full.error?null:full.data;
    if(fullBlob&&!(fullBlob instanceof Blob))throw Error("Invalid avatar original backup");
    previewUrl=URL.createObjectURL(fullBlob||thumb.data);
+   const paths=(!mediaDialog.open||path===previous)?await listAvatarGallery(true):null;
    if(!mediaDialog.open){
-    const paths=await listAvatarGallery();
     gallery=[...new Set([path,...paths])];
     galleryIndex=gallery.indexOf(path);
     renderGalleryPhoto();mediaDialog.showModal();
    }
    const galleryBefore=[...gallery],indexBefore=galleryIndex;
    if(path===previous){
-    const paths=await listAvatarGallery(),next=paths.find(p=>p!==path)||null;
+    const next=paths.find(p=>p!==path)||null;
     await updateCurrentAvatar(next);changed=true;
    }
    const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])]);
    if(removed.error)throw removed.error;
+   avatarGalleryLoader.invalidate();
    gallery=gallery.filter(p=>p!==path);
    galleryIndex=Math.max(0,Math.min(galleryIndex,gallery.length-1));
    pendingAvatarUndo={path,previous,galleryBefore,indexBefore,originalPath,
@@ -3341,12 +3368,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(previewUrl)URL.revokeObjectURL(previewUrl);
    status(t("Не вдалося безпечно видалити фото. Спробуйте ще раз.",
     "Could not safely delete the photo. Please try again."),true);
-  }finally{uploading=false;avatarDeleteInProgress=false;removePhoto.disabled=galleryDelete.disabled=false;}
+  }finally{uploading=false;avatarGalleryLoader.invalidate();avatarDeleteInProgress=false;removePhoto.disabled=galleryDelete.disabled=false;}
  }
  restoreAvatarButton.addEventListener("click",async()=>{
   const undo=pendingAvatarUndo;
   if(!undo||!canEdit||uploading)return;
-  uploading=true;restoreAvatarButton.disabled=true;
+  uploading=true;avatarGalleryLoader.invalidate();restoreAvatarButton.disabled=true;
   try{
    const storage=client.storage.from("avatars");
    if(!undo.thumbnailRestored){
@@ -3373,7 +3400,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }catch(_){
    status(t("Не вдалося відновити фото. Повторіть спробу, не закриваючи переглядач.",
     "Could not restore the photo. Retry without closing this viewer."),true);
-  }finally{uploading=false;restoreAvatarButton.disabled=false;}
+  }finally{uploading=false;avatarGalleryLoader.invalidate();restoreAvatarButton.disabled=false;}
  });
  removePhoto.addEventListener("click",()=>void removeAvatarPath(saved?.avatar_path));
  galleryDelete.addEventListener("click",()=>void removeAvatarPath(gallery[galleryIndex]));

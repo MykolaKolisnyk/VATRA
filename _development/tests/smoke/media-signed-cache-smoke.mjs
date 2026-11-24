@@ -251,3 +251,45 @@ console.log("VATRA media: repeated session and overlapping batch signing dedupli
  assert.equal(d.calls,1);
 }
 console.log("VATRA media: failed image URL invalidation and fresh retry verified.");
+
+
+// Inline video requests are deferred; a failed media download returns the
+// real retry button, discards only its failed URL, and leaves autoplay denial alone.
+{
+ const a=source.indexOf(" async function mount(client,post,container){");
+ const b=source.indexOf(" async function openPostPhoto(",a);
+ assert.ok(a>=0&&b>a);
+ const el=tag=>({tag,children:[],dataset:{},isConnected:true,parentNode:null,events:{},
+  classList:{add(){},remove(){}},setAttribute(){},removeAttribute(){},
+  append(...children){for(const c of children){c.parentNode=this;this.children.push(c);}},
+  replaceChildren(...children){for(const c of this.children)c.parentNode=null;this.children=[];this.append(...children);},
+  addEventListener(k,fn){this.events[k]=fn;},pause(){},load(){},
+  play(){return Promise.reject(Error("Autoplay blocked"));}});
+ let signedCalls=0,invalidated=[],opened=[];
+ const env={document:{createElement:el,createElementNS:(_ns,tag)=>el(tag)},
+  tr:(_uk,en)=>en,name:()=>true,
+  signed:async()=>host+"/video?token="+(++signedCalls),
+  forgetFailedSignedURL:async(_client,kind,p,url)=>{invalidated.push({kind,p,url});},
+  openFullMedia:(url)=>opened.push(url)};
+ runInNewContext(source.slice(a,b)+"\nglobalThis.mountVideo=mount;",env);
+ const card=el("article");
+ await env.mountVideo({}, {author_vatra_id:9,media_kind:"video",media_path:"9/posts/a.mp4"},card);
+ const slot=card.children[0],play=slot.children[0];
+ assert.equal(signedCalls,0);
+ await play.events.click();
+ const video=slot.children[0],expand=slot.children[1];
+ assert.equal(video.tag,"video");assert.equal(video.controls,true);
+ assert.equal(signedCalls,1);
+ await Promise.resolve();
+ assert.equal(slot.children[0],video,"Autoplay rejection alone is not a download failure");
+ video.error={code:2};video.events.error();
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(slot.children[0],play);assert.equal(play.disabled,false);
+ assert.equal(play.children[1].textContent,"Retry loading video");
+ assert.equal(invalidated.length,1);assert.match(invalidated[0].url,/token=1$/);
+ await play.events.click();
+ assert.equal(signedCalls,2);assert.equal(slot.children[0].tag,"video");
+ await slot.children[1].events.click();
+ assert.equal(signedCalls,3);assert.match(opened[0],/token=3$/);
+}
+console.log("VATRA inline video: deferred request, actual download failure, fresh retry and fullscreen renewal passed.");
