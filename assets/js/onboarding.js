@@ -10,7 +10,6 @@ const steps=[
  {selector:".ui-social-top-communities-001",title:"Спільноти",detail:"Знаходь однодумців і приєднуйся до спільнот за інтересами.",art:"vatryk_explanation.webp"},
  {selector:".ui-social-top-clips-001",title:"Кліпи",detail:"Переглядай короткі відео та публікуй власні кліпи.",art:"vatryk_waiting.webp"},
  {selector:".ui-social-top-marketplace-001",title:"Маркетплейс",detail:"Знаходь товари, створюй оголошення та зв’язуйся з продавцями.",art:"vatryk_waiting.webp"},
- {selector:".ui-shell-header-messenger-001",title:"Повідомлення",detail:"Тут буде повноцінне особисте листування. Месенджер ще розробляється.",art:"vatryk_waiting.webp"},
  {selector:".ui-feed-notifications-button-001",title:"Сповіщення",detail:"Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.",art:"vatryk_explanation.webp"},
  {selector:".ui-feed-music-button-001",title:"Музика",detail:"Тут з’явиться музичний простір VATRA. Функція ще в розробці.",art:"vatryk_waiting.webp"},
  {selector:".feed-account-toggle",title:"Твій профіль",detail:"У меню акаунта відкрий свою сторінку, щоб додати фото, обкладинку й інформацію про себе.",art:"vatryk_explanation.webp"},

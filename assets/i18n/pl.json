@@ -182,7 +182,7 @@
         },
         "n104": {
           "text": {
-            "0": "Wróć do swoich znajomych, wiadomości i ulubionych społeczności."
+            "0": "Wróć do swoich znajomych i ulubionych społeczności."
           }
         },
         "n109": {
@@ -1359,7 +1359,7 @@
         },
         "n47": {
           "text": {
-            "0": "VATRA to ukraińska platforma społecznościowa służąca do komunikacji, prowadzenia profili, przeglądania aktualności, korzystania z komunikatora, poznawania ludzi, udziału w społecznościach oraz udostępniania zdjęć, muzyki, filmów, klipów i ofert na marketplace. Niniejsze warunki określają zasady korzystania z witryny i Twojego konta."
+            "0": "VATRA to ukraińska platforma społecznościowa służąca do komunikacji, prowadzenia profili, przeglądania aktualności, poznawania ludzi, udziału w społecznościach oraz udostępniania zdjęć, muzyki, filmów, klipów i ofert na marketplace. Niniejsze warunki określają zasady korzystania z witryny i Twojego konta."
           }
         },
         "n48": {
@@ -2314,7 +2314,7 @@
         },
         "copy-overview": {
           "text": {
-            "0": "Zasady obejmują wszystkie oferty w Marketplace VATRA: sprzedaż, wymianę, wynajem i nieodpłatne przekazanie, a także powiązane zdjęcia, opisy i wiadomości. Uczestnicy odpowiadają za legalność swoich działań, prawo do rozporządzania towarem oraz przestrzeganie praw konsumentów. Zakazy dotyczą również prób obchodzenia zasad poprzez inne kategorie lub wiadomości."
+            "0": "Zasady obejmują wszystkie oferty w Marketplace VATRA: sprzedaż, wymianę, wynajem i nieodpłatne przekazanie, a także powiązane zdjęcia i opisy. Uczestnicy odpowiadają za legalność swoich działań, prawo do rozporządzania towarem oraz przestrzeganie praw konsumentów. Zakazy dotyczą również prób obchodzenia zasad poprzez inne kategorie."
           }
         },
         "head-appeals": {
@@ -2464,7 +2464,7 @@
         },
         "copy-rule-community": {
           "text": {
-            "0": "Ogłoszenia, zdjęcia i korespondencja związana z transakcjami muszą być zgodne z Warunkami korzystania z VATRA. Zakazane są spam, groźby, nękanie, oszustwa i wykorzystywanie dzieci."
+            "0": "Ogłoszenia i zdjęcia muszą być zgodne z Warunkami korzystania z VATRA. Zakazane są spam, groźby, nękanie, oszustwa i wykorzystywanie dzieci."
           }
         },
         "head-rule-adult": {
@@ -2891,7 +2891,6 @@
   "Короткі відео та яскраві моменти.": "Krótkie filmy i niezapomniane chwile.",
   "Вхід": "Logowanie",
   "Увійти у VATRA": "Zaloguj się do VATRA",
-  "Повертайтеся до своїх людей, повідомлень і улюблених спільнот.": "Wróć do swoich znajomych, wiadomości i ulubionych społeczności.",
   "Електронна пошта": "Adres e-mail",
   "Показати": "Pokaż",
   "Показати пароль": "Pokaż hasło",
@@ -3022,7 +3021,7 @@
   "Захист акаунта": "Bezpieczeństwo konta",
   "Обмеження та відповідальність": "Ograniczenia i odpowiedzialność",
   "Документи та звернення": "Dokumenty i kontakt",
-  "VATRA — українська соціальна платформа для спілкування, особистих сторінок, стрічки, месенджера, знайомств, спільнот, фотографій, музики, відео, кліпів і маркетплейсу. Ці умови визначають правила використання сайту та Вашого акаунта.": "VATRA to ukraińska platforma społecznościowa służąca do komunikacji, prowadzenia profili, przeglądania aktualności, korzystania z komunikatora, poznawania ludzi, udziału w społecznościach oraz udostępniania zdjęć, muzyki, filmów, klipów i ofert na marketplace. Niniejsze warunki określają zasady korzystania z witryny i Twojego konta.",
+  "VATRA — українська соціальна платформа для спілкування, особистих сторінок, стрічки, знайомств, спільнот, фотографій, музики, відео, кліпів і маркетплейсу. Ці умови визначають правила використання сайту та Вашого акаунта.": "VATRA to ukraińska platforma społecznościowa służąca do komunikacji, prowadzenia profili, przeglądania aktualności, poznawania ludzi, udziału w społecznościach oraz udostępniania zdjęć, muzyki, filmów, klipów i ofert na marketplace. Niniejsze warunki określają zasady korzystania z witryny i Twojego konta.",
   "Користуючись доступними функціями VATRA, Ви погоджуєтеся дотримуватися цих правил і чинного законодавства. Якщо Ви не погоджуєтеся з умовами, не створюйте акаунт і не користуйтеся захищеними функціями.": "Korzystając z dostępnych funkcji VATRA, zobowiązujesz się przestrzegać tych zasad i obowiązującego prawa. Jeśli nie akceptujesz warunków, nie twórz konta ani nie korzystaj z funkcji wymagających logowania.",
   "Для реєстрації потрібно вказати ім’я, прізвище, дату народження, електронну пошту та створити пароль. Стать можна не зазначати. Для використання VATRA потрібно бути": "Aby się zarejestrować, musisz podać imię, nazwisko, datę urodzenia i adres e-mail oraz utworzyć hasło. Podanie płci jest opcjonalne. Aby korzystać z VATRA, musisz mieć",
   "і дотримуватися суворіших вікових вимог, якщо вони діють у Вашій країні.": "oraz spełniać surowsze wymagania wiekowe, jeśli obowiązują w Twoim kraju.",
@@ -3251,7 +3250,6 @@
   "Тут з’являться короткі відео. Розділ готується до запуску.": "Tutaj pojawią się krótkie filmy. Sekcja jest przygotowywana do uruchomienia.",
   "Тут можна буде знаходити й пропонувати товари. Розділ у розробці.": "Tutaj będzie można znajdować i wystawiać przedmioty. Sekcja jest w przygotowaniu.",
   "Повідомлення": "Wiadomości",
-  "Тут буде повноцінне особисте листування. Месенджер ще розробляється.": "Tutaj będzie dostępna korespondencja prywatna. Komunikator jest w trakcie tworzenia.",
   "Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.": "Powiadomienia pomogą Ci śledzić wydarzenia i odpowiedzi. Dodajemy kolejne funkcje.",
   "Тут з’явиться музичний простір VATRA. Функція ще в розробці.": "Tutaj pojawi się przestrzeń muzyczna VATRA. Funkcja jest w przygotowaniu.",
   "Твій профіль": "Twój profil",
@@ -3392,7 +3390,6 @@
   "Нещодавні": "Ostatnie",
   "Очистити всю історію": "Wyczyść całą historię",
   "Історії": "Relacje",
-  "Месенджер": "Komunikator",
   "Меню акаунта": "Menu konta",
   "Кількість запитів: {count}": "Liczba wyszukiwań: {count}",
   "Ваша історія": "Twoja relacja",
@@ -3425,7 +3422,6 @@
   "Ваш друг у VATRA": "Twój znajomy w VATRA",
   "Хоче додатися до друзів": "Chce dodać Cię do znajomych",
   "Запит надіслано": "Zaproszenie wysłane",
-  "Профіль і повідомлення": "Profil i wiadomości",
   "Прийняти": "Akceptuj",
   "Видалити з друзів": "Usuń ze znajomych",
   "Відхилити": "Odrzuć",
@@ -3683,6 +3679,7 @@
   "Фотографії переміщено.": "Zdjęcia przeniesiono.",
   "Не вдалося перемістити фотографії.": "Nie udało się przenieść zdjęć.",
   "Архів порожній.": "Archiwum jest puste.",
+  "Повертайтеся до своїх людей та улюблених спільнот.": "Wróć do swoich znajomych i ulubionych społeczności.",
   "Додати кліп": "Dodaj klip",
   "Для вас": "Dla Ciebie",
   "Мої кліпи": "Moje klipy",

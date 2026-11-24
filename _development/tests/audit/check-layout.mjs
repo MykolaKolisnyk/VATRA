@@ -1001,7 +1001,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","assets/js/messenger.js","assets/js/messenger-crypto.js","sw.js"]){
+for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
@@ -1087,11 +1087,11 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
  profileMarkup.includes('id="profile-report-dialog"')&&
  profileMarkup.includes('id="profile-report-open"')&&
  profileMarkup.includes('id="profile-friend-button"')&&
- profileMarkup.includes('id="profile-message-button"')&&
+ !profileMarkup.includes('id="profile-message-button"')&&
  !profileMarkup.includes('id="profile-message-dialog"')&&
  !profileMarkup.includes('id="profile-inbox-list"')&&
  profileMarkup.includes('id="profile-cover-image" class="profile-cover ui-profile-cover-001 has-system-cover"'),
- "Member profile requires a real cover, tabs, friendship and private message UI");
+ "Member profile requires a real cover, tabs, friendship UI");
 assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-status"')&&
  profileMarkup.includes('id="profile-last-seen"')&&
@@ -1099,7 +1099,6 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-edit-dialog"')&&
  profileMarkup.includes('id="profile-status-text"')&&
  profileMarkup.includes('ui-profile-add-friend-icon-001')&&
- profileMarkup.includes('ui-profile-message-icon-001')&&
  profileMarkup.includes('class="feed-posts ui-profile-posts-001"')&&
  profileMarkup.includes('id="profile-tab-videos"')&&
  !profileMarkup.includes('id="profile-tab-about"')&&
@@ -1136,65 +1135,10 @@ assert.ok(profileMarkup.includes('id="profile-heading"')&&
  (await read("assets/js/profile.js")).includes('window.VATRA_AVATAR?.invalidatePath?.(client,ownId);'),
  "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
 const profileBehavior=await read("assets/js/profile.js");
-/* Private Messenger must never silently fall back to legacy plaintext DMs. */
-const messengerMarkup=await read("messenger.html");
-const messengerRuntime=await read("assets/js/messenger.js");
-const messengerCrypto=await read("assets/js/messenger-crypto.js");
-const messengerCss=await read("assets/css/messenger.css");
-const messengerSchema=await read("_development/supabase/migrations/20261121113300_private_messenger_ciphertext_and_scoped_deletion.sql");
-assert.ok(
- messengerMarkup.includes('data-page="messenger"')&&
- messengerMarkup.includes('id="messenger-delete-mine"')&&
- messengerMarkup.includes('id="messenger-delete-everyone"')&&
- messengerMarkup.includes('id="messenger-key-import"')&&
- messengerMarkup.includes('id="messenger-key-confirm"')&&
- messengerMarkup.includes("assets/js/messenger-crypto.js")&&
- messengerMarkup.includes("assets/js/messenger.js")&&
- messengerRuntime.includes('state.client.rpc("messenger_delete_message"')&&
- messengerRuntime.includes('client.channel("vatra-messenger-"')&&
- messengerRuntime.includes('cryptoBox().same(messagePeerKey,state.peerKey)')&&
- messengerRuntime.includes('state.peerChanged')&&
- messengerRuntime.includes('client.auth.onAuthStateChange((event,session)=>')&&
- messengerRuntime.includes('session.user.id!==state.user.id')&&
- messengerRuntime.includes('$("#messenger-conversations").replaceChildren()')&&
- messengerRuntime.includes('if(event.persisted)location.reload()')&&
- messengerRuntime.includes('state.terminating=true;state.refreshVersion++;state.chatVersion++')&&
- messengerRuntime.includes('if(state.terminating||version!==state.refreshVersion)return;')&&
- messengerRuntime.includes('const request=++state.peerRequestVersion')&&
- messengerRuntime.includes('const candidateKey=data.public_key')&&
- messengerRuntime.includes('state.selected&&!state.peerKey&&!state.peerLoading&&!state.locked')&&
- messengerRuntime.includes('Passphrases do not match.')&&
- messengerRuntime.includes('const saved=await cryptoBox().loadRecord(state.own)')&&
- !messengerRuntime.includes('from("direct_messages")')&&
- !profileBehavior.includes('from("direct_messages")')&&
- !interactionsScript.includes('from("direct_messages")')&&
- messengerCrypto.includes('"AES-GCM"')&&
- messengerCrypto.includes('"ECDH"')&&
- messengerCrypto.includes('"HKDF"')&&
- messengerCss.includes(".vatra-messenger-message.is-removing")&&
- messengerCss.includes(".vatra-messenger-page [hidden]{display:none!important}")&&
- (await read("_development/tests/smoke/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
- !messengerMarkup.includes(String.fromCharCode(118,116,45))&&
- !messengerCss.includes(String.fromCharCode(118,116,45))&&
- messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
- messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
- messengerSchema.includes("GRANT INSERT (vatra_id,public_key)")&&
- messengerSchema.includes("GRANT INSERT (id,sender_id,recipient_id,ciphertext,nonce,salt,sender_public_key,recipient_public_key)")&&
- !messengerSchema.includes("GRANT SELECT,INSERT ON public.messenger_messages")&&
- messengerSchema.includes("NOT (public_key ? 'd')")&&
- messengerSchema.includes("messenger_envelope_encoding")&&
- messengerSchema.includes("public_key ?& ARRAY['kty','crv','x','y']")&&
- messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
- messengerSchema.includes("Only the sender may revoke for everyone"),
- "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
-await import("../smoke/messenger-crypto-smoke.mjs");
-
-
 assert.ok(profileBehavior.includes('client.from("friendships")')&&
  !profileBehavior.includes('client.from("direct_messages")')&&
- profileBehavior.includes('new URL("messenger.html?to="')&&
  profileBehavior.includes("setupProfileInteractions(client,ownId,targetId,isMine)"),
- "Profile friendship and messaging must use persisted, RLS-secured data");
+ "Profile friendship must use persisted, RLS-secured data");
 assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-avatar-wrap"')&&
  profileMarkup.includes('id="profile-avatar-trigger"')&&
@@ -1316,7 +1260,7 @@ for(const page of sharedShellPages){
  for(const cls of ["ui-feed-brand-search-001","ui-social-top-feed-001",
   "ui-social-top-friends-001","ui-social-top-communities-001",
   "ui-social-top-clips-001","ui-social-top-marketplace-001",
-  "ui-shell-header-messenger-001","ui-feed-notifications-button-001",
+  "ui-feed-notifications-button-001",
   "ui-feed-music-button-001","ui-feed-account-menu-001"]){
   assert.ok(header.includes(cls),page+": shared header missing "+cls);
  }
@@ -1345,7 +1289,6 @@ for(const page of sharedShellPages){
   nav.indexOf("ui-social-top-clips-001")<nav.indexOf("ui-social-top-marketplace-001"),
   page+": five icon destinations must be in the agreed order");
  assert.ok(!controls.includes("ui-shell-header-friends-001")&&
-  controls.indexOf("ui-shell-header-messenger-001")<controls.indexOf("ui-feed-notifications-button-001")&&
   controls.indexOf("ui-feed-notifications-button-001")<controls.indexOf("ui-feed-music-button-001")&&
   controls.indexOf("ui-feed-music-button-001")<controls.indexOf("ui-feed-account-menu-001")&&
   controls.indexOf("ui-feed-account-menu-001")<controls.indexOf('id="feed-menu-name"'),
@@ -1378,7 +1321,7 @@ assert.ok(
  profileScript.includes('friendMenuAction.addEventListener("click",()=>void changeFriendship())')&&
  profileScript.includes('t("Заявку надіслано","Request sent")')&&
  profileScript.includes('t("Заблокувати ","Block ")+firstName'),
- "Visitor actions must provide a dropdown for pending friend requests and More actions beside Message"
+ "Visitor actions must provide a dropdown for pending friend requests and More actions"
 );
 const avatarCommentRowScript=await read("assets/js/profile-avatar-comment-row.js");
 const profileCoverScript=await read("assets/js/profile-cover-editor.js");
@@ -1810,16 +1753,11 @@ assert.ok(
  interactionsScript.includes("committed=true;")&&
  interactionsScript.includes("if(!committed)"),
  "Feed post, story and comment mutations must confirm persistence before cleanup");
-// Reposts remain durable even if a later UI refresh fails. Direct shares use encrypted Messenger.
 assert.ok(
  interactionsScript.includes('feedback(tr("Публікацію додано у ваш профіль.","Shared to your profile."));')&&
  interactionsScript.includes("Promise.resolve(settings.onShared()).catch(()=>{})")&&
- interactionsScript.includes("friendsLoaded=false;sendDM.disabled=true;")&&
- interactionsScript.includes('new URL("messenger.html",relativeRoot())')&&
- interactionsScript.includes('sessionStorage.setItem("vatra:messenger:draft-v1"')&&
- !interactionsScript.includes('link.searchParams.set("draft"')&&
- !interactionsScript.includes('from("direct_messages")'),
- "Repost success survives refresh; direct-message drafts route through encrypted Messenger");
+ interactionsScript.includes("navigator.clipboard.writeText(permalink(post))"),
+ "Repost success survives refresh and link sharing remains available");
 assert.ok(
  feedScript.includes("let feedRequestVersion=0;")&&
  feedScript.includes("if(version!==feedRequestVersion)return;")&&
@@ -2027,7 +1965,7 @@ assert.ok(
  postInteractionFields.includes('input.name="vatra_post_comment"') &&
  postInteractionFields.includes('shareAudience.name="vatra_share_visibility"') &&
  postInteractionFields.includes('shareCaption.name="vatra_share_caption"') &&
- postInteractionFields.includes('friendSelect.name="vatra_share_friend"'),
+ !postInteractionFields.includes('friendSelect.name="vatra_share_friend"'),
  "Comments and sharing forms must name their controls for accessibility and autofill audits");
 const socialMotion=await read("assets/js/social-shell.js");
 assert.doesNotThrow(()=>new Function(socialMotion),"Shared VATRA transition logic must be valid JavaScript");
@@ -2339,7 +2277,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","messenger.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");

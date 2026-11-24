@@ -1550,23 +1550,12 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   const repost=make("button","vatra-post-share-profile-001",
    tr("Поділитися зараз","Share now"));repost.type="button";
   const lower=make("div","vatra-post-share-lower ui-vatra-post-share-lower-001");
-  const lowerTitle=make("h3","vatra-post-share-lower-heading-001",
-   tr("Надіслати у повідомленні","Send in a message"));
-  const dm=make("button","vatra-post-share-message-001",
-   tr("Оберіть друга","Choose a friend"));dm.type="button";
-  const sendRow=make("div","vatra-post-share-friend-row ui-vatra-post-share-friend-row-001");
-  sendRow.hidden=true;
-  const friendSelect=make("select","ui-vatra-post-share-friend-select-001");
-  friendSelect.name="vatra_share_friend";
-  friendSelect.setAttribute("aria-label",tr("Оберіть друга","Choose a friend"));
-  const sendDM=make("button","vatra-post-send-message-001",tr("Надіслати","Send"));
-  sendDM.type="button";sendRow.append(friendSelect,sendDM);
   const linkRow=make("div","vatra-post-share-link-row ui-vatra-post-share-link-row-001");
   const linkTitle=make("h3","vatra-post-share-link-heading-001",tr("Поширити посилання","Share link"));
   const copy=make("button","vatra-post-share-copy-001",tr("Копіювати посилання","Copy link"));
   copy.type="button";
   linkRow.append(linkTitle,copy);
-  lower.append(lowerTitle,dm,sendRow,linkRow);
+  lower.append(linkRow);
   shareContent.append(account,shareAudienceLabel,shareCaption,original,shareError,repost,lower);
   shareMenu.append(shareHead,shareContent);
   document.body.append(shareMenu);
@@ -1619,57 +1608,6 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     try{Promise.resolve(settings.onShared()).catch(()=>{});}catch(_){}
    }
    void refreshSocial();
-  });
-  let friendsLoaded=false;
-  dm.addEventListener("click",async()=>{
-
-   friendsLoaded=false;sendDM.disabled=true;
-   sendRow.hidden=false;dm.disabled=true;friendSelect.replaceChildren();
-   const placeholder=make("option","ui-vatra-post-share-friend-placeholder-001",
-    tr("Завантаження друзів…","Loading friends…"));
-   placeholder.value="";friendSelect.append(placeholder);
-   try{
-    if(!validId(ownId))throw Error("Missing VATRA ID");
-    const result=await client.from("friendships").select("requester_id,recipient_id,status")
-     .or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
-     .eq("status","accepted").limit(200);
-    if(result.error)throw result.error;
-    const ids=[...new Set((result.data||[]).map(x=>
-     String(x.requester_id)===ownId?String(x.recipient_id):String(x.requester_id)
-    ).filter(validId))];
-    const people=await authorMap(client,ids.map(author_vatra_id=>({author_vatra_id})));
-    friendSelect.replaceChildren();
-    if(!ids.length){friendSelect.append(make("option","ui-vatra-post-share-no-friends-001",
-      tr("Немає друзів для надсилання","No friends available")));sendDM.disabled=true;}
-    else{
-     for(const id of ids){
-      const option=make("option","ui-vatra-post-share-friend-option-001",
-       people.names.get(id)||"VATRA ID "+id);option.value=id;friendSelect.append(option);
-     }
-     sendDM.disabled=false;
-    }
-    friendsLoaded=true;
-   }catch(_){friendSelect.replaceChildren(make("option","ui-vatra-post-share-error-001",
-    tr("Не вдалося завантажити друзів","Could not load friends")));sendDM.disabled=true;}
-   finally{dm.disabled=false;}
-  });
-  sendDM.addEventListener("click",()=>{
-   const recipient=friendSelect.value;
-   if(!friendsLoaded||!validId(recipient)||recipient===ownId||sendDM.disabled)return;
-
-   const body=tr("Поглянь на цей допис: ","Check out this post: ")+permalink(post);
-
-
-   try{
-    sessionStorage.setItem("vatra:messenger:draft-v1",JSON.stringify({to:recipient,body,at:Date.now()}));
-   }catch(_){
-    showShareError(tr("Не вдалося передати чернетку безпечно. Скопіюйте посилання.","Cannot securely transfer draft. Copy the link instead."));
-    return;
-   }
-   const link=new URL("messenger.html",relativeRoot());
-   link.searchParams.set("to",recipient);
-   if(shareMenu.open)shareMenu.close();
-   location.assign(link.href);
   });
   copy.addEventListener("click",async()=>{
    try{

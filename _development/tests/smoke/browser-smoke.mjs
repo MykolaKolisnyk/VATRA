@@ -4,7 +4,6 @@ import {createServer} from "node:http";
 import {readFile,mkdir} from "node:fs/promises";
 import {resolve,sep} from "node:path";
 import {chromium,firefox,webkit} from "playwright";
-import {runMessengerBrowserSmoke} from "./messenger-browser-smoke.mjs";
 
 const basePath="/VATRA/";
 const root=process.cwd();
@@ -54,7 +53,6 @@ try{
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
- await runMessengerBrowserSmoke({browser,base});
 
  // Collapsible posts must place the toggle after the final text/hashtag,
  // never as a separate block. Feed and Profile must calculate the same font.
@@ -3986,24 +3984,11 @@ try{
    "An exception in the caller's refresh cannot change a successful repost into an error");
   assert.equal(await feedProbe.evaluate(()=>window.__vatraShareSmoke.onShared),1);
   await feedProbe.locator(shareRoot+" .vatra-post-share-toggle-001").click();
-  await feedProbe.locator(shareDialog+" .vatra-post-share-message-001").click();
-  await feedProbe.waitForFunction(()=>document.querySelector(
-   "#vatra-share-smoke-dialog .vatra-post-send-message-001")?.disabled===false);
-  assert.equal(await feedProbe.locator(shareDialog+" .ui-vatra-post-share-friend-select-001").inputValue(),"13",
-   "Only an accepted friend should populate the share recipient");
-  assert.equal(await feedProbe.locator(shareDialog+" .vatra-post-send-message-001").isEnabled(),true,
-   "Accepted friends can be selected for an encrypted Messenger draft");
-  const shareSecuritySource=await readFile(resolve(root,"assets/js/post-interactions.js"),"utf8");
-  assert.ok(shareSecuritySource.includes('new URL("messenger.html",relativeRoot())')&&
-   shareSecuritySource.includes('sessionStorage.setItem("vatra:messenger:draft-v1"')&&
-   !shareSecuritySource.includes('link.searchParams.set("draft"')&&
-   !shareSecuritySource.includes('from("direct_messages")'),
-   "Post sharing must navigate to E2EE Messenger, never persist plaintext DMs");
   await feedProbe.evaluate(()=>{
    document.querySelector("#vatra-share-smoke-dialog").remove();
    document.querySelector("#vatra-share-smoke").remove();
   });
-  console.log("VATRA sharing: durable repost and encrypted Messenger draft routing OK");
+  console.log("VATRA sharing: durable repost and link sharing OK");
   // An old all-posts result must never flash into the newer friends filter.
   await feedProbe.evaluate(()=>{
    document.querySelector('[data-feed-filter="friends"]').click();
@@ -4075,10 +4060,10 @@ try{
    const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")||c.startsWith("vatra-")));
    return direct;
   });
-  assert.deepEqual(headerOrder,["ui-shell-header-messenger-001",
+  assert.deepEqual(headerOrder,[
     "ui-feed-notifications-button-001","ui-feed-music-button-001",
     "ui-feed-account-menu-001"],
-   "Right controls must be Messenger, notifications, music and the avatar-name pill");
+   "Right controls must be notifications, music and the avatar-name pill");
   assert.equal(await feedProbe.locator(".feed-header .feed-search-form").isVisible(),true,
    "Search VATRA must be next to the V logo on every page");
   const searchStyles=await feedProbe.evaluate(()=>{
@@ -5288,16 +5273,13 @@ try{
    "An absent short biography must not show placeholder text");
   assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),true,
    "Other member profile must offer Add Friend");
-  assert.equal(await profilePage.locator("#profile-message-button").isVisible(),true,
-   "Other member profile must offer private Message");
+  assert.equal(await profilePage.locator("#profile-message-button").count(),0);
   assert.equal(await profilePage.locator("#profile-friend-button svg").count(),1,
    "Visitor's add-friend button needs a persistent line icon");
-  assert.equal(await profilePage.locator("#profile-message-button svg").count(),1,
-   "Visitor's message button needs a persistent line icon");
   assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),false,
    "Friends are accessible from the About-side Friends card, not the main tabs");
   assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true,
-   "Visitors have a clearly visible More menu beside friend and message actions");
+   "Visitors have a clearly visible More menu beside friend actions");
   await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="outgoing";});
   await profilePage.locator("#profile-friend-button").hover();
   await profilePage.locator("#profile-friend-menu-action").waitFor({state:"visible"});
@@ -5356,27 +5338,12 @@ try{
    "Escape dismisses the modal and preserves the user's current state");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,
    "Visitors cannot edit another member's page");
-  const visitorProfileURL=profilePage.url();
-  // Return to the profile hero before clicking the message action: the sticky
-  // site search must not intercept a button scrolled underneath the header.
-  await profilePage.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
-  await profilePage.waitForFunction(()=>window.scrollY===0);
-  await Promise.all([
-   profilePage.waitForURL(url=>url.pathname.endsWith("/messenger.html")&&
-    url.searchParams.get("to")==="789012",{timeout:15000}),
-   profilePage.locator("#profile-message-button").click()
-  ]);
-  assert.equal(new URL(profilePage.url()).searchParams.get("to"),"789012",
-   "Profile Message must open the dedicated encrypted Messenger with the correct contact");
-  await profilePage.goto(visitorProfileURL,{waitUntil:"domcontentloaded"});
-  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:15000});
-
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "The header must retain the signed-in first name when viewing another profile");
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "Own given name beside avatar must not be replaced by the visited member's identity");
   // A blocked member still sees public header artwork and name, but cannot
-  // view personal details, posts, friends, stories or message actions.
+  // view personal details, posts, friends or stories.
   await profilePage.goto(base+"id789012?block-test=them",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   // Visible shell can precede the async RLS/block checks on a cold page load.
@@ -5393,7 +5360,7 @@ try{
   assert.equal(await profilePage.locator("#profile-cover-photo").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
   assert.equal(await profilePage.locator(".profile-panels").isVisible(),false);
-  assert.equal(await profilePage.locator("#profile-message-button").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-message-button").count(),0);
   assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true);
   await profilePage.locator("#profile-more-trigger").click();
