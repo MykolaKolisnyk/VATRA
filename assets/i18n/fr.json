@@ -3666,5 +3666,21 @@
   "Поки немає голосів": "Aucun vote pour le moment",
   "Не вдалося завантажити учасників.": "Impossible de charger les votants.",
   "Хто проголосував": "Qui a voté ?",
-  "Показати, хто проголосував за ": "Afficher les votants pour "
+  "Показати, хто проголосував за ": "Afficher les votants pour ",
+  "Редагувати опис": "Modifier la description",
+  "Не вдалося зберегти.": "Impossible d’enregistrer.",
+  "Зробити фотографією профілю": "Définir comme photo de profil",
+  "Не вдалося відкрити фото.": "Impossible d’ouvrir la photo.",
+  "Видалити вибрані фотографії?": "Supprimer les photos sélectionnées ?",
+  "Не всі фотографії видалено.": "Certaines photos n’ont pas été supprimées.",
+  "Вибрати фотографію": "Sélectionner la photo",
+  "Вибрати декілька": "Sélectionner plusieurs photos",
+  "Перемістити": "Déplacer",
+  "Фотографії відновлено.": "Photos restaurées.",
+  "Фотографії архівовано.": "Photos archivées.",
+  "Перемістити фотографії": "Déplacer les photos",
+  "Доступні альбоми з таким самим або суворішим рівнем приватності.": "Les albums disponibles ont un niveau de confidentialité identique ou plus strict.",
+  "Фотографії переміщено.": "Photos déplacées.",
+  "Не вдалося перемістити фотографії.": "Impossible de déplacer les photos.",
+  "Архів порожній.": "Les archives sont vides."
 }

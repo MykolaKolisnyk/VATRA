@@ -167,26 +167,14 @@ assert.ok(
  !actionsMigration.includes("security definer"),
  "Pinned photos must retain source identity and owner-only RLS updates"
 );
-assert.ok(
- profile.includes("updateAvatarProgress(0,originalFile?3:2")&&
- profile.includes("updateAvatarProgress(originalPath?2:1")&&
- profile.includes("updateAvatarProgress(originalPath?3:2")&&
- profile.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))')&&
- html.includes('id="profile-avatar-upload-progress"')&&
- html.includes('id="profile-avatar-upload-progress-bar"')&&
- html.includes('id="profile-avatar-upload-progress-text"'),
- "Profile photo upload must show real completed steps and update without full page reload"
-);
-assert.ok(
- commentRow.includes('client.from("avatar_comments").delete()')&&
+assert.ok(!profile.includes("updateAvatarProgress")&&!html.includes('id="profile-avatar-upload-progress"'),"A single avatar must not display a file count");
+assert.ok(commentRow.includes('client.from("avatar_comments").delete()')&&
  commentRow.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
  profile.includes('rows.length?await window.VATRA_FEATURES.load("avatar-comment-row"):null')&&
  profile.includes('avatarCommentPages.clear()')&&
- profile.includes('avatarDownload.addEventListener("click",async()=>')&&
- html.includes('id="profile-photo-download"')&&
- html.includes('id="profile-photo-open-album"'),
- "Profile photo comments must be deletable only by their own authors and avatar actions must be accessible"
-);
+ !html.includes('id="profile-photo-download"')&&!html.includes('id="profile-photo-open-album"'),
+ "Avatar viewer must not include album/download actions");
+assert.ok(media.includes('copy.textContent=String(post.body||"")')&&script.includes("photoDescriptionForm.onsubmit")&&profile.includes("VATRA_USE_PHOTO_AS_AVATAR"),"Photo source descriptions and avatar selection must be connected");
 
 const feedCss=await readFile("assets/css/feed.css","utf8");
 assert.ok(
@@ -215,3 +203,12 @@ assert.ok(
  "Standalone album comment modal must retain a compact, accessible composer after photo-viewer unification"
 );
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");
+
+assert.ok(profile.includes('from("avatar_photo_descriptions")')&&profile.includes("loadAvatarDescription(path)"),"Avatar descriptions must be keyed by source image");
+assert.ok(script.includes("selectedPhotos=new Map()")&&script.includes("selectPhoto(photo)")&&script.includes("bulkDelete"),"Album multi-selection must manage actual photo rows");
+
+const photoActions=await readFile("_development/supabase/migrations/20261124065500_avatar_photo_descriptions.sql","utf8");
+assert.ok(photoActions.includes("on update cascade on delete cascade")&&photoActions.includes("Moving a photo must not expand its audience")&&photoActions.includes("vatra_album_photos_archive_visibility"),"Logical moves preserve discussion and never widen the audience; archive is owner-only");
+assert.ok(script.includes("chooseDestination")&&script.includes("loadArchive")&&script.includes('update({album_id:select.value,pinned_at:null})'),"Photo move and archive must use owner-scoped writes");
+
+assert.ok(gallery.includes("vatra:select-post-photo")&&script.includes('source:"avatar"')&&script.includes("downloadSource(row)")&&script.includes("bulkDelete.hidden=bulkMove.hidden=bulkArchive.hidden=mixed"),"Mixed source selection must not delete or move entire posts or current avatars");

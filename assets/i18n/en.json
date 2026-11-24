@@ -3521,5 +3521,21 @@
   "Поки немає голосів": "No votes yet",
   "Не вдалося завантажити учасників.": "Could not load voters.",
   "Хто проголосував": "Who voted",
-  "Показати, хто проголосував за ": "Show voters for "
+  "Показати, хто проголосував за ": "Show voters for ",
+  "Редагувати опис": "Edit description",
+  "Не вдалося зберегти.": "Could not save.",
+  "Зробити фотографією профілю": "Make profile photo",
+  "Не вдалося відкрити фото.": "Could not open photo.",
+  "Видалити вибрані фотографії?": "Delete selected photos?",
+  "Не всі фотографії видалено.": "Not all photos were deleted.",
+  "Вибрати фотографію": "Select photo",
+  "Вибрати декілька": "Select multiple",
+  "Перемістити": "Move",
+  "Фотографії відновлено.": "Photos restored.",
+  "Фотографії архівовано.": "Photos archived.",
+  "Перемістити фотографії": "Move photos",
+  "Доступні альбоми з таким самим або суворішим рівнем приватності.": "Available albums have the same or stricter privacy.",
+  "Фотографії переміщено.": "Photos moved.",
+  "Не вдалося перемістити фотографії.": "Could not move photos.",
+  "Архів порожній.": "Archive is empty."
 }

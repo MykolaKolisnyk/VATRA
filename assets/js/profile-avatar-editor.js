@@ -2,13 +2,13 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 function mount({client,ownId,userId,q,t,status,fileAvatar,fileTypes,uploadImage,
- encodeProfileCrop,clamp,canvasPoint,avatarProgress,parentBusy}){
+ encodeProfileCrop,clamp,canvasPoint,parentBusy}){
  const crop=q("#profile-avatar-crop-dialog"),finish=q("#profile-avatar-finish-dialog");
  const canvas=q("#profile-avatar-crop-canvas"),zoom=q("#profile-avatar-crop-zoom");
  const preview=q("#profile-avatar-finish-preview"),save=q("#profile-avatar-finish-save");
  let source=null,sourceFile=null,sourceURL=null,previewURL=null,cropped=null;
  let selection=null,drag=null,transitioning=false,finishing=false,cropLoading=false,sourceMime="image/webp";
- const release=()=>{avatarProgress.hidden=true;if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=sourceFile=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
+ const release=()=>{if(sourceURL)URL.revokeObjectURL(sourceURL);if(previewURL)URL.revokeObjectURL(previewURL);sourceURL=previewURL=null;source=sourceFile=cropped=selection=drag=null;fileAvatar.value="";preview.removeAttribute("src");};
  const constrain=()=>{const max=Math.min(canvas.width,canvas.height);selection.size=clamp(selection.size,max/5,max);selection.x=clamp(selection.x,0,canvas.width-selection.size);selection.y=clamp(selection.y,0,canvas.height-selection.size);zoom.value=String(max/selection.size);};
  const draw=()=>{if(!source||!selection)return;constrain();const ctx=canvas.getContext("2d"),{x,y,size}=selection;
   ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(source,0,0,canvas.width,canvas.height);ctx.save();ctx.fillStyle="rgba(15,23,42,.58)";ctx.beginPath();ctx.rect(0,0,canvas.width,canvas.height);ctx.arc(x+size/2,y+size/2,size/2,0,Math.PI*2,true);ctx.fill("evenodd");ctx.restore();ctx.fillStyle="#fff";
@@ -36,9 +36,8 @@ function mount({client,ownId,userId,q,t,status,fileAvatar,fileTypes,uploadImage,
   if(!await uploadImage(photo,"avatar",sourceFile))return;
   const failures=[];if(wantPost){let uploaded=null;try{uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,[photo]);const r=await client.from("feed_posts").insert({author_id:userId,author_vatra_id:ownId,body:"",visibility:"friends",media_items:uploaded});if(r.error)throw r.error;}catch(_){if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}failures.push(t("допис","post"));}}
   if(wantStory){let uploaded=null;try{uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,ownId,photo);const r=await client.from("stories").insert({author_vatra_id:ownId,body:"",theme:0,...uploaded});if(r.error)throw r.error;}catch(_){if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}failures.push(t("історію","story"));}}
-  finish.close();release();if(failures.length){status(t("Фото змінено, але не вдалося опублікувати: ","Photo updated, but could not publish: ")+failures.join(", "),true);}else if(wantPost||wantStory){
+  finish.close();release();window.dispatchEvent(new Event("vatra:profile-media-changed"));if(failures.length){status(t("Фото змінено, але не вдалося опублікувати: ","Photo updated, but could not publish: ")+failures.join(", "),true);}else if(wantPost||wantStory){
    try{sessionStorage.setItem("vatra-profile-photo-toast",JSON.stringify({account:ownId,text:t("Фото профілю змінено.","Profile photo updated.")}));}catch(_){}
-   window.dispatchEvent(new Event("vatra:profile-media-changed"));
    status(t("Фото профілю змінено.","Profile photo updated."));
   }else status(t("Фото профілю змінено.","Profile photo updated."));
  }finally{finishing=false;save.disabled=false;q("#profile-avatar-finish-back").disabled=false;}});
