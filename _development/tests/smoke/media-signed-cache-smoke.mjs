@@ -310,3 +310,68 @@ console.log("VATRA inline video: deferred request, actual download failure, fres
  assert.equal(await env.cleanup(client,[]),true);
 }
 console.log("VATRA media cleanup: deduplication, Storage errors, rejected requests and empty selection passed.");
+
+
+// One observer serves all pending photo/gallery targets, including cards
+// constructed in a detached fragment. Removed cards never initiate a download.
+{
+ const begin=source.indexOf(" const pendingMedia=new Map();");
+ const finish=source.indexOf(" async function mountGallery(",begin);
+ assert.ok(begin>=0&&finish>begin);
+ const observers=[],mutations=[],timers=new Map(),microtasks=[],loaded=[];
+ let timerId=0;
+ class Viewport{
+  constructor(callback,options){this.callback=callback;this.options=options;this.targets=new Set();observers.push(this);}
+  observe(slot){this.targets.add(slot);}
+  unobserve(slot){this.targets.delete(slot);}
+  disconnect(){this.targets.clear();}
+ }
+ class Mounts{
+  constructor(callback){this.callback=callback;this.disconnected=false;mutations.push(this);}
+  observe(){}
+  disconnect(){this.disconnected=true;}
+ }
+ const env={IntersectionObserver:Viewport,MutationObserver:Mounts,document:{documentElement:{}},
+  queueMicrotask:fn=>microtasks.push(fn),setTimeout:fn=>{timers.set(++timerId,fn);return timerId;},
+  clearTimeout:id=>timers.delete(id)};
+ runInNewContext(source.slice(begin,finish)+"\nglobalThis.watch=watchMediaTarget;",env);
+ const watch=(slot,priority)=>env.watch(slot,priority,()=>loaded.push(slot.id));
+ const eager={id:"eager",isConnected:true},detached={id:"fragment",isConnected:false};
+ const cards=Array.from({length:20},(_,i)=>({id:i,isConnected:true}));
+ watch(eager,1);watch(detached,2);cards.forEach(slot=>watch(slot,3));
+ assert.equal(microtasks.length,1,"Register a render batch in one microtask");
+ microtasks.shift()();
+ assert.deepEqual(loaded,["eager"]);
+ assert.equal(observers.length,1);
+ assert.equal(observers[0].options.rootMargin,"440px 0px");
+ assert.equal(observers[0].targets.size,20);
+ assert.equal(mutations.length,1);
+ assert.equal(timers.size,1);
+ detached.isConnected=true;
+ mutations[0].callback([{removedNodes:[],addedNodes:[detached]}]);
+ assert.deepEqual(loaded,["eager","fragment"]);
+ assert.equal(timers.size,0);
+ cards[0].isConnected=false;
+ mutations[0].callback([{removedNodes:[cards[0]],addedNodes:[]}]);
+ assert.equal(observers[0].targets.has(cards[0]),false);
+ observers[0].callback([{target:cards[0],isIntersecting:true}]);
+ assert.equal(loaded.includes(0),false,"Removed cards cannot start a request");
+ observers[0].callback([{target:cards[1],isIntersecting:true},{target:cards[2],isIntersecting:false}]);
+ assert.deepEqual(loaded,["eager","fragment",1]);
+ assert.equal(observers[0].targets.has(cards[1]),false);
+ for(const slot of cards.slice(2))slot.isConnected=false;
+ mutations[0].callback([{removedNodes:cards.slice(2),addedNodes:[]}]);
+ assert.equal(observers[0].targets.size,0);
+ assert.equal(mutations[0].disconnected,true);
+ const abandoned={id:"abandoned",isConnected:false};
+ watch(abandoned,3);microtasks.shift()();
+ const expire=[...timers.values()][0];expire();
+ assert.equal(timers.size,0);
+ assert.equal(loaded.includes("abandoned"),false);
+ assert.equal(mutations[1].disconnected,true);
+ // Non-IntersectionObserver environments retain an eager fallback.
+ env.IntersectionObserver=undefined;
+ watch({id:"fallback",isConnected:true},3);microtasks.shift()();
+ assert.equal(loaded.at(-1),"fallback");
+}
+console.log("VATRA media: shared viewport observer, batched mounts, removal cleanup and eager fallback passed.");
