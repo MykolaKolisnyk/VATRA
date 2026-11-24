@@ -304,7 +304,7 @@
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
-  state={signedURLs:new Map(),bulkPending:new Map(),version:0};
+  state={signedURLs:new Map(),bulkPending:new Map(),version:0,active:0,queue:[]};
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
@@ -327,6 +327,22 @@
   while(signedURLs.size>256)signedURLs.delete(signedURLs.keys().next().value);
  };
  let firstImages=0;
+ const SIGN_LIMIT=4,SIGN_TIMEOUT=12000;
+ function scheduleSigning(state,version,task){
+  return new Promise((resolve,reject)=>{
+   const start=()=>{
+    if(state.version!==version){reject(Error("Session changed while signing media"));return;}
+    state.active++;
+    let timer;
+    const deadline=new Promise((_,fail)=>{timer=setTimeout(()=>fail(Error("Media signing timed out")),SIGN_TIMEOUT);});
+    Promise.race([Promise.resolve().then(task),deadline]).then(resolve,reject).finally(()=>{
+     clearTimeout(timer);state.active--;
+     while(state.active<SIGN_LIMIT&&state.queue.length)state.queue.shift()();
+    });
+   };
+   if(state.active<SIGN_LIMIT)start();else state.queue.push(start);
+  });
+ }
 
 
  async function preSignGallery(client,items,ttl=3600){
@@ -347,7 +363,7 @@
    let pending=state.bulkPending.get(pendingKey);
    if(!pending){
     pending=(async()=>{
-     const {data,error}=await bucket.createSignedUrls(paths,ttl);
+     const {data,error}=await scheduleSigning(state,version,()=>bucket.createSignedUrls(paths,ttl));
      if(error||!Array.isArray(data)||state.version!==version)return;
      for(let i=0;i<paths.length;i++){
       const item=data[i];
@@ -374,7 +390,7 @@
   const version=state.version,key=ttl+":"+kind+":"+path;
   const entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
-  const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl).then(({data,error})=>{
+  const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl)).then(({data,error})=>{
 
    if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
@@ -680,24 +696,32 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     const extra=document.createElement("span");extra.className="vatra-post-gallery-extra-001";
     extra.textContent="+"+(media.length-5);tile.append(extra);
    }
-   tile.addEventListener("click",()=>void openGallery(index));
+   tile.addEventListener("click",()=>{
+    if(tile.getAttribute("aria-busy")==="true")return;
+    if(tile.classList.contains("is-gallery-unavailable")){void loadTiles(true);return;}
+    void openGallery(index);
+   });
    slot.append(tile);
    return {item,tile,index};
   });
   container.append(slot);
   const priority=++firstImages;
   let begun=false;
-  async function loadTiles(){
-   if(begun||!slot.isConnected)return;
+  async function loadTiles(retry=false){
+   if((begun&&!retry)||!slot.isConnected)return;
    begun=true;
    const previewPath=item=>item.media_kind==="image"&&
     name(item.preview_path,"image",id)&&item.preview_path.endsWith(".webp")?
     item.preview_path:null;
-   const imageTiles=tiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
+   const activeTiles=retry?tiles.filter(({tile})=>tile.classList.contains("is-gallery-unavailable")):tiles;
+   const imageTiles=activeTiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
     media_kind:"image",media_path:previewPath(item)||item.media_path
    }));
    if(imageTiles.length>2)await preSignGallery(client,imageTiles);
-   await Promise.allSettled(tiles.map(async({item,tile,index})=>{
+   await Promise.allSettled(activeTiles.map(async({item,tile,index})=>{
+    tile.classList.remove("is-gallery-unavailable");
+    tile.querySelector(".vatra-gallery-unavailable-001")?.remove();
+    tile.setAttribute("aria-busy","true");
     try{
      if(item.media_kind==="video"){
       tile.classList.add("is-gallery-ready");
@@ -741,18 +765,25 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      notice.className="vatra-gallery-unavailable-001";
      notice.textContent=tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable.");
      tile.append(notice);
-    }
+    }finally{tile.removeAttribute("aria-busy");}
    }));
   }
-  queueMicrotask(()=>{
-   if(!slot.isConnected)return;
-   if(priority<=2||typeof IntersectionObserver==="undefined"){void loadTiles();return;}
+  const startWhenMounted=()=>{
+   if(!slot.isConnected)return false;
+   if(priority<=2||typeof IntersectionObserver==="undefined"){void loadTiles();return true;}
    const observer=new IntersectionObserver(entries=>{
     if(entries.some(entry=>entry.isIntersecting||entry.intersectionRatio>0)){
      observer.disconnect();void loadTiles();
     }
    },{rootMargin:"440px 0px",threshold:0});
-   observer.observe(slot);
+   observer.observe(slot);return true;
+  };
+  queueMicrotask(()=>{
+   if(startWhenMounted())return;
+   if(typeof MutationObserver!=="function")return;
+   const observer=new MutationObserver(()=>{if(startWhenMounted()){observer.disconnect();clearTimeout(timer);}});
+   const timer=setTimeout(()=>observer.disconnect(),15000);
+   observer.observe(document.documentElement,{childList:true,subtree:true});
   });
   async function openGallery(startIndex){
    let index=startIndex,active=true;
@@ -905,6 +936,10 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    const notice=document.createElement("p");
    notice.className="vatra-feed-post-media-error-001";notice.textContent=message;
    slot.replaceChildren(notice);
+   const retry=document.createElement("button");retry.type="button";retry.className="vatra-feed-post-media-open-001";
+   retry.textContent=tr("Повторити","Retry");
+   retry.addEventListener("click",()=>{begun=false;slot.classList.add("is-loading-media");slot.replaceChildren(placeholder);void load();});
+   slot.append(retry);
   }
 
   if(priority<=2||typeof IntersectionObserver==="undefined")void load();
