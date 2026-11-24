@@ -170,116 +170,6 @@
             "0": "Rimuovi"
           }
         },
-        "n3": {
-          "attrs": {
-            "aria-label": "Logo VATRA e sette icone tematiche"
-          }
-        },
-        "n27": {
-          "attrs": {
-            "aria-label": "Comunicazione"
-          }
-        },
-        "n32": {
-          "text": {
-            "0": "Comunicazione"
-          }
-        },
-        "n33": {
-          "text": {
-            "0": "Messaggi e conversazioni con le persone a te care."
-          }
-        },
-        "n44": {
-          "attrs": {
-            "aria-label": "Comunità"
-          }
-        },
-        "n50": {
-          "text": {
-            "0": "Comunità"
-          }
-        },
-        "n51": {
-          "text": {
-            "0": "Persone e gruppi con interessi comuni."
-          }
-        },
-        "n53": {
-          "attrs": {
-            "aria-label": "Foto"
-          }
-        },
-        "n59": {
-          "text": {
-            "0": "Foto"
-          }
-        },
-        "n60": {
-          "text": {
-            "0": "Conserva e condividi le tue fotografie."
-          }
-        },
-        "n62": {
-          "attrs": {
-            "aria-label": "Video"
-          }
-        },
-        "n68": {
-          "text": {
-            "0": "Video"
-          }
-        },
-        "n69": {
-          "text": {
-            "0": "Guarda e condividi video."
-          }
-        },
-        "n71": {
-          "attrs": {
-            "aria-label": "Musica"
-          }
-        },
-        "n77": {
-          "text": {
-            "0": "Musica"
-          }
-        },
-        "n78": {
-          "text": {
-            "0": "Scopri la musica che ti piace."
-          }
-        },
-        "n80": {
-          "attrs": {
-            "aria-label": "Marketplace"
-          }
-        },
-        "n85": {
-          "text": {
-            "0": "Marketplace"
-          }
-        },
-        "n86": {
-          "text": {
-            "0": "Uno spazio per acquistare e vendere."
-          }
-        },
-        "n88": {
-          "attrs": {
-            "aria-label": "Clip"
-          }
-        },
-        "n94": {
-          "text": {
-            "0": "Clip"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "Video brevi e momenti indimenticabili."
-          }
-        },
         "n101": {
           "attrs": {
             "aria-label": "Accesso"
@@ -3706,6 +3596,33 @@
   "Введіть електронну пошту.": "Inserisci l'indirizzo email.",
   "Повторіть пароль.": "Conferma la password.",
   "Введіть код підтвердження з листа.": "Inserisci il codice di verifica ricevuto via email.",
+  "{name} прийняв вашу заявку в друзі": "{name} ha accettato la tua richiesta di amicizia",
+  "{name} прийняла вашу заявку в друзі": "{name} ha accettato la tua richiesta di amicizia",
+  "Вашу заявку в друзі прийнято: {name}": "{name} ha accettato la tua richiesta di amicizia",
+  "{name} відхилив вашу заявку в друзі": "{name} ha rifiutato la tua richiesta di amicizia",
+  "{name} відхилила вашу заявку в друзі": "{name} ha rifiutato la tua richiesta di amicizia",
+  "Вашу заявку в друзі відхилено: {name}": "{name} ha rifiutato la tua richiesta di amicizia",
+  "{name} вподобав вашу публікацію": "{name} ha messo Mi piace al tuo post",
+  "{name} вподобала вашу публікацію": "{name} ha messo Mi piace al tuo post",
+  "Вашу публікацію вподобано: {name}": "{name} ha messo Mi piace al tuo post",
+  "{name} вподобав ваш коментар": "{name} ha messo Mi piace al tuo commento",
+  "{name} вподобала ваш коментар": "{name} ha messo Mi piace al tuo commento",
+  "Ваш коментар вподобано: {name}": "{name} ha messo Mi piace al tuo commento",
+  "{name} вподобав ваше фото профілю": "{name} ha messo Mi piace alla tua foto profilo",
+  "{name} вподобала ваше фото профілю": "{name} ha messo Mi piace alla tua foto profilo",
+  "Ваше фото профілю вподобано: {name}": "{name} ha messo Mi piace alla tua foto profilo",
+  "{name} вподобав ваш коментар під фото": "{name} ha messo Mi piace a un commento sotto la tua foto",
+  "{name} вподобала ваш коментар під фото": "{name} ha messo Mi piace a un commento sotto la tua foto",
+  "Ваш коментар під фото вподобано: {name}": "{name} ha messo Mi piace a un commento sotto la tua foto",
+  "Поки немає сповіщень": "Ancora nessuna notifica",
+  "Нові сповіщення з'являться тут.": "Le nuove notifiche appariranno qui.",
+  "Налаштування сповіщень": "Impostazioni delle notifiche",
+  "Прийняти заявку в друзі": "Accetta richiesta di amicizia",
+  "Відхилити заявку в друзі": "Rifiuta richiesta di amicizia",
+  "Переглянути публікацію": "Visualizza il post",
+  "Фото профілю": "Foto profilo",
+  "Коментар: ": "Commento: ",
+  "Публікація: ": "Post: ",
   "Опитування": "Sondaggio",
   "Запитання опитування": "Domanda del sondaggio",
   "Додати варіант": "Aggiungi opzione",

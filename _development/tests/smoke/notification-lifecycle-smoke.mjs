@@ -119,7 +119,7 @@ assert.equal(removedChannels.length,2);
 assert.equal(cleared.length,2);
 assert.equal(timers.size,0);
 
-const shown=Array.from({length:6},(_,i)=>({
+const shown=Array.from({length:7},(_,i)=>({
  id:"notice-"+i,actor_vatra_id:"14",created_at:"2026-11-14T00:00:00Z",read_at:null
 }));
 const panelList={
@@ -150,9 +150,9 @@ const panelContext={
  createRow(record){return {id:record.id,classList:{remove(){}}};},
  fetchRows:async opts=>{
   queries.push(opts);
-  return {rows:shown.map(row=>({...row})),hasNext:false};
+  return {rows:shown.slice(0,opts.size).map(row=>({...row})),hasNext:shown.length>opts.size};
  },
- authorNames:async()=>({names:new Map([["14","Member"]]),avatars:new Map(),states:new Map()}),
+ authorNames:async()=>({names:new Map([["14","Member"]]),avatars:new Map(),states:new Map(),forms:new Map()}),
  t:(uk)=>uk,format,
  pick:()=>status,
  unreadCount:async()=>{},
@@ -170,8 +170,8 @@ globalThis.panelTest={panelLoad};
 await Promise.all(Array.from({length:9},()=>panelContext.panelTest.panelLoad()));
 await new Promise(resolve=>setImmediate(resolve));
 assert.equal(queries.length,2,"Concurrent panel refreshes must coalesce to at most two queries");
-assert.deepEqual(writes,[shown.map(row=>row.id)],
- "The drawer must acknowledge exactly the six visible unread notifications");
+assert.deepEqual(writes,[shown.slice(0,5).map(row=>row.id)],
+ "The drawer must acknowledge exactly five visible unread notifications, not the entire inbox");
 // Slow full-inbox reads must not render notifications from a previous viewer.
 const fullInbox=section("async function pageLoad(append=false){","function pageUI(){");
 let finishOld;
@@ -205,4 +205,18 @@ finishOld({rows:[{id:"old-notice",actor_vatra_id:"12"}],hasNext:false});
 await readingOld;
 assert.equal(fullList.children.length,0,"Old-account inbox content must not reappear");
 assert.equal(oldAuthors,0,"Do not fetch author details after a viewer change");
-console.log("VATRA notifications: in-flight coalescing, session teardown, no stale badge, six-row acknowledgment and stale full-inbox protection passed.");
+const friendshipLifecycle=await readFile("_development/supabase/migrations/20261124081500_resolve_friend_request_notifications.sql","utf8");
+assert.ok(
+ friendshipLifecycle.includes("AFTER DELETE OR UPDATE OF status ON public.friendships")&&
+ friendshipLifecycle.includes("IF OLD.status = 'pending' THEN")&&
+ friendshipLifecycle.includes("IF NEW.status = 'accepted' THEN")&&
+ friendshipLifecycle.includes("TG_OP = 'DELETE' AND OLD.status = 'pending'")&&
+ friendshipLifecycle.includes("a.user_id = (SELECT auth.uid())")&&
+ friendshipLifecycle.includes("AND a.vatra_id = OLD.recipient_id")&&
+ friendshipLifecycle.includes("ON CONFLICT (recipient_vatra_id, event_key) DO NOTHING")&&
+ friendshipLifecycle.includes("NOT EXISTS (")&&
+ friendshipLifecycle.includes("f.id = n.target_id AND f.status = 'pending'")&&
+ friendshipLifecycle.includes("REVOKE ALL ON FUNCTION private.notify_friend_declined()"),
+ "Resolved friend invitations must clear stale notices on accept/cancel/decline, but only recipient declines notify the sender"
+);
+console.log("VATRA notifications: in-flight coalescing, session teardown, no stale badge, five-row acknowledgment and stale full-inbox protection passed.");

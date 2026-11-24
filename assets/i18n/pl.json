@@ -170,116 +170,6 @@
             "0": "Usuń"
           }
         },
-        "n3": {
-          "attrs": {
-            "aria-label": "Logo VATRA i siedem ikon tematycznych"
-          }
-        },
-        "n27": {
-          "attrs": {
-            "aria-label": "Komunikacja"
-          }
-        },
-        "n32": {
-          "text": {
-            "0": "Komunikacja"
-          }
-        },
-        "n33": {
-          "text": {
-            "0": "Wiadomości i rozmowy z bliskimi."
-          }
-        },
-        "n44": {
-          "attrs": {
-            "aria-label": "Społeczności"
-          }
-        },
-        "n50": {
-          "text": {
-            "0": "Społeczności"
-          }
-        },
-        "n51": {
-          "text": {
-            "0": "Ludzie i grupy o wspólnych zainteresowaniach."
-          }
-        },
-        "n53": {
-          "attrs": {
-            "aria-label": "Zdjęcia"
-          }
-        },
-        "n59": {
-          "text": {
-            "0": "Zdjęcia"
-          }
-        },
-        "n60": {
-          "text": {
-            "0": "Zachowuj i udostępniaj zdjęcia."
-          }
-        },
-        "n62": {
-          "attrs": {
-            "aria-label": "Wideo"
-          }
-        },
-        "n68": {
-          "text": {
-            "0": "Wideo"
-          }
-        },
-        "n69": {
-          "text": {
-            "0": "Oglądaj i udostępniaj filmy."
-          }
-        },
-        "n71": {
-          "attrs": {
-            "aria-label": "Muzyka"
-          }
-        },
-        "n77": {
-          "text": {
-            "0": "Muzyka"
-          }
-        },
-        "n78": {
-          "text": {
-            "0": "Odkrywaj muzykę, którą lubisz."
-          }
-        },
-        "n80": {
-          "attrs": {
-            "aria-label": "Marketplace"
-          }
-        },
-        "n85": {
-          "text": {
-            "0": "Marketplace"
-          }
-        },
-        "n86": {
-          "text": {
-            "0": "Miejsce na zakupy i sprzedaż."
-          }
-        },
-        "n88": {
-          "attrs": {
-            "aria-label": "Klipy"
-          }
-        },
-        "n94": {
-          "text": {
-            "0": "Klipy"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "Krótkie filmy i niezapomniane chwile."
-          }
-        },
         "n101": {
           "attrs": {
             "aria-label": "Logowanie"
@@ -3706,6 +3596,33 @@
   "Введіть електронну пошту.": "Wpisz adres e-mail.",
   "Повторіть пароль.": "Powtórz hasło.",
   "Введіть код підтвердження з листа.": "Wpisz kod weryfikacyjny z wiadomości e-mail.",
+  "{name} прийняв вашу заявку в друзі": "Twoje zaproszenie do znajomych zostało zaakceptowane przez {name}",
+  "{name} прийняла вашу заявку в друзі": "Twoje zaproszenie do znajomych zostało zaakceptowane przez {name}",
+  "Вашу заявку в друзі прийнято: {name}": "Twoje zaproszenie do znajomych zostało zaakceptowane przez {name}",
+  "{name} відхилив вашу заявку в друзі": "{name} odrzucił(a) Twoją prośbę o dodanie do znajomych",
+  "{name} відхилила вашу заявку в друзі": "{name} odrzucił(a) Twoją prośbę o dodanie do znajomych",
+  "Вашу заявку в друзі відхилено: {name}": "{name} odrzucił(a) Twoją prośbę o dodanie do znajomych",
+  "{name} вподобав вашу публікацію": "Twój post otrzymał polubienie od {name}",
+  "{name} вподобала вашу публікацію": "Twój post otrzymał polubienie od {name}",
+  "Вашу публікацію вподобано: {name}": "Twój post otrzymał polubienie od {name}",
+  "{name} вподобав ваш коментар": "Twój komentarz otrzymał polubienie od {name}",
+  "{name} вподобала ваш коментар": "Twój komentarz otrzymał polubienie od {name}",
+  "Ваш коментар вподобано: {name}": "Twój komentarz otrzymał polubienie od {name}",
+  "{name} вподобав ваше фото профілю": "Twoje zdjęcie profilowe otrzymało polubienie od {name}",
+  "{name} вподобала ваше фото профілю": "Twoje zdjęcie profilowe otrzymało polubienie od {name}",
+  "Ваше фото профілю вподобано: {name}": "Twoje zdjęcie profilowe otrzymało polubienie od {name}",
+  "{name} вподобав ваш коментар під фото": "Komentarz pod Twoim zdjęciem otrzymał polubienie od {name}",
+  "{name} вподобала ваш коментар під фото": "Komentarz pod Twoim zdjęciem otrzymał polubienie od {name}",
+  "Ваш коментар під фото вподобано: {name}": "Komentarz pod Twoim zdjęciem otrzymał polubienie od {name}",
+  "Поки немає сповіщень": "Brak nowych powiadomień",
+  "Нові сповіщення з'являться тут.": "Nowe powiadomienia pojawią się tutaj.",
+  "Налаштування сповіщень": "Ustawienia powiadomień",
+  "Прийняти заявку в друзі": "Zaakceptuj zaproszenie do znajomych",
+  "Відхилити заявку в друзі": "Odrzuć zaproszenie do znajomych",
+  "Переглянути публікацію": "Zobacz post",
+  "Фото профілю": "Zdjęcie profilowe",
+  "Коментар: ": "Komentarz: ",
+  "Публікація: ": "Post: ",
   "Опитування": "Ankieta",
   "Запитання опитування": "Pytanie ankiety",
   "Додати варіант": "Dodaj odpowiedź",

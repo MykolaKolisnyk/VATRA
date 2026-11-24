@@ -119,6 +119,6 @@ async function preferences(){
  const open=()=>{const id=location.hash.slice(1);return show(sections.some(([key])=>key===id)?id:"general").catch(()=>message(t("Не вдалося завантажити налаштування.","Could not load settings."),true));};
  window.addEventListener("hashchange",()=>void open());await open();
 }
-if(new URLSearchParams(location.search).get("view")==="settings")await preferences();else await account();
+if(location.pathname.endsWith("/settings")||new URLSearchParams(location.search).get("view")==="settings")await preferences();else await account();
 });
 })();

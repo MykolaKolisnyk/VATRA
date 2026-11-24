@@ -170,116 +170,6 @@
             "0": "Entfernen"
           }
         },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA-Logo und sieben thematische Symbole"
-          }
-        },
-        "n27": {
-          "attrs": {
-            "aria-label": "Kommunikation"
-          }
-        },
-        "n32": {
-          "text": {
-            "0": "Kommunikation"
-          }
-        },
-        "n33": {
-          "text": {
-            "0": "Nachrichten und Gespräche mit Menschen, die dir nahestehen."
-          }
-        },
-        "n44": {
-          "attrs": {
-            "aria-label": "Communitys"
-          }
-        },
-        "n50": {
-          "text": {
-            "0": "Communitys"
-          }
-        },
-        "n51": {
-          "text": {
-            "0": "Menschen und Gruppen mit gemeinsamen Interessen."
-          }
-        },
-        "n53": {
-          "attrs": {
-            "aria-label": "Fotos"
-          }
-        },
-        "n59": {
-          "text": {
-            "0": "Fotos"
-          }
-        },
-        "n60": {
-          "text": {
-            "0": "Fotos aufbewahren und teilen."
-          }
-        },
-        "n62": {
-          "attrs": {
-            "aria-label": "Videos"
-          }
-        },
-        "n68": {
-          "text": {
-            "0": "Videos"
-          }
-        },
-        "n69": {
-          "text": {
-            "0": "Videos ansehen und teilen."
-          }
-        },
-        "n71": {
-          "attrs": {
-            "aria-label": "Musik"
-          }
-        },
-        "n77": {
-          "text": {
-            "0": "Musik"
-          }
-        },
-        "n78": {
-          "text": {
-            "0": "Entdecke Musik, die dir gefällt."
-          }
-        },
-        "n80": {
-          "attrs": {
-            "aria-label": "Marktplatz"
-          }
-        },
-        "n85": {
-          "text": {
-            "0": "Marktplatz"
-          }
-        },
-        "n86": {
-          "text": {
-            "0": "Ein Ort zum Kaufen und Verkaufen."
-          }
-        },
-        "n88": {
-          "attrs": {
-            "aria-label": "Clips"
-          }
-        },
-        "n94": {
-          "text": {
-            "0": "Clips"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "Kurzvideos und unvergessliche Momente."
-          }
-        },
         "n101": {
           "attrs": {
             "aria-label": "Anmeldung"
@@ -3706,6 +3596,33 @@
   "Введіть електронну пошту.": "Gib deine E-Mail-Adresse ein.",
   "Повторіть пароль.": "Wiederhole das Passwort.",
   "Введіть код підтвердження з листа.": "Gib den Bestätigungscode aus der E-Mail ein.",
+  "{name} прийняв вашу заявку в друзі": "{name} hat deine Freundschaftsanfrage angenommen",
+  "{name} прийняла вашу заявку в друзі": "{name} hat deine Freundschaftsanfrage angenommen",
+  "Вашу заявку в друзі прийнято: {name}": "{name} hat deine Freundschaftsanfrage angenommen",
+  "{name} відхилив вашу заявку в друзі": "{name} hat deine Freundschaftsanfrage abgelehnt",
+  "{name} відхилила вашу заявку в друзі": "{name} hat deine Freundschaftsanfrage abgelehnt",
+  "Вашу заявку в друзі відхилено: {name}": "{name} hat deine Freundschaftsanfrage abgelehnt",
+  "{name} вподобав вашу публікацію": "{name} hat deinen Beitrag mit „Gefällt mir“ markiert",
+  "{name} вподобала вашу публікацію": "{name} hat deinen Beitrag mit „Gefällt mir“ markiert",
+  "Вашу публікацію вподобано: {name}": "{name} hat deinen Beitrag mit „Gefällt mir“ markiert",
+  "{name} вподобав ваш коментар": "{name} hat deinen Kommentar mit „Gefällt mir“ markiert",
+  "{name} вподобала ваш коментар": "{name} hat deinen Kommentar mit „Gefällt mir“ markiert",
+  "Ваш коментар вподобано: {name}": "{name} hat deinen Kommentar mit „Gefällt mir“ markiert",
+  "{name} вподобав ваше фото профілю": "{name} gefällt dein Profilfoto",
+  "{name} вподобала ваше фото профілю": "{name} gefällt dein Profilfoto",
+  "Ваше фото профілю вподобано: {name}": "{name} gefällt dein Profilfoto",
+  "{name} вподобав ваш коментар під фото": "{name} hat einen Kommentar zu deinem Foto mit „Gefällt mir“ markiert",
+  "{name} вподобала ваш коментар під фото": "{name} hat einen Kommentar zu deinem Foto mit „Gefällt mir“ markiert",
+  "Ваш коментар під фото вподобано: {name}": "{name} hat einen Kommentar zu deinem Foto mit „Gefällt mir“ markiert",
+  "Поки немає сповіщень": "Noch keine Benachrichtigungen",
+  "Нові сповіщення з'являться тут.": "Neue Benachrichtigungen erscheinen hier.",
+  "Налаштування сповіщень": "Benachrichtigungseinstellungen",
+  "Прийняти заявку в друзі": "Freundschaftsanfrage annehmen",
+  "Відхилити заявку в друзі": "Freundschaftsanfrage ablehnen",
+  "Переглянути публікацію": "Beitrag ansehen",
+  "Фото профілю": "Profilfoto",
+  "Коментар: ": "Kommentar: ",
+  "Публікація: ": "Beitrag: ",
   "Опитування": "Umfrage",
   "Запитання опитування": "Umfragefrage",
   "Додати варіант": "Option hinzufügen",

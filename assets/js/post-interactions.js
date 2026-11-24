@@ -676,6 +676,7 @@ function appendAudience(container,level,isGroup=false){
     if(result.error||(liked&&String(result.data?.liker_id)!==String(userId)))
      throw result.error||Error("Post like was not removed");
     liked=!liked;likeCount+=liked?1:-1;
+    if(liked)window.VATRA_SOUNDS?.play?.("like");
     like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
     count.textContent=String(Math.max(0,likeCount));
     invalidateEngagement(client);
@@ -716,6 +717,8 @@ function appendAudience(container,level,isGroup=false){
   updateNote();panel.append(filterRow,note);
   const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001 vatra-media-comments-unified-001");
   entries.setAttribute("role","feed");entries.setAttribute("aria-busy","false");
+  const sentinel=make("div","vatra-post-comments-sentinel-001");
+  sentinel.hidden=true;sentinel.setAttribute("aria-hidden","true");
   const more=make("button","vatra-post-comments-more-001",
    tr("Завантажити ще коментарі","Load more comments"));
   more.type="button";more.hidden=true;
@@ -789,11 +792,12 @@ function appendAudience(container,level,isGroup=false){
   composer.append(replying,composerInput,popovers,fileInput,attachmentPreview);
   form.append(ownPortrait,composer);
 
-  panel.append(entries,more,form);shell.append(panel,status);
+  panel.append(entries,sentinel,form);shell.append(panel,status);
   const commentsLocked=kind==="person"&&post.comments_enabled===false;
   if(commentsLocked){form.hidden=true;panel.append(make("p","vatra-post-comments-locked-001",tr("Коментування цієї публікації вимкнено.","Comments on this post are disabled.")));}
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
   const replySize=3;
+  let canLoadMore=false;
   let commentOffset=0,busy=false,ticket=0,pendingReset=false,pendingKeep=false,replyTarget=null,chosenFile=null,emojiMode="emoji",pickerVersion=0,activePack="vatryk",cropVersion=0,cropping=false,submitting=false;
   const rootReplies=new Map();
   const stopReply=()=>{
@@ -948,7 +952,9 @@ function appendAudience(container,level,isGroup=false){
   input.addEventListener("input",updateSend);updateSend();
   const startReply=(rootId,name)=>{
    replyTarget={id:rootId,name};
-   replyingText.textContent=tr("Відповідь для ","Replying to ")+name;
+   replyingText.textContent=tr("Відповідь ","Reply to ")+name;
+   if(!input.value.trim())input.value=name+", ";
+   updateSend();
    replying.hidden=false;hideMenus();
    input.focus();input.scrollIntoView({block:"nearest",behavior:"smooth"});
   };
@@ -1013,16 +1019,93 @@ function appendAudience(container,level,isGroup=false){
    }
    const authorRow=make("div","ui-vatra-comment-author-row-001");authorRow.append(author);
    if(String(item.author_vatra_id)===String(ownId)&&userId){
-    const remove=make("button","vatra-post-comment-delete-001 vatra-comment-hover-delete-001");card.classList.add("is-own");remove.type="button";remove.setAttribute("aria-label",tr("Видалити","Delete"));remove.title=tr("Видалити","Delete");remove.append(glyph("x"));
-    remove.addEventListener("click",async()=>{if(remove.disabled)return;remove.disabled=true;try{
-     const result=await client.from("post_comments").delete().eq("id",item.id).eq("author_id",userId).select("id").maybeSingle();
-     if(result.error||String(result.data?.id)!==String(item.id))throw result.error||Error("Comment not removed");
-     card.remove();invalidateComments(client);invalidateEngagement(client);
-     if(item.media_path&&String(item.media_path).startsWith(String(ownId)+"/comments/")&&["image","video"].includes(item.media_kind)){try{await client.storage.from(item.media_kind==="image"?"post-images":"videos").remove([item.media_path]);}catch(_){}}
-     if(replyTarget?.id===item.id)stopReply();
-     void loadComments(true,true);void refreshSocial();
-     feedback(tr("Коментар видалено.","Comment deleted."));
-    }catch(_){feedback(tr("Не вдалося видалити коментар.","Could not delete comment."),true);}finally{remove.disabled=false;}});authorRow.append(remove);
+    card.classList.add("is-own");
+    const edit=make("button","vatra-post-comment-edit-001 vatra-comment-hover-edit-001");
+    edit.type="button";edit.setAttribute("aria-label",tr("Редагувати коментар","Edit comment"));
+    edit.append(glyph("edit"));edit.hidden=!item.body;
+    edit.addEventListener("click",()=>{
+     if(card.classList.contains("is-deleted-pending")||content.querySelector(".vatra-comment-edit-form-001"))return;
+     const form=make("form","vatra-comment-edit-form-001");
+     const textarea=make("textarea","vatra-comment-edit-input-001");
+     textarea.value=String(item.body||"");textarea.rows=3;textarea.maxLength=1000;textarea.required=true;
+     const controls=make("div","vatra-comment-edit-actions-001");
+     const cancel=make("button","vatra-comment-edit-cancel-001",tr("Скасувати","Cancel"));
+     cancel.type="button";
+     const save=make("button","vatra-comment-edit-save-001",tr("Зберегти","Save"));
+     save.type="submit";
+     controls.append(cancel,save);form.append(textarea,controls);
+     const restore=()=>{form.remove();body.hidden=false;edit.disabled=false;};
+     cancel.addEventListener("click",restore);
+     form.addEventListener("submit",async event=>{
+      event.preventDefault();
+      const value=textarea.value.trim();
+      if(!value||value.length>1000||save.disabled)return;
+      if(value===String(item.body||"").trim()){restore();return;}
+      save.disabled=true;cancel.disabled=true;
+      try{
+       const {data,error}=await client.from("post_comments").update({body:value})
+        .eq("id",item.id).eq("author_id",userId).select("body").maybeSingle();
+       if(error||!data)throw error||Error("Comment edit not confirmed");
+       item.body=data.body;body.textContent=String(data.body||"");invalidateComments(client);
+       restore();
+      }catch(_){
+       const note=make("span","vatra-comment-edit-error-001",
+        tr("Не вдалося зберегти коментар.","Could not save comment."));
+       form.querySelector(".vatra-comment-edit-error-001")?.remove();
+       form.append(note);
+      }finally{save.disabled=false;cancel.disabled=false;}
+     });
+     body.hidden=true;content.insertBefore(form,content.querySelector(".vatra-post-comment-actions"));
+     textarea.focus();
+    });
+    const remove=make("button","vatra-post-comment-delete-001 vatra-comment-hover-delete-001");
+    remove.type="button";remove.setAttribute("aria-label",tr("Видалити","Delete"));
+    remove.title=tr("Видалити","Delete");remove.append(glyph("x"));
+    remove.addEventListener("click",()=>{
+     if(remove.disabled||card.classList.contains("is-deleted-pending"))return;
+     remove.disabled=true;edit.disabled=true;
+     card.classList.add("is-deleted-pending");
+     const tombstone=make("div","vatra-comment-deleted-001");
+     tombstone.append(make("span","vatra-comment-deleted-label-001",
+      tr("Коментар видалено","Comment deleted")));
+     const undo=make("button","vatra-comment-undo-001",tr("Відновити","Undo"));
+     undo.type="button";tombstone.append(undo);
+     content.hidden=true;avatar.hidden=true;card.append(tombstone);
+     let settled=false;
+     const restore=()=>{
+      if(settled)return;settled=true;
+      clearTimeout(timer);
+      card.classList.remove("is-deleted-pending");
+      tombstone.remove();content.hidden=false;avatar.hidden=false;
+      remove.disabled=false;edit.disabled=false;
+     };
+     const commit=async()=>{
+      if(settled)return;settled=true;
+      undo.disabled=true;
+      try{
+       const result=await client.from("post_comments").delete().eq("id",item.id)
+        .eq("author_id",userId).select("id").maybeSingle();
+       if(result.error||String(result.data?.id)!==String(item.id))
+        throw result.error||Error("Comment not removed");
+       card.remove();invalidateComments(client);invalidateEngagement(client);
+       if(item.media_path&&String(item.media_path).startsWith(String(ownId)+"/comments/")&&
+         ["image","video"].includes(item.media_kind)){
+        try{await client.storage.from(item.media_kind==="image"?"post-images":"videos")
+         .remove([item.media_path]);}catch(_){}
+       }
+       if(replyTarget?.id===item.id)stopReply();
+       void loadComments(true,true);void refreshSocial();
+      }catch(_){
+       card.classList.remove("is-deleted-pending");tombstone.remove();
+       content.hidden=false;avatar.hidden=false;remove.disabled=false;edit.disabled=false;
+       feedback(tr("Не вдалося видалити коментар.","Could not delete comment."),true);
+      }
+     };
+     const timer=setTimeout(()=>void commit(),12000);
+     undo.addEventListener("click",restore);
+     window.addEventListener("pagehide",()=>void commit(),{once:true});
+    });
+    authorRow.append(edit,remove);
    }
    content.append(authorRow);
    if(item.body)content.append(body);
@@ -1062,6 +1145,7 @@ function appendAudience(container,level,isGroup=false){
      if(result.error||(ownLiked&&String(result.data?.comment_id)!==String(item.id)))
       throw result.error||Error("Comment like was not removed");
      ownLiked=!ownLiked;likeCount+=ownLiked?1:-1;renderLike();
+     if(ownLiked)window.VATRA_SOUNDS?.play?.("like");
      invalidateComments(client);
     }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update like."),true);}
     finally{likeComment.disabled=false;}
@@ -1149,6 +1233,7 @@ function appendAudience(container,level,isGroup=false){
    }
    busy=true;more.disabled=true;entries.setAttribute("aria-busy","true");
    const token=++ticket;
+   if(reset){canLoadMore=false;sentinel.hidden=true;}
    const previousRows=reset&&keepVisible?
     new Map([...entries.children].filter(el=>el.dataset?.commentId)
      .map(el=>[el.dataset.commentId,el])):new Map();
@@ -1208,11 +1293,40 @@ function appendAudience(container,level,isGroup=false){
       if(!entries.querySelector("#"+CSS.escape(node.id)))entries.append(node);
      }
     }
-    commentOffset+=rows.length;more.hidden=(data||[]).length<=pageSize;
+    commentOffset+=rows.length;
+    canLoadMore=(data||[]).length>pageSize;
+    sentinel.hidden=!canLoadMore;more.hidden=true;
+    const visibleComments=new Set();
+    for(const node of entries.querySelectorAll("[data-comment-id]")){
+     if(visibleComments.has(node.dataset.commentId))node.remove();
+     else visibleComments.add(node.dataset.commentId);
+    }
     const deepComment=new URLSearchParams(location.search).get("comment");
-    if(validUUID(deepComment)){
-     const target=document.getElementById("vatra-comment-"+deepComment);
-     if(target)target.scrollIntoView({block:"center"});
+    if(reset&&validUUID(deepComment)&&
+      new URLSearchParams(location.search).get("post")===post.id){
+     let target=document.getElementById("vatra-comment-"+deepComment);
+     if(!target)try{
+      const result=await client.from("post_comments")
+       .select("id,post_kind,post_id,author_vatra_id,author_id,body,media_kind,media_path,moderation_status,created_at,parent_comment_id")
+       .eq("id",deepComment).eq("post_id",post.id).eq("post_kind",kind).maybeSingle();
+      const found=result.data;
+      if(!result.error&&found&&token===ticket&&panel.isConnected){
+       const people=await authorMap(client,[found]);
+       if(token===ticket){
+        const ownLike=await client.from("post_comment_likes")
+         .select("comment_id").eq("comment_id",found.id).eq("liker_id",userId).maybeSingle();
+        if(token===ticket&&!entries.querySelector("#"+CSS.escape("vatra-comment-"+found.id))){
+         target=renderComment(found,people,new Set(ownLike.data?[found.id]:[]),
+          found.parent_comment_id||found.id,!!found.parent_comment_id);
+         target.classList.add("is-linked-comment");entries.prepend(target);
+        }
+       }
+      }
+     }catch(_){}
+     if(target){
+      target.classList.add("is-linked-comment");
+      target.scrollIntoView({block:"center",behavior:"auto"});
+     }
     }
     feedback("");
    }catch(_){
@@ -1285,6 +1399,20 @@ function appendAudience(container,level,isGroup=false){
    queueMicrotask(openComments);
   sort.addEventListener("change",()=>{updateNote();void loadComments(true);});
   more.addEventListener("click",()=>void loadComments(false));
+  if(typeof IntersectionObserver!=="undefined"){
+   const observer=new IntersectionObserver(items=>{
+    if(items.some(item=>item.isIntersecting)&&canLoadMore&&!busy&&!panel.hidden)
+     void loadComments(false);
+   },{rootMargin:"320px 0px"});
+   observer.observe(sentinel);
+  }else{
+   const check=()=>{
+    if(canLoadMore&&!busy&&!panel.hidden&&sentinel.getBoundingClientRect().top<innerHeight+350)
+     void loadComments(false);
+   };
+   document.addEventListener("scroll",check,{passive:true});
+   panel.addEventListener("scroll",check,{passive:true});
+  }
   async function publishComment(sticker=null){
    hideMenus();
    const body=sticker?"":input.value.trim(),file=sticker||chosenFile;
