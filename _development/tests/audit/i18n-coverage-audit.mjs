@@ -589,7 +589,9 @@ for(const code of codes){
  const missing=dynamicKeys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
  assert.deepEqual(missing,[],code+": shared source key coverage must be complete");
  const covered=dynamicKeys.length;
- const untranslated=dynamicKeys.filter(key=>dictionary[key].trim()===key.trim());
+ // Bulgarian uses the same word for sound as Ukrainian; this is a verified translation.
+ const identicalLocaleKeys=code==="bg"?new Set(["Звук"]):new Set();
+ const untranslated=dynamicKeys.filter(key=>dictionary[key].trim()===key.trim()&&!identicalLocaleKeys.has(key));
  assert.ok(untranslated.length<=8,
   code+": unexpectedly many shared phrases remain in Ukrainian: "+untranslated.join(" | "));
  for(const key of Object.keys(dictionary).filter(key=>!key.startsWith("__")))
