@@ -2170,14 +2170,14 @@
     },
     "index": {
       "meta": {
-        "title": "Sign in",
-        "description": "VATRA is a Ukrainian social network for communication, connections, creativity, communities, shopping, and business.",
+        "title": "VATRA — welcome to your people",
+        "description": "A Ukrainian social network where new friendships, stories and opportunities begin. Sign in or create an account and find your people.",
         "og:locale": "en_US",
-        "og:title": "VATRA — Ukrainian social network",
-        "og:description": "VATRA is a Ukrainian social network for communication, connections, creativity, communities, shopping, and business. Your people. Your stories. Your VATRA.",
+        "og:title": "VATRA — welcome to your people",
+        "og:description": "A Ukrainian social network where new friendships, stories and opportunities begin. Sign in or create an account and find your people.",
         "og:image:alt": "Official VATRA logo",
-        "twitter:title": "VATRA — Ukrainian social network",
-        "twitter:description": "VATRA is a Ukrainian social network for communication, connections, creativity, communities, shopping, and business."
+        "twitter:title": "VATRA — welcome to your people",
+        "twitter:description": "A Ukrainian social network where new friendships, stories and opportunities begin. Sign in or create an account and find your people."
       },
       "nodes": {
         "n500": {
