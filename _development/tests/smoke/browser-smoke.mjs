@@ -5115,6 +5115,9 @@ try{
   await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-photo-gallery .profile-media-tile").length===2);
   assert.equal(await profilePage.locator("#profile-photo-gallery .profile-media-tile").count(),2,
    "All photos from media_items-only posts must appear individually in the Photos tab");
+  // The album tab remembers its selection when returning to profile media.
+  // Explicitly open Photos before testing the visible photo tiles.
+  await profilePage.locator(".ui-vatra-albums-controls-001").getByRole("button",{name:language==="en"?"Photos":"Фотографії",exact:true}).click();
   const galleryTiles=profilePage.locator("#profile-photo-gallery .profile-media-tile");
   const firstGalleryPhoto=galleryTiles.first().locator(".vatra-post-gallery-tile");
   await firstGalleryPhoto.waitFor({state:"visible"});
