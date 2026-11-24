@@ -5091,6 +5091,8 @@ try{
      {media_kind:"video",media_path:"654321/posts/cccccccc-cccc-4ccc-8ccc-cccccccccccc.mp4"}
     ]
    });
+   // Simulate the media mutation event emitted by real post writes.
+   window.dispatchEvent(new Event("vatra:profile-media-changed"));
   });
   await profilePage.locator("#profile-tab-photos").click();
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
@@ -5111,7 +5113,10 @@ try{
   assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
    q.includes('media_items.cs.[{"media_kind":"video"}]'))),
    "Videos query must include JSONB media attachments on the server");
-  await profilePage.evaluate(()=>window.__feedTestPosts=window.__feedTestPosts.filter(post=>post.id!==window.__vatraGalleryFixture));
+  await profilePage.evaluate(()=>{
+   window.__feedTestPosts=window.__feedTestPosts.filter(post=>post.id!==window.__vatraGalleryFixture);
+   window.dispatchEvent(new Event("vatra:profile-media-changed"));
+  });
   await profilePage.locator("#profile-tab-posts").click();
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
    "Only the signed-in member may open the real post creator on their profile");
