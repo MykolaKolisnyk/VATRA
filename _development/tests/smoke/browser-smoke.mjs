@@ -4099,10 +4099,14 @@ try{
   });
   assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerBottom)<=2&&
    menuGeometry.firstRowTop>=menuGeometry.headerBottom&&
-   Math.abs(menuGeometry.left)<=1&&
-   Math.abs(menuGeometry.right-menuGeometry.searchRight)<=6&&
+   (menuGeometry.viewportWidth<=600?
+    menuGeometry.left>=0&&menuGeometry.left<=12&&
+    menuGeometry.right>=menuGeometry.viewportWidth-12:
+    Math.abs(menuGeometry.left-menuGeometry.searchLeft)<=6&&
+    menuGeometry.right>=menuGeometry.searchRight-1&&
+    menuGeometry.right-menuGeometry.left<=790)&&
    menuGeometry.panelZ<menuGeometry.headerZ,
-   "Search sheet must start at the viewport edge and end at the input: "+JSON.stringify(menuGeometry));
+   "Search sheet must anchor to the input and stay below the header: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
@@ -4290,7 +4294,7 @@ try{
    "All account actions must have persistent SVG icons in UK and EN");
   assert.equal((await feedProbe.locator(".vatra-account-settings-label-001").textContent()).trim(),
    language==="en"?"Settings":"Налаштування");
-  assert.equal(await feedProbe.locator(".feed-menu-settings-link").evaluate(el=>{const url=new URL(el.href);return url.pathname.split("/").pop()+url.search+url.hash;}),"vatra-id?view=settings#general","Settings must navigate directly");
+  assert.equal(await feedProbe.locator(".feed-menu-settings-link").evaluate(el=>{const url=new URL(el.href);return url.pathname.split("/").pop()+url.search+url.hash;}),"settings#general","Settings must navigate directly");
   assert.equal(await feedProbe.locator(".feed-menu-settings-panel, .feed-account-dropdown [data-language-trigger]").count(),0,"Language controls belong to Settings, not the avatar dropdown");
   // The right account panel must be flush to the common header edge,
   // not a floating card with a 10px gap or a displaced navigation row.
