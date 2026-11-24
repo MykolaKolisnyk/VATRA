@@ -407,6 +407,15 @@
   trimSignedCache(signedURLs);
   return promise;
  }
+ async function forgetFailedSignedURL(client,kind,path,failedURL,ttl=3600){
+  const state=signedURLCaches.get(client),key=ttl+":"+kind+":"+path;
+  const entry=state?.signedURLs.get(key);
+  if(!entry)return;
+  try{
+   const url=await entry.promise;
+   if(url===failedURL&&state.signedURLs.get(key)===entry)state.signedURLs.delete(key);
+  }catch(_){}
+ }
  async function renderStory(client,story,slot,preview=false,allowExpired=false){
   if(!slot)return;
   const request=String(Number(slot.dataset.storyRequest||"0")+1);
@@ -744,7 +753,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
        candidate.classList.add("is-gallery-pending");
        tile.prepend(candidate);
        try{await loadImageSource(candidate,src);}
-       catch(error){candidate.remove();throw error;}
+       catch(error){candidate.remove();await forgetFailedSignedURL(client,"image",path,src);throw error;}
        candidate.classList.remove("is-gallery-pending");
        element=candidate;break;
       }catch(_){}
@@ -920,12 +929,18 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     image.alt=tr("Фото до публікації","Post photo");
     image.decoding="async";image.loading="eager";
     if(priority<=2)image.fetchPriority="high";
-    await loadImageSource(image,src);
+    try{await loadImageSource(image,src);}
+    catch(error){await forgetFailedSignedURL(client,"image",path,src);throw error;}
     if(!slot.isConnected)return;
     const frame=document.createElement("button");
     frame.className="vatra-feed-post-media-open-001";frame.type="button";
     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
-    frame.addEventListener("click",()=>openFullMedia(src,"image",container,post,client));
+    frame.addEventListener("click",async()=>{
+     try{
+      const current=await signed(client,"image",path);
+      if(frame.isConnected)openFullMedia(current,"image",container,post,client);
+     }catch(_){failure(tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable."));}
+    });
     frame.append(image);
     slot.replaceChildren(frame);slot.classList.remove("is-loading-media");
     slot.classList.add("is-ready-media");

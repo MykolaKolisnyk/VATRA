@@ -19,7 +19,7 @@ const context={Map,WeakMap,Set,Date,URL,Promise,Number,setTimeout,clearTimeout,
  location:{origin:"https://example.test"},
  bucketFor:kind=>kind==="image"?"post-images":"videos"};
 runInNewContext(source.slice(start,end)+
- "\nglobalThis.mediaCacheTest={signed,preSignGallery};",context);
+ "\nglobalThis.mediaCacheTest={signed,preSignGallery,forgetFailedSignedURL};",context);
 const {signed,preSignGallery}=context.mediaCacheTest;
 const host="https://cxrcycxrlkufozomsxcs.supabase.co";
 const path="7/comments/example.png";
@@ -235,3 +235,19 @@ console.log("VATRA media: bounded signing concurrency, timeout and retry verifie
  assert.match(await single,/token=overlap$/);
 }
 console.log("VATRA media: repeated session and overlapping batch signing deduplication verified.");
+
+{
+ const {forgetFailedSignedURL}=context.mediaCacheTest;
+ const c=makeClient("retry"),d=makeClient("other");
+ const old=await signed(c.client,"image",path,300);
+ const other=await signed(d.client,"image",path,300);
+ await forgetFailedSignedURL(c.client,"image",path,old,300);
+ const fresh=await signed(c.client,"image",path,300);
+ assert.notEqual(fresh,old,"An image download failure must discard its failed URL");
+ assert.equal(c.calls,2);
+ await forgetFailedSignedURL(c.client,"image",path,old,300);
+ assert.equal(await signed(c.client,"image",path,300),fresh,"A late error must not discard a replacement URL");
+ assert.equal(await signed(d.client,"image",path,300),other,"Other viewer caches must remain independent");
+ assert.equal(d.calls,1);
+}
+console.log("VATRA media: failed image URL invalidation and fresh retry verified.");
