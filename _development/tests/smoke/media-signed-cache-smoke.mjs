@@ -199,3 +199,39 @@ console.log("VATRA signed media cache: viewer isolation, auth invalidation, in-f
  assert.match(await isolated.test.signed(client,"image","9/posts/slow.jpg",300),/token=retry$/);
 }
 console.log("VATRA media: bounded signing concurrency, timeout and retry verified.");
+
+{
+ let handler,finish,calls=0;
+ const session={user:{id:"same"},access_token:"same-session"};
+ const client={auth:{onAuthStateChange(fn){handler=fn;}},storage:{from:()=>({
+  createSignedUrl(path){calls++;return new Promise(resolve=>{finish=()=>resolve({data:{signedUrl:host+"/storage/v1/object/sign/post-images/"+path+"?token=same"},error:null});});}
+ })}};
+ const pending=signed(client,"image","9/posts/repeated.jpg",300);
+ await Promise.resolve();
+ handler("INITIAL_SESSION",session);handler("SIGNED_IN",session);
+ finish();
+ const url=await pending;
+ assert.equal(await signed(client,"image","9/posts/repeated.jpg",300),url);
+ assert.equal(calls,1,"Repeated identical session must not discard valid media URLs");
+}
+{
+ const item=path=>({media_kind:"image",media_path:path});
+ const a=item("9/posts/a.jpg"),b=item("9/posts/b.jpg"),c=item("9/posts/c.jpg");
+ const batches=[],complete=[];
+ const client={storage:{from:()=>({
+  createSignedUrls(paths){batches.push([...paths]);return new Promise(resolve=>complete.push(()=>resolve({
+   data:paths.map(path=>({path,signedUrl:host+"/storage/v1/object/sign/post-images/"+path+"?token=overlap"})),error:null
+  })));},
+  createSignedUrl(){throw Error("A pending batch must not trigger an individual duplicate");}
+ })}};
+ const first=preSignGallery(client,[a,b],300);
+ const second=preSignGallery(client,[b,c],300);
+ const single=signed(client,"image",b.media_path,300);
+ await Promise.resolve();
+ assert.equal(batches.length,2);
+ assert.equal(batches.flat().filter(path=>path===b.media_path).length,1);
+ complete.forEach(fn=>fn());
+ await Promise.all([first,second]);
+ assert.match(await single,/token=overlap$/);
+}
+console.log("VATRA media: repeated session and overlapping batch signing deduplication verified.");
