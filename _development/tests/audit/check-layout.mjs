@@ -488,7 +488,8 @@ assert.ok(
  "Landing description must remain translated and appear only once");
 assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
  css.includes('font-size:clamp(31px,2.55vw,40px)')&&
- css.includes("max-width:69ch")&&
+ signInCss.includes("max-width:54ch")&&
+ signInCss.includes("text-wrap:balance")&&
  css.includes(".intro-copy p{margin:0;color:var(--soft);font-size:15px"),
  "Landing columns and welcome description must be consistently readable");
 assert.ok(createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&

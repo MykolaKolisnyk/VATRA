@@ -746,6 +746,11 @@ try{
   if(sizes.overflow>3)console.log("Overflow diagnostic "+width+": "+JSON.stringify(sizes.offenders));
   assert.ok(sizes.overflow<=3,"Horizontal overflow at "+width+": "+sizes.overflow+"px");
   assert.ok(sizes.copy.w>200,"Description clipped at "+width);
+  const copyLayout=await page.locator(".intro-copy").evaluate(el=>{
+   const box=el.getBoundingClientRect(),panel=el.closest(".intro-side").getBoundingClientRect(),heading=el.querySelector("strong"),description=el.querySelector(".vatra-home-description-001");
+   return {width:box.width,centerDelta:Math.abs((box.left+box.right-panel.left-panel.right)/2),inside:box.left>=panel.left&&box.right<=panel.right&&box.bottom<=panel.bottom+1,overflow:el.scrollWidth-el.clientWidth,titleSize:parseFloat(getComputedStyle(heading).fontSize),bodySize:parseFloat(getComputedStyle(description).fontSize)};
+  });
+  assert.ok(copyLayout.inside&&copyLayout.centerDelta<=2&&copyLayout.overflow<=2&&copyLayout.width<=560&&copyLayout.titleSize>copyLayout.bodySize,"Login copy must be centered, compact and readable at "+width+": "+JSON.stringify(copyLayout));
   if(width>=1200){
    assert.ok(Math.abs(sizes.intro.w-sizes.form.w)<=2,"Columns unequal at "+width);
    assert.ok(Math.abs(sizes.intro.y-sizes.form.y)<=2,"Columns misaligned vertically at "+width);
