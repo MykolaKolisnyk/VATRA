@@ -554,20 +554,23 @@ function appendAudience(container,level,isGroup=false){
   if(validId(ownId))container.dataset.vatraViewerId=ownId;
   const snapshot=settings.engagement?.post_id===post.id&&settings.engagement?.post_kind===kind?
    settings.engagement:null;
+  const initialEngagement=!snapshot&&settings.engagementPromise;
+  const initialSnapshot=initialEngagement?Promise.resolve(initialEngagement)
+   .then(map=>map?.get(kind+":"+post.id)||null).catch(()=>null):Promise.resolve(null);
   if(kind==="person"&&post.poll)mountPoll(client,post,container,userId);
   const shell=make("section","vatra-post-interactions ui-vatra-post-interactions-001");
   shell.setAttribute("aria-label",tr("Взаємодія з публікацією","Post interactions"));
   const row=make("div","vatra-post-action-row ui-vatra-post-action-row-001");
   const like=action("vatra-post-like-001","thumb",tr("Подобається","Like"));
   like.setAttribute("aria-pressed","false");
-  const count=make("span","vatra-post-like-count-001","0");
+  const count=make("span","vatra-post-like-count-001",initialEngagement?"…":"0");
   like.append(count);
   const commentsButton=action("vatra-post-comments-toggle-001","comments",tr("Коментарі","Comments"));
-  const commentsCount=make("span","vatra-post-comments-count-001","0");
+  const commentsCount=make("span","vatra-post-comments-count-001",initialEngagement?"…":"0");
   commentsButton.append(commentsCount);
   commentsButton.setAttribute("aria-expanded","false");
   const share=action("vatra-post-share-toggle-001","share",tr("Поділитися","Share"));
-  const sharesCount=make("span","vatra-post-shares-count-001","0");
+  const sharesCount=make("span","vatra-post-shares-count-001",initialEngagement?"…":"0");
   share.append(sharesCount);
   share.setAttribute("aria-expanded","false");
   const saved=action("vatra-post-save-001 vatra-post-owner-action vatra-post-owner-save-001","bookmark",tr("Зберегти","Save"));
@@ -592,6 +595,8 @@ function appendAudience(container,level,isGroup=false){
     if(saveReady)return Promise.resolve(true);
     if(savePending)return savePending;
     savePending=(async()=>{
+     const current=await initialSnapshot;
+     if(current){stored=!!current.viewer_saved;saveReady=true;refresh();return true;}
      const {data,error}=await client.from("post_saves").select("post_id")
       .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id).maybeSingle();
      if(error)throw error;
@@ -601,7 +606,7 @@ function appendAudience(container,level,isGroup=false){
    };
    refresh();
 
-   if(!snapshot&&typeof IntersectionObserver==="function"){
+   if(!snapshot&&typeof IntersectionObserver==="function"&&!initialEngagement){
     const observer=new IntersectionObserver(entries=>{
      if(entries.some(x=>x.isIntersecting)){observer.disconnect();void hydrateSaved();}
     },{rootMargin:"160px"});
@@ -645,8 +650,11 @@ function appendAudience(container,level,isGroup=false){
    if(likeReady)return Promise.resolve();
    if(likePending)return likePending;
    likePending=(async()=>{
-    const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);
-    const current=snapshotMap.get(kind+":"+post.id);
+    let current=await initialSnapshot;
+    if(!current){
+     const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);
+     current=snapshotMap.get(kind+":"+post.id);
+    }
     if(!current)throw Error("Likes unavailable");
     likeCount=Math.max(0,Number(current.like_count)||0);
     liked=!!current.viewer_liked;likeReady=true;
@@ -657,7 +665,7 @@ function appendAudience(container,level,isGroup=false){
     .finally(()=>{likePending=null;});
    return likePending;
   };
-  if(!snapshot&&typeof IntersectionObserver!=="undefined"){
+  if(!snapshot&&typeof IntersectionObserver!=="undefined"&&!initialEngagement){
    const observer=new IntersectionObserver(entries=>{
     if(entries.some(x=>x.isIntersecting)){observer.disconnect();void hydrateLike();}
    },{rootMargin:"160px"});
@@ -1482,7 +1490,15 @@ function appendAudience(container,level,isGroup=false){
    commentsCount.textContent=String(Math.max(0,Number(snapshot.comment_count)||0));
    sharesCount.textContent=String(Math.max(0,Number(snapshot.share_count)||0));
   }
-  if(!snapshot&&typeof IntersectionObserver!=="undefined"){
+  if(initialEngagement){
+   const ticket=++socialTicket;
+   void initialSnapshot.then(current=>{
+    if(!shell.isConnected||ticket!==socialTicket)return;
+    if(!current){void refreshSocial();return;}
+    commentsCount.textContent=String(Math.max(0,Number(current.comment_count)||0));
+    sharesCount.textContent=String(Math.max(0,Number(current.share_count)||0));
+   });
+  }else if(!snapshot&&typeof IntersectionObserver!=="undefined"){
    const summaryObserver=new IntersectionObserver(entries=>{
     if(entries.some(x=>x.isIntersecting)){
      summaryObserver.disconnect();void refreshSocial();

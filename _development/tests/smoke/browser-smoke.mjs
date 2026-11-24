@@ -678,7 +678,7 @@ try{
   await page.setViewportSize({width,height});
   await page.goto(base,{waitUntil:"domcontentloaded",timeout:20000});
   await waitReady(page);
-  await page.locator(".vatra-login-poster-image-001").evaluate(img=>img.decode());
+  await page.locator(".vatra-login-hero-image-001").evaluate(img=>img.decode());
   const sizes=await page.evaluate(()=>{
    const r=selector=>{const b=document.querySelector(selector)?.getBoundingClientRect();return b?{x:b.x,y:b.y,w:b.width,h:b.height}:null};
    const offenders=[...document.querySelectorAll("body *")].map(node=>({node,b:node.getBoundingClientRect()}))
@@ -700,8 +700,10 @@ try{
      footerAligned:Math.abs(footerContent.left-rect.left)<=2&&Math.abs(footerContent.right-rect.right)<=2,
      authAnimation:getComputedStyle(document.querySelector(".form-box")).animationName,
      fieldGap:getComputedStyle(document.querySelector(".form-box .field-stack")).gap,
-     posterReady:(()=>{const img=document.querySelector(".vatra-login-poster-image-001");return !!img&&img.complete&&img.naturalWidth>0;})(),
-     obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol").length,
+     heroReady:(()=>{const img=document.querySelector(".vatra-login-hero-image-001");return !!img&&img.complete&&img.naturalWidth>0;})(),
+     obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol,.intro-circle,.intro-art").length,
+     heroWidth:document.querySelector(".vatra-login-hero-image-001").getBoundingClientRect().width,
+     heroBefore:getComputedStyle(brand,"::before").content,
      brandStartRadius:getComputedStyle(brand)[innerWidth>=1200?"borderTopLeftRadius":"borderBottomLeftRadius"],
      formStartRadius:getComputedStyle(form)[innerWidth>=1200?"borderTopRightRadius":"borderTopLeftRadius"],
      formBackground:getComputedStyle(form).backgroundColor,
@@ -716,8 +718,11 @@ try{
   assert.equal(design.fieldGap,"19px","Login form must have spacious field gaps");
   if(width>=1200&&design.verticallyFits)
    assert.ok(design.centerDelta<=2,"Login card must be vertically centered at "+width+": "+JSON.stringify(design));
-  assert.ok(design.posterReady&&design.obsoleteOrbits===0,
-   "VATRA login must show the loaded original poster without old orbit icons");
+  assert.ok(design.heroReady&&design.obsoleteOrbits===0,
+   "VATRA login must show the loaded original hero without old orbit icons");
+  const minHeroWidth=width>=1200?Math.min(sizes.intro.w*.91,Math.max(360,Math.min(height-330,560))):sizes.intro.w*.91;
+  assert.ok(design.heroWidth>=minHeroWidth-2,"Hero must use the available column width within its vertical budget at "+width+": "+JSON.stringify(design));
+  assert.equal(design.heroBefore,"none","Retired decorative pseudo-element must not be rendered");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
    "Login card must preserve rounded corners at "+width);
@@ -733,17 +738,17 @@ try{
    assert.ok(sizes.form.y<sizes.intro.y,"Mobile must show sign-in before artwork at "+width);
   }
   if(width===360||width===1440){
-   const poster=await page.locator(".vatra-login-poster-image-001").evaluate(img=>{
+   const hero=await page.locator(".vatra-login-hero-image-001").evaluate(img=>{
     const box=img.getBoundingClientRect(),computed=getComputedStyle(img);
     return {loaded:img.complete&&img.naturalWidth>0,
      src:new URL(img.getAttribute("src"),location.href).pathname,
      box:{left:box.left,right:box.right,top:box.top,bottom:box.bottom},
      fit:computed.objectFit,ratio:img.naturalWidth/img.naturalHeight};
    });
-   assert.ok(poster.loaded&&poster.src.endsWith("/assets/poster.webp")&&poster.fit==="contain",
-    "Login must render the supplied poster without cropping: "+JSON.stringify(poster));
-   assert.ok(poster.box.right<=width+2&&poster.box.left>=-2,
-    "Login poster must remain within viewport horizontally: "+JSON.stringify(poster));
+   assert.ok(hero.loaded&&hero.src.endsWith("/assets/illustrations/login-hero.webp")&&hero.fit==="contain"&&hero.ratio===1,
+    "Login must render the supplied hero without cropping: "+JSON.stringify(hero));
+   assert.ok(hero.box.right<=width+2&&hero.box.left>=-2,
+    "Login hero must remain within viewport horizontally: "+JSON.stringify(hero));
   }
   console.log("VATRA layout "+width+"x"+height+": OK");
   await page.close();
@@ -1222,9 +1227,9 @@ try{
   }
   if(width>=1200){
    assert.ok(Math.abs(login.cardY-signup.cardY)<=2,
-    "Login and signup cards should share the same vertical center at "+width);
+    "Login and signup cards should share the same vertical center at "+width+": "+JSON.stringify(snapshots));
    assert.ok(Math.abs(login.height-signup.height)<=Math.max(56,height*.075),
-    "Distinct login poster and signup artwork must retain comparable card heights at "+width+": "+JSON.stringify(snapshots));
+    "Distinct login hero and signup artwork must retain comparable card heights at "+width+": "+JSON.stringify(snapshots));
    assert.ok(Math.abs(login.brandWidth-signup.brandWidth)<=2&&
     Math.abs(login.panelWidth-signup.panelWidth)<=2,
     "Auth columns differ at "+width+": "+JSON.stringify(snapshots));
@@ -1623,9 +1628,9 @@ try{
     return {kicker:style(login?".login-form-kicker":".signup-form-kicker"),
       heading:style(login?".form-box h2":".signup-step-heading h1"),
       desc:style(login?".login-description":".signup-step-heading .subtitle"),
-      logo:style(login?".vatra-login-poster-image-001":".signup-brand-symbol"),
+      logo:style(login?".vatra-login-hero-image-001":".signup-brand-symbol"),
       copyAlign:getComputedStyle(document.querySelector(login?".intro-copy":".signup-brand-copy")).textAlign,
-      svg:document.querySelector(login?".vatra-login-poster-image-001":".signup-brand-symbol").getAttribute("src"),
+      svg:document.querySelector(login?".vatra-login-hero-image-001":".signup-brand-symbol").getAttribute("src"),
       primary:getComputedStyle(document.querySelector(login?".form-box .action.primary":".signup-form-panel .action.primary")).backgroundImage};
    });
    assert.equal(v.copyAlign,"center","Promo copy must be centered "+route+" "+width);
@@ -1638,14 +1643,14 @@ try{
     assert.equal(login[key][prop],signup[key][prop],
      "Typography mismatch "+width+" "+key+"."+prop+": "+JSON.stringify(settings));
   assert.equal(login.primary,signup.primary,"CTA gradients must match "+width);
-  assert.equal(login.svg,"assets/poster.webp","Login must use the original poster at "+width);
+  assert.equal(login.svg,"assets/illustrations/login-hero.webp","Login must use the original hero at "+width);
   assert.equal(signup.svg,"assets/logo/logo_symbol.svg","Signup must retain the brand symbol at "+width);
-  assert.equal(login.logo.animation,"none","The login poster must not rotate or pulse at "+width);
+  assert.equal(login.logo.animation,"none","The login hero must not rotate or pulse at "+width);
   assert.ok(signup.logo.animation.includes("vatraSignupSymbol"),
    "Signup brand symbol animation must remain intact at "+width);
   assert.ok(login.logo.width>0&&(width<1200?signup.logo.width===0:signup.logo.width>0),
-   "Login poster stays visible; signup artwork is intentionally hidden on narrow screens at "+width);
-  console.log("VATRA matching typography & separate login poster "+width+"x"+height+": OK");
+   "Login hero stays visible; signup artwork is intentionally hidden on narrow screens at "+width);
+  console.log("VATRA matching typography & separate login hero "+width+"x"+height+": OK");
  }
  // Standalone legal readers use one return link, and the hub contains four banners.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
@@ -3375,18 +3380,24 @@ try{
   assert.equal(await playVideo.isVisible(),true);
   assert.equal((await playVideo.innerText()).trim(),language==="en"?"Play video":"Відтворити відео");
   await playVideo.click();
-  await feedProbe.locator("#vatra-smoke-video video[controls]").waitFor({state:"attached"});
+  await playVideo.waitFor({state:"visible"});
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-smoke-video .vatra-feed-post-video-play-001")?.textContent.includes(
+   document.documentElement.lang==="en"?"Retry loading video":"Повторити завантаження відео"));
   assert.equal(await feedProbe.evaluate(()=>window.__vatraVideoSmoke.signed),1,
-   "User-triggered playback should sign exactly one media file");
-  assert.equal(await feedProbe.locator("#vatra-smoke-video .vatra-feed-post-video-expand-001").count(),1,
-   "Playback must keep fullscreen controls");
+   "User-triggered playback should sign exactly one media file before a failed download");
+  await playVideo.click();
+  await feedProbe.waitForFunction(()=>window.__vatraVideoSmoke.signed===2);
+  await playVideo.waitFor({state:"visible"});
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-smoke-video .vatra-feed-post-video-play-001")?.textContent.includes(
+   document.documentElement.lang==="en"?"Retry loading video":"Повторити завантаження відео"));
+  assert.equal(await feedProbe.evaluate(()=>window.__vatraVideoSmoke.signed),2,"Failed video download must request a fresh signature on retry");
   await feedProbe.locator("#vatra-smoke-video").evaluate(el=>{
    for(const video of el.querySelectorAll("video")){
     video.pause();video.removeAttribute("src");video.load();
    }
    el.remove();
   });
-  console.log("VATRA media: deferred video signatures, zero preview MP4 requests, controls retained");
+  console.log("VATRA media: deferred video signatures, zero preview MP4 requests and failed-download retry");
   // End-to-end: preserve an original PNG and upload a smaller WebP into
   // the same private bucket, then sign only the WebP while scrolling Feed.
   const previewFixture=await feedProbe.evaluate(async()=>{

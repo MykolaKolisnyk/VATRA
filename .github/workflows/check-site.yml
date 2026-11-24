@@ -53,6 +53,8 @@ jobs:
         run: node _development/tests/smoke/shared-social-cache-smoke.mjs
       - name: Check notification request deduplication and session teardown
         run: node _development/tests/smoke/notification-lifecycle-smoke.mjs
+      - name: Check parallel Messenger keys and notification filter races
+        run: node _development/tests/smoke/messenger-notification-performance-smoke.mjs
       - name: Check toast validation, automatic dismissal and profile photo feedback
         run: node _development/tests/smoke/toast-ux-smoke.mjs
       - name: Check professional admin panel navigation and member directory

@@ -55,10 +55,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *::after{animation-play-state:paused!important}
 
 @media(prefers-reduced-motion:reduce){.vatra-auth-loading-symbol,.vatra-auth-loading-indicator{animation:none!important}.vatra-auth-loading-indicator{width:65%}}
-@keyframes vatraOrbitClockwise{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
-@keyframes vatraIconUpright{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
-@keyframes vatraGlyphFloat{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(-2px) scale(1.04);opacity:.84}}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.form-box{width:100%;max-width:520px;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .form-box h2,
 .narrow-form h1{margin:0 0 10px;font-size:clamp(31px,2.55vw,40px);line-height:1.2;letter-spacing:-.03em;font-weight:745;color:var(--ink);text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:15px;line-height:1.65;font-weight:400}.field-stack{display:grid;gap:14px}

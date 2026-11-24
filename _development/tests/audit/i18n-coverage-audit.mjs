@@ -155,7 +155,8 @@ assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
 // Read labels from actual post media controls, including aria and error strings.
 const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/tr\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
  .map(match=>JSON.parse(match[1])))];
-assert.equal(postMediaKeys.length,44,"Unexpected source key count in post media runtime (no Show less control)");
+assert.equal(postMediaKeys.length,45,"Post media runtime must include retry and omit the retired Show less control");
+assert.ok(postMediaKeys.includes("Повторити"),"Media retry action must be translated");
 for(const key of postMediaKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
   "English post media translation missing: "+key);
@@ -589,7 +590,9 @@ for(const code of codes){
  const missing=dynamicKeys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
  assert.deepEqual(missing,[],code+": shared source key coverage must be complete");
  const covered=dynamicKeys.length;
- const untranslated=dynamicKeys.filter(key=>dictionary[key].trim()===key.trim());
+ // Bulgarian uses the same word for sound as Ukrainian; verified translation.
+ const identicalLocaleKeys=code==="bg"?new Set(["Звук"]):new Set();
+ const untranslated=dynamicKeys.filter(key=>dictionary[key].trim()===key.trim()&&!identicalLocaleKeys.has(key));
  assert.ok(untranslated.length<=8,
   code+": unexpectedly many shared phrases remain in Ukrainian: "+untranslated.join(" | "));
  for(const key of Object.keys(dictionary).filter(key=>!key.startsWith("__")))
@@ -602,3 +605,14 @@ for(const code of codes){
   " shared translation keys; locale-specific JavaScript, legal review and email templates pending");
 }
 console.log("VATRA eight-language page and dynamic locale integrity: OK; beta email templates excluded");
+
+const clipsRuntime=await readFile("assets/js/clips.js","utf8");
+const clipsDynamicKeys=[...new Set([...clipsRuntime.matchAll(/\bt\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")/g)]
+ .map(match=>JSON.parse(match[1])))];
+assert.ok(clipsDynamicKeys.length>=28,"Clips localization coverage must include all dynamic controls");
+for(const code of ["en",...codes]){
+ const dictionary=code==="en"?en:await read(code);
+ for(const key of clipsDynamicKeys)assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+  code+": missing Clips translation: "+key);
+}
+console.log("VATRA Clips: complete dynamic label coverage in seven non-Ukrainian locales.");

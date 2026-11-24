@@ -166,3 +166,37 @@ function userClient(author){
   verified.includes('client.from("verified_accounts")'));
 }
 console.log("VATRA public-name cache: overlapping singleflight, viewer isolation, auth races, negative TTL, Redis fallback passed.");
+
+{
+ const entries=new Map();
+ const storage={getItem:key=>entries.get(key)||null,setItem:(key,value)=>entries.set(key,value),removeItem:key=>entries.delete(key)};
+ const reload=()=>{
+  const window={VATRA_NAME_CACHE_EDGE_ENABLED:false};
+  runInNewContext(source,{window,sessionStorage:storage,Date:TestDate,Number,String,Map,Set,WeakMap,Promise,Error,JSON});
+  return window.VATRA_PUBLIC_NAMES;
+ };
+ const viewerA="11111111-1111-4111-8111-111111111111",viewerB="22222222-2222-4222-8222-222222222222";
+ let calls=0,handler;
+ const client=()=>({auth:{onAuthStateChange(fn){handler=fn;}},from:()=>({select:()=>({in:async(_key,ids)=>{
+  calls++;return {data:ids.map(id=>({vatra_id:Number(id),display_name:"Member "+id,verified:true})),error:null};
+ }})})});
+ let api=reload(),a=client();
+ api.bindViewer(a,viewerA);
+ await api.get(a,[7,8]);assert.equal(calls,1);
+ const saved=JSON.parse(entries.get("vatra:public-names:tab:v1"));
+ assert.equal(saved.viewer,viewerA);
+ assert.ok(saved.rows.every(entry=>Object.keys(entry.row).sort().join(",")==="display_name,vatra_id"),"Persist only public names and IDs, never verification or private values");
+ api=reload();a=client();api.bindViewer(a,viewerA);
+ assert.equal((await api.get(a,[7])).data[0].display_name,"Member 7");
+ assert.equal(calls,1,"Same verified viewer in a new document reuses the tab cache");
+ now+=30001;
+ api=reload();a=client();api.bindViewer(a,viewerA);
+ await api.get(a,[7]);assert.equal(calls,2,"Expired entries require fresh RLS reads");
+ api=reload();a=client();api.bindViewer(a,viewerB);
+ await api.get(a,[7]);assert.equal(calls,3,"Different verified viewer must never inherit the previous tab cache");
+ handler("SIGNED_OUT",{user:null});
+ assert.equal(entries.has("vatra:public-names:tab:v1"),false,"Logout must erase the tab cache");
+ api=reload();a=client();await api.get(a,[7]);
+ assert.equal(entries.has("vatra:public-names:tab:v1"),false,"An unbound client must not persist names");
+}
+console.log("VATRA public names: verified viewer tab reuse, original expiry, account isolation and logout verified.");
