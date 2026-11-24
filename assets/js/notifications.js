@@ -45,6 +45,12 @@ const timeValue=date=>{
  const d=new Date(date),ms=Math.max(0,Date.now()-d.getTime());if(!Number.isFinite(d.getTime()))return "";
  if(ms<60000)return t("щойно","just now");
  const n=Math.floor(ms/60000),h=Math.floor(ms/3600000),days=Math.floor(ms/86400000);
+ const code=language();
+ if(code!=="uk"&&code!=="en"&&Object.hasOwn(dateLocales,code)){
+  const relative=new Intl.RelativeTimeFormat(dateLocales[code],{numeric:"always"});
+  const [amount,unit]=ms<3600000?[n,"minute"]:ms<86400000?[h,"hour"]:days<30?[days,"day"]:days<365?[Math.floor(days/30),"month"]:[Math.floor(days/365),"year"];
+  return relative.format(-amount,unit);
+ }
  if(ms<3600000)return language()==="en"?n+" minute"+(n===1?"":"s")+" ago":plural(n,"хвилину","хвилини","хвилин")+" тому";
  if(ms<86400000)return language()==="en"?h+" hour"+(h===1?"":"s")+" ago":plural(h,"годину","години","годин")+" тому";
  if(days<30)return language()==="en"?days+" days ago":plural(days,"день","дні","днів")+" тому";
