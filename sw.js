@@ -47,6 +47,9 @@ self.addEventListener("activate",event=>{
  event.waitUntil((async()=>{
   const keys=await caches.keys();
   await Promise.all(keys.filter(key=>key.startsWith("vatra-offline-shell")&&key!==CACHE).map(key=>caches.delete(key)));
+  if(self.registration?.navigationPreload){
+   try{await self.registration.navigationPreload.enable();}catch(_){}
+  }
   await self.clients.claim();
  })());
 });
@@ -59,6 +62,8 @@ async function matchesAssetRevision(response,revision){
   return Array.from(digest,n=>n.toString(16).padStart(2,"0")).join("")===revision;
  }catch(_){return false;}
 }
+const pendingStatic=new Map();
+const pendingTranslations=new Map();
 self.addEventListener("fetch",event=>{
  const request=event.request;
  if(request.method!=="GET")return;
@@ -67,7 +72,8 @@ self.addEventListener("fetch",event=>{
  if(request.mode==="navigate"){
   event.respondWith((async()=>{
    try{
-    return await fetch(request,{cache:"no-cache"});
+    const preloaded=await Promise.resolve(event.preloadResponse).catch(()=>null);
+    return preloaded||await fetch(request,{cache:"no-cache"});
    }catch(_){
     return await caches.match(OFFLINE)||new Response("VATRA: Offline",{
      status:503,headers:{"Content-Type":"text/plain;charset=utf-8"}
@@ -86,24 +92,41 @@ self.addEventListener("fetch",event=>{
   if(fingerprinted){
    const cached=await cache.match(request);
    if(cached)return cached;
-   try{
-    const fresh=await fetch(request,{cache:"no-cache"});
-    if(fresh.ok&&await matchesAssetRevision(fresh.clone(),revision)){
-     await cache.put(request,fresh.clone()).catch(()=>{});
-     const keys=(await cache.keys()).filter(key=>new URL(key.url).searchParams.has("rev"));
-     if(keys.length>80)await Promise.allSettled(keys.slice(0,keys.length-80).map(key=>cache.delete(key)));
-    }
-    return fresh;
-   }catch(_){return Response.error();}
+   let pending=pendingStatic.get(request.url);
+   if(!pending){
+    pending=(async()=>{
+     try{
+      const fresh=await fetch(request,{cache:"no-cache"});
+      if(fresh.ok&&await matchesAssetRevision(fresh.clone(),revision)){
+       await cache.put(request,fresh.clone()).catch(()=>{});
+       const keys=(await cache.keys()).filter(key=>new URL(key.url).searchParams.has("rev"));
+       if(keys.length>80)await Promise.allSettled(keys.slice(0,keys.length-80).map(key=>cache.delete(key)));
+      }
+      return fresh;
+     }catch(_){return Response.error();}
+    })();
+    pendingStatic.set(request.url,pending);
+    void pending.finally(()=>{
+     if(pendingStatic.get(request.url)===pending)pendingStatic.delete(request.url);
+    }).catch(()=>{});
+   }
+   return (await pending).clone();
   }
   const translation=staticAsset&&(url.pathname===ROOT+"assets/i18n/uk.json"||
    url.pathname===ROOT+"assets/i18n/en.json");
   if(translation){
    const saved=await cache.match(request);
    if(saved){
-    const refresh=fetch(request).then(fresh=>{
-     if(fresh.ok)return cache.put(request,fresh.clone());
-    }).catch(()=>{});
+    let refresh=pendingTranslations.get(request.url);
+    if(!refresh){
+     refresh=fetch(request).then(fresh=>{
+      if(fresh.ok)return cache.put(request,fresh.clone());
+     }).catch(()=>{});
+     pendingTranslations.set(request.url,refresh);
+     void refresh.finally(()=>{
+      if(pendingTranslations.get(request.url)===refresh)pendingTranslations.delete(request.url);
+     });
+    }
     event.waitUntil?.(refresh);
     return saved;
    }

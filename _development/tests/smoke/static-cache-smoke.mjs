@@ -4,7 +4,7 @@ import {runInNewContext} from "node:vm";
 import {createHash,webcrypto} from "node:crypto";
 const source=await readFile("sw.js","utf8");
 const base="https://example.com/VATRA/",cacheEntries=new Map(),handlers=new Map();
-let online=true,networkCalls=0,cacheWrites=0,body="console.log('v1')";
+let online=true,networkCalls=0,cacheWrites=0,body="console.log('v1')",networkGate=null;
 const background=[];
 const hash=s=>createHash("sha1").update("blob "+Buffer.byteLength(s)+"\u0000").update(s).digest("hex");
 const cache={
@@ -16,7 +16,7 @@ const cache={
 const self={location:new URL(base+"sw.js"),addEventListener:(name,fn)=>handlers.set(name,fn)};
 runInNewContext(source,{URL,Request,Response,TextEncoder,Uint8Array,Array,Promise,crypto:webcrypto,self,
  caches:{open:async()=>cache,match:async()=>null},
- fetch:async()=>{networkCalls++;if(!online)throw Error("offline");return new Response(body,{status:200});}});
+ fetch:async()=>{networkCalls++;if(networkGate)await networkGate;if(!online)throw Error("offline");return new Response(body,{status:200});}});
 function request(path){
  let result;handlers.get("fetch")({request:new Request(base+path),respondWith(p){result=p;},waitUntil(p){background.push(p);}});return result;
 }
@@ -50,3 +50,39 @@ assert.equal(request("private/messages.json"),undefined,"Private non-asset reque
 for(let i=0;i<85;i++){body="console.log("+i+")";await request("assets/js/clips.js?rev="+hash(body));}
 assert.ok([...cacheEntries.keys()].filter(url=>new URL(url).searchParams.has("rev")).length<=80,"Versioned entries remain bounded");
 console.log("VATRA static cache: body verification, old versions, offline reuse, revalidation and bounded storage passed.");
+
+{
+ let release;
+ networkGate=new Promise(resolve=>{release=resolve;});
+ body="console.log('concurrent')";
+ const path="assets/js/clips.js?rev="+hash(body),before=networkCalls;
+ const a=request(path),b=request(path);
+ for(let i=0;i<8;i++)await Promise.resolve();
+ assert.equal(networkCalls,before+1,"Concurrent misses for an immutable asset share one network request");
+ release();networkGate=null;
+ assert.equal(await (await a).text(),body);
+ assert.equal(await (await b).text(),body);
+}
+{
+ let result;
+ const before=networkCalls;
+ handlers.get("fetch")({request:{url:base+"feed",method:"GET",mode:"navigate"},
+  preloadResponse:Promise.resolve(new Response("preloaded navigation")),respondWith(p){result=p;}});
+ assert.equal(await (await result).text(),"preloaded navigation");
+ assert.equal(networkCalls,before,"Do not fetch a navigation a second time after successful browser preload");
+ handlers.get("fetch")({request:{url:base+"feed",method:"GET",mode:"navigate"},
+  preloadResponse:Promise.reject(Error("Preload unavailable")),respondWith(p){result=p;}});
+ assert.equal(await (await result).text(),body);
+ assert.equal(networkCalls,before+1,"Failed preload must fall back to a real navigation request");
+}
+{
+ let release;
+ networkGate=new Promise(resolve=>{release=resolve;});
+ const before=networkCalls;
+ const a=request(localePath),b=request(localePath);
+ await Promise.all([a,b]);
+ assert.equal(networkCalls,before+1,"Concurrent locale cache hits share one background refresh");
+ release();networkGate=null;
+ await Promise.allSettled(background.splice(0));
+}
+console.log("VATRA navigation preload and concurrent static requests: OK.");
