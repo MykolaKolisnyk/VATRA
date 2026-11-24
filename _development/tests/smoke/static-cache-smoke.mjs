@@ -6,6 +6,8 @@ const source=await readFile("sw.js","utf8");
 const base="https://example.com/VATRA/",cacheEntries=new Map(),handlers=new Map();
 let online=true,networkCalls=0,cacheWrites=0,body="console.log('v1')",networkGate=null;
 const background=[];
+let now=Date.now();
+class Clock extends Date{static now(){return now;}}
 const hash=s=>createHash("sha1").update("blob "+Buffer.byteLength(s)+"\u0000").update(s).digest("hex");
 const cache={
  async match(request){return cacheEntries.get(typeof request==="string"?request:request.url)?.clone();},
@@ -14,7 +16,7 @@ const cache={
  async delete(request){return cacheEntries.delete(request.url);}
 };
 const self={location:new URL(base+"sw.js"),addEventListener:(name,fn)=>handlers.set(name,fn)};
-runInNewContext(source,{URL,Request,Response,TextEncoder,Uint8Array,Array,Promise,crypto:webcrypto,self,
+runInNewContext(source,{URL,Request,Response,TextEncoder,Uint8Array,Array,Promise,Date:Clock,crypto:webcrypto,self,
  caches:{open:async()=>cache,match:async()=>null},
  fetch:async()=>{networkCalls++;if(networkGate)await networkGate;if(!online)throw Error("offline");return new Response(body,{status:200});}});
 function request(path){
@@ -78,6 +80,7 @@ console.log("VATRA static cache: body verification, old versions, offline reuse,
 {
  let release;
  networkGate=new Promise(resolve=>{release=resolve;});
+ now+=60001;
  const before=networkCalls;
  const a=request(localePath),b=request(localePath);
  await Promise.all([a,b]);
@@ -86,3 +89,22 @@ console.log("VATRA static cache: body verification, old versions, offline reuse,
  await Promise.allSettled(background.splice(0));
 }
 console.log("VATRA navigation preload and concurrent static requests: OK.");
+
+{
+ const localePaths=["pl","de","fr","it","ka","bg"].map(code=>"assets/i18n/"+code+".json");
+ for(const path of [...localePaths,"assets/fonts/Onest-Variable.ttf","assets/logo/logo_app-icon.webp"]){
+  body="public version one";
+  assert.equal(await (await request(path)).text(),body);
+  body="public version two";
+  const before=networkCalls;
+  assert.equal(await (await request(path)).text(),"public version one","Reusable public assets render before network");
+  await Promise.allSettled(background.splice(0));
+  assert.equal(networkCalls,before+1);
+  assert.equal(await (await request(path)).text(),body);
+  assert.equal(networkCalls,before+1,"Repeated navigation must not revalidate the same public asset within one minute");
+ }
+ assert.equal(request("https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/sign/post-images/private.webp"),undefined);
+ assert.equal(request("https://cxrcycxrlkufozomsxcs.supabase.co/rest/v1/feed_posts"),undefined);
+ assert.equal(request("assets/private/user-photo.webp"),undefined);
+}
+console.log("VATRA all eight language packs, shared font/logo reuse and private-resource exclusion: OK.");

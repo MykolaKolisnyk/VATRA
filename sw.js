@@ -64,6 +64,9 @@ async function matchesAssetRevision(response,revision){
 }
 const pendingStatic=new Map();
 const pendingTranslations=new Map();
+const lastPublicRefresh=new Map();
+const PUBLIC_REFRESH_MS=60000;
+const publicAsset=pathname=>/^(?:assets\/i18n\/(?:uk|en|pl|de|fr|it|ka|bg)\.json|assets\/fonts\/[a-zA-Z0-9_.-]+\.(?:ttf|woff2?)|assets\/logo\/[a-zA-Z0-9_.-]+\.(?:svg|webp|png))$/.test(pathname.slice(ROOT.length));
 self.addEventListener("fetch",event=>{
  const request=event.request;
  if(request.method!=="GET")return;
@@ -84,9 +87,10 @@ self.addEventListener("fetch",event=>{
  }
  const staticAsset=url.pathname.startsWith(ROOT+"assets/")&&
   /\.(?:css|js|json|svg|ttf|woff2?)$/i.test(url.pathname);
+ const reusablePublic=publicAsset(url.pathname)&&!url.search;
  const revision=url.searchParams.get("rev")||"";
  const fingerprinted=staticAsset&&/^[a-f0-9]{40}$/.test(revision)&&url.searchParams.size===1&&/\.(?:js|css)$/i.test(url.pathname);
- if(!staticAsset&&!ASSETS.includes(url.pathname))return;
+ if(!staticAsset&&!reusablePublic&&!ASSETS.includes(url.pathname))return;
  event.respondWith((async()=>{
   const cache=await caches.open(CACHE);
   if(fingerprinted){
@@ -112,15 +116,19 @@ self.addEventListener("fetch",event=>{
    }
    return (await pending).clone();
   }
-  const translation=staticAsset&&(url.pathname===ROOT+"assets/i18n/uk.json"||
-   url.pathname===ROOT+"assets/i18n/en.json");
-  if(translation){
+  if(reusablePublic){
    const saved=await cache.match(request);
    if(saved){
+    const last=lastPublicRefresh.get(request.url)||0;
+    if(Date.now()-last<PUBLIC_REFRESH_MS)return saved;
     let refresh=pendingTranslations.get(request.url);
     if(!refresh){
-     refresh=fetch(request).then(fresh=>{
-      if(fresh.ok)return cache.put(request,fresh.clone());
+     refresh=fetch(request,{cache:"no-cache"}).then(async fresh=>{
+      if(fresh.ok){
+       await cache.put(request,fresh.clone());
+       lastPublicRefresh.set(request.url,Date.now());
+       while(lastPublicRefresh.size>64)lastPublicRefresh.delete(lastPublicRefresh.keys().next().value);
+      }
      }).catch(()=>{});
      pendingTranslations.set(request.url,refresh);
      void refresh.finally(()=>{
