@@ -601,11 +601,7 @@ body.feed-page .vatra-post-share-panel[hidden]{display:none!important}
 body.feed-page .vatra-post-comments-filter-row{gap:10px;flex-wrap:wrap
 }
 
-body.feed-page .ui-vatra-post-comments-sort-001{
- max-width:100%;min-height:39px;padding:7px 13px;border:1px solid #d6e1f2;
- border-radius:10px;background:#fff;color:#2c4262;
- font:650 13px/1.4 "Onest",system-ui,sans-serif
-}
+body.feed-page .ui-vatra-post-comments-sort-001{max-width:100%;border-radius:10px}
 body.feed-page .vatra-post-comments-sort-note-001{
  color:#7b8da8;font:500 11.5px/1.5 "Onest",system-ui,sans-serif
 }
