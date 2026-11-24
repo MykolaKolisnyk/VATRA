@@ -678,6 +678,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
  // One viewport observer for all pending post images and galleries.
  const pendingMedia=new Map();
  let mediaIntersection=null,mediaMountObserver=null;
+ let mediaScanQueued=false;
  function removeMediaTarget(slot){
   const entry=pendingMedia.get(slot);
   if(!entry)return;
@@ -700,6 +701,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    if(!slot.isConnected){
     // Cards removed during a feed refresh must not retain observers or sign URLs.
     if(entry.observed)removeMediaTarget(slot);
+    else if(entry.timer===null)entry.timer=setTimeout(()=>removeMediaTarget(slot),15000);
     continue;
    }
    if(entry.observed)continue;
@@ -718,14 +720,13 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   if(pendingMedia.has(slot))return;
   const entry={priority,load,observed:false,timer:null};
   pendingMedia.set(slot,entry);
-  // A card can be constructed inside a DocumentFragment before insertion.
+  // Batch cards created inside a DocumentFragment in one microtask.
+  if(mediaScanQueued)return;
+  mediaScanQueued=true;
   queueMicrotask(()=>{
-   if(pendingMedia.get(slot)!==entry)return;
+   mediaScanQueued=false;
    scanMediaTargets();
-   if(!pendingMedia.has(slot))return;
-   if(!entry.observed){
-    entry.timer=setTimeout(()=>removeMediaTarget(slot),15000);
-   }
+   if(!pendingMedia.size)return;
    if(!mediaMountObserver&&typeof MutationObserver==="function"){
     mediaMountObserver=new MutationObserver(records=>{
      if(records.some(record=>record.removedNodes.length)||
