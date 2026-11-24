@@ -1962,7 +1962,7 @@ assert.ok(
  postInteractionFields.includes('input.name="vatra_post_comment"') &&
  postInteractionFields.includes('shareAudience.name="vatra_share_visibility"') &&
  postInteractionFields.includes('shareCaption.name="vatra_share_caption"') &&
- postInteractionFields.includes('friendSelect.name="vatra_share_friend"'),
+ !postInteractionFields.includes('friendSelect.name="vatra_share_friend"'),
  "Comments and sharing forms must name their controls for accessibility and autofill audits");
 const socialMotion=await read("assets/js/social-shell.js");
 assert.doesNotThrow(()=>new Function(socialMotion),"Shared VATRA transition logic must be valid JavaScript");
