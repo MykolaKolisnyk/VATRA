@@ -4099,10 +4099,11 @@ try{
   });
   assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerBottom)<=2&&
    menuGeometry.firstRowTop>=menuGeometry.headerBottom&&
-   Math.abs(menuGeometry.left)<=1&&
-   Math.abs(menuGeometry.right-menuGeometry.searchRight)<=6&&
+   Math.abs(menuGeometry.left-menuGeometry.searchLeft)<=6&&
+   menuGeometry.right>=menuGeometry.searchRight-1&&
+   menuGeometry.right-menuGeometry.left<=790&&
    menuGeometry.panelZ<menuGeometry.headerZ,
-   "Search sheet must start at the viewport edge and end at the input: "+JSON.stringify(menuGeometry));
+   "Search sheet must anchor to the input and stay below the header: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
