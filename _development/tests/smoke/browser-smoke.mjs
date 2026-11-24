@@ -671,7 +671,7 @@ try{
  await runLocaleAnimationAudit("chromium",browser,localeAnimationPages,
   [{width:390,height:844},{width:1440,height:900}]);
 
- for(const [width,height] of [[360,780],[390,844],[768,1024],[1280,800],[1440,900],[1920,1080]]){
+ for(const [width,height] of [[360,780],[390,844],[768,1024],[1280,800],[1440,900],[1536,740],[1920,1080]]){
   const page=await context.newPage();
   await page.setViewportSize({width,height});
   await page.goto(base,{waitUntil:"domcontentloaded",timeout:20000});
@@ -718,8 +718,23 @@ try{
    assert.ok(design.centerDelta<=2,"Login card must be vertically centered at "+width+": "+JSON.stringify(design));
   assert.ok(design.heroReady&&design.obsoleteOrbits===0,
    "VATRA login must show the loaded original hero without old orbit icons");
-  const minHeroWidth=width>=1200?Math.min(sizes.intro.w*.91,Math.max(360,Math.min(height-330,560))):sizes.intro.w*.91;
-  assert.ok(design.heroWidth>=minHeroWidth-2,"Hero must use the available column width within its vertical budget at "+width+": "+JSON.stringify(design));
+  const minHeroWidth=sizes.intro.w*.91;
+  assert.ok(design.heroWidth>=minHeroWidth-2,"Hero must fill the available column regardless of viewport height at "+width+": "+JSON.stringify(design));
+  const artwork=await page.locator(".vatra-login-hero-image-001").evaluate(img=>{
+   const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
+   const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0,256,256);
+   const pixels=ctx.getImageData(0,0,256,256).data;
+   let left=256,right=-1,top=256,bottom=-1;
+   for(let y=0;y<256;y++)for(let x=0;x<256;x++)if(pixels[(y*256+x)*4+3]>=128){
+    left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);
+   }
+   const box=img.getBoundingClientRect(),panel=img.closest(".intro-side").getBoundingClientRect();
+   const copy=document.querySelector(".intro-copy").getBoundingClientRect();
+   return {width:Math.max(0,right-left+1)/256*box.width,panelWidth:panel.width,
+    top:box.top+top/256*box.height,bottom:box.top+(bottom+1)/256*box.height,panelTop:panel.top,copyTop:copy.top};
+  });
+  assert.ok(artwork.width>=artwork.panelWidth*.65,"Visible artwork must occupy most of the left panel: "+JSON.stringify(artwork));
+  assert.ok(artwork.top>=artwork.panelTop-1&&artwork.bottom<=artwork.copyTop+1,"Visible artwork must not be clipped or overlap the description: "+JSON.stringify(artwork));
   assert.equal(design.heroBefore,"none","Retired decorative pseudo-element must not be rendered");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
@@ -2712,6 +2727,11 @@ try{
    window.__vatraSavedRevealCount++;
   });
  });
+ const savedViewport=savedPage.viewportSize();
+ await savedPage.setViewportSize({width:1536,height:740});
+ const savedHero=await savedPage.locator(".vatra-login-hero-image-001").evaluate(img=>({width:img.getBoundingClientRect().width,panel:img.closest(".intro-side").getBoundingClientRect().width}));
+ assert.ok(savedHero.width>=savedHero.panel*.91-2,"Remembered account must not shrink the login hero: "+JSON.stringify(savedHero));
+ if(savedViewport)await savedPage.setViewportSize(savedViewport);
  const savedOverviewHeight=await savedPage.locator("#saved-account-panel").evaluate(node=>node.getBoundingClientRect().height);
  const overviewNote=await savedPage.locator(".saved-account-note").evaluate(node=>({
   visibility:getComputedStyle(node).visibility,height:node.getBoundingClientRect().height
@@ -5087,6 +5107,8 @@ try{
      {media_kind:"video",media_path:"654321/posts/cccccccc-cccc-4ccc-8ccc-cccccccccccc.mp4"}
     ]
    });
+   // Simulate the media mutation event emitted by real post writes.
+   window.dispatchEvent(new Event("vatra:profile-media-changed"));
   });
   await profilePage.locator("#profile-tab-photos").click();
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
@@ -5107,7 +5129,10 @@ try{
   assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
    q.includes('media_items.cs.[{"media_kind":"video"}]'))),
    "Videos query must include JSONB media attachments on the server");
-  await profilePage.evaluate(()=>window.__feedTestPosts=window.__feedTestPosts.filter(post=>post.id!==window.__vatraGalleryFixture));
+  await profilePage.evaluate(()=>{
+   window.__feedTestPosts=window.__feedTestPosts.filter(post=>post.id!==window.__vatraGalleryFixture);
+   window.dispatchEvent(new Event("vatra:profile-media-changed"));
+  });
   await profilePage.locator("#profile-tab-posts").click();
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
    "Only the signed-in member may open the real post creator on their profile");
