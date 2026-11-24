@@ -3275,6 +3275,20 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(r.error||!r.data||r.data.avatar_path!==next)throw Error("Avatar change not saved");
   saved={...saved,avatar_path:next};
  };
+ window.VATRA_DELETE_AVATAR_BATCH=async paths=>{
+  if(!canEdit||uploading||avatarFeaturePending||avatarEditor?.busy()||pendingAvatarUndo)return false;
+  const selected=[...new Set(paths)].filter(path=>typeof path==="string"&&path.startsWith(ownId+"/avatar/")&&!/-original\./.test(path));
+  if(!selected.length||selected.length!==new Set(paths).size)return false;
+  uploading=true;const previous=saved?.avatar_path;let changed=false;
+  try{
+   const available=await listAvatarGallery();if(selected.some(path=>!available.includes(path)))return false;
+   if(selected.includes(previous)){await updateCurrentAvatar(available.find(path=>!selected.includes(path))||null);changed=true;}
+   const files=selected.flatMap(path=>[path,path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1")]);
+   const {error}=await client.storage.from("avatars").remove(files);if(error)throw error;
+   await Promise.all([client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId).in("avatar_path",selected),client.from("avatar_photo_descriptions").delete().eq("owner_vatra_id",ownId).in("avatar_path",selected)]);
+   window.VATRA_AVATAR?.invalidatePath?.(client,ownId);if(changed)await display(saved);return true;
+  }catch(_){return false;}finally{uploading=false;}
+ };
  const avatarType=path=>/\.png$/i.test(path)?"image/png":/\.webp$/i.test(path)?"image/webp":"image/jpeg";
  async function removeAvatarPath(path){
   if(uploading||avatarFeaturePending||avatarEditor?.busy()||pendingAvatarUndo||!canEdit||
@@ -3292,10 +3306,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   try{
    const storage=client.storage.from("avatars");
 
-   const thumb=await storage.download(path);
-   if(thumb.error||!(thumb.data instanceof Blob))throw Error("Could not back up avatar");
    const originalPath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
-   const full=await storage.download(originalPath);
+   const [thumb,full]=await Promise.all([storage.download(path),storage.download(originalPath)]);
+   if(thumb.error||!(thumb.data instanceof Blob))throw Error("Could not back up avatar");
    const missingOriginal=full.error&&(
     String(full.error.status||full.error.statusCode||"")==="404"||
     /not found|does not exist|No such file/i.test(String(full.error.message||"")));
@@ -3311,7 +3324,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
    const galleryBefore=[...gallery],indexBefore=galleryIndex;
    if(path===previous){
-    const paths=await listAvatarGallery(),next=paths.find(p=>p!==path)||null;
+    const paths=gallery.length>1?gallery:await listAvatarGallery(),next=paths.find(p=>p!==path)||null;
     await updateCurrentAvatar(next);changed=true;
    }
    const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])]);

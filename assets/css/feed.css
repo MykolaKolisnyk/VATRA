@@ -472,17 +472,19 @@ body.feed-page .vatra-post-gallery-extra-001{
  position:absolute;inset:0;display:grid;place-items:center;
  background:rgba(14,24,42,.57);color:#fff;font:650 32px/1 "Onest",system-ui,sans-serif
 }
-body.feed-page :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next){
+:is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next){
  position:absolute;top:50%;z-index:3;transform:translateY(-50%);
- display:grid;place-items:center;width:40px;height:75px;
- border:0;border-radius:6px;background:transparent;color:#f0f3fb;cursor:pointer
+ display:grid;place-items:center;width:52px;height:96px;padding:0;
+ border:0;border-radius:8px;background:transparent;color:#f0f3fb;cursor:pointer
 }
-body.feed-page .vatra-post-gallery-nav-prev{left:0}
-body.feed-page .vatra-post-gallery-nav-next{right:0}
-body.feed-page :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):hover:not(:disabled){background:rgba(255,255,255,.06)}
-body.feed-page :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next)[hidden]{display:none!important}
-body.feed-page :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):disabled{opacity:.25;cursor:default}
-body.feed-page .vatra-post-gallery-counter-001{
+.vatra-post-gallery-nav-prev{left:9px}
+.vatra-post-gallery-nav-next{right:9px}
+:is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next) svg{width:30px;height:30px;stroke-width:2.5;filter:drop-shadow(0 1px 3px #0008)}
+@media(max-width:600px){.vatra-post-gallery-nav-prev{left:2px}.vatra-post-gallery-nav-next{right:2px}:is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next){width:40px;height:70px}:is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next) svg{width:24px;height:24px}}
+:is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):hover:not(:disabled){background:rgba(255,255,255,.06)}
+:is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next)[hidden]{display:none!important}
+:is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):disabled{opacity:.25;cursor:default}
+.vatra-post-gallery-counter-001{
  position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
  padding:6px 13px;border-radius:20px;background:rgba(15,25,44,.65);
  color:#fff;font:550 12px "Onest",system-ui,sans-serif
@@ -3193,12 +3195,12 @@ body.feed-page .ui-vatra-post-media-side-001 .vatra-post-comment-form:focus-with
 }
 
 @media(hover:hover) and (pointer:fine){
- body.feed-page .ui-vatra-post-media-viewer-content-001 :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):not([hidden]){opacity:0;pointer-events:none;transition:opacity .26s ease,background .16s ease}
- body.feed-page .ui-vatra-post-media-viewer-content-001:hover :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):not([hidden]),
- body.feed-page .ui-vatra-post-media-viewer-content-001:focus-within :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):not([hidden]){opacity:1;pointer-events:auto}
- body.feed-page .ui-vatra-post-media-viewer-content-001:hover :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):disabled{opacity:.25;pointer-events:none}
+ .ui-vatra-post-media-viewer-content-001 :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):not([hidden]){opacity:0;pointer-events:none;transition:opacity .26s ease,background .16s ease}
+ .ui-vatra-post-media-viewer-content-001:hover :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):not([hidden]),
+ .ui-vatra-post-media-viewer-content-001:focus-within :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):not([hidden]){opacity:1;pointer-events:auto}
+ .ui-vatra-post-media-viewer-content-001:hover :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next):disabled{opacity:.25;pointer-events:none}
 }
-@media(prefers-reduced-motion:reduce){body.feed-page .ui-vatra-post-media-viewer-content-001 :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next){transition:none}}
+@media(prefers-reduced-motion:reduce){.ui-vatra-post-media-viewer-content-001 :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next){transition:none}}
 
 body.feed-page:not(.community-page) .feed-post-card > .feed-post-body{
  margin:10px 0 1px;color:#394964;

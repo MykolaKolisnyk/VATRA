@@ -3125,3 +3125,5 @@ body.profile-page .vatra-photo-comment-undo-001{padding:2px;border:0;background:
 .vatra-profile-photo-comments-sentinel-001[hidden]{display:none!important}
 
 body.profile-page .profile-photo-comment.is-linked-comment{background:#f2f7ff;border-radius:11px;padding-left:12px;box-shadow:inset 0 0 0 1px #d8e6ff}
+
+body.profile-page #profile-photo-footer-share[hidden],body.profile-page #profile-photo-share[hidden]{display:none!important}
