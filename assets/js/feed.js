@@ -834,6 +834,7 @@
    const profile=await feedDeadline(client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle());
    if(profile.error||!validId(profile.data?.vatra_id))throw profile.error||Error("Account unavailable");
    vatraId=String(profile.data.vatra_id);
+   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
 
    const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
    window.VATRA_AVATAR?.setHeader({client,email:user.email,name:headerName,initials:initials(displayName),id:vatraId});

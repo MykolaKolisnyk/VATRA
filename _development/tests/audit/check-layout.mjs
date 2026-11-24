@@ -2455,7 +2455,7 @@ const publicNameEdge=await read("_development/supabase/functions/public-profile-
 assert.doesNotThrow(()=>new Function(publicNameBrowser),
  "Shared public-name cache must parse in supported browsers");
 assert.ok(
- publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get}')&&
+ publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get,bindViewer}')&&
  publicNameBrowser.includes('client.functions.invoke("public-profile-names"')&&
  publicNameBrowser.includes('pauseEdge(state);')&&
  publicNameBrowser.includes('sessionStorage.setItem(EDGE_COOLDOWN_KEY')&&

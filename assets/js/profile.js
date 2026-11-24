@@ -3484,6 +3484,7 @@ async function start(){
    .select("vatra_id").eq("user_id",user.id).maybeSingle());
   if(accountError||!validId(account?.vatra_id))throw accountError||Error("Account unavailable");
   const ownId=String(account.vatra_id);
+  window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   if(ownId){
    try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,ownId,metadata.gender)).catch(()=>{});}catch(_){}
    try{window.VATRA_NOTIFICATIONS?.start(client,ownId);}catch(_){}
