@@ -2311,7 +2311,8 @@ assert.ok(landing.includes('id="saved-account-return" class="saved-account-retur
  en["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
  "Saved account must have a top-left return control, equal state heights and localized password guidance");
 assert.ok(css.includes('.signup-progress-segment:first-child')&&
- createAccountCss.includes('.signup-progress-segment:first-child,.create-account-page[data-create-account-step="2"] .signup-progress-segment:last-child{background:var(--blue)}')&&
+ createAccountCss.includes('.signup-progress-segment:first-child{background:#1648f0}')&&
+ createAccountCss.includes('.create-account-page[data-create-account-step="2"] .signup-progress-segment:last-child{background:#fa477d}')&&
  !createAccountCss.includes('#8759e5')&&
  !/\.signup-brand::?(?:before|after)\b/.test(createAccountCss)&&
  createAccountCss.includes('.signup-brand-art-halo{')&&
