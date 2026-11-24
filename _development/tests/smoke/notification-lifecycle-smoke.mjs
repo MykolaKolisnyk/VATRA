@@ -221,3 +221,24 @@ assert.ok(
  "Resolved friend invitations must clear stale notices on accept/cancel/decline, but only recipient declines notify the sender"
 );
 console.log("VATRA notifications: in-flight coalescing, session teardown, no stale badge, five-row acknowledgment and stale full-inbox protection passed.");
+
+{
+ const fixedNow=Date.UTC(2026,10,24,12);
+ const dateLocales={uk:"uk-UA",en:"en-GB",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
+ let locale="uk";
+ class Clock extends Date{static now(){return fixedNow;}}
+ const ctx={Date:Clock,Intl,Math,Object,Number,dateLocales,language:()=>locale,t:(uk,en)=>locale==="en"?en:uk};
+ const time=runInNewContext(section("const plural=(n,a,b,c)=>","const hrefFor=r=>")+"\ntimeValue;",ctx);
+ const stamp=age=>new Date(fixedNow-age).toISOString();
+ for(const code of ["pl","de","fr","it","ka","bg"]){
+  locale=code;
+  const formatter=new Intl.RelativeTimeFormat(dateLocales[code],{numeric:"always"});
+  for(const [age,amount,unit] of [[300000,5,"minute"],[7200000,2,"hour"],[86400000,1,"day"],[5184000000,2,"month"],[63072000000,2,"year"]]){
+   assert.equal(time(stamp(age)),formatter.format(-amount,unit),code+" "+unit);
+  }
+ }
+ locale="uk";assert.equal(time(stamp(300000)),"5 хвилин тому");
+ locale="en";assert.equal(time(stamp(7200000)),"2 hours ago");
+ assert.equal(time("invalid"),"");
+ console.log("VATRA notification timestamps: six additional locales and UK/EN compatibility passed.");
+}
