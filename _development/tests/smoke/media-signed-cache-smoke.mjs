@@ -170,3 +170,28 @@ assert.equal(a.calls,4,"Different TTL requests must be isolated");
 }
 
 console.log("VATRA signed media cache: viewer isolation, auth invalidation, in-flight races, gallery deduplication and fallback passed.");
+
+{
+ const pendingBatches=[],requested=[];
+ let singleCalls=0;
+ const client={storage:{from:()=>({
+  createSignedUrls(paths){
+   requested.push(...paths);
+   return new Promise(resolve=>pendingBatches.push(()=>resolve({
+    data:paths.map(path=>({path,signedUrl:host+"/storage/v1/object/sign/post-images/"+path+"?token=bulk"})),error:null
+   })));
+  },
+  createSignedUrl(){singleCalls++;throw Error("Duplicate request");}
+ })}};
+ const item=path=>({media_kind:"image",media_path:path});
+ const paths=["9/posts/a.jpg","9/posts/b.jpg","9/posts/c.jpg"];
+ const first=preSignGallery(client,paths.slice(0,2).map(item),300);
+ const second=preSignGallery(client,paths.slice(1).map(item),300);
+ const direct=signed(client,"image",paths[1],300);
+ assert.deepEqual(requested,paths,"Overlapping batches must sign each path only once");
+ pendingBatches.forEach(finish=>finish());
+ await Promise.all([first,second]);
+ assert.match(await direct,/token=bulk$/);
+ assert.equal(singleCalls,0,"Direct opens must reuse pending batch signatures");
+}
+console.log("VATRA media: overlapping batches and direct opens share pending URL requests.");

@@ -331,42 +331,44 @@
 
  async function preSignGallery(client,items,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
-  const version=state.version,grouped=new Map();
+  const version=state.version,grouped=new Map(),waiting=new Set();
   for(const item of items||[]){
    const kind=item?.media_kind,path=item?.media_path;
    if(!["image","video"].includes(kind)||typeof path!=="string")continue;
    const key=ttl+":"+kind+":"+path;
    if(signedURLs.get(key)?.expiry>Date.now())continue;
+   const active=state.bulkPending.get(key);
+   if(active){waiting.add(active);continue;}
    if(!grouped.has(kind))grouped.set(kind,new Set());
    grouped.get(kind).add(path);
   }
-  await Promise.allSettled([...grouped].map(async([kind,pathSet])=>{
+  for(const [kind,pathSet] of grouped){
    const paths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
-   if(typeof bucket.createSignedUrls!=="function")return;
-   const pendingKey=JSON.stringify([ttl,kind,paths.slice().sort()]);
-   let pending=state.bulkPending.get(pendingKey);
-   if(!pending){
-    pending=(async()=>{
-     const {data,error}=await bucket.createSignedUrls(paths,ttl);
-     if(error||!Array.isArray(data)||state.version!==version)return;
-     for(let i=0;i<paths.length;i++){
-      const item=data[i];
-      if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
-      try{
-       const url=new URL(item.signedUrl,location.origin);
-       if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
-       signedURLs.set(ttl+":"+kind+":"+paths[i],{
-        expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)
-       });
-      }catch(_){}
-     }
-    })();
-    state.bulkPending.set(pendingKey,pending);
-   }
-   try{await pending;}finally{
-    if(state.bulkPending.get(pendingKey)===pending)state.bulkPending.delete(pendingKey);
-   }
-  }));
+   if(typeof bucket.createSignedUrls!=="function")continue;
+   const pending=(async()=>{
+    const {data,error}=await bucket.createSignedUrls(paths,ttl);
+    if(error||!Array.isArray(data)||state.version!==version)return;
+    for(let i=0;i<paths.length;i++){
+     const item=data[i];
+     if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
+     try{
+      const url=new URL(item.signedUrl,location.origin);
+      if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
+      const key=ttl+":"+kind+":"+paths[i];
+      signedURLs.set(key,{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)});
+     }catch(_){}
+    }
+   })();
+   for(const path of paths)state.bulkPending.set(ttl+":"+kind+":"+path,pending);
+   waiting.add(pending);
+   void pending.finally(()=>{
+    for(const path of paths){
+     const key=ttl+":"+kind+":"+path;
+     if(state.bulkPending.get(key)===pending)state.bulkPending.delete(key);
+    }
+   }).catch(()=>{});
+  }
+  await Promise.allSettled(waiting);
   trimSignedCache(signedURLs);
  }
  async function signed(client,kind,path,ttl=3600){
@@ -374,6 +376,13 @@
   const version=state.version,key=ttl+":"+kind+":"+path;
   const entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
+  const batch=state.bulkPending.get(key);
+  if(batch){
+   await batch.catch(()=>{});
+   if(state.version!==version)throw Error("Session changed while signing media");
+   if(state.bulkPending.get(key)===batch)state.bulkPending.delete(key);
+   return signed(client,kind,path,ttl);
+  }
   const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl).then(({data,error})=>{
 
    if(state.version!==version)throw Error("Session changed while signing media");

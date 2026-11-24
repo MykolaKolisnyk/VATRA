@@ -598,7 +598,6 @@ body.profile-page .profile-media-gallery .feed-post-media video{
  display:block;width:100%;height:100%;object-fit:cover
 }
 body.profile-page .profile-media-gallery .feed-post-media button{width:100%;height:100%;padding:0;border:0}
-/* Gallery thumbnails keep a square clickable surface even before or after image loading. */
 body.profile-page .profile-media-gallery .vatra-post-gallery[data-layout="1"]{
  position:relative;display:block;aspect-ratio:1;min-height:0;margin-top:0
 }
