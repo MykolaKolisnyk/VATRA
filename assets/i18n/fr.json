@@ -182,7 +182,7 @@
         },
         "n104": {
           "text": {
-            "0": "Retrouvez vos proches, vos messages et vos communautés préférées."
+            "0": "Retrouvez vos proches et vos communautés préférées."
           }
         },
         "n109": {
@@ -2891,7 +2891,6 @@
   "Короткі відео та яскраві моменти.": "Des vidéos courtes et des moments mémorables.",
   "Вхід": "Connexion",
   "Увійти у VATRA": "Se connecter à VATRA",
-  "Повертайтеся до своїх людей, повідомлень і улюблених спільнот.": "Retrouvez vos proches, vos messages et vos communautés préférées.",
   "Електронна пошта": "Adresse e-mail",
   "Показати": "Afficher",
   "Показати пароль": "Afficher le mot de passe",
@@ -3679,5 +3678,6 @@
   "Доступні альбоми з таким самим або суворішим рівнем приватності.": "Les albums disponibles ont un niveau de confidentialité identique ou plus strict.",
   "Фотографії переміщено.": "Photos déplacées.",
   "Не вдалося перемістити фотографії.": "Impossible de déplacer les photos.",
-  "Архів порожній.": "Les archives sont vides."
+  "Архів порожній.": "Les archives sont vides.",
+  "Повертайтеся до своїх людей та улюблених спільнот.": "Retrouvez vos proches et vos communautés préférées."
 }
