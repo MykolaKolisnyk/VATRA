@@ -64,7 +64,6 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
        tile.addEventListener("click",event=>{
         const trigger=event.target?.closest?.(".vatra-post-gallery-tile,.vatra-feed-post-media-open-001");
         if(!trigger)return;
-        // Leave loading and failed media controls to their own retry handlers.
         if(trigger.classList.contains("vatra-post-gallery-tile")&&
          (!trigger.classList.contains("is-gallery-ready")||trigger.getAttribute("aria-busy")==="true"))return;
         if(trigger.classList.contains("vatra-feed-post-media-open-001")&&!trigger.querySelector("img"))return;
