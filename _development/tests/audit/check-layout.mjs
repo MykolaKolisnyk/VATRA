@@ -2311,7 +2311,7 @@ assert.ok(landing.includes('id="saved-account-return" class="saved-account-retur
  en["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
  "Saved account must have a top-left return control, equal state heights and localized password guidance");
 assert.ok(css.includes('.signup-progress-segment:first-child')&&
- createAccountCss.includes('.signup-progress-segment:first-child,.create-account-page[data-registration-step="2"] .signup-progress-segment:last-child{background:var(--blue)}')&&
+ createAccountCss.includes('.signup-progress-segment:first-child,.create-account-page[data-create-account-step="2"] .signup-progress-segment:last-child{background:var(--blue)}')&&
  !createAccountCss.includes('#8759e5')&&
  !/\.signup-brand::?(?:before|after)\b/.test(createAccountCss)&&
  createAccountCss.includes('.signup-brand-art-halo{')&&
@@ -2336,7 +2336,7 @@ assert.ok(auth.includes('function replayAuthContent(node)')&&
  auth.includes('replayAuthContent(q(".forgot-panel-content"));')&&
  css.includes('.signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center;animation:vatraAuthReveal')&&
  !css.includes('.signup-confirmation > :not([hidden]){animation:vatraAuthReveal')&&
- !css.includes('.create-account-page[data-registration-step="2"] .signup-step[data-create-account-step="2"]:not([hidden]){animation:')&&
+ !css.includes('.create-account-page[data-create-account-step="2"] .signup-step[data-create-account-step="2"]:not([hidden]){animation:')&&
  !css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]) > :not([hidden]){animation:'),
  "Registration, confirmation and password recovery must reveal whole content blocks");
 const resetNew=await read("reset.html");
