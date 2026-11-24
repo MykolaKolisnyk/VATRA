@@ -5137,7 +5137,7 @@ try{
   await tileMenu.locator("summary").hover();
   await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"visible"});
   assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
-  await tileMenu.getByRole("button",{name:"Вибрати декілька",exact:true}).click();
+  await tileMenu.getByRole("button",{name:language==="en"?"Select multiple":"Вибрати декілька",exact:true}).click();
   await galleryTiles.nth(1).locator("[data-vatra-select-photo]").click();
   assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),"2");
   await profilePage.locator(".vatra-album-bulk-more-001").click();
