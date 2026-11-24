@@ -15,7 +15,7 @@ assert.ok(interactions.includes("getSigned(client,kind,path,300)")&&
 const start=source.indexOf(" const signedURLCaches=new WeakMap();");
 const end=source.indexOf(" async function renderStory(",start);
 assert.ok(start>=0&&end>start,"Find session-scoped Storage URL cache");
-const context={Map,WeakMap,Set,Date,URL,Promise,Number,
+const context={Map,WeakMap,Set,Date,URL,Promise,Number,setTimeout,clearTimeout,
  location:{origin:"https://example.test"},
  bucketFor:kind=>kind==="image"?"post-images":"videos"};
 runInNewContext(source.slice(start,end)+
@@ -83,6 +83,7 @@ assert.equal(a.calls,4,"Different TTL requests must be isolated");
   storage:{from:()=>({createSignedUrl:()=>new Promise(r=>{resolve=r;})})}
  };
  const pending=signed(client,"image","8/comments/initial.png",300);
+ await Promise.resolve();
  handler("INITIAL_SESSION",{user:{id:"same"}});
  resolve({data:{signedUrl:host+"/storage/v1/object/sign/post-images/8/comments/initial.png?token=same"},error:null});
  assert.match(await pending,/token=same$/);
@@ -95,6 +96,7 @@ assert.equal(a.calls,4,"Different TTL requests must be isolated");
   storage:{from:()=>({createSignedUrl:()=>new Promise(r=>{resolve=r;})})}
  };
  const pending=signed(client,"image","8/comments/wait.png",300);
+ await Promise.resolve();
  handler("SIGNED_OUT",{user:null});
  resolve({data:{signedUrl:host+"/storage/v1/object/sign/post-images/8/comments/wait.png?token=old"},error:null});
  await assert.rejects(pending,/Session changed/);
@@ -120,6 +122,7 @@ assert.equal(a.calls,4,"Different TTL requests must be isolated");
  };
  const item={media_kind:"image",media_path:"9/posts/photo.jpg"};
  const pending=preSignGallery(client,[item],300);
+ await Promise.resolve();
  handler("SIGNED_IN",{user:{id:"new"}});
  resolve({data:[{path:item.media_path,
   signedUrl:host+"/storage/v1/object/sign/post-images/9/posts/photo.jpg?token=old"}],error:null});
@@ -162,6 +165,7 @@ assert.equal(a.calls,4,"Different TTL requests must be isolated");
  })}};
  const first=preSignGallery(client,paths,300);
  const concurrent=preSignGallery(client,[...paths].reverse(),300);
+ await Promise.resolve();
  assert.equal(batchCalls,1,"Concurrent matching gallery batches must share one Storage request");
  complete();
  await Promise.all([first,concurrent]);
@@ -170,3 +174,28 @@ assert.equal(a.calls,4,"Different TTL requests must be isolated");
 }
 
 console.log("VATRA signed media cache: viewer isolation, auth invalidation, in-flight races, gallery deduplication and fallback passed.");
+
+{
+ let active=0,peak=0,calls=0;
+ const client={storage:{from:()=>({async createSignedUrl(path){
+  active++;calls++;peak=Math.max(peak,active);
+  await new Promise(resolve=>setTimeout(resolve,2));active--;
+  return {data:{signedUrl:host+"/storage/v1/object/sign/post-images/"+path+"?token=test"},error:null};
+ }})}};
+ await Promise.all(Array.from({length:12},(_,i)=>signed(client,"image","9/posts/"+i+".jpg",300)));
+ assert.equal(calls,12);
+ assert.ok(peak<=4,"Signing must not flood Storage with parallel requests");
+}
+{
+ const isolated={Map,WeakMap,Set,Date,URL,Promise,Number,location:{origin:"https://example.test"},
+  setTimeout:(fn)=>setTimeout(fn,5),clearTimeout,bucketFor:()=> "post-images"};
+ runInNewContext(source.slice(start,end)+"\nglobalThis.test={signed};",isolated);
+ let calls=0;
+ const client={storage:{from:()=>({createSignedUrl(path){
+  if(++calls===1)return new Promise(()=>{});
+  return Promise.resolve({data:{signedUrl:host+"/storage/v1/object/sign/post-images/"+path+"?token=retry"},error:null});
+ }})}};
+ await assert.rejects(isolated.test.signed(client,"image","9/posts/slow.jpg",300),/timed out/);
+ assert.match(await isolated.test.signed(client,"image","9/posts/slow.jpg",300),/token=retry$/);
+}
+console.log("VATRA media: bounded signing concurrency, timeout and retry verified.");
