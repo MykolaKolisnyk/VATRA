@@ -740,7 +740,7 @@ try{
      box:{left:box.left,right:box.right,top:box.top,bottom:box.bottom},
      fit:computed.objectFit,ratio:img.naturalWidth/img.naturalHeight};
    });
-   assert.ok(poster.loaded&&poster.src.endsWith("/assets/poster.webp")&&poster.fit==="contain",
+   assert.ok(poster.loaded&&poster.src.endsWith("/assets/illustrations/login-hero.webp")&&poster.fit==="contain",
     "Login must render the supplied poster without cropping: "+JSON.stringify(poster));
    assert.ok(poster.box.right<=width+2&&poster.box.left>=-2,
     "Login poster must remain within viewport horizontally: "+JSON.stringify(poster));
@@ -1638,7 +1638,7 @@ try{
     assert.equal(login[key][prop],signup[key][prop],
      "Typography mismatch "+width+" "+key+"."+prop+": "+JSON.stringify(settings));
   assert.equal(login.primary,signup.primary,"CTA gradients must match "+width);
-  assert.equal(login.svg,"assets/poster.webp","Login must use the original poster at "+width);
+  assert.equal(login.svg,"assets/illustrations/login-hero.webp","Login must use the original poster at "+width);
   assert.equal(signup.svg,"assets/logo/logo_symbol.svg","Signup must retain the brand symbol at "+width);
   assert.equal(login.logo.animation,"none","The login poster must not rotate or pulse at "+width);
   assert.ok(signup.logo.animation.includes("vatraSignupSymbol"),

@@ -463,7 +463,7 @@ const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes(
 // VATRA now displays the original poster on sign-in; animated orbit remains retired.
 assert.ok(
  landing.includes('class="vatra-login-poster-001 ui-home-poster-001"')&&
- landing.includes('class="vatra-login-poster-image-001 ui-home-poster-image-001" src="assets/poster.webp"')&&
+ landing.includes('class="vatra-login-poster-image-001 ui-home-poster-image-001" src="assets/illustrations/login-hero.webp"')&&
  !landing.includes('class="intro-symbol ui-home-img-002"')&&
  !landing.includes('class="intro-circle')&&
  !landing.includes('class="orbit-node')&&
