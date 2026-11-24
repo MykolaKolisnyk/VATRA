@@ -299,7 +299,7 @@
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,item);
    window.VATRA_POST_INTERACTIONS?.mount(client,post,item,{
     ownId:vatraId,userId:user?.id,
-    engagement:engagement?.get(post.kind+":"+post.id),
+    engagementPromise:engagement,
     onShared:()=>{invalidateFeedPages(client);void loadPosts(true);}
    });
   return item;
@@ -564,11 +564,10 @@
      renderedIds.add(direct.kind+":"+direct.id);
     }
    }
-   const [,,engagement]=await Promise.all([
+   const engagement=window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||Promise.resolve(new Map());
+   await Promise.all([
     loadPublicNames(page.map(p=>p.author_vatra_id)),
-    loadAvatars(page.map(p=>p.author_vatra_id)),
-    window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||
-     Promise.resolve(new Map())
+    loadAvatars(page.map(p=>p.author_vatra_id))
    ]);
    if(version!==feedRequestVersion)return;
    const batch=document.createDocumentFragment();
