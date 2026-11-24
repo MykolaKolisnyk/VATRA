@@ -2942,13 +2942,14 @@ try{
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
        created_at:"2026-11-10T00:00:00Z"}],error:null
     })})}:
-    {select:()=>({filterId:null,clipFilter:null,mediaFilter:null,after:null,before:null,
+    {select:()=>({filterId:null,clipFilter:null,mediaFilter:null,after:null,before:null,postId:null,
+      async maybeSingle(){return {data:table==="feed_posts"?window.__feedTestPosts.find(p=>String(p.id)===this.postId&&(this.filterId===null||String(p.author_vatra_id)===this.filterId))||null:null,error:null};},
       or(value){
        this.mediaFilter=/media_kind\.eq\.(image|video)/.exec(value)?.[1]||null;
        (window.__vatraGalleryQueries??=[]).push(value);
        return this;
       },
-      eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else this.filterId=String(id);return this;},
+      eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else if(table==="feed_posts"&&field==="id")this.postId=String(id);else this.filterId=String(id);return this;},
       is(){return this;},
       limit:async function(n){return {data:table==="feed_posts"?window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(0,n):[],error:null};},
       gte(column,date){if(column==="created_at")this.after=date;return this;},
@@ -2969,6 +2970,19 @@ try{
       }}),
      insert:async(data)=>{window.__feedTestPosts.unshift({...data,
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
+     update:changes=>({
+      filters:[],
+      eq(column,value){this.filters.push([column,value]);return this;},
+      is(column,value){this.filters.push([column,value]);return this;},
+      select(){return this;},
+      async maybeSingle(){
+       const post=table==="feed_posts"&&window.__feedTestPosts.find(row=>this.filters.every(([column,value])=>{
+        const actual=row[column];return value===null?actual===null:typeof actual==="object"?JSON.stringify(actual)===value:String(actual)===String(value);
+       }));
+       if(post)Object.assign(post,changes);
+       return {data:post?{id:post.id}:null,error:null};
+      }
+     }),
      delete:()=>({
        filters:[],
        eq(column,value){this.filters.push([column,String(value)]);return this;},
@@ -5083,7 +5097,7 @@ try{
   await profilePage.evaluate(()=>{
    window.__vatraGalleryFixture="00000000-0000-4000-8000-000000000777";
    window.__feedTestPosts.push({
-    id:window.__vatraGalleryFixture,author_vatra_id:654321,body:"",
+    id:window.__vatraGalleryFixture,author_vatra_id:654321,body:"Keep this text",poll:null,
     visibility:"public",is_clip:false,media_kind:null,media_path:null,
     created_at:"2026-11-22T08:00:00Z",media_items:[
      {media_kind:"image",media_path:"654321/posts/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.jpg"},
@@ -5118,6 +5132,17 @@ try{
   await tileMenu.locator("summary").hover();
   await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"visible"});
   assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
+  await tileMenu.getByRole("button",{name:"Вибрати декілька",exact:true}).click();
+  await galleryTiles.nth(1).locator("[data-vatra-select-photo]").click();
+  assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),"2");
+  await profilePage.locator(".vatra-album-bulk-more-001").click();
+  await profilePage.locator(".vatra-album-bulk-menu-items-001 .vatra-albums-danger-001").click();
+  await profilePage.locator(".ui-vatra-albums-confirm-001 .vatra-albums-danger-001").click();
+  await profilePage.waitForFunction(()=>window.__feedTestPosts.find(post=>post.id===window.__vatraGalleryFixture)?.media_items.length===1);
+  const preserved=await profilePage.evaluate(()=>window.__feedTestPosts.find(post=>post.id===window.__vatraGalleryFixture));
+  assert.equal(preserved.body,"Keep this text","Bulk photo deletion must preserve post text");
+  assert.equal(preserved.media_items[0].media_kind,"video","Bulk photo deletion must preserve unselected video");
+  await profilePage.waitForFunction(()=>!document.querySelector(".vatra-album-selection-active-001"));
   assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
    q.includes('media_items.cs.[{"media_kind":"image"}]'))),
    "Photos query must include modern JSONB attachments on the server");
