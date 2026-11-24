@@ -304,14 +304,14 @@
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
-  state={signedURLs:new Map(),bulkPending:new Map(),version:0,active:0,queue:[]};
+  state={signedURLs:new Map(),bulkPending:new Map(),version:0,active:0,queue:[],viewer:null,token:null};
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
-   client.auth.onAuthStateChange(event=>{
-
-
-
-    if(event==="INITIAL_SESSION")return;
+   client.auth.onAuthStateChange((event,session)=>{
+    const viewer=session?.user?.id||null,token=session?.access_token||null;
+    if(event==="INITIAL_SESSION"){state.viewer=viewer;state.token=token;return;}
+    if(event==="SIGNED_IN"&&viewer&&token&&viewer===state.viewer&&token===state.token)return;
+    state.viewer=viewer;state.token=token;
     state.version++;
     state.signedURLs.clear();
     state.bulkPending.clear();
@@ -347,47 +347,48 @@
 
  async function preSignGallery(client,items,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
-  const version=state.version,grouped=new Map();
+  const version=state.version,grouped=new Map(),waiting=new Set();
   for(const item of items||[]){
    const kind=item?.media_kind,path=item?.media_path;
    if(!["image","video"].includes(kind)||typeof path!=="string")continue;
    const key=ttl+":"+kind+":"+path;
-   if(signedURLs.get(key)?.expiry>Date.now())continue;
+   const cached=signedURLs.get(key),pending=state.bulkPending.get(key);
+   if(cached?.expiry>Date.now()){waiting.add(cached.promise);continue;}
+   if(pending){waiting.add(pending);continue;}
    if(!grouped.has(kind))grouped.set(kind,new Set());
    grouped.get(kind).add(path);
   }
-  await Promise.allSettled([...grouped].map(async([kind,pathSet])=>{
+  for(const [kind,pathSet] of grouped){
    const paths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
-   if(typeof bucket.createSignedUrls!=="function")return;
-   const pendingKey=JSON.stringify([ttl,kind,paths.slice().sort()]);
-   let pending=state.bulkPending.get(pendingKey);
-   if(!pending){
-    pending=(async()=>{
-     const {data,error}=await scheduleSigning(state,version,()=>bucket.createSignedUrls(paths,ttl));
-     if(error||!Array.isArray(data)||state.version!==version)return;
-     for(let i=0;i<paths.length;i++){
-      const item=data[i];
-      if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
-      try{
-       const url=new URL(item.signedUrl,location.origin);
-       if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
-       signedURLs.set(ttl+":"+kind+":"+paths[i],{
-        expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)
-       });
-      }catch(_){}
-     }
-    })();
-    state.bulkPending.set(pendingKey,pending);
-   }
-   try{await pending;}finally{
-    if(state.bulkPending.get(pendingKey)===pending)state.bulkPending.delete(pendingKey);
-   }
-  }));
+   if(typeof bucket.createSignedUrls!=="function")continue;
+   const keys=paths.map(path=>ttl+":"+kind+":"+path);
+   const pending=(async()=>{
+    const {data,error}=await scheduleSigning(state,version,()=>bucket.createSignedUrls(paths,ttl));
+    if(error||!Array.isArray(data)||state.version!==version)return;
+    for(let i=0;i<paths.length;i++){
+     const item=data[i];
+     if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
+     try{
+      const url=new URL(item.signedUrl,location.origin);
+      if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
+      signedURLs.set(keys[i],{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)});
+     }catch(_){}
+    }
+   })();
+   for(const key of keys)state.bulkPending.set(key,pending);
+   waiting.add(pending);
+   void pending.finally(()=>{
+    for(const key of keys)if(state.bulkPending.get(key)===pending)state.bulkPending.delete(key);
+   }).catch(()=>{});
+  }
+  await Promise.allSettled([...waiting]);
   trimSignedCache(signedURLs);
  }
  async function signed(client,kind,path,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
   const version=state.version,key=ttl+":"+kind+":"+path;
+  const bulk=state.bulkPending.get(key);
+  if(bulk){await bulk.catch(()=>{});if(state.version!==version)throw Error("Session changed while signing media");}
   const entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
   const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl)).then(({data,error})=>{
