@@ -148,13 +148,19 @@
   const lookup=[...new Set(ids.map(String).filter(validId))].slice(0,100);
   if(!lookup.length)return;
   try{
-   const states=await window.VATRA_AVATAR?.states(client,lookup)||new Map();
+   const [stateResult,pathResult]=await Promise.allSettled([
+    window.VATRA_AVATAR?.states(client,lookup)||Promise.resolve(new Map()),
+    window.VATRA_AVATAR?.paths?.(client,lookup)||
+     client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",lookup)
+   ]);
+   if(stateResult.status==="rejected")throw stateResult.reason;
+   const states=stateResult.value;
    for(const id of lookup){
     avatarStates.delete(id);
     if(states.has(id))avatarStates.set(id,states.get(id));
    }
-   const {data,error}=await (window.VATRA_AVATAR?.paths?.(client,lookup)||
-    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",lookup));
+   if(pathResult.status==="rejected")throw pathResult.reason;
+   const {data,error}=pathResult.value;
    if(error)throw error;
    for(const id of lookup)mediaAvatars.delete(id);
    for(const row of data||[])if(row.avatar_path&&!avatarStates.has(String(row.vatra_id)))
@@ -637,8 +643,8 @@
     items.push(story);seen.add(id);
     if(items.length>=3)break;
    }
-   await loadPublicNames(items.map(x=>x.author_vatra_id));
-   await loadAvatars(items.map(x=>x.author_vatra_id));
+   const authorIds=items.map(x=>x.author_vatra_id);
+   await Promise.all([loadPublicNames(authorIds),loadAvatars(authorIds)]);
    holder.replaceChildren();
    q(".feed-stories")?.classList.toggle("is-empty",items.length===0);
    for(const story of items){
