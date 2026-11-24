@@ -8,13 +8,20 @@ SECURITY DEFINER
 SET search_path = ''
 AS $function$
 BEGIN
-  IF OLD.status = 'pending' AND (
-    TG_OP = 'DELETE' OR (TG_OP = 'UPDATE' AND NEW.status = 'accepted')
-  ) THEN
-    DELETE FROM public.member_notifications
-     WHERE recipient_vatra_id = OLD.recipient_id
-       AND kind = 'friend_request'
-       AND event_key = 'friend_request:' || OLD.id::text;
+  IF OLD.status = 'pending' THEN
+    IF TG_OP = 'DELETE' THEN
+      DELETE FROM public.member_notifications
+       WHERE recipient_vatra_id = OLD.recipient_id
+         AND kind = 'friend_request'
+         AND event_key = 'friend_request:' || OLD.id::text;
+    ELSIF TG_OP = 'UPDATE' THEN
+      IF NEW.status = 'accepted' THEN
+        DELETE FROM public.member_notifications
+         WHERE recipient_vatra_id = OLD.recipient_id
+           AND kind = 'friend_request'
+           AND event_key = 'friend_request:' || OLD.id::text;
+      END IF;
+    END IF;
   END IF;
 
   -- Only the recipient may decline. Withdrawing a sent request sends no decline alert.
