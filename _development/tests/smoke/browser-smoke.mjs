@@ -4291,7 +4291,7 @@ try{
    "All account actions must have persistent SVG icons in UK and EN");
   assert.equal((await feedProbe.locator(".vatra-account-settings-label-001").textContent()).trim(),
    language==="en"?"Settings":"Налаштування");
-  assert.equal(await feedProbe.locator(".feed-menu-settings-link").evaluate(el=>{const url=new URL(el.href);return url.pathname.split("/").pop()+url.search+url.hash;}),"vatra-id?view=settings#general","Settings must navigate directly");
+  assert.equal(await feedProbe.locator(".feed-menu-settings-link").evaluate(el=>{const url=new URL(el.href);return url.pathname.split("/").pop()+url.search+url.hash;}),"settings#general","Settings must navigate directly");
   assert.equal(await feedProbe.locator(".feed-menu-settings-panel, .feed-account-dropdown [data-language-trigger]").count(),0,"Language controls belong to Settings, not the avatar dropdown");
   // The right account panel must be flush to the common header edge,
   // not a floating card with a 10px gap or a displaced navigation row.
