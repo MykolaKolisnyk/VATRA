@@ -9,13 +9,14 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
  ]){
   const tab=q(settings.tab),list=q(settings.list),empty=q(settings.empty),more=q(settings.more);
   if(!tab||!list||!empty||!more)continue;
-  let busy=false,offset=0,photoEntries=[],hasMore=false;
+  let busy=false,offset=0,photoEntries=[],hasMore=false,refreshedAt=0,refreshQueued=false;
+  const REUSE_MS=20000;
   const batchSize=settings.kind==="image"?6:12;
   const load=async(append=false)=>{
    if(busy)return;
    busy=true;list.setAttribute("aria-busy","true");more.disabled=true;
    if(!append){
-    offset=0;photoEntries=[];hasMore=false;
+    offset=0;photoEntries=[];hasMore=false;refreshedAt=0;
     const placeholders=Array.from({length:3},(_,i)=>{
      const tile=node("div","profile-media-placeholder ui-profile-media-placeholder-"+settings.kind+"-"+i);
      tile.setAttribute("aria-hidden","true");return tile;
@@ -67,6 +68,9 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
        tile.addEventListener("click",event=>{
         const trigger=event.target?.closest?.(".vatra-post-gallery-tile,.vatra-feed-post-media-open-001");
         if(!trigger)return;
+        if(trigger.classList.contains("vatra-post-gallery-tile")&&
+         (!trigger.classList.contains("is-gallery-ready")||trigger.getAttribute("aria-busy")==="true"))return;
+        if(trigger.classList.contains("vatra-feed-post-media-open-001")&&!trigger.querySelector("img"))return;
         event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
         if(tile.closest(".vatra-album-selection-active-001")){tile.querySelector("[data-vatra-select-photo]")?.click();return;}
         void window.VATRA_POST_MEDIA?.openPostPhoto(client,post,item,{ownId,userId,items:photoEntries,removePhoto,hasMore:()=>hasMore,loadMore:()=>load(true)});
@@ -82,6 +86,7 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
     if(settings.kind==="image")list.dispatchEvent(new CustomEvent("vatra:photo-tiles-rendered",{bubbles:true}));
     offset+=(data||[]).length;
     hasMore=(data||[]).length===batchSize;more.hidden=!hasMore;
+    if(!append&&!refreshQueued)refreshedAt=Date.now();
     if(!list.children.length){
      empty.textContent=settings.clip?t("Кліпів поки немає.","No clips yet."):settings.kind==="image"?t("Фотографій поки немає.","No photos yet."):
       t("Відео поки немає.","No videos yet.");
@@ -91,11 +96,20 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
     if(!append)list.replaceChildren();
     empty.textContent=t("Не вдалося завантажити медіа.","Could not load media.");
     empty.hidden=false;
-   }finally{busy=false;list.setAttribute("aria-busy","false");more.disabled=false;}
+   }finally{
+    busy=false;list.setAttribute("aria-busy","false");more.disabled=false;
+    if(refreshQueued){refreshQueued=false;if(tab.getAttribute("aria-selected")==="true")void load();}
+   }
   };
-  const activate=()=>{if(tab.getAttribute("aria-selected")==="true")void load();};
+  const activate=()=>{
+   if(tab.getAttribute("aria-selected")==="true"&&(!refreshedAt||Date.now()-refreshedAt>=REUSE_MS))void load();
+  };
   new MutationObserver(activate).observe(tab,{attributes:true,attributeFilter:["aria-selected"]});
-  window.addEventListener("vatra:profile-media-changed",activate);
+  window.addEventListener("vatra:profile-media-changed",()=>{
+   refreshedAt=0;
+   if(busy){refreshQueued=true;return;}
+   activate();
+  });
   activate();
   more.addEventListener("click",()=>void load(true));
  }

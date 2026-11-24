@@ -70,7 +70,9 @@ assert.ok(loader.includes('assets/js/profile-gallery.js?rev=')&&
  profile.includes('setupLazyProfileGallery(client,targetId,ownId,user.id)')&&
  profile.includes('VATRA_FEATURES.load("profile-gallery")')&&
  gallery.includes('window.VATRA_PROFILE_GALLERY=Object.freeze({mount})')&&
- gallery.includes('window.addEventListener("vatra:profile-media-changed",activate)'),
+ gallery.includes('window.addEventListener("vatra:profile-media-changed",()=>{')&&
+ gallery.includes('tab.getAttribute("aria-selected")==="true"&&(!refreshedAt||Date.now()-refreshedAt>=REUSE_MS)')&&
+ gallery.includes('if(busy){refreshQueued=true;return;}'),
  "Photo, video and clip galleries are initialized only after opening a media tab");
 assert.ok(giftsHtml.includes('href="assets/css/gifts.css"'),"Collection cards retain gift styles");
 assert.ok(loader.includes("gift-viewer.js?rev=")&&loader.includes('css:"assets/css/gifts.css"')&&

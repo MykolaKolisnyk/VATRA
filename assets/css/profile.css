@@ -598,20 +598,36 @@ body.profile-page .profile-media-gallery .feed-post-media video{
  display:block;width:100%;height:100%;object-fit:cover
 }
 body.profile-page .profile-media-gallery .feed-post-media button{width:100%;height:100%;padding:0;border:0}
-body.profile-page .profile-media-gallery .profile-media-tile{
+body.profile-page .profile-media-gallery:not(#profile-photo-gallery) .profile-media-tile{
  position:relative;min-width:0;min-height:0;aspect-ratio:1;align-self:start
 }
-body.profile-page .profile-media-gallery .profile-media-tile>.feed-post-media:not(.vatra-post-gallery){
+body.profile-page .profile-media-gallery:not(#profile-photo-gallery) .profile-media-tile>.feed-post-media:not(.vatra-post-gallery){
  position:absolute;inset:0;width:100%;height:100%;margin:0
 }
-body.profile-page .profile-media-gallery .vatra-post-gallery[data-layout="1"]{
+body.profile-page .profile-media-gallery:not(#profile-photo-gallery) .vatra-post-gallery[data-layout="1"]{
  position:absolute;inset:0;display:block;width:100%;height:100%;min-height:0;max-height:none;margin:0
 }
-body.profile-page .profile-media-gallery .profile-media-tile .vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind]{
+body.profile-page .profile-media-gallery:not(#profile-photo-gallery) .profile-media-tile .vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind]{
  position:absolute;inset:0;display:block;width:100%;height:100%;min-height:0;max-height:none;margin:0;aspect-ratio:auto
 }
-body.profile-page .profile-media-gallery .vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind]>img{
+body.profile-page .profile-media-gallery:not(#profile-photo-gallery) .vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind]>img{
  position:absolute;inset:0;display:block;width:100%;height:100%;max-width:none;max-height:none;margin:0;object-fit:cover
+}
+body.profile-page #profile-photo-gallery .profile-media-tile{
+ display:grid;width:100%;min-width:0;min-height:0;aspect-ratio:1;
+ grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);position:relative
+}
+body.profile-page #profile-photo-gallery .profile-media-tile>.feed-post-media{
+ grid-area:1/1;width:100%;height:100%;aspect-ratio:auto;min-width:0;min-height:0;margin:0
+}
+body.profile-page #profile-photo-gallery .vatra-post-gallery[data-layout="1"]{
+ grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)
+}
+body.profile-page #profile-photo-gallery .vatra-post-gallery-tile[data-kind="image"]{
+ position:relative;width:100%;height:100%;min-height:0;max-height:none
+}
+body.profile-page #profile-photo-gallery .vatra-post-gallery-tile[data-kind="image"]>img{
+ position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:cover
 }
 body.profile-page .vatra-profile-photos-more-001,
 body.profile-page .vatra-profile-videos-more-001,
