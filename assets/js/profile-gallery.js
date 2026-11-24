@@ -9,13 +9,13 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
  ]){
   const tab=q(settings.tab),list=q(settings.list),empty=q(settings.empty),more=q(settings.more);
   if(!tab||!list||!empty||!more)continue;
-  let busy=false,offset=0,photoEntries=[];
+  let busy=false,offset=0,photoEntries=[],hasMore=false;
   const batchSize=settings.kind==="image"?6:12;
   const load=async(append=false)=>{
    if(busy)return;
    busy=true;list.setAttribute("aria-busy","true");more.disabled=true;
    if(!append){
-    offset=0;photoEntries=[];
+    offset=0;photoEntries=[];hasMore=false;
     const placeholders=Array.from({length:3},(_,i)=>{
      const tile=node("div","profile-media-placeholder ui-profile-media-placeholder-"+settings.kind+"-"+i);
      tile.setAttribute("aria-hidden","true");return tile;
@@ -69,7 +69,7 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
         if(!trigger)return;
         event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
         if(tile.closest(".vatra-album-selection-active-001")){tile.querySelector("[data-vatra-select-photo]")?.click();return;}
-        void window.VATRA_POST_MEDIA?.openPostPhoto(client,post,item,{ownId,userId,items:[...photoEntries],removePhoto});
+        void window.VATRA_POST_MEDIA?.openPostPhoto(client,post,item,{ownId,userId,items:photoEntries,removePhoto,hasMore:()=>hasMore,loadMore:()=>load(true)});
        },true);
       }
       if(settings.clip){
@@ -81,7 +81,7 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
     }
     if(settings.kind==="image")list.dispatchEvent(new CustomEvent("vatra:photo-tiles-rendered",{bubbles:true}));
     offset+=(data||[]).length;
-    more.hidden=(data||[]).length<batchSize;
+    hasMore=(data||[]).length===batchSize;more.hidden=!hasMore;
     if(!list.children.length){
      empty.textContent=settings.clip?t("Кліпів поки немає.","No clips yet."):settings.kind==="image"?t("Фотографій поки немає.","No photos yet."):
       t("Відео поки немає.","No videos yet.");

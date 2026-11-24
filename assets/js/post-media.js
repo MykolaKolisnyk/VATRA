@@ -924,11 +924,11 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   const paths={dots:"M5 12h.01M12 12h.01M19 12h.01",download:"M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4",post:"M5 3h14v18H5zM8 8h8M8 12h8M8 16h5",avatar:"M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-3a8 8 0 0 1 16 0v3",select:"M8 12l3 3 5-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",trash:"M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6m4-6v6",album:"M3 7h7l2 2h9v11H3z",share:"M13 5l7 7-7 7v-4c-5 0-8 2-10 5 0-8 5-10 10-11z",move:"M3 7h7l2 2h9v11H3zM8 14h8m-3-3 3 3-3 3",archive:"M4 4h16v5H4zM6 9v11h12V9M10 13h4",pin:"m16 3 5 5-4 1-4 5-1 4-2-2-6 6 6-6-2-2 4-1 5-4z",restore:"M3 12a9 9 0 1 1 3 7M3 5v7h7"};
   const path=document.createElementNS(ns,"path");path.setAttribute("d",paths[kind]||paths.album);if(kind==="dots")path.setAttribute("stroke-width","4");svg.append(path);return svg;
  }
- function photoNavigation(stage,index,total,step){
+ function photoNavigation(stage,index,total,step,hasMore=false){
   const buttons=[-1,1].map(dir=>{const button=document.createElement("button");button.type="button";button.className="vatra-post-gallery-nav-"+(dir<0?"prev":"next");button.setAttribute("aria-label",dir<0?tr("Попередній файл","Previous media"):tr("Наступний файл","Next media"));
    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
-   const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d",dir<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6");svg.append(path);button.append(svg);button.disabled=dir<0?index===0:index>=total-1;button.hidden=total<2;button.onclick=()=>step(dir);return button;});
-  const count=document.createElement("span");count.className="vatra-post-gallery-counter-001";count.textContent=(index+1)+" / "+total;count.hidden=total<2;stage.append(...buttons,count);
+   const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d",dir<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6");svg.append(path);button.append(svg);button.disabled=dir<0?index===0:index>=total-1&&!hasMore;button.hidden=total<2&&!hasMore;button.onclick=()=>step(dir);return button;});
+  const count=document.createElement("span");count.className="vatra-post-gallery-counter-001";count.textContent=(index+1)+" / "+total+(hasMore?"+":"");count.hidden=total<2&&!hasMore;stage.append(...buttons,count);
  }
  async function openPostPhoto(client,post,item,settings={}){
   if(!client||!post||item?.media_kind!=="image"||
@@ -978,7 +978,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   const createdDialogs=[...document.querySelectorAll("dialog.vatra-post-share-dialog")]
    .filter(dialog=>!priorDialogs.has(dialog));
   try{
-   void Promise.resolve(verifyAuthor()).catch(()=>{});
+   try{await verifyAuthor();}catch(_){}
    if(ticket!==photoSourceTicket){host.remove();createdDialogs.forEach(dialog=>dialog.remove());return;}
    restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();
    openFullMedia(src,"image",host,post,client,true);
@@ -987,8 +987,21 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     photoSourceCleanup=()=>{controller.abort();host.remove();createdDialogs.forEach(dialog=>dialog.remove());};
     mediaDialog.addEventListener("close",()=>{photoSourceTicket++;photoSourceCleanup?.();photoSourceCleanup=null;},{once:true,signal:controller.signal});
     const items=settings.items||[{post,item}],index=items.findIndex(entry=>entry.post.id===post.id&&entry.item.media_path===item.media_path);
-    const step=dir=>{const entry=items[index+dir];if(entry)void openPostPhoto(client,entry.post,entry.item,{...settings,items});};
-    photoNavigation(mediaDialogContent,Math.max(0,index),items.length,step);
+    let stepping=false;
+    const step=async dir=>{
+     if(stepping||ticket!==photoSourceTicket||!mediaDialog.open)return;
+     stepping=true;
+     try{
+      let entry=items[index+dir];
+      if(!entry&&dir>0&&settings.hasMore?.()){await settings.loadMore?.();if(ticket!==photoSourceTicket||!mediaDialog.open)return;entry=items[index+dir];}
+      if(entry)await openPostPhoto(client,entry.post,entry.item,{...settings,items});
+      else if(ticket===photoSourceTicket&&mediaDialog.open){
+       mediaDialogContent.querySelectorAll(".vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-post-gallery-counter-001").forEach(el=>el.remove());
+       photoNavigation(mediaDialogContent,Math.max(0,index),items.length,step,!!settings.hasMore?.());
+      }
+     }finally{stepping=false;}
+    };
+    photoNavigation(mediaDialogContent,Math.max(0,index),items.length,step,!!settings.hasMore?.());
     mediaDialog.addEventListener("keydown",event=>{if(event.target.closest("textarea,input,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}},{signal:controller.signal});
     if(String(settings.ownId)===String(post.author_vatra_id)&&settings.removePhoto){mediaFooterDelete.hidden=false;mediaFooterDelete.onclick=()=>settings.removePhoto(post,item);}
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}

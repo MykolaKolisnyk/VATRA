@@ -3287,7 +3287,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const {error}=await client.storage.from("avatars").remove(files);if(error)throw error;
    await Promise.all([client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId).in("avatar_path",selected),client.from("avatar_photo_descriptions").delete().eq("owner_vatra_id",ownId).in("avatar_path",selected)]);
    window.VATRA_AVATAR?.invalidatePath?.(client,ownId);if(changed)await display(saved);return true;
-  }catch(_){return false;}finally{uploading=false;}
+  }catch(_){
+   if(changed)try{const available=await listAvatarGallery();if(available.includes(previous)){await updateCurrentAvatar(previous);window.VATRA_AVATAR?.invalidatePath?.(client,ownId);}await display(saved);}catch(_){}
+   return false;
+  }finally{uploading=false;}
  };
  const avatarType=path=>/\.png$/i.test(path)?"image/png":/\.webp$/i.test(path)?"image/webp":"image/jpeg";
  async function removeAvatarPath(path){

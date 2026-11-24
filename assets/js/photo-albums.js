@@ -89,7 +89,7 @@
   const selectedPhotos=new Map();
   let selectionMode=false;
   const bulk=make("div","vatra-album-bulk-controls-001");bulk.hidden=true;
-  let archivedRows=[],archiveOffset=0,archiveTicket=0;
+  let archivedRows=[],archiveOffset=0,archiveTicket=0,archiveHasMore=false;
   const bulkMove=button("vatra-albums-secondary-001",t("Перемістити","Move"),()=>void chooseDestination([...selectedPhotos.values()]));
   const bulkArchive=button("vatra-albums-secondary-001",t("Архівувати","Archive"),()=>void archivePhotos([...selectedPhotos.values()],state.tab==="archive"));
   const bulkCount=make("span","vatra-album-bulk-count-001");
@@ -734,7 +734,8 @@
     for(const row of archivedRows){const album=state.albums.find(a=>a.id===row.album_id);if(album)grid.append(makePhotoTile(row,album));}
     archivePane.replaceChildren(grid);
     if(!archivedRows.length)archivePane.append(make("p","vatra-albums-hint-001",t("Архів порожній.","Archive is empty.")));
-    if((data||[]).length>PAGE_SIZE)archivePane.append(button("vatra-albums-more-photos-001",t("Ще фотографії","More photos"),()=>void loadArchive(true)));
+    archiveHasMore=(data||[]).length>PAGE_SIZE;
+    if(archiveHasMore)archivePane.append(button("vatra-albums-more-photos-001",t("Ще фотографії","More photos"),()=>void loadArchive(true)));
     updateSelection();
    }catch(_){if(ticket===archiveTicket)archivePane.replaceChildren(make("p","vatra-albums-hint-001",t("Не вдалося завантажити фото.","Could not load photos.")));}
   }
@@ -818,10 +819,25 @@
    void window.VATRA_VERIFIED?.attach?.(client,photoAuthorName,targetId);
    if(!photoDialog.open)photoDialog.showModal();void loadPhotoLikes(row);void openComments(album,row);
    photoContent.querySelectorAll(".vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-post-gallery-counter-001").forEach(el=>el.remove());
-   const items=state.tab==="archive"?archivedRows:state.tab==="albums"?state.photos:state.previews;
-   const index=items.findIndex(item=>item.id===row.id);
-   const step=dir=>{const next=items[index+dir];const nextAlbum=state.albums.find(a=>a.id===next?.album_id);if(next&&nextAlbum)void openPhoto(next,nextAlbum);};
-   if(index>=0)window.VATRA_POST_MEDIA?.photoNavigation(photoContent,index,items.length,step);
+   const currentItems=()=>state.tab==="archive"?archivedRows:state.tab==="albums"?state.photos:state.previews;
+   const hasMore=()=>state.tab==="archive"?archiveHasMore:state.tab==="albums"?state.photoHasMore:state.featuredHasMore;
+   const index=currentItems().findIndex(item=>item.id===row.id);
+   let stepping=false;
+   const step=async dir=>{
+    if(stepping||!photoDialog.open||state.currentPhoto!==row)return;stepping=true;
+    try{
+     let next=currentItems()[index+dir];
+     if(!next&&dir>0&&hasMore()){
+      if(state.tab==="archive")await loadArchive(true);else if(state.tab==="albums")await loadAlbumPage(album.id,true);else await loadFeaturedPage(true);
+      if(!photoDialog.open||state.currentPhoto!==row)return;
+      next=currentItems()[index+dir];
+     }
+     const nextAlbum=state.albums.find(a=>a.id===next?.album_id);
+     if(next&&nextAlbum)await openPhoto(next,nextAlbum);
+     else{photoContent.querySelectorAll(".vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-post-gallery-counter-001").forEach(el=>el.remove());window.VATRA_POST_MEDIA?.photoNavigation(photoContent,index,currentItems().length,step,hasMore());}
+    }finally{stepping=false;}
+   };
+   if(index>=0)window.VATRA_POST_MEDIA?.photoNavigation(photoContent,index,currentItems().length,step,hasMore());
    photoDialog.onkeydown=event=>{if(event.target.closest("textarea,input,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}};
    void (async()=>{
     try{
@@ -832,7 +848,7 @@
     }catch(_){}
    })();
    try{const url=await signedUrl(row.media_path);if(photoDialog.open&&state.currentPhoto===row)photoImage.src=url;}
-   catch(_){notify(t("Фото недоступне.","Photo unavailable."));photoDialog.close();}
+   catch(_){if(photoDialog.open&&state.currentPhoto===row){notify(t("Фото недоступне.","Photo unavailable."));photoDialog.close();}}
   }
   async function removePhoto(row=state.currentPhoto){
    if(!isMine||!row||state.busy)return;

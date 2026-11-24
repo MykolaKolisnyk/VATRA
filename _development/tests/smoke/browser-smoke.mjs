@@ -5099,6 +5099,25 @@ try{
   await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-photo-gallery .profile-media-tile").length===2);
   assert.equal(await profilePage.locator("#profile-photo-gallery .profile-media-tile").count(),2,
    "All photos from media_items-only posts must appear individually in the Photos tab");
+  const galleryTiles=profilePage.locator("#profile-photo-gallery .profile-media-tile");
+  await galleryTiles.first().locator(".vatra-post-gallery-tile").click();
+  const photoViewer=profilePage.locator("#vatra-post-media-viewer");
+  await photoViewer.waitFor({state:"visible"});
+  const photoCounter=photoViewer.locator(".vatra-post-gallery-counter-001");
+  assert.equal(await photoCounter.textContent(),"1 / 2","Gallery opens with navigation across the loaded photos");
+  await photoViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
+  await photoViewer.locator(".vatra-post-gallery-nav-next").click();
+  await profilePage.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");
+  await photoViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
+  await photoViewer.locator(".vatra-post-gallery-nav-prev").click();
+  await profilePage.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
+  await photoViewer.locator(".vatra-post-media-close-001").click();
+  assert.equal(await photoViewer.evaluate(el=>el.open),false,"Gallery navigation does not leave nested dialogs open");
+  await galleryTiles.first().hover();
+  const tileMenu=galleryTiles.first().locator(".ui-vatra-album-tile-menu-001");
+  await tileMenu.locator("summary").hover();
+  await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"visible"});
+  assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
   assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
    q.includes('media_items.cs.[{"media_kind":"image"}]'))),
    "Photos query must include modern JSONB attachments on the server");

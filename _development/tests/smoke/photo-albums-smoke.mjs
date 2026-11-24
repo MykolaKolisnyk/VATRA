@@ -213,4 +213,4 @@ assert.ok(script.includes("chooseDestination")&&script.includes("loadArchive")&&
 
 assert.ok(gallery.includes("vatra:select-post-photo")&&script.includes('source:"avatar"')&&script.includes("downloadSource(row)")&&script.includes("bulkMove.hidden=bulkArchive.hidden=mixed")&&script.includes("deleteSelected"),"Mixed source selection must allow safe source-specific deletion");
 
-assert.ok(media.includes("photoNavigation")&&gallery.includes("items:[...photoEntries]")&&script.includes("photoNavigation(photoContent"),"All photo viewers must navigate their source gallery");
+assert.ok(media.includes("photoNavigation")&&gallery.includes("items:photoEntries")&&gallery.includes("loadMore:()=>load(true)")&&script.includes("photoNavigation(photoContent"),"All photo viewers must navigate their source gallery");
