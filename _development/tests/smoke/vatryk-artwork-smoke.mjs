@@ -63,3 +63,5 @@ assert.ok(profileRuntime.includes('if(!isMine&&(blockOutcome.status!=="fulfilled
  "Visitor details remain behind the verified privacy and block gates");
 assert.ok(!profileRuntime.includes("if(locked)await mediaPromise;"),"Locked profile shell must not wait for image decoding");
 console.log("VATRA Profile: parallel access reads, bounded startup and non-blocking image presentation verified.");
+
+assert.ok(profileRuntime.includes('const ownId=String(account?.vatra_id??"");')&&profileRuntime.includes('if(accountError||!validId(ownId))'),"Numeric PostgREST member IDs must be normalized before validation");

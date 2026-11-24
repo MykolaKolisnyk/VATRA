@@ -3482,8 +3482,8 @@ async function start(){
   const ownAvatar=(first+last).toLocaleUpperCase(locale);
   const {data:account,error:accountError}=await profileDeadline(client.from("accounts")
    .select("vatra_id").eq("user_id",user.id).maybeSingle());
-  if(accountError||!validId(account?.vatra_id))throw accountError||Error("Account unavailable");
-  const ownId=String(account.vatra_id);
+  const ownId=String(account?.vatra_id??"");
+  if(accountError||!validId(ownId))throw accountError||Error("Account unavailable");
   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   if(ownId){
    try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,ownId,metadata.gender)).catch(()=>{});}catch(_){}
