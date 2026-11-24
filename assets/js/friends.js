@@ -148,10 +148,6 @@ function person(item,index){
   t("Запит надіслано","Request sent"));
  details.append(profile,secondary);
  const actions=make("div","vatra-friends-person-actions ui-vatra-friends-person-actions-"+index);
- if(!state&&stateFor(item)==="accepted"&&id!==ownId){
-  const message=make("a","vatra-friends-message-"+index,t("Написати","Message"));
-  message.href=new URL("id"+id+"?message=1",root).href;actions.append(message);
- }
  if(me&&stateFor(item)==="incoming"){
   actions.append(actionButton(t("Прийняти","Accept"),
    "vatra-friends-accept-"+index,()=>accept(item)));
