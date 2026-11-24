@@ -5,7 +5,7 @@ const root=new URL("../../",document.currentScript?.src||location.href);
 const features=Object.freeze({
  albums:{css:"assets/css/photo-albums.css?rev=e60d4aa155ba108c6d38004136cd67c84c617f99",js:"assets/js/photo-albums.js?rev=65e5023a45ece4f932b51924fae81ca0a6439f3f",key:"VATRA_ALBUMS"},
  story:{css:"assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df",js:"assets/js/story-editor.js?rev=ebaa9990cc5873d74531e8bd9a13b2449c3030e2",key:"VATRA_STORY_EDITOR"},
- composer:{css:"assets/css/post-composer.css?rev=c26566635080adbef9c89af2bf2813633eb4fc9a",js:"assets/js/post-composer-ui.js?rev=524917dad85c0582691b0b7f85185cf430b0dbbc",key:"VATRA_COMPOSER_UI"},
+ composer:{css:"assets/css/post-composer.css?rev=c6d7aae2436bbe57b406acad87c79f1924ec2898",js:"assets/js/post-composer-ui.js?rev=363501975644f20c91e8d9ba75508633263b061b",key:"VATRA_COMPOSER_UI"},
  gift:{css:"assets/css/gifts.css",js:"assets/js/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"},
  "profile-gallery":{js:"assets/js/profile-gallery.js?rev=a2750ea44c2ed22ae1679628f73cda87f806ed93",key:"VATRA_PROFILE_GALLERY"},
  "cover-editor":{js:"assets/js/profile-cover-editor.js?rev=95d2182c4b03c53a74e7b9ebdbc9761d585898b9",key:"VATRA_PROFILE_COVER_EDITOR"},

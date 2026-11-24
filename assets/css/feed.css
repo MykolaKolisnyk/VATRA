@@ -3356,6 +3356,84 @@ body.feed-page .vatra-media-side-unified-001 .vatra-album-comments-emoji-option-
  body.feed-page .vatra-media-side-unified-001 button{transition:none!important}
 }
 
+
+.vatra-post-poll{display:flex;flex-direction:column;gap:11px;margin:13px 0 12px;padding:16px 17px;border:1px solid #e0e8f5;border-radius:14px;background:#f9fbff;color:#324866;font-family:"Onest",system-ui,sans-serif}
+.vatra-post-poll-head-001{display:flex;align-items:center;gap:10px}
+.vatra-post-poll-head-001 svg{width:20px;height:20px;flex:none;color:#6386c7}
+.vatra-post-poll-question-001{margin:0!important;color:#304362;font:750 15px/1.45 "Onest",system-ui,sans-serif;overflow-wrap:anywhere}
+.vatra-post-poll-choices-001{display:flex;flex-direction:column;gap:8px}
+.vatra-post-poll-choice-001{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:space-between;gap:9px;min-height:43px;width:100%;overflow:hidden;padding:10px 13px;border:1px solid #dbe5f2;border-radius:10px;background:#fff;color:#364b69;text-align:left;font:600 13px/1.45 "Onest",system-ui,sans-serif;cursor:pointer;transition:border-color .18s,background .18s}
+.vatra-post-poll-choice-001:hover:not(:disabled){border-color:#9ebdec;background:#f4f8ff}
+.vatra-post-poll-choice-001.is-selected{border-color:#5c8bd5;background:#eef5ff}
+.vatra-post-poll-choice-001.is-voted{border-color:#accbf2}
+.vatra-post-poll-choice-001:disabled{cursor:default;opacity:.85}
+.vatra-post-poll-choice-001:focus-visible{outline:2px solid #82aaf0;outline-offset:2px}
+.vatra-post-poll-choice-label-001{position:relative;z-index:1;min-width:0;overflow-wrap:anywhere}
+.vatra-post-poll-bar-001{position:absolute;z-index:0;left:0;top:0;bottom:0;max-width:100%;background:#dceaff;transition:width .28s ease;pointer-events:none}
+.vatra-post-poll-percent-001{position:relative;z-index:1;flex:none;color:#436eb5;font:730 12px/1.4 "Onest",system-ui,sans-serif}
+.vatra-post-poll-footer-001{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:9px 14px;margin-top:2px}
+.vatra-post-poll-summary-001{margin-right:auto;color:#7386a3;font:570 11.5px/1.5 "Onest",system-ui,sans-serif}
+.vatra-post-poll-results-toggle-001,.vatra-post-poll-withdraw-001{padding:6px 3px;border:0;background:transparent;color:#446fb3;font:670 11.5px/1.5 "Onest",system-ui,sans-serif;cursor:pointer}
+.vatra-post-poll-submit-001{min-height:36px;padding:7px 14px;border:0;border-radius:9px;background:#3976d6;color:#fff;font:720 12px/1.5 "Onest",system-ui,sans-serif;cursor:pointer}
+.vatra-post-poll-submit-001:disabled{opacity:.46;cursor:default}
+.vatra-post-poll-status-001{margin:0!important;color:#ad5167;font:540 12px/1.5 "Onest",system-ui,sans-serif}
+.vatra-post-poll-status-001[hidden]{display:none!important}
+@media(max-width:580px){.vatra-post-poll{padding:12px;gap:9px}.vatra-post-poll-choice-001{padding:10px}}
+
+
+.vatra-post-poll-choice-wrap-001{position:relative;display:flex;flex-direction:column;min-width:0;z-index:0}
+.vatra-post-poll-choice-wrap-001:hover,
+.vatra-post-poll-choice-wrap-001:focus-within{z-index:15}
+.vatra-post-poll-voters-toggle-001{
+ align-self:flex-end;min-height:0;max-height:0;opacity:0;overflow:hidden;
+ padding:0 4px;border:0;background:transparent;color:#4777b8;
+ font:650 11px/1.5 "Onest",system-ui,sans-serif;cursor:pointer;
+ transition:opacity .16s ease
+}
+.vatra-post-poll-choice-wrap-001:hover .vatra-post-poll-voters-toggle-001,
+.vatra-post-poll-choice-wrap-001:focus-within .vatra-post-poll-voters-toggle-001{
+ max-height:28px;min-height:23px;opacity:1
+}
+.vatra-post-poll-voters-toggle-001:focus-visible{outline:2px solid #83a9e6;outline-offset:2px}
+.vatra-post-poll-voters-panel-001{
+ position:absolute;z-index:40;right:0;top:100%;
+ display:flex;flex-direction:column;gap:10px;
+ width:min(295px,calc(100vw - 64px));max-height:260px;overflow:auto;
+ padding:13px;border:1px solid #dce6f5;border-radius:12px;
+ background:#fff;color:#334e73;box-shadow:0 17px 40px rgba(23,44,81,.18);
+ box-sizing:border-box
+}
+.vatra-post-poll-voters-panel-001[hidden]{display:none!important}
+.vatra-post-poll-voters-heading-001{font:740 12px/1.4 "Onest",system-ui,sans-serif}
+.vatra-post-poll-voters-list-001{display:flex;flex-direction:column;gap:8px}
+.vatra-post-poll-voters-person-001{
+ display:flex;align-items:center;gap:8px;min-width:0;
+ text-decoration:none;color:#405d88;font:610 12px/1.35 "Onest",system-ui,sans-serif
+}
+.vatra-post-poll-voters-person-001:hover{text-decoration:underline;color:#2869c9}
+.vatra-post-poll-voters-person-001:focus-visible{outline:2px solid #8ab0ea;outline-offset:2px}
+.vatra-post-poll-voters-avatar-001{
+ display:grid;place-items:center;flex:none;width:27px;height:27px;
+ border-radius:50%;background:#e5efff;color:#416db4;
+ font:740 12px/1 "Onest",system-ui,sans-serif
+}
+.vatra-post-poll-voters-name-001{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vatra-post-poll-voters-loading-001,.vatra-post-poll-voters-error-001,
+.vatra-post-poll-voters-empty-001,.vatra-post-poll-voters-more-001{
+ color:#7588a3;font:540 11px/1.5 "Onest",system-ui,sans-serif
+}
+@media(hover:none){
+ .vatra-post-poll-voters-toggle-001{max-height:28px;min-height:23px;opacity:1}
+}
+
+.vatra-post-poll-voters-more-button-001{
+ align-self:flex-start;min-height:28px;padding:4px 2px;border:0;background:transparent;
+ color:#366eb8;font:680 11.5px/1.45 "Onest",system-ui,sans-serif;cursor:pointer
+}
+.vatra-post-poll-voters-more-button-001:hover{text-decoration:underline}
+.vatra-post-poll-voters-more-button-001:focus-visible{outline:2px solid #83a9e6;outline-offset:2px}
+.vatra-post-poll-voters-more-button-001:disabled{opacity:.65;cursor:progress}
+
 body.feed-page .vatra-notification-row{
  grid-template-columns:46px minmax(0,1fr) 30px;gap:12px;align-items:start;
  padding:16px 17px;overflow:visible;

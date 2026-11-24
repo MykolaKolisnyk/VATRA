@@ -4,7 +4,7 @@ import {readFile} from "node:fs/promises";
 import {randomUUID} from "node:crypto";
 import pg from "pg";
 const url=new URL(process.env.DATABASE_URL||"postgresql://invalid");
-assert.equal(url.hostname,"localhost");assert.equal(url.port,"5432");assert.equal(url.pathname,"/vatra_test");
+assert.equal(url.hostname,"localhost");assert.equal(url.port,"5432");assert.equal(url.pathname,"/vatra_photo_test");
 const db=new pg.Client({connectionString:url.href});await db.connect();
 const root=async()=>{await db.query("reset role");await db.query("select set_config('request.jwt.claim.sub','',false)");};
 const as=async user=>{await root();await db.query("set role authenticated");await db.query("select set_config('request.jwt.claim.sub',$1,false)",[user.user_id]);};
