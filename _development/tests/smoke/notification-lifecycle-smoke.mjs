@@ -205,4 +205,18 @@ finishOld({rows:[{id:"old-notice",actor_vatra_id:"12"}],hasNext:false});
 await readingOld;
 assert.equal(fullList.children.length,0,"Old-account inbox content must not reappear");
 assert.equal(oldAuthors,0,"Do not fetch author details after a viewer change");
+const friendshipLifecycle=await readFile("_development/supabase/migrations/20261124081500_resolve_friend_request_notifications.sql","utf8");
+assert.ok(
+ friendshipLifecycle.includes("AFTER DELETE OR UPDATE OF status ON public.friendships")&&
+ friendshipLifecycle.includes("IF OLD.status = 'pending' THEN")&&
+ friendshipLifecycle.includes("IF NEW.status = 'accepted' THEN")&&
+ friendshipLifecycle.includes("TG_OP = 'DELETE' AND OLD.status = 'pending'")&&
+ friendshipLifecycle.includes("a.user_id = (SELECT auth.uid())")&&
+ friendshipLifecycle.includes("AND a.vatra_id = OLD.recipient_id")&&
+ friendshipLifecycle.includes("ON CONFLICT (recipient_vatra_id, event_key) DO NOTHING")&&
+ friendshipLifecycle.includes("NOT EXISTS (")&&
+ friendshipLifecycle.includes("f.id = n.target_id AND f.status = 'pending'")&&
+ friendshipLifecycle.includes("REVOKE ALL ON FUNCTION private.notify_friend_declined()"),
+ "Resolved friend invitations must clear stale notices on accept/cancel/decline, but only recipient declines notify the sender"
+);
 console.log("VATRA notifications: in-flight coalescing, session teardown, no stale badge, five-row acknowledgment and stale full-inbox protection passed.");
