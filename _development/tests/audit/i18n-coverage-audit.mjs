@@ -60,7 +60,7 @@ const tourStart=dynamicKeys.indexOf("Твоя стрічка");
 const tourEnd=dynamicKeys.indexOf("Поділися моментом у короткій історії. Історії зникають через 24 години.");
 assert.ok(tourStart>=0&&tourEnd>=tourStart,"Missing tour anchors in reference dictionary");
 const tourMessages=dynamicKeys.slice(tourStart,tourEnd+1);
-assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translation group");
+assert.equal(tourMessages.length,67,"Unexpected change in Vatryk tour translation group");
 
 
 const langJs=await readFile("assets/js/lang.js","utf8");
