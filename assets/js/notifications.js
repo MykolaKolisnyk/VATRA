@@ -38,7 +38,7 @@ const icon=(key,path)=>{
 let client=null,ownId=null,bell=null,badge=null,panel=null,panelItems=null;
 let open=false,liveChannel=null,refreshBusy=false,refreshQueued=false;
 let notificationRun=null,panelLoadPending=null,panelLoadQueued=false;
-let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false;
+let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false,sectionQueued=false,sectionScope=null;
 const pageURL=()=>new URL("notifications",root).href;
 const plural=(n,a,b,c)=>{const x=n%100,d=n%10;return n+" "+(d===1&&x!==11?a:d>=2&&d<=4&&(x<12||x>14)?b:c)};
 const timeValue=date=>{
@@ -616,7 +616,7 @@ function stop(){
  bell.setAttribute("aria-label",t("Сповіщення","Notifications"));
  refreshBusy=false;refreshQueued=false;
  panelLoadPending=null;panelLoadQueued=false;
- sectionPage=0;sectionLoading=false;
+ sectionPage=0;sectionLoading=false;sectionQueued=false;sectionScope=null;
  client=null;ownId=null;
  window.VATRA_AUTH_MEMBER_ID=null;
  if(window.VATRA_ADMIN_CONTEXT?.client===run.client&&window.VATRA_ADMIN_CONTEXT.id===run.id)delete window.VATRA_ADMIN_CONTEXT;
@@ -688,15 +688,19 @@ async function pageLoad(append=false){
  const run=notificationRun;
  const list=pick("#notifications-list"),empty=pick("#notifications-empty");
  const more=pick("#notifications-more");
- if(!list||!run||sectionLoading)return;
+ if(!list||!run)return;
+ if(sectionLoading){if(!append)sectionQueued=true;return;}
  sectionLoading=true;more.disabled=true;list.setAttribute("aria-busy","true");
+ const filter=sectionFilter,sort=sectionSort,scope=JSON.stringify([filter,sort]);
+ const isCurrent=()=>run===notificationRun&&filter===sectionFilter&&sort===sectionSort;
  const page=append?sectionPage+1:0,size=30;
- if(!append){list.replaceChildren();empty.hidden=true;}
+ if(!append){if(sectionScope!==scope)list.replaceChildren();empty.hidden=true;}
  try{
-  const result=await fetchRows({page,size,filter:sectionFilter,sort:sectionSort});
-  if(run!==notificationRun)return;
+  const result=await fetchRows({page,size,filter,sort});
+  if(!isCurrent())return;
   const authors=await authorNames(result.rows);
-  if(run!==notificationRun)return;
+  if(!isCurrent())return;
+  if(!append)list.replaceChildren();
   for(const row of result.rows){
    const index=list.children.length+1,id=String(row.actor_vatra_id);
    const state=authors.states.get(id);
@@ -705,20 +709,21 @@ async function pageLoad(append=false){
     authors.names.get(id)||format("Учасник VATRA ID {id}","VATRA member ID {id}",{id});
    list.append(createRow(row,name,String(index),()=>pageLoad(false),authors.avatars.get(id),state,authors.forms.get(id)));
   }
-  sectionPage=page;
+  sectionPage=page;sectionScope=scope;
   more.hidden=!result.hasNext;
   if(!list.children.length){
    renderEmpty(empty);
   }
  }catch(_){
-  if(run!==notificationRun)return;
-  if(!append)list.replaceChildren();
+  if(!isCurrent())return;
+  if(!append){list.replaceChildren();sectionScope=null;}
   empty.hidden=false;
   empty.textContent=t("Не вдалося завантажити сповіщення. Спробуйте ще раз.",
    "Could not load notifications. Please retry.");
  }finally{
   if(run===notificationRun){
    sectionLoading=false;more.disabled=false;list.setAttribute("aria-busy","false");
+   if(sectionQueued){sectionQueued=false;void pageLoad(false);}
   }
  }
 }
