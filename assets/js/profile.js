@@ -3300,6 +3300,23 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(r.error||!r.data||r.data.avatar_path!==next)throw Error("Avatar change not saved");
   saved={...saved,avatar_path:next};avatarGalleryLoader.invalidate();
  };
+ window.VATRA_DELETE_AVATAR_BATCH=async paths=>{
+  if(!canEdit||uploading||avatarFeaturePending||avatarEditor?.busy()||pendingAvatarUndo)return false;
+  const selected=[...new Set(paths)].filter(path=>typeof path==="string"&&path.startsWith(ownId+"/avatar/")&&!/-original\./.test(path));
+  if(!selected.length||selected.length!==new Set(paths).size)return false;
+  uploading=true;avatarGalleryLoader.invalidate();const previous=saved?.avatar_path;let changed=false;
+  try{
+   const available=await listAvatarGallery(true);if(selected.some(path=>!available.includes(path)))return false;
+   if(selected.includes(previous)){await updateCurrentAvatar(available.find(path=>!selected.includes(path))||null);changed=true;}
+   const files=selected.flatMap(path=>[path,path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1")]);
+   const {error}=await client.storage.from("avatars").remove(files);if(error)throw error;
+   const metadata=await Promise.all([client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId).in("avatar_path",selected),client.from("avatar_photo_descriptions").delete().eq("owner_vatra_id",ownId).in("avatar_path",selected)]);
+   window.VATRA_AVATAR?.invalidatePath?.(client,ownId);if(changed)await display(saved);return metadata.every(result=>!result.error);
+  }catch(_){
+   if(changed)try{const available=await listAvatarGallery(true);if(available.includes(previous)){await updateCurrentAvatar(previous);window.VATRA_AVATAR?.invalidatePath?.(client,ownId);}await display(saved);}catch(_){}
+   return false;
+  }finally{uploading=false;avatarGalleryLoader.invalidate();}
+ };
  const avatarType=path=>/\.png$/i.test(path)?"image/png":/\.webp$/i.test(path)?"image/webp":"image/jpeg";
  async function removeAvatarPath(path){
   if(uploading||avatarFeaturePending||avatarEditor?.busy()||pendingAvatarUndo||!canEdit||

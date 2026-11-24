@@ -293,3 +293,20 @@ console.log("VATRA media: failed image URL invalidation and fresh retry verified
  assert.equal(signedCalls,3);assert.match(opened[0],/token=3$/);
 }
 console.log("VATRA inline video: deferred request, actual download failure, fresh retry and fullscreen renewal passed.");
+
+// Cleanup reports Storage errors without skipping another bucket.
+{
+ const begin=source.indexOf(" async function removeGallery(");
+ const finish=source.indexOf(" async function uploadGallery(",begin);
+ assert.ok(begin>=0&&finish>begin);
+ const env={};runInNewContext(source.slice(begin,finish)+"\nglobalThis.cleanup=removeGallery;",env);
+ const items=[{media_kind:"image",media_path:"a.jpg",preview_path:"a.webp"},{media_kind:"image",media_path:"a.jpg"},{media_kind:"video",media_path:"b.mp4"}];
+ const calls=[];
+ const client={storage:{from:bucket=>({async remove(paths){calls.push([bucket,...paths]);return {error:bucket==="videos"?Error("Storage unavailable"):null};}})}};
+ assert.equal(await env.cleanup(client,items),false);
+ assert.equal(JSON.stringify(calls),JSON.stringify([["post-images","a.jpg","a.webp"],["videos","b.mp4"]]));
+ assert.equal(await env.cleanup({storage:{from:()=>({remove:()=>Promise.reject(Error("Network"))})}},items),false);
+ assert.equal(await env.cleanup({storage:{from:()=>({remove:async()=>({error:null})})}},items),true);
+ assert.equal(await env.cleanup(client,[]),true);
+}
+console.log("VATRA media cleanup: deduplication, Storage errors, rejected requests and empty selection passed.");

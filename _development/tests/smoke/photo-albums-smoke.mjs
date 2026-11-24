@@ -117,9 +117,9 @@ assert.ok(
  script.includes('commentsList.prepend(pending)')&&
  script.includes('commentsList.prepend(commentRow')===false&&
  script.includes('const PAGE_SIZE=18,FEATURED_LIMIT=12')&&
- gallery.includes("openPostPhoto(client,post,item,{ownId,userId})")&&
+ gallery.includes("openPostPhoto(client,post,item,{ownId,userId,items:photoEntries,removePhoto,hasMore:()=>hasMore,loadMore:()=>load(true)})")&&
  profile.includes("window.VATRA_OPEN_PROFILE_AVATAR=path=>")&&
- media.includes("openPostPhoto,renderStory"),
+ media.includes("openPostPhoto,photoNavigation,photoMenuIcon,renderStory"),
  "Source-aware photographs, direct uploads, per-photo interactions and incremental loading must remain intact"
 );
 assert.ok(
@@ -211,7 +211,10 @@ const photoActions=await readFile("_development/supabase/migrations/202611240655
 assert.ok(photoActions.includes("on update cascade on delete cascade")&&photoActions.includes("Moving a photo must not expand its audience")&&photoActions.includes("vatra_album_photos_archive_visibility"),"Logical moves preserve discussion and never widen the audience; archive is owner-only");
 assert.ok(script.includes("chooseDestination")&&script.includes("loadArchive")&&script.includes('update({album_id:select.value,pinned_at:null})'),"Photo move and archive must use owner-scoped writes");
 
-assert.ok(gallery.includes("vatra:select-post-photo")&&script.includes('source:"avatar"')&&script.includes("downloadSource(row)")&&script.includes("bulkDelete.hidden=bulkMove.hidden=bulkArchive.hidden=mixed"),"Mixed source selection must not delete or move entire posts or current avatars");
+assert.ok(gallery.includes("vatra:select-post-photo")&&script.includes('source:"avatar"')&&script.includes("downloadSource(row)")&&script.includes("bulkMove.hidden=bulkArchive.hidden=mixed")&&script.includes("deleteSelected"),"Mixed source selection must allow safe source-specific deletion");
+
+assert.ok(media.includes("photoNavigation")&&gallery.includes("items:photoEntries")&&gallery.includes("loadMore:()=>load(true)")&&script.includes("photoNavigation(photoContent"),"All photo viewers must navigate their source gallery");
+assert.ok(script.includes("if(!await window.VATRA_POST_MEDIA.removeGallery(")&&script.includes("if(removed.error)throw removed.error;"),"Photo deletion must report Storage cleanup failures instead of false success");
 
 
 // Profile gallery retry buttons must remain actionable; quick tab returns reuse

@@ -2841,6 +2841,8 @@ try{
  // Test-only fake thumbnails must never hit live Supabase Storage.
  await feedContext.route("**/storage/v1/object/sign/post-images/12/posts/**",route=>
   route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+ await feedContext.route("**/storage/v1/object/sign/post-images/654321/posts/**",route=>
+  route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
  // A click-to-play fixture must not request the real Supabase Storage project.
  await feedContext.route("**/storage/v1/object/sign/videos/12/posts/00000000-0000-4000-8000-000000000123.mp4**",
   route=>route.abort("blockedbyclient"));
@@ -2965,13 +2967,14 @@ try{
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
        created_at:"2026-11-10T00:00:00Z"}],error:null
     })})}:
-    {select:()=>({filterId:null,clipFilter:null,mediaFilter:null,after:null,before:null,
+    {select:()=>({filterId:null,clipFilter:null,mediaFilter:null,after:null,before:null,postId:null,
+      async maybeSingle(){return {data:table==="feed_posts"?window.__feedTestPosts.find(p=>String(p.id)===this.postId&&(this.filterId===null||String(p.author_vatra_id)===this.filterId))||null:null,error:null};},
       or(value){
        this.mediaFilter=/media_kind\.eq\.(image|video)/.exec(value)?.[1]||null;
        (window.__vatraGalleryQueries??=[]).push(value);
        return this;
       },
-      eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else this.filterId=String(id);return this;},
+      eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else if(table==="feed_posts"&&field==="id")this.postId=String(id);else this.filterId=String(id);return this;},
       is(){return this;},
       limit:async function(n){return {data:table==="feed_posts"?window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(0,n):[],error:null};},
       gte(column,date){if(column==="created_at")this.after=date;return this;},
@@ -2992,6 +2995,19 @@ try{
       }}),
      insert:async(data)=>{window.__feedTestPosts.unshift({...data,
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
+     update:changes=>({
+      filters:[],
+      eq(column,value){this.filters.push([column,value]);return this;},
+      is(column,value){this.filters.push([column,value]);return this;},
+      select(){return this;},
+      async maybeSingle(){
+       const post=table==="feed_posts"&&window.__feedTestPosts.find(row=>this.filters.every(([column,value])=>{
+        const actual=row[column];return value===null?actual===null:typeof actual==="object"?JSON.stringify(actual)===value:String(actual)===String(value);
+       }));
+       if(post)Object.assign(post,changes);
+       return {data:post?{id:post.id}:null,error:null};
+      }
+     }),
      delete:()=>({
        filters:[],
        eq(column,value){this.filters.push([column,String(value)]);return this;},
@@ -5099,7 +5115,7 @@ try{
   await profilePage.evaluate(()=>{
    window.__vatraGalleryFixture="00000000-0000-4000-8000-000000000777";
    window.__feedTestPosts.push({
-    id:window.__vatraGalleryFixture,author_vatra_id:654321,body:"",
+    id:window.__vatraGalleryFixture,author_vatra_id:654321,body:"Keep this text",poll:null,
     visibility:"public",is_clip:false,media_kind:null,media_path:null,
     created_at:"2026-11-22T08:00:00Z",media_items:[
      {media_kind:"image",media_path:"654321/posts/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.jpg"},
@@ -5117,6 +5133,44 @@ try{
   await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-photo-gallery .profile-media-tile").length===2);
   assert.equal(await profilePage.locator("#profile-photo-gallery .profile-media-tile").count(),2,
    "All photos from media_items-only posts must appear individually in the Photos tab");
+  // The album tab remembers its selection when returning to profile media.
+  // Explicitly open Photos before testing the visible photo tiles.
+  await profilePage.locator(".ui-vatra-albums-controls-001").getByRole("button",{name:language==="en"?"Photos":"Фотографії",exact:true}).click();
+  const galleryTiles=profilePage.locator("#profile-photo-gallery .profile-media-tile");
+  const firstGalleryPhoto=galleryTiles.first().locator(".vatra-post-gallery-tile");
+  await firstGalleryPhoto.waitFor({state:"visible"});
+  const tileGeometry=await firstGalleryPhoto.boundingBox();
+  assert.ok(tileGeometry&&tileGeometry.width>30&&tileGeometry.height>30&&Math.abs(tileGeometry.width-tileGeometry.height)<2,
+   "A gallery photo must fill a visible square clickable surface regardless of preview loading");
+  await firstGalleryPhoto.click();
+  const photoViewer=profilePage.locator("#vatra-post-media-viewer");
+  await photoViewer.waitFor({state:"visible"});
+  const photoCounter=photoViewer.locator(".vatra-post-gallery-counter-001");
+  assert.equal(await photoCounter.textContent(),"1 / 2","Gallery opens with navigation across the loaded photos");
+  await photoViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
+  await photoViewer.locator(".vatra-post-gallery-nav-next").click();
+  await profilePage.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");
+  await photoViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
+  await photoViewer.locator(".vatra-post-gallery-nav-prev").click();
+  await profilePage.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
+  await photoViewer.locator(".vatra-post-media-close-001").click();
+  assert.equal(await photoViewer.evaluate(el=>el.open),false,"Gallery navigation does not leave nested dialogs open");
+  await galleryTiles.first().hover();
+  const tileMenu=galleryTiles.first().locator(".ui-vatra-album-tile-menu-001");
+  await tileMenu.locator("summary").hover();
+  await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"visible"});
+  assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
+  await tileMenu.getByRole("button",{name:language==="en"?"Select multiple":"Вибрати декілька",exact:true}).click();
+  await galleryTiles.nth(1).locator("[data-vatra-select-photo]").click();
+  assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),"2");
+  await profilePage.locator(".vatra-album-bulk-more-001").click();
+  await profilePage.locator(".vatra-album-bulk-menu-items-001 .vatra-albums-danger-001").click();
+  await profilePage.locator(".ui-vatra-albums-confirm-001 .vatra-albums-danger-001").click();
+  await profilePage.waitForFunction(()=>window.__feedTestPosts.find(post=>post.id===window.__vatraGalleryFixture)?.media_items.length===1);
+  const preserved=await profilePage.evaluate(()=>window.__feedTestPosts.find(post=>post.id===window.__vatraGalleryFixture));
+  assert.equal(preserved.body,"Keep this text","Bulk photo deletion must preserve post text");
+  assert.equal(preserved.media_items[0].media_kind,"video","Bulk photo deletion must preserve unselected video");
+  await profilePage.waitForFunction(()=>!document.querySelector(".vatra-album-selection-active-001"));
   assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
    q.includes('media_items.cs.[{"media_kind":"image"}]'))),
    "Photos query must include modern JSONB attachments on the server");
