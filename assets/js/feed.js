@@ -76,7 +76,7 @@
  function showErrorAtGate(text){
   const loader=q("#feed-loading");
   if(!loader)return;
-  loader.dataset.loadingError="true";loader.setAttribute("role","alert");
+  loader.hidden=false;loader.dataset.loadingError="true";loader.setAttribute("role","alert");
   const label=loader.querySelector(".vatra-auth-loading-caption");
   if(label)label.textContent=text;
   if(loader.querySelector(".vatra-auth-loading-retry"))return;
@@ -797,19 +797,31 @@
   }catch(_){deleteDialog.close();pendingDelete=null;message(t("Не вдалося видалити.","Could not delete post."));}
   finally{deleteConfirm.disabled=false;}
  }
+ function feedDeadline(task,ms=15000){
+  let timer;
+  return Promise.race([Promise.resolve(task),new Promise((_,reject)=>{
+   timer=setTimeout(()=>reject(Object.assign(Error("Feed request timed out"),{status:503})),ms);
+  })]).finally(()=>clearTimeout(timer));
+ }
  async function init(){
-  await window.VATRA_LANGUAGE?.ready;
-  localizeSocial();
-  if(!window.supabase?.createClient){
-   showErrorAtGate(t("Не вдалося завантажити VATRA.","Could not load VATRA."));return;
-  }
   try{
+   await feedDeadline(window.VATRA_LANGUAGE?.ready,5000);
+   localizeSocial();
+   if(!window.supabase?.createClient){
+    showErrorAtGate(t("Не вдалося завантажити VATRA.","Could not load VATRA."));return;
+   }
    client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
     auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
    });
-   const {data,error}=await client.auth.getUser();
+   const {data,error}=await feedDeadline(client.auth.getUser());
    if(error||!data?.user?.id){
-    if(error&&window.VATRA_SERVICE_NOTICE?.report(error,{session:true,access:false,retry:()=>location.reload()}))return;
+    if(error){
+     const kind=window.VATRA_SERVICE_NOTICE?.classify(error,{session:true,access:false});
+     if(kind&&kind!=="session"){showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));return;}
+     if(!kind&&![401,403].includes(Number(error.status))&&error.name!=="AuthSessionMissingError"){
+      showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));return;
+     }
+    }
     window.location.replace(new URL("./",location.href).href);return;
    }
    if(!data.user.email_confirmed_at){
@@ -820,16 +832,17 @@
    const parts=[metadata.first_name,metadata.last_name].filter(v=>typeof v==="string"&&v.trim()).map(v=>v.trim());
    displayName=parts.join(" ")||String(metadata.full_name||"").trim()||t("Мій акаунт","My account");
    displayName=Array.from(displayName).slice(0,80).join("");
-   const profile=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
-   if(!profile.error&&profile.data?.vatra_id!=null)vatraId=String(profile.data.vatra_id);
+   const profile=await feedDeadline(client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle());
+   if(profile.error||!validId(profile.data?.vatra_id))throw profile.error||Error("Account unavailable");
+   vatraId=String(profile.data.vatra_id);
 
    const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
    window.VATRA_AVATAR?.setHeader({client,email:user.email,name:headerName,initials:initials(displayName),id:vatraId});
    window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
     if(vatraId){
-    void loadAvatars([vatraId]);
-    void window.VATRA_PRESENCE?.start(client,vatraId,metadata.gender);
-    window.VATRA_NOTIFICATIONS?.start(client,vatraId);
+    void loadAvatars([vatraId]).catch(()=>{});
+    try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,vatraId,metadata.gender)).catch(()=>{});}catch(_){}
+    try{window.VATRA_NOTIFICATIONS?.start(client,vatraId);}catch(_){}
    }
    if(vatraId){
     for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
@@ -936,12 +949,14 @@
    window.VATRA_ONBOARDING?.start({client,memberId:vatraId,authUserId:user.id,createdAt:user.created_at});
    void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()]);
   }catch(error){
+   if(document.body.dataset.authReady!=="true"){
+    showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));
+    return;
+   }
    const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>location.reload()});
    if(illustrated)clearMessage();
-   else if(document.body.dataset.authReady==="true"){
-    message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
-     "Could not load the feed. Refresh the page."));
-   }else showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));
+   else message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
+    "Could not load the feed. Refresh the page."));
   }
  }
  init();
