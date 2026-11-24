@@ -460,19 +460,23 @@ for(const page of pages){
 }
 const landing=await read("index.html");
 const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/logo_symbol.svg"');
-// VATRA now displays the original poster on sign-in; animated orbit remains retired.
+// VATRA now displays the hero illustration on sign-in; animated orbit remains retired.
 assert.ok(
- landing.includes('class="vatra-login-poster-001 ui-home-poster-001"')&&
- landing.includes('class="vatra-login-poster-image-001 ui-home-poster-image-001" src="assets/illustrations/login-hero.webp"')&&
+ landing.includes('class="vatra-login-hero-001 ui-home-hero-001"')&&
+ landing.includes('class="vatra-login-hero-image-001 ui-home-hero-image-001" src="assets/illustrations/login-hero.webp"')&&
  !landing.includes('class="intro-symbol ui-home-img-002"')&&
  !landing.includes('class="intro-circle')&&
  !landing.includes('class="orbit-node')&&
  !landing.includes('class="orbit-track'),
- "Login must display only the original VATRA poster, without previous orbital icons");
-assert.ok(signInCss.includes(".vatra-login-poster-001{")&&
- signInCss.includes(".vatra-login-poster-image-001{")&&
- signInCss.includes("object-fit:contain"),
- "Login poster must retain its dimensions and aspect ratio at every breakpoint");
+ "Login must display only the VATRA hero illustration, without previous orbital icons");
+assert.ok(signInCss.includes(".vatra-login-hero-001{")&&
+ signInCss.includes(".vatra-login-hero-image-001{")&&
+ signInCss.includes("object-fit:contain")&&
+ !/\.(?:orbit-|intro-circle|intro-art|intro-symbol)/.test(signInCss)&&
+ !/vatraOrbitClockwise|vatraIconUpright|vatraGlyphFloat/.test(css)&&
+ !(await read("assets/js/sign-in.js")).includes("wireOrbitTooltips")&&
+ !signInCss.includes(".intro-side:before"),
+ "Login hero illustration must retain its dimensions and aspect ratio at every breakpoint");
 assert.ok(
  landing.includes('class="vatra-home-paragraph-01">')&&
  landing.includes('class="vatra-home-emphasis-04" data-i18n="n100"')&&
@@ -489,7 +493,7 @@ assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
  "Landing columns and welcome description must be consistently readable");
 assert.ok(createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
  registerHtmlHasBrandedSymbol,
- "Registration retains its brand icon while sign-in uses the original poster");
+ "Registration retains its brand icon while sign-in uses the hero illustration");
 assert.ok(css.includes(".language-option .language-flag{width:36px;height:27px")&&
  lang.includes('add("path",{fill:"#012169",d:"M0 0h640v480H0z"})'),
  "Language flags must remain precise");
@@ -841,9 +845,8 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
  en.__pages.index.nodes.n128.text["0"]==="Create account"&&
  uk.__pages["create-account"].nodes.n59.text["0"]==="Створити акаунт",
  "Create account must be the unified account creation action");
-assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
- css.includes('.field.is-invalid .control{border-color:#e49aa7'),
- "Orbit size and visual validation details must be updated");
+assert.ok(css.includes('.field.is-invalid .control{border-color:#e49aa7'),
+ "Invalid field visual feedback must remain visible");
 assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
  !auth.includes("wireStableInputHints"),
