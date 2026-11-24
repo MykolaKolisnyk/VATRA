@@ -81,7 +81,11 @@ CREATE TABLE IF NOT EXISTS public.post_poll_votes (
  PRIMARY KEY (post_id,voter_id)
 );
 ALTER TABLE public.post_poll_votes ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.post_poll_votes FROM PUBLIC, anon;
+CREATE POLICY "vatra_admin_active_account" ON public.post_poll_votes
+ AS RESTRICTIVE FOR ALL TO authenticated
+ USING ((SELECT vatra_admin_private.allowed()))
+ WITH CHECK ((SELECT vatra_admin_private.allowed()));
+REVOKE ALL ON public.post_poll_votes FROM PUBLIC, anon, authenticated;
 GRANT SELECT,INSERT,UPDATE,DELETE ON public.post_poll_votes TO authenticated;
 CREATE POLICY "Read only own poll votes" ON public.post_poll_votes FOR SELECT TO authenticated
  USING (voter_id=(SELECT auth.uid()) AND EXISTS(SELECT 1 FROM public.feed_posts p WHERE p.id=post_id));
@@ -116,6 +120,10 @@ CREATE TABLE IF NOT EXISTS public.post_poll_visible_choices (
 CREATE INDEX IF NOT EXISTS post_poll_visible_choices_vatra_id_idx
  ON public.post_poll_visible_choices(voter_vatra_id);
 ALTER TABLE public.post_poll_visible_choices ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "vatra_admin_active_account" ON public.post_poll_visible_choices
+ AS RESTRICTIVE FOR ALL TO authenticated
+ USING ((SELECT vatra_admin_private.allowed()))
+ WITH CHECK ((SELECT vatra_admin_private.allowed()));
 REVOKE ALL ON public.post_poll_visible_choices FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON public.post_poll_visible_choices TO authenticated;
 CREATE POLICY "Read nonanonymous choices on visible posts" ON public.post_poll_visible_choices
@@ -135,7 +143,7 @@ CREATE OR REPLACE VIEW public.post_poll_voters WITH (security_invoker=true) AS
  LEFT JOIN public.public_profiles profiles ON profiles.vatra_id=votes.voter_vatra_id
  WHERE posts.poll IS NOT NULL AND (posts.poll->>'anonymous')='false'
   AND posts.archived_at IS NULL;
-REVOKE ALL ON public.post_poll_voters FROM PUBLIC, anon;
+REVOKE ALL ON public.post_poll_voters FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON public.post_poll_voters TO authenticated;
 
 CREATE OR REPLACE FUNCTION vatra_scheduler.sync_visible_poll_choices()
@@ -173,7 +181,11 @@ CREATE TABLE IF NOT EXISTS public.post_poll_counts (
  CONSTRAINT post_poll_counts_shape CHECK(jsonb_typeof(counts)='array')
 );
 ALTER TABLE public.post_poll_counts ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.post_poll_counts FROM PUBLIC, anon;
+CREATE POLICY "vatra_admin_active_account" ON public.post_poll_counts
+ AS RESTRICTIVE FOR ALL TO authenticated
+ USING ((SELECT vatra_admin_private.allowed()))
+ WITH CHECK ((SELECT vatra_admin_private.allowed()));
+REVOKE ALL ON public.post_poll_counts FROM PUBLIC, anon, authenticated;
 GRANT SELECT ON public.post_poll_counts TO authenticated;
 CREATE POLICY "Read counts for visible polls" ON public.post_poll_counts FOR SELECT TO authenticated
  USING (EXISTS(SELECT 1 FROM public.feed_posts p WHERE p.id=post_id AND p.poll IS NOT NULL));
@@ -327,7 +339,11 @@ CREATE INDEX IF NOT EXISTS scheduled_feed_posts_author_vatra_id_idx
 CREATE INDEX IF NOT EXISTS scheduled_feed_posts_published_post_id_idx
  ON public.scheduled_feed_posts(published_post_id) WHERE published_post_id IS NOT NULL;
 ALTER TABLE public.scheduled_feed_posts ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.scheduled_feed_posts FROM PUBLIC, anon;
+CREATE POLICY "vatra_admin_active_account" ON public.scheduled_feed_posts
+ AS RESTRICTIVE FOR ALL TO authenticated
+ USING ((SELECT vatra_admin_private.allowed()))
+ WITH CHECK ((SELECT vatra_admin_private.allowed()));
+REVOKE ALL ON public.scheduled_feed_posts FROM PUBLIC, anon, authenticated;
 GRANT SELECT,INSERT,UPDATE,DELETE ON public.scheduled_feed_posts TO authenticated;
 CREATE POLICY "Read own scheduled posts" ON public.scheduled_feed_posts FOR SELECT TO authenticated
  USING (author_id=(SELECT auth.uid()));
@@ -398,6 +414,22 @@ BEGIN
    ORDER BY publish_at,id LIMIT 25 FOR UPDATE SKIP LOCKED
  LOOP
   BEGIN
+   -- The worker bypasses RLS, so enforce the same account moderation gate
+   -- for the actual author rather than the worker's (empty) auth.uid().
+   IF NOT EXISTS (
+    SELECT 1 FROM public.accounts a
+     WHERE a.user_id=queued.author_id AND a.vatra_id=queued.author_vatra_id
+   ) OR EXISTS (
+    SELECT 1 FROM public.account_states s WHERE s.vatra_id=queued.author_vatra_id
+     AND (s.state='deleted' OR (s.state='blocked'
+      AND (s.blocked_until IS NULL OR s.blocked_until>now())))
+   ) THEN
+    UPDATE public.scheduled_feed_posts
+     SET status='failed',last_error='Author account is not active',
+      next_attempt_at=NULL,updated_at=now()
+     WHERE id=queued.id;
+    CONTINUE;
+   END IF;
    INSERT INTO public.feed_posts(author_id,author_vatra_id,body,visibility,media_items,poll)
     VALUES(queued.author_id,queued.author_vatra_id,queued.body,queued.visibility,queued.media_items,queued.poll)
     RETURNING id INTO new_post;
