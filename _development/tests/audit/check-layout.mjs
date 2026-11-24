@@ -715,7 +715,10 @@ for(const page of ["index","create-account","forgot","reset","verify","404","off
  assert.ok(!/<(?:button|a)\b[^>]*\btitle\s*=/i.test(html),
   page+": browser-native hover text must not be added to interactive elements");
 }
-assert.ok(landing.includes('id="saved-account-remove"')&&
+assert.ok(landing.includes('class="ui-home-saved-remove-icon-001" viewBox="0 0 24 24" width="24" height="24"')&&
+ signInCss.includes('.site .saved-account-remove .ui-home-saved-remove-icon-001{display:block;width:24px;height:24px;')&&
+ landing.includes('class="ui-home-saved-remove-body-001"')&&
+ landing.includes('id="saved-account-remove"')&&
  landing.includes('data-vatra-tooltip="Вилучити збережений акаунт"')&&
  !landing.includes('title="Вилучити збережений акаунт"')&&
  auth.includes('removeButton.setAttribute("data-vatra-tooltip",label)')&&
@@ -2370,7 +2373,10 @@ assert.ok(landing.includes('id="saved-account-return" class="saved-account-retur
  en["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
  "Saved account must have a top-left return control, equal state heights and localized password guidance");
 assert.ok(css.includes('.signup-progress-segment:first-child')&&
- css.includes('background:linear-gradient(90deg,#2c70e8,#8759e5)')&&
+ createAccountCss.includes('.signup-progress-segment:first-child,.create-account-page[data-registration-step="2"] .signup-progress-segment:last-child{background:var(--blue)}')&&
+ !createAccountCss.includes('#8759e5')&&
+ !/\.signup-brand::?(?:before|after)\b/.test(createAccountCss)&&
+ createAccountCss.includes('.signup-brand-art-halo{')&&
  !register.includes('data-step-label=')&&!css.includes('.signup-step-number{')&&
  !css.includes('min-width:148px')&&!css.includes('min-width:132px'),
  "Signup keeps the accessible progress bar without redundant step text; footer links retain natural widths");
