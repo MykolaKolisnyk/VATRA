@@ -117,3 +117,31 @@ enqueue(ok([friend(23)]),ok([]));
 await ensureSubscriptions();
 assert.deepEqual(audience(),{friends:["10","23"],clubs:[]});
 console.log("VATRA Feed audience: single-flight, only successful snapshots cached, safe retries passed.");
+
+ 
+// Independent avatar metadata reads must overlap, without revealing blocked avatars.
+{
+ const begin=source.indexOf(" async function loadAvatars(ids){");
+ const end=source.indexOf(" const memberName=",begin);
+ assert.ok(begin>0&&end>begin);
+ const stateWait=deferred(),pathWait=deferred(),started=[];
+ const mediaAvatars=new Map(),avatarStates=new Map();
+ const avatarContext={client:{},vatraId:"10",user:{email:"test@example.invalid"},
+  validId:id=>/^[1-9][0-9]*$/.test(id),mediaAvatars,avatarStates,
+  window:{VATRA_AVATAR:{
+   states(){started.push("states");return stateWait.promise;},
+   paths(){started.push("paths");return pathWait.promise;}
+  }},applyAvatar(){},q(){return null;},Promise,Map,Set,Array,String};
+ runInNewContext(source.slice(begin,end)+"\nglobalThis.load=loadAvatars;",avatarContext);
+ const pending=avatarContext.load(["20","30"]);
+ assert.deepEqual(started,["states","paths"],"Avatar metadata requests must start together");
+ pathWait.resolve(ok([{vatra_id:"20",avatar_path:"20/avatar/a.webp"},{vatra_id:"30",avatar_path:"30/avatar/b.webp"}]));
+ await Promise.resolve();
+ assert.equal(mediaAvatars.size,0,"Do not paint paths before account-state checks");
+ stateWait.resolve(new Map([["20","blocked"]]));
+ await pending;
+ assert.equal(avatarStates.get("20"),"blocked");
+ assert.equal(mediaAvatars.has("20"),false);
+ assert.equal(mediaAvatars.get("30"),"30/avatar/b.webp");
+ console.log("VATRA avatar metadata: overlapping requests and blocked-avatar safety passed.");
+}

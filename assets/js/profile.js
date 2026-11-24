@@ -169,13 +169,15 @@
      "and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")"
     ).eq("status","accepted").limit(1):
    Promise.resolve({data:[],error:null});
-  const [preference,friendship]=await Promise.all([preferenceQuery,friendshipQuery]);
+  const ownerDetailsQuery=isMine?client.from("profile_details")
+   .select("field_key,field_value,visibility").eq("vatra_id",targetId):Promise.resolve(null);
+  const [preference,friendship,ownerDetails]=await Promise.all([preferenceQuery,friendshipQuery,ownerDetailsQuery]);
 
   let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
   const isFriend=!friendship.error&&!!friendship.data?.length;
   const blocked=!isMine&&(blockAccess?.blockedByThem||blockAccess?.blockedByMe);
   const locked=!isMine&&(blocked||(accountVisibility==="friends"&&!isFriend));
-  const result=locked?{data:[],error:null}:await client.from("profile_details")
+  const result=locked?{data:[],error:null}:isMine?ownerDetails:await client.from("profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId);
   const rows=result.error?[]:result.data||[];
   const saved=new Map(rows.map(x=>[x.field_key,{
@@ -3525,12 +3527,20 @@ async function start(){
 
 
 
-  const [directoryOutcome,publicOutcome,stateOutcome]=await Promise.allSettled([
+  const isMine=targetId===ownId;
+  const blockQuery=!isMine&&validId(ownId)?
+   Promise.resolve().then(()=>client.from("member_blocks")
+    .select("blocker_vatra_id,blocked_vatra_id")
+    .or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),"+
+        "and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")")
+    .limit(2)):Promise.resolve({data:[],error:null});
+  const [directoryOutcome,publicOutcome,stateOutcome,blockOutcome]=await Promise.allSettled([
    client.from("member_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
    Promise.resolve().then(()=>client.from("public_profiles")
     .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()),
-   window.VATRA_AVATAR?.states(client,[targetId])||Promise.resolve(new Map())
+   window.VATRA_AVATAR?.states(client,[targetId])||Promise.resolve(new Map()),
+   blockQuery
   ]);
   const publicState=stateOutcome.status==="fulfilled"?stateOutcome.value.get(targetId):null;
   if(publicState==="deleted"||publicState==="blocked"){missingProfile(publicState);return;}
@@ -3538,20 +3548,12 @@ async function start(){
   const {data:member,error:directoryError}=directoryOutcome.value;
   if(directoryError)throw directoryError;
   if(!member){missingProfile("not-found");return;}
-  const isMine=targetId===ownId;
   const blockAccess={blockedByMe:false,blockedByThem:false};
-  if(!isMine&&validId(ownId)){
-   try{
-    const {data:blocks,error:blockError}=await client.from("member_blocks")
-     .select("blocker_vatra_id,blocked_vatra_id")
-     .or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),"+
-         "and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")")
-     .limit(2);
-    if(!blockError)for(const item of blocks||[]){
-     if(String(item.blocker_vatra_id)===ownId)blockAccess.blockedByMe=true;
-     if(String(item.blocker_vatra_id)===targetId)blockAccess.blockedByThem=true;
-    }
-   }catch(_){}
+  if(blockOutcome.status==="fulfilled"&&!blockOutcome.value.error){
+   for(const item of blockOutcome.value.data||[]){
+    if(String(item.blocker_vatra_id)===ownId)blockAccess.blockedByMe=true;
+    if(String(item.blocker_vatra_id)===targetId)blockAccess.blockedByThem=true;
+   }
   }
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
