@@ -145,3 +145,17 @@ console.log("VATRA Feed audience: single-flight, only successful snapshots cache
  assert.equal(mediaAvatars.get("30"),"30/avatar/b.webp");
  console.log("VATRA avatar metadata: overlapping requests and blocked-avatar safety passed.");
 }
+
+// A feature failure must not discard the entire successfully retrieved Feed page.
+{
+ const start=source.indexOf(" function reportFeedFailure("),end=source.indexOf(" function card(post,engagement){",start);
+ assert.ok(start>0&&end>start);
+ const reports=[];const ctx={console:{warn:(...args)=>reports.push(args)},Error,TypeError,ReferenceError,String,Number};
+ runInNewContext(source.slice(start,end)+"\nglobalThis.optional=optionalFeedFeature;",ctx);
+ ctx.optional("media",()=>{throw new TypeError("broken optional module");});
+ ctx.optional("interactions",()=>Promise.reject(Error("network failure")));
+ await Promise.resolve();await Promise.resolve();
+ assert.equal(reports.length,2);
+ assert.ok(source.includes("recoverFeedCard(item,engagement)")&&source.includes("Promise.allSettled([\n    feedDeadline(loadPublicNames"),"Post rendering must tolerate optional metadata and feature failure");
+}
+console.log("VATRA Feed: isolated rendering failures and optional metadata verified.");
