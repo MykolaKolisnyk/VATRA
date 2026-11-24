@@ -64,7 +64,7 @@
 @media(max-width:540px){.site .saved-account-panel{border-radius:20px;padding:24px 19px}.site .saved-account-avatar{width:82px;height:82px}.site .saved-account-avatar span{font-size:30px}}
 @media(prefers-reduced-motion:reduce){.site .saved-account-content.is-revealing{animation:none!important}}
 
-.intro-copy{position:relative;z-index:2;width:100%;max-width:54ch;padding-inline:clamp(4px,1vw,12px);margin:0 auto;text-align:center}
+.intro-copy{position:relative;z-index:2;width:min(100%,560px);max-width:54ch;padding-inline:clamp(4px,1vw,12px);margin:0 auto;text-align:center}
 .intro-copy p{margin:0;color:var(--soft);font-size:15px;line-height:1.65;text-wrap:balance;overflow-wrap:break-word}
 .intro-copy p strong{display:block;margin-bottom:9px;font-weight:750;color:var(--ink);font-size:clamp(16px,1.2vw,18px);line-height:1.4;text-wrap:balance}
 .vatra-home-description-001{display:block}
