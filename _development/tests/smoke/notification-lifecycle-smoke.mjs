@@ -62,6 +62,7 @@ let client=null,ownId=null,bell=globalThis.testBell,badge=globalThis.testBadge;
 let panel=globalThis.testPanel,panelItems=null;
 let open=false,liveChannel=null,refreshBusy=false,refreshQueued=false;
 let notificationRun=null,panelLoadPending=null,panelLoadQueued=false;
+let sectionPage=0,sectionLoading=false,sectionQueued=false,sectionScope=null;
 const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id));
 const notificationTemplates={post_like:[],friend_request:[]};
 ${unread}
@@ -190,13 +191,13 @@ const fullCtx={
 };
 runInNewContext(`
 let notificationRun={id:"12",client:{}},sectionPage=0,sectionLoading=false;
-let sectionFilter="all",sectionSort="new";
+let sectionFilter="all",sectionSort="new",sectionQueued=false,sectionScope=null;
 const pick=globalThis.pick,fetchRows=globalThis.fetchRows;
 const authorNames=globalThis.authorNames,createRow=globalThis.createRow,t=globalThis.t,format=globalThis.format;
 ${fullInbox}
 globalThis.inboxTest={
  pageLoad,
- switchAccount(){notificationRun={id:"13",client:{}};sectionLoading=false;}
+ switchAccount(){notificationRun={id:"13",client:{}};sectionLoading=false;sectionQueued=false;sectionScope=null;}
 };
 `,fullCtx);
 const readingOld=fullCtx.inboxTest.pageLoad(false);

@@ -196,17 +196,16 @@
   if(!validId(id)||String(id)===state.own)return;
   state.selected=String(id);state.peerKey=null;state.peerChanged=false;state.chatVersion++;
   $("#messenger-messages").replaceChildren(); 
-  const selectedRequest=++state.peerRequestVersion;
-  await loadNames([id]);
-  if(state.terminating||selectedRequest!==state.peerRequestVersion||state.selected!==String(id))return;
-  setPeerHeading();renderConversations();
+  setPeerHeading();renderConversations();syncSend();
   const params=new URLSearchParams(location.search);params.set("to",id);
   history.replaceState(history.state,"",location.pathname+"?"+params.toString());
-  await loadPeerKey();
-  if(state.selected===String(id)){
-   $("#messenger-messages").replaceChildren();
-   await renderMessages();
-  }
+  const keyRequest=loadPeerKey();
+  const selectedRequest=state.peerRequestVersion;
+  await Promise.all([loadNames([id]),keyRequest]);
+  if(state.terminating||selectedRequest!==state.peerRequestVersion||state.selected!==String(id))return;
+  setPeerHeading();renderConversations();
+  $("#messenger-messages").replaceChildren();
+  await renderMessages();
   syncSend();
  }
  async function beginNew(){
@@ -332,10 +331,13 @@
   finally{button.disabled=false;$("#messenger-passphrase").value="";$("#messenger-key-confirm").value="";syncSend();}
  }
  async function setupKeys(){
-  const {data,error}=await state.client.from("messenger_keys").select("public_key").eq("vatra_id",state.own).maybeSingle();
+  const [{data,error},local]=await Promise.all([
+   state.client.from("messenger_keys").select("public_key").eq("vatra_id",state.own).maybeSingle(),
+   cryptoBox().loadRecord(state.own)
+  ]);
+  if(state.terminating)return;
   if(error)throw error;
   state.remotePublic=data?.public_key||null;
-  const local=await cryptoBox().loadRecord(state.own);
   if(data&&!local){
    status(t("Цей пристрій не має вашого приватного ключа. Імпортуйте зашифровану копію.","This device has no private key. Import your encrypted backup."),true);
    keyDialog("missing");return;
