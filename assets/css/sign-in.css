@@ -102,7 +102,7 @@
   .intro-side{padding:22px 12px 26px;gap:10px;border-radius:0 0 21px 21px}
 .site .auth-footer-content{width:calc(100% - 24px);justify-content:center;text-align:center}}
 
-.vatra-login-poster-001{display:grid;place-items:center;flex:0 0 auto;width:100%;max-width:720px;min-height:0;margin:0 auto;overflow:visible}
-.vatra-login-poster-image-001{display:block;width:100%;height:auto;max-height:min(68dvh,680px);object-fit:contain;object-position:center;filter:drop-shadow(0 18px 34px rgba(37,51,111,.08))}
-@media(max-width:1199px){.vatra-login-poster-001{max-width:640px}.vatra-login-poster-image-001{max-height:none}}
-@media(max-width:540px){.vatra-login-poster-001{max-width:100%}.vatra-login-poster-image-001{max-height:none}}
+.vatra-login-hero-001{display:grid;place-items:center;flex:0 0 auto;width:100%;max-width:720px;min-height:0;margin:0 auto;overflow:visible}
+.vatra-login-hero-image-001{display:block;width:min(100%,clamp(360px,calc(100svh - 330px),560px));height:auto;object-fit:contain;object-position:center;filter:drop-shadow(0 18px 34px rgba(37,51,111,.08))}
+@media(max-width:1199px){.vatra-login-hero-001{max-width:640px}.vatra-login-hero-image-001{width:100%}}
+@media(max-width:540px){.vatra-login-hero-001{max-width:100%}}
