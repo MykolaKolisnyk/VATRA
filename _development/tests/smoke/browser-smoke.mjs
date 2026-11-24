@@ -759,9 +759,9 @@ try{
     return {loaded:img.complete&&img.naturalWidth>0,
      src:new URL(img.getAttribute("src"),location.href).pathname,
      box:{left:box.left,right:box.right,top:box.top,bottom:box.bottom},
-     fit:computed.objectFit,ratio:img.naturalWidth/img.naturalHeight};
+     fit:computed.objectFit,ratio:img.naturalWidth/img.naturalHeight,renderedRatio:box.width/box.height};
    });
-   assert.ok(hero.loaded&&hero.src.endsWith("/assets/illustrations/login-hero.webp")&&hero.fit==="contain"&&hero.ratio===1,
+   assert.ok(hero.loaded&&hero.src.endsWith("/assets/illustrations/login-hero.webp")&&hero.fit==="contain"&&Number.isFinite(hero.ratio)&&hero.ratio>0&&Math.abs(hero.renderedRatio/hero.ratio-1)<0.01,
     "Login must render the supplied hero without cropping: "+JSON.stringify(hero));
    assert.ok(hero.box.right<=width+2&&hero.box.left>=-2,
     "Login hero must remain within viewport horizontally: "+JSON.stringify(hero));
