@@ -3359,18 +3359,24 @@ try{
   assert.equal(await playVideo.isVisible(),true);
   assert.equal((await playVideo.innerText()).trim(),language==="en"?"Play video":"Відтворити відео");
   await playVideo.click();
-  await feedProbe.locator("#vatra-smoke-video video[controls]").waitFor({state:"attached"});
+  await playVideo.waitFor({state:"visible"});
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-smoke-video .vatra-feed-post-video-play-001")?.textContent.includes(
+   document.documentElement.lang==="en"?"Retry loading video":"Повторити завантаження відео"));
   assert.equal(await feedProbe.evaluate(()=>window.__vatraVideoSmoke.signed),1,
-   "User-triggered playback should sign exactly one media file");
-  assert.equal(await feedProbe.locator("#vatra-smoke-video .vatra-feed-post-video-expand-001").count(),1,
-   "Playback must keep fullscreen controls");
+   "User-triggered playback should sign exactly one media file before a failed download");
+  await playVideo.click();
+  await feedProbe.waitForFunction(()=>window.__vatraVideoSmoke.signed===2);
+  await playVideo.waitFor({state:"visible"});
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-smoke-video .vatra-feed-post-video-play-001")?.textContent.includes(
+   document.documentElement.lang==="en"?"Retry loading video":"Повторити завантаження відео"));
+  assert.equal(await feedProbe.evaluate(()=>window.__vatraVideoSmoke.signed),2,"Failed video download must request a fresh signature on retry");
   await feedProbe.locator("#vatra-smoke-video").evaluate(el=>{
    for(const video of el.querySelectorAll("video")){
     video.pause();video.removeAttribute("src");video.load();
    }
    el.remove();
   });
-  console.log("VATRA media: deferred video signatures, zero preview MP4 requests, controls retained");
+  console.log("VATRA media: deferred video signatures, zero preview MP4 requests and failed-download retry");
   // End-to-end: preserve an original PNG and upload a smaller WebP into
   // the same private bucket, then sign only the WebP while scrolling Feed.
   const previewFixture=await feedProbe.evaluate(async()=>{
