@@ -2993,17 +2993,6 @@ body.profile-page .ui-profile-photo-canvas-001 .profile-media-viewer-image{objec
 
 
 
-body.profile-page .ui-profile-avatar-upload-progress-001{
- display:grid;gap:9px;margin:12px 0;padding:10px 13px;border-radius:10px;
- background:#edf3fe;color:#40648e
-}
-body.profile-page .ui-profile-avatar-upload-progress-001[hidden]{display:none!important}
-body.profile-page .vatra-profile-avatar-upload-progress-bar-001{
- display:block;width:100%;height:8px;accent-color:#3271d2
-}
-body.profile-page .vatra-profile-avatar-upload-progress-text-001{
- font:610 12px/1.4 Onest,system-ui,sans-serif
-}
 
 
 body.profile-page .ui-profile-friend-action-001,

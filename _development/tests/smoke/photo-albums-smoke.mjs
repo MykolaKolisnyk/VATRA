@@ -203,3 +203,6 @@ assert.ok(
  "Standalone album comment modal must retain a compact, accessible composer after photo-viewer unification"
 );
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");
+
+assert.ok(profile.includes('from("avatar_photo_descriptions")')&&profile.includes("loadAvatarDescription(path)"),"Avatar descriptions must be keyed by source image");
+assert.ok(script.includes("selectedPhotos=new Map()")&&script.includes("selectPhoto(photo)")&&script.includes("bulkDelete"),"Album multi-selection must manage actual photo rows");

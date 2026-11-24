@@ -46,6 +46,16 @@ function mount({client,targetId,ownId,userId,q,node,t,home}){
       const selected=Array.isArray(post.media_items)&&post.media_items.length?
        {...post,media_items:[item]}:post;
       if(settings.kind==="image"){
+       if(String(ownId)===String(targetId)){
+        const details=node("details","ui-vatra-album-tile-menu-001"),trigger=node("summary","vatra-album-tile-menu-trigger-001","•••"),menu=node("div","ui-vatra-album-tile-menu-items-001");
+        trigger.setAttribute("aria-label",t("Дії з фотографією","Photo actions"));
+        const action=(uk,en,handler)=>{const button=node("button","vatra-album-photo-menu-item-001",t(uk,en));button.type="button";button.onclick=()=>{details.open=false;void handler();};menu.append(button);};
+        action("Завантажити","Download",async()=>{try{const {data,error}=await client.storage.from("post-images").download(item.media_path);if(error||!data)throw Error("Unavailable");const url=URL.createObjectURL(data),link=node("a","vatra-album-download-link-001");link.href=url;link.download=item.media_path.split("/").pop();document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),20000);}catch(_){window.VATRA_TOAST?.show?.(t("Не вдалося завантажити фотографію.","Could not download photo."),"error");}});
+        action("Перейти до публікації","Go to post",()=>location.assign(new URL("feed?post="+encodeURIComponent(post.id),home)));
+        action("Зробити фотографією профілю","Make profile photo",async()=>{try{const {data,error}=await client.storage.from("post-images").download(item.media_path);if(error||!data)throw Error("Unavailable");await window.VATRA_USE_PHOTO_AS_AVATAR?.(data);}catch(_){window.VATRA_TOAST?.show?.(t("Не вдалося відкрити фото.","Could not open photo."),"error");}});
+        details.append(trigger,menu);tile.append(details);
+        details.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")details.open=true;});details.addEventListener("pointerleave",event=>{if(event.pointerType==="mouse")details.open=false;});
+       }
        tile.addEventListener("click",event=>{
         const trigger=event.target?.closest?.(".vatra-post-gallery-tile,.vatra-feed-post-media-open-001");
         if(!trigger)return;

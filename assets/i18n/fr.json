@@ -3622,5 +3622,13 @@
   "Переглянути публікацію": "Voir la publication",
   "Фото профілю": "Photo de profil",
   "Коментар: ": "Commentaire : ",
-  "Публікація: ": "Publication : "
+  "Публікація: ": "Publication : ",
+  "Редагувати опис": "Modifier la description",
+  "Не вдалося зберегти.": "Impossible d’enregistrer.",
+  "Зробити фотографією профілю": "Définir comme photo de profil",
+  "Не вдалося відкрити фото.": "Impossible d’ouvrir la photo.",
+  "Видалити вибрані фотографії?": "Supprimer les photos sélectionnées ?",
+  "Не всі фотографії видалено.": "Certaines photos n’ont pas été supprimées.",
+  "Вибрати фотографію": "Sélectionner la photo",
+  "Вибрати декілька": "Sélectionner plusieurs photos"
 }

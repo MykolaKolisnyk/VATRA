@@ -569,7 +569,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    const description=document.createElement("div");description.className="vatra-media-description-001";
    const copy=document.createElement("p");copy.className="vatra-media-description-copy-001";copy.textContent=String(post.body||"");copy.hidden=!copy.textContent;
    description.append(copy);
-   const mine=!!client&&postKind!=="group"&&ownerId&&viewerId&&ownerId===viewerId;
+   const mine=!!client&&!groupPost&&ownerId&&viewerId&&ownerId===viewerId;
    if(mine){
     const edit=document.createElement("button");edit.type="button";edit.className="vatra-media-description-edit-001";edit.textContent=tr("Редагувати опис","Edit description");
     const form=document.createElement("form");form.className="vatra-media-description-form-001";form.hidden=true;
@@ -581,7 +581,10 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     const finish=()=>{form.hidden=true;edit.hidden=false;copy.hidden=!copy.textContent;};
     cancel.onclick=finish;
     form.onsubmit=async event=>{event.preventDefault();if(save.disabled)return;save.disabled=cancel.disabled=true;
-     try{const body=input.value.trim();const {data,error}=await client.from("feed_posts").update({body}).eq("id",post.id).eq("author_vatra_id",ownerId).select("id,body").maybeSingle();if(error||!data)throw Error("Not saved");post.body=data.body;copy.textContent=data.body;finish();window.dispatchEvent(new Event("vatra:profile-media-changed"));}
+     try{const body=input.value.trim();const {data,error}=await client.from("feed_posts").update({body}).eq("id",post.id).eq("author_vatra_id",ownerId).select("id,body").maybeSingle();if(error||!data)throw Error("Not saved");post.body=data.body;copy.textContent=data.body;
+     const visible=postCard&&!postCard.classList.contains("ui-vatra-photo-source-context-001")?postCard:[...document.querySelectorAll(".feed-post-card")].find(card=>card!==container&&card.dataset.postId===String(post.id));
+     if(visible){let paragraph=visible.querySelector(".feed-post-body");if(data.body){if(!paragraph){paragraph=document.createElement("p");paragraph.className="feed-post-body vatra-feed-post-body-001";visible.querySelector(".feed-post-header")?.after(paragraph);}delete paragraph.dataset.vatraCollapsed;paragraph.textContent=data.body;linkifyHashtags(paragraph);collapsibleBody(paragraph);}else paragraph?.remove();}
+     finish();window.dispatchEvent(new Event("vatra:profile-media-changed"));}
      catch(_){window.VATRA_TOAST?.show?.(tr("Не вдалося зберегти.","Could not save."),"error");}
      finally{save.disabled=cancel.disabled=false;}
     };
@@ -591,6 +594,14 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
   mediaSide.hidden=!restoreMediaPanel;
   mediaFooterShare.hidden=!restoreMediaPanel;
+  mediaFooterActions.querySelector(".vatra-post-media-set-avatar-001")?.remove();
+  if(fromPhotos&&kind==="image"&&client&&ownerId&&ownerId===viewerId){
+   const more=document.createElement("details");more.className="vatra-post-media-set-avatar-001";
+   const trigger=document.createElement("summary");trigger.className="vatra-post-media-set-avatar-trigger-001";trigger.textContent=tr("Більше","More");
+   const action=document.createElement("button");action.type="button";action.className="vatra-post-media-set-avatar-action-001";action.textContent=tr("Зробити фотографією профілю","Make profile photo");
+   action.onclick=async()=>{try{const response=await fetch(url,{credentials:"omit"});if(!response.ok)throw Error("Unavailable");const blob=await response.blob();mediaDialog.close();await window.VATRA_USE_PHOTO_AS_AVATAR?.(blob);}catch(_){window.VATRA_TOAST?.show?.(tr("Не вдалося відкрити фото.","Could not open photo."),"error");}};
+   more.append(trigger,action);mediaFooterActions.append(more);
+  }
   const sourceMenu=container?.querySelector(".feed-post-header > details[data-vatra-post-owner-menu]");
   if(sourceMenu){
    const marker=document.createElement("span");

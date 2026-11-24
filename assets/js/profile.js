@@ -2502,6 +2502,28 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false,photoCommentHasMore=false;
  let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
+ const avatarDescription=document.createElement("div");avatarDescription.className="vatra-media-description-001";avatarDescription.hidden=true;
+ const avatarDescriptionCopy=document.createElement("p");avatarDescriptionCopy.className="vatra-media-description-copy-001";
+ const avatarDescriptionEdit=document.createElement("button");avatarDescriptionEdit.type="button";avatarDescriptionEdit.className="vatra-media-description-edit-001";avatarDescriptionEdit.textContent=t("Редагувати опис","Edit description");
+ const avatarDescriptionForm=document.createElement("form");avatarDescriptionForm.className="vatra-media-description-form-001";avatarDescriptionForm.hidden=true;
+ const avatarDescriptionInput=document.createElement("textarea");avatarDescriptionInput.className="vatra-media-description-input-001";avatarDescriptionInput.maxLength=2000;avatarDescriptionInput.rows=3;avatarDescriptionInput.setAttribute("aria-label",avatarDescriptionEdit.textContent);
+ const avatarDescriptionSave=document.createElement("button");avatarDescriptionSave.type="submit";avatarDescriptionSave.className="vatra-media-description-save-001";avatarDescriptionSave.textContent=t("Зберегти","Save");
+ const avatarDescriptionCancel=document.createElement("button");avatarDescriptionCancel.type="button";avatarDescriptionCancel.className="vatra-media-description-cancel-001";avatarDescriptionCancel.textContent=t("Скасувати","Cancel");
+ avatarDescriptionForm.append(avatarDescriptionInput,avatarDescriptionSave,avatarDescriptionCancel);avatarDescription.append(avatarDescriptionCopy,avatarDescriptionEdit,avatarDescriptionForm);
+ q(".ui-profile-photo-actions-001").after(avatarDescription);
+ let captionEpoch=0,captionText="";
+ const paintAvatarDescription=()=>{avatarDescriptionCopy.textContent=captionText;avatarDescriptionCopy.hidden=!captionText;avatarDescriptionEdit.hidden=!canEdit;avatarDescriptionForm.hidden=true;avatarDescription.hidden=!canEdit&&!captionText;};
+ const loadAvatarDescription=async path=>{const ticket=++captionEpoch;captionText="";avatarDescription.hidden=true;avatarDescriptionForm.hidden=true;
+  try{const {data,error}=await client.from("avatar_photo_descriptions").select("caption").eq("owner_vatra_id",targetId).eq("avatar_path",path).maybeSingle();if(error)throw error;if(ticket!==captionEpoch||photoPath()!==path)return;captionText=data?.caption||"";paintAvatarDescription();}
+  catch(_){if(ticket===captionEpoch)avatarDescription.hidden=true;}
+ };
+ avatarDescriptionEdit.onclick=()=>{avatarDescriptionInput.value=captionText;avatarDescriptionForm.hidden=false;avatarDescriptionCopy.hidden=true;avatarDescriptionEdit.hidden=true;avatarDescriptionInput.focus();};
+ avatarDescriptionCancel.onclick=paintAvatarDescription;
+ avatarDescriptionForm.onsubmit=async event=>{event.preventDefault();const path=photoPath(),ticket=captionEpoch;if(!canEdit||!path||avatarDescriptionSave.disabled)return;avatarDescriptionSave.disabled=avatarDescriptionCancel.disabled=true;
+  try{const {data,error}=await client.from("avatar_photo_descriptions").upsert({owner_vatra_id:ownId,avatar_path:path,caption:avatarDescriptionInput.value.trim()},{onConflict:"owner_vatra_id,avatar_path"}).select("caption").maybeSingle();if(error||!data)throw Error("Not saved");if(ticket===captionEpoch&&photoPath()===path){captionText=data.caption;paintAvatarDescription();}}
+  catch(_){status(t("Не вдалося зберегти.","Could not save."),true);}
+  finally{avatarDescriptionSave.disabled=avatarDescriptionCancel.disabled=false;}
+ };
 
  const tagFailure=(error,fallback,retry)=>{
   if(!window.VATRA_SERVICE_NOTICE?.report(error,{retry}))reportTag(fallback);
@@ -2920,6 +2942,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const uploaded=galleryDates.get(path);
   date.textContent=uploaded?(window.VATRA_PRESENCE?.relative?.(uploaded,english)||dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
   resetPhotoComposer();syncComposerAvatar();
+  void loadAvatarDescription(path);
   void reloadPhotoActivity(false,true,lastAvatarCommentKey===path+"|"+photoCommentSort);
   void loadTags();
  };
@@ -2977,6 +3000,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   hideAvatarUndo();discardAvatarUndo();
  });
  window.VATRA_OPEN_PROFILE_AVATAR=path=>{if(canViewPhoto)openMedia("avatar",path);};
+ window.VATRA_SET_HISTORY_AVATAR=async path=>{if(!canEdit||!path?.startsWith(ownId+"/avatar/"))return false;
+  try{await updateCurrentAvatar(path);window.VATRA_AVATAR?.invalidatePath?.(client,ownId);await display(saved);window.dispatchEvent(new Event("vatra:profile-media-changed"));return true;}
+  catch(_){status(t("Не вдалося змінити фото профілю.","Could not update profile photo."),true);return false;}
+ };
  const openStory=()=>{
   if(!canViewPhoto||!activeStory)return;
   if(Date.parse(activeStory.expires_at)<=Date.now()){

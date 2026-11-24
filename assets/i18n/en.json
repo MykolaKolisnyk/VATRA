@@ -3477,5 +3477,13 @@
   "Переглянути публікацію": "View the post",
   "Фото профілю": "Profile photo",
   "Коментар: ": "Comment: ",
-  "Публікація: ": "Post: "
+  "Публікація: ": "Post: ",
+  "Редагувати опис": "Edit description",
+  "Не вдалося зберегти.": "Could not save.",
+  "Зробити фотографією профілю": "Make profile photo",
+  "Не вдалося відкрити фото.": "Could not open photo.",
+  "Видалити вибрані фотографії?": "Delete selected photos?",
+  "Не всі фотографії видалено.": "Not all photos were deleted.",
+  "Вибрати фотографію": "Select photo",
+  "Вибрати декілька": "Select multiple"
 }

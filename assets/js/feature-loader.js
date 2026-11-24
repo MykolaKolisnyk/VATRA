@@ -3,13 +3,13 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const root=new URL("../../",document.currentScript?.src||location.href);
 const features=Object.freeze({
- albums:{css:"assets/css/photo-albums.css?rev=a8dfcd64071d2c319f8328d2da011833e49be04e",js:"assets/js/photo-albums.js?rev=89efa7b0452672e75d2154edcf8bb0edea97e6b6",key:"VATRA_ALBUMS"},
+ albums:{css:"assets/css/photo-albums.css?rev=66a1dfb750e637ea8c0bf3a331a9cdca0f50bf3e",js:"assets/js/photo-albums.js?rev=1a5c0a3cf0e844ac8af7a393f1340bf8bc9627a7",key:"VATRA_ALBUMS"},
  story:{css:"assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df",js:"assets/js/story-editor.js?rev=ebaa9990cc5873d74531e8bd9a13b2449c3030e2",key:"VATRA_STORY_EDITOR"},
  composer:{css:"assets/css/post-composer.css?rev=c26566635080adbef9c89af2bf2813633eb4fc9a",js:"assets/js/post-composer-ui.js?rev=524917dad85c0582691b0b7f85185cf430b0dbbc",key:"VATRA_COMPOSER_UI"},
  gift:{css:"assets/css/gifts.css",js:"assets/js/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"},
- "profile-gallery":{js:"assets/js/profile-gallery.js?rev=2e276147513a80c25912d0b7f371798210a7a516",key:"VATRA_PROFILE_GALLERY"},
+ "profile-gallery":{js:"assets/js/profile-gallery.js?rev=6aad5e1ec6bbd9f88dc93ab1445d6b821e7f90f5",key:"VATRA_PROFILE_GALLERY"},
  "cover-editor":{js:"assets/js/profile-cover-editor.js?rev=95d2182c4b03c53a74e7b9ebdbc9761d585898b9",key:"VATRA_PROFILE_COVER_EDITOR"},
- "avatar-editor":{js:"assets/js/profile-avatar-editor.js?rev=e4c7c5cc81b4d0ec51eab70016015d8e3525bb45",key:"VATRA_PROFILE_AVATAR_EDITOR"},
+ "avatar-editor":{js:"assets/js/profile-avatar-editor.js?rev=633a59bbf180682416062cae5f853e5de3f80c2f",key:"VATRA_PROFILE_AVATAR_EDITOR"},
  "cover-viewer":{js:"assets/js/profile-cover-viewer.js?rev=2b1285daeb16ac2e55e71ea75eb6f05b226ebc91",key:"VATRA_PROFILE_COVER_VIEWER"},
  "avatar-comment-row":{js:"assets/js/profile-avatar-comment-row.js?rev=cbe6f015aeeea1995d5b196e4d63e9a4fcbf415c",key:"VATRA_PROFILE_AVATAR_COMMENT_ROW"}
 });
