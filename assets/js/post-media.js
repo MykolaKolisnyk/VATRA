@@ -149,10 +149,11 @@
      imagePaths.push(item.preview_path);
    }else videoPaths.push(item.media_path);
   }
-  await Promise.allSettled([
-   imagePaths.length?client.storage.from("post-images").remove(imagePaths):Promise.resolve(),
-   videoPaths.length?client.storage.from("videos").remove(videoPaths):Promise.resolve()
+  const results=await Promise.allSettled([
+   imagePaths.length?Promise.resolve().then(()=>client.storage.from("post-images").remove([...new Set(imagePaths)])):Promise.resolve(),
+   videoPaths.length?Promise.resolve().then(()=>client.storage.from("videos").remove([...new Set(videoPaths)])):Promise.resolve()
   ]);
+  return results.every(result=>result.status==="fulfilled"&&!result.value?.error);
  }
  async function uploadGallery(client,id,files){
   validateGallery(files);

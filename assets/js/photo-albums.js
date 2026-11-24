@@ -142,7 +142,7 @@
       query=query.eq("body",post.body||"");
       query=post.poll===null?query.is("poll",null):query.eq("poll",JSON.stringify(post.poll));
       const {data:updated,error:writeError}=await query.select("id").maybeSingle();if(writeError||!updated)throw Error("Not saved");
-      await window.VATRA_POST_MEDIA.removeGallery(client,[...removed,...(legacy?[{media_kind:"image",media_path:post.media_path}]:[])]);
+      if(!await window.VATRA_POST_MEDIA.removeGallery(client,[...removed,...(legacy?[{media_kind:"image",media_path:post.media_path}]:[])]))failed=true;
      }catch(_){failed=true;}
     }
     if(avatars.length&&!await window.VATRA_DELETE_AVATAR_BATCH?.(avatars.map(row=>row.media_path)))failed=true;
@@ -861,7 +861,8 @@
     if(photoDialog.open&&state.currentPhoto?.id===row.id)photoDialog.close();
     state.photos=state.photos.filter(item=>item.id!==row.id);state.previews=state.previews.filter(item=>item.id!==row.id);archivedRows=archivedRows.filter(item=>item.id!==row.id);
     const cleanup=client.storage.from(BUCKET).remove([row.media_path]);
-    await Promise.all([cleanup,refreshPhotoLists()]);
+    const [removed]=await Promise.all([cleanup,refreshPhotoLists()]);
+    if(removed.error)throw removed.error;
     notify(t("Фотографію видалено.","Photo deleted."),"success");
    }catch(_){notify(t("Не вдалося видалити фотографію.","Could not delete photo."));}
    finally{state.busy=false;}
