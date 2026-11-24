@@ -212,3 +212,51 @@ assert.ok(photoActions.includes("on update cascade on delete cascade")&&photoAct
 assert.ok(script.includes("chooseDestination")&&script.includes("loadArchive")&&script.includes('update({album_id:select.value,pinned_at:null})'),"Photo move and archive must use owner-scoped writes");
 
 assert.ok(gallery.includes("vatra:select-post-photo")&&script.includes('source:"avatar"')&&script.includes("downloadSource(row)")&&script.includes("bulkDelete.hidden=bulkMove.hidden=bulkArchive.hidden=mixed"),"Mixed source selection must not delete or move entire posts or current avatars");
+
+
+// Profile gallery retry buttons must remain actionable; quick tab returns reuse
+// the existing authenticated page, while a media mutation forces a fresh read.
+{
+ let requests=0,opened=0,observer,change;
+ const el=()=>({attrs:new Map(),children:[],listeners:{},hidden:false,
+  setAttribute(k,v){this.attrs.set(k,v)},getAttribute(k){return this.attrs.get(k)},
+  append(...nodes){this.children.push(...nodes)},replaceChildren(...nodes){this.children=nodes},
+  addEventListener(k,fn){this.listeners[k]=fn},dispatchEvent(){},closest(){return null}
+ });
+ const tab=el(),list=el(),empty=el(),more=el();
+ tab.setAttribute("aria-selected","true");
+ const elements={"#profile-tab-photos":tab,"#profile-photo-gallery":list,"#profile-photos-empty":empty,"#profile-photos-more":more};
+ const mockWindow={VATRA_POST_MEDIA:{mount:async()=>{},openPostPhoto:()=>{opened++}},
+  addEventListener(k,fn){if(k==="vatra:profile-media-changed")change=fn}};
+ class Observer{constructor(fn){observer=fn}observe(){}}
+ const post={id:"p",author_vatra_id:2,media_kind:"image",media_path:"2/posts/photo.jpg"};
+ const client={from(){requests++;const chain={};for(const k of ["select","eq","or","is","order"])chain[k]=()=>chain;
+  chain.range=async()=>({data:[post],error:null});return chain}};
+ runInNewContext(gallery,{window:mockWindow,MutationObserver:Observer,CustomEvent:class{constructor(type){this.type=type}}});
+ mockWindow.VATRA_PROFILE_GALLERY.mount({client,targetId:2,ownId:1,userId:"u",q:id=>elements[id],node:el,t:(uk,en)=>en,home:"https://example.test/"});
+ const settle=()=>new Promise(resolve=>setImmediate(resolve));
+ await settle();
+ assert.equal(requests,1);
+ assert.equal(list.children.length,1);
+ const click=list.children[0].listeners.click;
+ function hit(classes,busy=false,image=false){
+  let stopped=false;
+  const trigger={classList:{contains:c=>classes.includes(c)},getAttribute:()=>busy?"true":null,querySelector:()=>image?{}:null};
+  click({target:{closest:()=>trigger},preventDefault(){stopped=true},stopPropagation(){},stopImmediatePropagation(){}});
+  return stopped;
+ }
+ assert.equal(hit(["vatra-post-gallery-tile","is-gallery-unavailable"]),false);
+ assert.equal(hit(["vatra-post-gallery-tile","is-gallery-ready"],true),false);
+ assert.equal(hit(["vatra-feed-post-media-open-001"]),false);
+ assert.equal(opened,0);
+ assert.equal(hit(["vatra-post-gallery-tile","is-gallery-ready"]),true);
+ assert.equal(hit(["vatra-feed-post-media-open-001"],false,true),true);
+ assert.equal(opened,2);
+ tab.setAttribute("aria-selected","false");observer();
+ tab.setAttribute("aria-selected","true");observer();
+ await settle();assert.equal(requests,1,"Quick tab return must not repeat the page query");
+ change();await settle();assert.equal(requests,2,"Media change must invalidate gallery reuse");
+ tab.setAttribute("aria-selected","false");change();await settle();assert.equal(requests,2,"Hidden tab must not fetch");
+ tab.setAttribute("aria-selected","true");observer();await settle();assert.equal(requests,3,"Reopened invalidated gallery must refresh");
+}
+console.log("VATRA profile gallery: retry routing, quick tab reuse and mutation invalidation passed.");
