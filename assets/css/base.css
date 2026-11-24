@@ -55,10 +55,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *::after{animation-play-state:paused!important}
 
 @media(prefers-reduced-motion:reduce){.vatra-auth-loading-symbol,.vatra-auth-loading-indicator{animation:none!important}.vatra-auth-loading-indicator{width:65%}}
-@keyframes vatraOrbitClockwise{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
-@keyframes vatraIconUpright{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
-@keyframes vatraGlyphFloat{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(-2px) scale(1.04);opacity:.84}}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.form-box{width:100%;max-width:520px;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .form-box h2,
 .narrow-form h1{margin:0 0 10px;font-size:clamp(31px,2.55vw,40px);line-height:1.2;letter-spacing:-.03em;font-weight:745;color:var(--ink);text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:15px;line-height:1.65;font-weight:400}.field-stack{display:grid;gap:14px}
@@ -327,7 +324,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -367,7 +363,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -404,7 +399,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -441,7 +435,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -476,7 +469,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -513,7 +505,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -553,7 +544,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -591,7 +581,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -626,7 +615,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -661,7 +649,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -696,7 +683,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -736,7 +722,6 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-notification-panel,
  .vatra-post-share-dialog,
  .vatra-post-comment-emoji-scroll,
- .profile-message-history,
  .profile-compose-dialog,
  .profile-photo-comments,
  .vatra-profile-details-content,
@@ -814,5 +799,5 @@ textarea{resize:none}
 .vatra-toast-close-001{flex:none;align-self:start;display:grid;place-items:center;width:25px;height:25px;padding:0;border:0;border-radius:7px;background:transparent;color:#d3d9e5;cursor:pointer;font:500 19px/1 system-ui,sans-serif}
 .vatra-toast-close-001:hover,.vatra-toast-close-001:focus-visible{background:#ffffff20;color:#fff}
 @media(max-width:480px){.vatra-toast-stack-001{width:min(328px,calc(100vw - 24px))}.vatra-toast-item-001{gap:8px;min-height:58px;padding:7px 9px 7px 6px}.vatra-toast-mascot-001{flex-basis:46px;width:46px;height:46px}.vatra-toast-item-001 .vatra-toast-text-001{font-size:12px}}
-html.vatra-toast-enabled :is(#profile-action-status,#profile-photo-status,#profile-status-error,#profile-edit-message,#profile-report-error,#profile-compose-status,#profile-photo-tag-status,#feed-status,#feed-compose-error,#club-status,#club-compose-error,#community-create-status,#community-list-status,#profile-message-status,#messenger-send-status,#messenger-key-error,#messenger-new-error,#messenger-delete-error,.vatra-section-dialog-status-001,.vatra-post-interactions-status-001,.vatra-profile-photo-comment-status-001){display:none!important}
+html.vatra-toast-enabled :is(#profile-action-status,#profile-photo-status,#profile-status-error,#profile-edit-message,#profile-report-error,#profile-compose-status,#profile-photo-tag-status,#feed-status,#feed-compose-error,#club-status,#club-compose-error,#community-create-status,#community-list-status,.vatra-section-dialog-status-001,.vatra-post-interactions-status-001,.vatra-profile-photo-comment-status-001){display:none!important}
 @media(prefers-reduced-motion:reduce){.vatra-toast-item-001{transition:none;transform:none}}

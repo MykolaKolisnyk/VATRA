@@ -30,8 +30,7 @@ jobs:
   validate:
     needs: development
     if: needs.development.outputs.present == 'true'
-    # Ubuntu 26.04 lacks dependencies required by the pinned Playwright browser set.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Check avatar state cache safety
@@ -54,6 +53,8 @@ jobs:
         run: node _development/tests/smoke/shared-social-cache-smoke.mjs
       - name: Check notification request deduplication and session teardown
         run: node _development/tests/smoke/notification-lifecycle-smoke.mjs
+      - name: Check notification filter races
+        run: node _development/tests/smoke/notification-performance-smoke.mjs
       - name: Check toast validation, automatic dismissal and profile photo feedback
         run: node _development/tests/smoke/toast-ux-smoke.mjs
       - name: Check professional admin panel navigation and member directory
@@ -68,6 +69,8 @@ jobs:
         run: node _development/tests/smoke/feed-subscriptions-smoke.mjs
       - name: Check global Feed search cancellation without production queries
         run: node _development/tests/smoke/feed-global-search-smoke.mjs
+      - name: Verify polls and scheduled post contracts
+        run: node _development/tests/smoke/post-planning-smoke.mjs
       - name: Audit unpublished multilingual page catalogs
         run: node _development/tests/audit/i18n-coverage-audit.mjs
       - name: Check SEO and site layout
@@ -164,10 +167,18 @@ jobs:
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
         run: node _development/tests/audit/scale-audit.mjs
-      - name: Verify Messenger RLS and scoped deletion on disposable PostgreSQL
+      - name: Clone disposable test database for independent photo fixtures
+        env:
+          DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/postgres
+        run: node --input-type=module -e 'import pg from "pg"; const db=new pg.Client({connectionString:process.env.DATABASE_URL}); await db.connect(); try { await db.query("CREATE DATABASE vatra_photo_test TEMPLATE vatra_test"); } finally { await db.end(); }'
+      - name: Verify photo descriptions, archive and album moves on disposable PostgreSQL
+        env:
+          DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_photo_test
+        run: node _development/tests/smoke/photo-management-rls-smoke.mjs
+      - name: Verify poll RLS and scheduled publishing on disposable PostgreSQL
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
-        run: node _development/tests/smoke/messenger-rls-smoke.mjs
+        run: node _development/tests/smoke/post-planning-rls-smoke.mjs
 
   minified-assets:
     needs: development

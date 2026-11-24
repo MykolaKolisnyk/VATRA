@@ -76,3 +76,25 @@ function viewer(){
  assert.equal(a.requests,3,"PostgREST errors must never be cached");
 }
 console.log("VATRA Feed cursor cache: TTL, single-flight, RLS isolation, writes and retries passed.");
+
+{
+ const identity="11111111-1111-4111-8111-111111111111";
+ let handler,complete,calls=0;
+ const ctx={Date:FakeDate,Map,WeakMap,Promise,String,JSON,Error,Number,user:{id:identity}};
+ runInNewContext(feed.slice(start,end)+"\nglobalThis.read=readFeedPage;",ctx);
+ const client={auth:{onAuthStateChange(fn){handler=fn;}}};
+ const pending=ctx.read(client,key,()=>{
+  calls++;return new Promise(resolve=>{complete=resolve;});
+ });
+ handler("SIGNED_IN",{user:{id:identity}});
+ complete({data:[row("same viewer result")],error:null});
+ assert.equal((await pending).data[0].body,"same viewer result","Repeated same-account sign-in must not reject an authorized in-flight response");
+ const cached=await ctx.read(client,key,()=>{calls++;return Promise.resolve({data:[],error:null});});
+ assert.equal(cached.data[0].body,"same viewer result");
+ assert.equal(calls,1);
+ const other=ctx.read(client,key+"new",()=>new Promise(resolve=>{complete=resolve;}));
+ handler("SIGNED_IN",{user:{id:"22222222-2222-4222-8222-222222222222"}});
+ complete({data:[row("previous viewer")],error:null});
+ assert.ok((await other).error,"Actual account changes must still invalidate in-flight responses");
+}
+console.log("VATRA Feed cursor: repeated same-account SIGNED_IN preserves authorized in-flight reads.");

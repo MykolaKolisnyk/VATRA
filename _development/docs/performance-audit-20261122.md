@@ -26,7 +26,6 @@ In the database, 9/10 nonempty post galleries contain **one image**, 1/10 contai
 ## Important boundaries and follow-up
 
 - Redis Cloud connection secrets are **not** available through the current Supabase connector; do not place `REDIS_URL` or passwords into browser JavaScript or GitHub. The project may still be disconnected. Keep direct RLS queries while endpoint errors persist.
-- Browser cache contains public static assets only. Auth tokens, private signed photo URLs, private posts, passwords, friendships, blocks, messenger data and session state must never be stored in a shared CDN/Redis cache.
 - Supabase signed media and auth are still request-bound: do not replace RLS with a public bucket or a service-role proxy to gain speed.
 - CI builds a minified `dist/` **artifact**, but current GitHub Pages branch publication is not yet proven to serve this artifact. The deployment source requires a separate verified rollout, not a silent switch to a new workflow.
 - These changes remove avoidable calls; actual improvements in LCP, INP, TTFB and cold/warm visit duration need browser measurements on the live URL after deploy. Run automated browser smoke and authentication/data-access tests before merging.

@@ -4,7 +4,6 @@ import {createServer} from "node:http";
 import {readFile,mkdir} from "node:fs/promises";
 import {resolve,sep} from "node:path";
 import {chromium,firefox,webkit} from "playwright";
-import {runMessengerBrowserSmoke} from "./messenger-browser-smoke.mjs";
 
 const basePath="/VATRA/";
 const root=process.cwd();
@@ -54,7 +53,6 @@ try{
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
- await runMessengerBrowserSmoke({browser,base});
 
  // Collapsible posts must place the toggle after the final text/hashtag,
  // never as a separate block. Feed and Profile must calculate the same font.
@@ -523,7 +521,7 @@ try{
  await localeBootContext.route("**/assets/js/host.js",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
  }));
- await localeBootContext.route("**/assets/i18n/en.json*",async route=>{
+ await localeBootContext.route("**/assets/i18n/en.json",async route=>{
   await new Promise(resolve=>setTimeout(resolve,850));
   await route.continue();
  });
@@ -605,7 +603,7 @@ try{
        }
        if(language==="en"){
         // Make the translation fetch deliberately slower than the reveal.
-        await view.route("**/assets/i18n/en.json*",async route=>{
+        await view.route("**/assets/i18n/en.json",async route=>{
          await new Promise(resolve=>setTimeout(resolve,1050));
          await route.continue();
         });
@@ -673,11 +671,12 @@ try{
  await runLocaleAnimationAudit("chromium",browser,localeAnimationPages,
   [{width:390,height:844},{width:1440,height:900}]);
 
- for(const [width,height] of [[360,780],[390,844],[768,1024],[1280,800],[1440,900],[1920,1080]]){
+ for(const [width,height] of [[360,780],[390,844],[768,1024],[1280,800],[1440,900],[1536,740],[1920,1080]]){
   const page=await context.newPage();
   await page.setViewportSize({width,height});
   await page.goto(base,{waitUntil:"domcontentloaded",timeout:20000});
   await waitReady(page);
+  await page.locator(".vatra-login-hero-image-001").evaluate(img=>img.decode());
   const sizes=await page.evaluate(()=>{
    const r=selector=>{const b=document.querySelector(selector)?.getBoundingClientRect();return b?{x:b.x,y:b.y,w:b.width,h:b.height}:null};
    const offenders=[...document.querySelectorAll("body *")].map(node=>({node,b:node.getBoundingClientRect()}))
@@ -699,7 +698,10 @@ try{
      footerAligned:Math.abs(footerContent.left-rect.left)<=2&&Math.abs(footerContent.right-rect.right)<=2,
      authAnimation:getComputedStyle(document.querySelector(".form-box")).animationName,
      fieldGap:getComputedStyle(document.querySelector(".form-box .field-stack")).gap,
-     orbitCount:document.querySelectorAll(".orbit-icon").length,
+     heroReady:(()=>{const img=document.querySelector(".vatra-login-hero-image-001");return !!img&&img.complete&&img.naturalWidth>0;})(),
+     obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol,.intro-circle,.intro-art").length,
+     heroWidth:document.querySelector(".vatra-login-hero-image-001").getBoundingClientRect().width,
+     heroBefore:getComputedStyle(brand,"::before").content,
      brandStartRadius:getComputedStyle(brand)[innerWidth>=1200?"borderTopLeftRadius":"borderBottomLeftRadius"],
      formStartRadius:getComputedStyle(form)[innerWidth>=1200?"borderTopRightRadius":"borderTopLeftRadius"],
      formBackground:getComputedStyle(form).backgroundColor,
@@ -714,7 +716,26 @@ try{
   assert.equal(design.fieldGap,"19px","Login form must have spacious field gaps");
   if(width>=1200&&design.verticallyFits)
    assert.ok(design.centerDelta<=2,"Login card must be vertically centered at "+width+": "+JSON.stringify(design));
-  assert.equal(design.orbitCount,7,"VATRA must show seven orbit icons after retiring business");
+  assert.ok(design.heroReady&&design.obsoleteOrbits===0,
+   "VATRA login must show the loaded original hero without old orbit icons");
+  const minHeroWidth=sizes.intro.w*.91;
+  assert.ok(design.heroWidth>=minHeroWidth-2,"Hero must fill the available column regardless of viewport height at "+width+": "+JSON.stringify(design));
+  const artwork=await page.locator(".vatra-login-hero-image-001").evaluate(img=>{
+   const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
+   const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0,256,256);
+   const pixels=ctx.getImageData(0,0,256,256).data;
+   let left=256,right=-1,top=256,bottom=-1;
+   for(let y=0;y<256;y++)for(let x=0;x<256;x++)if(pixels[(y*256+x)*4+3]>=128){
+    left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);
+   }
+   const box=img.getBoundingClientRect(),panel=img.closest(".intro-side").getBoundingClientRect();
+   const copy=document.querySelector(".intro-copy").getBoundingClientRect();
+   return {width:Math.max(0,right-left+1)/256*box.width,panelWidth:panel.width,
+    top:box.top+top/256*box.height,bottom:box.top+(bottom+1)/256*box.height,panelTop:panel.top,copyTop:copy.top};
+  });
+  assert.ok(artwork.width>=artwork.panelWidth*.65,"Visible artwork must occupy most of the left panel: "+JSON.stringify(artwork));
+  assert.ok(artwork.top>=artwork.panelTop-1&&artwork.bottom<=artwork.copyTop+1,"Visible artwork must not be clipped or overlap the description: "+JSON.stringify(artwork));
+  assert.equal(design.heroBefore,"none","Retired decorative pseudo-element must not be rendered");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
    "Login card must preserve rounded corners at "+width);
@@ -730,30 +751,17 @@ try{
    assert.ok(sizes.form.y<sizes.intro.y,"Mobile must show sign-in before artwork at "+width);
   }
   if(width===360||width===1440){
-   // Verify that the highest orbit icon's tooltip is not lost behind browser chrome.
-   await page.addStyleTag({content:".orbit-track,.orbit-face{animation-play-state:paused!important}"});
-   const topIndex=await page.locator(".orbit-icon").evaluateAll(nodes=>
-    nodes.map((n,i)=>[n.getBoundingClientRect().top,i]).sort((a,b)=>a[0]-b[0])[0][1]);
-   const icon=page.locator(".orbit-icon").nth(topIndex);
-   await icon.hover({force:true});
-   const tooltip=page.locator("#"+await icon.getAttribute("aria-describedby"));
-   await tooltip.waitFor({state:"visible"});
-   const box=await tooltip.boundingBox();
-   assert.ok(box&&box.x>=-1&&box.x+box.width<=width+1&&box.y>=-1&&box.y+box.height<=height+1,
-    "Orbit tooltip outside viewport at "+width+": "+JSON.stringify(box));
-   const crisp=await tooltip.evaluate(el=>({
-    stationary:el.parentElement?.classList.contains("intro-side")===true,
-    transform:getComputedStyle(el).transform,
-    instances:document.querySelectorAll("#"+el.id).length
-   }));
-   assert.ok(crisp.stationary&&crisp.transform==="none"&&crisp.instances===1,
-    "Tooltip should not be rasterized in rotated layers: "+JSON.stringify(crisp));
-   // Pointer-click focus must not leave a stale tooltip after the mouse leaves.
-   await icon.click({force:true});
-   await page.mouse.move(width-3,height-3);
-   await tooltip.waitFor({state:"hidden"});
-   assert.equal(await tooltip.evaluate(el=>el.classList.contains("is-visible")),false,
-    "Orbit tooltip must close when pointer leaves even after a click");
+   const hero=await page.locator(".vatra-login-hero-image-001").evaluate(img=>{
+    const box=img.getBoundingClientRect(),computed=getComputedStyle(img);
+    return {loaded:img.complete&&img.naturalWidth>0,
+     src:new URL(img.getAttribute("src"),location.href).pathname,
+     box:{left:box.left,right:box.right,top:box.top,bottom:box.bottom},
+     fit:computed.objectFit,ratio:img.naturalWidth/img.naturalHeight};
+   });
+   assert.ok(hero.loaded&&hero.src.endsWith("/assets/illustrations/login-hero.webp")&&hero.fit==="contain"&&hero.ratio===1,
+    "Login must render the supplied hero without cropping: "+JSON.stringify(hero));
+   assert.ok(hero.box.right<=width+2&&hero.box.left>=-2,
+    "Login hero must remain within viewport horizontally: "+JSON.stringify(hero));
   }
   console.log("VATRA layout "+width+"x"+height+": OK");
   await page.close();
@@ -1232,9 +1240,9 @@ try{
   }
   if(width>=1200){
    assert.ok(Math.abs(login.cardY-signup.cardY)<=2,
-    "Login and signup cards should share the same vertical center at "+width);
-   assert.ok(Math.abs(login.height-signup.height)<=5,
-    "Sign-in and signup card heights differ at "+width+": "+JSON.stringify(snapshots));
+    "Login and signup cards should share the same vertical center at "+width+": "+JSON.stringify(snapshots));
+   assert.ok(Math.abs(login.height-signup.height)<=Math.max(56,height*.075),
+    "Distinct login hero and signup artwork must retain comparable card heights at "+width+": "+JSON.stringify(snapshots));
    assert.ok(Math.abs(login.brandWidth-signup.brandWidth)<=2&&
     Math.abs(login.panelWidth-signup.panelWidth)<=2,
     "Auth columns differ at "+width+": "+JSON.stringify(snapshots));
@@ -1633,9 +1641,9 @@ try{
     return {kicker:style(login?".login-form-kicker":".signup-form-kicker"),
       heading:style(login?".form-box h2":".signup-step-heading h1"),
       desc:style(login?".login-description":".signup-step-heading .subtitle"),
-      logo:style(login?".intro-symbol":".signup-brand-symbol"),
+      logo:style(login?".vatra-login-hero-image-001":".signup-brand-symbol"),
       copyAlign:getComputedStyle(document.querySelector(login?".intro-copy":".signup-brand-copy")).textAlign,
-      svg:document.querySelector(login?".intro-symbol":".signup-brand-symbol").getAttribute("src"),
+      svg:document.querySelector(login?".vatra-login-hero-image-001":".signup-brand-symbol").getAttribute("src"),
       primary:getComputedStyle(document.querySelector(login?".form-box .action.primary":".signup-form-panel .action.primary")).backgroundImage};
    });
    assert.equal(v.copyAlign,"center","Promo copy must be centered "+route+" "+width);
@@ -1648,13 +1656,14 @@ try{
     assert.equal(login[key][prop],signup[key][prop],
      "Typography mismatch "+width+" "+key+"."+prop+": "+JSON.stringify(settings));
   assert.equal(login.primary,signup.primary,"CTA gradients must match "+width);
-  assert.equal(login.svg,signup.svg,"Both logos must use same SVG asset "+width);
-  assert.equal(login.logo.animation,signup.logo.animation,"Logo animation differs "+width);
-  assert.equal(login.logo.duration,signup.logo.duration,"Logo motion duration differs "+width);
-  if(width>=1200)
-   assert.ok(Math.abs(login.logo.width-signup.logo.width)<=1,
-    "Brand symbol widths differ "+width+": "+JSON.stringify(settings));
-  console.log("VATRA matching typography & brand logo "+width+"x"+height+": OK");
+  assert.equal(login.svg,"assets/illustrations/login-hero.webp","Login must use the original hero at "+width);
+  assert.equal(signup.svg,"assets/logo/logo_symbol.svg","Signup must retain the brand symbol at "+width);
+  assert.equal(login.logo.animation,"none","The login hero must not rotate or pulse at "+width);
+  assert.ok(signup.logo.animation.includes("vatraSignupSymbol"),
+   "Signup brand symbol animation must remain intact at "+width);
+  assert.ok(login.logo.width>0&&(width<1200?signup.logo.width===0:signup.logo.width>0),
+   "Login hero stays visible; signup artwork is intentionally hidden on narrow screens at "+width);
+  console.log("VATRA matching typography & separate login hero "+width+"x"+height+": OK");
  }
  // Standalone legal readers use one return link, and the hub contains four banners.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
@@ -2718,6 +2727,11 @@ try{
    window.__vatraSavedRevealCount++;
   });
  });
+ const savedViewport=savedPage.viewportSize();
+ await savedPage.setViewportSize({width:1536,height:740});
+ const savedHero=await savedPage.locator(".vatra-login-hero-image-001").evaluate(img=>({width:img.getBoundingClientRect().width,panel:img.closest(".intro-side").getBoundingClientRect().width}));
+ assert.ok(savedHero.width>=savedHero.panel*.91-2,"Remembered account must not shrink the login hero: "+JSON.stringify(savedHero));
+ if(savedViewport)await savedPage.setViewportSize(savedViewport);
  const savedOverviewHeight=await savedPage.locator("#saved-account-panel").evaluate(node=>node.getBoundingClientRect().height);
  const overviewNote=await savedPage.locator(".saved-account-note").evaluate(node=>({
   visibility:getComputedStyle(node).visibility,height:node.getBoundingClientRect().height
@@ -2826,6 +2840,8 @@ try{
  }));
  // Test-only fake thumbnails must never hit live Supabase Storage.
  await feedContext.route("**/storage/v1/object/sign/post-images/12/posts/**",route=>
+  route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+ await feedContext.route("**/storage/v1/object/sign/post-images/654321/posts/**",route=>
   route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
  // A click-to-play fixture must not request the real Supabase Storage project.
  await feedContext.route("**/storage/v1/object/sign/videos/12/posts/00000000-0000-4000-8000-000000000123.mp4**",
@@ -2951,13 +2967,14 @@ try{
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
        created_at:"2026-11-10T00:00:00Z"}],error:null
     })})}:
-    {select:()=>({filterId:null,clipFilter:null,mediaFilter:null,after:null,before:null,
+    {select:()=>({filterId:null,clipFilter:null,mediaFilter:null,after:null,before:null,postId:null,
+      async maybeSingle(){return {data:table==="feed_posts"?window.__feedTestPosts.find(p=>String(p.id)===this.postId&&(this.filterId===null||String(p.author_vatra_id)===this.filterId))||null:null,error:null};},
       or(value){
        this.mediaFilter=/media_kind\.eq\.(image|video)/.exec(value)?.[1]||null;
        (window.__vatraGalleryQueries??=[]).push(value);
        return this;
       },
-      eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else this.filterId=String(id);return this;},
+      eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else if(table==="feed_posts"&&field==="id")this.postId=String(id);else this.filterId=String(id);return this;},
       is(){return this;},
       limit:async function(n){return {data:table==="feed_posts"?window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(0,n):[],error:null};},
       gte(column,date){if(column==="created_at")this.after=date;return this;},
@@ -2978,6 +2995,19 @@ try{
       }}),
      insert:async(data)=>{window.__feedTestPosts.unshift({...data,
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
+     update:changes=>({
+      filters:[],
+      eq(column,value){this.filters.push([column,value]);return this;},
+      is(column,value){this.filters.push([column,value]);return this;},
+      select(){return this;},
+      async maybeSingle(){
+       const post=table==="feed_posts"&&window.__feedTestPosts.find(row=>this.filters.every(([column,value])=>{
+        const actual=row[column];return value===null?actual===null:typeof actual==="object"?JSON.stringify(actual)===value:String(actual)===String(value);
+       }));
+       if(post)Object.assign(post,changes);
+       return {data:post?{id:post.id}:null,error:null};
+      }
+     }),
      delete:()=>({
        filters:[],
        eq(column,value){this.filters.push([column,String(value)]);return this;},
@@ -3368,18 +3398,24 @@ try{
   assert.equal(await playVideo.isVisible(),true);
   assert.equal((await playVideo.innerText()).trim(),language==="en"?"Play video":"Відтворити відео");
   await playVideo.click();
-  await feedProbe.locator("#vatra-smoke-video video[controls]").waitFor({state:"attached"});
+  await playVideo.waitFor({state:"visible"});
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-smoke-video .vatra-feed-post-video-play-001")?.textContent.includes(
+   document.documentElement.lang==="en"?"Retry loading video":"Повторити завантаження відео"));
   assert.equal(await feedProbe.evaluate(()=>window.__vatraVideoSmoke.signed),1,
-   "User-triggered playback should sign exactly one media file");
-  assert.equal(await feedProbe.locator("#vatra-smoke-video .vatra-feed-post-video-expand-001").count(),1,
-   "Playback must keep fullscreen controls");
+   "User-triggered playback should sign exactly one media file before a failed download");
+  await playVideo.click();
+  await feedProbe.waitForFunction(()=>window.__vatraVideoSmoke.signed===2);
+  await playVideo.waitFor({state:"visible"});
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-smoke-video .vatra-feed-post-video-play-001")?.textContent.includes(
+   document.documentElement.lang==="en"?"Retry loading video":"Повторити завантаження відео"));
+  assert.equal(await feedProbe.evaluate(()=>window.__vatraVideoSmoke.signed),2,"Failed video download must request a fresh signature on retry");
   await feedProbe.locator("#vatra-smoke-video").evaluate(el=>{
    for(const video of el.querySelectorAll("video")){
     video.pause();video.removeAttribute("src");video.load();
    }
    el.remove();
   });
-  console.log("VATRA media: deferred video signatures, zero preview MP4 requests, controls retained");
+  console.log("VATRA media: deferred video signatures, zero preview MP4 requests and failed-download retry");
   // End-to-end: preserve an original PNG and upload a smaller WebP into
   // the same private bucket, then sign only the WebP while scrolling Feed.
   const previewFixture=await feedProbe.evaluate(async()=>{
@@ -3561,6 +3597,27 @@ try{
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.classList.contains("vatra-post-composer-dialog")),true,
    "Feed uses the shared VATRA post editor");
+  await feedProbe.locator(".vatra-post-composer-poll-toggle-001").click();
+  await feedProbe.locator(".vatra-post-composer-poll-question-001").fill("Що нового?");
+  await feedProbe.locator(".vatra-post-composer-poll-option-input").nth(0).fill("Фото");
+  await feedProbe.locator(".vatra-post-composer-poll-option-input").nth(1).fill("Відео");
+  assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isEnabled(),true,
+   "A valid poll without media or post text must unlock the shared editor");
+  await feedProbe.locator(".vatra-post-composer-next-001").click();
+  const scheduleToggle=feedProbe.locator(".vatra-post-composer-schedule-toggle-001");
+  await scheduleToggle.check();
+  const plannedDate=await feedProbe.evaluate(()=>{
+   const date=new Date(Date.now()+15*60*1000);
+   return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  });
+  await feedProbe.locator(".vatra-post-composer-schedule-date-001").fill(plannedDate);
+  assert.equal(await feedProbe.locator("#feed-compose-save").isEnabled(),true,
+   "Valid future schedule must allow a server-managed publication");
+  await scheduleToggle.uncheck();
+  await feedProbe.locator(".vatra-post-composer-back-001").click();
+  await feedProbe.locator(".vatra-post-composer-poll-toggle-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isDisabled(),true,
+   "Removing the poll should restore empty composer validation");
   await feedProbe.locator("#feed-compose-media").setInputFiles([
    {name:"vatra-test-a.png",mimeType:"image/png",
     buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")},
@@ -3933,24 +3990,11 @@ try{
    "An exception in the caller's refresh cannot change a successful repost into an error");
   assert.equal(await feedProbe.evaluate(()=>window.__vatraShareSmoke.onShared),1);
   await feedProbe.locator(shareRoot+" .vatra-post-share-toggle-001").click();
-  await feedProbe.locator(shareDialog+" .vatra-post-share-message-001").click();
-  await feedProbe.waitForFunction(()=>document.querySelector(
-   "#vatra-share-smoke-dialog .vatra-post-send-message-001")?.disabled===false);
-  assert.equal(await feedProbe.locator(shareDialog+" .ui-vatra-post-share-friend-select-001").inputValue(),"13",
-   "Only an accepted friend should populate the share recipient");
-  assert.equal(await feedProbe.locator(shareDialog+" .vatra-post-send-message-001").isEnabled(),true,
-   "Accepted friends can be selected for an encrypted Messenger draft");
-  const shareSecuritySource=await readFile(resolve(root,"assets/js/post-interactions.js"),"utf8");
-  assert.ok(shareSecuritySource.includes('new URL("messenger.html",relativeRoot())')&&
-   shareSecuritySource.includes('sessionStorage.setItem("vatra:messenger:draft-v1"')&&
-   !shareSecuritySource.includes('link.searchParams.set("draft"')&&
-   !shareSecuritySource.includes('from("direct_messages")'),
-   "Post sharing must navigate to E2EE Messenger, never persist plaintext DMs");
   await feedProbe.evaluate(()=>{
    document.querySelector("#vatra-share-smoke-dialog").remove();
    document.querySelector("#vatra-share-smoke").remove();
   });
-  console.log("VATRA sharing: durable repost and encrypted Messenger draft routing OK");
+  console.log("VATRA sharing: durable repost and link sharing OK");
   // An old all-posts result must never flash into the newer friends filter.
   await feedProbe.evaluate(()=>{
    document.querySelector('[data-feed-filter="friends"]').click();
@@ -4022,10 +4066,10 @@ try{
    const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")||c.startsWith("vatra-")));
    return direct;
   });
-  assert.deepEqual(headerOrder,["ui-shell-header-messenger-001",
+  assert.deepEqual(headerOrder,[
     "ui-feed-notifications-button-001","ui-feed-music-button-001",
     "ui-feed-account-menu-001"],
-   "Right controls must be Messenger, notifications, music and the avatar-name pill");
+   "Right controls must be notifications, music and the avatar-name pill");
   assert.equal(await feedProbe.locator(".feed-header .feed-search-form").isVisible(),true,
    "Search VATRA must be next to the V logo on every page");
   const searchStyles=await feedProbe.evaluate(()=>{
@@ -4108,10 +4152,14 @@ try{
   });
   assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerBottom)<=2&&
    menuGeometry.firstRowTop>=menuGeometry.headerBottom&&
-   Math.abs(menuGeometry.left)<=1&&
-   Math.abs(menuGeometry.right-menuGeometry.searchRight)<=6&&
+   (menuGeometry.viewportWidth<=600?
+    menuGeometry.left>=0&&menuGeometry.left<=12&&
+    menuGeometry.right>=menuGeometry.viewportWidth-12:
+    Math.abs(menuGeometry.left-menuGeometry.searchLeft)<=6&&
+    menuGeometry.right>=menuGeometry.searchRight-1&&
+    menuGeometry.right-menuGeometry.left<=790)&&
    menuGeometry.panelZ<menuGeometry.headerZ,
-   "Search sheet must start at the viewport edge and end at the input: "+JSON.stringify(menuGeometry));
+   "Search sheet must anchor to the input and stay below the header: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
@@ -4299,7 +4347,7 @@ try{
    "All account actions must have persistent SVG icons in UK and EN");
   assert.equal((await feedProbe.locator(".vatra-account-settings-label-001").textContent()).trim(),
    language==="en"?"Settings":"Налаштування");
-  assert.equal(await feedProbe.locator(".feed-menu-settings-link").evaluate(el=>{const url=new URL(el.href);return url.pathname.split("/").pop()+url.search+url.hash;}),"vatra-id?view=settings#general","Settings must navigate directly");
+  assert.equal(await feedProbe.locator(".feed-menu-settings-link").evaluate(el=>{const url=new URL(el.href);return url.pathname.split("/").pop()+url.search+url.hash;}),"settings#general","Settings must navigate directly");
   assert.equal(await feedProbe.locator(".feed-menu-settings-panel, .feed-account-dropdown [data-language-trigger]").count(),0,"Language controls belong to Settings, not the avatar dropdown");
   // The right account panel must be flush to the common header edge,
   // not a floating card with a 10px gap or a displaced navigation row.
@@ -5067,7 +5115,7 @@ try{
   await profilePage.evaluate(()=>{
    window.__vatraGalleryFixture="00000000-0000-4000-8000-000000000777";
    window.__feedTestPosts.push({
-    id:window.__vatraGalleryFixture,author_vatra_id:654321,body:"",
+    id:window.__vatraGalleryFixture,author_vatra_id:654321,body:"Keep this text",poll:null,
     visibility:"public",is_clip:false,media_kind:null,media_path:null,
     created_at:"2026-11-22T08:00:00Z",media_items:[
      {media_kind:"image",media_path:"654321/posts/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.jpg"},
@@ -5075,6 +5123,8 @@ try{
      {media_kind:"video",media_path:"654321/posts/cccccccc-cccc-4ccc-8ccc-cccccccccccc.mp4"}
     ]
    });
+   // Simulate the media mutation event emitted by real post writes.
+   window.dispatchEvent(new Event("vatra:profile-media-changed"));
   });
   await profilePage.locator("#profile-tab-photos").click();
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
@@ -5083,6 +5133,44 @@ try{
   await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-photo-gallery .profile-media-tile").length===2);
   assert.equal(await profilePage.locator("#profile-photo-gallery .profile-media-tile").count(),2,
    "All photos from media_items-only posts must appear individually in the Photos tab");
+  // The album tab remembers its selection when returning to profile media.
+  // Explicitly open Photos before testing the visible photo tiles.
+  await profilePage.locator(".ui-vatra-albums-controls-001").getByRole("button",{name:language==="en"?"Photos":"Фотографії",exact:true}).click();
+  const galleryTiles=profilePage.locator("#profile-photo-gallery .profile-media-tile");
+  const firstGalleryPhoto=galleryTiles.first().locator(".vatra-post-gallery-tile");
+  await firstGalleryPhoto.waitFor({state:"visible"});
+  const tileGeometry=await firstGalleryPhoto.boundingBox();
+  assert.ok(tileGeometry&&tileGeometry.width>30&&tileGeometry.height>30&&Math.abs(tileGeometry.width-tileGeometry.height)<2,
+   "A gallery photo must fill a visible square clickable surface regardless of preview loading");
+  await firstGalleryPhoto.click();
+  const photoViewer=profilePage.locator("#vatra-post-media-viewer");
+  await photoViewer.waitFor({state:"visible"});
+  const photoCounter=photoViewer.locator(".vatra-post-gallery-counter-001");
+  assert.equal(await photoCounter.textContent(),"1 / 2","Gallery opens with navigation across the loaded photos");
+  await photoViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
+  await photoViewer.locator(".vatra-post-gallery-nav-next").click();
+  await profilePage.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");
+  await photoViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
+  await photoViewer.locator(".vatra-post-gallery-nav-prev").click();
+  await profilePage.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
+  await photoViewer.locator(".vatra-post-media-close-001").click();
+  assert.equal(await photoViewer.evaluate(el=>el.open),false,"Gallery navigation does not leave nested dialogs open");
+  await galleryTiles.first().hover();
+  const tileMenu=galleryTiles.first().locator(".ui-vatra-album-tile-menu-001");
+  await tileMenu.locator("summary").hover();
+  await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"visible"});
+  assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
+  await tileMenu.getByRole("button",{name:language==="en"?"Select multiple":"Вибрати декілька",exact:true}).click();
+  await galleryTiles.nth(1).locator("[data-vatra-select-photo]").click();
+  assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),"2");
+  await profilePage.locator(".vatra-album-bulk-more-001").click();
+  await profilePage.locator(".vatra-album-bulk-menu-items-001 .vatra-albums-danger-001").click();
+  await profilePage.locator(".ui-vatra-albums-confirm-001 .vatra-albums-danger-001").click();
+  await profilePage.waitForFunction(()=>window.__feedTestPosts.find(post=>post.id===window.__vatraGalleryFixture)?.media_items.length===1);
+  const preserved=await profilePage.evaluate(()=>window.__feedTestPosts.find(post=>post.id===window.__vatraGalleryFixture));
+  assert.equal(preserved.body,"Keep this text","Bulk photo deletion must preserve post text");
+  assert.equal(preserved.media_items[0].media_kind,"video","Bulk photo deletion must preserve unselected video");
+  await profilePage.waitForFunction(()=>!document.querySelector(".vatra-album-selection-active-001"));
   assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
    q.includes('media_items.cs.[{"media_kind":"image"}]'))),
    "Photos query must include modern JSONB attachments on the server");
@@ -5095,7 +5183,10 @@ try{
   assert.ok(await profilePage.evaluate(()=>(window.__vatraGalleryQueries||[]).some(q=>
    q.includes('media_items.cs.[{"media_kind":"video"}]'))),
    "Videos query must include JSONB media attachments on the server");
-  await profilePage.evaluate(()=>window.__feedTestPosts=window.__feedTestPosts.filter(post=>post.id!==window.__vatraGalleryFixture));
+  await profilePage.evaluate(()=>{
+   window.__feedTestPosts=window.__feedTestPosts.filter(post=>post.id!==window.__vatraGalleryFixture);
+   window.dispatchEvent(new Event("vatra:profile-media-changed"));
+  });
   await profilePage.locator("#profile-tab-posts").click();
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
    "Only the signed-in member may open the real post creator on their profile");
@@ -5155,7 +5246,7 @@ try{
    "Profile posts render user input as text, not executable HTML");
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),false);
   assert.equal((await profilePage.locator("#profile-status").textContent()).trim(),
-   language==="en"?"Add status":"Додайте статус");
+   language==="en"?"Add a status":"Додайте статус");
   assert.equal(await profilePage.locator("footer:not(dialog footer), .auth-footer-content").count(),0,
    "The personal profile must not show a page-level or guest legal footer");
   assert.equal(await profilePage.locator("dialog .ui-profile-editor-record-footer-001").count(),1,
@@ -5226,17 +5317,26 @@ try{
    "An absent short biography must not show placeholder text");
   assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),true,
    "Other member profile must offer Add Friend");
-  assert.equal(await profilePage.locator("#profile-message-button").isVisible(),true,
-   "Other member profile must offer private Message");
+  assert.equal(await profilePage.locator("#profile-message-button").count(),0);
   assert.equal(await profilePage.locator("#profile-friend-button svg").count(),1,
    "Visitor's add-friend button needs a persistent line icon");
-  assert.equal(await profilePage.locator("#profile-message-button svg").count(),1,
-   "Visitor's message button needs a persistent line icon");
   assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),false,
    "Friends are accessible from the About-side Friends card, not the main tabs");
   assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true,
-   "Visitors have a clearly visible More menu beside friend and message actions");
+   "Visitors have a clearly visible More menu beside friend actions");
+  await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="outgoing";});
+  await profilePage.locator("#profile-friend-button").hover();
+  await profilePage.locator("#profile-friend-menu-action").waitFor({state:"visible"});
+  await profilePage.locator("#profile-friend-menu-action").hover();
+  await profilePage.waitForTimeout(430);
+  assert.equal(await profilePage.locator("#profile-friend-menu-action").isVisible(),true,
+   "Request cancellation must remain reachable while moving from button into submenu");
+  const friendColor=await profilePage.locator("#profile-friend-menu").evaluate(el=>getComputedStyle(el).backgroundColor);
+  assert.equal(friendColor,"rgb(255, 255, 255)","Friend-request submenu must match white VATRA surfaces");
+  await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="none";});
   await profilePage.locator("#profile-more-trigger").click();
+  const moreColor=await profilePage.locator("#profile-more-panel").evaluate(el=>getComputedStyle(el).backgroundColor);
+  assert.equal(moreColor,"rgb(255, 255, 255)","More submenu must not have a dark visual theme");
   assert.equal(await profilePage.locator("#profile-report-open").isVisible(),true,
    "Visitor's More menu exposes the report action");
   assert.equal(await profilePage.locator("#profile-report-open svg").count(),1,
@@ -5282,27 +5382,12 @@ try{
    "Escape dismisses the modal and preserves the user's current state");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,
    "Visitors cannot edit another member's page");
-  const visitorProfileURL=profilePage.url();
-  // Return to the profile hero before clicking the message action: the sticky
-  // site search must not intercept a button scrolled underneath the header.
-  await profilePage.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
-  await profilePage.waitForFunction(()=>window.scrollY===0);
-  await Promise.all([
-   profilePage.waitForURL(url=>url.pathname.endsWith("/messenger.html")&&
-    url.searchParams.get("to")==="789012",{timeout:15000}),
-   profilePage.locator("#profile-message-button").click()
-  ]);
-  assert.equal(new URL(profilePage.url()).searchParams.get("to"),"789012",
-   "Profile Message must open the dedicated encrypted Messenger with the correct contact");
-  await profilePage.goto(visitorProfileURL,{waitUntil:"domcontentloaded"});
-  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:15000});
-
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "The header must retain the signed-in first name when viewing another profile");
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "Own given name beside avatar must not be replaced by the visited member's identity");
   // A blocked member still sees public header artwork and name, but cannot
-  // view personal details, posts, friends, stories or message actions.
+  // view personal details, posts, friends or stories.
   await profilePage.goto(base+"id789012?block-test=them",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   // Visible shell can precede the async RLS/block checks on a cold page load.
@@ -5319,7 +5404,7 @@ try{
   assert.equal(await profilePage.locator("#profile-cover-photo").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
   assert.equal(await profilePage.locator(".profile-panels").isVisible(),false);
-  assert.equal(await profilePage.locator("#profile-message-button").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-message-button").count(),0);
   assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true);
   await profilePage.locator("#profile-more-trigger").click();

@@ -460,83 +460,43 @@ for(const page of pages){
 }
 const landing=await read("index.html");
 const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/logo_symbol.svg"');
-const features=["chat","communities","photos","video","music","marketplace","clips"];
-assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,7,"Seven evenly spaced orbit icons required");
-assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
-assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-home-div-009"),
- "Keep the restored description under VATRA artwork without bringing back outer slogan pills");
-assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,0,
- "Five VATRA orbit slogans must be removed");
+// VATRA now displays the hero illustration on sign-in; animated orbit remains retired.
+assert.ok(
+ landing.includes('class="vatra-login-hero-001 ui-home-hero-001"')&&
+ landing.includes('class="vatra-login-hero-image-001 ui-home-hero-image-001" src="assets/illustrations/login-hero.webp"')&&
+ !landing.includes('class="intro-symbol ui-home-img-002"')&&
+ !landing.includes('class="intro-circle')&&
+ !landing.includes('class="orbit-node')&&
+ !landing.includes('class="orbit-track'),
+ "Login must display only the VATRA hero illustration, without previous orbital icons");
+assert.ok(signInCss.includes(".vatra-login-hero-001{")&&
+ signInCss.includes(".vatra-login-hero-image-001{")&&
+ signInCss.includes("object-fit:contain")&&
+ !/\.(?:orbit-|intro-circle|intro-art|intro-symbol)/.test(signInCss)&&
+ !/vatraOrbitClockwise|vatraIconUpright|vatraGlyphFloat/.test(css)&&
+ !(await read("assets/js/sign-in.js")).includes("wireOrbitTooltips")&&
+ !signInCss.includes(".intro-side:before"),
+ "Login hero illustration must retain its dimensions and aspect ratio at every breakpoint");
 assert.ok(
  landing.includes('class="vatra-home-paragraph-01">')&&
  landing.includes('class="vatra-home-emphasis-04" data-i18n="n100"')&&
  landing.includes('class="vatra-home-description-001" data-i18n="n99"')&&
- !landing.includes('class="vatra-home-paragraph-01" data-i18n="n99"')&&
  (landing.match(/data-i18n="n99"/g)||[]).length===1&&
  (landing.match(/data-i18n="n100"/g)||[]).length===1&&
  uk.__pages.index.nodes.n99.text["0"].includes("Знаходьте своїх людей")&&
  en.__pages.index.nodes.n99.text["0"].includes("Find your people"),
- "Landing description must have its own translatable text node to prevent duplicated copy");
-assert.ok(!landing.includes("feature-business")&&
- !landing.includes("ua-orbit-tip-business")&&
- !css.includes(".feature-business{")&&
- !css.includes(".orbit-track-inner .orbit-node:nth-child(8)")&&
- uk.__pages.index.nodes.n3.attrs["aria-label"].includes("сім")&&
- en.__pages.index.nodes.n3.attrs["aria-label"].includes("seven"),
- "Retired business icon and tooltip must be absent in both languages");
-const orbitPositions=[...landing.matchAll(/<div class="orbit-node orbit-feature feature-([a-z-]+) [^"]+" style="--angle:([-\d.]+)deg;--counter-angle:([-\d.]+)deg"/g)];
-assert.equal(orbitPositions.length,7,"All seven orbit nodes must declare their positions");
-orbitPositions.forEach((position,i)=>{
- const angle=Number(position[2]),counter=Number(position[3]);
- assert.equal(position[1],features[i],"Orbit icon order must remain stable");
- assert.ok(Math.abs(angle-(-90+i*360/7))<.001&&Math.abs(angle+counter)<.001,
-  "Orbit nodes must be precisely spaced around the full circle");
-});
-for(const feature of features){
- assert.ok(landing.includes('feature-'+feature+' ui-inner-node-'),"Missing feature "+feature);
- assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
- assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
-}
-assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
- css.includes('width:clamp(112px,15vw,180px)')&&
- css.includes('width:clamp(44px,8.6cqw,61px)'),
- "Expanded orbit, central V, and seven icons must be scaled consistently");
+ "Landing description must remain translated and appear only once");
 assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
  css.includes('font-size:clamp(31px,2.55vw,40px)')&&
  css.includes("max-width:69ch")&&
  css.includes(".intro-copy p{margin:0;color:var(--soft);font-size:15px"),
- "Landing columns must be equal and welcome text consistently readable on large and small screens");
-for(const name of features){
- assert.ok(css.includes(".feature-"+name+"{--icon-color:")&&
-  landing.includes('class="ui-orbit-'+name+'-svg"'),
-  "Every VATRA vector icon must use a dedicated color and valid inline SVG");
-}
-assert.ok(css.includes("svg{shape-rendering:geometricPrecision}")&&
- css.includes(".language-option .language-flag{width:36px;height:27px"),
- "SVG icons and language flags must retain high-precision rendering");
-assert.ok(lang.includes('add("path",{fill:"#012169",d:"M0 0h640v480H0z"})')&&
- lang.includes("chevron.setAttribute(\"viewBox\",\"0 0 24 24\")"),
- "Language flag and chevron vectors must use precise geometry");
-assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
-assert.ok(!css.includes(".orbit-note")&&
- css.includes("height:clamp(340px,calc(var(--inner-radius) * 2 + 64px),498px)")&&
- css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0 auto;text-align:center}"),
- "VATRA welcome text must be centered below logo and no obsolete orbit slogans remain");
-assert.ok(auth.includes("function wireOrbitTooltips()")&&
- auth.includes('panel.append(tip);')&&
- auth.includes('icon.addEventListener("mouseleave",hide);')&&
- auth.includes('icon.addEventListener("pointerdown",()=>{hide();icon.blur();});')&&
- auth.includes('tip.classList.add("is-visible")')&&
- css.includes(".orbit-tooltip.is-visible{visibility:visible;opacity:1}")&&
- !css.includes(".orbit-tooltip.is-below"),
- "Tooltip text must remain outside the rotating icon layers");
-assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
- signInCss.includes(".intro-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
- createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
- !css.includes("vatraCoreBreath")&&
- landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/logo_symbol.svg"')&&
+ "Landing columns and welcome description must be consistently readable");
+assert.ok(createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
  registerHtmlHasBrandedSymbol,
- "Both auth logos must be identical symbols with the same animation and size");
+ "Registration retains its brand icon while sign-in uses the hero illustration");
+assert.ok(css.includes(".language-option .language-flag{width:36px;height:27px")&&
+ lang.includes('add("path",{fill:"#012169",d:"M0 0h640v480H0z"})'),
+ "Language flags must remain precise");
 assert.ok(auth.includes("function wireFloatingHints()")&&
  css.includes(".signup-form-panel .field:has(input.control)>span:first-child{")&&
  css.includes(".create-account-page .create-account-help-panel")&&css.includes(".vatra-error-stack"),
@@ -885,9 +845,8 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
  en.__pages.index.nodes.n128.text["0"]==="Create account"&&
  uk.__pages["create-account"].nodes.n59.text["0"]==="Створити акаунт",
  "Create account must be the unified account creation action");
-assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
- css.includes('.field.is-invalid .control{border-color:#e49aa7'),
- "Orbit size and visual validation details must be updated");
+assert.ok(css.includes('.field.is-invalid .control{border-color:#e49aa7'),
+ "Invalid field visual feedback must remain visible");
 assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
  !auth.includes("wireStableInputHints"),
@@ -1039,7 +998,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","assets/js/messenger.js","assets/js/messenger-crypto.js","sw.js"]){
+for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
@@ -1102,13 +1061,13 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationMarkup.includes('id="notifications-sort"')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
- notificationScript.includes('{page:0,size:6},panelLoad')&&
+ notificationScript.includes('{page:0,size:5},panelLoad')&&
  notificationScript.includes('pageLoad(false)')&&
  notificationScript.includes('c.channel("vatra-notices-"+run.id)')&&
  notificationScript.includes('run.client.from("member_notifications")')&&
  (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
- "VATRA notifications must include the private inbox and six-item header preview");
+ "VATRA notifications must include the private inbox and five-item header preview");
 const normalizedSocialHeader=html=>{
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];
  assert.ok(header,"Signed-in VATRA page must have the shared header");
@@ -1125,11 +1084,11 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
  profileMarkup.includes('id="profile-report-dialog"')&&
  profileMarkup.includes('id="profile-report-open"')&&
  profileMarkup.includes('id="profile-friend-button"')&&
- profileMarkup.includes('id="profile-message-button"')&&
+ !profileMarkup.includes('id="profile-message-button"')&&
  !profileMarkup.includes('id="profile-message-dialog"')&&
  !profileMarkup.includes('id="profile-inbox-list"')&&
  profileMarkup.includes('id="profile-cover-image" class="profile-cover ui-profile-cover-001 has-system-cover"'),
- "Member profile requires a real cover, tabs, friendship and private message UI");
+ "Member profile requires a real cover, tabs, friendship UI");
 assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-status"')&&
  profileMarkup.includes('id="profile-last-seen"')&&
@@ -1137,7 +1096,6 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-edit-dialog"')&&
  profileMarkup.includes('id="profile-status-text"')&&
  profileMarkup.includes('ui-profile-add-friend-icon-001')&&
- profileMarkup.includes('ui-profile-message-icon-001')&&
  profileMarkup.includes('class="feed-posts ui-profile-posts-001"')&&
  profileMarkup.includes('id="profile-tab-videos"')&&
  !profileMarkup.includes('id="profile-tab-about"')&&
@@ -1174,65 +1132,10 @@ assert.ok(profileMarkup.includes('id="profile-heading"')&&
  (await read("assets/js/profile.js")).includes('window.VATRA_AVATAR?.invalidatePath?.(client,ownId);'),
  "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
 const profileBehavior=await read("assets/js/profile.js");
-/* Private Messenger must never silently fall back to legacy plaintext DMs. */
-const messengerMarkup=await read("messenger.html");
-const messengerRuntime=await read("assets/js/messenger.js");
-const messengerCrypto=await read("assets/js/messenger-crypto.js");
-const messengerCss=await read("assets/css/messenger.css");
-const messengerSchema=await read("_development/supabase/migrations/20261121113300_private_messenger_ciphertext_and_scoped_deletion.sql");
-assert.ok(
- messengerMarkup.includes('data-page="messenger"')&&
- messengerMarkup.includes('id="messenger-delete-mine"')&&
- messengerMarkup.includes('id="messenger-delete-everyone"')&&
- messengerMarkup.includes('id="messenger-key-import"')&&
- messengerMarkup.includes('id="messenger-key-confirm"')&&
- messengerMarkup.includes("assets/js/messenger-crypto.js")&&
- messengerMarkup.includes("assets/js/messenger.js")&&
- messengerRuntime.includes('state.client.rpc("messenger_delete_message"')&&
- messengerRuntime.includes('client.channel("vatra-messenger-"')&&
- messengerRuntime.includes('cryptoBox().same(messagePeerKey,state.peerKey)')&&
- messengerRuntime.includes('state.peerChanged')&&
- messengerRuntime.includes('client.auth.onAuthStateChange((event,session)=>')&&
- messengerRuntime.includes('session.user.id!==state.user.id')&&
- messengerRuntime.includes('$("#messenger-conversations").replaceChildren()')&&
- messengerRuntime.includes('if(event.persisted)location.reload()')&&
- messengerRuntime.includes('state.terminating=true;state.refreshVersion++;state.chatVersion++')&&
- messengerRuntime.includes('if(state.terminating||version!==state.refreshVersion)return;')&&
- messengerRuntime.includes('const request=++state.peerRequestVersion')&&
- messengerRuntime.includes('const candidateKey=data.public_key')&&
- messengerRuntime.includes('state.selected&&!state.peerKey&&!state.peerLoading&&!state.locked')&&
- messengerRuntime.includes('Passphrases do not match.')&&
- messengerRuntime.includes('const saved=await cryptoBox().loadRecord(state.own)')&&
- !messengerRuntime.includes('from("direct_messages")')&&
- !profileBehavior.includes('from("direct_messages")')&&
- !interactionsScript.includes('from("direct_messages")')&&
- messengerCrypto.includes('"AES-GCM"')&&
- messengerCrypto.includes('"ECDH"')&&
- messengerCrypto.includes('"HKDF"')&&
- messengerCss.includes(".vatra-messenger-message.is-removing")&&
- messengerCss.includes(".vatra-messenger-page [hidden]{display:none!important}")&&
- (await read("_development/tests/smoke/browser-smoke.mjs")).includes('runMessengerBrowserSmoke({browser,base})')&&
- !messengerMarkup.includes(String.fromCharCode(118,116,45))&&
- !messengerCss.includes(String.fromCharCode(118,116,45))&&
- messengerSchema.includes("ENABLE ROW LEVEL SECURITY")&&
- messengerSchema.includes("REVOKE ALL ON public.messenger_messages")&&
- messengerSchema.includes("GRANT INSERT (vatra_id,public_key)")&&
- messengerSchema.includes("GRANT INSERT (id,sender_id,recipient_id,ciphertext,nonce,salt,sender_public_key,recipient_public_key)")&&
- !messengerSchema.includes("GRANT SELECT,INSERT ON public.messenger_messages")&&
- messengerSchema.includes("NOT (public_key ? 'd')")&&
- messengerSchema.includes("messenger_envelope_encoding")&&
- messengerSchema.includes("public_key ?& ARRAY['kty','crv','x','y']")&&
- messengerSchema.includes("ciphertext=NULL,nonce=NULL,salt=NULL")&&
- messengerSchema.includes("Only the sender may revoke for everyone"),
- "New messenger must send only authenticated ciphertext and support scoped server-side revocation");
-await import("../smoke/messenger-crypto-smoke.mjs");
-
-
 assert.ok(profileBehavior.includes('client.from("friendships")')&&
  !profileBehavior.includes('client.from("direct_messages")')&&
- profileBehavior.includes('new URL("messenger.html?to="')&&
  profileBehavior.includes("setupProfileInteractions(client,ownId,targetId,isMine)"),
- "Profile friendship and messaging must use persisted, RLS-secured data");
+ "Profile friendship must use persisted, RLS-secured data");
 assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-avatar-wrap"')&&
  profileMarkup.includes('id="profile-avatar-trigger"')&&
@@ -1354,7 +1257,7 @@ for(const page of sharedShellPages){
  for(const cls of ["ui-feed-brand-search-001","ui-social-top-feed-001",
   "ui-social-top-friends-001","ui-social-top-communities-001",
   "ui-social-top-clips-001","ui-social-top-marketplace-001",
-  "ui-shell-header-messenger-001","ui-feed-notifications-button-001",
+  "ui-feed-notifications-button-001",
   "ui-feed-music-button-001","ui-feed-account-menu-001"]){
   assert.ok(header.includes(cls),page+": shared header missing "+cls);
  }
@@ -1374,7 +1277,7 @@ for(const page of sharedShellPages){
   header.includes('class="vatra-account-settings-label-001" data-social-uk=')&&
   header.includes('class="vatra-account-profile-label-001" data-i18n="n48"'),
   page+": account avatar menu must preserve SVG icons and live translations");
- assert.ok(header.includes('href="vatra-id?view=settings#general" class="feed-menu-settings-link')&&!header.includes("feed-menu-settings-panel")&&!header.includes("data-language-trigger"),page+": Settings opens the settings page directly");
+ assert.ok(header.includes('href="settings#general" class="feed-menu-settings-link')&&!header.includes("feed-menu-settings-panel")&&!header.includes("data-language-trigger"),page+": Settings opens the settings page directly");
  const nav=header.match(/<nav class="social-top-nav[\s\S]*?<\/nav>/)?.[0]||"";
  const controls=header.match(/<div class="feed-header-controls[\s\S]*?<\/header>/)?.[0]||"";
  assert.ok(nav.indexOf("ui-social-top-feed-001")<nav.indexOf("ui-social-top-friends-001")&&
@@ -1383,7 +1286,6 @@ for(const page of sharedShellPages){
   nav.indexOf("ui-social-top-clips-001")<nav.indexOf("ui-social-top-marketplace-001"),
   page+": five icon destinations must be in the agreed order");
  assert.ok(!controls.includes("ui-shell-header-friends-001")&&
-  controls.indexOf("ui-shell-header-messenger-001")<controls.indexOf("ui-feed-notifications-button-001")&&
   controls.indexOf("ui-feed-notifications-button-001")<controls.indexOf("ui-feed-music-button-001")&&
   controls.indexOf("ui-feed-music-button-001")<controls.indexOf("ui-feed-account-menu-001")&&
   controls.indexOf("ui-feed-account-menu-001")<controls.indexOf('id="feed-menu-name"'),
@@ -1416,7 +1318,7 @@ assert.ok(
  profileScript.includes('friendMenuAction.addEventListener("click",()=>void changeFriendship())')&&
  profileScript.includes('t("Заявку надіслано","Request sent")')&&
  profileScript.includes('t("Заблокувати ","Block ")+firstName'),
- "Visitor actions must provide a dropdown for pending friend requests and More actions beside Message"
+ "Visitor actions must provide a dropdown for pending friend requests and More actions"
 );
 const avatarCommentRowScript=await read("assets/js/profile-avatar-comment-row.js");
 const profileCoverScript=await read("assets/js/profile-cover-editor.js");
@@ -1535,9 +1437,9 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')&&
  memberProfileMarkup.includes('id="profile-compose-dialog"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
- profileScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip,pinned_at,comments_enabled"')&&
+ profileScript.includes('client.from(publishAt?"scheduled_feed_posts":"feed_posts").insert(payload)')&&
+ feedScript.includes('client.from(publishAt?"scheduled_feed_posts":"feed_posts")')&&
+ feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,poll,shared_post_kind,shared_post_id,is_clip,pinned_at,comments_enabled"')&&
  feedScript.includes('query.eq("is_clip",false)')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
@@ -1549,13 +1451,14 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('batch.append(same&&oldElement?oldElement:card(item,engagement))')&&
+ feedScript.includes('batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement))')&&
+ feedScript.includes('try{return card(post,engagement);}catch(error)')&&
  feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
  feedScript.includes('else posts.append(batch);')&&
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
- profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
+ profileScript.includes('const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,blockAccess,prepared}))')&&
  profileScript.includes('void mediaPromise.catch(()=>{')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
@@ -1580,7 +1483,7 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  detailsModule.includes('profile-editor-page-visibility') &&
  detailsModule.includes('from("profile_details")') &&
  detailsModule.includes('from("profile_preferences")') &&
- detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
+ detailsModule.includes('window.VATRA_PROFILE_DETAILS={prepare,init,open:()=>openEditor()}') &&
  memberCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
 assert.ok(
@@ -1648,14 +1551,15 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  !feedLogic.includes('head.append(remove)')&&
  !profileBehavior.includes('header.append(archive,remove)'),
  "Only owners have one accessible three-dot menu with archive and delete");
-assert.ok(searchLogic.includes("const left=ox;")&&
- searchLogic.includes("inputBox.right-left")&&
+assert.ok(searchLogic.includes("const compact=vw<=600;")&&
+ searchLogic.includes("expanded?790:505")&&
+ searchLogic.includes("Math.min(inputBox.left,ox+vw-width-12)")&&
  systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('.feed-top-controls{display:contents!important}')&&
  systemFeedCss.includes('.feed-top-controls > .feed-posts-section{')&&
  systemFeedCss.includes('grid-column:1;grid-row:3;width:100%;min-width:0;margin:0')&&
  systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
- "Search must reach viewport edge; Stories and Posts fill the same column as Composer; avatar is larger");
+ "Search must align to its field without overflowing; Stories and Posts retain the Composer column; avatar is larger");
 
 // A single rule touches the bottom of post content, above the SVG action counts.
 // Comments, shares and the composer do not add more divider lines.
@@ -1846,16 +1750,11 @@ assert.ok(
  interactionsScript.includes("committed=true;")&&
  interactionsScript.includes("if(!committed)"),
  "Feed post, story and comment mutations must confirm persistence before cleanup");
-// Reposts remain durable even if a later UI refresh fails. Direct shares use encrypted Messenger.
 assert.ok(
  interactionsScript.includes('feedback(tr("Публікацію додано у ваш профіль.","Shared to your profile."));')&&
  interactionsScript.includes("Promise.resolve(settings.onShared()).catch(()=>{})")&&
- interactionsScript.includes("friendsLoaded=false;sendDM.disabled=true;")&&
- interactionsScript.includes('new URL("messenger.html",relativeRoot())')&&
- interactionsScript.includes('sessionStorage.setItem("vatra:messenger:draft-v1"')&&
- !interactionsScript.includes('link.searchParams.set("draft"')&&
- !interactionsScript.includes('from("direct_messages")'),
- "Repost success survives refresh; direct-message drafts route through encrypted Messenger");
+ interactionsScript.includes("navigator.clipboard.writeText(permalink(post))"),
+ "Repost success survives refresh and link sharing remains available");
 assert.ok(
  feedScript.includes("let feedRequestVersion=0;")&&
  feedScript.includes("if(version!==feedRequestVersion)return;")&&
@@ -2063,7 +1962,7 @@ assert.ok(
  postInteractionFields.includes('input.name="vatra_post_comment"') &&
  postInteractionFields.includes('shareAudience.name="vatra_share_visibility"') &&
  postInteractionFields.includes('shareCaption.name="vatra_share_caption"') &&
- postInteractionFields.includes('friendSelect.name="vatra_share_friend"'),
+ !postInteractionFields.includes('friendSelect.name="vatra_share_friend"'),
  "Comments and sharing forms must name their controls for accessibility and autofill audits");
 const socialMotion=await read("assets/js/social-shell.js");
 assert.doesNotThrow(()=>new Function(socialMotion),"Shared VATRA transition logic must be valid JavaScript");
@@ -2375,7 +2274,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","messenger.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2498,7 +2397,7 @@ const publicNameEdge=await read("_development/supabase/functions/public-profile-
 assert.doesNotThrow(()=>new Function(publicNameBrowser),
  "Shared public-name cache must parse in supported browsers");
 assert.ok(
- publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get}')&&
+ publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get,bindViewer}')&&
  publicNameBrowser.includes('client.functions.invoke("public-profile-names"')&&
  publicNameBrowser.includes('pauseEdge(state);')&&
  publicNameBrowser.includes('sessionStorage.setItem(EDGE_COOLDOWN_KEY')&&
@@ -2581,7 +2480,7 @@ const batchedFeedPosts=await read("assets/js/feed.js");
 const batchedProfilePosts=await read("assets/js/profile.js");
 const batchedClubPosts=clubRuntime;
 assert.ok(
- batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:card(item,engagement))")&&
+ batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement))")&&
  batchedFeedPosts.includes("if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}")&&
  batchedFeedPosts.includes("else posts.append(batch);")&&
  batchedFeedPosts.includes("const keepExisting=reset&&scope===lastFeedScope")&&

@@ -58,9 +58,10 @@ body.profile-page .vatra-post-composer-dialog form{
 .vatra-post-composer-drafts-panel[hidden]{display:none!important}
 .vatra-post-composer-zone{
  display:flex;flex-direction:column;align-items:center;justify-content:center;
- gap:13px;width:100%;min-height:310px;
- padding:26px 20px;margin:0 0 20px;
- border:1.5px dashed #c8d4e8;border-radius:14px;background:#f7f9fe
+ gap:11px;width:100%;min-height:238px;box-sizing:border-box;
+ padding:22px 20px;margin:0 0 10px;
+ border:1.5px dashed #bdcce2;border-radius:15px;background:#f8faff;
+ cursor:pointer;transition:border-color .18s ease,background .18s ease
 }
 .vatra-post-composer-zone .ui-vatra-post-upload-symbol-001{
  display:block;flex:none;margin-top:1px
@@ -87,11 +88,38 @@ body.profile-page .vatra-post-composer-dialog form{
  background:#fceef3;color:#9b4863;border:1px solid #f4d7e2
 }
 .vatra-post-composer-zone .vatra-compose-media-preview{
- width:100%;max-width:450px;align-items:center;margin:0 auto
+ width:100%;max-width:none;align-items:stretch;margin:0 auto;
+ box-sizing:border-box
 }
+.vatra-post-composer-zone.is-dragging{background:#edf4ff;border-color:#4381dd}
+.vatra-post-composer-zone.has-media{
+ min-height:0;padding:10px;margin-bottom:8px;border-style:solid;
+ border-color:#e0e8f4;background:#fff;cursor:default
+}
+.vatra-post-composer-zone.has-media>.ui-vatra-post-upload-symbol-001,
+.vatra-post-composer-zone.has-media>.vatra-post-composer-zone-title-001,
+.vatra-post-composer-zone.has-media>.vatra-post-composer-upload-001,
+.vatra-post-composer-zone.has-media>.vatra-post-composer-zone-note-001{display:none}
+.vatra-post-composer-zone.has-media .vatra-compose-media-preview{border:0;padding:0;background:transparent}
+.vatra-post-composer-zone .vatra-gallery-picker-grid{max-height:330px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.vatra-post-composer-zone .vatra-gallery-picker-tile>img,
+.vatra-post-composer-zone .vatra-gallery-picker-tile>video{height:135px;max-height:135px;object-fit:cover}
+.vatra-post-composer-media-tools{
+ display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:9px;margin:0 0 8px;
+ padding:2px 0 10px;border-bottom:1px solid #e8eef7
+}
+.vatra-post-composer-add-media-001{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ min-height:37px;padding:7px 12px;border:1px solid #dbe7fa;border-radius:10px;
+ background:#f2f6fe;color:#396fcb;cursor:pointer;
+ font:730 12px/1.35 "Onest",system-ui,sans-serif;transition:background .18s ease
+}
+.vatra-post-composer-add-media-001:hover{background:#e5efff}
+.vatra-post-composer-add-media-001:focus-visible{outline:2px solid #7ea7ea;outline-offset:2px}
+.vatra-post-composer-add-media-001 svg{display:block;flex:none;width:18px;height:18px}
 .vatra-post-composer-zone .vatra-compose-media-preview img,
 .vatra-post-composer-zone .vatra-compose-media-preview video{max-height:130px}
-.vatra-post-composer-text-wrap{position:relative;min-height:140px}
+.vatra-post-composer-text-wrap{position:relative;min-height:155px}
 .vatra-post-composer-text-wrap label{display:none!important}
 .vatra-post-composer-text-wrap textarea,
 body.feed-page .vatra-post-composer-dialog textarea,
@@ -173,12 +201,165 @@ body.profile-page .vatra-post-composer-dialog textarea{
  .vatra-post-composer-head{padding:9px 13px;gap:6px;min-height:58px}
  .vatra-post-composer-head h2{font-size:16px!important}
  .vatra-post-composer-edit,.vatra-post-composer-settings,.vatra-post-composer-drafts-panel{padding:12px 14px 16px}
- .vatra-post-composer-zone{min-height:255px;padding:18px 11px;gap:10px}
+ .vatra-post-composer-zone{min-height:175px;padding:16px 11px;gap:9px}
+ .vatra-post-composer-zone.has-media{min-height:0;padding:7px}
+ .vatra-post-composer-zone .vatra-gallery-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .vatra-post-composer-zone .vatra-gallery-picker-tile>img,
+ .vatra-post-composer-zone .vatra-gallery-picker-tile>video{height:110px;max-height:110px}
+ .vatra-post-composer-media-tools{padding-bottom:8px}
  .vatra-post-composer-zone .vatra-post-composer-zone-title-001{font-size:17px}
  .vatra-post-composer-footer{padding:10px 12px;gap:5px}
  .vatra-post-composer-footer-actions{gap:6px}
  .vatra-post-composer-footer button{padding:9px 10px}
 }
+
+.vatra-post-composer-edit.has-poll .vatra-post-composer-zone:not(.has-media){display:none}
+.vatra-post-composer-edit.has-poll .vatra-post-composer-text-wrap{min-height:105px}
+.vatra-post-composer-poll[hidden],
+.vatra-post-composer-schedule-date-001[hidden],
+.vatra-post-composer-schedule-hint-001[hidden]{display:none!important}
+.vatra-post-composer-poll-toggle-001{
+ display:inline-flex;align-items:center;gap:8px;min-height:37px;
+ padding:7px 12px;border:1px solid #dae5f4;border-radius:10px;
+ background:#f5f8fd;color:#536d97;font:700 12px/1.35 "Onest",system-ui,sans-serif;
+ cursor:pointer
+}
+.vatra-post-composer-poll-toggle-001:hover,
+.vatra-post-composer-poll-toggle-001.is-active{background:#e9f1ff;color:#2e6ad0;border-color:#bdd1f3}
+.vatra-post-composer-poll-toggle-001 svg{width:18px;height:18px}
+.vatra-post-composer-poll{
+ margin:10px 0 0;padding:18px;border:1px solid #dde6f4;
+ border-radius:14px;background:#f9fbff
+}
+.vatra-post-composer-poll-heading-001{
+ margin:0 0 13px!important;color:#2e4364;
+ font:760 16px/1.4 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-poll-question-001,
+.vatra-post-composer-poll-option-input,
+.vatra-post-composer-poll-end-001,
+.vatra-post-composer-schedule-date-001{
+ display:block;min-width:0;width:100%;box-sizing:border-box;
+ min-height:43px;padding:10px 12px;border:1px solid #d3e0f1;border-radius:10px;
+ background:#fff;color:#304563;font:550 13px/1.45 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-poll-question-001:focus-visible,
+.vatra-post-composer-poll-option-input:focus-visible,
+.vatra-post-composer-poll-end-001:focus-visible,
+.vatra-post-composer-schedule-date-001:focus-visible{
+ outline:2px solid #81a9e9;outline-offset:1px
+}
+.vatra-post-composer-poll-options-001{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.vatra-post-composer-poll-option-row{display:flex;align-items:center;gap:8px}
+.vatra-post-composer-poll-option-remove{
+ display:grid;place-items:center;flex:none;width:38px;height:38px;
+ border:0;border-radius:9px;background:#f0f4fb;color:#6e829f;cursor:pointer
+}
+.vatra-post-composer-poll-option-remove:hover{background:#fff0f2;color:#ba6478}
+.vatra-post-composer-poll-option-remove:disabled{opacity:.3;cursor:default}
+.vatra-post-composer-poll-option-remove svg{width:17px;height:17px}
+.vatra-post-composer-poll-add-001{
+ display:inline-flex;align-items:center;gap:8px;
+ padding:8px 10px;border:0;border-radius:9px;background:#edf3ff;color:#366ec6;
+ cursor:pointer;font:720 12px/1.4 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-poll-add-001:disabled{opacity:.4;cursor:default}
+.vatra-post-composer-poll-add-001 svg{width:17px;height:17px}
+.vatra-post-composer-poll-settings-001{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px 12px;margin:18px 0 14px
+}
+.vatra-post-composer-poll-setting-001{
+ display:flex;align-items:center;gap:8px;min-width:0;
+ color:#516684;font:560 12px/1.4 "Onest",system-ui,sans-serif;cursor:pointer
+}
+.vatra-post-composer-poll-setting-001 input,
+.vatra-post-composer-schedule-toggle-label-001 input{
+ width:17px;height:17px;flex:none;accent-color:#3773d6
+}
+.vatra-post-composer-poll-end-label-001{
+ display:block;color:#607695;font:630 12px/1.45 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-poll-end-001{margin-top:7px}
+.vatra-post-composer-poll-hint-001{
+ margin:10px 0 0!important;color:#7184a2;
+ font:520 11.5px/1.5 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-schedule-box-001{
+ margin:3px 0 10px;padding:14px;border:1px solid #dfe7f4;
+ border-radius:13px;background:#f8faff
+}
+.vatra-post-composer-schedule-toggle-label-001{
+ display:flex;align-items:center;gap:8px;color:#304966;
+ font:700 13px/1.5 "Onest",system-ui,sans-serif;cursor:pointer
+}
+.vatra-post-composer-schedule-toggle-label-001 svg{
+ width:19px;height:19px;color:#5983be
+}
+.vatra-post-composer-schedule-date-001{margin-top:13px}
+.vatra-post-composer-schedule-hint-001{
+ margin:9px 0 0!important;color:#647b9c;
+ font:540 12px/1.5 "Onest",system-ui,sans-serif
+}
+@media(max-width:640px){
+ .vatra-post-composer-poll{padding:12px}
+ .vatra-post-composer-poll-settings-001{grid-template-columns:1fr}
+ .vatra-post-composer-poll-toggle-001,.vatra-post-composer-add-media-001{font-size:11.5px;padding:7px 9px}
+ .vatra-post-composer-media-tools{gap:7px}
+}
+
+.vatra-post-composer-queue-heading-001{
+ margin:22px 0 10px!important;font:760 15px/1.4 "Onest",system-ui,sans-serif;color:#304765
+}
+.vatra-post-composer-queue-list-001{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.vatra-post-composer-queue-item-001{
+ display:flex;align-items:center;justify-content:space-between;gap:9px;
+ padding:11px 12px;border:1px solid #e1e8f5;border-radius:11px;background:#f8faff
+}
+.vatra-post-composer-queue-subject-001{
+ min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ color:#3f5a85;font:690 12px/1.4 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-queue-time-001{
+ flex:none;color:#6d84a7;font:530 11px/1.4 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-queue-cancel-001{
+ flex:none;min-height:33px;padding:6px 10px;border:1px solid #dce5f2;
+ border-radius:8px;background:#fff;color:#536c98;cursor:pointer;
+ font:650 11px/1.4 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-queue-cancel-001:disabled{opacity:.5;cursor:wait}
+.vatra-post-composer-queue-empty-001,
+.vatra-post-composer-queue-error-001,
+.vatra-post-composer-queue-status-001{
+ margin:0!important;color:#8091ab;font:530 12px/1.5 "Onest",system-ui,sans-serif
+}
+@media(max-width:640px){
+ .vatra-post-composer-queue-item-001{flex-wrap:wrap}
+ .vatra-post-composer-queue-subject-001{flex:1 1 100%}
+}
+
+.vatra-post-composer-queue-edit-001,.vatra-post-composer-queue-save-001,
+.vatra-post-composer-queue-close-001{
+ flex:none;min-height:33px;padding:6px 10px;
+ border:1px solid #dce5f2;border-radius:8px;background:#fff;color:#41679f;
+ cursor:pointer;font:650 11px/1.4 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-queue-save-001{border-color:#3975cd;background:#3975cd;color:#fff}
+.vatra-post-composer-queue-edit-001:disabled,
+.vatra-post-composer-queue-save-001:disabled{opacity:.5;cursor:default}
+.vatra-post-composer-queue-editor-001{
+ display:flex;flex:1 1 100%;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap
+}
+.vatra-post-composer-queue-editor-001[hidden],
+.vatra-post-composer-queue-edit-001[hidden]{display:none!important}
+.vatra-post-composer-queue-date-001{
+ min-height:35px;min-width:145px;flex:1;padding:6px 9px;
+ border:1px solid #d4e0f0;border-radius:8px;background:#fff;color:#385274;
+ font:550 12px/1.4 "Onest",system-ui,sans-serif
+}
+.vatra-post-composer-queue-date-001:focus-visible{outline:2px solid #82aaf0;outline-offset:1px}
+
 @media(prefers-reduced-motion:reduce){.vatra-post-composer-dialog *{transition:none!important}}
 
 body.feed-page .vatra-post-composer-head [id$="-compose-cancel"],

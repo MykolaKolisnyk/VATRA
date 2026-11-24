@@ -126,6 +126,12 @@
   };
 
   const afterLayout=()=>requestAnimationFrame(position);
+  document.addEventListener("pointerdown",event=>{
+   if(menu.open&&!menu.contains(event.target))menu.open=false;
+  },{capture:true});
+  document.addEventListener("keydown",event=>{
+   if(event.key==="Escape"&&menu.open){menu.open=false;menu.querySelector("summary")?.focus();}
+  });
   menu.addEventListener("toggle",position);
   menu.addEventListener("toggle",afterLayout);
   if(typeof ResizeObserver!=="undefined"){
@@ -230,15 +236,6 @@
     item.classList.remove("social-top-pending");
     if(document.body.dataset.page===page){item.classList.add("social-top-active");item.setAttribute("aria-current","page");}
     item.addEventListener("click",()=>location.assign(new URL(page,location.href).href));
-    continue;
-   }
-   if(item.dataset.vatraComingSoon==="messenger"){
-    item.removeAttribute("data-vatra-coming-soon");
-    item.removeAttribute("aria-disabled");item.removeAttribute("title");item.disabled=false;
-    item.addEventListener("click",()=>{
-     hideTooltip();
-     location.assign(new URL("messenger.html",new URL("./",location.href)).href);
-    });
     continue;
    }
    if(item.dataset.vatraComingSoon==="notifications"){
@@ -478,8 +475,10 @@
 
 
 
-   const left=ox;
-   const width=Math.max(1,Math.min(vw,expanded?Math.max(inputBox.right-left,760):inputBox.right-left));
+   const compact=vw<=600;
+   const width=Math.max(1,Math.min(vw-(compact?12:24),expanded?790:505));
+   const left=compact?ox+6:Math.max(ox+12,
+    Math.min(inputBox.left,ox+vw-width-12));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(headerBottom)+"px";
@@ -667,7 +666,7 @@
 
  
  function setupRouteMotion(){
-  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
+  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|settings|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
   let navigating=false;
   const to=destination=>{
    let next;
@@ -720,6 +719,55 @@
   window.addEventListener("resize",align,{passive:true});
   window.visualViewport?.addEventListener("resize",align,{passive:true});
  }
+ const soundRoot=new URL("../../",document.currentScript?.src||location.href);
+ const soundFiles=Object.freeze({
+  like:"like.mp3",
+  newFollower:"new-follower.mp3",notification:"notification.mp3"
+ });
+ let soundLastPlayed=0;
+ const playSound=kind=>{
+  const filename=soundFiles[kind];
+  if(!filename||document.hidden||!window.Audio)return false;
+  const now=Date.now();
+  if(now-soundLastPlayed<350)return false;
+  soundLastPlayed=now;
+  try{
+   const audio=new Audio(new URL("assets/sounds/"+filename,soundRoot).href);
+   audio.volume=kind==="like"?.35:.55;
+   const promise=audio.play();promise?.catch?.(()=>{});
+   return true;
+  }catch(_){return false;}
+ };
+ window.VATRA_SOUNDS=Object.freeze({play:playSound});
+ function setupHeaderDismiss(){
+  document.addEventListener("pointerdown",event=>{
+   const header=document.querySelector(".feed-header");
+   if(!header)return;
+   for(const item of header.querySelectorAll("details[open]")){
+    if(!item.contains(event.target))item.open=false;
+   }
+  },true);
+  document.addEventListener("keydown",event=>{
+   if(event.key!=="Escape")return;
+   const header=document.querySelector(".feed-header");
+   const open=[...(header?.querySelectorAll("details[open]")||[])];
+   for(const item of open)item.open=false;
+   if(open.length)open.at(-1)?.querySelector("summary")?.focus();
+  },true);
+ }
+ function setupCommentEnter(){
+  document.addEventListener("keydown",event=>{
+   if(event.key!=="Enter"||event.shiftKey||event.ctrlKey||event.metaKey||
+      event.altKey||event.isComposing||event.keyCode===229)return;
+   const input=event.target;
+   if(input?.tagName!=="TEXTAREA")return;
+   const form=input.closest?.("form");
+   if(!form||![...form.classList].some(x=>x.includes("comment")))return;
+   event.preventDefault();event.stopImmediatePropagation();
+   const button=form.querySelector('button[type="submit"]:not(:disabled)');
+   if(button)form.requestSubmit(button);
+  },true);
+ }
  const shellScript=document.currentScript?.src;
  const boot=()=>{
   if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.src=new URL("account-guard.js?rev=75e4057976db3593814de6d14beae75016283fae",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
@@ -730,6 +778,8 @@
   setUpComingSoon();
   setUpStories();
   setUpSiteSearch();
+  setupCommentEnter();
+  setupHeaderDismiss();
  };
  const bootLocalized=()=>{
 

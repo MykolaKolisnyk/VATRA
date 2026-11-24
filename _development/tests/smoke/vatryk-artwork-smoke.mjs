@@ -37,3 +37,31 @@ for(const code of [403,429,500,503])assert.equal(classify({status:code}),String(
 assert.equal(classify({status:502}),"503");assert.equal(classify({code:"42501"}),"403");assert.equal(classify({code:"over_request_rate_limit"}),"429");assert.equal(classify({code:"session_expired"},{session:true}),"session");assert.equal(classify({code:"session_expired"}),null);assert.equal(classify({status:403},{access:false}),null);assert.equal(classify({status:400,code:"invalid_credentials"}),null);assert.equal(classify(new Error("Network down")),null);
 assert.ok(base.includes(".ui-vatra-service-notice-001"));
 console.log("VATRA: six new service illustrations and status classification verified.");
+
+const feedRuntime=await readFile("assets/js/feed.js","utf8");
+assert.ok(runtime.includes('document.body.dataset.authReady==="true"')&&
+ runtime.includes('!document.body.classList.contains("vatra-shell-pending")'),
+ "Service errors must not mount within an invisible pending feed");
+assert.ok(feedRuntime.includes('loader.hidden=false;loader.dataset.loadingError="true"')&&
+ feedRuntime.includes('await feedDeadline(client.auth.getUser())')&&
+ feedRuntime.includes('if(profile.error||!validId(profile.data?.vatra_id))'),
+ "Feed startup must expose retry after bounded requests without bypassing authentication");
+const begin=feedRuntime.indexOf(" function feedDeadline("),end=feedRuntime.indexOf(" async function init(){",begin);
+assert.ok(begin>=0&&end>begin);
+const deadlineContext={Promise,Error,Object,setTimeout:(fn)=>setTimeout(fn,5),clearTimeout};
+vm.runInNewContext(feedRuntime.slice(begin,end)+"\nglobalThis.deadline=feedDeadline;",deadlineContext);
+assert.equal(await deadlineContext.deadline(Promise.resolve("ok")),"ok");
+await assert.rejects(deadlineContext.deadline(new Promise(()=>{})),/Feed request timed out/);
+console.log("VATRA Feed: visible startup error, auth deadline and fail-closed account check verified.");
+
+const profileRuntime=await readFile("assets/js/profile.js","utf8");
+assert.ok(profileRuntime.includes('const prepared=profileDeadline(window.VATRA_PROFILE_DETAILS.prepare({client,ownId,targetId,isMine}))')&&
+ profileRuntime.indexOf('const prepared=profileDeadline')<profileRuntime.indexOf('const [directoryOutcome,publicOutcome,stateOutcome,blockOutcome]'),
+ "Profile visibility and own detail requests must overlap the identity checks");
+assert.ok(profileRuntime.includes('if(!isMine&&(blockOutcome.status!=="fulfilled"||blockOutcome.value.error))throw Error("Profile block check unavailable")')&&
+ profileRuntime.includes('const result=locked?{data:[],error:null}:isMine?ownerDetails:await client.from("profile_details")'),
+ "Visitor details remain behind the verified privacy and block gates");
+assert.ok(!profileRuntime.includes("if(locked)await mediaPromise;"),"Locked profile shell must not wait for image decoding");
+console.log("VATRA Profile: parallel access reads, bounded startup and non-blocking image presentation verified.");
+
+assert.ok(profileRuntime.includes('const ownId=String(account?.vatra_id??"");')&&profileRuntime.includes('if(accountError||!validId(ownId))'),"Numeric PostgREST member IDs must be normalized before validation");

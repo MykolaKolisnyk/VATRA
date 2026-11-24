@@ -3,15 +3,15 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const root=new URL("../../",document.currentScript?.src||location.href);
 const features=Object.freeze({
- albums:{css:"assets/css/photo-albums.css?rev=a8dfcd64071d2c319f8328d2da011833e49be04e",js:"assets/js/photo-albums.js?rev=50bd58517a848848e033f88250af0510c2395215",key:"VATRA_ALBUMS"},
- story:{css:"assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df",js:"assets/js/story-editor.js?rev=5bbc7b7e6eef8554603225d518c8ae4021eb6705",key:"VATRA_STORY_EDITOR"},
- composer:{css:"assets/css/post-composer.css",js:"assets/js/post-composer-ui.js",key:"VATRA_COMPOSER_UI"},
+ albums:{css:"assets/css/photo-albums.css?rev=965aa448024dee514ab1aaa4474e4333680701d1",js:"assets/js/photo-albums.js?rev=699ff02240c3b1774f10ea27229bf8889b2fc59d",key:"VATRA_ALBUMS"},
+ story:{css:"assets/css/story-editor.css?rev=9536346d0f48121648b02ca6a816596d5faa16df",js:"assets/js/story-editor.js?rev=ebaa9990cc5873d74531e8bd9a13b2449c3030e2",key:"VATRA_STORY_EDITOR"},
+ composer:{css:"assets/css/post-composer.css?rev=c6d7aae2436bbe57b406acad87c79f1924ec2898",js:"assets/js/post-composer-ui.js?rev=363501975644f20c91e8d9ba75508633263b061b",key:"VATRA_COMPOSER_UI"},
  gift:{css:"assets/css/gifts.css",js:"assets/js/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"},
- "profile-gallery":{js:"assets/js/profile-gallery.js?rev=2e276147513a80c25912d0b7f371798210a7a516",key:"VATRA_PROFILE_GALLERY"},
+ "profile-gallery":{js:"assets/js/profile-gallery.js?rev=9e25646224106648bcd7c230aaf1b8a3d372e7c5",key:"VATRA_PROFILE_GALLERY"},
  "cover-editor":{js:"assets/js/profile-cover-editor.js?rev=95d2182c4b03c53a74e7b9ebdbc9761d585898b9",key:"VATRA_PROFILE_COVER_EDITOR"},
- "avatar-editor":{js:"assets/js/profile-avatar-editor.js?rev=48b7f406f71f4833379842d6b59bb804f5ee87ff",key:"VATRA_PROFILE_AVATAR_EDITOR"},
+ "avatar-editor":{js:"assets/js/profile-avatar-editor.js?rev=633a59bbf180682416062cae5f853e5de3f80c2f",key:"VATRA_PROFILE_AVATAR_EDITOR"},
  "cover-viewer":{js:"assets/js/profile-cover-viewer.js?rev=2b1285daeb16ac2e55e71ea75eb6f05b226ebc91",key:"VATRA_PROFILE_COVER_VIEWER"},
- "avatar-comment-row":{js:"assets/js/profile-avatar-comment-row.js?rev=d2348f2578ca2e86bd7ffcb8ba96efcd8e421d3d",key:"VATRA_PROFILE_AVATAR_COMMENT_ROW"}
+ "avatar-comment-row":{js:"assets/js/profile-avatar-comment-row.js?rev=cbe6f015aeeea1995d5b196e4d63e9a4fcbf415c",key:"VATRA_PROFILE_AVATAR_COMMENT_ROW"}
 });
 const pending=new Map();
 const loadedStyles=new Set();

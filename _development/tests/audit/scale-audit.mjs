@@ -13,6 +13,17 @@ try{
  await db.query(`
   create schema auth;
   create schema private;
+  create role authenticated nologin;
+  create role anon nologin;
+  create schema vatra_admin_private;
+  create function auth.uid() returns uuid language sql stable as $fn$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $fn$;
+  create function vatra_admin_private.allowed() returns boolean language sql stable security definer set search_path='' as $fn$ select true $fn$;
+  create function public.vatra_has_block_between(other_vatra_id bigint) returns boolean language sql stable as $fn$ select false $fn$;
+  grant usage on schema public,auth,vatra_admin_private to authenticated;
+  grant usage on schema public to anon;
+  grant execute on function auth.uid() to authenticated;
+  grant execute on function vatra_admin_private.allowed() to authenticated;
+  grant execute on function public.vatra_has_block_between(bigint) to authenticated;
   create table auth.users(id uuid primary key);
   create table private.vatra_id_counter(
    singleton boolean primary key default true,
@@ -24,6 +35,7 @@ try{
    user_id uuid primary key references auth.users(id) on delete cascade,
    vatra_id bigint not null unique
   );
+  grant select on public.accounts to authenticated;
   create table public.vatra_directory(vatra_id bigint primary key);
   create or replace function private.assign_vatra_id() returns trigger
   language plpgsql security definer set search_path to '' as $body$

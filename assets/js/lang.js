@@ -1,4 +1,4 @@
-(()=>{if(window.VATRA_HOST_ALLOWED===false)return;const s=document.createElement("script");s.src=new URL("toast.js?rev=2bf4db072e1b1be2f861731d80422549aa49ae39",document.currentScript?.src||location.href).href;s.async=true;document.head.append(s);})();
+(()=>{if(window.VATRA_HOST_ALLOWED===false)return;const s=document.createElement("script");s.src=new URL("toast.js?rev=b1f4bc19a7024e45f7e2e1265ee5e3ad85a1329c",document.currentScript?.src||location.href).href;s.async=true;document.head.append(s);})();
 
 (() => {
   "use strict";
@@ -31,10 +31,10 @@
 
 
   const titleSources={
-    index:"Вхід","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",messenger:"Месенджер",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
+    index:"Вхід","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
   };
   const instantEnglishTitles={
-    index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",messenger:"Messenger",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
+    index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
     forgot:"Password recovery",reset:"New password",
     "404":"Page not found",
     terms:"Terms of Service",commerce:"Commerce Rules",documents:"VATRA Documents",privacy:"Privacy",
@@ -257,7 +257,7 @@
   });
   const timeout = new AbortController();
   const stop = setTimeout(() => timeout.abort(),7000);
-  const translations = localFile ? Promise.resolve({}) : fetch(ROOT + "assets/i18n/" + current + ".json" + (scriptUrl.searchParams.get("rev")?"?rev="+encodeURIComponent(scriptUrl.searchParams.get("rev")):""),{signal:timeout.signal,cache:"default"})
+  const translations = localFile ? Promise.resolve({}) : fetch(ROOT + "assets/i18n/" + current + ".json",{signal:timeout.signal,cache:"default"})
     .then(res => { if (!res.ok) throw new Error("translations unavailable"); return res.json(); })
     .catch(() => ({}))
     .finally(() => clearTimeout(stop));
@@ -630,7 +630,7 @@
   ".vatra-post-comment-dialog-content",".vatra-gallery-picker-grid",
   ".vatra-search-history",".vatra-search-live-results",".feed-account-dropdown",
   ".vatra-notification-panel",".vatra-post-share-dialog",".vatra-post-comment-emoji-scroll",
-  ".profile-message-history",".profile-compose-dialog",".profile-photo-comments",
+  ".profile-compose-dialog",".profile-photo-comments",
   ".vatra-profile-details-content",".profile-report-content",
   ".profile-confirm-dialog",
   ".vatra-post-composer-edit",".vatra-post-composer-settings",

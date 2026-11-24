@@ -117,9 +117,9 @@ assert.ok(
  script.includes('commentsList.prepend(pending)')&&
  script.includes('commentsList.prepend(commentRow')===false&&
  script.includes('const PAGE_SIZE=18,FEATURED_LIMIT=12')&&
- gallery.includes("openPostPhoto(client,post,item,{ownId,userId})")&&
+ gallery.includes("openPostPhoto(client,post,item,{ownId,userId,items:photoEntries,removePhoto,hasMore:()=>hasMore,loadMore:()=>load(true)})")&&
  profile.includes("window.VATRA_OPEN_PROFILE_AVATAR=path=>")&&
- media.includes("openPostPhoto,renderStory"),
+ media.includes("openPostPhoto,photoNavigation,photoMenuIcon,renderStory"),
  "Source-aware photographs, direct uploads, per-photo interactions and incremental loading must remain intact"
 );
 assert.ok(
@@ -167,26 +167,14 @@ assert.ok(
  !actionsMigration.includes("security definer"),
  "Pinned photos must retain source identity and owner-only RLS updates"
 );
-assert.ok(
- profile.includes("updateAvatarProgress(0,originalFile?3:2")&&
- profile.includes("updateAvatarProgress(originalPath?2:1")&&
- profile.includes("updateAvatarProgress(originalPath?3:2")&&
- profile.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))')&&
- html.includes('id="profile-avatar-upload-progress"')&&
- html.includes('id="profile-avatar-upload-progress-bar"')&&
- html.includes('id="profile-avatar-upload-progress-text"'),
- "Profile photo upload must show real completed steps and update without full page reload"
-);
-assert.ok(
- commentRow.includes('client.from("avatar_comments").delete()')&&
+assert.ok(!profile.includes("updateAvatarProgress")&&!html.includes('id="profile-avatar-upload-progress"'),"A single avatar must not display a file count");
+assert.ok(commentRow.includes('client.from("avatar_comments").delete()')&&
  commentRow.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
  profile.includes('rows.length?await window.VATRA_FEATURES.load("avatar-comment-row"):null')&&
  profile.includes('avatarCommentPages.clear()')&&
- profile.includes('avatarDownload.addEventListener("click",async()=>')&&
- html.includes('id="profile-photo-download"')&&
- html.includes('id="profile-photo-open-album"'),
- "Profile photo comments must be deletable only by their own authors and avatar actions must be accessible"
-);
+ !html.includes('id="profile-photo-download"')&&!html.includes('id="profile-photo-open-album"'),
+ "Avatar viewer must not include album/download actions");
+assert.ok(media.includes('copy.textContent=String(post.body||"")')&&script.includes("photoDescriptionForm.onsubmit")&&profile.includes("VATRA_USE_PHOTO_AS_AVATAR"),"Photo source descriptions and avatar selection must be connected");
 
 const feedCss=await readFile("assets/css/feed.css","utf8");
 assert.ok(
@@ -215,3 +203,63 @@ assert.ok(
  "Standalone album comment modal must retain a compact, accessible composer after photo-viewer unification"
 );
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");
+
+assert.ok(profile.includes('from("avatar_photo_descriptions")')&&profile.includes("loadAvatarDescription(path)"),"Avatar descriptions must be keyed by source image");
+assert.ok(script.includes("selectedPhotos=new Map()")&&script.includes("selectPhoto(photo)")&&script.includes("bulkDelete"),"Album multi-selection must manage actual photo rows");
+
+const photoActions=await readFile("_development/supabase/migrations/20261124065500_avatar_photo_descriptions.sql","utf8");
+assert.ok(photoActions.includes("on update cascade on delete cascade")&&photoActions.includes("Moving a photo must not expand its audience")&&photoActions.includes("vatra_album_photos_archive_visibility"),"Logical moves preserve discussion and never widen the audience; archive is owner-only");
+assert.ok(script.includes("chooseDestination")&&script.includes("loadArchive")&&script.includes('update({album_id:select.value,pinned_at:null})'),"Photo move and archive must use owner-scoped writes");
+
+assert.ok(gallery.includes("vatra:select-post-photo")&&script.includes('source:"avatar"')&&script.includes("downloadSource(row)")&&script.includes("bulkMove.hidden=bulkArchive.hidden=mixed")&&script.includes("deleteSelected"),"Mixed source selection must allow safe source-specific deletion");
+
+assert.ok(media.includes("photoNavigation")&&gallery.includes("items:photoEntries")&&gallery.includes("loadMore:()=>load(true)")&&script.includes("photoNavigation(photoContent"),"All photo viewers must navigate their source gallery");
+assert.ok(script.includes("if(!await window.VATRA_POST_MEDIA.removeGallery(")&&script.includes("if(removed.error)throw removed.error;"),"Photo deletion must report Storage cleanup failures instead of false success");
+
+
+// Profile gallery retry buttons must remain actionable; quick tab returns reuse
+// the existing authenticated page, while a media mutation forces a fresh read.
+{
+ let requests=0,opened=0,observer,change;
+ const el=()=>({attrs:new Map(),children:[],listeners:{},hidden:false,
+  setAttribute(k,v){this.attrs.set(k,v)},getAttribute(k){return this.attrs.get(k)},
+  append(...nodes){this.children.push(...nodes)},replaceChildren(...nodes){this.children=nodes},
+  addEventListener(k,fn){this.listeners[k]=fn},dispatchEvent(){},closest(){return null}
+ });
+ const tab=el(),list=el(),empty=el(),more=el();
+ tab.setAttribute("aria-selected","true");
+ const elements={"#profile-tab-photos":tab,"#profile-photo-gallery":list,"#profile-photos-empty":empty,"#profile-photos-more":more};
+ const mockWindow={VATRA_POST_MEDIA:{mount:async()=>{},openPostPhoto:()=>{opened++}},
+  addEventListener(k,fn){if(k==="vatra:profile-media-changed")change=fn}};
+ class Observer{constructor(fn){observer=fn}observe(){}}
+ const post={id:"p",author_vatra_id:2,media_kind:"image",media_path:"2/posts/photo.jpg"};
+ const client={from(){requests++;const chain={};for(const k of ["select","eq","or","is","order"])chain[k]=()=>chain;
+  chain.range=async()=>({data:[post],error:null});return chain}};
+ runInNewContext(gallery,{window:mockWindow,MutationObserver:Observer,CustomEvent:class{constructor(type){this.type=type}}});
+ mockWindow.VATRA_PROFILE_GALLERY.mount({client,targetId:2,ownId:1,userId:"u",q:id=>elements[id],node:el,t:(uk,en)=>en,home:"https://example.test/"});
+ const settle=()=>new Promise(resolve=>setImmediate(resolve));
+ await settle();
+ assert.equal(requests,1);
+ assert.equal(list.children.length,1);
+ const click=list.children[0].listeners.click;
+ function hit(classes,busy=false,image=false){
+  let stopped=false;
+  const trigger={classList:{contains:c=>classes.includes(c)},getAttribute:()=>busy?"true":null,querySelector:()=>image?{}:null};
+  click({target:{closest:()=>trigger},preventDefault(){stopped=true},stopPropagation(){},stopImmediatePropagation(){}});
+  return stopped;
+ }
+ assert.equal(hit(["vatra-post-gallery-tile","is-gallery-unavailable"]),false);
+ assert.equal(hit(["vatra-post-gallery-tile","is-gallery-ready"],true),false);
+ assert.equal(hit(["vatra-feed-post-media-open-001"]),false);
+ assert.equal(opened,0);
+ assert.equal(hit(["vatra-post-gallery-tile","is-gallery-ready"]),true);
+ assert.equal(hit(["vatra-feed-post-media-open-001"],false,true),true);
+ assert.equal(opened,2);
+ tab.setAttribute("aria-selected","false");observer();
+ tab.setAttribute("aria-selected","true");observer();
+ await settle();assert.equal(requests,1,"Quick tab return must not repeat the page query");
+ change();await settle();assert.equal(requests,2,"Media change must invalidate gallery reuse");
+ tab.setAttribute("aria-selected","false");change();await settle();assert.equal(requests,2,"Hidden tab must not fetch");
+ tab.setAttribute("aria-selected","true");observer();await settle();assert.equal(requests,3,"Reopened invalidated gallery must refresh");
+}
+console.log("VATRA profile gallery: retry routing, quick tab reuse and mutation invalidation passed.");

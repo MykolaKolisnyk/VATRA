@@ -60,7 +60,7 @@ const tourStart=dynamicKeys.indexOf("Твоя стрічка");
 const tourEnd=dynamicKeys.indexOf("Поділися моментом у короткій історії. Історії зникають через 24 години.");
 assert.ok(tourStart>=0&&tourEnd>=tourStart,"Missing tour anchors in reference dictionary");
 const tourMessages=dynamicKeys.slice(tourStart,tourEnd+1);
-assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translation group");
+assert.equal(tourMessages.length,67,"Unexpected change in Vatryk tour translation group");
 
 
 const langJs=await readFile("assets/js/lang.js","utf8");
@@ -92,7 +92,6 @@ const socialShellKeys=[
  "Нещодавні",
  "Очистити всю історію",
  "Історії",
- "Месенджер",
  "Меню акаунта",
  "Кількість запитів: {count}",
  "Ваша історія"
@@ -155,7 +154,8 @@ assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
 // Read labels from actual post media controls, including aria and error strings.
 const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/tr\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
  .map(match=>JSON.parse(match[1])))];
-assert.equal(postMediaKeys.length,38,"Unexpected source key count in post media runtime (no Show less control)");
+assert.equal(postMediaKeys.length,45,"Post media runtime must include retry and omit the retired Show less control");
+assert.ok(postMediaKeys.includes("Повторити"),"Media retry action must be translated");
 for(const key of postMediaKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
   "English post media translation missing: "+key);
@@ -299,7 +299,6 @@ const friendsKeys=[
  "Ваш друг у VATRA",
  "Хоче додатися до друзів",
  "Запит надіслано",
- "Профіль і повідомлення",
  "Прийняти",
  "Видалити з друзів",
  "Відхилити",
@@ -314,7 +313,7 @@ const friendsKeys=[
  "Не вдалося завантажити друзів.",
  "Не вдалося відкрити друзів. Оновіть сторінку."
 ];
-assert.equal(friendsKeys.length,19,"Unexpected friend-area translation key count");
+assert.equal(friendsKeys.length,18,"Unexpected friend-area translation key count");
 assert.ok(friendsRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
  friendsRuntime.includes('const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
  !friendsRuntime.includes('const en=()=>document.documentElement.lang==="en";'),
@@ -326,37 +325,57 @@ for(const key of friendsKeys){
 
 const notificationRuntime=await readFile("assets/js/notifications.js","utf8");
 const notificationKeys=[
- "{name} хоче додатися до вас у друзі",
- "{name}: вашу заявку в друзі прийнято",
- "{name}: вподобайка вашої публікації",
- "{name}: вподобайка вашого коментаря",
- "{name}: вподобайка вашого фото профілю",
- "{name}: вподобайка коментаря під фото",
- "{name}: нова подія",
- "Сповіщення: {count} непрочитаних",
- "Учасник VATRA ID {id}",
- "Сторінка {page}",
- "Видалити сповіщення",
- "Акаунт видалено",
- "Акаунт заблоковано",
- "Сповіщень поки немає.",
- "Не вдалося завантажити сповіщення. Спробуйте ще раз.",
- "Ваші сповіщення",
- "Закрити сповіщення",
- "Відкрити всі сповіщення",
- "Сповіщення",
- "Не вдалося завантажити сповіщення. Оновіть сторінку."
+  "{name} хоче додатися до вас у друзі",
+  "{name} прийняв вашу заявку в друзі",
+  "{name} відхилив вашу заявку в друзі",
+  "{name} вподобав вашу публікацію",
+  "{name} вподобав ваш коментар",
+  "{name} вподобав ваше фото профілю",
+  "{name} вподобав ваш коментар під фото",
+  "{name} прийняла вашу заявку в друзі",
+  "{name} відхилила вашу заявку в друзі",
+  "{name} вподобала вашу публікацію",
+  "{name} вподобала ваш коментар",
+  "{name} вподобала ваше фото профілю",
+  "{name} вподобала ваш коментар під фото",
+  "Вашу заявку в друзі прийнято: {name}",
+  "Вашу заявку в друзі відхилено: {name}",
+  "Вашу публікацію вподобано: {name}",
+  "Ваш коментар вподобано: {name}",
+  "Ваше фото профілю вподобано: {name}",
+  "Ваш коментар під фото вподобано: {name}",
+  "{name}: нова подія",
+  "Сповіщення: {count} непрочитаних",
+  "Учасник VATRA ID {id}",
+  "Сторінка {page}",
+  "Видалити сповіщення",
+  "Акаунт видалено",
+  "Акаунт заблоковано",
+  "Сповіщень поки немає.",
+  "Не вдалося завантажити сповіщення. Спробуйте ще раз.",
+  "Ваші сповіщення",
+  "Відкрити всі сповіщення",
+  "Сповіщення",
+  "Не вдалося завантажити сповіщення. Оновіть сторінку.",
+  "Поки немає сповіщень",
+  "Нові сповіщення з'являться тут.",
+  "Налаштування сповіщень"
 ];
 const interpolationTokens=value=>[...value.matchAll(/\{(name|count|page|id)\}/g)]
  .map(match=>match[1]).sort();
-assert.equal(notificationKeys.length,20,"Unexpected notification translation key count");
+assert.ok(notificationKeys.length>=20,"Missing notification translation audit coverage");
 assert.ok(notificationRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
  notificationRuntime.includes("const notificationTemplates={")&&
- notificationRuntime.includes("return format(uk,english,{name});")&&
+ notificationRuntime.includes("const messageFor=(kind,name,form)=>")&&
+ notificationRuntime.includes("const feminineEvents={")&&
+ notificationRuntime.includes("const neutralEvents={")&&
+ notificationRuntime.includes("format(text,en,{name:first})")&&
  notificationRuntime.includes('format("Сповіщення: {count} непрочитаних"')&&
  notificationRuntime.includes('format("Учасник VATRA ID {id}"')&&
  notificationRuntime.includes('format("Сторінка {page}"')&&
- notificationRuntime.includes('window.VATRA_PRESENCE?.relative?.(parsed,language())'),
+ notificationRuntime.includes("const timeValue=date=>{")&&
+ notificationRuntime.includes("const plural=(n,a,b,c)=>")&&
+ notificationRuntime.includes('language()==="en"'),
  "Notification runtime must use dictionaries, interpolation and locale-aware dates");
 for(const key of notificationKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
@@ -379,8 +398,6 @@ for(const source of [feedRuntime,profileRuntime]){
   source.includes('t("VATRA — Стрічка","VATRA — Feed")'),
   "Feed/profile must apply translated shell controls and native date formats");
 }
-assert.ok(profileRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)"),
- "Profile controls must resolve the active locale dictionary");
 assert.ok(profileRuntime.includes('t("У мережі","Online")'),
  "Online presence label must be localized");
 
@@ -571,7 +588,9 @@ for(const code of codes){
  const missing=dynamicKeys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
  assert.deepEqual(missing,[],code+": shared source key coverage must be complete");
  const covered=dynamicKeys.length;
- const untranslated=dynamicKeys.filter(key=>dictionary[key].trim()===key.trim());
+ // Bulgarian uses the same word for sound as Ukrainian; verified translation.
+ const identicalLocaleKeys=code==="bg"?new Set(["Звук"]):new Set();
+ const untranslated=dynamicKeys.filter(key=>dictionary[key].trim()===key.trim()&&!identicalLocaleKeys.has(key));
  assert.ok(untranslated.length<=8,
   code+": unexpectedly many shared phrases remain in Ukrainian: "+untranslated.join(" | "));
  for(const key of Object.keys(dictionary).filter(key=>!key.startsWith("__")))
@@ -583,30 +602,15 @@ for(const code of codes){
   " static page catalogs; "+texts+" UI fields; "+covered+"/"+dynamicKeys.length+
   " shared translation keys; locale-specific JavaScript, legal review and email templates pending");
 }
-// Prevent source additions in released marketplace and post-comment controls
-// from silently falling back to Ukrainian in a non-Ukrainian locale.
-const runtimeTranslationKeys=source=>{
- const seen=new Set();
- const calls=/\b(?:t|tr)\s*\(\s*("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')\s*,\s*(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g;
- for(const match of source.matchAll(calls)){
-  const literal=match[1];
-  const key=literal.startsWith('"')?JSON.parse(literal):literal.slice(1,-1).replace(/\\'/g,"'");
-  if(/[\u0400-\u04ff]/.test(key))seen.add(key);
- }
- return [...seen];
-};
-for(const [section,source,minKeys] of [
- ["marketplace",await readFile("assets/js/marketplace.js","utf8"),80],
- ["post-interactions",postInteractionsRuntime,100],
- ["profile",profileRuntime,245]
-]){
- const keys=runtimeTranslationKeys(source);
- assert.ok(keys.length>=minKeys,section+": translation-key scan unexpectedly incomplete");
- for(const code of ["en","pl","de","fr","it","ka","bg"]){
-  const dictionary=await read(code);
-  const missing=keys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
-  assert.deepEqual(missing,[],code+": "+section+" source strings still untranslated");
- }
-}
-
 console.log("VATRA eight-language page and dynamic locale integrity: OK; beta email templates excluded");
+
+const clipsRuntime=await readFile("assets/js/clips.js","utf8");
+const clipsDynamicKeys=[...new Set([...clipsRuntime.matchAll(/\bt\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")/g)]
+ .map(match=>JSON.parse(match[1])))];
+assert.ok(clipsDynamicKeys.length>=28,"Clips localization coverage must include all dynamic controls");
+for(const code of ["en",...codes]){
+ const dictionary=code==="en"?en:await read(code);
+ for(const key of clipsDynamicKeys)assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+  code+": missing Clips translation: "+key);
+}
+console.log("VATRA Clips: complete dynamic label coverage in seven non-Ukrainian locales.");

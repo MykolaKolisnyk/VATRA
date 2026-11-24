@@ -149,10 +149,11 @@
      imagePaths.push(item.preview_path);
    }else videoPaths.push(item.media_path);
   }
-  await Promise.allSettled([
-   imagePaths.length?client.storage.from("post-images").remove(imagePaths):Promise.resolve(),
-   videoPaths.length?client.storage.from("videos").remove(videoPaths):Promise.resolve()
+  const results=await Promise.allSettled([
+   imagePaths.length?Promise.resolve().then(()=>client.storage.from("post-images").remove([...new Set(imagePaths)])):Promise.resolve(),
+   videoPaths.length?Promise.resolve().then(()=>client.storage.from("videos").remove([...new Set(videoPaths)])):Promise.resolve()
   ]);
+  return results.every(result=>result.status==="fulfilled"&&!result.value?.error);
  }
  async function uploadGallery(client,id,files){
   validateGallery(files);
@@ -304,14 +305,14 @@
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
-  state={signedURLs:new Map(),bulkPending:new Map(),version:0};
+  state={signedURLs:new Map(),bulkPending:new Map(),version:0,active:0,queue:[],viewer:null,token:null};
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
-   client.auth.onAuthStateChange(event=>{
-
-
-
-    if(event==="INITIAL_SESSION")return;
+   client.auth.onAuthStateChange((event,session)=>{
+    const viewer=session?.user?.id||null,token=session?.access_token||null;
+    if(event==="INITIAL_SESSION"){state.viewer=viewer;state.token=token;return;}
+    if(event==="SIGNED_IN"&&viewer&&token&&viewer===state.viewer&&token===state.token)return;
+    state.viewer=viewer;state.token=token;
     state.version++;
     state.signedURLs.clear();
     state.bulkPending.clear();
@@ -327,54 +328,71 @@
   while(signedURLs.size>256)signedURLs.delete(signedURLs.keys().next().value);
  };
  let firstImages=0;
+ const SIGN_LIMIT=4,SIGN_TIMEOUT=12000;
+ function scheduleSigning(state,version,task){
+  return new Promise((resolve,reject)=>{
+   const start=()=>{
+    if(state.version!==version){reject(Error("Session changed while signing media"));return;}
+    state.active++;
+    let timer;
+    const deadline=new Promise((_,fail)=>{timer=setTimeout(()=>fail(Error("Media signing timed out")),SIGN_TIMEOUT);});
+    Promise.race([Promise.resolve().then(task),deadline]).then(resolve,reject).finally(()=>{
+     clearTimeout(timer);state.active--;
+     while(state.active<SIGN_LIMIT&&state.queue.length)state.queue.shift()();
+    });
+   };
+   if(state.active<SIGN_LIMIT)start();else state.queue.push(start);
+  });
+ }
 
 
  async function preSignGallery(client,items,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
-  const version=state.version,grouped=new Map();
+  const version=state.version,grouped=new Map(),waiting=new Set();
   for(const item of items||[]){
    const kind=item?.media_kind,path=item?.media_path;
    if(!["image","video"].includes(kind)||typeof path!=="string")continue;
    const key=ttl+":"+kind+":"+path;
-   if(signedURLs.get(key)?.expiry>Date.now())continue;
+   const cached=signedURLs.get(key),pending=state.bulkPending.get(key);
+   if(cached?.expiry>Date.now()){waiting.add(cached.promise);continue;}
+   if(pending){waiting.add(pending);continue;}
    if(!grouped.has(kind))grouped.set(kind,new Set());
    grouped.get(kind).add(path);
   }
-  await Promise.allSettled([...grouped].map(async([kind,pathSet])=>{
+  for(const [kind,pathSet] of grouped){
    const paths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
-   if(typeof bucket.createSignedUrls!=="function")return;
-   const pendingKey=JSON.stringify([ttl,kind,paths.slice().sort()]);
-   let pending=state.bulkPending.get(pendingKey);
-   if(!pending){
-    pending=(async()=>{
-     const {data,error}=await bucket.createSignedUrls(paths,ttl);
-     if(error||!Array.isArray(data)||state.version!==version)return;
-     for(let i=0;i<paths.length;i++){
-      const item=data[i];
-      if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
-      try{
-       const url=new URL(item.signedUrl,location.origin);
-       if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
-       signedURLs.set(ttl+":"+kind+":"+paths[i],{
-        expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)
-       });
-      }catch(_){}
-     }
-    })();
-    state.bulkPending.set(pendingKey,pending);
-   }
-   try{await pending;}finally{
-    if(state.bulkPending.get(pendingKey)===pending)state.bulkPending.delete(pendingKey);
-   }
-  }));
+   if(typeof bucket.createSignedUrls!=="function")continue;
+   const keys=paths.map(path=>ttl+":"+kind+":"+path);
+   const pending=(async()=>{
+    const {data,error}=await scheduleSigning(state,version,()=>bucket.createSignedUrls(paths,ttl));
+    if(error||!Array.isArray(data)||state.version!==version)return;
+    for(let i=0;i<paths.length;i++){
+     const item=data[i];
+     if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
+     try{
+      const url=new URL(item.signedUrl,location.origin);
+      if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")continue;
+      signedURLs.set(keys[i],{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)});
+     }catch(_){}
+    }
+   })();
+   for(const key of keys)state.bulkPending.set(key,pending);
+   waiting.add(pending);
+   void pending.finally(()=>{
+    for(const key of keys)if(state.bulkPending.get(key)===pending)state.bulkPending.delete(key);
+   }).catch(()=>{});
+  }
+  await Promise.allSettled([...waiting]);
   trimSignedCache(signedURLs);
  }
  async function signed(client,kind,path,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
   const version=state.version,key=ttl+":"+kind+":"+path;
+  const bulk=state.bulkPending.get(key);
+  if(bulk){await bulk.catch(()=>{});if(state.version!==version)throw Error("Session changed while signing media");}
   const entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
-  const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl).then(({data,error})=>{
+  const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl)).then(({data,error})=>{
 
    if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
@@ -389,6 +407,15 @@
   signedURLs.set(key,{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise});
   trimSignedCache(signedURLs);
   return promise;
+ }
+ async function forgetFailedSignedURL(client,kind,path,failedURL,ttl=3600){
+  const state=signedURLCaches.get(client),key=ttl+":"+kind+":"+path;
+  const entry=state?.signedURLs.get(key);
+  if(!entry)return;
+  try{
+   const url=await entry.promise;
+   if(url===failedURL&&state.signedURLs.get(key)===entry)state.signedURLs.delete(key);
+  }catch(_){}
  }
  async function renderStory(client,story,slot,preview=false,allowExpired=false){
   if(!slot)return;
@@ -448,7 +475,7 @@
  }
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
-function openFullMedia(url,kind,container){
+function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
    mediaDialog.id="vatra-post-media-viewer";
@@ -551,6 +578,7 @@ function openFullMedia(url,kind,container){
   const validClub=/^[1-9][0-9]*$/.test(String(clubId||""));
   const base=location.pathname.startsWith("/VATRA/")?new URL("/VATRA/",location.origin):new URL("/",location.origin);
   const validPost=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(postId||""));
+  mediaFooterDelete.onclick=null;
   mediaFooterDownload.hidden=kind!=="image";
   mediaFooterOpenPost.hidden=!validPost||(groupPost&&!validClub);
   if(validPost&&(!groupPost||validClub)){
@@ -565,9 +593,43 @@ function openFullMedia(url,kind,container){
   mediaCaption.textContent=ownerId&&viewerId&&ownerId===viewerId?label:
    authorName?label+" "+authorName:label;
   if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001 vatra-media-author-unified-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
+  if(post){
+   const description=document.createElement("div");description.className="vatra-media-description-001";
+   const copy=document.createElement("p");copy.className="vatra-media-description-copy-001";copy.textContent=String(post.body||"");copy.hidden=!copy.textContent;
+   description.append(copy);
+   const mine=!!client&&!groupPost&&ownerId&&viewerId&&ownerId===viewerId;
+   if(mine){
+    const edit=document.createElement("button");edit.type="button";edit.className="vatra-media-description-edit-001";edit.textContent=tr("Редагувати опис","Edit description");
+    const form=document.createElement("form");form.className="vatra-media-description-form-001";form.hidden=true;
+    const input=document.createElement("textarea");input.className="vatra-media-description-input-001";input.maxLength=2000;input.rows=3;input.setAttribute("aria-label",edit.textContent);
+    const save=document.createElement("button");save.type="submit";save.className="vatra-media-description-save-001";save.textContent=tr("Зберегти","Save");
+    const cancel=document.createElement("button");cancel.type="button";cancel.className="vatra-media-description-cancel-001";cancel.textContent=tr("Скасувати","Cancel");
+    form.append(input,save,cancel);description.append(edit,form);
+    edit.onclick=()=>{input.value=String(post.body||"");form.hidden=false;copy.hidden=true;edit.hidden=true;input.focus();};
+    const finish=()=>{form.hidden=true;edit.hidden=false;copy.hidden=!copy.textContent;};
+    cancel.onclick=finish;
+    form.onsubmit=async event=>{event.preventDefault();if(save.disabled)return;save.disabled=cancel.disabled=true;
+     try{const body=input.value.trim();const {data,error}=await client.from("feed_posts").update({body}).eq("id",post.id).eq("author_vatra_id",ownerId).select("id,body").maybeSingle();if(error||!data)throw Error("Not saved");post.body=data.body;copy.textContent=data.body;
+     const visible=postCard&&!postCard.classList.contains("ui-vatra-photo-source-context-001")?postCard:[...document.querySelectorAll(".feed-post-card")].find(card=>card!==container&&card.dataset.postId===String(post.id));
+     if(visible){let paragraph=visible.querySelector(".feed-post-body");if(data.body){if(!paragraph){paragraph=document.createElement("p");paragraph.className="feed-post-body vatra-feed-post-body-001";visible.querySelector(".feed-post-header")?.after(paragraph);}delete paragraph.dataset.vatraCollapsed;paragraph.textContent=data.body;linkifyHashtags(paragraph);collapsibleBody(paragraph);}else paragraph?.remove();}
+     finish();window.dispatchEvent(new Event("vatra:profile-media-changed"));}
+     catch(_){window.VATRA_TOAST?.show?.(tr("Не вдалося зберегти.","Could not save."),"error");}
+     finally{save.disabled=cancel.disabled=false;}
+    };
+   }
+   if(copy.textContent||mine)mediaSide.append(description);
+  }
   restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
   mediaSide.hidden=!restoreMediaPanel;
   mediaFooterShare.hidden=!restoreMediaPanel;
+  mediaFooterActions.querySelector(".vatra-post-media-set-avatar-001")?.remove();
+  if(fromPhotos&&kind==="image"&&client&&ownerId&&ownerId===viewerId){
+   const more=document.createElement("details");more.className="vatra-post-media-set-avatar-001";
+   const trigger=document.createElement("summary");trigger.className="vatra-post-media-set-avatar-trigger-001";trigger.textContent=tr("Більше","More");
+   const action=document.createElement("button");action.type="button";action.className="vatra-post-media-set-avatar-action-001";action.textContent=tr("Зробити фотографією профілю","Make profile photo");
+   action.onclick=async()=>{try{const response=await fetch(url,{credentials:"omit"});if(!response.ok)throw Error("Unavailable");const blob=await response.blob();mediaDialog.close();await window.VATRA_USE_PHOTO_AS_AVATAR?.(blob);}catch(_){window.VATRA_TOAST?.show?.(tr("Не вдалося відкрити фото.","Could not open photo."),"error");}};
+   more.append(trigger,action);mediaFooterActions.append(more);
+  }
   const sourceMenu=container?.querySelector(".feed-post-header > details[data-vatra-post-owner-menu]");
   if(sourceMenu){
    const marker=document.createElement("span");
@@ -591,7 +653,7 @@ function openFullMedia(url,kind,container){
     else sourceMenu.remove();
    };
   }else mediaFooterDelete.hidden=true;
-  mediaDialog.showModal();
+  if(!mediaDialog.open)mediaDialog.showModal();
  }
 
  function loadImageSource(image,src){
@@ -646,24 +708,32 @@ function openFullMedia(url,kind,container){
     const extra=document.createElement("span");extra.className="vatra-post-gallery-extra-001";
     extra.textContent="+"+(media.length-5);tile.append(extra);
    }
-   tile.addEventListener("click",()=>void openGallery(index));
+   tile.addEventListener("click",()=>{
+    if(tile.getAttribute("aria-busy")==="true")return;
+    if(tile.classList.contains("is-gallery-unavailable")){void loadTiles(true);return;}
+    void openGallery(index);
+   });
    slot.append(tile);
    return {item,tile,index};
   });
   container.append(slot);
   const priority=++firstImages;
   let begun=false;
-  async function loadTiles(){
-   if(begun||!slot.isConnected)return;
+  async function loadTiles(retry=false){
+   if((begun&&!retry)||!slot.isConnected)return;
    begun=true;
    const previewPath=item=>item.media_kind==="image"&&
     name(item.preview_path,"image",id)&&item.preview_path.endsWith(".webp")?
     item.preview_path:null;
-   const imageTiles=tiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
+   const activeTiles=retry?tiles.filter(({tile})=>tile.classList.contains("is-gallery-unavailable")):tiles;
+   const imageTiles=activeTiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
     media_kind:"image",media_path:previewPath(item)||item.media_path
    }));
    if(imageTiles.length>2)await preSignGallery(client,imageTiles);
-   await Promise.allSettled(tiles.map(async({item,tile,index})=>{
+   await Promise.allSettled(activeTiles.map(async({item,tile,index})=>{
+    tile.classList.remove("is-gallery-unavailable");
+    tile.querySelector(".vatra-gallery-unavailable-001")?.remove();
+    tile.setAttribute("aria-busy","true");
     try{
      if(item.media_kind==="video"){
       tile.classList.add("is-gallery-ready");
@@ -685,7 +755,7 @@ function openFullMedia(url,kind,container){
        candidate.classList.add("is-gallery-pending");
        tile.prepend(candidate);
        try{await loadImageSource(candidate,src);}
-       catch(error){candidate.remove();throw error;}
+       catch(error){candidate.remove();await forgetFailedSignedURL(client,"image",path,src);throw error;}
        candidate.classList.remove("is-gallery-pending");
        element=candidate;break;
       }catch(_){}
@@ -707,18 +777,25 @@ function openFullMedia(url,kind,container){
      notice.className="vatra-gallery-unavailable-001";
      notice.textContent=tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable.");
      tile.append(notice);
-    }
+    }finally{tile.removeAttribute("aria-busy");}
    }));
   }
-  queueMicrotask(()=>{
-   if(!slot.isConnected)return;
-   if(priority<=2||typeof IntersectionObserver==="undefined"){void loadTiles();return;}
+  const startWhenMounted=()=>{
+   if(!slot.isConnected)return false;
+   if(priority<=2||typeof IntersectionObserver==="undefined"){void loadTiles();return true;}
    const observer=new IntersectionObserver(entries=>{
     if(entries.some(entry=>entry.isIntersecting||entry.intersectionRatio>0)){
      observer.disconnect();void loadTiles();
     }
    },{rootMargin:"440px 0px",threshold:0});
-   observer.observe(slot);
+   observer.observe(slot);return true;
+  };
+  queueMicrotask(()=>{
+   if(startWhenMounted())return;
+   if(typeof MutationObserver!=="function")return;
+   const observer=new MutationObserver(()=>{if(startWhenMounted()){observer.disconnect();clearTimeout(timer);}});
+   const timer=setTimeout(()=>observer.disconnect(),15000);
+   observer.observe(document.documentElement,{childList:true,subtree:true});
   });
   async function openGallery(startIndex){
    let index=startIndex,active=true;
@@ -726,7 +803,7 @@ function openFullMedia(url,kind,container){
    try{
     const initial=await signed(client,current.media_kind,current.media_path);
     if(!slot.isConnected)return;
-    openFullMedia(initial,current.media_kind,container);
+    openFullMedia(initial,current.media_kind,container,post,client);
    }catch(_){return;}
    const controller=new AbortController();
    mediaDialog.addEventListener("close",()=>{active=false;controller.abort();},{once:true});
@@ -741,7 +818,7 @@ function openFullMedia(url,kind,container){
     svg.setAttribute("stroke-width","2");svg.setAttribute("stroke-linecap","round");
     const path=document.createElementNS("http://www.w3.org/2000/svg","path");
     path.setAttribute("class","ui-vatra-post-gallery-nav-path-"+(dir<0?"prev":"next"));
-    path.setAttribute("d",dir<0?"m15 5-7 7 7 7":"m9 5 7 7-7 7");
+    path.setAttribute("d",dir<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6");
     svg.append(path);button.append(svg);return button;
    };
    let renderTicket=0;
@@ -771,6 +848,7 @@ function openFullMedia(url,kind,container){
     }catch(_){}
    };
    mediaDialog.addEventListener("keydown",event=>{
+    if(event.target?.closest?.("input,textarea,select,video,[contenteditable]"))return;
     if(event.key==="ArrowLeft"&&index>0){event.preventDefault();index--;void render();}
     if(event.key==="ArrowRight"&&index<media.length-1){event.preventDefault();index++;void render();}
    },{signal:controller.signal});
@@ -812,6 +890,12 @@ function openFullMedia(url,kind,container){
    label.textContent=tr("Відтворити відео","Play video");
    play.append(symbol,label);
    let pending=false;
+   const retry=()=>{
+    if(!slot.isConnected)return;
+    pending=false;play.disabled=false;
+    label.textContent=tr("Повторити завантаження відео","Retry loading video");
+    slot.replaceChildren(play);
+   };
    play.addEventListener("click",async()=>{
     if(pending)return;
     pending=true;play.disabled=true;
@@ -825,16 +909,26 @@ function openFullMedia(url,kind,container){
      const expand=document.createElement("button");expand.type="button";
      expand.className="vatra-feed-post-video-expand-001";
      expand.textContent=tr("На весь екран","Fullscreen");
-     expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video",container);});
-     video.src=src;
+     const recover=async()=>{
+      if(!slot.isConnected||video.parentNode!==slot||video.error?.code===1)return;
+      await forgetFailedSignedURL(client,"video",path,src);
+      if(!slot.isConnected||video.parentNode!==slot)return;
+      video.pause();retry();video.removeAttribute("src");video.load();
+     };
+     video.addEventListener("error",()=>void recover(),{once:true});
+     expand.addEventListener("click",async()=>{
+      if(expand.disabled)return;
+      expand.disabled=true;
+      try{
+       const current=await signed(client,"video",path);
+       if(expand.isConnected){video.pause();openFullMedia(current,"video",container,post,client);}
+      }catch(_){await recover();}
+      finally{expand.disabled=false;}
+     });
      slot.replaceChildren(video,expand);
-
+     video.src=src;
      void video.play().catch(()=>{});
-    }catch(_){
-     if(!slot.isConnected)return;
-     pending=false;play.disabled=false;
-     label.textContent=tr("Повторити завантаження відео","Retry loading video");
-    }
+    }catch(_){retry();}
    });
    slot.classList.remove("is-loading-media");
    slot.classList.add("is-ready-media");
@@ -854,12 +948,18 @@ function openFullMedia(url,kind,container){
     image.alt=tr("Фото до публікації","Post photo");
     image.decoding="async";image.loading="eager";
     if(priority<=2)image.fetchPriority="high";
-    await loadImageSource(image,src);
+    try{await loadImageSource(image,src);}
+    catch(error){await forgetFailedSignedURL(client,"image",path,src);throw error;}
     if(!slot.isConnected)return;
     const frame=document.createElement("button");
     frame.className="vatra-feed-post-media-open-001";frame.type="button";
     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
-    frame.addEventListener("click",()=>openFullMedia(src,"image",container));
+    frame.addEventListener("click",async()=>{
+     try{
+      const current=await signed(client,"image",path);
+      if(frame.isConnected)openFullMedia(current,"image",container,post,client);
+     }catch(_){failure(tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable."));}
+    });
     frame.append(image);
     slot.replaceChildren(frame);slot.classList.remove("is-loading-media");
     slot.classList.add("is-ready-media");
@@ -871,6 +971,10 @@ function openFullMedia(url,kind,container){
    const notice=document.createElement("p");
    notice.className="vatra-feed-post-media-error-001";notice.textContent=message;
    slot.replaceChildren(notice);
+   const retry=document.createElement("button");retry.type="button";retry.className="vatra-feed-post-media-open-001";
+   retry.textContent=tr("Повторити","Retry");
+   retry.addEventListener("click",()=>{begun=false;slot.classList.add("is-loading-media");slot.replaceChildren(placeholder);void load();});
+   slot.append(retry);
   }
 
   if(priority<=2||typeof IntersectionObserver==="undefined")void load();
@@ -881,15 +985,30 @@ function openFullMedia(url,kind,container){
    observer.observe(slot);
   }
  }
+ let photoSourceCleanup=null,photoSourceTicket=0;
+ function photoMenuIcon(kind){
+  const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
+  svg.setAttribute("class","vatra-photo-menu-icon-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.7");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
+  const paths={dots:"M5 12h.01M12 12h.01M19 12h.01",download:"M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4",post:"M5 3h14v18H5zM8 8h8M8 12h8M8 16h5",avatar:"M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-3a8 8 0 0 1 16 0v3",select:"M8 12l3 3 5-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",trash:"M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6m4-6v6",album:"M3 7h7l2 2h9v11H3z",share:"M13 5l7 7-7 7v-4c-5 0-8 2-10 5 0-8 5-10 10-11z",move:"M3 7h7l2 2h9v11H3zM8 14h8m-3-3 3 3-3 3",archive:"M4 4h16v5H4zM6 9v11h12V9M10 13h4",pin:"m16 3 5 5-4 1-4 5-1 4-2-2-6 6 6-6-2-2 4-1 5-4z",restore:"M3 12a9 9 0 1 1 3 7M3 5v7h7"};
+  const path=document.createElementNS(ns,"path");path.setAttribute("d",paths[kind]||paths.album);if(kind==="dots")path.setAttribute("stroke-width","4");svg.append(path);return svg;
+ }
+ function photoNavigation(stage,index,total,step,hasMore=false){
+  const buttons=[-1,1].map(dir=>{const button=document.createElement("button");button.type="button";button.className="vatra-post-gallery-nav-"+(dir<0?"prev":"next");button.setAttribute("aria-label",dir<0?tr("Попередній файл","Previous media"):tr("Наступний файл","Next media"));
+   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
+   const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d",dir<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6");svg.append(path);button.append(svg);button.disabled=dir<0?index===0:index>=total-1&&!hasMore;button.hidden=total<2&&!hasMore;button.onclick=()=>step(dir);return button;});
+  const count=document.createElement("span");count.className="vatra-post-gallery-counter-001";count.textContent=(index+1)+" / "+total+(hasMore?"+":"");count.hidden=total<2&&!hasMore;stage.append(...buttons,count);
+ }
  async function openPostPhoto(client,post,item,settings={}){
   if(!client||!post||item?.media_kind!=="image"||
    !name(item?.media_path,"image",post.author_vatra_id))return;
-  let src;
+  const ticket=++photoSourceTicket;let src;
   try{src=await signed(client,"image",item.media_path);}catch(_){return;}
+  if(ticket!==photoSourceTicket)return;
   const host=document.createElement("article");
   host.className="feed-post-card ui-vatra-photo-source-context-001";
   host.dataset.postId=post.id;
   host.dataset.vatraMediaOwnerId=String(post.author_vatra_id);
+  host.dataset.vatraViewerId=String(settings.ownId||"");host.dataset.postKind="person";
   host.style.cssText="position:fixed;left:-99999px;top:0;visibility:hidden;pointer-events:none";
   const header=document.createElement("header");
   header.className="feed-post-header ui-vatra-photo-source-header-001";
@@ -928,12 +1047,33 @@ function openFullMedia(url,kind,container){
    .filter(dialog=>!priorDialogs.has(dialog));
   try{
    try{await verifyAuthor();}catch(_){}
-   openFullMedia(src,"image",host);
-   if(mediaDialog?.open)mediaDialog.addEventListener("close",()=>{
-    host.remove();createdDialogs.forEach(dialog=>dialog.remove());
-   },{once:true});
-   else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
+   if(ticket!==photoSourceTicket){host.remove();createdDialogs.forEach(dialog=>dialog.remove());return;}
+   restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();
+   openFullMedia(src,"image",host,post,client,true);
+   if(mediaDialog?.open){
+    const controller=new AbortController();
+    photoSourceCleanup=()=>{controller.abort();host.remove();createdDialogs.forEach(dialog=>dialog.remove());};
+    mediaDialog.addEventListener("close",()=>{photoSourceTicket++;photoSourceCleanup?.();photoSourceCleanup=null;},{once:true,signal:controller.signal});
+    const items=settings.items||[{post,item}],index=items.findIndex(entry=>entry.post.id===post.id&&entry.item.media_path===item.media_path);
+    let stepping=false;
+    const step=async dir=>{
+     if(stepping||ticket!==photoSourceTicket||!mediaDialog.open)return;
+     stepping=true;
+     try{
+      let entry=items[index+dir];
+      if(!entry&&dir>0&&settings.hasMore?.()){await settings.loadMore?.();if(ticket!==photoSourceTicket||!mediaDialog.open)return;entry=items[index+dir];}
+      if(entry)await openPostPhoto(client,entry.post,entry.item,{...settings,items});
+      else if(ticket===photoSourceTicket&&mediaDialog.open){
+       mediaDialogContent.querySelectorAll(".vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-post-gallery-counter-001").forEach(el=>el.remove());
+       photoNavigation(mediaDialogContent,Math.max(0,index),items.length,step,!!settings.hasMore?.());
+      }
+     }finally{stepping=false;}
+    };
+    photoNavigation(mediaDialogContent,Math.max(0,index),items.length,step,!!settings.hasMore?.());
+    mediaDialog.addEventListener("keydown",event=>{if(event.target.closest("textarea,input,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}},{signal:controller.signal});
+    if(String(settings.ownId)===String(post.author_vatra_id)&&settings.removePhoto){mediaFooterDelete.hidden=false;mediaFooterDelete.onclick=()=>settings.removePhoto(post,item);}
+   }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
- window.VATRA_POST_MEDIA={bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,openPostPhoto,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.VATRA_POST_MEDIA={bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();

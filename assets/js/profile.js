@@ -1,7 +1,7 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const tr=(uk,en)=>{const code=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";if(code==="uk")return uk;const localized=window.VATRA_LANGUAGE?.translate?.(uk);return typeof localized==="string"&&localized!==uk?localized:(code==="en"?en:uk);};
+ const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
  const select=selector=>document.querySelector(selector);
 
 
@@ -154,10 +154,7 @@
   line.setAttribute("d",paths[kind]||paths.user);element.append(line);return element;
  };
  let openEditor=()=>{};
- async function init({client,ownId,targetId,isMine,blockAccess=null}){
-  const card=select("#profile-about-card");
-  const paragraph=select("#profile-about-text");
-  const emptyInfo=select("#profile-about-empty");
+ function prepare({client,ownId,targetId,isMine}){
 
 
   const preferenceQuery=client.from("profile_preferences")
@@ -169,13 +166,21 @@
      "and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")"
     ).eq("status","accepted").limit(1):
    Promise.resolve({data:[],error:null});
-  const [preference,friendship]=await Promise.all([preferenceQuery,friendshipQuery]);
+  const ownerDetailsQuery=isMine?client.from("profile_details")
+   .select("field_key,field_value,visibility").eq("vatra_id",targetId):Promise.resolve(null);
+  return Promise.all([preferenceQuery,friendshipQuery,ownerDetailsQuery]);
+ }
+ async function init({client,ownId,targetId,isMine,blockAccess=null,prepared=null}){
+  const card=select("#profile-about-card");
+  const paragraph=select("#profile-about-text");
+  const emptyInfo=select("#profile-about-empty");
+  const [preference,friendship,ownerDetails]=await (prepared||prepare({client,ownId,targetId,isMine}));
 
   let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
   const isFriend=!friendship.error&&!!friendship.data?.length;
   const blocked=!isMine&&(blockAccess?.blockedByThem||blockAccess?.blockedByMe);
   const locked=!isMine&&(blocked||(accountVisibility==="friends"&&!isFriend));
-  const result=locked?{data:[],error:null}:await client.from("profile_details")
+  const result=locked?{data:[],error:null}:isMine?ownerDetails:await client.from("profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId);
   const rows=result.error?[]:result.data||[];
   const saved=new Map(rows.map(x=>[x.field_key,{
@@ -916,7 +921,7 @@
   showGroup("profile");
   return {locked:false};
  }
- window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()};
+ window.VATRA_PROFILE_DETAILS={prepare,init,open:()=>openEditor()};
 })();
 
 
@@ -1001,6 +1006,7 @@ const finish=()=>{
 const gateError=message=>{
  const loader=q("#profile-loading");
  if(!loader)return;
+ loader.hidden=false;
  loader.dataset.loadingError="true";
  loader.setAttribute("role","alert");
  const label=loader.querySelector(".vatra-auth-loading-caption");
@@ -1076,7 +1082,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  if(more)more.disabled=true;
  try{
   let query=client.from("feed_posts")
-   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,pinned_at,comments_enabled")
+   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,poll,shared_post_kind,shared_post_id,pinned_at,comments_enabled")
    .eq("author_vatra_id",targetId).eq("is_clip",false);
   if(typeof query.is==="function")query=query.is("archived_at",null);
 
@@ -1092,8 +1098,8 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   if(ticket!==profilePostsRequest)return;
   if(error)throw error;
   const rows=data||[];
-  const engagement=await (window.VATRA_POST_INTERACTIONS?.prefetchEngagement(
-   client,rows.map(post=>({...post,kind:"person"})))||Promise.resolve(new Map()));
+  const engagement=window.VATRA_POST_INTERACTIONS?.prefetchEngagement(
+   client,rows.map(post=>({...post,kind:"person"})))||Promise.resolve(new Map());
   if(ticket!==profilePostsRequest)return;
   const batch=document.createDocumentFragment();
   for(const post of rows){
@@ -1162,7 +1168,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,article);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,article);
    window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"person"},article,{
-    ownId,userId,engagement:engagement.get("person:"+post.id),
+    ownId,userId,engagementPromise:engagement,
     onShared:()=>{if(String(ownId)===String(targetId))
      void loadPosts(client,targetId,ownId,userId);}
    });
@@ -1540,7 +1546,7 @@ function bindPostComposer(client,user,ownId){
  const update=()=>{
   const length=Array.from(input.value).length;
   counter.textContent=length+" / 2000";
-  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length)||length>2000;
+  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length&&!composerUI?.getPoll?.())||length>2000||!!composerUI?.hasInvalidPoll?.()||!!composerUI?.hasInvalidSchedule?.();
  };
  const clearStatus=()=>{status.textContent="";status.hidden=true;};
  picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
@@ -1553,7 +1559,7 @@ function bindPostComposer(client,user,ownId){
   if(dialog.open)return true;
   if(!composerLoading){
    composerLoading=window.VATRA_FEATURES.load("composer").then(module=>{
-    composerUI=module.bind({prefix:"profile",ownerId:ownId,
+    composerUI=module.bind({prefix:"profile",ownerId:ownId,client,
      getFile:()=>picker?.getFiles()?.length>0});
    }).catch(error=>{composerLoading=null;throw error;});
   }
@@ -1588,31 +1594,48 @@ function bindPostComposer(client,user,ownId){
   event.preventDefault();
   if(publishing)return;
   const body=input.value.trim(),files=picker?.getFiles()||[];
-  if((!body&&!files.length)||Array.from(body).length>2000){
-   status.textContent=t("Додайте текст, фото або відео (до 2000 символів).","Add text, a photo or video (up to 2000 characters).");
+  const poll=composerUI?.getPoll?.()||null;
+  const publishAt=composerUI?.getScheduledAt?.()||null;
+  if((!body&&!files.length&&!poll)||Array.from(body).length>2000||
+   composerUI?.hasInvalidPoll?.()||composerUI?.hasInvalidSchedule?.()){
+   status.textContent=t("Перевірте текст, опитування та дату публікації.",
+    "Check the text, poll and scheduled date.");
    status.hidden=false;return;
   }
   publishing=true;
   update();
   clearStatus();
-  let uploaded=null;
+  let uploaded=null,postSaved=false;
   try{
    if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,files);
-   const {error}=await client.from("feed_posts").insert({
+   const payload={
     author_id:user.id,author_vatra_id:ownId,body,
     visibility:["public","friends","only_me"].includes(visibility?.value)?visibility.value:"public",
-    media_items:uploaded||[]
-   });
+    media_items:uploaded||[],poll
+   };
+   if(publishAt)payload.publish_at=publishAt;
+   const {error}=await client.from(publishAt?"scheduled_feed_posts":"feed_posts").insert(payload);
    if(error)throw error;
+   postSaved=true;
    input.value="";picker?.reset();composerUI?.reset();
    dialog.close();
-   await loadPosts(client,ownId,ownId,user.id);
-   window.dispatchEvent(new Event("vatra:profile-media-changed"));
+   if(!publishAt){
+    try{await loadPosts(client,ownId,ownId,user.id);}
+    catch(_){window.VATRA_TOAST?.show?.(t("Публікацію додано.","Post published."),"success");}
+    window.dispatchEvent(new Event("vatra:profile-media-changed"));
+   }else{
+    (window.VATRA_TOAST?.show||((message)=>(window.VATRA_PENDING_TOASTS??=[]).push([message,"success"])))(
+     t("Публікацію заплановано. Вона з’явиться автоматично у вибраний час.",
+      "Post scheduled. It will publish automatically at the selected time."),"success");
+   }
   }catch(error){
-   if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
-   status.textContent=error?.message||t("Не вдалося опублікувати допис. Повторіть спробу.",
-    "Could not publish the post. Please try again.");
-   status.hidden=false;
+   if(uploaded&&!postSaved)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
+   if(postSaved){window.VATRA_TOAST?.show?.(t("Публікацію додано.","Post published."),"success");}
+   else{
+    status.textContent=error?.message||t("Не вдалося опублікувати допис. Повторіть спробу.",
+     "Could not publish the post. Please try again.");
+    status.hidden=false;
+   }
   }finally{publishing=false;update();}
  });
  update();
@@ -2082,10 +2105,9 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
 }
 
 function setupProfileInteractions(client,ownId,targetId,isMine){
- const friendButton=q("#profile-friend-button"),messageButton=q("#profile-message-button");
+ const friendButton=q("#profile-friend-button");
  const actionStatus=q("#profile-action-status");
  const friends=q("#profile-friends-list"),friendsEmpty=q("#profile-friends-empty");
- const validPeer=id=>validId(String(id))&&String(id)!==String(ownId);
  const show=(el,txt)=>{el.textContent=txt;el.hidden=!txt;};
  const makePerson=(id,description)=>{
   const row=node("div","profile-person ui-profile-person-"+id);
@@ -2102,7 +2124,6 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  const tabs=[...document.querySelectorAll("[data-profile-tab]")];
  function choose(name){
   if(!isMine&&["saved","archive-stories","archive-posts"].includes(name))return;
-  if(name==="messages"){location.assign(new URL("messenger.html",new URL("./",location.href)).href);return;}
 
   for(const tab of tabs){
    const active=tab.dataset.profileTab===name;
@@ -2131,30 +2152,33 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   });
  }
 
- if(isMine&&location.hash==="#profile-messages-section")choose("messages");
  if(!validId(ownId))return;
 
- const openConversation=peer=>{
-  if(validPeer(peer))location.assign(new URL("messenger.html?to="+encodeURIComponent(peer),new URL("./",location.href)).href);
- };
  if(!isMine){
-  messageButton.hidden=false;
-  messageButton.addEventListener("click",()=>void openConversation(targetId));
   const friendAction=q("#profile-friend-action"),friendMenu=q("#profile-friend-menu");
   const friendMenuAction=q("#profile-friend-menu-action"),friendMenuLabel=q("#profile-friend-menu-label");
   friendAction.hidden=false;friendButton.hidden=false;
-  let relation=null,busy=false;
+  let relation=null,busy=false,friendMenuCloseTimer=null;
   const friendMenuOpen=state=>{
+   clearTimeout(friendMenuCloseTimer);
+   friendMenuCloseTimer=null;
    const available=["outgoing","friends"].includes(friendButton.dataset.friendState);
    friendMenu.hidden=!(state&&available);
    friendButton.setAttribute("aria-expanded",String(!friendMenu.hidden));
   };
+  const scheduleFriendMenuClose=()=>{
+   clearTimeout(friendMenuCloseTimer);
+   friendMenuCloseTimer=setTimeout(()=>{
+    if(!friendAction.matches(":hover")&&!friendAction.contains(document.activeElement))friendMenuOpen(false);
+   },340);
+  };
   friendButton.setAttribute("aria-haspopup","menu");
   friendButton.setAttribute("aria-controls","profile-friend-menu");
   friendAction.addEventListener("mouseenter",()=>friendMenuOpen(true));
-  friendAction.addEventListener("mouseleave",()=>friendMenuOpen(false));
+  friendAction.addEventListener("mouseleave",scheduleFriendMenuClose);
+  friendMenu.addEventListener("mouseenter",()=>friendMenuOpen(true));
   friendAction.addEventListener("focusout",event=>{
-   if(!friendAction.contains(event.relatedTarget))friendMenuOpen(false);
+   if(!friendAction.contains(event.relatedTarget))scheduleFriendMenuClose();
   });
   document.addEventListener("click",event=>{
    if(!friendAction.contains(event.target))friendMenuOpen(false);
@@ -2314,6 +2338,11 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
 function setupProfilePresence(client,targetId,ownId,signupGender){
  const caption=q("#profile-last-seen");
  if(!caption||!window.VATRA_PRESENCE)return;
+ if(String(targetId)===String(ownId)){
+  caption.textContent=t("У мережі","Online");
+  caption.hidden=false;caption.dataset.online="true";caption.removeAttribute("title");
+  return;
+ }
  const refresh=async()=>{
   try{
 
@@ -2332,6 +2361,25 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
 }
 
 
+function createAvatarGalleryLoader(read,now=Date.now){
+ let cached=null,pending=null,epoch=0;
+ const invalidate=()=>{epoch++;cached=null;pending=null;};
+ const get=(fresh=false)=>{
+  if(!fresh&&cached&&now()<cached.expires)return Promise.resolve([...cached.paths]);
+  if(!fresh&&pending)return pending.then(paths=>[...paths]);
+  if(fresh)invalidate();
+  const version=epoch;
+  let request;
+  request=Promise.resolve().then(read).then(paths=>{
+   if(epoch!==version)throw Error("Avatar gallery changed");
+   cached={paths:[...paths],expires:now()+15000};
+   return paths;
+  }).finally(()=>{if(pending===request)pending=null;});
+  pending=request;
+  return request.then(paths=>[...paths]);
+ };
+ return {get,invalidate};
+}
 async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false,preloadedMedia=null){
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),systemCover=q("#profile-cover-system"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
@@ -2371,7 +2419,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const footerMore=q("#profile-photo-footer-more");
  const footerReport=q("#profile-photo-report");
  const footerMenu=q("#profile-photo-footer-menu"),originalLink=q("#profile-photo-original");
- const avatarDownload=q("#profile-photo-download"),avatarOpenAlbum=q("#profile-photo-open-album");
  const setCurrent=q("#profile-photo-set-current"),tagMarkers=q("#profile-photo-tag-markers");
  const tagPicker=q("#profile-photo-tag-picker"),tagSearch=q("#profile-photo-tag-search");
  const tagResults=q("#profile-photo-tag-results"),tagCancel=q("#profile-photo-tag-cancel"),tagStatus=q("#profile-photo-tag-status");
@@ -2389,12 +2436,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const avatarPhoto=["avatar","avatar-history"].includes(mediaDialog.dataset.kind);
 
 
-  const scale=avatarPhoto?
-   Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight):
-   mediaDialog.dataset.kind==="cover"?
-    Math.min(Math.min(roomW,1140)/mediaImage.naturalWidth,
-     Math.min(roomH*.76,680)/mediaImage.naturalHeight):
-    Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
+  const scale=Math.min(roomW/mediaImage.naturalWidth,roomH/mediaImage.naturalHeight);
   photoCanvas.style.width=Math.max(1,Math.floor(mediaImage.naturalWidth*scale))+"px";
   photoCanvas.style.height=Math.max(1,Math.floor(mediaImage.naturalHeight*scale))+"px";
  };
@@ -2406,27 +2448,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  mediaDialog.addEventListener("click",event=>{if(!event.target.closest?.(".ui-profile-photo-more-wrap-001"))closeMore();});
  footerShare.addEventListener("click",()=>{closeMore();q("#profile-photo-share").click();});
  originalLink.addEventListener("click",closeMore);
- avatarDownload.addEventListener("click",async()=>{
-  closeMore();const path=gallery[galleryIndex];
-  if(!path||!photoPath())return;
-  avatarDownload.disabled=true;
-  try{
-   const {data,error}=await client.storage.from("avatars").download(path);
-   if(error||!data)throw error||Error("Avatar unavailable");
-   const url=URL.createObjectURL(data),link=document.createElement("a");
-   link.className="vatra-profile-photo-download-link-001";
-   link.href=url;link.download=path.split("/").pop()||"photo.jpg";
-   document.body.append(link);link.click();link.remove();
-   setTimeout(()=>URL.revokeObjectURL(url),20000);
-  }catch(_){status(t("Не вдалося завантажити фотографію.","Could not download photograph."),true);}
-  finally{avatarDownload.disabled=false;}
- });
- avatarOpenAlbum.addEventListener("click",()=>{
-  closeMore();mediaDialog.close();
-  const photoTab=q("#profile-tab-photos");photoTab?.click();
-  const albumTab=document.querySelector(".ui-vatra-albums-controls-001 .vatra-albums-tab-001:nth-child(2)");
-  if(albumTab)albumTab.click();
- });
  footerReport.addEventListener("click",()=>{
   closeMore();
   if(isMine||locked||!mediaDialog.open)return;
@@ -2511,10 +2532,32 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentForm=q("#profile-photo-comment-form"),commentInput=q("#profile-photo-comment-text");
  const commentSend=q("#profile-photo-comment-send"),commentStatus=q("#profile-photo-status");
  const shareButton=q("#profile-photo-share");
- const photoCommentsMore=q("#profile-photo-comments-more"),photoCommentSort="relevant";
- let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
+ const photoCommentSentinel=q("#profile-photo-comments-sentinel"),photoCommentSort="relevant";
+ let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false,photoCommentHasMore=false;
  let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
+ const avatarDescription=document.createElement("div");avatarDescription.className="vatra-media-description-001";avatarDescription.hidden=true;
+ const avatarDescriptionCopy=document.createElement("p");avatarDescriptionCopy.className="vatra-media-description-copy-001";
+ const avatarDescriptionEdit=document.createElement("button");avatarDescriptionEdit.type="button";avatarDescriptionEdit.className="vatra-media-description-edit-001";avatarDescriptionEdit.textContent=t("Редагувати опис","Edit description");
+ const avatarDescriptionForm=document.createElement("form");avatarDescriptionForm.className="vatra-media-description-form-001";avatarDescriptionForm.hidden=true;
+ const avatarDescriptionInput=document.createElement("textarea");avatarDescriptionInput.className="vatra-media-description-input-001";avatarDescriptionInput.maxLength=2000;avatarDescriptionInput.rows=3;avatarDescriptionInput.setAttribute("aria-label",avatarDescriptionEdit.textContent);
+ const avatarDescriptionSave=document.createElement("button");avatarDescriptionSave.type="submit";avatarDescriptionSave.className="vatra-media-description-save-001";avatarDescriptionSave.textContent=t("Зберегти","Save");
+ const avatarDescriptionCancel=document.createElement("button");avatarDescriptionCancel.type="button";avatarDescriptionCancel.className="vatra-media-description-cancel-001";avatarDescriptionCancel.textContent=t("Скасувати","Cancel");
+ avatarDescriptionForm.append(avatarDescriptionInput,avatarDescriptionSave,avatarDescriptionCancel);avatarDescription.append(avatarDescriptionCopy,avatarDescriptionEdit,avatarDescriptionForm);
+ q(".ui-profile-photo-actions-001").after(avatarDescription);
+ let captionEpoch=0,captionText="";
+ const paintAvatarDescription=()=>{avatarDescriptionCopy.textContent=captionText;avatarDescriptionCopy.hidden=!captionText;avatarDescriptionEdit.hidden=!canEdit;avatarDescriptionForm.hidden=true;avatarDescription.hidden=!canEdit&&!captionText;};
+ const loadAvatarDescription=async path=>{const ticket=++captionEpoch;captionText="";avatarDescription.hidden=true;avatarDescriptionForm.hidden=true;
+  try{const {data,error}=await client.from("avatar_photo_descriptions").select("caption").eq("owner_vatra_id",targetId).eq("avatar_path",path).maybeSingle();if(error)throw error;if(ticket!==captionEpoch||photoPath()!==path)return;captionText=data?.caption||"";paintAvatarDescription();}
+  catch(_){if(ticket===captionEpoch)avatarDescription.hidden=true;}
+ };
+ avatarDescriptionEdit.onclick=()=>{avatarDescriptionInput.value=captionText;avatarDescriptionForm.hidden=false;avatarDescriptionCopy.hidden=true;avatarDescriptionEdit.hidden=true;avatarDescriptionInput.focus();};
+ avatarDescriptionCancel.onclick=paintAvatarDescription;
+ avatarDescriptionForm.onsubmit=async event=>{event.preventDefault();const path=photoPath(),ticket=captionEpoch;if(!canEdit||!path||avatarDescriptionSave.disabled)return;avatarDescriptionSave.disabled=avatarDescriptionCancel.disabled=true;
+  try{const {data,error}=await client.from("avatar_photo_descriptions").upsert({owner_vatra_id:ownId,avatar_path:path,caption:avatarDescriptionInput.value.trim()},{onConflict:"owner_vatra_id,avatar_path"}).select("caption").maybeSingle();if(error||!data)throw Error("Not saved");if(ticket===captionEpoch&&photoPath()===path){captionText=data.caption;paintAvatarDescription();}}
+  catch(_){status(t("Не вдалося зберегти.","Could not save."),true);}
+  finally{avatarDescriptionSave.disabled=avatarDescriptionCancel.disabled=false;}
+ };
 
  const tagFailure=(error,fallback,retry)=>{
   if(!window.VATRA_SERVICE_NOTICE?.report(error,{retry}))reportTag(fallback);
@@ -2626,7 +2669,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const feedback=(value,bad=false)=>{
   commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
  };
- photoCommentsMore.textContent=t("Показати ще","Show more");
+ photoCommentSentinel.hidden=true;
 
  const avatarCommentPages=new Map(),AVATAR_COMMENT_TTL=12_000,AVATAR_COMMENT_MAX=12;
  client.auth?.onAuthStateChange?.(event=>{
@@ -2661,9 +2704,55 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    throw error;
   }
  };
+ const linkedPhotoSearch=new URLSearchParams(location.search);
+ const linkedAvatarComment=linkedPhotoSearch.get("photo")==="avatar"?
+  linkedPhotoSearch.get("comment"):null;
+ const linkedAvatarImage=linkedPhotoSearch.get("image");
+ let linkedAvatarFocused=false;
+ async function focusLinkedAvatarComment(path,ticket){
+  const id=linkedAvatarComment;
+  if(linkedAvatarFocused||!id||!/^[a-f0-9-]{36}$/i.test(id)||
+   (linkedAvatarImage&&!path.endsWith("/"+linkedAvatarImage)))return;
+  try{
+   let selected=[...commentList.querySelectorAll("[data-comment-id]")]
+    .find(item=>item.dataset.commentId===id);
+   if(!selected){
+    const {data,error}=await client.from("avatar_comments")
+     .select("id,owner_vatra_id,author_vatra_id,author_id,avatar_path,body,moderation_status,created_at")
+     .eq("id",id).eq("owner_vatra_id",targetId).eq("avatar_path",path)
+     .maybeSingle();
+    if(error||!data||ticket!==activityTicket||path!==photoPath())return;
+    const {names,images}=await window.VATRA_POST_INTERACTIONS?.authorMap(client,[data])
+     ||{names:new Map(),images:new Map()};
+    const reaction=await client.from("avatar_comment_likes").select("comment_id")
+     .eq("comment_id",id).eq("liker_id",userId).maybeSingle();
+    const feature=await window.VATRA_FEATURES.load("avatar-comment-row");
+    if(ticket!==activityTicket||path!==photoPath()||!mediaDialog.open)return;
+    selected=feature.create({...data,likes:0},{client,ownId,userId,locale,names,images,
+     ownCommentLikes:new Set(reaction.data?[id]:[]),node,t,memberUrl,dateText,feedback,
+     clearCommentCache:()=>avatarCommentPages.clear(),
+     onDelete:()=>{photoCommentOffset=Math.max(0,photoCommentOffset-1);}});
+    commentList.querySelector(".ui-profile-photo-empty-state-001")?.remove();
+    commentList.classList.remove("is-empty");
+    commentList.prepend(selected);
+   }
+   if(ticket!==activityTicket||path!==photoPath()||!selected)return;
+   linkedAvatarFocused=true;
+   selected.id="vatra-avatar-comment-"+id;
+   selected.classList.add("is-linked-comment");
+   selected.setAttribute("tabindex","-1");
+   requestAnimationFrame(()=>{
+    if(!selected.isConnected||!mediaDialog.open)return;
+    selected.scrollIntoView({block:"center",behavior:"auto"});
+    selected.focus({preventScroll:true});
+   });
+  }catch(_){}
+ }
  async function reloadPhotoActivity(append=false,refreshLikes=true,keepVisible=false){
-  const path=photoPath(),ticket=++activityTicket;
-  if(!path)return;
+  const path=photoPath();
+  if(!path||(append&&(photoCommentLoading||!photoCommentHasMore||!mediaDialog.open)))return;
+  photoCommentLoading=true;
+  const ticket=++activityTicket;
   const key=path+"|"+photoCommentSort;
   const reuse=keepVisible&&lastAvatarCommentKey===key;
   const existing=!append&&reuse?
@@ -2671,10 +2760,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     .map(el=>[el.dataset.commentId,el])):new Map();
   if(!append){
    photoCommentOffset=0;
-   if(!reuse){commentList.replaceChildren();commentList.classList.remove("is-empty");
-    photoCommentsMore.hidden=true;}
+   if(!reuse){commentList.replaceChildren();commentList.classList.remove("is-empty");}
+   photoCommentHasMore=false;photoCommentSentinel.hidden=true;
   }
-  commentList.setAttribute("aria-busy","true");photoCommentsMore.disabled=true;
+  commentList.setAttribute("aria-busy","true");photoCommentSentinel.hidden=true;
   if(!append&&!reuse)feedback(t("Завантаження коментарів…","Loading comments…"));
   try{
    const commentsPromise=avatarCommentPage(path,photoCommentSort,photoCommentOffset);
@@ -2737,16 +2826,33 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
    lastAvatarCommentKey=key;
    photoCommentOffset+=rows.length;
+   if(!append)await focusLinkedAvatarComment(path,ticket);
    
-   photoCommentsMore.hidden=rows.length<12;feedback("");
+   photoCommentHasMore=rows.length===12;
+   photoCommentSentinel.hidden=!photoCommentHasMore;feedback("");
   }catch(_){
    if(ticket===activityTicket)feedback(t("Коментарі поки недоступні.","Comments are temporarily unavailable."),true);
   }finally{
-   if(ticket===activityTicket){commentList.setAttribute("aria-busy","false");photoCommentsMore.disabled=false;}
+   if(ticket===activityTicket){commentList.setAttribute("aria-busy","false");photoCommentLoading=false;}
   }
  }
  
- photoCommentsMore.addEventListener("click",()=>void reloadPhotoActivity(true,false));
+ if(typeof IntersectionObserver==="function"){
+  const photoCommentObserver=new IntersectionObserver(records=>{
+   if(records.some(record=>record.isIntersecting)&&photoCommentHasMore&&
+      !photoCommentLoading&&mediaDialog.open)
+    void reloadPhotoActivity(true,false);
+  },{rootMargin:"280px 0px"});
+  photoCommentObserver.observe(photoCommentSentinel);
+ }else{
+  const loadOnScroll=()=>{
+   if(photoCommentHasMore&&!photoCommentLoading&&mediaDialog.open&&
+      photoCommentSentinel.getBoundingClientRect().top<innerHeight+320)
+    void reloadPhotoActivity(true,false);
+  };
+  mediaDialog.addEventListener("scroll",loadOnScroll,{passive:true});
+  commentList.addEventListener("scroll",loadOnScroll,{passive:true});
+ }
  likesButton.addEventListener("click",async()=>{
   const path=photoPath();if(likeBusy||!path||!validId(ownId))return;
   likeBusy=true;likesButton.disabled=true;feedback("");
@@ -2809,7 +2915,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>1000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
  mediaDialog.addEventListener("click",e=>{if(!emojiPanel.hidden&&!emojiPanel.contains(e.target)&&!emojiToggle.contains(e.target))setEmojiOpen(false);});
  mediaDialog.addEventListener("close",resetPhotoComposer);
- const listAvatarGallery=async()=>{
+ const readAvatarGallery=async()=>{
   const current=saved?.avatar_path,folder=targetId+"/avatar",bucket=client.storage.from("avatars"),files=[];
   if(typeof bucket.list!=="function")return current?[current]:[];
   for(let offset=0;offset<2000;offset+=100){
@@ -2820,6 +2926,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }
   return [...new Set([...(current?[current]:[]),...files])].filter(path=>getPublicPath(path,"avatar"));
  };
+ const avatarGalleryLoader=createAvatarGalleryLoader(readAvatarGallery);
+ const listAvatarGallery=avatarGalleryLoader.get;
+ window.addEventListener("vatra:profile-media-changed",avatarGalleryLoader.invalidate);
+ client.auth?.onAuthStateChange?.((event,session)=>{
+  if(event==="SIGNED_OUT"||(session?.user?.id&&session.user.id!==userId))avatarGalleryLoader.invalidate();
+ });
  const renderGalleryPhoto=()=>{
   const path=gallery[galleryIndex],url=getPublicPath(path,"avatar");if(!url)return;
   const current=path===saved?.avatar_path;
@@ -2853,15 +2965,14 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    photoTitle+" "+(galleryIndex+1)+t(" із "," of ")+gallery.length;
   galleryDelete.hidden=!canEdit;
   footerReport.hidden=isMine||locked;
-  setCurrent.hidden=!canEdit||current;
+  setCurrent.hidden=!canEdit||current||!mediaDialog.dataset.fromPhotos;
+  footerShare.hidden=isMine;q("#profile-photo-share").hidden=isMine;
   footerShare.textContent=t("Поділитися","Share");
   footerReport.textContent=t("Поскаржитися на фото","Report photo");
   galleryDelete.textContent=t("Видалити","Delete");
   footerMore.firstChild.textContent=t("Більше ","More ");
   setCurrent.textContent=t("Зробити фотографією профілю","Make profile photo");
   originalLink.textContent=t("Відкрити оригінал","Open original");
-  avatarDownload.textContent=t("Завантажити","Download");
-  avatarOpenAlbum.textContent=t("Перейти до альбому","Go to album");
   const owner=q("#profile-photo-owner"),ownerPhoto=q("#profile-photo-owner-avatar"),date=q("#profile-photo-kind");
   owner.textContent=q("#profile-heading").textContent;owner.href=memberUrl(targetId);
   void window.VATRA_VERIFIED?.attach(client,owner,targetId);
@@ -2871,6 +2982,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const uploaded=galleryDates.get(path);
   date.textContent=uploaded?(window.VATRA_PRESENCE?.relative?.(uploaded,english)||dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
   resetPhotoComposer();syncComposerAvatar();
+  void loadAvatarDescription(path);
   void reloadPhotoActivity(false,true,lastAvatarCommentKey===path+"|"+photoCommentSort);
   void loadTags();
  };
@@ -2905,6 +3017,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(kind!=="avatar"||!canViewPhoto)return;
   const url=photoURLs.avatar;if(!url)return;
   closeAvatarMenu();const ticket=++galleryEpoch;
+  mediaDialog.dataset.fromPhotos=preferredPath?"true":"";
+
   gallery=saved?.avatar_path?[saved.avatar_path]:[];galleryIndex=0;
   if(!gallery.length)return;
   renderGalleryPhoto();mediaDialog.showModal();
@@ -2926,6 +3040,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   hideAvatarUndo();discardAvatarUndo();
  });
  window.VATRA_OPEN_PROFILE_AVATAR=path=>{if(canViewPhoto)openMedia("avatar",path);};
+ window.VATRA_SET_HISTORY_AVATAR=async path=>{if(!canEdit||uploading||avatarFeaturePending||avatarEditor?.busy()||pendingAvatarUndo||!path?.startsWith(ownId+"/avatar/"))return false;
+  uploading=true;
+  try{await updateCurrentAvatar(path);window.VATRA_AVATAR?.invalidatePath?.(client,ownId);await display(saved);window.dispatchEvent(new Event("vatra:profile-media-changed"));return true;}
+  catch(_){status(t("Не вдалося змінити фото профілю.","Could not update profile photo."),true);return false;}
+  finally{uploading=false;}
+ };
  const openStory=()=>{
   if(!canViewPhoto||!activeStory)return;
   if(Date.parse(activeStory.expires_at)<=Date.now()){
@@ -3109,9 +3229,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(!ext||!file?.size||file.size>31457280){
    status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);return false;
   }
-  uploading=true;buttonAvatar.disabled=true;buttonCover.disabled=true;coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
+  uploading=true;if(kind==="avatar")avatarGalleryLoader.invalidate();
+  buttonAvatar.disabled=true;buttonCover.disabled=true;coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
   status(t("Завантажуємо зображення…","Uploading image…"));
-  if(kind==="avatar")updateAvatarProgress(0,originalFile?3:2,t("Підготовка до завантаження…","Preparing upload…"));
   const filename=typeof crypto!=="undefined"&&typeof crypto.randomUUID==="function"?
    crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),
     value=>value.toString(16).padStart(2,"0")).join("");
@@ -3127,14 +3247,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     });
     if(originalError)throw originalError;
     uploadedPaths.push(originalPath);
-    if(kind==="avatar")updateAvatarProgress(1,3,t("Оригінал завантажено.","Original uploaded."));
    }
    const {error:uploadError}=await client.storage.from(bucketFor(kind)).upload(path,file,{
     contentType:file.type,cacheControl:"3600",upsert:false
    });
    if(uploadError)throw uploadError;
    uploadedPaths.push(path);
-   if(kind==="avatar")updateAvatarProgress(originalPath?2:1,originalPath?3:2,t("Фотографію завантажено. Зберігаємо профіль…","Photo uploaded. Saving profile…"));
    const column=kind==="avatar"?"avatar_path":"cover_path";
    const values={[column]:path,updated_at:new Date().toISOString()};
    const operation=saved?
@@ -3152,7 +3270,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 
 
    committed=true;
-   if(kind==="avatar")updateAvatarProgress(originalPath?3:2,originalPath?3:2,t("Фото профілю збережено.","Profile photo saved."));
    saved={...saved,...values};
    await display(saved);
    if(kind==="avatar"){
@@ -3161,22 +3278,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    }
    return true;
   }catch(_){
-   if(kind==="avatar")updateAvatarProgress(0,originalPath?3:2,t("Помилка завантаження.","Upload failed."));
    if(!committed&&uploadedPaths.length)try{await client.storage.from(bucketFor(kind)).remove(uploadedPaths);}catch(_){}
    status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
     "Could not upload the image. Please retry."),true);return false;}
   finally{
-   uploading=false;buttonAvatar.disabled=false;buttonCover.disabled=false;coverChange.disabled=false;changePhoto.disabled=false;removePhoto.disabled=false;
+   uploading=false;if(kind==="avatar")avatarGalleryLoader.invalidate();
+   buttonAvatar.disabled=false;buttonCover.disabled=false;coverChange.disabled=false;changePhoto.disabled=false;removePhoto.disabled=false;
    fileAvatar.value="";fileCover.value="";
   }
  }
- const avatarProgress=q("#profile-avatar-upload-progress");
- const avatarProgressBar=q("#profile-avatar-upload-progress-bar");
- const avatarProgressText=q("#profile-avatar-upload-progress-text");
- const updateAvatarProgress=(done,total,message)=>{
-  avatarProgress.hidden=false;avatarProgressBar.max=total;avatarProgressBar.value=done;
-  avatarProgressText.textContent=message+" ("+done+"/"+total+")";
- };
  const coverDialog=q("#profile-cover-edit-dialog");
  let coverEditor=null,coverFeaturePending=false;
  let avatarEditor=null,avatarFeaturePending=false;
@@ -3188,7 +3298,24 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    .update({avatar_path:next,updated_at:new Date().toISOString()})
    .eq("vatra_id",ownId).select("vatra_id,avatar_path").maybeSingle();
   if(r.error||!r.data||r.data.avatar_path!==next)throw Error("Avatar change not saved");
-  saved={...saved,avatar_path:next};
+  saved={...saved,avatar_path:next};avatarGalleryLoader.invalidate();
+ };
+ window.VATRA_DELETE_AVATAR_BATCH=async paths=>{
+  if(!canEdit||uploading||avatarFeaturePending||avatarEditor?.busy()||pendingAvatarUndo)return false;
+  const selected=[...new Set(paths)].filter(path=>typeof path==="string"&&path.startsWith(ownId+"/avatar/")&&!/-original\./.test(path));
+  if(!selected.length||selected.length!==new Set(paths).size)return false;
+  uploading=true;avatarGalleryLoader.invalidate();const previous=saved?.avatar_path;let changed=false;
+  try{
+   const available=await listAvatarGallery(true);if(selected.some(path=>!available.includes(path)))return false;
+   if(selected.includes(previous)){await updateCurrentAvatar(available.find(path=>!selected.includes(path))||null);changed=true;}
+   const files=selected.flatMap(path=>[path,path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1")]);
+   const {error}=await client.storage.from("avatars").remove(files);if(error)throw error;
+   const metadata=await Promise.all([client.from("avatar_photo_tags").delete().eq("owner_vatra_id",ownId).in("avatar_path",selected),client.from("avatar_photo_descriptions").delete().eq("owner_vatra_id",ownId).in("avatar_path",selected)]);
+   window.VATRA_AVATAR?.invalidatePath?.(client,ownId);if(changed)await display(saved);return metadata.every(result=>!result.error);
+  }catch(_){
+   if(changed)try{const available=await listAvatarGallery(true);if(available.includes(previous)){await updateCurrentAvatar(previous);window.VATRA_AVATAR?.invalidatePath?.(client,ownId);}await display(saved);}catch(_){}
+   return false;
+  }finally{uploading=false;avatarGalleryLoader.invalidate();}
  };
  const avatarType=path=>/\.png$/i.test(path)?"image/png":/\.webp$/i.test(path)?"image/webp":"image/jpeg";
  async function removeAvatarPath(path){
@@ -3201,16 +3328,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     "You can restore the deleted photo in this viewer until you close it."),
    action:t("Видалити","Delete")
   }))return;
-  uploading=true;avatarDeleteInProgress=true;galleryEpoch++;removePhoto.disabled=galleryDelete.disabled=true;
+  uploading=true;avatarDeleteInProgress=true;galleryEpoch++;avatarGalleryLoader.invalidate();removePhoto.disabled=galleryDelete.disabled=true;
   const previous=saved?.avatar_path||null;
   let changed=false,previewUrl=null;
   try{
    const storage=client.storage.from("avatars");
 
-   const thumb=await storage.download(path);
-   if(thumb.error||!(thumb.data instanceof Blob))throw Error("Could not back up avatar");
    const originalPath=path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
-   const full=await storage.download(originalPath);
+   const [thumb,full]=await Promise.all([storage.download(path),storage.download(originalPath)]);
+   if(thumb.error||!(thumb.data instanceof Blob))throw Error("Could not back up avatar");
    const missingOriginal=full.error&&(
     String(full.error.status||full.error.statusCode||"")==="404"||
     /not found|does not exist|No such file/i.test(String(full.error.message||"")));
@@ -3218,19 +3344,20 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const fullBlob=full.error?null:full.data;
    if(fullBlob&&!(fullBlob instanceof Blob))throw Error("Invalid avatar original backup");
    previewUrl=URL.createObjectURL(fullBlob||thumb.data);
+   const paths=(!mediaDialog.open||path===previous)?await listAvatarGallery(true):null;
    if(!mediaDialog.open){
-    const paths=await listAvatarGallery();
     gallery=[...new Set([path,...paths])];
     galleryIndex=gallery.indexOf(path);
     renderGalleryPhoto();mediaDialog.showModal();
    }
    const galleryBefore=[...gallery],indexBefore=galleryIndex;
    if(path===previous){
-    const paths=await listAvatarGallery(),next=paths.find(p=>p!==path)||null;
+    const next=paths.find(p=>p!==path)||null;
     await updateCurrentAvatar(next);changed=true;
    }
    const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])]);
    if(removed.error)throw removed.error;
+   avatarGalleryLoader.invalidate();
    gallery=gallery.filter(p=>p!==path);
    galleryIndex=Math.max(0,Math.min(galleryIndex,gallery.length-1));
    pendingAvatarUndo={path,previous,galleryBefore,indexBefore,originalPath,
@@ -3258,12 +3385,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(previewUrl)URL.revokeObjectURL(previewUrl);
    status(t("Не вдалося безпечно видалити фото. Спробуйте ще раз.",
     "Could not safely delete the photo. Please try again."),true);
-  }finally{uploading=false;avatarDeleteInProgress=false;removePhoto.disabled=galleryDelete.disabled=false;}
+  }finally{uploading=false;avatarGalleryLoader.invalidate();avatarDeleteInProgress=false;removePhoto.disabled=galleryDelete.disabled=false;}
  }
  restoreAvatarButton.addEventListener("click",async()=>{
   const undo=pendingAvatarUndo;
   if(!undo||!canEdit||uploading)return;
-  uploading=true;restoreAvatarButton.disabled=true;
+  uploading=true;avatarGalleryLoader.invalidate();restoreAvatarButton.disabled=true;
   try{
    const storage=client.storage.from("avatars");
    if(!undo.thumbnailRestored){
@@ -3290,7 +3417,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }catch(_){
    status(t("Не вдалося відновити фото. Повторіть спробу, не закриваючи переглядач.",
     "Could not restore the photo. Retry without closing this viewer."),true);
-  }finally{uploading=false;restoreAvatarButton.disabled=false;}
+  }finally{uploading=false;avatarGalleryLoader.invalidate();restoreAvatarButton.disabled=false;}
  });
  removePhoto.addEventListener("click",()=>void removeAvatarPath(saved?.avatar_path));
  galleryDelete.addEventListener("click",()=>void removeAvatarPath(gallery[galleryIndex]));
@@ -3303,7 +3430,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(!avatarEditor){
     const feature=await window.VATRA_FEATURES.load("avatar-editor");
     avatarEditor=feature.mount({client,ownId,userId,q,t,status,fileAvatar,fileTypes,uploadImage,
-     encodeProfileCrop,clamp,canvasPoint,avatarProgress,
+     encodeProfileCrop,clamp,canvasPoint,
      parentBusy:()=>uploading||coverFeaturePending||coverEditor?.busy()||coverDialog.open});
    }
    await avatarEditor.start(file);
@@ -3313,6 +3440,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }finally{avatarFeaturePending=false;}
  };
  fileAvatar.addEventListener("change",()=>{if(fileAvatar.files?.[0])void startAvatarEditor(fileAvatar.files[0]);});
+ window.VATRA_USE_PHOTO_AS_AVATAR=async(blob)=>{
+  if(!canEdit||!blob||!fileTypes[blob.type])return false;
+  await startAvatarEditor(new File([blob],"profile-photo."+fileTypes[blob.type],{type:blob.type}));
+  return !!avatarEditor?.busy();
+ };
 
 
  const startCoverEditor=async file=>{
@@ -3351,17 +3483,24 @@ async function loadOwnHeaderAvatar(client,ownId,email){
   return {data:null,error};
  }
 }
+function profileDeadline(task,ms=15000){
+ let timer;
+ return Promise.race([Promise.resolve(task),new Promise((_,reject)=>{
+  timer=setTimeout(()=>reject(Error("Profile request timed out")),ms);
+ })]).finally(()=>clearTimeout(timer));
+}
 async function start(){
- await window.VATRA_LANGUAGE?.ready;
- localizeSocial();
- if(!window.supabase?.createClient){
-  gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));return;
- }
  try{
+  await profileDeadline(window.VATRA_LANGUAGE?.ready,5000);
+  localizeSocial();
+  if(!window.supabase?.createClient){
+   gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));return;
+  }
   const client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
   });
-  const {data,error}=await client.auth.getUser();
+  const {data,error}=await profileDeadline(client.auth.getUser());
+  if(error&&![401,403].includes(Number(error.status))&&error.name!=="AuthSessionMissingError"&&!["session_expired","session_not_found","refresh_token_not_found","refresh_token_already_used","bad_jwt"].includes(error.code))throw error;
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
    const id=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1];
    if(!data?.user?.id&&id&&await window.VATRA_GUEST?.profile(client,id))return;
@@ -3377,12 +3516,14 @@ async function start(){
   const first=Array.from(nameParts[0]||"V")[0]||"V";
   const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
   const ownAvatar=(first+last).toLocaleUpperCase(locale);
-  const {data:account,error:accountError}=await client.from("accounts")
-   .select("vatra_id").eq("user_id",user.id).maybeSingle();
-  const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
+  const {data:account,error:accountError}=await profileDeadline(client.from("accounts")
+   .select("vatra_id").eq("user_id",user.id).maybeSingle());
+  const ownId=String(account?.vatra_id??"");
+  if(accountError||!validId(ownId))throw accountError||Error("Account unavailable");
+  window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   if(ownId){
-   void window.VATRA_PRESENCE?.start(client,ownId,metadata.gender);
-   window.VATRA_NOTIFICATIONS?.start(client,ownId);
+   try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,ownId,metadata.gender)).catch(()=>{});}catch(_){}
+   try{window.VATRA_NOTIFICATIONS?.start(client,ownId);}catch(_){}
   }
   const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   window.VATRA_AVATAR?.setHeader({client,email:user.email,name:headerName,initials:ownAvatar,id:ownId});
@@ -3419,33 +3560,36 @@ async function start(){
 
 
 
-  const [directoryOutcome,publicOutcome,stateOutcome]=await Promise.allSettled([
+  const isMine=targetId===ownId;
+  const prepared=profileDeadline(window.VATRA_PROFILE_DETAILS.prepare({client,ownId,targetId,isMine}));
+  void prepared.catch(()=>{});
+  const blockQuery=!isMine&&validId(ownId)?
+   Promise.resolve().then(()=>client.from("member_blocks")
+    .select("blocker_vatra_id,blocked_vatra_id")
+    .or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),"+
+        "and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")")
+    .limit(2)):Promise.resolve({data:[],error:null});
+  const [directoryOutcome,publicOutcome,stateOutcome,blockOutcome]=await profileDeadline(Promise.allSettled([
    client.from("member_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
    Promise.resolve().then(()=>client.from("public_profiles")
     .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()),
-   window.VATRA_AVATAR?.states(client,[targetId])||Promise.resolve(new Map())
-  ]);
+   window.VATRA_AVATAR?.states(client,[targetId])||Promise.resolve(new Map()),
+   blockQuery
+  ]));
   const publicState=stateOutcome.status==="fulfilled"?stateOutcome.value.get(targetId):null;
   if(publicState==="deleted"||publicState==="blocked"){missingProfile(publicState);return;}
   if(directoryOutcome.status==="rejected")throw directoryOutcome.reason;
   const {data:member,error:directoryError}=directoryOutcome.value;
   if(directoryError)throw directoryError;
   if(!member){missingProfile("not-found");return;}
-  const isMine=targetId===ownId;
+  if(!isMine&&(blockOutcome.status!=="fulfilled"||blockOutcome.value.error))throw Error("Profile block check unavailable");
   const blockAccess={blockedByMe:false,blockedByThem:false};
-  if(!isMine&&validId(ownId)){
-   try{
-    const {data:blocks,error:blockError}=await client.from("member_blocks")
-     .select("blocker_vatra_id,blocked_vatra_id")
-     .or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),"+
-         "and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")")
-     .limit(2);
-    if(!blockError)for(const item of blocks||[]){
-     if(String(item.blocker_vatra_id)===ownId)blockAccess.blockedByMe=true;
-     if(String(item.blocker_vatra_id)===targetId)blockAccess.blockedByThem=true;
-    }
-   }catch(_){}
+  if(blockOutcome.status==="fulfilled"&&!blockOutcome.value.error){
+   for(const item of blockOutcome.value.data||[]){
+    if(String(item.blocker_vatra_id)===ownId)blockAccess.blockedByMe=true;
+    if(String(item.blocker_vatra_id)===targetId)blockAccess.blockedByThem=true;
+   }
   }
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
@@ -3497,7 +3641,7 @@ async function start(){
    Promise.resolve().then(()=>client.from("profile_media")
     .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
     .catch(()=>({data:null,error:true}));
-  const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess});
+  const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,blockAccess,prepared}));
   const locked=access?.locked===true;
   const memberBlocked=blockAccess.blockedByMe||blockAccess.blockedByThem;
   if(!memberBlocked&&(publicName||isMine))void window.VATRA_VERIFIED?.attach(client,q("#profile-heading"),targetId);
@@ -3535,8 +3679,6 @@ async function start(){
   }).catch(()=>{});
   const requestedAction=new URLSearchParams(location.search);
   const sharedPhoto=requestedAction.get("photo")==="avatar";
-  const requestedMessage=requestedAction.get("message")==="1"&&!isMine&&!memberBlocked;
-  const requestedItem=String(requestedAction.get("item")||"").replace(/\s+/g," ").trim().slice(0,100);
 
 
 
@@ -3563,18 +3705,12 @@ async function start(){
   const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id);
 
 
-  if(locked)await mediaPromise;
   finish();
   void mediaPromise.catch(()=>{
    q("#profile-cover-image")?.classList.remove("is-loading-media");
    q("#profile-avatar-wrap")?.classList.remove("is-loading-media");
   });
   if(sharedPhoto&&!locked)void mediaPromise.then(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
-  if(requestedMessage&&!q("#profile-message-button")?.hidden){
-   q("#profile-message-button")?.click();
-   const draft=q("#profile-message-text");
-   if(draft&&requestedItem)draft.value=t("Вітаю! Мене цікавить оголошення «","Hello! I am interested in the listing “")+requestedItem+t("». Воно ще актуальне?","”. Is it still available?");
-  }
   void postsPromise;
  }catch(error){
   console.error("[VATRA] Profile initialization failed:",error);

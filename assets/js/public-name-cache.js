@@ -3,6 +3,10 @@
  const caches=new WeakMap();
  const TTL=90_000,MISSING_TTL=15_000,MAX_ENTRIES=256,MAX_BATCH=48;
  const EDGE_COOLDOWN_KEY="vatra-public-names-edge-retry-at-v1";
+ const TAB_KEY="vatra:public-names:tab:v1",TAB_TTL=30000;
+ const viewerId=value=>typeof value==="string"&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value)?value.toLowerCase():null;
+ const readTab=()=>{try{return JSON.parse(sessionStorage.getItem(TAB_KEY)||"null");}catch(_){return null;}};
+ const clearTab=viewer=>{try{if(readTab()?.viewer===viewer)sessionStorage.removeItem(TAB_KEY);}catch(_){}};
  const EDGE_CACHE_ENABLED=window.VATRA_NAME_CACHE_EDGE_ENABLED===true;
  const edgeRetryAt=()=>{
   try{
@@ -24,11 +28,12 @@
  const stateFor=client=>{
   let state=caches.get(client);
   if(state)return state;
-  state={rows:new Map(),pending:new Map(),generation:0,retryRemoteAt:edgeRetryAt()};
+  state={rows:new Map(),pending:new Map(),generation:0,retryRemoteAt:edgeRetryAt(),viewer:null};
   caches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
     if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+    clearTab(state.viewer);state.viewer=null;
     state.generation++;
     state.rows.clear();
     state.pending.clear();
@@ -37,6 +42,36 @@
   }
   return state;
  };
+ function bindViewer(client,verifiedUserId){
+  const viewer=viewerId(verifiedUserId);
+  if(!client||!viewer)return false;
+  const state=stateFor(client);
+  if(state.viewer===viewer)return true;
+  state.generation++;state.rows.clear();state.pending.clear();
+  state.viewer=viewer;
+  const stored=readTab(),now=Date.now();
+  if(stored?.viewer!==viewer){
+   try{sessionStorage.removeItem(TAB_KEY);}catch(_){}
+   return true;
+  }
+  if(!Array.isArray(stored.rows))return true;
+  for(const entry of stored.rows.slice(0,MAX_ENTRIES)){
+   if(!validName(entry?.row)||!Number.isFinite(entry.expires)||entry.expires<=now||entry.expires>now+TAB_TTL)continue;
+   const id=validId(entry.row.vatra_id);
+   state.rows.set(id,{row:{vatra_id:Number(id),display_name:entry.row.display_name},expires:entry.expires,tabExpiry:entry.expires});
+  }
+  return true;
+ }
+ function persistTab(state){
+  if(!state.viewer)return;
+  const now=Date.now(),rows=[];
+  for(const entry of state.rows.values()){
+   if(!validName(entry.row)||entry.expires<=now||entry.tabExpiry<=now)continue;
+   rows.push({row:{vatra_id:entry.row.vatra_id,display_name:entry.row.display_name},
+    expires:Math.min(entry.expires,entry.tabExpiry)});
+  }
+  try{sessionStorage.setItem(TAB_KEY,JSON.stringify({viewer:state.viewer,rows:rows.slice(-MAX_ENTRIES)}));}catch(_){}
+ }
  const entryFor=(state,id)=>{
   const entry=state.rows.get(id);
   if(!entry)return undefined;
@@ -50,7 +85,8 @@
  };
  const remember=(state,id,row)=>{
   state.rows.delete(id);
-  state.rows.set(id,{row,expires:Date.now()+(row?TTL:MISSING_TTL)});
+  const now=Date.now();
+  state.rows.set(id,{row,expires:now+(row?TTL:MISSING_TTL),tabExpiry:now+TAB_TTL});
   while(state.rows.size>MAX_ENTRIES)state.rows.delete(state.rows.keys().next().value);
  };
  async function fetchMissing(client,ids,state){
@@ -96,6 +132,7 @@
       {vatra_id:Number(id),display_name:value.display_name,
        ...(typeof value.verified==="boolean"?{verified:value.verified}:{})}:null);
     }
+    persistTab(state);
    });
    for(const id of batch)state.pending.set(id,task);
    tasks.add(task);
@@ -111,5 +148,5 @@
    return {data:unique.map(id=>entryFor(state,id)?.row).filter(Boolean),error:null};
   }catch(error){return {data:[],error};}
  }
- window.VATRA_PUBLIC_NAMES={get};
+ window.VATRA_PUBLIC_NAMES={get,bindViewer};
 })();

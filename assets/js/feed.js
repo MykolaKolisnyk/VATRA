@@ -76,7 +76,7 @@
  function showErrorAtGate(text){
   const loader=q("#feed-loading");
   if(!loader)return;
-  loader.dataset.loadingError="true";loader.setAttribute("role","alert");
+  loader.hidden=false;loader.dataset.loadingError="true";loader.setAttribute("role","alert");
   const label=loader.querySelector(".vatra-auth-loading-caption");
   if(label)label.textContent=text;
   if(loader.querySelector(".vatra-auth-loading-retry"))return;
@@ -148,13 +148,19 @@
   const lookup=[...new Set(ids.map(String).filter(validId))].slice(0,100);
   if(!lookup.length)return;
   try{
-   const states=await window.VATRA_AVATAR?.states(client,lookup)||new Map();
+   const [stateResult,pathResult]=await Promise.allSettled([
+    window.VATRA_AVATAR?.states(client,lookup)||Promise.resolve(new Map()),
+    window.VATRA_AVATAR?.paths?.(client,lookup)||
+     client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",lookup)
+   ]);
+   if(stateResult.status==="rejected")throw stateResult.reason;
+   const states=stateResult.value;
    for(const id of lookup){
     avatarStates.delete(id);
     if(states.has(id))avatarStates.set(id,states.get(id));
    }
-   const {data,error}=await (window.VATRA_AVATAR?.paths?.(client,lookup)||
-    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",lookup));
+   if(pathResult.status==="rejected")throw pathResult.reason;
+   const {data,error}=pathResult.value;
    if(error)throw error;
    for(const id of lookup)mediaAvatars.delete(id);
    for(const row of data||[])if(row.avatar_path&&!avatarStates.has(String(row.vatra_id)))
@@ -240,6 +246,15 @@
   }).catch(()=>{});
   return request;
  }
+ function reportFeedFailure(stage,error){
+  console.warn("[VATRA] Feed "+stage,{name:String(error?.name||"Error").slice(0,60),
+   code:String(error?.code||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,40),status:Number(error?.status)||0,
+   message:error instanceof TypeError||error instanceof ReferenceError?String(error.message).slice(0,180):undefined});
+ }
+ function optionalFeedFeature(stage,run){
+  try{const pending=run();if(pending?.catch)void pending.catch(error=>reportFeedFailure(stage,error));}
+  catch(error){reportFeedFailure(stage,error);}
+ }
  function card(post,engagement){
   const authorId=String(post.author_vatra_id);
   const mine=authorId===vatraId;
@@ -254,11 +269,11 @@
   const identity=node("div","feed-post-author ui-feed-post-author-001");
   const name=node("a","feed-post-name vatra-feed-post-name-001 feed-post-profile-link",memberName(authorId));
   name.href=new URL("id"+authorId,home).href;
-  if(!avatarStates.get(String(authorId)))void window.VATRA_VERIFIED?.attach(client,name,authorId);
+  if(!avatarStates.get(String(authorId)))optionalFeedFeature("badge",()=>window.VATRA_VERIFIED?.attach(client,name,authorId));
   const stamp=node("time","feed-post-date vatra-feed-post-date-001",postedTime(post.created_at));
   stamp.dateTime=post.created_at;
   const meta=node("div","feed-post-meta-row ui-feed-post-meta-row-001");
-  meta.append(stamp);window.VATRA_POST_INTERACTIONS?.appendAudience(meta,post.visibility,post.kind==="group");
+  meta.append(stamp);optionalFeedFeature("audience",()=>window.VATRA_POST_INTERACTIONS?.appendAudience(meta,post.visibility,post.kind==="group"));
   identity.append(name,meta);
   if(post.kind==="group"){
    const group=node("a","feed-post-community vatra-feed-post-community-001",
@@ -285,18 +300,30 @@
   item.append(head);
    if(post.body){
      const body=node("p","feed-post-body vatra-feed-post-body-001",post.body);
-     window.VATRA_POST_MEDIA?.linkifyHashtags(body);
+     optionalFeedFeature("hashtags",()=>window.VATRA_POST_MEDIA?.linkifyHashtags(body));
      item.append(body);
-     window.VATRA_POST_MEDIA?.collapsibleBody(body);
+     optionalFeedFeature("post text",()=>window.VATRA_POST_MEDIA?.collapsibleBody(body));
     }
-   if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,item);
-   if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,item);
-   window.VATRA_POST_INTERACTIONS?.mount(client,post,item,{
+   if(post.media_items?.length||(post.media_kind&&post.media_path))optionalFeedFeature("media",()=>window.VATRA_POST_MEDIA?.mount(client,post,item));
+   if(post.shared_post_id)optionalFeedFeature("shared preview",()=>window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,item));
+   optionalFeedFeature("interactions",()=>window.VATRA_POST_INTERACTIONS?.mount(client,post,item,{
     ownId:vatraId,userId:user?.id,
-    engagement:engagement?.get(post.kind+":"+post.id),
+    engagementPromise:engagement,
     onShared:()=>{invalidateFeedPages(client);void loadPosts(true);}
-   });
+   }));
   return item;
+ }
+ function recoverFeedCard(post,engagement){
+  try{return card(post,engagement);}catch(error){
+   reportFeedFailure("card",error);
+   const item=node("article","feed-post-card ui-feed-post-card-001");
+   item.dataset.postId=String(post.id);item.dataset.postKind=post.kind;
+   const name=node("a","feed-post-name vatra-feed-post-name-001",memberName(String(post.author_vatra_id)));
+   name.href=new URL("id"+String(post.author_vatra_id),home).href;item.append(name);
+   if(post.body)item.append(node("p","feed-post-body vatra-feed-post-body-001",String(post.body)));
+   if(post.media_items?.length||(post.media_kind&&post.media_path))optionalFeedFeature("recovered media",()=>window.VATRA_POST_MEDIA?.mount(client,post,item));
+   return item;
+  }
  }
  const globalResults=node("section","vatra-global-search-results ui-vatra-global-search-results-001");
  globalResults.id="vatra-global-search-results";globalResults.hidden=true;
@@ -394,11 +421,14 @@
  function feedPageState(client){
   let state=feedPageCaches.get(client);
   if(state)return state;
-  state={entries:new Map(),generation:0};
+  state={entries:new Map(),generation:0,viewer:typeof user!=="undefined"?user?.id||null:null};
   feedPageCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
-   client.auth.onAuthStateChange(event=>{
+   client.auth.onAuthStateChange((event,session)=>{
     if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+    const next=session?.user?.id||null;
+    if(event==="SIGNED_IN"&&next&&next===state.viewer)return;
+    state.viewer=next;
     state.generation++;state.entries.clear();
    });
   }
@@ -452,7 +482,7 @@
   person:{kind:"person",offset:0,done:!searchTerm&&feedFilter==="communities",queue:[]},
   group:{kind:"group",offset:0,done:!searchTerm&&feedFilter==="friends",queue:[]}
  });
- const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip,pinned_at,comments_enabled";
+ const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,poll,shared_post_kind,shared_post_id,is_clip,pinned_at,comments_enabled";
  const clubFields="id,club_id,author_vatra_id,body,created_at,media_kind,media_path,media_items";
  const comparePosts=(a,b)=>
   Date.parse(b.created_at)-Date.parse(a.created_at)||String(b.id).localeCompare(String(a.id));
@@ -488,8 +518,8 @@
     query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\$&")+"%");
    const sourceKey=JSON.stringify([source.kind,feedFilter,searchTerm,source.offset,
     [...personIds].sort(),isPerson?[]:[...followedClubs.keys()].sort()]);
-   const {data,error}=await readFeedPage(client,sourceKey,()=>query.order("created_at",{ascending:false})
-    .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1));
+   const {data,error}=await readFeedPage(client,sourceKey,()=>feedDeadline(query.order("created_at",{ascending:false})
+    .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1)));
    if(error){if(isPerson)throw error;source.done=true;return;}
    const raw=data||[];
    source.offset+=raw.length;
@@ -535,9 +565,11 @@
    sourceState=makeSourceState();
    more.hidden=true;
   }
+  let stage="subscriptions";
   try{
-   await ensureSubscriptions();
+   await feedDeadline(ensureSubscriptions());
    if(version!==feedRequestVersion)return;
+   stage="posts";
    if(!sourceState)sourceState=makeSourceState();
    const page=await takePage();
    if(version!==feedRequestVersion)return;
@@ -558,12 +590,13 @@
      renderedIds.add(direct.kind+":"+direct.id);
     }
    }
-   const [,,engagement]=await Promise.all([
-    loadPublicNames(page.map(p=>p.author_vatra_id)),
-    loadAvatars(page.map(p=>p.author_vatra_id)),
-    window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||
-     Promise.resolve(new Map())
+   stage="metadata";
+   const engagement=feedDeadline(Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||new Map()),4000).catch(error=>{reportFeedFailure("engagement",error);return new Map();});
+   await Promise.allSettled([
+    feedDeadline(loadPublicNames(page.map(p=>p.author_vatra_id)),4000),
+    feedDeadline(loadAvatars(page.map(p=>p.author_vatra_id)),4000)
    ]);
+   stage="render";
    if(version!==feedRequestVersion)return;
    const batch=document.createDocumentFragment();
    const oldById=new Map((previousFeed||[]).map(item=>[item.kind+":"+item.id,item]));
@@ -572,7 +605,7 @@
     const oldElement=previousItems?.get(key);
     const same=old&&JSON.stringify(old)===JSON.stringify(item);
     visibleFeed.push(item);
-    batch.append(same&&oldElement?oldElement:card(item,engagement));
+    batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement));
    }
    if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}
    else posts.append(batch);
@@ -585,14 +618,20 @@
    }
   }catch(error){
    if(version===feedRequestVersion){
+    reportFeedFailure(stage,error);
     const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>loadPosts(true)});
     if(reset){
      visibleFeed=previousFeed||[];
      renderedIds=new Set(visibleFeed.map(item=>item.kind+":"+item.id));
     }
     if(illustrated)clearMessage();
-    else message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
-     "Could not load your Feed. Please retry."));
+    else{
+     message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
+      "Could not load your Feed. Please retry."));
+     const retry=node("button","feed-more vatra-feed-more-001",t("Повторити","Retry"));
+     retry.type="button";retry.addEventListener("click",()=>{retry.remove();clearMessage();invalidateFeedPages(client);void loadPosts(true);});
+     posts.append(retry);
+    }
    }
   }finally{
    loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;
@@ -637,8 +676,8 @@
     items.push(story);seen.add(id);
     if(items.length>=3)break;
    }
-   await loadPublicNames(items.map(x=>x.author_vatra_id));
-   await loadAvatars(items.map(x=>x.author_vatra_id));
+   const authorIds=items.map(x=>x.author_vatra_id);
+   await Promise.all([loadPublicNames(authorIds),loadAvatars(authorIds)]);
    holder.replaceChildren();
    q(".feed-stories")?.classList.toggle("is-empty",items.length===0);
    for(const story of items){
@@ -689,7 +728,7 @@
    if(dialog.open)return true;
    if(!composerLoading){
     composerLoading=window.VATRA_FEATURES.load("composer").then(module=>{
-     composerUI=module.bind({prefix:"feed",ownerId:vatraId,getFile:()=>picker?.getFile()});
+     composerUI=module.bind({prefix:"feed",ownerId:vatraId,client,getFile:()=>picker?.getFile()});
     }).catch(error=>{composerLoading=null;throw error;});
    }
    const trigger=q("#feed-compose-open");
@@ -714,18 +753,25 @@
    event.preventDefault();
    if(submit.disabled||!validId(vatraId))return;
    const body=text.value.trim(),files=picker?.getFiles()||[];
-   if((!body&&!files.length)||Array.from(body).length>POST_LIMIT){
-    showError(t("Додайте текст, фото або відео.","Add text, a photo or a video."));return;
+   const poll=composerUI?.getPoll?.()||null;
+   const publishAt=composerUI?.getScheduledAt?.()||null;
+   if((!body&&!files.length&&!poll)||Array.from(body).length>POST_LIMIT||
+     composerUI?.hasInvalidPoll?.()||composerUI?.hasInvalidSchedule?.()){
+    showError(t("Перевірте текст, опитування та дату публікації.",
+     "Check the text, poll and scheduled date."));return;
    }
    submit.disabled=true;showError("");
    let uploaded=null;
    try{
     if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,vatraId,files);
-    const {error:insertError}=await client.from("feed_posts").insert({
+    const payload={
      author_id:user.id,author_vatra_id:vatraId,body,
      visibility:["public","friends","only_me"].includes(visibility?.value)?visibility.value:"public",
-     media_items:uploaded||[]
-    });
+     media_items:uploaded||[],poll
+    };
+    if(publishAt)payload.publish_at=publishAt;
+    const {error:insertError}=await client.from(publishAt?"scheduled_feed_posts":"feed_posts")
+     .insert(payload);
     if(insertError)throw insertError;
    }catch(ex){
     if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
@@ -735,8 +781,11 @@
    submit.disabled=false;
    invalidateFeedPages(client);
    dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();composerUI?.reset();
-   message(t("Публікацію додано.","Post published."),"success");
-   void loadPosts(true);
+   message(publishAt?
+    t("Публікацію заплановано. Вона з’явиться автоматично у вибраний час.",
+      "Post scheduled. It will publish automatically at the selected time."):
+    t("Публікацію додано.","Post published."),"success");
+   if(!publishAt)void loadPosts(true);
   });
   const storyTrigger=q("#feed-create-story");
   let storyLoading=false;
@@ -781,19 +830,31 @@
   }catch(_){deleteDialog.close();pendingDelete=null;message(t("Не вдалося видалити.","Could not delete post."));}
   finally{deleteConfirm.disabled=false;}
  }
+ function feedDeadline(task,ms=15000){
+  let timer;
+  return Promise.race([Promise.resolve(task),new Promise((_,reject)=>{
+   timer=setTimeout(()=>reject(Object.assign(Error("Feed request timed out"),{status:503})),ms);
+  })]).finally(()=>clearTimeout(timer));
+ }
  async function init(){
-  await window.VATRA_LANGUAGE?.ready;
-  localizeSocial();
-  if(!window.supabase?.createClient){
-   showErrorAtGate(t("Не вдалося завантажити VATRA.","Could not load VATRA."));return;
-  }
   try{
+   await feedDeadline(window.VATRA_LANGUAGE?.ready,5000);
+   localizeSocial();
+   if(!window.supabase?.createClient){
+    showErrorAtGate(t("Не вдалося завантажити VATRA.","Could not load VATRA."));return;
+   }
    client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
     auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
    });
-   const {data,error}=await client.auth.getUser();
+   const {data,error}=await feedDeadline(client.auth.getUser());
    if(error||!data?.user?.id){
-    if(error&&window.VATRA_SERVICE_NOTICE?.report(error,{session:true,access:false,retry:()=>location.reload()}))return;
+    if(error){
+     const kind=window.VATRA_SERVICE_NOTICE?.classify(error,{session:true,access:false});
+     if(kind&&kind!=="session"){showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));return;}
+     if(!kind&&![401,403].includes(Number(error.status))&&error.name!=="AuthSessionMissingError"){
+      showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));return;
+     }
+    }
     window.location.replace(new URL("./",location.href).href);return;
    }
    if(!data.user.email_confirmed_at){
@@ -804,16 +865,18 @@
    const parts=[metadata.first_name,metadata.last_name].filter(v=>typeof v==="string"&&v.trim()).map(v=>v.trim());
    displayName=parts.join(" ")||String(metadata.full_name||"").trim()||t("Мій акаунт","My account");
    displayName=Array.from(displayName).slice(0,80).join("");
-   const profile=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
-   if(!profile.error&&profile.data?.vatra_id!=null)vatraId=String(profile.data.vatra_id);
+   const profile=await feedDeadline(client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle());
+   if(profile.error||!validId(profile.data?.vatra_id))throw profile.error||Error("Account unavailable");
+   vatraId=String(profile.data.vatra_id);
+   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
 
    const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
    window.VATRA_AVATAR?.setHeader({client,email:user.email,name:headerName,initials:initials(displayName),id:vatraId});
    window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
     if(vatraId){
-    void loadAvatars([vatraId]);
-    void window.VATRA_PRESENCE?.start(client,vatraId,metadata.gender);
-    window.VATRA_NOTIFICATIONS?.start(client,vatraId);
+    void loadAvatars([vatraId]).catch(()=>{});
+    try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,vatraId,metadata.gender)).catch(()=>{});}catch(_){}
+    try{window.VATRA_NOTIFICATIONS?.start(client,vatraId);}catch(_){}
    }
    if(vatraId){
     for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
@@ -920,12 +983,14 @@
    window.VATRA_ONBOARDING?.start({client,memberId:vatraId,authUserId:user.id,createdAt:user.created_at});
    void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()]);
   }catch(error){
+   if(document.body.dataset.authReady!=="true"){
+    showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));
+    return;
+   }
    const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>location.reload()});
    if(illustrated)clearMessage();
-   else if(document.body.dataset.authReady==="true"){
-    message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
-     "Could not load the feed. Refresh the page."));
-   }else showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));
+   else message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
+    "Could not load the feed. Refresh the page."));
   }
  }
  init();

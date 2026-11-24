@@ -22,54 +22,6 @@ function clearLoginFields(){
  }
 }
 
-function wireOrbitTooltips(){
- if(page!=="login")return;
- const panel=q(".intro-side");
- if(!panel)return;
- const icons=[...panel.querySelectorAll(".orbit-icon")];
- for(const icon of icons){
-  const tip=icon.querySelector(".orbit-tooltip");
-  if(!tip)continue;
-
-  panel.append(tip);
-  const hide=()=>tip.classList.remove("is-visible");
-  const place=()=>{
-   tip.style.removeProperty("max-height");
-   tip.style.removeProperty("overflow-y");
-   const box=icon.getBoundingClientRect(),bounds=panel.getBoundingClientRect();
-   const minY=Math.max(12,bounds.top+12),maxY=Math.min(window.innerHeight-12,bounds.bottom-12);
-   const width=tip.getBoundingClientRect().width,height=tip.getBoundingClientRect().height;
-   const above=box.top-minY-13,below=maxY-box.bottom-13;
-   const placeBelow=above<height&&below>above;
-   const available=placeBelow?below:above;
-   if(available<height){
-    tip.style.maxHeight=Math.max(44,Math.floor(Math.max(0,available)))+"px";
-    tip.style.overflowY="auto";
-   }
-   const h=tip.getBoundingClientRect().height;
-   const minX=Math.max(12,bounds.left+10);
-   const maxX=Math.min(window.innerWidth-12,bounds.right-10)-width;
-   const desiredX=box.left+box.width/2-width/2;
-   const x=Math.round(Math.min(Math.max(desiredX,minX),Math.max(minX,maxX)));
-   const y=Math.round(placeBelow?box.bottom+13:box.top-13-h);
-   tip.style.left=(x-bounds.left)+"px";
-   tip.style.top=(y-bounds.top)+"px";
-  };
-  const reveal=()=>{place();tip.classList.add("is-visible");};
-  icon.addEventListener("mouseenter",reveal);
-  icon.addEventListener("focus",reveal);
-
-
-  icon.addEventListener("mouseleave",hide);
-  icon.addEventListener("blur",hide);
-  icon.addEventListener("pointerdown",()=>{hide();icon.blur();});
-  icon.addEventListener("click",event=>{if(event.detail>0){hide();icon.blur();}});
-  window.addEventListener("resize",()=>{if(tip.classList.contains("is-visible"))place();},{passive:true});
-  document.addEventListener("scroll",()=>{if(tip.classList.contains("is-visible"))place();},{passive:true,capture:true});
- }
-}
-
-
 async function authenticatePassword(email,password,form){
  const options=await captchaOptions(form);
  const {data,error}=await auth.auth.signInWithPassword({email,password,options});
@@ -258,6 +210,6 @@ function wireLogin(){
  });
 }
 
- return {prepareUI:wireOrbitTooltips,wireLogin,wireRememberedAccount};
+ return {wireLogin,wireRememberedAccount};
 };
 })();

@@ -170,116 +170,6 @@
             "0": "Supprimer"
           }
         },
-        "n3": {
-          "attrs": {
-            "aria-label": "Logo VATRA et sept icônes thématiques"
-          }
-        },
-        "n27": {
-          "attrs": {
-            "aria-label": "Communication"
-          }
-        },
-        "n32": {
-          "text": {
-            "0": "Communication"
-          }
-        },
-        "n33": {
-          "text": {
-            "0": "Messages et conversations avec vos proches."
-          }
-        },
-        "n44": {
-          "attrs": {
-            "aria-label": "Communautés"
-          }
-        },
-        "n50": {
-          "text": {
-            "0": "Communautés"
-          }
-        },
-        "n51": {
-          "text": {
-            "0": "Des personnes et des groupes qui partagent vos centres d’intérêt."
-          }
-        },
-        "n53": {
-          "attrs": {
-            "aria-label": "Photos"
-          }
-        },
-        "n59": {
-          "text": {
-            "0": "Photos"
-          }
-        },
-        "n60": {
-          "text": {
-            "0": "Conservez et partagez vos photos."
-          }
-        },
-        "n62": {
-          "attrs": {
-            "aria-label": "Vidéos"
-          }
-        },
-        "n68": {
-          "text": {
-            "0": "Vidéos"
-          }
-        },
-        "n69": {
-          "text": {
-            "0": "Regardez et partagez des vidéos."
-          }
-        },
-        "n71": {
-          "attrs": {
-            "aria-label": "Musique"
-          }
-        },
-        "n77": {
-          "text": {
-            "0": "Musique"
-          }
-        },
-        "n78": {
-          "text": {
-            "0": "Découvrez la musique que vous aimez."
-          }
-        },
-        "n80": {
-          "attrs": {
-            "aria-label": "Marketplace"
-          }
-        },
-        "n85": {
-          "text": {
-            "0": "Marketplace"
-          }
-        },
-        "n86": {
-          "text": {
-            "0": "Un espace pour acheter et vendre."
-          }
-        },
-        "n88": {
-          "attrs": {
-            "aria-label": "Clips"
-          }
-        },
-        "n94": {
-          "text": {
-            "0": "Clips"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "Des vidéos courtes et des moments mémorables."
-          }
-        },
         "n101": {
           "attrs": {
             "aria-label": "Connexion"
@@ -292,7 +182,7 @@
         },
         "n104": {
           "text": {
-            "0": "Retrouvez vos proches, vos messages et vos communautés préférées."
+            "0": "Retrouvez vos proches et vos communautés préférées."
           }
         },
         "n109": {
@@ -1469,7 +1359,7 @@
         },
         "n47": {
           "text": {
-            "0": "VATRA est une plateforme sociale ukrainienne dédiée aux échanges, aux profils personnels, au fil d’actualité, à la messagerie, aux rencontres, aux communautés, aux photos, à la musique, aux vidéos, aux clips et à la marketplace. Ces conditions définissent les règles d’utilisation du site et de votre compte."
+            "0": "VATRA est une plateforme sociale ukrainienne dédiée aux échanges, aux profils personnels, au fil d’actualité, aux rencontres, aux communautés, aux photos, à la musique, aux vidéos, aux clips et à la marketplace. Ces conditions définissent les règles d’utilisation du site et de votre compte."
           }
         },
         "n48": {
@@ -2424,7 +2314,7 @@
         },
         "copy-overview": {
           "text": {
-            "0": "Ces règles s'appliquent à toutes les offres du Marketplace VATRA : vente, échange, location et don, ainsi qu'aux photos, descriptions et messages associés. Les participants sont responsables de la légalité de leurs actes, de leur droit de disposer des biens et du respect des droits des consommateurs. Les interdictions couvrent aussi les tentatives de contournement via d'autres catégories ou messages."
+            "0": "Ces règles s'appliquent à toutes les offres du Marketplace VATRA : vente, échange, location et don, ainsi qu'aux photos et descriptions associées. Les participants sont responsables de la légalité de leurs actes, de leur droit de disposer des biens et du respect des droits des consommateurs. Les interdictions couvrent aussi les tentatives de contournement via d'autres catégories."
           }
         },
         "head-appeals": {
@@ -2574,7 +2464,7 @@
         },
         "copy-rule-community": {
           "text": {
-            "0": "Les annonces, photos et échanges liés aux transactions doivent respecter les Conditions d'utilisation de VATRA. Le spam, les menaces, le harcèlement, la fraude et l'exploitation des enfants sont interdits."
+            "0": "Les annonces et photos doivent respecter les Conditions d'utilisation de VATRA. Le spam, les menaces, le harcèlement, la fraude et l'exploitation des enfants sont interdits."
           }
         },
         "head-rule-adult": {
@@ -3001,7 +2891,6 @@
   "Короткі відео та яскраві моменти.": "Des vidéos courtes et des moments mémorables.",
   "Вхід": "Connexion",
   "Увійти у VATRA": "Se connecter à VATRA",
-  "Повертайтеся до своїх людей, повідомлень і улюблених спільнот.": "Retrouvez vos proches, vos messages et vos communautés préférées.",
   "Електронна пошта": "Adresse e-mail",
   "Показати": "Afficher",
   "Показати пароль": "Afficher le mot de passe",
@@ -3132,7 +3021,7 @@
   "Захист акаунта": "Sécurité du compte",
   "Обмеження та відповідальність": "Restrictions et responsabilité",
   "Документи та звернення": "Documents et contact",
-  "VATRA — українська соціальна платформа для спілкування, особистих сторінок, стрічки, месенджера, знайомств, спільнот, фотографій, музики, відео, кліпів і маркетплейсу. Ці умови визначають правила використання сайту та Вашого акаунта.": "VATRA est une plateforme sociale ukrainienne dédiée aux échanges, aux profils personnels, au fil d’actualité, à la messagerie, aux rencontres, aux communautés, aux photos, à la musique, aux vidéos, aux clips et à la marketplace. Ces conditions définissent les règles d’utilisation du site et de votre compte.",
+  "VATRA — українська соціальна платформа для спілкування, особистих сторінок, стрічки, знайомств, спільнот, фотографій, музики, відео, кліпів і маркетплейсу. Ці умови визначають правила використання сайту та Вашого акаунта.": "VATRA est une plateforme sociale ukrainienne dédiée aux échanges, aux profils personnels, au fil d’actualité, aux rencontres, aux communautés, aux photos, à la musique, aux vidéos, aux clips et à la marketplace. Ces conditions définissent les règles d’utilisation du site et de votre compte.",
   "Користуючись доступними функціями VATRA, Ви погоджуєтеся дотримуватися цих правил і чинного законодавства. Якщо Ви не погоджуєтеся з умовами, не створюйте акаунт і не користуйтеся захищеними функціями.": "En utilisant les fonctionnalités disponibles de VATRA, vous acceptez de respecter ces règles et le droit applicable. Si vous n’acceptez pas ces conditions, ne créez pas de compte et n’utilisez pas les fonctionnalités protégées.",
   "Для реєстрації потрібно вказати ім’я, прізвище, дату народження, електронну пошту та створити пароль. Стать можна не зазначати. Для використання VATRA потрібно бути": "Pour vous inscrire, vous devez indiquer votre prénom, votre nom, votre date de naissance et votre adresse e-mail, puis créer un mot de passe. Le genre est facultatif. Pour utiliser VATRA, vous devez avoir",
   "і дотримуватися суворіших вікових вимог, якщо вони діють у Вашій країні.": "et respecter toute limite d’âge plus élevée applicable dans votre pays.",
@@ -3361,7 +3250,6 @@
   "Тут з’являться короткі відео. Розділ готується до запуску.": "De courtes vidéos apparaîtront ici. Cette rubrique est en préparation.",
   "Тут можна буде знаходити й пропонувати товари. Розділ у розробці.": "Vous pourrez y découvrir et proposer des articles. Cette rubrique est en développement.",
   "Повідомлення": "Messages",
-  "Тут буде повноцінне особисте листування. Месенджер ще розробляється.": "Une messagerie privée complète sera disponible ici. Elle est encore en développement.",
   "Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.": "Les notifications vous aideront à suivre les activités et les réponses. De nouvelles fonctions arrivent.",
   "Тут з’явиться музичний простір VATRA. Функція ще в розробці.": "L’espace musical de VATRA apparaîtra ici. Cette fonction est en développement.",
   "Твій профіль": "Votre profil",
@@ -3502,7 +3390,6 @@
   "Нещодавні": "Récents",
   "Очистити всю історію": "Effacer tout l’historique",
   "Історії": "Stories",
-  "Месенджер": "Messagerie",
   "Меню акаунта": "Menu du compte",
   "Кількість запитів: {count}": "Nombre de recherches : {count}",
   "Ваша історія": "Votre story",
@@ -3535,7 +3422,6 @@
   "Ваш друг у VATRA": "Votre ami sur VATRA",
   "Хоче додатися до друзів": "Souhaite vous ajouter",
   "Запит надіслано": "Demande envoyée",
-  "Профіль і повідомлення": "Profil et messages",
   "Прийняти": "Accepter",
   "Видалити з друзів": "Retirer des amis",
   "Відхилити": "Refuser",
@@ -3706,91 +3592,95 @@
   "Введіть електронну пошту.": "Saisissez votre adresse e-mail.",
   "Повторіть пароль.": "Confirmez le mot de passe.",
   "Введіть код підтвердження з листа.": "Saisissez le code de vérification reçu par e-mail.",
-  "Пошук за ім'ям або VATRA ID": "Rechercher par nom ou VATRA ID",
-  "Напишіть повідомлення…": "Écrivez un message…",
-  "Не менше 14 символів": "Au moins 14 caractères",
-  "Оберіть розмову": "Choisir une conversation",
-  "Наскрізне шифрування · Бета": "Chiffrement de bout en bout · Bêta",
-  "Шифрування між пристроями": "Chiffrement entre appareils",
-  "Помилка ключа": "Clé indisponible",
-  "Не вдалося перевірити ключ співрозмовника.": "Impossible de vérifier la clé du correspondant.",
-  "Співрозмовник ще не налаштував приватний месенджер.": "Le correspondant n’a pas encore configuré la messagerie privée.",
-  "УВАГА: відкритий ключ співрозмовника змінився. Перевірте відбиток поза VATRA.": "ATTENTION : la clé publique du correspondant a changé. Vérifiez son empreinte hors de VATRA.",
-  "Підтвердити новий ключ": "Faire confiance à cette nouvelle clé",
-  "Ви особисто перевірили новий відбиток ключа співрозмовника поза VATRA?": "Avez-vous vérifié personnellement la nouvelle empreinte de clé de votre correspondant hors de VATRA ?",
-  "Ключ співрозмовника недійсний.": "Clé du correspondant invalide.",
-  "Зашифроване повідомлення": "Message chiffré",
-  "Нова розмова": "Nouvelle conversation",
-  "Нічого не знайдено.": "Aucun résultat.",
-  "Поки немає розмов. Натисніть +, щоб почати.": "Aucune conversation pour le moment. Appuyez sur + pour commencer.",
-  "Ключ відправника не підтверджено. Перевірте відбиток співрозмовника.": "Identité de l’expéditeur non vérifiée. Vérifiez l’empreinte de clé de votre correspondant.",
-  "Не вдалося розшифрувати для цього ключа.": "Impossible de déchiffrer avec cette clé.",
-  "Ваше повідомлення": "Votre message",
-  "Повідомлення співрозмовника": "Message du correspondant",
-  "Видалити повідомлення": "Supprimer le message",
-  "Не вдалося оновити розмови. Спробуйте ще раз.": "Impossible d’actualiser les conversations. Réessayez.",
-  "Максимум 2000 символів.": "2000 caractères maximum.",
-  "Не вдалося надіслати зашифроване повідомлення. Перевірте доступ і ключ співрозмовника.": "Échec de l’envoi chiffré. Vérifiez l’accès et la clé du correspondant.",
-  "Видалення не підтверджено сервером. Спробуйте ще раз.": "La suppression n’a pas été confirmée par le serveur. Réessayez.",
-  "Потрібен ключ з вашого пристрою": "La clé de votre appareil est nécessaire",
-  "Ваш ключ уже створений в іншому браузері. Імпортуйте його зашифровану резервну копію. Без неї повідомлення відновити неможливо.": "Votre clé a été créée dans un autre navigateur. Importez sa sauvegarde chiffrée. Sans elle, vous ne pourrez pas récupérer vos messages.",
-  "Створіть приватний ключ": "Créer une clé privée",
-  "Введіть унікальну парольну фразу від 14 символів. Вона захистить ваш ключ на цьому пристрої. VATRA її не зберігає. Після створення збережіть зашифровану резервну копію.": "Utilisez une phrase secrète unique d’au moins 14 caractères. Elle protège la clé de cet appareil. VATRA ne la conserve pas. Enregistrez ensuite une sauvegarde chiffrée.",
-  "Відновіть ключ": "Restaurer votre clé",
-  "Введіть парольну фразу з резервної копії.": "Saisissez la phrase secrète de la sauvegarde.",
-  "Розблокуйте повідомлення": "Déverrouiller les messages",
-  "Ваш приватний ключ зашифрований на пристрої. Введіть парольну фразу для розмов.": "Votre clé privée est chiffrée sur cet appareil. Saisissez la phrase secrète pour discuter.",
-  "Створити ключ": "Créer une clé",
-  "Відновити": "Restaurer",
-  "Розблокувати": "Déverrouiller",
-  "Парольна фраза має містити щонайменше 14 символів.": "La phrase secrète doit comporter au moins 14 caractères.",
-  "Парольні фрази не збігаються.": "Les phrases secrètes ne correspondent pas.",
-  "Ваш локальний ключ розблоковано": "Votre clé locale est déverrouillée",
-  "Не вдалося відкрити ключ.": "Impossible d’ouvrir la clé.",
-  "Цей пристрій не має вашого приватного ключа. Імпортуйте зашифровану копію.": "Cet appareil ne possède pas votre clé privée. Importez votre sauvegarde chiffrée.",
-  "Браузер не підтримує необхідні захищені функції.": "Le navigateur ne prend pas en charge les fonctions de sécurité requises.",
-  "Не знайдено ваш VATRA ID.": "Votre VATRA ID est introuvable.",
-  "Вкажіть інший коректний VATRA ID.": "Saisissez un autre VATRA ID valide.",
-  "Користувача не знайдено.": "Utilisateur introuvable.",
-  "Не вдалося зберегти резервну копію.": "Impossible de télécharger la sauvegarde.",
-  "Непридатний файл резервної копії.": "Fichier de sauvegarde invalide.",
-  "Не вдалося запустити месенджер. Оновіть сторінку.": "Impossible de démarrer la messagerie. Actualisez la page.",
-  "Ваші приватні розмови": "Vos conversations privées",
-  "Пошук розмов": "Rechercher des conversations",
-  "Шифрування потребує налаштування": "Le chiffrement nécessite une configuration",
-  "Ваші розмови — ваш простір": "Vos conversations, votre espace",
-  "Оберіть співрозмовника або почніть нову розмову. Повідомлення шифруються перед відправленням.": "Choisissez un contact ou commencez une nouvelle conversation. Les messages sont chiffrés avant l’envoi.",
-  "E2EE бета · Ключі лише у вас · Метадані не приховані": "E2EE bêta · Vous seul détenez vos clés · Les métadonnées ne sont pas masquées",
-  "Деталі розмови": "Détails de la conversation",
-  "Переглянути профіль": "Voir le profil",
-  "Захист повідомлень": "Protection des messages",
-  "Шифрування ECDH P-256 та AES-256-GCM у браузері. Ця бета не використовує Signal Double Ratchet і не має прямої секретності.": "ECDH P-256 et AES-256-GCM dans le navigateur. Cette bêta n’utilise pas Signal Double Ratchet et ne garantit pas la confidentialité persistante.",
-  "Відбиток ключа співрозмовника": "Empreinte de clé du correspondant",
-  "Звіряйте відбитки ключів поза VATRA, щоб помітити підміну.": "Comparez les empreintes de clés hors de VATRA pour détecter une usurpation d’identité.",
-  "Мій ключ": "Ma clé",
-  "Зберегти зашифровану копію": "Télécharger la sauvegarde chiffrée",
-  "Відновити з копії": "Restaurer depuis une sauvegarde",
-  "Без копії ключа та парольної фрази старі повідомлення не відновити.": "Sans la sauvegarde de votre clé et votre phrase secrète, les anciens messages sont irrécupérables.",
-  "Парольна фраза ключа": "Phrase secrète de la clé",
-  "Повторіть парольну фразу": "Confirmer la phrase secrète",
-  "Вибрати резервну копію ключа": "Choisir la sauvegarde chiffrée de la clé",
-  "Повернутися до стрічки": "Retour au fil",
-  "Введіть VATRA ID людини, якій хочете написати.": "Saisissez le VATRA ID de la personne à qui vous souhaitez écrire.",
-  "Відкрити розмову": "Ouvrir la conversation",
-  "Видалити повідомлення?": "Supprimer le message ?",
-  "Ви можете прибрати повідомлення лише в себе або відкликати його для всіх, якщо ви відправник.": "Vous pouvez masquer le message pour vous seul ou l’annuler pour tout le monde si vous en êtes l’expéditeur.",
-  "Видалити в себе": "Supprimer pour moi",
-  "Видалити для всіх": "Supprimer pour tous",
-  "Приватні повідомлення VATRA.": "Messages privés sur VATRA.",
-  "VATRA — стрічка": "VATRA — Fil",
-  "Навігація": "Navigation",
-  "Список розмов": "Liste des conversations",
-  "Повернутися до розмов": "Retour aux conversations",
-  "Інформація про розмову": "Informations sur la conversation",
-  "Надіслати": "Envoyer",
-  "Закрити деталі": "Fermer les détails",
-  "Захистіть свої розмови": "Protégez vos conversations",
-  "Додати кліп": "Ajouter un clip",
+  "{name} прийняв вашу заявку в друзі": "{name} a accepté votre demande d’amitié",
+  "{name} прийняла вашу заявку в друзі": "{name} a accepté votre demande d’amitié",
+  "Вашу заявку в друзі прийнято: {name}": "{name} a accepté votre demande d’amitié",
+  "{name} відхилив вашу заявку в друзі": "{name} a refusé votre demande d’amitié",
+  "{name} відхилила вашу заявку в друзі": "{name} a refusé votre demande d’amitié",
+  "Вашу заявку в друзі відхилено: {name}": "{name} a refusé votre demande d’amitié",
+  "{name} вподобав вашу публікацію": "{name} a aimé votre publication",
+  "{name} вподобала вашу публікацію": "{name} a aimé votre publication",
+  "Вашу публікацію вподобано: {name}": "{name} a aimé votre publication",
+  "{name} вподобав ваш коментар": "{name} a aimé votre commentaire",
+  "{name} вподобала ваш коментар": "{name} a aimé votre commentaire",
+  "Ваш коментар вподобано: {name}": "{name} a aimé votre commentaire",
+  "{name} вподобав ваше фото профілю": "{name} a aimé votre photo de profil",
+  "{name} вподобала ваше фото профілю": "{name} a aimé votre photo de profil",
+  "Ваше фото профілю вподобано: {name}": "{name} a aimé votre photo de profil",
+  "{name} вподобав ваш коментар під фото": "{name} a aimé un commentaire sous votre photo",
+  "{name} вподобала ваш коментар під фото": "{name} a aimé un commentaire sous votre photo",
+  "Ваш коментар під фото вподобано: {name}": "{name} a aimé un commentaire sous votre photo",
+  "Поки немає сповіщень": "Aucune notification pour le moment",
+  "Нові сповіщення з'являться тут.": "Les nouvelles notifications apparaîtront ici.",
+  "Налаштування сповіщень": "Paramètres des notifications",
+  "Прийняти заявку в друзі": "Accepter la demande d’amitié",
+  "Відхилити заявку в друзі": "Refuser la demande d’amitié",
+  "Переглянути публікацію": "Voir la publication",
+  "Фото профілю": "Photo de profil",
+  "Коментар: ": "Commentaire : ",
+  "Публікація: ": "Publication : ",
+  "Опитування": "Sondage",
+  "Запитання опитування": "Question du sondage",
+  "Додати варіант": "Ajouter une option",
+  "Можна вибрати кілька варіантів": "Autoriser plusieurs réponses",
+  "Анонімне голосування": "Vote anonyme",
+  "Дозволити зміну голосу": "Autoriser la modification du vote",
+  "Завершити опитування (необов’язково)": "Terminer le sondage (facultatif)",
+  "Мінімум два різні варіанти відповіді.": "Indiquez au moins deux réponses différentes.",
+  "Варіант відповіді": "Option de réponse",
+  "Прибрати варіант": "Retirer l’option",
+  "Заповніть запитання та мінімум два різні варіанти.": "Saisissez une question et deux réponses différentes.",
+  "Запланувати публікацію": "Programmer la publication",
+  "Дата і час публікації": "Date et heure de publication",
+  "Публікацію автоматично додасть сервер у вибраний час.": "Le serveur publiera automatiquement à l’heure choisie.",
+  "Виберіть майбутню дату щонайменше через дві хвилини.": "Choisissez une date dans au moins deux minutes.",
+  "Запланувати": "Programmer",
+  "Заплановані публікації": "Publications programmées",
+  "Завантаження…": "Chargement…",
+  "Помилка": "Erreur",
+  "Запланованих дописів поки немає.": "Aucune publication programmée.",
+  "Не вдалося завантажити заплановані дописи.": "Impossible de charger les publications programmées.",
+  "Перевірте текст, опитування та дату публікації.": "Vérifiez le texte, le sondage et la date de publication.",
+  "Публікацію заплановано. Вона з’явиться автоматично у вибраний час.": "Publication programmée. Elle paraîtra automatiquement à l’heure choisie.",
+  "Голосувати": "Voter",
+  "голосів": "votes",
+  "Завершено": "Terminé",
+  "Результати": "Résultats",
+  "Скасувати голос": "Retirer mon vote",
+  "Переглянути результати": "Voir les résultats",
+  "Приховати результати": "Masquer les résultats",
+  "Не вдалося зберегти голос.": "Impossible d’enregistrer le vote.",
+  "Не вдалося скасувати голос.": "Impossible de retirer le vote.",
+  "Не вдалося завантажити результати опитування.": "Impossible de charger les résultats du sondage.",
+  "Не вдалося опублікувати": "Échec de publication",
+  "Публікація з медіа": "Publication multimédia",
+  "Не вдалося зберегти дату публікації.": "Impossible d’enregistrer la date de publication.",
+  "Опитування має завершитися після публікації.": "Le sondage doit se terminer après la publication.",
+  "проголосували за цей варіант": "ont voté pour cette option",
+  "І ще ": "Et ",
+  " учасників": " autres participants",
+  "Поки немає голосів": "Aucun vote pour le moment",
+  "Не вдалося завантажити учасників.": "Impossible de charger les votants.",
+  "Хто проголосував": "Qui a voté ?",
+  "Показати, хто проголосував за ": "Afficher les votants pour ",
+  "Редагувати опис": "Modifier la description",
+  "Не вдалося зберегти.": "Impossible d’enregistrer.",
+  "Зробити фотографією профілю": "Définir comme photo de profil",
+  "Не вдалося відкрити фото.": "Impossible d’ouvrir la photo.",
+  "Видалити вибрані фотографії?": "Supprimer les photos sélectionnées ?",
+  "Не всі фотографії видалено.": "Certaines photos n’ont pas été supprimées.",
+  "Вибрати фотографію": "Sélectionner la photo",
+  "Вибрати декілька": "Sélectionner plusieurs photos",
+  "Перемістити": "Déplacer",
+  "Фотографії відновлено.": "Photos restaurées.",
+  "Фотографії архівовано.": "Photos archivées.",
+  "Перемістити фотографії": "Déplacer les photos",
+  "Доступні альбоми з таким самим або суворішим рівнем приватності.": "Les albums disponibles ont un niveau de confidentialité identique ou plus strict.",
+  "Фотографії переміщено.": "Photos déplacées.",
+  "Не вдалося перемістити фотографії.": "Impossible de déplacer les photos.",
+  "Архів порожній.": "Les archives sont vides.",
+  "Повертайтеся до своїх людей та улюблених спільнот.": "Retrouvez vos proches et vos communautés préférées.",
+  "Додати кліп": "Créer un clip",
   "Для вас": "Pour vous",
   "Мої кліпи": "Mes clips",
   "Пошук кліпів": "Rechercher des clips",
@@ -3798,7 +3688,7 @@
   "Нові кліпи": "Nouveaux clips",
   "Кліпів поки немає": "Aucun clip pour le moment",
   "Спробуйте інший запит.": "Essayez une autre recherche.",
-  "Поділіться першим коротким відео у VATRA.": "Partagez la première courte vidéo sur VATRA.",
+  "Поділіться першим коротким відео у VATRA.": "Partagez la première vidéo courte sur VATRA.",
   "Опублікувати кліп": "Publier un clip",
   "Відкрити кліп": "Ouvrir le clip",
   "Кліп VATRA": "Clip VATRA",
@@ -3808,19 +3698,16 @@
   "← Усі кліпи": "← Tous les clips",
   "Відтворити": "Lire",
   "Коментарі та реакції": "Commentaires et réactions",
-  "Коментарі тимчасово недоступні.": "Commentaires temporairement indisponibles.",
+  "Коментарі тимчасово недоступні.": "Les commentaires sont temporairement indisponibles.",
   "Кліп недоступний.": "Clip indisponible.",
   "Не вдалося завантажити кліпи.": "Impossible de charger les clips.",
-  "Не вдалося відкрити форму кліпу.": "Impossible d’ouvrir l’éditeur de clips.",
-  "Новий кліп": "Nouveau clip",
-  "Відео MP4 або WebM · до 50 МБ, до 60 секунд": "Vidéo MP4 ou WebM · 50 Mo et 60 secondes maximum",
-  "Опис кліпу": "Description du clip",
-  "Кліп з’явиться лише у розділі «Кліпи» та у вкладці «Кліпи» вашого профілю. Видимість залежить від приватності профілю.": "Votre clip apparaîtra uniquement dans Clips et l’onglet Clips de votre profil, selon vos paramètres de confidentialité.",
-  "Виберіть MP4 або WebM до 50 МБ.": "Choisissez un fichier MP4 ou WebM de 50 Mo maximum.",
-  "Тривалість кліпу має бути до 60 секунд.": "Un clip ne peut pas dépasser 60 secondes.",
+  "Не вдалося відкрити форму кліпу.": "Impossible d’ouvrir l’éditeur de clip.",
+  "Відновити": "Restaurer",
+  "Розблокувати": "Déverrouiller",
+  "Переглянути профіль": "Voir le profil",
+  "Надіслати": "Envoyer",
   "Онлайн": "En ligne",
   "Друг у VATRA": "Ami sur VATRA",
-  "Написати": "Envoyer un message",
   "Додати в друзі": "Ajouter aux amis",
   "У друзях": "Dans vos amis",
   "Запит": "Demande",
@@ -3837,101 +3724,16 @@
   "Переглянути": "Voir",
   "Вашу заявку в друзі прийнято": "Votre demande d’ami a été acceptée",
   "Ви отримали подарунок!": "Vous avez reçu un cadeau !",
-  "Нове повідомлення": "Nouveau message",
-  "Остання активність: ": "Dernière activité : ",
-  "Оберіть категорію": "Choisir une catégorie",
-  "Оберіть категорію спільноти.": "Choisissez une catégorie de communauté.",
-  "Пошук спільнот": "Rechercher des communautés",
-  "Усі теми": "Tous les thèmes",
-  "Скинути тему": "Effacer le thème",
-  "Пошук за темою": "Rechercher par thème",
-  "Попередні теми": "Thèmes précédents",
-  "Наступні теми": "Thèmes suivants",
-  "Згорнути": "Réduire",
-  "Мої спільноти": "Mes communautés",
-  "Перегляньте свої підписки.": "Consultez vos abonnements.",
-  "Ваші спільноти з’являться тут.": "Vos communautés apparaîtront ici.",
-  "Мої підписки": "Abonnements",
-  "Керую": "Gérées",
-  "Нові спільноти": "Nouvelles communautés",
-  "Приєднатися": "Rejoindre",
-  "Не вдалося перевірити всі підписки.": "Impossible de vérifier toutes les adhésions.",
-  "У цій категорії ще немає спільнот": "Aucune communauté dans cette catégorie pour le moment",
-  "Нічого не знайдено": "Aucun résultat",
-  "Ви ще не підписані на спільноти": "Vous n’avez rejoint aucune communauté",
-  "У вас ще немає спільнот": "Vous n’avez pas encore de communautés",
-  "Тут починаються спільноти": "Les communautés commencent ici",
-  "Оберіть іншу тему або створіть власну спільноту.": "Choisissez un autre thème ou créez votre propre communauté.",
-  "Знайдіть цікаві спільноти та приєднуйтеся до них.": "Trouvez des communautés qui vous intéressent et rejoignez-les.",
-  "Створіть місце для однодумців, друзів або свого проєкту.": "Créez un espace pour les personnes qui partagent vos centres d’intérêt, vos amis ou votre projet.",
-  "Дописи ваших друзів": "Publications de vos amis",
-  "Дописи ваших спільнот": "Publications de vos communautés",
-  "Усі доступні публікації": "Toutes les publications accessibles",
-  "Відкрити профіль VATRA ID ": "Ouvrir le profil VATRA ID ",
-  "Спільнота: ": "Communauté : ",
   "Спільнота VATRA": "Communauté VATRA",
-  "Не вдалося архівувати публікацію.": "Impossible d’archiver la publication.",
-  "Результати пошуку VATRA": "Résultats de recherche VATRA",
-  "Знайдено у VATRA": "Trouvé sur VATRA",
-  "Друзі поки не публікували дописів": "Vos amis n’ont pas encore publié",
-  "У спільнотах поки немає дописів": "Aucune publication de communauté pour le moment",
-  "Поки немає публікацій": "Aucune publication pour le moment",
-  "Спробуйте інший пошуковий запит.": "Essayez une autre recherche.",
-  "Друзі ще не опублікували дописів.": "Vos amis n’ont pas encore publié.",
-  "У ваших спільнотах поки немає дописів.": "Vos communautés n’ont pas encore de publications.",
-  "Додайте друзів або підпишіться на спільноту. Тут будуть ваші публікації та їхні дописи.": "Ajoutez des amis ou suivez une communauté pour voir leurs publications avec les vôtres.",
-  "Не вдалося завантажити стрічку. Спробуйте ще раз.": "Impossible de charger le fil. Réessayez.",
   "Фото": "Photo",
   "Не вдалося відкрити редактор публікацій.": "Impossible d’ouvrir l’éditeur de publications.",
-  "Додайте текст, фото або відео.": "Ajoutez du texte, une photo ou une vidéo.",
   "Публікацію додано.": "Publication ajoutée.",
-  "Історію опубліковано на 24 години.": "Story publiée pour 24 heures.",
   "Не вдалося відкрити редактор історій.": "Impossible d’ouvrir l’éditeur de stories.",
   "Не вдалося видалити.": "Impossible de supprimer la publication.",
-  "Відкрити фільтр стрічки": "Ouvrir les filtres du fil",
-  "Закрити фільтр стрічки": "Fermer les filtres du fil",
-  "Керування акаунтом": "Gérer le compte",
-  "Категорії пошуку": "Catégories de recherche",
-  "Розгорнути результати": "Afficher plus de résultats",
-  "Видалити з історії": "Retirer de l’historique",
-  "Нещодавно переглянуті": "Consultés récemment",
   "Створити оголошення": "Créer une annonce",
-  "Назва": "Titre",
-  "Опис": "Description",
-  "Ціна": "Prix",
   "Місто": "Ville",
-  "Фото · до 10 файлів по 30 МБ": "Photos · jusqu’à 10 fichiers de 30 Mo chacun",
-  "Прибрати фото": "Retirer la photo",
-  "Обкладинка": "Photo de couverture",
-  "Оберіть JPG, PNG або WebP до 30 МБ кожне.": "Choisissez des fichiers JPG, PNG ou WebP de 30 Mo maximum chacun.",
-  "Можна додати не більше 10 фотографій.": "Vous pouvez ajouter 10 photos maximum.",
-  "Виберіть стан": "Choisir l’état",
-  "Категорія": "Catégorie",
   "Підкатегорія": "Sous-catégorie",
-  "Стан": "État",
-  "Виберіть підкатегорію": "Choisir une sous-catégorie",
-  "Виберіть категорію, а потім підкатегорію — покупці знайдуть оголошення саме там.": "Choisissez une catégorie puis une sous-catégorie afin que les acheteurs trouvent votre annonce.",
-  "Підтверджую, що оголошення відповідає правилам торгівлі VATRA.": "Je confirme que cette annonce respecte les règles commerciales de VATRA.",
-  "Правила торгівлі": "Règles commerciales",
-  "Попередній перегляд": "Aperçu",
-  "Продавець: ": "Vendeur : ",
-  "Назва товару": "Titre de l’annonce",
   "Стан: ": "État : ",
-  "Тут з’явиться опис товару.": "La description de votre article apparaîtra ici.",
-  "Додайте фотографії, щоб побачити оголошення.": "Ajoutez des photos pour prévisualiser l’annonce.",
-  "Виберіть тип оголошення": "Choisir le type d’annonce",
-  "Правила торгівлі VATRA": "Règles commerciales de VATRA",
-  "Нові оголошення з’являються в каталозі після перевірки правил торгівлі.": "Les nouvelles annonces apparaissent dans le catalogue après vérification des règles commerciales.",
-  "Орендна плата за місяць": "Loyer mensuel",
-  "Виберіть категорію": "Choisir une catégorie",
-  "Перевірте оголошення": "Vérifier l’annonce",
-  "Після надсилання оголошення пройде перевірку правил торгівлі. До схвалення його бачите лише ви та модератор.": "Après soumission, l’annonce sera vérifiée selon les règles commerciales. Jusqu’à son approbation, vous et le modérateur êtes les seuls à la voir.",
-  "VATRA поки не обробляє платежі. Не переказуйте гроші незнайомим без перевірки.": "VATRA ne traite pas les paiements. Vérifiez les vendeurs avant d’envoyer de l’argent.",
-  "Надіслати на перевірку": "Soumettre à vérification",
-  "Завантажуємо фотографії…": "Importation des photos…",
-  "Доступ до публікації обмежено.": "La publication d’annonces est restreinte.",
-  "Не вдалося надіслати оголошення на перевірку. Спробуйте ще раз.": "Impossible de soumettre l’annonce à vérification. Réessayez.",
-  "Оголошення надіслано на перевірку.": "Annonce soumise à vérification.",
   "Валюта": "Devise",
   "Усі валюти": "Toutes les devises",
   "Введіть суму від 0 до 999 999 999, до двох знаків після коми.": "Saisissez un montant compris entre 0 et 999 999 999, avec deux décimales au maximum.",
@@ -3961,7 +3763,6 @@
   "Категорії": "Catégories",
   "Безкоштовно": "Gratuit",
   " / міс.": " / mois",
-  "Написати продавцю": "Contacter le vendeur",
   "Чому оголошення порушує правила?": "Pourquoi cette annonce enfreint-elle les règles ?",
   "Чому рішення слід переглянути?": "Pourquoi cette décision devrait-elle être réexaminée ?",
   "Надіслати звернення": "Envoyer la demande",
@@ -4043,7 +3844,6 @@
   "Редагувати публікацію": "Modifier la publication",
   "Текст публікації": "Texte de la publication",
   "Додайте текст.": "Ajoutez du texte.",
-  "Не вдалося зберегти.": "Enregistrement impossible.",
   "Скопіювати посилання": "Copier le lien",
   "Увімкнути коментарі": "Activer les commentaires",
   "Вимкнути коментарі": "Désactiver les commentaires",
@@ -4064,13 +3864,10 @@
   "Прибрати вкладення": "Supprimer la pièce jointe",
   "Коментування цієї публікації вимкнено.": "Les commentaires sont désactivés pour cette publication.",
   "Не вдалося підготувати стікер. Спробуйте ще раз.": "Impossible de préparer l'autocollant. Réessayez.",
-  "Завантаження…": "Chargement…",
   "Фото: до 30 МБ. Відео: до 50 МБ. Доступні JPEG, PNG, WebP, MP4, WebM.": "Photos : 30 Mo maximum. Vidéos : 50 Mo maximum. Formats : JPEG, PNG, WebP, MP4, WebM.",
-  "Відповідь для ": "Réponse à ",
   "Стікер": "Autocollant",
   "Фото в коментарі": "Photo dans le commentaire",
   "Користувач VATRA": "Membre VATRA",
-  "Коментар видалено.": "Commentaire supprimé.",
   "Не вдалося видалити коментар.": "Impossible de supprimer le commentaire.",
   "Можливий спам": "Indésirable potentiel",
   "Відповісти": "Répondre",
@@ -4097,19 +3894,12 @@
   "Ваш коментар до поширення": "Votre commentaire pour le partage",
   "Публікація VATRA": "Publication VATRA",
   "Відеопублікація": "Publication vidéo",
-  "Публікація з медіа": "Publication avec médias",
   "Поділитися зараз": "Partager maintenant",
-  "Надіслати у повідомленні": "Envoyer dans un message",
-  "Оберіть друга": "Choisissez un ami",
   "Поширити посилання": "Partager le lien",
   "Поширена публікація": "Publication partagée",
   "Не вдалося поділитися публікацією.": "Impossible de partager la publication.",
   "Публікацію додано у ваш профіль.": "Publication ajoutée à votre profil.",
   "Завантаження друзів…": "Chargement des amis…",
-  "Немає друзів для надсилання": "Aucun ami disponible pour l'envoi",
-  "Не вдалося завантажити друзів": "Impossible de charger les amis",
-  "Поглянь на цей допис: ": "Regarde cette publication : ",
-  "Не вдалося передати чернетку безпечно. Скопіюйте посилання.": "Impossible de transférer le brouillon de manière sécurisée. Copiez le lien.",
   "Скопійовано": "Copié",
   "Не вдалося скопіювати. Скопіюйте посилання з адресного рядка.": "Copie impossible. Copiez le lien depuis la barre d'adresse.",
   "Оригінальна публікація": "Publication d'origine",
@@ -4193,7 +3983,6 @@
   "Розблокувати користувача?": "Débloquer cet utilisateur ?",
   "Користувач знову зможе переглядати доступний йому вміст вашої сторінки та звертатися до вас.": "Cet utilisateur pourra de nouveau voir le contenu de votre profil qui lui est accessible et vous contacter.",
   "Заблокувати користувача?": "Bloquer cet utilisateur ?",
-  "Він бачитиме лише вашу обкладинку, аватар та ім’я. Публікації, історії, інформація профілю й особисті повідомлення будуть недоступні.": "Cette personne ne verra que votre couverture, votre avatar et votre nom. Publications, stories, informations du profil et messages privés seront indisponibles.",
   "Заблокувати": "Bloquer",
   "Не вдалося змінити блокування. Спробуйте ще раз.": "Impossible de modifier le blocage. Réessayez.",
   "На що ви хочете поскаржитися?": "Que souhaitez-vous signaler ?",
@@ -4250,12 +4039,10 @@
   "Не вдалося додати коментар.": "Impossible d'ajouter le commentaire.",
   "Посилання скопійовано.": "Lien copié.",
   "Не вдалося поділитися.": "Partage impossible.",
-  "Фото профілю": "Photo de profil",
   "Фото профілю ": "Photo de profil ",
   " із ": " sur ",
   "Поскаржитися на фото": "Signaler la photo",
   "Більше ": "Plus ",
-  "Зробити фотографією профілю": "Définir comme photo de profil",
   "Відкрити оригінал": "Ouvrir l'original",
   "Перейти до альбому": "Accéder à l'album",
   "Не вдалося відкрити обкладинку. Спробуйте ще раз.": "Impossible d'ouvrir la couverture. Réessayez.",
@@ -4265,11 +4052,6 @@
   "Не вдалося видалити історію. Спробуйте ще раз.": "Impossible de supprimer la story. Réessayez.",
   "Оберіть JPEG, PNG або WebP до 30 МБ.": "Choisissez une image JPEG, PNG ou WebP de 30 Mo maximum.",
   "Завантажуємо зображення…": "Importation de l'image…",
-  "Підготовка до завантаження…": "Préparation de l'importation…",
-  "Оригінал завантажено.": "Original importé.",
-  "Фотографію завантажено. Зберігаємо профіль…": "Photo importée. Enregistrement du profil…",
-  "Фото профілю збережено.": "Photo de profil enregistrée.",
-  "Помилка завантаження.": "Erreur d'importation.",
   "Не вдалося завантажити зображення. Спробуйте ще раз.": "Impossible d'importer l'image. Réessayez.",
   "Видалити фото?": "Supprimer la photo ?",
   "Після видалення ви зможете відновити фото в переглядачі, поки не закриєте його.": "Après suppression, vous pourrez restaurer la photo dans la visionneuse tant que celle-ci reste ouverte.",
@@ -4282,8 +4064,6 @@
   "Не вдалося відкрити редактор обкладинки.": "Impossible d'ouvrir l'éditeur de couverture.",
   "Інформацію про себе поки не додано.": "Aucune information personnelle ajoutée pour le moment.",
   "Користувач ще не додав інформацію про себе.": "Cet utilisateur n'a pas encore ajouté d'informations personnelles.",
-  "Вітаю! Мене цікавить оголошення «": "Bonjour ! Je suis intéressé par l'annonce « ",
-  "». Воно ще актуальне?": " ». Est-elle toujours disponible ?",
   "Не вдалося завантажити профіль. Оновіть сторінку.": "Impossible de charger le profil. Actualisez la page.",
   "Нова історія": "Nouvelle story",
   "Попередній перегляд історії": "Aperçu de la story",

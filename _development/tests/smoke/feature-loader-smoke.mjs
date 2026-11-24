@@ -70,7 +70,9 @@ assert.ok(loader.includes('assets/js/profile-gallery.js?rev=')&&
  profile.includes('setupLazyProfileGallery(client,targetId,ownId,user.id)')&&
  profile.includes('VATRA_FEATURES.load("profile-gallery")')&&
  gallery.includes('window.VATRA_PROFILE_GALLERY=Object.freeze({mount})')&&
- gallery.includes('window.addEventListener("vatra:profile-media-changed",activate)'),
+ gallery.includes('window.addEventListener("vatra:profile-media-changed",()=>{')&&
+ gallery.includes('tab.getAttribute("aria-selected")==="true"&&(!refreshedAt||Date.now()-refreshedAt>=REUSE_MS)')&&
+ gallery.includes('if(busy){refreshQueued=true;return;}'),
  "Photo, video and clip galleries are initialized only after opening a media tab");
 assert.ok(giftsHtml.includes('href="assets/css/gifts.css"'),"Collection cards retain gift styles");
 assert.ok(loader.includes("gift-viewer.js?rev=")&&loader.includes('css:"assets/css/gifts.css"')&&
@@ -199,17 +201,26 @@ class CommentElement{
   this.tagName=tag.toUpperCase();this.className=cls;this.textContent=copy;
   this.children=[];this.dataset={};this.style={};this.attributes={};this.listeners={};
   this.disabled=false;this.removed=false;
-  this.classList={add(){},remove(){}};
+  const classes=new Set(String(cls).split(/\s+/).filter(Boolean));
+  this.classList={
+   add(value){classes.add(value);},remove(value){classes.delete(value);},
+   contains(value){return classes.has(value);}
+  };
  }
  append(...parts){this.children.push(...parts);}
  setAttribute(name,value){this.attributes[name]=String(value);}
  addEventListener(name,callback){this.listeners[name]=callback;}
  remove(){this.removed=true;}
 }
-const commentWindow={VATRA_PROFILE_CONFIRM:async()=>true,VATRA_VERIFIED:{attach(){}}};
+const commentWindow={VATRA_PROFILE_CONFIRM:async()=>true,VATRA_VERIFIED:{attach(){}},
+ addEventListener(){}};
+let timeoutId=0;
+const deletionTimers=new Map();
 runInNewContext(commentRows,{
  window:commentWindow,
- document:{createElementNS(_namespace,tag){return new CommentElement(tag);}}
+ document:{createElementNS(_namespace,tag){return new CommentElement(tag);}},
+ setTimeout(fn){const id=++timeoutId;deletionTimers.set(id,fn);return id;},
+ clearTimeout(id){deletionTimers.delete(id);}
 },{filename:"profile-avatar-comment-row.js"});
 const rowOps=[];let cacheInvalidations=0,deletedNotifications=0;
 const apiClient={
@@ -252,8 +263,19 @@ const ownCard=commentWindow.VATRA_PROFILE_AVATAR_COMMENT_ROW.create(rowItem,
 const deleteAction=ownCard.children.find(el=>el.className.includes("comment-delete"));
 assert.ok(deleteAction,"Owner must keep the delete action");
 await deleteAction.listeners.click();
-assert.equal(ownCard.removed,true,"Confirmed own comment must disappear");
-assert.equal(deletedNotifications,1,"Deletion must update comment pagination");
+assert.equal(ownCard.removed,false,"Deleting a comment must allow a short undo window");
+const tombstones=ownCard.children.filter(el=>el.className.includes("photo-comment-deleted"));
+const undo=tombstones.at(-1)?.children.find(el=>el.className.includes("comment-undo"));
+assert.ok(undo,"The deleted comment must offer inline restore");
+await undo.listeners.click();
+assert.equal(deletionTimers.size,0,"Undo must cancel the pending server deletion");
+assert.equal(ownCard.removed,false,"Restoring a comment must keep it visible");
+await deleteAction.listeners.click();
+assert.equal(deletionTimers.size,1,"A new delete must schedule one bounded operation");
+for(const fn of deletionTimers.values())fn();
+await new Promise(resolve=>setImmediate(resolve));
+assert.equal(ownCard.removed,true,"After the undo interval the comment must disappear");
+assert.equal(deletedNotifications,1,"Final deletion must update comment pagination");
 assert.ok(rowOps.some(op=>op.table==="avatar_comments"&&op.field==="author_id"&&op.value==="user-8"),
  "Delete query must constrain the author id, not just the comment id");
 console.log("VATRA lazy features: no eager payload, CSS before JS, deduplication, deep links, owner-only comment actions and retry passed.");
