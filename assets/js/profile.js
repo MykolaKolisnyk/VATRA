@@ -169,7 +169,6 @@
      "and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")"
     ).eq("status","accepted").limit(1):
    Promise.resolve({data:[],error:null});
-  // Only the owner may start the details read before the visibility check.
   const ownerDetailsQuery=isMine?client.from("profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId):Promise.resolve(null);
   const [preference,friendship,ownerDetails]=await Promise.all([preferenceQuery,friendshipQuery,ownerDetailsQuery]);
