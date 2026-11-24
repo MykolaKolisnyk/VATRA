@@ -171,7 +171,9 @@ assert.ok(
  !profileGallery.includes('query=query.eq("media_kind",settings.kind)')&&
  profileGallery.includes('for(const item of settings.clip?items.slice(0,1):items)')&&
  profileGallery.includes('{...post,media_items:[item]}:post')&&
- profileGallery.includes('window.addEventListener("vatra:profile-media-changed",activate)')&&
+ profileGallery.includes('window.addEventListener("vatra:profile-media-changed",()=>{')&&
+ profileGallery.includes('refreshedAt=0;\n   if(busy){refreshQueued=true;return;}\n   activate();')&&
+ profileGallery.includes('if(refreshQueued){refreshQueued=false;if(tab.getAttribute("aria-selected")==="true")void load();}')&&
  profile.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))')&&
   profile.includes('setupLazyProfileGallery(client,targetId,ownId,user.id)'),
  "Photo, video and clip profile tabs must load every visible post media attachment, including new media_items-only posts and refreshed uploads"
