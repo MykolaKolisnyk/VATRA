@@ -1315,7 +1315,7 @@ assert.ok(
  profileScript.includes('friendMenuAction.addEventListener("click",()=>void changeFriendship())')&&
  profileScript.includes('t("Заявку надіслано","Request sent")')&&
  profileScript.includes('t("Заблокувати ","Block ")+firstName'),
- "Visitor actions must provide a dropdown for pending friend requests and More actions beside Message"
+ "Visitor actions must provide a dropdown for pending friend requests and More actions"
 );
 const avatarCommentRowScript=await read("assets/js/profile-avatar-comment-row.js");
 const profileCoverScript=await read("assets/js/profile-cover-editor.js");

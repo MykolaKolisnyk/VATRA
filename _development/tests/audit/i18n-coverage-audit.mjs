@@ -299,7 +299,6 @@ const friendsKeys=[
  "Ваш друг у VATRA",
  "Хоче додатися до друзів",
  "Запит надіслано",
- "Профіль і повідомлення",
  "Прийняти",
  "Видалити з друзів",
  "Відхилити",
@@ -314,7 +313,7 @@ const friendsKeys=[
  "Не вдалося завантажити друзів.",
  "Не вдалося відкрити друзів. Оновіть сторінку."
 ];
-assert.equal(friendsKeys.length,19,"Unexpected friend-area translation key count");
+assert.equal(friendsKeys.length,18,"Unexpected friend-area translation key count");
 assert.ok(friendsRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
  friendsRuntime.includes('const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
  !friendsRuntime.includes('const en=()=>document.documentElement.lang==="en";'),
