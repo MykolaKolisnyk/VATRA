@@ -87,9 +87,6 @@
 
 
 .signup-brand{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:center;min-width:0;min-height:0;padding:clamp(32px,4.2vw,66px);border-radius:28px 0 0 28px;color:#fff;background:radial-gradient(circle at 85% 23%,rgba(140,86,241,.43),transparent 34%),radial-gradient(circle at 8% 75%,rgba(28,107,240,.24),transparent 38%),linear-gradient(155deg,#172753,#101a3c 85%);}
-.signup-brand::before,.signup-brand::after{content:"";position:absolute;z-index:-1;pointer-events:none;border:1px solid rgba(218,228,255,.11);border-radius:50%;width:420px;aspect-ratio:1}
-.signup-brand::before{right:-245px;top:-150px}
-.signup-brand::after{left:-260px;bottom:-260px}
 .signup-brand-art{position:relative;display:grid;place-items:center;align-self:center;flex:0 0 auto;width:min(100%,340px);height:clamp(215px,22vw,275px);min-height:210px}
 .signup-brand-art-halo{position:absolute;inset:50% auto auto 50%;width:min(75%,250px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(126,102,243,.2),rgba(99,82,221,.08) 58%,transparent 72%);box-shadow:0 0 0 1px rgba(234,240,255,.08),0 0 0 28px rgba(205,220,255,.025)}
 
@@ -106,7 +103,7 @@
 .signup-form-overline .create-account-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}
 .signup-progress{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:26px}
 .signup-progress-segment{display:block;height:5px;border-radius:999px;background:#e6ebf6;transition:background-color .28s ease}
-.signup-progress-segment:first-child,.create-account-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
+.signup-progress-segment:first-child,.create-account-page[data-create-account-step="2"] .signup-progress-segment:last-child{background:var(--blue)}
 
 
 .signup-step{display:grid;gap:17px;min-width:0}
