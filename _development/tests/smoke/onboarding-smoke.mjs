@@ -56,7 +56,7 @@ assert.equal(saveState(store,"654321","done",7),true);
 assert.equal(readState(store,"654321").status,"done");
 assert.equal(readState(store,"789012").status,"skipped");
 backing.set(storedKey("789012"),JSON.stringify({status:"paused",step:100000}));
-assert.equal(readState(store,"789012").step,13,"Invalid stored step must be clamped");
+assert.equal(readState(store,"789012").step,[...source.matchAll(/\{selector:"([^"]+)"/g)].length-1,"Invalid stored step must be clamped");
 backing.set(storedKey("789012"),"{bad json}");
 assert.equal(readState(store,"789012"),null);
 assert.equal(saveState(store,"bad/id","done",0),false);

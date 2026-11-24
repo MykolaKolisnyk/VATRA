@@ -48,7 +48,6 @@ No user data was deleted.
 | `vatra_blocks` | `member_blocks` |
 | `vatra_community_follows` | `community_follows` |
 | `vatra_community_posts` | `community_posts` |
-| `vatra_direct_messages` | `direct_messages` |
 | `vatra_friendships` | `friendships` |
 | `vatra_post_comment_likes` | `post_comment_likes` |
 | `vatra_post_comments` | `post_comments` |
