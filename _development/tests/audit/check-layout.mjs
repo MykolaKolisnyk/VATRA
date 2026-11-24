@@ -1505,7 +1505,8 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('batch.append(same&&oldElement?oldElement:card(item,engagement))')&&
+ feedScript.includes('batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement))')&&
+ feedScript.includes('try{return card(post,engagement);}catch(error)')&&
  feedScript.includes('if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}')&&
  feedScript.includes('else posts.append(batch);')&&
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
