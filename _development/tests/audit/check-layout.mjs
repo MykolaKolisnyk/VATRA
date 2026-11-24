@@ -1511,7 +1511,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
- profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
+ profileScript.includes('const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,blockAccess,prepared}))')&&
  profileScript.includes('void mediaPromise.catch(()=>{')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&

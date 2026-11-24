@@ -53,3 +53,13 @@ vm.runInNewContext(feedRuntime.slice(begin,end)+"\nglobalThis.deadline=feedDeadl
 assert.equal(await deadlineContext.deadline(Promise.resolve("ok")),"ok");
 await assert.rejects(deadlineContext.deadline(new Promise(()=>{})),/Feed request timed out/);
 console.log("VATRA Feed: visible startup error, auth deadline and fail-closed account check verified.");
+
+const profileRuntime=await readFile("assets/js/profile.js","utf8");
+assert.ok(profileRuntime.includes('const prepared=profileDeadline(window.VATRA_PROFILE_DETAILS.prepare({client,ownId,targetId,isMine}))')&&
+ profileRuntime.indexOf('const prepared=profileDeadline')<profileRuntime.indexOf('const [directoryOutcome,publicOutcome,stateOutcome,blockOutcome]'),
+ "Profile visibility and own detail requests must overlap the identity checks");
+assert.ok(profileRuntime.includes('if(!isMine&&(blockOutcome.status!=="fulfilled"||blockOutcome.value.error))throw Error("Profile block check unavailable")')&&
+ profileRuntime.includes('const result=locked?{data:[],error:null}:isMine?ownerDetails:await client.from("profile_details")'),
+ "Visitor details remain behind the verified privacy and block gates");
+assert.ok(!profileRuntime.includes("if(locked)await mediaPromise;"),"Locked profile shell must not wait for image decoding");
+console.log("VATRA Profile: parallel access reads, bounded startup and non-blocking image presentation verified.");
