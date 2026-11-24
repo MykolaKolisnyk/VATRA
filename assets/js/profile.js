@@ -2105,10 +2105,9 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
 }
 
 function setupProfileInteractions(client,ownId,targetId,isMine){
- const friendButton=q("#profile-friend-button"),messageButton=q("#profile-message-button");
+ const friendButton=q("#profile-friend-button");
  const actionStatus=q("#profile-action-status");
  const friends=q("#profile-friends-list"),friendsEmpty=q("#profile-friends-empty");
- const validPeer=id=>validId(String(id))&&String(id)!==String(ownId);
  const show=(el,txt)=>{el.textContent=txt;el.hidden=!txt;};
  const makePerson=(id,description)=>{
   const row=node("div","profile-person ui-profile-person-"+id);
@@ -2125,7 +2124,6 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  const tabs=[...document.querySelectorAll("[data-profile-tab]")];
  function choose(name){
   if(!isMine&&["saved","archive-stories","archive-posts"].includes(name))return;
-  if(name==="messages"){location.assign(new URL("messenger.html",new URL("./",location.href)).href);return;}
 
   for(const tab of tabs){
    const active=tab.dataset.profileTab===name;
@@ -2154,15 +2152,9 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   });
  }
 
- if(isMine&&location.hash==="#profile-messages-section")choose("messages");
  if(!validId(ownId))return;
 
- const openConversation=peer=>{
-  if(validPeer(peer))location.assign(new URL("messenger.html?to="+encodeURIComponent(peer),new URL("./",location.href)).href);
- };
  if(!isMine){
-  messageButton.hidden=false;
-  messageButton.addEventListener("click",()=>void openConversation(targetId));
   const friendAction=q("#profile-friend-action"),friendMenu=q("#profile-friend-menu");
   const friendMenuAction=q("#profile-friend-menu-action"),friendMenuLabel=q("#profile-friend-menu-label");
   friendAction.hidden=false;friendButton.hidden=false;
@@ -3670,8 +3662,6 @@ async function start(){
   }).catch(()=>{});
   const requestedAction=new URLSearchParams(location.search);
   const sharedPhoto=requestedAction.get("photo")==="avatar";
-  const requestedMessage=requestedAction.get("message")==="1"&&!isMine&&!memberBlocked;
-  const requestedItem=String(requestedAction.get("item")||"").replace(/\s+/g," ").trim().slice(0,100);
 
 
 
@@ -3704,11 +3694,6 @@ async function start(){
    q("#profile-avatar-wrap")?.classList.remove("is-loading-media");
   });
   if(sharedPhoto&&!locked)void mediaPromise.then(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
-  if(requestedMessage&&!q("#profile-message-button")?.hidden){
-   q("#profile-message-button")?.click();
-   const draft=q("#profile-message-text");
-   if(draft&&requestedItem)draft.value=t("Вітаю! Мене цікавить оголошення «","Hello! I am interested in the listing “")+requestedItem+t("». Воно ще актуальне?","”. Is it still available?");
-  }
   void postsPromise;
  }catch(error){
   console.error("[VATRA] Profile initialization failed:",error);

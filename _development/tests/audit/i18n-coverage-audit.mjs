@@ -60,7 +60,7 @@ const tourStart=dynamicKeys.indexOf("Твоя стрічка");
 const tourEnd=dynamicKeys.indexOf("Поділися моментом у короткій історії. Історії зникають через 24 години.");
 assert.ok(tourStart>=0&&tourEnd>=tourStart,"Missing tour anchors in reference dictionary");
 const tourMessages=dynamicKeys.slice(tourStart,tourEnd+1);
-assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translation group");
+assert.equal(tourMessages.length,67,"Unexpected change in Vatryk tour translation group");
 
 
 const langJs=await readFile("assets/js/lang.js","utf8");
@@ -92,7 +92,6 @@ const socialShellKeys=[
  "Нещодавні",
  "Очистити всю історію",
  "Історії",
- "Месенджер",
  "Меню акаунта",
  "Кількість запитів: {count}",
  "Ваша історія"
@@ -300,7 +299,6 @@ const friendsKeys=[
  "Ваш друг у VATRA",
  "Хоче додатися до друзів",
  "Запит надіслано",
- "Профіль і повідомлення",
  "Прийняти",
  "Видалити з друзів",
  "Відхилити",
@@ -315,7 +313,7 @@ const friendsKeys=[
  "Не вдалося завантажити друзів.",
  "Не вдалося відкрити друзів. Оновіть сторінку."
 ];
-assert.equal(friendsKeys.length,19,"Unexpected friend-area translation key count");
+assert.equal(friendsKeys.length,18,"Unexpected friend-area translation key count");
 assert.ok(friendsRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
  friendsRuntime.includes('const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
  !friendsRuntime.includes('const en=()=>document.documentElement.lang==="en";'),
