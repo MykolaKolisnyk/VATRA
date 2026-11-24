@@ -67,6 +67,8 @@ jobs:
         run: node _development/tests/smoke/feed-subscriptions-smoke.mjs
       - name: Check global Feed search cancellation without production queries
         run: node _development/tests/smoke/feed-global-search-smoke.mjs
+      - name: Verify polls and scheduled post contracts
+        run: node _development/tests/smoke/post-planning-smoke.mjs
       - name: Audit unpublished multilingual page catalogs
         run: node _development/tests/audit/i18n-coverage-audit.mjs
       - name: Check SEO and site layout
@@ -167,6 +169,10 @@ jobs:
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
         run: node _development/tests/smoke/messenger-rls-smoke.mjs
+      - name: Verify poll RLS and scheduled publishing on disposable PostgreSQL
+        env:
+          DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
+        run: node _development/tests/smoke/post-planning-rls-smoke.mjs
 
   minified-assets:
     needs: development
