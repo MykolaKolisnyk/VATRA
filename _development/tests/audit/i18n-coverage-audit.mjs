@@ -155,7 +155,8 @@ assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
 // Read labels from actual post media controls, including aria and error strings.
 const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/tr\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
  .map(match=>JSON.parse(match[1])))];
-assert.equal(postMediaKeys.length,44,"Unexpected source key count in post media runtime (no Show less control)");
+assert.equal(postMediaKeys.length,45,"Post media runtime must include retry and omit the retired Show less control");
+assert.ok(postMediaKeys.includes("Повторити"),"Media retry action must be translated");
 for(const key of postMediaKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
   "English post media translation missing: "+key);
