@@ -846,6 +846,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     }catch(_){}
    };
    mediaDialog.addEventListener("keydown",event=>{
+    if(event.target?.closest?.("input,textarea,select,video,[contenteditable]"))return;
     if(event.key==="ArrowLeft"&&index>0){event.preventDefault();index--;void render();}
     if(event.key==="ArrowRight"&&index<media.length-1){event.preventDefault();index++;void render();}
    },{signal:controller.signal});
@@ -887,6 +888,12 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    label.textContent=tr("Відтворити відео","Play video");
    play.append(symbol,label);
    let pending=false;
+   const retry=()=>{
+    if(!slot.isConnected)return;
+    pending=false;play.disabled=false;
+    label.textContent=tr("Повторити завантаження відео","Retry loading video");
+    slot.replaceChildren(play);
+   };
    play.addEventListener("click",async()=>{
     if(pending)return;
     pending=true;play.disabled=true;
@@ -900,16 +907,26 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      const expand=document.createElement("button");expand.type="button";
      expand.className="vatra-feed-post-video-expand-001";
      expand.textContent=tr("На весь екран","Fullscreen");
-     expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video",container,post,client);});
-     video.src=src;
+     const recover=async()=>{
+      if(!slot.isConnected||video.parentNode!==slot||video.error?.code===1)return;
+      await forgetFailedSignedURL(client,"video",path,src);
+      if(!slot.isConnected||video.parentNode!==slot)return;
+      video.pause();retry();video.removeAttribute("src");video.load();
+     };
+     video.addEventListener("error",()=>void recover(),{once:true});
+     expand.addEventListener("click",async()=>{
+      if(expand.disabled)return;
+      expand.disabled=true;
+      try{
+       const current=await signed(client,"video",path);
+       if(expand.isConnected){video.pause();openFullMedia(current,"video",container,post,client);}
+      }catch(_){await recover();}
+      finally{expand.disabled=false;}
+     });
      slot.replaceChildren(video,expand);
-
+     video.src=src;
      void video.play().catch(()=>{});
-    }catch(_){
-     if(!slot.isConnected)return;
-     pending=false;play.disabled=false;
-     label.textContent=tr("Повторити завантаження відео","Retry loading video");
-    }
+    }catch(_){retry();}
    });
    slot.classList.remove("is-loading-media");
    slot.classList.add("is-ready-media");
