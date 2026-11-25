@@ -1092,14 +1092,14 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-main{
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{display:contents!important}
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
- grid-column:1;grid-row:1;width:100%;min-width:0;margin:0;
+ grid-column:1;grid-row:2;width:100%;min-width:0;margin:0;
  align-self:start;min-height:72px
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
- grid-column:1;grid-row:2;width:100%;min-width:0;margin:0;align-self:start
+ grid-column:1/-1;grid-row:1;width:100%;min-width:0;margin:0;align-self:start
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{
- grid-column:2;grid-row:1/5;align-self:start;display:flex;flex-direction:column;
+ grid-column:2;grid-row:2/5;align-self:start;display:flex;flex-direction:column;
  gap:var(--vatra-content-card-gap,16px);width:100%;min-width:0;position:static
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > .feed-filter-row{
@@ -2797,14 +2797,14 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
 
 @media(min-width:951px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-main{
-  grid-template-rows:72px auto auto auto!important;
+  grid-template-rows:auto 72px auto auto!important;
   align-content:start!important;row-gap:14px!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{
   align-self:start
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
-  grid-row:2!important
+  grid-row:1!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{
   grid-row:3!important
@@ -3669,10 +3669,6 @@ body.feed-page .vatra-album-photo-loading-001.is-skeleton{width:min(80%,640px);h
 body.feed-page .vatra-album-photo-loading-001[hidden]{display:none!important}
 @media(max-width:780px){body.feed-page .vatra-photo-viewer-brand-001{top:12px;left:62px;width:36px;height:36px}body.feed-page .ui-vatra-photo-zoom-controls-001{top:12px;right:12px;gap:5px;--vatra-zoom-button-size:36px}body.feed-page .vatra-photo-zoom-button-001{width:36px;height:36px}body.feed-page .vatra-photo-zoom-value-001{top:calc(100% + 6px)}}
 @media(prefers-reduced-motion:reduce){body.feed-page :is(.vatra-photo-zoom-target-001,.vatra-photo-zoom-button-001,.vatra-post-media-close-001,.profile-media-viewer-close,.vatra-album-viewer-close-001){transition:none}body.feed-page .vatra-section-skeleton-001 .vatra-skeleton-block{animation:none}}
-
-body.feed-page .vatra-feed-story-skeleton-001{flex:0 0 108px;min-width:108px;width:108px;height:158px;border-radius:13px;scroll-snap-align:start;pointer-events:none}
-@media(max-width:600px){body.feed-page .vatra-feed-story-skeleton-001{flex-basis:86px;min-width:86px;width:86px;height:138px}}
-@media(prefers-reduced-motion:reduce){body.feed-page .vatra-feed-story-skeleton-001{animation:none}}
 
 @media(min-width:1100px) and (min-height:620px){
  body.feed-page :is(.vatra-post-media-viewer,.profile-media-viewer)[data-photo-sized="true"][open]:not(.is-photo-deleted){
