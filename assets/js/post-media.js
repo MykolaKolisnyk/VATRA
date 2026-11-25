@@ -675,7 +675,6 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    if(image.complete)loaded();
   });
  }
- // One viewport observer for all pending post images and galleries.
  const pendingMedia=new Map();
  let mediaIntersection=null,mediaMountObserver=null;
  let mediaScanQueued=false;
@@ -699,7 +698,6 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
  function scanMediaTargets(){
   for(const [slot,entry] of pendingMedia){
    if(!slot.isConnected){
-    // Cards removed during a feed refresh must not retain observers or sign URLs.
     if(entry.observed)removeMediaTarget(slot);
     else if(entry.timer===null)entry.timer=setTimeout(()=>removeMediaTarget(slot),15000);
     continue;
@@ -720,7 +718,6 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   if(pendingMedia.has(slot))return;
   const entry={priority,load,observed:false,timer:null};
   pendingMedia.set(slot,entry);
-  // Batch cards created inside a DocumentFragment in one microtask.
   if(mediaScanQueued)return;
   mediaScanQueued=true;
   queueMicrotask(()=>{
