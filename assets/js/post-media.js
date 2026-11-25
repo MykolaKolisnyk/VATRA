@@ -548,7 +548,6 @@
  }
  function fitPhotoViewer(dialog,stage,image,path){
   if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
-  const ratio=image.naturalWidth/image.naturalHeight;
   if(dialog.open&&image.complete){
    const src=image.src||image.currentSrc,previous=photoMatteChecks.get(stage);
    if(previous?.image===image&&previous.src===src){
@@ -563,11 +562,6 @@
     });
    }
   }
-  if(ratio>=1.35&&ratio<=2.2){
-   dialog.style.setProperty("--vatra-photo-ratio",String(ratio));
-   dialog.style.setProperty("--vatra-photo-inverse",String(1/ratio));
-   dialog.dataset.photoSized="true";
-  }else delete dialog.dataset.photoSized;
  }
  function clearPhotoSlide(stage){
   const previous=photoSlides.get(stage);
@@ -717,7 +711,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
-    clearPhotoSlide(mediaDialogContent);photoLoads.get(mediaDialogContent)?.abort();delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;
+    clearPhotoSlide(mediaDialogContent);photoLoads.get(mediaDialogContent)?.abort();delete mediaDialogContent.dataset.photoMatte;
     mediaDialogContent.replaceChildren();restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();mediaFooterDelete.hidden=true;
    });
    document.body.append(mediaDialog);
@@ -730,7 +724,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
   element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
   if(kind==="image"){const path=sourcePath||post?.media_path;watchPhotoViewer(mediaDialog,mediaDialogContent,element,path||url,finishSlide,path&&client?async()=>{const {data,error}=await client.storage.from("post-images").download(path);if(error)throw error;return data;}:null);}
-  else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
+  else{delete mediaDialogContent.dataset.photoMatte;}
   restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
   const head=container?.querySelector(".feed-post-header")||postCard?.querySelector(".feed-post-header");
@@ -1061,7 +1055,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
      mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]),prev,next,counter);
      if(item.media_kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,item.media_path,finishSlide,async()=>{const {data,error}=await client.storage.from("post-images").download(item.media_path);if(error)throw error;return data;});
-     else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
+     else{delete mediaDialogContent.dataset.photoMatte;}
     }catch(_){}
    };
    mediaDialog.addEventListener("keydown",event=>{

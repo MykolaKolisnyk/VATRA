@@ -3672,17 +3672,3 @@ body.feed-page .vatra-album-photo-loading-001[hidden]{display:none!important}
 @media(max-width:780px){body.feed-page .vatra-photo-viewer-brand-001{top:12px;left:62px;width:36px;height:36px}body.feed-page .ui-vatra-photo-zoom-controls-001{top:12px;right:12px;gap:5px;--vatra-zoom-button-size:36px}body.feed-page .vatra-photo-zoom-button-001{width:36px;height:36px}body.feed-page .vatra-photo-zoom-value-001{top:calc(100% + 6px)}}
 @media(prefers-reduced-motion:reduce){body.feed-page :is(.vatra-photo-zoom-target-001,.vatra-photo-zoom-button-001,.vatra-post-media-close-001,.profile-media-viewer-close,.vatra-album-viewer-close-001){transition:none}body.feed-page .vatra-section-skeleton-001 .vatra-skeleton-block{animation:none}}
 
-@media(min-width:1100px) and (min-height:620px){
- body.feed-page :is(.vatra-post-media-viewer,.profile-media-viewer)[data-photo-sized="true"][open]:not(.is-photo-deleted){
-  --vatra-photo-side-width:clamp(318px,22vw,380px);
-  --vatra-photo-footer-height:54px;
-  --vatra-photo-area-width:min(calc(100vw - 48px - var(--vatra-photo-side-width)),calc((100dvh - 48px - var(--vatra-photo-footer-height)) * var(--vatra-photo-ratio)));
-  width:calc(var(--vatra-photo-area-width) + var(--vatra-photo-side-width));
-  height:calc(var(--vatra-photo-area-width) * var(--vatra-photo-inverse) + var(--vatra-photo-footer-height));
-  margin:auto;border-radius:12px;max-width:calc(100vw - 48px);max-height:calc(100dvh - 48px)
- }
- body.feed-page .ui-vatra-album-viewer-001[data-photo-sized="true"][open]{--vatra-photo-footer-height:57px}
- body.feed-page .profile-media-viewer[data-photo-sized="true"][open]:not(.is-photo-deleted){grid-template-columns:minmax(0,1fr) var(--vatra-photo-side-width)}
- body.feed-page .vatra-post-media-viewer[data-photo-sized="true"][open] > .vatra-media-side-unified-001{flex:0 0 var(--vatra-photo-side-width)}
- body.feed-page :is(.vatra-post-media-viewer,.profile-media-viewer)[data-photo-sized="true"][open]:not(.is-photo-deleted) :is(.ui-vatra-post-media-footer-001,.ui-profile-photo-footer-001,.ui-vatra-album-viewer-bottom-001){height:var(--vatra-photo-footer-height);min-height:var(--vatra-photo-footer-height)}
-}

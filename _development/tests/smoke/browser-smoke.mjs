@@ -3575,7 +3575,7 @@ try{
    const rect=dialog.getBoundingClientRect();
    const canvas=dialog.querySelector(".ui-vatra-post-media-viewer-content-001");
    const photo=canvas.querySelector(".ui-vatra-post-expanded-image-001");
-   return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top,sized:dialog.dataset.photoSized,
+   return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top,
     caption:dialog.querySelector(".vatra-post-media-caption-001")?.textContent,
     imageFit:getComputedStyle(photo).objectFit,
     imageWidth:photo.getBoundingClientRect().width,
@@ -3586,11 +3586,8 @@ try{
     background:getComputedStyle(canvas).backgroundColor,
     rootGutter:getComputedStyle(document.documentElement).scrollbarGutter};
   });
-  assert.ok(postFrame.open&&postFrame.w<=postFrame.vw+2&&postFrame.h<=postFrame.vh+2&&postFrame.x>=-2&&postFrame.y>=-2&&
-   (postFrame.sized&&postFrame.vw>=1100&&postFrame.vh>=620?
-    Math.abs(postFrame.x-(postFrame.vw-postFrame.w)/2)<=2&&Math.abs(postFrame.y-(postFrame.vh-postFrame.h)/2)<=2:
-    Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2),
-   "Post photo viewer must fit the viewport and center adaptive landscape photos: "+JSON.stringify(postFrame));
+  assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2&&Math.abs(postFrame.x)<=2&&Math.abs(postFrame.y)<=2,
+   "Photo viewer must fill the entire viewport regardless of image aspect ratio: "+JSON.stringify(postFrame));
   assert.equal(postFrame.caption,
    language==="en"?"Photo from a post":"Фото з публікації",
    "Own post photos must not repeat the owner's name or a decorative separator");
@@ -5011,13 +5008,10 @@ try{
   await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0&&document.querySelector("#profile-photo-content").dataset.photoMatte==="dark";});
   const fullscreenAvatar=await profilePage.evaluate(()=>{
    const dialog=document.querySelector("#profile-media-viewer"),rect=dialog.getBoundingClientRect();
-   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top,sized:dialog.dataset.photoSized};
+   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top};
   });
-  assert.ok(fullscreenAvatar.w<=fullscreenAvatar.vw+2&&fullscreenAvatar.h<=fullscreenAvatar.vh+2&&fullscreenAvatar.x>=-2&&fullscreenAvatar.y>=-2&&
-   (fullscreenAvatar.sized&&fullscreenAvatar.vw>=1100&&fullscreenAvatar.vh>=620?
-    Math.abs(fullscreenAvatar.x-(fullscreenAvatar.vw-fullscreenAvatar.w)/2)<=2&&Math.abs(fullscreenAvatar.y-(fullscreenAvatar.vh-fullscreenAvatar.h)/2)<=2:
-    Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2),
-   "Avatar viewer must fit the viewport: "+JSON.stringify(fullscreenAvatar));
+  assert.ok(Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2&&Math.abs(fullscreenAvatar.x)<=2&&Math.abs(fullscreenAvatar.y)<=2,
+   "Photo viewer must fill the entire viewport regardless of image aspect ratio: "+JSON.stringify(fullscreenAvatar));
   assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
    "Person tagging was removed from the photo viewer altogether");
   assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
