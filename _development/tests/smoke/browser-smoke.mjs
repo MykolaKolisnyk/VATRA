@@ -5271,7 +5271,7 @@ try{
   const rawProfile=await profilePage.request.get(base+"id789012");
   assert.equal(rawProfile.status(),404,"GitHub Pages cannot serve dynamic member URLs with HTTP 200");
   const routerHTML=await rawProfile.text();
-  assert.ok(routerHTML.includes('src="/VATRA/assets/js/not-found.js"'),
+  assert.ok(/src="\/VATRA\/assets\/js\/not-found\.js(?:\?rev=[a-f0-9]{40})?"/.test(routerHTML),
    "Deep member URLs must use the custom 404 router");
   const templateResponse=await profilePage.request.get(base+"profile.html");
   assert.equal(templateResponse.status(),200,"Internal profile template must remain fetchable");
