@@ -2629,7 +2629,7 @@ assert.ok(
  feedStoryOptimization.includes("let subscriptionsLoadedAt=0,subscriptionsInflight=null")&&
  feedStoryOptimization.includes("function ensureSubscriptions()")&&
  feedStoryOptimization.includes("if(subscriptionsInflight)return subscriptionsInflight;")&&
- feedStoryOptimization.includes("await ensureSubscriptions();")&&
+ feedStoryOptimization.includes("await feedDeadline(ensureSubscriptions());")&&
  feedStoryOptimization.includes('if(!friendIds.length){')&&
  feedStoryOptimization.includes('query=query.in("author_vatra_id",friendIds)')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
