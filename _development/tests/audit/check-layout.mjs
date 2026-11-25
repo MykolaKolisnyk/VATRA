@@ -533,6 +533,52 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  loginHeroSource.includes("Math.random()")&&loginHeroSource.includes("i!==current")&&
  loginHeroSource.includes("image.decode()")&&loginHeroSource.includes("visibilitychange")&&
  loginHeroSource.includes("!reduced.matches"),"Login hero must select randomly, preload the next image, and respect visibility and motion preferences");
+// Exercise the actual rotation script with a deterministic clock, image loading and random choice.
+{
+ const {runInNewContext}=await import("node:vm");
+ let now=0,serial=0;
+ const timers=new Map(),requests=[],layers=[],events=new Map(),motion={matches:false,addEventListener(_name,fn){this.change=fn;}};
+ const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve();};
+ const tick=async ms=>{
+  const end=now+ms;
+  for(;;){
+   const next=[...timers.entries()].filter(([,timer])=>timer.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];
+   if(!next)break;
+   now=next[1].at;timers.delete(next[0]);next[1].fn();await flush();
+  }
+  now=end;await flush();
+ };
+ const stage={append(image){layers.push(image);}};
+ const doc={hidden:false,currentScript:{src:"https://example.test/VATRA/assets/js/login-hero.js"},querySelector:()=>stage,
+  addEventListener:(name,fn)=>events.set(name,fn),
+  createElement(){
+   const classes=new Set(),img={classList:{add:name=>classes.add(name),remove:name=>classes.delete(name),contains:name=>classes.has(name)},
+    setAttribute(){},getBoundingClientRect(){return {};},remove(){const i=layers.indexOf(img);if(i>=0)layers.splice(i,1);},decode:()=>Promise.resolve()};
+   Object.defineProperty(img,"src",{set(value){img.url=value;requests.push(value);Promise.resolve().then(()=>img.onload?.());}});
+   return img;
+  }};
+ const math=Object.create(Math);math.random=()=>.6;
+ runInNewContext(loginHeroSource,{window:{matchMedia:()=>motion},document:doc,URL,Math:math,
+  setTimeout(fn,delay){const id=++serial;timers.set(id,{at:now+delay,fn});return id;},clearTimeout:id=>timers.delete(id)});
+ await flush();
+ const selected=()=>layers.find(img=>img.classList.contains("is-active"))?.url;
+ assert.ok(selected().endsWith("login_hero-02.webp"),"The first illustration must use the random draw");
+ assert.equal(requests.length,1,"Only the selected image is loaded at startup");
+ const first=selected();
+ await tick(24_999);assert.equal(requests.length,1);
+ await tick(1);assert.equal(requests.length,2,"Preload the next image five seconds before the swap");
+ assert.equal(selected(),first,"Preloading must not change the current illustration");
+ await tick(5_000);const second=selected();assert.notEqual(second,first);
+ assert.equal(layers.length,2,"Keep both layers during the crossfade");
+ await tick(950);assert.equal(layers.length,1);
+ await tick(29_050);const third=selected();
+ assert.equal(new Set([first,second,third]).size,3,"Show all three before repeating");
+ doc.hidden=true;events.get("visibilitychange")();
+ await tick(90_000);assert.equal(selected(),third,"Do not rotate in a hidden tab");
+ doc.hidden=false;events.get("visibilitychange")();motion.matches=true;motion.change();
+ await tick(90_000);assert.equal(selected(),third,"Respect reduced-motion preference");
+}
+
 assert.ok(
  landing.includes('class="vatra-home-paragraph-01">')&&
  landing.includes('class="vatra-home-emphasis-04" data-i18n="n100"')&&
