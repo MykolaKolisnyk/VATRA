@@ -2556,7 +2556,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   image.onerror=()=>resolve(false);
   image.src=url;
  });
- const closeAvatarMenu=()=>{clearTimeout(menuTimer);avatarWrap.classList.remove("is-menu-open");avatarTrigger.setAttribute("aria-expanded","false");plus.setAttribute("aria-expanded","false");};
+ const viewportMenu=typeof avatarMenu.showPopover==="function"&&typeof avatarMenu.hidePopover==="function";
+ if(viewportMenu){avatarMenu.setAttribute("popover","manual");avatarMenu.classList.add("is-viewport-menu");}
+ const closeAvatarMenu=()=>{clearTimeout(menuTimer);avatarWrap.classList.remove("is-menu-open");if(viewportMenu&&avatarMenu.matches(":popover-open"))avatarMenu.hidePopover();avatarTrigger.setAttribute("aria-expanded","false");plus.setAttribute("aria-expanded","false");};
  const positionAvatarMenu=()=>{
   if(avatarMenu.hidden)return;
   const anchor=(canEdit?plus:avatarTrigger).getBoundingClientRect(),wrap=avatarWrap.getBoundingClientRect();
@@ -2571,18 +2573,18 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const height=Math.min(h,room);
   const x=Math.max(left+padding,Math.min(wrap.left,right-padding-w));
   const y=Math.max(top+padding,Math.min(upwards?anchor.top-gap-height:anchor.bottom+gap,bottom-padding-height));
-  avatarMenu.style.setProperty("--avatar-menu-left",Math.round(x-wrap.left)+"px");
-  avatarMenu.style.setProperty("--avatar-menu-top",Math.round(y-wrap.top)+"px");
+  avatarMenu.style.setProperty("--avatar-menu-left",Math.round(viewportMenu?x:x-wrap.left)+"px");
+  avatarMenu.style.setProperty("--avatar-menu-top",Math.round(viewportMenu?y:y-wrap.top)+"px");
   return true;
  };
- const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden||positionAvatarMenu()===false)return;avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
+ const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden)return;if(viewportMenu&&!avatarMenu.matches(":popover-open"))avatarMenu.showPopover();if(positionAvatarMenu()===false)return;avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
  const repositionAvatarMenu=()=>{if(avatarWrap.classList.contains("is-menu-open"))positionAvatarMenu();};
  window.addEventListener("resize",repositionAvatarMenu,{passive:true});window.addEventListener("scroll",repositionAvatarMenu,{passive:true});window.visualViewport?.addEventListener("resize",repositionAvatarMenu,{passive:true});
  const scheduleMenuClose=()=>{clearTimeout(menuTimer);menuTimer=setTimeout(()=>{if(!avatarMenu.contains(document.activeElement))closeAvatarMenu();},160);};
  const syncAvatarMenu=()=>{
   const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
   avatarWrap.classList.toggle("has-active-story",hasStory);
-  avatarMenu.hidden=!canViewPhoto||!canEdit;
+  avatarMenu.hidden=!canViewPhoto||!canEdit;if(avatarMenu.hidden)closeAvatarMenu();
   visitorStory.hidden=!canViewPhoto||canEdit||!hasStory||!hasPhoto;
   storyButton.hidden=!canViewPhoto||!hasStory;
   deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;

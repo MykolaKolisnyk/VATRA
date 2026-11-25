@@ -40,7 +40,7 @@ function take(table){
 }
 const context={client,vatraId:"10",
  validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
- friends:new Set(),followedClubs:new Map(),
+ friends:new Set(),hiddenPostAuthors:new Set(),followedClubs:new Map(),
  subscriptionsInflight:null,subscriptionsLoadedAt:0,
  Promise,Set,Map,Date:Clock,String,Array
 };
