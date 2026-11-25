@@ -1071,6 +1071,14 @@ assert.ok(reactionsVerifiedDelete.every(part=>reactionsSource.includes(part))&&
 
 const profileExtraScript=await read("assets/js/profile.js");
 const scrollRailScript=await read("assets/js/scroll-rail.js");
+const dynamicPostClasses=await read("assets/js/post-interactions.js");
+const dynamicShellClasses=await read("assets/js/social-shell.js");
+assert.ok(dynamicPostClasses.includes('ui-vatra-post-action-path-')&&
+ dynamicPostClasses.includes('ui-feed-post-audience-path-001')&&
+ dynamicPostClasses.includes('ui-vatra-post-owner-dot-')&&
+ dynamicShellClasses.includes('ui-vatra-account-menu-icon-path-')&&
+ dynamicShellClasses.includes('ui-vatra-account-guard-script-001'),
+ "Dynamically created social SVG parts and account guard script must have component-owned classes");
 assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
  interactionsScript.includes('vatra-post-comments-count-001')&&
  interactionsScript.includes('vatra-post-shares-count-001')&&
