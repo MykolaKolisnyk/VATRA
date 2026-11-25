@@ -239,7 +239,7 @@ console.log("VATRA media viewer layout checks passed.");
  const start=postMedia.indexOf(" const photoMatteChecks="),end=postMedia.indexOf(" function clearPhotoSlide(",start);
  assert.ok(start>=0&&end>start);
  let alpha=255,tainted=false;
- const ctx={setTimeout,document:{createElement(){return {width:0,height:0,getContext(){return {drawImage(){},getImageData(){if(tainted)throw Error("CORS");return {data:new Uint8ClampedArray([0,0,0,alpha])};}};}};}}};
+ const ctx={setTimeout,clearTimeout,AbortController,document:{createElement(){return {width:0,height:0,getContext(){return {drawImage(){},getImageData(){if(tainted)throw Error("CORS");return {data:new Uint8ClampedArray([0,0,0,alpha])};}};}};}}};
  runInNewContext(postMedia.slice(start,end)+"\nglobalThis.geometry={photoMatte,fitPhotoViewer};",ctx);
  const {fitPhotoViewer,photoMatte}=ctx.geometry;
  for(const [w,h] of [[1024,1024],[6000,4000],[4000,6000],[7680,4320],[500,1800]]){
@@ -260,7 +260,7 @@ console.log("VATRA media viewer layout checks passed.");
   alpha=0;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"white");
   alpha=128;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"white");
  }
- tainted=true;assert.equal(await photoMatte({src:"private.png",naturalWidth:1,naturalHeight:1}),"dark");
+ tainted=true;assert.equal(await photoMatte({src:"private.png",naturalWidth:1,naturalHeight:1}),"unknown");
  tainted=false;
  assert.ok(postMedia.includes("duration:300")&&postMedia.includes("prefers-reduced-motion: reduce"));
  assert.ok(postMedia.includes("(-sign*distance)")&&postMedia.includes("(sign*distance)"));
