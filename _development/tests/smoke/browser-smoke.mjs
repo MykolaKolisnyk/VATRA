@@ -3490,7 +3490,7 @@ try{
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraWebpFixture.calls.signed),
    [previewFixture.item.preview_path,previewFixture.item.media_path],
    "Opening fullscreen must sign the unmodified original");
-  await feedProbe.waitForFunction(()=>{const photo=document.querySelector("#vatra-post-media-viewer .ui-vatra-post-expanded-image-001");return photo?.complete&&photo.naturalWidth>0&&photo.closest(".ui-vatra-post-media-viewer-content-001").dataset.photoMatte==="white";});
+  await feedProbe.waitForFunction(()=>{const photo=document.querySelector("#vatra-post-media-viewer .ui-vatra-post-expanded-image-001");return photo?.complete&&photo.naturalWidth>0&&photo.closest(".ui-vatra-post-media-viewer-content-001").dataset.photoMatte==="dark";});
   const postFrame=await feedProbe.evaluate(()=>{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const rect=dialog.getBoundingClientRect();
@@ -3508,8 +3508,10 @@ try{
     rootGutter:getComputedStyle(document.documentElement).scrollbarGutter};
   });
   assert.ok(postFrame.open&&postFrame.w<=postFrame.vw+2&&postFrame.h<=postFrame.vh+2&&postFrame.x>=-2&&postFrame.y>=-2&&
-   Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2&&Math.abs(postFrame.x)<=2&&Math.abs(postFrame.y)<=2&&!postFrame.sized,
-   "Post photo viewer must fill the entire viewport in both dimensions: "+JSON.stringify(postFrame));
+   (postFrame.sized&&postFrame.vw>=1100&&postFrame.vh>=620?
+    Math.abs(postFrame.x-(postFrame.vw-postFrame.w)/2)<=2&&Math.abs(postFrame.y-(postFrame.vh-postFrame.h)/2)<=2:
+    Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2),
+   "Post photo viewer must fit the viewport and center adaptive landscape photos: "+JSON.stringify(postFrame));
   assert.equal(postFrame.caption,
    language==="en"?"Photo from a post":"Фото з публікації",
    "Own post photos must not repeat the owner's name or a decorative separator");
@@ -3519,8 +3521,8 @@ try{
    Math.abs(postFrame.imageHeight-postFrame.canvasHeight)<=2,
    "Post image must use all available black canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
   assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
-  assert.equal(postFrame.background,"rgb(255, 255, 255)",
-   "Original PNG photographs must have a white matte");
+  assert.equal(postFrame.background,"rgb(17, 20, 25)",
+   "Original PNG photographs must not have white letterboxing");
   const zoomPlus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-in-001"),zoomMinus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-out-001");
   assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-viewer-brand-001").isVisible(),true);
   assert.equal(await zoomMinus.isDisabled(),true);
@@ -4847,14 +4849,16 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
    (language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2"),
    "Own photo captions should have no repeated name or decorative separator");
-  await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0&&document.querySelector("#profile-photo-content").dataset.photoMatte==="white";});
+  await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0&&document.querySelector("#profile-photo-content").dataset.photoMatte==="dark";});
   const fullscreenAvatar=await profilePage.evaluate(()=>{
-   const rect=document.querySelector("#profile-media-viewer").getBoundingClientRect();
-   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top};
+   const dialog=document.querySelector("#profile-media-viewer"),rect=dialog.getBoundingClientRect();
+   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top,sized:dialog.dataset.photoSized};
   });
   assert.ok(fullscreenAvatar.w<=fullscreenAvatar.vw+2&&fullscreenAvatar.h<=fullscreenAvatar.vh+2&&fullscreenAvatar.x>=-2&&fullscreenAvatar.y>=-2&&
-   Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2&&Math.abs(fullscreenAvatar.x)<=2&&Math.abs(fullscreenAvatar.y)<=2,
-   "Avatar viewer must fill the entire viewport in both dimensions: "+JSON.stringify(fullscreenAvatar));
+   (fullscreenAvatar.sized&&fullscreenAvatar.vw>=1100&&fullscreenAvatar.vh>=620?
+    Math.abs(fullscreenAvatar.x-(fullscreenAvatar.vw-fullscreenAvatar.w)/2)<=2&&Math.abs(fullscreenAvatar.y-(fullscreenAvatar.vh-fullscreenAvatar.h)/2)<=2:
+    Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2),
+   "Avatar viewer must fit the viewport: "+JSON.stringify(fullscreenAvatar));
   assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
    "Person tagging was removed from the photo viewer altogether");
   assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
@@ -4878,8 +4882,8 @@ try{
    arrowLayout.left.right<arrowLayout.right.left,
    "Navigation arrows remain aligned inside opposite edges of the photo surface: "+
    JSON.stringify(arrowLayout));
-  assert.equal(arrowLayout.background,"rgb(255, 255, 255)",
-   "WebP avatar must use the white photo surface");
+  assert.equal(arrowLayout.background,"rgb(17, 20, 25)",
+   "WebP avatar must use the neutral dark photo surface");
   assert.equal(arrowLayout.matte,"none","Avatar photos must not display a blurred duplicate");
   assert.ok(!arrowLayout.leftRadius.includes("50%"),
    "Navigation must use unframed chevrons, not round floating buttons");
