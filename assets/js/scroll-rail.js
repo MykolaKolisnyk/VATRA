@@ -17,16 +17,26 @@
   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
   path.setAttribute("class","ui-vatra-scroll-rail-icon-path-001");path.setAttribute("d","m6.5 14 5.5-5.5 5.5 5.5");
   icon.append(path);name.prepend(icon);side.append(name);document.body.append(side);
+  const localize=()=>{
+   side.setAttribute("aria-label",t("Повернутися вгору"));
+   side.title=t("Вгору");
+   name.replaceChildren(icon,document.createTextNode(t("Вгору")));
+  };
+  void Promise.resolve(window.VATRA_LANGUAGE?.ready).then(localize,localize);
   const header=document.querySelector(".feed-header");
   const layout=document.querySelector(".feed-layout")||document.querySelector("main");
   let pending=false;
   const update=()=>{
    pending=false;
    const edge=layout?.getBoundingClientRect();
-   const gutter=edge&&edge.width>0?edge.left:0;
-   const left=gutter>=78?Math.round(gutter-62):16;
-   side.style.left=Math.max(12,Math.min(innerWidth-60,left))+"px";
-   side.hidden=window.scrollY<350||document.documentElement.scrollHeight-innerHeight<500;
+   const gutter=edge&&edge.width>0?Math.max(0,edge.left):0;
+   const headerBottom=Math.max(0,Math.ceil(header?.getBoundingClientRect().bottom||0));
+   const wide=innerWidth>=1100&&gutter>=76;
+   side.dataset.mode=wide?"rail":"compact";
+   side.style.left=wide?"0px":"auto";
+   side.style.setProperty("--vatra-scroll-rail-top",headerBottom+"px");
+   side.style.setProperty("--vatra-scroll-rail-width",Math.min(148,Math.floor(gutter-8))+"px");
+   side.hidden=window.scrollY<350||document.documentElement.scrollHeight-innerHeight<350||!edge?.width;
   };
   const scheduled=()=>{if(pending)return;pending=true;requestAnimationFrame(update);};
   if(typeof ResizeObserver==="function"){

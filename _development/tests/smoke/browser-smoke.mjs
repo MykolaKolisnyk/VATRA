@@ -3349,8 +3349,7 @@ try{
     underlineHeight:parseFloat(line.height),
     portrait:portrait.width,adBorder:adStyle.borderTopWidth,
     adShadow:adStyle.boxShadow,adBackground:adStyle.backgroundColor,
-    railWidth:parseFloat(railStyle.width),railHeight:parseFloat(railStyle.height),
-    railPosition:railStyle.position,railHidden:rail.hidden};
+    railMode:rail.dataset.mode,railPosition:railStyle.position,railHidden:rail.hidden};
   });
   assert.ok(Math.abs(shellPolish.underlineBottom-shellPolish.headerBottom)<=2&&
    shellPolish.underlineColor==="rgb(36, 100, 215)"&&
@@ -3358,10 +3357,41 @@ try{
    shellPolish.portrait<=35&&shellPolish.adBorder==="0px"&&
    shellPolish.adShadow==="none"&&
    shellPolish.adBackground==="rgba(0, 0, 0, 0)"&&
-   shellPolish.railWidth>=44&&shellPolish.railWidth<=50&&
-   shellPolish.railHeight===shellPolish.railWidth&&
    shellPolish.railPosition==="fixed"&&shellPolish.railHidden,
-   "Header avatar, flush muted line, unboxed ads and compact scroll control: "+JSON.stringify(shellPolish));
+   "Header avatar, flush muted line, unboxed ads and initially hidden scroll control: "+JSON.stringify(shellPolish));
+  // Keep the scroll fixture outside the real post list so the test does not
+  // depend on the number of mocked posts or trigger the load-more sentinel.
+  await feedProbe.evaluate(()=>{
+   const spacer=document.createElement("div");spacer.className="ui-scroll-rail-test-spacer-001";
+   spacer.style.height="1800px";spacer.setAttribute("aria-hidden","true");
+   document.body.append(spacer);window.scrollTo({top:500,behavior:"instant"});
+  });
+  try{
+   const rail=feedProbe.locator(".vatra-scroll-rail");
+   await rail.waitFor({state:"visible"});
+   const dimensions=await rail.evaluate(el=>{
+    const r=el.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();
+    const content=(document.querySelector(".feed-layout")||document.querySelector("main")).getBoundingClientRect();
+    return {mode:el.dataset.mode,left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+     width:r.width,height:r.height,headerBottom:header.bottom,contentLeft:content.left,viewport:innerHeight};
+   });
+   if(language==="uk"){
+    assert.equal(dimensions.mode,"rail",JSON.stringify(dimensions));
+    assert.ok(dimensions.left===0&&dimensions.right<=dimensions.contentLeft-7&&
+     Math.abs(dimensions.top-dimensions.headerBottom)<=2&&Math.abs(dimensions.bottom-dimensions.viewport)<=2,
+     "Desktop rail must fill the safe left gutter below the header: "+JSON.stringify(dimensions));
+   }else{
+    assert.equal(dimensions.mode,"compact");
+    assert.ok(dimensions.width>=44&&dimensions.width<=50&&dimensions.height===dimensions.width,
+     "Mobile scroll control must remain compact: "+JSON.stringify(dimensions));
+   }
+   assert.equal(await rail.getAttribute("aria-label"),language==="en"?"Scroll to top":"Повернутися вгору");
+   await rail.click();
+   await feedProbe.waitForFunction(()=>window.scrollY<=1);
+   await rail.waitFor({state:"hidden"});
+  }finally{
+   await feedProbe.evaluate(()=>{document.querySelector(".ui-scroll-rail-test-spacer-001")?.remove();window.scrollTo({top:0,behavior:"instant"});});
+  }
   if(language==="uk"){
    const geometry=await feedProbe.evaluate(()=>{
     const r=selector=>document.querySelector(selector).getBoundingClientRect();
