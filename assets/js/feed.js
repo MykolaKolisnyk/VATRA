@@ -48,7 +48,7 @@
 
  let client=null,user=null,vatraId=null,displayName="",loading=false,refreshQueued=false,offset=0,searchTerm="",feedFilter="all";
  let feedRequestVersion=0;
- let visibleFeed=[],friends=new Set(),publicNames=new Map(),followedClubs=new Map();
+ let visibleFeed=[],friends=new Set(),hiddenPostAuthors=new Set(),publicNames=new Map(),followedClubs=new Map();
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
  const filterSummary=q("#feed-filter-summary");
  let subscriptionsLoadedAt=0,subscriptionsInflight=null;
@@ -193,7 +193,7 @@
  async function loadSubscriptions(){
   const viewerId=vatraId;
   if(!validId(viewerId)){
-   friends=new Set();followedClubs=new Map();
+   friends=new Set();hiddenPostAuthors=new Set();followedClubs=new Map();
    return false;
   }
   if(!friends.size)friends.add(viewerId);
@@ -230,8 +230,17 @@
     for(const group of data)nextClubs.set(String(group.club_id),group.name);
    }catch(_){return false;}
   }
+  const nextHidden=new Set([...hiddenPostAuthors].filter(id=>nextFriends.has(id)));
+  try{
+   const authors=[...nextFriends].filter(id=>id!==viewerId);
+   if(authors.length){
+    const result=await client.from("member_content_preferences").select("author_vatra_id")
+     .eq("viewer_vatra_id",viewerId).eq("hide_posts",true).in("author_vatra_id",authors).limit(500);
+    if(!result.error&&Array.isArray(result.data)){nextHidden.clear();for(const row of result.data){const id=String(row.author_vatra_id);if(nextFriends.has(id)&&id!==viewerId)nextHidden.add(id);}}
+   }else nextHidden.clear();
+  }catch(_){}
   if(viewerId!==vatraId)return false;
-  friends=nextFriends;followedClubs=nextClubs;
+  friends=nextFriends;followedClubs=nextClubs;hiddenPostAuthors=nextHidden;
   return true;
  }
  function ensureSubscriptions(){
@@ -504,7 +513,7 @@
   let attempts=0;
   while(!source.done&&!source.queue.length&&attempts++<12){
    const isPerson=source.kind==="person";
-   const personIds=isPerson?[...friends].filter(id=>feedFilter!=="friends"||id!==vatraId):[];
+   const personIds=isPerson?[...friends].filter(id=>(feedFilter!=="friends"||id!==vatraId)&&!hiddenPostAuthors.has(id)):[];
    if(isPerson&&!personIds.length&&!searchTerm){source.done=true;return;}
    if(!isPerson&&!followedClubs.size&&!searchTerm){source.done=true;return;}
    const clubIds=isPerson?[]:[...followedClubs.keys()];

@@ -434,3 +434,5 @@ body.profile-page .vatra-album-select-photo-001[aria-pressed=true]::before{width
 body.profile-page .vatra-photo-selected-001{outline:3px solid #2869c9;outline-offset:-3px;border-radius:14px}
 body.profile-page .vatra-album-selection-active-001 .ui-vatra-album-tile-menu-001{display:none!important}
 body.profile-page .vatra-album-bulk-more-001::-webkit-details-marker{display:none}
+
+body.profile-page .ui-vatra-album-comment-001.is-linked-comment{background:#edf4ff;outline:2px solid #a8c4fa;outline-offset:2px;border-radius:10px;scroll-margin-block:18px}

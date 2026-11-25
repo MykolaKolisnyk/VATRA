@@ -75,7 +75,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
  };
  const context={
   Date:FakeDate,Map,Set,Promise,String,Number,
-  client:database,vatraId:owner,friends:new Set(),followedClubs:new Map(),
+  client:database,vatraId:owner,friends:new Set(),hiddenPostAuthors:new Set(),followedClubs:new Map(),
   subscriptionsLoadedAt:0,subscriptionsInflight:null,
   validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
   q:key=>key==="#feed-friend-stories"?holder:key===".feed-stories"?style:null,

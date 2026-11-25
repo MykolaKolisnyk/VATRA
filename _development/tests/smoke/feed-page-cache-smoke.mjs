@@ -116,7 +116,7 @@ console.log("VATRA Feed cursor: repeated same-account SIGNED_IN preserves author
    range(a,b){requests++;return Promise.resolve({data:rows[table].slice(a,b+1),error:null});}};
   return q;
  }};
- const ctx={client,user:{id:"viewer"},vatraId:"10",friends:new Set(["10"]),followedClubs:new Map([["20","Club"]]),
+ const ctx={client,user:{id:"viewer"},vatraId:"10",friends:new Set(["10"]),hiddenPostAuthors:new Set(),followedClubs:new Map([["20","Club"]]),
   feedFilter:"all",searchTerm:"",locale:"uk-UA",PAGE_SIZE:12,Date:FakeDate,Map,WeakMap,Promise,String,JSON,Error,Number,Set,
   feedDeadline:x=>x,sourceState:null,renderedIds:new Set(),lastFeedScope:null};
  const code=feed.slice(begin,finish);

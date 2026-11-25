@@ -3452,7 +3452,7 @@ body.feed-page .vatra-notice-preview-001{
  font:500 11.5px/1.5 "Onest",system-ui,sans-serif
 }
 body.feed-page .vatra-notice-preview-thumb-001{
- display:block;flex:none;width:52px;height:52px;border-radius:8px;
+ display:block;flex:none;order:1;margin-left:auto;width:52px;height:52px;border-radius:8px;
  object-fit:cover;background:#e6eef8
 }
 body.feed-page .vatra-notice-friend-controls-001{

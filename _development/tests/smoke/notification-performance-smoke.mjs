@@ -57,3 +57,40 @@ console.log("VATRA notification panel: coalesced layout work and no hidden-panel
  assert.equal(run.previewURLs.has("9/posts/old.jpg"),false);
 }
 console.log("VATRA notification previews: single-flight, reuse and stale viewer rejection passed.");
+
+{
+ const profile=await readFile("assets/js/profile.js","utf8");
+ const feed=await readFile("assets/js/feed.js","utf8");
+ const start=profile.indexOf("  const settings=[\n"),end=profile.indexOf("  if(morePanel&&removeFriend)",start);
+ assert.ok(start>=0&&end>start);
+ const make=()=>({label:{},events:{},attrs:{},querySelector(){return this.label;},addEventListener(k,cb){this.events[k]=cb;},setAttribute(k,v){this.attrs[k]=v;}});
+ const hideNews=make(),postNotice=make(),storyNotice=make(),moreMenu=make(),window={VATRA_AUTH_MEMBER_ID:"2",VATRA_TOAST:{show(){}}};
+ let row=null;const calls=[];
+ const client={from(table){assert.equal(table,"member_content_preferences");let action="select",payload={};const b={select(){return b;},eq(){return b;},insert(x){action="insert";payload=x;return b;},update(x){action="update";payload=x;return b;},async maybeSingle(){calls.push(action);if(action==="insert")row={hide_posts:false,notify_posts:false,notify_stories:false,...payload};if(action==="update")row={...row,...payload};return {data:row,error:null};}};return b;}};
+ const ctx={hideNews,postNotice,storyNotice,moreMenu,window,ownId:"2",targetId:"1",client,t:uk=>uk,first:"Мар’яна",unavailable:"Coming soon"};
+ runInNewContext(profile.slice(start,end)+"\nglobalThis.load=loadPreferences;",ctx);
+ assert.equal(calls.length,0);await ctx.load();
+ await postNotice.events.click();assert.equal(row.notify_posts,true);assert.equal(postNotice.attrs["aria-pressed"],"true");
+ await storyNotice.events.click();assert.equal(row.notify_stories,true);assert.equal(row.notify_posts,true);
+ await postNotice.events.click();assert.equal(row.notify_posts,false);assert.equal(row.notify_stories,true);
+ window.VATRA_AUTH_MEMBER_ID="3";await hideNews.events.click();assert.equal(row.hide_posts,false);
+ const a=notices.indexOf("const interactionKinds="),b=notices.indexOf("const notificationTemplates=",a);
+ const route={URL,root:"https://example.test/VATRA/",ownId:"2",validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id))};
+ runInNewContext(notices.slice(a,b)+"\nglobalThis.href=hrefFor;",route);
+ const id="94fe25a7-77d5-4abf-b077-123456789012";
+ assert.equal(route.href({kind:"member_post",actor_vatra_id:1,target_id:id}),route.root+"id1?post="+id);
+ assert.equal(route.href({kind:"member_story",actor_vatra_id:1,target_id:id}),route.root+"id1?story="+id);
+ assert.ok(feed.includes("!hiddenPostAuthors.has(id)"));
+ const post="94fe25a7-77d5-4abf-b077-123456789013",album="94fe25a7-77d5-4abf-b077-123456789014",photo="94fe25a7-77d5-4abf-b077-123456789015";
+ assert.equal(route.href({kind:"post_reply",actor_vatra_id:3,target_id:id,context_id:post,event_key:"post_reply:1:"+id}),route.root+"id1?post="+post+"&comment="+id);
+ assert.equal(route.href({kind:"post_comment",actor_vatra_id:3,target_id:id,context_id:post,event_key:"post_comment:1:"+id}),route.root+"id1?post="+post+"&comment="+id);
+ assert.equal(route.href({kind:"album_comment",actor_vatra_id:3,target_id:id,context_id:photo,event_key:"album_comment:1:"+album+":"+id+":3"}),route.root+"id1?album="+album+"&photo="+photo+"&comment="+id);
+ assert.equal(route.href({kind:"album_photo_like",actor_vatra_id:3,target_id:photo,context_id:photo,event_key:"album_photo_like:1:"+album+":"+photo+":3"}),route.root+"id1?album="+album+"&photo="+photo);
+ assert.equal(route.href({kind:"post_like",target_kind:"person",target_id:post}),route.root+"id2?post="+post);
+ assert.equal(route.href({kind:"post_reply",target_id:id,context_id:"invalid",event_key:"post_reply:1:"+id}),null);
+ assert.equal(route.href({kind:"comment_like",target_kind:"post_comment",target_id:id}),null);
+ const albums=await readFile("assets/js/photo-albums.js","utf8");
+ assert.ok(albums.includes('.eq("photo_id",photo.id).eq("id",linked).maybeSingle()'));
+ assert.ok(profile.includes('if(exact)query=query.eq("id",requestedStory)'));
+}
+console.log("VATRA content preferences: lazy read, independent toggles, session isolation, feed exclusion and exact notification routes passed.");

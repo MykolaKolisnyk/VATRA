@@ -1177,7 +1177,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
   if(append)list.append(batch);else list.replaceChildren(batch);
   if(focusPost){
    const back=node("button","vatra-profile-all-posts-001",t("До всіх публікацій","All posts"));back.type="button";
-   back.addEventListener("click",()=>{const url=new URL(location.href);url.searchParams.delete("post");history.replaceState(history.state,"",url.href);void loadPosts(client,targetId,ownId,userId);});
+   back.addEventListener("click",()=>{const url=new URL(location.href);url.searchParams.delete("post");url.searchParams.delete("comment");history.replaceState(history.state,"",url.href);void loadPosts(client,targetId,ownId,userId);});
    list.prepend(back);
    requestAnimationFrame(()=>list.querySelector(".feed-post-card")?.scrollIntoView({block:"start",behavior:"auto"}));
   }
@@ -2167,9 +2167,55 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   const moreMenu=q("#profile-more-menu"),morePanel=q("#profile-more-panel");
   const messenger=q("#profile-messenger"),gift=q("#profile-gift"),hideNews=q("#profile-hide-news"),postNotice=q("#profile-post-notice"),storyNotice=q("#profile-story-notice"),removeFriend=q("#profile-remove-friend");
   const unavailable=t("Функція в розробці","Coming soon");
-  for(const item of [messenger,gift,hideNews,postNotice,storyNotice])if(item){item.title=unavailable;item.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;window.VATRA_TOAST?.show?.(unavailable,"info");});}
+  for(const item of [messenger,gift])if(item){item.title=unavailable;item.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;window.VATRA_TOAST?.show?.(unavailable,"info");});}
   const first=String(q("#profile-heading")?.textContent||"").trim().split(/\s+/u)[0].slice(0,60);
-  if(hideNews)hideNews.querySelector("span").textContent=t("Приховати новини від ","Hide news from ")+first;
+  const settings=[
+   [hideNews,"hide_posts",()=>t("Приховати новини від ","Hide news from ")+first,()=>t("Показувати новини від ","Show news from ")+first],
+   [postNotice,"notify_posts",()=>t("Сповіщати про публікації","Notify about posts"),()=>t("Не сповіщати про публікації","Stop post notifications")],
+   [storyNotice,"notify_stories",()=>t("Сповіщати про історії","Notify about stories"),()=>t("Не сповіщати про історії","Stop story notifications")]
+  ];
+  let preferenceRow=null,preferencesBusy=false,preferencesAvailable=false;
+  const sameViewer=()=>String(window.VATRA_AUTH_MEMBER_ID||ownId)===String(ownId);
+  const paintPreferences=()=>{
+   for(const [item,field,off,on] of settings){
+    const enabled=preferenceRow?.[field]===true;
+    item.querySelector("span").textContent=enabled?on():off();
+    item.setAttribute("aria-pressed",String(enabled));
+    item.disabled=preferencesBusy;
+    item.title=preferencesAvailable?"":unavailable;
+   }
+  };
+  const loadPreferences=async()=>{
+   if(preferencesBusy||!sameViewer())return;
+   preferencesBusy=true;paintPreferences();
+   try{
+    const result=await client.from("member_content_preferences").select("hide_posts,notify_posts,notify_stories")
+     .eq("viewer_vatra_id",ownId).eq("author_vatra_id",targetId).maybeSingle();
+    if(result.error||!sameViewer())return;
+    preferenceRow=result.data;preferencesAvailable=true;
+   }catch(_){}finally{preferencesBusy=false;paintPreferences();}
+  };
+  paintPreferences();
+  moreMenu?.addEventListener("toggle",()=>{if(moreMenu.open)void loadPreferences();});
+  for(const [item,field] of settings)item.addEventListener("click",async()=>{
+   if(preferencesBusy||!sameViewer())return;
+   if(!preferencesAvailable){window.VATRA_TOAST?.show?.(unavailable,"info");return;}
+   const next=preferenceRow?.[field]!==true;
+   preferencesBusy=true;paintPreferences();
+   const update=()=>client.from("member_content_preferences").update({[field]:next})
+    .eq("viewer_vatra_id",ownId).eq("author_vatra_id",targetId)
+    .select("hide_posts,notify_posts,notify_stories").maybeSingle();
+   try{
+    let result=preferenceRow?await update():await client.from("member_content_preferences")
+     .insert({viewer_vatra_id:ownId,author_vatra_id:targetId,[field]:next})
+     .select("hide_posts,notify_posts,notify_stories").maybeSingle();
+    if(result.error?.code==="23505"&&sameViewer())result=await update();
+    if(result.error||result.data?.[field]!==next||!sameViewer())throw Error("Preference not saved");
+    preferenceRow=result.data;
+    window.VATRA_TOAST?.show?.(t("Налаштування збережено","Preference saved"),"success");
+   }catch(_){window.VATRA_TOAST?.show?.(t("Не вдалося зберегти налаштування","Could not save preference"),"info");}
+   finally{preferencesBusy=false;paintPreferences();}
+  });
   if(morePanel&&removeFriend)removeFriend.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;void changeFriendship();});
   let relation=null,busy=false,friendMenuCloseTimer=null;
   const friendMenuOpen=state=>{
@@ -3229,14 +3275,16 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  }
 
  if(!locked)try{
-  const {data,error}=await client.from("stories")
-   .select("id,body,theme,expires_at,media_kind,media_path")
-   .eq("author_vatra_id",targetId)
-   .gt("expires_at",new Date().toISOString())
-   .order("created_at",{ascending:false})
-   .limit(1);
-  if(!error&&Array.isArray(data)&&typeof data[0]?.body==="string")
+  const requestedStory=new URLSearchParams(location.search).get("story");
+  const exact=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(requestedStory||"");
+  let query=client.from("stories").select("id,body,theme,expires_at,media_kind,media_path")
+   .eq("author_vatra_id",targetId).gt("expires_at",new Date().toISOString());
+  if(exact)query=query.eq("id",requestedStory);
+  const {data,error}=await query.order("created_at",{ascending:false}).limit(1);
+  if(!error&&Array.isArray(data)&&typeof data[0]?.body==="string"){
    activeStory=data[0];
+   if(exact&&String(activeStory.id)===requestedStory)openStory();
+  }else if(exact)window.VATRA_TOAST?.show?.(t("Історія більше недоступна","Story is no longer available"),"info");
  }catch(_){}
  syncAvatarMenu();
  if(!canEdit)return;

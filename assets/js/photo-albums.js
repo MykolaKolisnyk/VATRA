@@ -546,7 +546,14 @@
      .order("id",{ascending:false}).range(offset,offset+10);
     if(error)throw error;
     if(!sameDiscussion(album,photo)||ticket!==commentsTicket)return;
-    const rows=(data||[]).slice(0,10);
+    const rows=(data||[]).slice(0,10),pageCount=rows.length;
+    const params=new URLSearchParams(location.search),linked=params.get("comment");
+    const focus=!append&&photo&&params.get("album")===album.id&&params.get("photo")===photo.id&&validUUID(linked);
+    if(focus&&!rows.some(row=>row.id===linked)){
+     const match=await client.from("photo_album_comments").select("id,author_vatra_id,author_id,body,created_at").eq("album_id",album.id).eq("photo_id",photo.id).eq("id",linked).maybeSingle();
+     if(!match.error&&match.data&&sameDiscussion(album,photo)&&ticket===commentsTicket)rows.unshift(match.data);
+    }
+    if(!sameDiscussion(album,photo)||ticket!==commentsTicket)return;
     const ids=[...new Set(rows.map(r=>Number(r.author_vatra_id)))];
     const result=ids.length?await window.VATRA_PUBLIC_NAMES?.get(client,ids):null;
     if(!sameDiscussion(album,photo)||ticket!==commentsTicket)return;
@@ -568,11 +575,13 @@
    }
     const portraits=[];
     for(const item of rows){
+     if(append&&[...commentsList.querySelectorAll("[data-comment-id]")].some(el=>el.dataset.commentId===String(item.id)))continue;
      const row=commentRow(item,names);commentsList.append(row);
      const portrait=row.querySelector(".vatra-album-comment-avatar-001");if(portrait)portraits.push(portrait);
     }
     void paintAvatars(portraits,ticket);
-    commentOffset+=rows.length;commentsMore.hidden=(data||[]).length<=10;
+    commentOffset+=pageCount;commentsMore.hidden=(data||[]).length<=10;
+    if(focus){const target=[...commentsList.querySelectorAll("[data-comment-id]")].find(el=>el.dataset.commentId===linked);if(target){target.classList.add("is-linked-comment");target.scrollIntoView({block:"center",behavior:"auto"});}}
    }catch(_){
     if(ticket===commentsTicket&&!append&&sameDiscussion(album,photo))
      commentsList.replaceChildren(make("p","vatra-albums-error-001",t("Не вдалося завантажити коментарі.","Could not load comments.")));

@@ -59,7 +59,31 @@ const timeValue=date=>{
  const m=Math.floor(days/30);if(days<365)return language()==="en"?m+" months ago":plural(m,"місяць","місяці","місяців")+" тому";
  const y=Math.floor(days/365);return language()==="en"?y+" years ago":plural(y,"рік","роки","років")+" тому";
 };
+const interactionKinds=new Set(["post_comment","post_reply","avatar_comment","album_comment","album_photo_like","post_share","post_mention","comment_mention"]);
+const exactNoticeUUID=id=>/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(String(id||""));
+const memberRoute=(owner,params)=>{
+ if(!validId(owner))return null;
+ const u=new URL("id"+owner,root);for(const [key,value] of Object.entries(params))if(value)u.searchParams.set(key,value);return u.href;
+};
 const hrefFor=r=>{
+ if(["post_comment","post_reply","album_comment","album_photo_like","post_share","post_mention","comment_mention"].includes(r.kind)){
+  const bits=String(r.event_key||"").split(":");
+  if(bits[0]!==r.kind||!validId(bits[1])||!exactNoticeUUID(r.target_id))return null;
+  if(r.kind==="post_share"||r.kind==="post_mention")return memberRoute(r.actor_vatra_id,{post:r.target_id});
+  if(["post_comment","post_reply","comment_mention"].includes(r.kind))return exactNoticeUUID(r.context_id)?memberRoute(bits[1],{post:r.context_id,comment:r.target_id}):null;
+  return exactNoticeUUID(bits[2])&&exactNoticeUUID(r.context_id)?memberRoute(bits[1],{album:bits[2],photo:r.context_id,comment:r.kind==="album_comment"?r.target_id:null}):null;
+ }
+ if(r.kind==="post_like"&&r.target_kind==="person")return exactNoticeUUID(r.target_id)?memberRoute(ownId,{post:r.target_id}):null;
+ if(r.kind==="comment_like"&&r.target_kind==="post_comment")return null;
+ if(r.kind==="avatar_comment"||r.kind==="avatar_comment_like")return null;
+ if(r.kind==="avatar_like"){
+  const owner=r.avatar_owner_vatra_id||ownId,bits=String(r.event_key||"").split(":"),path=bits.length>=4?bits.slice(2,-1).join(":"):"";
+  if(validId(owner)&&path.startsWith(owner+"/avatar/")&&/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(path.split("/").pop()))return memberRoute(owner,{photo:"avatar",image:path.split("/").pop()});
+  return null;
+ }
+ if(["member_post","member_story"].includes(r.kind)){
+  const u=new URL("id"+r.actor_vatra_id,root);u.searchParams.set(r.kind==="member_story"?"story":"post",r.target_id);return u.href;
+ }
  if(["friend_request","friend_accepted","friend_declined"].includes(r.kind))
   return new URL("id"+r.actor_vatra_id,root).href;
  if(["avatar","avatar_comment"].includes(r.target_kind)){
@@ -79,7 +103,17 @@ const notificationTemplates={
  post_like:["{name} вподобав вашу публікацію","{name} liked your post"],
  comment_like:["{name} вподобав ваш коментар","{name} liked your comment"],
  avatar_like:["{name} вподобав ваше фото профілю","{name} liked your profile photo"],
- avatar_comment_like:["{name} вподобав ваш коментар під фото","{name} liked your photo comment"]
+ avatar_comment_like:["{name} вподобав ваш коментар під фото","{name} liked your photo comment"],
+ member_post:["{name} поділився публікацією","{name} shared a post"],
+ member_story:["{name} поділився історією","{name} shared a story"],
+ post_comment:["{name} прокоментував вашу публікацію","{name} commented on your post"],
+ post_reply:["{name} відповів на ваш коментар","{name} replied to your comment"],
+ avatar_comment:["{name} прокоментував ваше фото профілю","{name} commented on your profile photo"],
+ album_comment:["{name} прокоментував вашу фотографію","{name} commented on your photo"],
+ album_photo_like:["{name} вподобав вашу фотографію","{name} liked your photo"],
+ post_share:["{name} поширив вашу публікацію","{name} shared your post"],
+ post_mention:["{name} згадав вас у публікації","{name} mentioned you in a post"],
+ comment_mention:["{name} згадав вас у коментарі","{name} mentioned you in a comment"]
 };
 const feminineEvents={
  friend_accepted:"{name} прийняла вашу заявку в друзі",
@@ -87,7 +121,17 @@ const feminineEvents={
  post_like:"{name} вподобала вашу публікацію",
  comment_like:"{name} вподобала ваш коментар",
  avatar_like:"{name} вподобала ваше фото профілю",
- avatar_comment_like:"{name} вподобала ваш коментар під фото"
+ avatar_comment_like:"{name} вподобала ваш коментар під фото",
+ member_post:"{name} поділилася публікацією",
+ member_story:"{name} поділилася історією",
+ post_comment:"{name} прокоментувала вашу публікацію",
+ post_reply:"{name} відповіла на ваш коментар",
+ avatar_comment:"{name} прокоментувала ваше фото профілю",
+ album_comment:"{name} прокоментувала вашу фотографію",
+ album_photo_like:"{name} вподобала вашу фотографію",
+ post_share:"{name} поширила вашу публікацію",
+ post_mention:"{name} згадала вас у публікації",
+ comment_mention:"{name} згадала вас у коментарі"
 };
 const neutralEvents={
  friend_accepted:"Вашу заявку в друзі прийнято: {name}",
@@ -95,7 +139,17 @@ const neutralEvents={
  post_like:"Вашу публікацію вподобано: {name}",
  comment_like:"Ваш коментар вподобано: {name}",
  avatar_like:"Ваше фото профілю вподобано: {name}",
- avatar_comment_like:"Ваш коментар під фото вподобано: {name}"
+ avatar_comment_like:"Ваш коментар під фото вподобано: {name}",
+ member_post:"Нова публікація: {name}",
+ member_story:"Нова історія: {name}",
+ post_comment:"Новий коментар до вашої публікації від {name}",
+ post_reply:"Нова відповідь на ваш коментар від {name}",
+ avatar_comment:"Новий коментар до вашого фото профілю від {name}",
+ album_comment:"Новий коментар до вашої фотографії від {name}",
+ album_photo_like:"Вашу фотографію вподобано: {name}",
+ post_share:"Вашу публікацію поширено: {name}",
+ post_mention:"Вас згадано у публікації: {name}",
+ comment_mention:"Вас згадано у коментарі: {name}"
 };
 const messageFor=(kind,name,form)=>{
  const first=String(name||"").trim().split(/\s+/u)[0]||name;
@@ -240,9 +294,90 @@ async function noticePreviewURL(run,path){
  cache.set(path,entry);
  return entry.promise;
 }
+async function enrichInteraction(record,body,link){
+ const run=notificationRun,kind=record.kind;
+ if(!run||!exactNoticeUUID(record.target_id))return;
+ const read=async(table,fields,id)=>{
+  const r=await run.client.from(table).select(fields).eq("id",id).maybeSingle();
+  if(run!==notificationRun||r.error||!r.data)throw Error("Notification content unavailable");
+  return r.data;
+ };
+ try{
+  let content=null,photoPath="",bucket="",owner=null,post=null;
+  if(["post_comment","post_reply","comment_like","comment_mention"].includes(kind)){
+   content=await read("post_comments","id,body,post_id,post_kind,media_kind,media_path",record.target_id);
+   if(content.post_kind==="group"&&kind==="comment_like"){
+    const url=new URL("feed",root);url.searchParams.set("post",content.post_id);url.searchParams.set("comment",content.id);link.href=url.href;
+    if(run===notificationRun&&body.isConnected){const card=make("div","vatra-notice-preview-001");card.textContent=t("Коментар: ","Comment: ")+String(content.body||"").slice(0,175);body.insertBefore(card,body.querySelector(".vatra-notification-time"));}return;
+   }
+   if(content.post_kind!=="person"||!exactNoticeUUID(content.post_id))return;
+   post=await read("feed_posts","id,author_vatra_id,body,media_kind,media_path,media_items,is_clip",content.post_id);
+   owner=post.author_vatra_id;
+   const url=memberRoute(owner,{post:post.id,comment:content.id});if(url)link.href=url;
+   const media=Array.isArray(post.media_items)?post.media_items.find(x=>x?.media_kind==="image"):null;
+   photoPath=String(media?.media_path||(post.media_kind==="image"?post.media_path:"")||"");bucket="post-images";
+   if(kind==="post_comment"&&photoPath)link.textContent+=t(" з фото"," with a photo");
+   if(["post_reply","comment_like","comment_mention"].includes(kind)){
+    const mine=String(owner)===String(run.id);
+    let name="";
+    if(!mine&&validId(owner)){const result=await window.VATRA_PUBLIC_NAMES?.get(run.client,[owner]);name=String(result?.data?.[0]?.display_name||"").trim().split(/\s+/u)[0];}
+    const withPhoto=!!photoPath;
+    const suffix=mine?(withPhoto?t(" під вашою публікацією з фото"," under your photo post"):t(" під вашою публікацією"," under your post")):
+     (name?(withPhoto?t(" під публікацією з фото користувача "," under a photo post by "):t(" під публікацією користувача "," under a post by "))+name:t(" під публікацією"," under a post"));
+    if(run===notificationRun)link.textContent+=suffix;
+   }
+  }else if(["avatar_comment","avatar_comment_like"].includes(kind)){
+   content=await read("avatar_comments","id,body,owner_vatra_id,avatar_path",record.target_id);owner=content.owner_vatra_id;
+   photoPath=String(content.avatar_path||"");bucket="avatars";
+   if(!validId(owner)||!photoPath.startsWith(owner+"/avatar/")||!/^[A-Za-z0-9_-]+\.(?:jpe?g|png|webp)$/i.test(photoPath.split("/").pop()))return;
+   const url=memberRoute(owner,{photo:"avatar",image:photoPath.split("/").pop(),comment:content.id});if(url)link.href=url;
+   if(kind==="avatar_comment_like"&&String(owner)!==String(run.id)){
+    const result=await window.VATRA_PUBLIC_NAMES?.get(run.client,[owner]);
+    const name=String(result?.data?.[0]?.display_name||"").trim().split(/\s+/u)[0];
+    if(name&&run===notificationRun)link.textContent+=t(" користувача "," of ")+name;
+   }
+  }else if(["album_comment","album_photo_like"].includes(kind)){
+   if(kind==="album_comment")content=await read("photo_album_comments","id,body,album_id,photo_id",record.target_id);
+   const photo=await read("album_photos","id,album_id,owner_vatra_id,media_path,caption,archived_at",content?.photo_id||record.target_id);
+   if(photo.archived_at||!validId(photo.owner_vatra_id)||!exactNoticeUUID(photo.album_id))return;
+   if(content&&content.album_id!==photo.album_id)return;
+   owner=photo.owner_vatra_id;photoPath=String(photo.media_path||"");bucket="album-photos";
+   const url=memberRoute(owner,{album:photo.album_id,photo:photo.id,comment:content?.id});if(url)link.href=url;
+   if(!content)content={body:photo.caption||""};
+  }else if(kind==="post_mention"){
+   content=await read("feed_posts","id,body,media_kind,media_path,media_items,author_vatra_id",record.target_id);
+   const media=Array.isArray(content.media_items)?content.media_items.find(x=>x?.media_kind==="image"):null;
+   photoPath=String(media?.media_path||(content.media_kind==="image"?content.media_path:"")||"");bucket="post-images";
+  }else if(kind==="member_story"){
+   content=await read("stories","id,body,author_vatra_id,media_kind,media_path,expires_at",record.target_id);
+   if(Date.parse(content.expires_at)<=Date.now()||String(content.author_vatra_id)!==String(record.actor_vatra_id))return;
+   if(content.media_kind==="image"){photoPath=String(content.media_path||"");bucket="post-images";owner=content.author_vatra_id;}
+  }else if(kind==="post_share"){
+   content=await read("feed_posts","id,body,media_kind,media_path,media_items,author_vatra_id",record.target_id);
+   const original=await read("feed_posts","id,body,media_kind,media_path,media_items",record.context_id);
+   const media=Array.isArray(original.media_items)?original.media_items.find(x=>x?.media_kind==="image"):null;
+   photoPath=String(media?.media_path||(original.media_kind==="image"?original.media_path:"")||"");bucket="post-images";
+   if(!String(content.body||"").trim())content=original;
+  }else return;
+  if(run!==notificationRun||!body.isConnected)return;
+  const excerpt=String(content?.body||"").trim().slice(0,175);
+  const card=make("div","vatra-notice-preview-001");
+  card.textContent=excerpt||t("Відкрити вміст","Open content");
+  body.insertBefore(card,body.querySelector(".vatra-notification-time"));
+  let url=null;
+  if(bucket==="avatars"&&/^\d+\/avatar\/[A-Za-z0-9._-]+$/.test(photoPath))url=run.client.storage.from(bucket).getPublicUrl(photoPath)?.data?.publicUrl;
+  else if(bucket==="post-images"&&/^\d+\/(?:posts|comments|stories)\/[A-Za-z0-9._-]+\.(?:jpg|jpeg|png|webp)$/i.test(photoPath))url=await noticePreviewURL(run,photoPath);
+  else if(bucket==="album-photos"&&photoPath.startsWith(String(owner)+"/")&&photoPath.length<=300&&!photoPath.includes("..")){
+   const signed=await run.client.storage.from(bucket).createSignedUrl(photoPath,120);
+   if(!signed.error&&signed.data?.signedUrl){const candidate=new URL(signed.data.signedUrl);if(candidate.protocol==="https:"&&candidate.hostname==="cxrcycxrlkufozomsxcs.supabase.co")url=candidate.href;}
+  }
+  if(url&&run===notificationRun&&card.isConnected){const thumb=make("img","vatra-notice-preview-thumb-001");thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.src=url;card.append(thumb);}
+ }catch(_){}
+}
 async function enrichNotice(record,body,link){
+ if(interactionKinds.has(record.kind)||["comment_like","avatar_comment_like","member_story"].includes(record.kind))return enrichInteraction(record,body,link);
  const run=notificationRun;
- if(!run||!["post_like","comment_like","avatar_like","avatar_comment_like"].includes(record.kind))return;
+ if(!run||!["post_like","comment_like","avatar_like","avatar_comment_like","member_post"].includes(record.kind))return;
  try{
   const kind=record.kind;let content=null,photoPath="",bucket="post-images";
   if(kind==="avatar_like"){
@@ -283,7 +418,7 @@ async function enrichNotice(record,body,link){
   if(run!==notificationRun||!body.isConnected)return;
   const excerpt=String(content?.body||"").trim().slice(0,175);
   const label=kind==="comment_like"||kind==="avatar_comment_like"?
-   t("Коментар: ","Comment: "):kind==="post_like"?t("Публікація: ","Post: "):"";
+   t("Коментар: ","Comment: "):["post_like","member_post"].includes(kind)?t("Публікація: ","Post: "):"";
   const card=make("div","vatra-notice-preview-001");
   card.textContent=excerpt?label+excerpt+(String(content.body).length>175?"…":""):
    kind==="avatar_like"?t("Фото профілю","Profile photo"):t("Переглянути публікацію","View the post");
@@ -366,10 +501,13 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null,form=nu
  }
  const body=make("div","vatra-notification-content ui-vatra-notification-content-"+index);
  const link=make("a","vatra-notification-link vatra-notification-link-"+index,messageFor(record.kind,name,form));
- link.href=hrefFor(record);
+ const initialHref=hrefFor(record);if(initialHref)link.href=initialHref;
+ let enrichment;
  link.addEventListener("click",async event=>{
   if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
   event.preventDefault();
+  if(!link.hasAttribute("href")||["avatar_comment","avatar_comment_like","comment_like"].includes(record.kind))await enrichment;
+  if(!link.hasAttribute("href"))return;
   if(!record.read_at)await markRead(record.id);
 
 
@@ -379,7 +517,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null,form=nu
   timeValue(record.created_at));
  timestamp.dateTime=record.created_at;
  body.append(link,timestamp);
- void enrichNotice(record,body,link);
+ enrichment=Promise.resolve().then(()=>enrichNotice(record,body,link));
  const actions=make("div","vatra-notification-actions ui-vatra-notification-actions-"+index);
  const deleteButton=make("button","vatra-notification-delete vatra-notification-delete-"+index);
  deleteButton.type="button";
@@ -396,6 +534,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null,form=nu
  const avatarStack=make("div","vatra-notification-avatar-stack ui-vatra-notification-avatar-stack-"+index);
  avatarStack.append(avatar,badgeIcon);
  article.append(mark,avatarStack,body,actions);
+ article.addEventListener("click",event=>{if(event.target.closest("a,button,input,select,textarea"))return;link.click();});
  return article;
 }
 async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
