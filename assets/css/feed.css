@@ -2921,14 +2921,13 @@ body.feed-page .vatra-post-comment-dialog .feed-post-card>.feed-post-media .feed
  width:auto;max-width:100%;height:auto;max-height:min(46dvh,380px);margin-inline:auto
 }
 
-.ui-vatra-admin-dialog-001,.ui-vatra-admin-blocked-001{box-sizing:border-box;color:var(--ink,#26354b);border:1px solid #e0e7f1;background:#fff;font:400 15px/1.55 Onest,system-ui,sans-serif;box-shadow:0 20px 80px #13284733}
-.ui-vatra-admin-dialog-001::backdrop,.ui-vatra-admin-blocked-001::backdrop{background:#17233ca6}
-.ui-vatra-admin-heading-001 svg,.vatra-owner-admin-menu-001 svg{width:22px;height:22px;flex:none;color:#3269d8}
-.vatra-admin-profile-link-001,.vatra-admin-blocked-support-001{color:#2863d8;font-weight:600;text-decoration:none}
-.ui-vatra-admin-blocked-001{width:min(430px,calc(100vw - 28px));border-radius:18px;padding:26px}
-.ui-vatra-admin-blocked-001[open]{display:grid;gap:14px}
-.ui-vatra-admin-blocked-001 h2,.ui-vatra-admin-blocked-001 p{margin:0}
-.vatra-admin-primary-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#2863d8;color:white}
+.ui-vatra-account-blocked-001{box-sizing:border-box;color:var(--ink,#26354b);border:1px solid #e0e7f1;background:#fff;font:400 15px/1.55 Onest,system-ui,sans-serif;box-shadow:0 20px 80px #13284733}
+.ui-vatra-account-blocked-001::backdrop{background:#17233ca6}
+.vatra-account-blocked-support-001{color:#2863d8;font-weight:600;text-decoration:none}
+.ui-vatra-account-blocked-001{width:min(430px,calc(100vw - 28px));border-radius:18px;padding:26px}
+.ui-vatra-account-blocked-001[open]{display:grid;gap:14px}
+.ui-vatra-account-blocked-001 h2,.ui-vatra-account-blocked-001 p{margin:0}
+.vatra-account-blocked-action-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#2863d8;color:white}
 
 
 body.feed-page .ui-vatra-sticker-packs-001{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:thin}

@@ -2136,7 +2136,7 @@ await assert.rejects(stat("assets/js/admin.js"),{code:"ENOENT"});
 await assert.rejects(stat("assets/css/admin.css"),{code:"ENOENT"});
 assert.ok(!ownerAdminGuard.includes('rpc("vatra_admin_access")')&&!ownerAdminGuard.includes("loadAdmin")&&!ownerAdminGuard.includes("vatra-admin-menu")&&ownerAdminGuard.includes('from("account_states")')&&ownerAdminGuard.includes("loadAnnouncements"),"Account guard must preserve protection and announcements without exposing admin panel");
 const ownerAdminSQL=await read("_development/supabase/vatra-owner-admin.sql");
-assert.ok((await read("assets/css/feed.css")).includes(".vatra-admin-primary-001{"),"Blocked-account action must not depend on retired admin styles");
+assert.ok((await read("assets/css/feed.css")).includes(".vatra-account-blocked-action-001{"),"Blocked-account action must not depend on retired admin styles");
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 

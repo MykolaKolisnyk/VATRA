@@ -316,7 +316,7 @@ if(cachedPhoto&&document.head){
  document.head.append(preload);
 }
 function setHeader({email,name,initials,id,client}){
- if(client&&id){window.VATRA_ADMIN_CONTEXT={client,id:String(id)};window.VATRA_ADMIN_SESSION?.(client,String(id));}
+ if(client&&id){window.VATRA_ACCOUNT_CONTEXT={client,id:String(id)};window.VATRA_ACCOUNT_SESSION?.(client,String(id));}
  if(!email){
   const label=document.querySelector("#feed-menu-name");
   const face=document.querySelector("#feed-header-avatar");

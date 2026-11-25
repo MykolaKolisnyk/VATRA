@@ -803,8 +803,8 @@ function stop(){
  sectionPage=0;sectionLoading=false;sectionQueued=false;sectionScope=null;
  client=null;ownId=null;
  window.VATRA_AUTH_MEMBER_ID=null;
- if(window.VATRA_ADMIN_CONTEXT?.client===run.client&&window.VATRA_ADMIN_CONTEXT.id===run.id)delete window.VATRA_ADMIN_CONTEXT;
- window.VATRA_ADMIN_END?.(run.client,run.id);
+ if(window.VATRA_ACCOUNT_CONTEXT?.client===run.client&&window.VATRA_ACCOUNT_CONTEXT.id===run.id)delete window.VATRA_ACCOUNT_CONTEXT;
+ window.VATRA_ACCOUNT_END?.(run.client,run.id);
  window.VATRA_SEARCH_HISTORY?.setViewer(null);
 }
 function incomingToast(row){
@@ -825,8 +825,8 @@ function start(c,id){
 
  window.VATRA_AUTH_MEMBER_ID=ownId;
 
- window.VATRA_ADMIN_CONTEXT={client:c,id:ownId};
- void window.VATRA_ADMIN_SESSION?.(c,ownId);
+ window.VATRA_ACCOUNT_CONTEXT={client:c,id:ownId};
+ void window.VATRA_ACCOUNT_SESSION?.(c,ownId);
  window.VATRA_SEARCH_HISTORY?.setViewer(ownId);
  headerUI();
  if(!bell)return;

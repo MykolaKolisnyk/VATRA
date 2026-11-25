@@ -11,7 +11,7 @@
     const root=new URL("/VATRA/",location.origin);
     const path=location.pathname;
     const maintenancePage=/^\/VATRA\/maintenance(?:\.html)?$/.test(path);
-    const ownerLogin=/^\/VATRA\/(?:index\.html)?$/.test(path)&&new URLSearchParams(location.search).get("maintenance-admin")==="1";
+    const ownerLogin=/^\/VATRA\/(?:index\.html)?$/.test(path)&&new URLSearchParams(location.search).get("maintenance-owner")==="1";
     const endpoint="https://cxrcycxrlkufozomsxcs.supabase.co";
     const key="sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i";
     let pending=null;
@@ -35,10 +35,10 @@
     let checking=false;
     async function owner(){
       if(document.readyState==="loading")await new Promise(resolve=>document.addEventListener("DOMContentLoaded",resolve,{once:true}));
-      if(!window.supabase?.createClient&&!window.VATRA_ADMIN_CONTEXT?.client)return false;
+      if(!window.supabase?.createClient&&!window.VATRA_ACCOUNT_CONTEXT?.client)return false;
       let client,temporary=false;
       try{
-        client=window.VATRA_ADMIN_CONTEXT?.client;
+        client=window.VATRA_ACCOUNT_CONTEXT?.client;
         if(!client){temporary=true;client=window.supabase.createClient(endpoint,key,{auth:{persistSession:true,autoRefreshToken:false,detectSessionInUrl:false,flowType:"pkce"}});}
         const result=await Promise.race([client.rpc("vatra_maintenance_access"),new Promise(resolve=>setTimeout(()=>resolve(null),3000))]);
         return result?.data===true&&!result.error;

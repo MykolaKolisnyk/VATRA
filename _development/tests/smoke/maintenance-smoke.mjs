@@ -7,8 +7,8 @@ const page=await read("maintenance.html");
 const maintenanceScript=await read("assets/js/maintenance.js");
 assert.ok(page.includes("assets/vatryk/vatryk_technician.webp")&&
  page.includes('data-i18n="maintenance-heading"')&&page.includes('data-i18n="maintenance-copy"'));
-assert.doesNotMatch(page,/<(?:header|footer|button|a|section)\b|data-language-trigger|maintenance-admin=1|maintenance-status/);
-assert.ok(host.includes('get("maintenance-admin")==="1"'),"Direct owner recovery route is retained");
+assert.doesNotMatch(page,/<(?:header|footer|button|a|section)\b|data-language-trigger|maintenance-owner=1|maintenance-status/);
+assert.ok(host.includes('get("maintenance-owner")==="1"'),"Direct owner recovery route is retained");
 assert.ok(host.includes('rpc("vatra_maintenance_access")'));
 async function simulate({enabled,owner=false,path="/VATRA/feed",search="",failure=false}){
  const redirects=[],requests=[],events={},roleChecks=[];
@@ -35,7 +35,7 @@ const guest=await simulate({enabled:true});assert.match(guest.redirects[0],/main
 assert.equal(guest.requests.length,2);assert.equal(guest.roleChecks.length,1);
 const admin=await simulate({enabled:true,owner:true});assert.equal(admin.redirects.length,0);
 assert.equal(admin.requests.length,1);assert.equal(admin.roleChecks.length,1);
-const recovery=await simulate({enabled:true,path:"/VATRA/",search:"?maintenance-admin=1"});assert.equal(recovery.redirects.length,0);assert.equal(recovery.requests.length,0);
+const recovery=await simulate({enabled:true,path:"/VATRA/",search:"?maintenance-owner=1"});assert.equal(recovery.redirects.length,0);assert.equal(recovery.requests.length,0);
 const maintenance=await simulate({enabled:true,path:"/VATRA/maintenance.html"});assert.equal(maintenance.redirects.length,0);
 const offline=await simulate({enabled:true,failure:true});assert.equal(offline.redirects.length,0);
 console.log("VATRA maintenance: inactive, active guest, owner bypass, recovery route and network failure verified.");

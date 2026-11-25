@@ -30,13 +30,13 @@ function harness(allowed,blocked=false){
  return {menu,styles,imports,calls,open,events,alerts,placements,window,client};
 }
 for(const [id,allowed,blocked] of [["2",true,false],["1",false,false],["1",true,true]]){
- const h=harness(allowed,blocked);await h.window.VATRA_ADMIN_SESSION(h.client,id);
+ const h=harness(allowed,blocked);await h.window.VATRA_ACCOUNT_SESSION(h.client,id);
  assert.equal(h.menu.some(x=>x.id==="vatra-admin-menu"),false);
  assert.equal(h.styles.length,0);assert.equal(h.imports.length,0);
  if(id!=="1"||blocked)assert.ok(!h.calls.includes("vatra_admin_access"));
 }
 const owner=harness(true);
-await owner.window.VATRA_ADMIN_SESSION(owner.client,"1");
+await owner.window.VATRA_ACCOUNT_SESSION(owner.client,"1");
 assert.equal(owner.menu.length,0);assert.deepEqual(owner.calls,["account_states"]);
 assert.equal(owner.imports.length,0);assert.equal(owner.styles.length,0);
 owner.events[0]("SIGNED_OUT");assert.equal(owner.menu.length,0);
