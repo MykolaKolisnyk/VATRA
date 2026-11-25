@@ -1275,7 +1275,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedJs.includes('panel.style.paddingTop="0px"')&&
  sharedJs.includes('const headerTop=Math.max(oy,header?.top??oy)')&&
  sharedCss.includes("position:fixed;z-index:89;display:flex;flex-direction:column;gap:0;")&&
- sharedCss.includes("border:1px solid #e0e5ed;border-top:0;border-radius:0 0 16px 16px;")&&
+ sharedCss.includes("border:1px solid #e0e5ed;border-top:0;border-radius:0 0 16px 0;")&&
  sharedJs.includes('back.addEventListener("click"')&&
  sharedJs.includes('edit.addEventListener("click"')&&
  sharedJs.includes('clearAll.addEventListener("click"')&&
