@@ -236,31 +236,44 @@ assert.ok(
 console.log("VATRA media viewer layout checks passed.");
 
 {
- const start=postMedia.indexOf(" function photoMatte("),end=postMedia.indexOf(" function clearPhotoSlide(",start);
+ const start=postMedia.indexOf(" const photoMatteChecks="),end=postMedia.indexOf(" function clearPhotoSlide(",start);
  assert.ok(start>=0&&end>start);
- const ctx={};runInNewContext(postMedia.slice(start,end)+"\nglobalThis.geometry={photoMatte,fitPhotoViewer};",ctx);
+ let alpha=255,tainted=false,reads=0,closed=0;
+ const ctx={setTimeout,clearTimeout,AbortController,createImageBitmap:async()=>({width:1,height:1,close(){closed++;}}),document:{createElement(){let readable=false;return {width:0,height:0,getContext(){return {drawImage(image){readable=typeof image.close==="function";},getImageData(){if(tainted&&!readable)throw Error("CORS");return {data:new Uint8ClampedArray([0,0,0,alpha])};}};}};}}};
+ runInNewContext(postMedia.slice(start,end)+"\nglobalThis.geometry={photoMatte,fitPhotoViewer};",ctx);
  const {fitPhotoViewer,photoMatte}=ctx.geometry;
  for(const [w,h] of [[1024,1024],[6000,4000],[4000,6000],[7680,4320],[500,1800]]){
-  const dialog={dataset:{},style:{width:"",height:""}},stage={dataset:{}};
+  const vars={},dialog={dataset:{},style:{setProperty:(k,v)=>vars[k]=v}},stage={dataset:{}};
   fitPhotoViewer(dialog,stage,{naturalWidth:w,naturalHeight:h},"photo.png");
-  assert.equal(stage.dataset.photoMatte,"white");
-  assert.deepEqual(dialog.dataset,{});
-  assert.deepEqual(dialog.style,{width:"",height:""});
+  const landscape=w/h>=1.35&&w/h<=2.2;
+  assert.equal(dialog.dataset.photoSized,landscape?"true":undefined);
+  if(landscape){assert.equal(Number(vars["--vatra-photo-ratio"]),w/h);assert.equal(Number(vars["--vatra-photo-inverse"]),h/w);}
  }
- assert.ok(!postCss.includes('[data-photo-sized="true"]')&&!postMedia.includes("--vatra-photo-width")&&!postMedia.includes("--vatra-photo-height"));
+ assert.ok(postCss.includes('[data-photo-sized="true"]')&&postCss.includes('var(--vatra-photo-inverse)')&&postCss.includes('var(--vatra-photo-ratio)'));
  const albumsCss=await read("assets/css/photo-albums.css");
  for(const [source,selector] of [[postCss,".vatra-post-media-viewer{"],[profileCss,"body.profile-page .profile-media-viewer{"],[albumsCss,"body.profile-page .ui-vatra-album-viewer-001{"]]){
   const rule=source.slice(source.indexOf(selector)).split("}")[0];
-  assert.ok(rule.includes("inset:0")&&rule.includes("width:100vw")&&rule.includes("height:100dvh")&&rule.includes("max-width:none")&&rule.includes("max-height:none")&&rule.includes("margin:0")&&rule.includes("border-radius:0"),"All three photo viewers must fill both viewport dimensions");
+  assert.ok(rule.includes("inset:0")&&rule.includes("width:100vw")&&rule.includes("height:100dvh")&&rule.includes("max-width:none")&&rule.includes("max-height:none")&&rule.includes("margin:0")&&rule.includes("border-radius:0"),"All three photo viewers retain the fullscreen fallback");
  }
- for(const [path,expected] of [["a.webp","white"],["a.png?x=1","white"],["a.jpg","dark"],["a.jpeg?token=1","dark"]])assert.equal(photoMatte(path),expected);
+ for(const src of ["a.png","a.webp","a.jpg"]){
+  alpha=255;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"dark");
+  alpha=0;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"white");
+  alpha=128;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"white");
+ }
+ tainted=true;assert.equal(await photoMatte({src:"private.png",naturalWidth:1,naturalHeight:1}),"unknown");
+ const original=async()=>{reads++;return {type:"image/png"};};
+ for(const [value,expected] of [[0,"white"],[255,"dark"]]){alpha=value;assert.equal(await photoMatte({src:"private.png",naturalWidth:1,naturalHeight:1},()=>true,original),expected);}
+ assert.equal(reads,2);assert.equal(closed,2);
+ tainted=false;
  assert.ok(postMedia.includes("duration:300")&&postMedia.includes("prefers-reduced-motion: reduce"));
  assert.ok(postMedia.includes("(-sign*distance)")&&postMedia.includes("(sign*distance)"));
  assert.ok(profile.includes("renderGalleryPhoto(delta)")&&albums.includes("openPhoto(next,nextAlbum,dir)"));
- assert.ok(postCss.includes('[data-photo-matte="white"]{background:#fff}'));
+ assert.ok(postCss.includes('[data-photo-matte="dark"]{background:#111419}')&&postCss.includes('[data-photo-matte="white"]{background:#fff}'));
+ const logoRule=postCss.match(/\.vatra-photo-viewer-brand-001\{[^}]+\}/)?.[0]||"";
+ assert.ok(logoRule.includes("background:transparent")&&!logoRule.includes("border-radius")&&!logoRule.includes("box-shadow"),"Viewer logo must not have a white disc or shadow");
  assert.ok(profileCss.includes("overflow:hidden;padding:0"));
 }
-console.log("VATRA photos: fullscreen viewer, matte selection and directional transitions verified.");
+console.log("VATRA photos: aspect-adaptive landscape viewer, fullscreen fallback, dark matte and directional transitions verified.");
 
 assert.ok(postMedia.includes('authorName.split(/\\s+/)[0]')&&postMedia.includes('function preparePhotoControls(')&&postCss.includes('transition:scale .24s')&&postCss.includes('.vatra-photo-viewer-brand-001'),"Photo viewer controls must be shared and personal captions use first names");
 {

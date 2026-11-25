@@ -492,10 +492,82 @@
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
  const photoSlides=new WeakMap();
- function photoMatte(path){return /\.(?:png|webp)(?:[?#]|$)/i.test(String(path||""))?"white":"dark";}
+ const photoMatteChecks=new WeakMap(),photoOriginalReaders=new WeakMap();
+ async function readPhotoAlpha(image,isCurrent=()=>true){
+  const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d",{willReadFrequently:true});
+  if(!ctx)throw Error("Canvas unavailable");
+  const width=image.naturalWidth,height=image.naturalHeight,tile=512;
+  let count=0;
+  try{
+   for(let y=0;y<height;y+=tile)for(let x=0;x<width;x+=tile){
+    if(!isCurrent())return "unknown";
+    const w=Math.min(tile,width-x),h=Math.min(tile,height-y);
+    canvas.width=w;canvas.height=h;
+    ctx.drawImage(image.bitmap||image,x,y,w,h,0,0,w,h);
+    const pixels=ctx.getImageData(0,0,w,h).data;
+    for(let i=3;i<pixels.length;i+=4)if(pixels[i]<255)return "white";
+    if(++count%8===0)await new Promise(resolve=>setTimeout(resolve,0));
+   }
+   return "dark";
+  }finally{canvas.width=canvas.height=0;}
+ }
+ async function photoMatte(image,isCurrent=()=>true,readOriginal=photoOriginalReaders.get(image)){
+  try{return await readPhotoAlpha(image,isCurrent);}catch(_){}
+  if(!isCurrent())return "unknown";
+  const src=image.currentSrc||image.src;
+  const inspect=async blob=>{
+   if(!blob||!isCurrent())return "unknown";
+   if(typeof createImageBitmap==="function"){
+    try{
+     const bitmap=await createImageBitmap(blob);
+     try{return await readPhotoAlpha({naturalWidth:bitmap.width,naturalHeight:bitmap.height,bitmap},isCurrent);}
+     finally{bitmap.close();}
+    }catch(_){}
+   }
+   const url=URL.createObjectURL(blob);
+   try{
+    const copy=new Image();copy.src=url;await copy.decode();
+    return await readPhotoAlpha(copy,isCurrent);
+   }finally{URL.revokeObjectURL(url);}
+  };
+  if(typeof readOriginal==="function"){
+   let timer;
+   try{
+    const blob=await Promise.race([Promise.resolve().then(readOriginal),new Promise(resolve=>{timer=setTimeout(()=>resolve(null),8000);})]);
+    const matte=await inspect(blob);if(matte!=="unknown")return matte;
+   }catch(_){}finally{clearTimeout(timer);}
+  }
+  if(src&&isCurrent()){
+   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+   try{
+    const response=await fetch(src,{mode:"cors",signal:controller.signal});
+    if(response.ok)return await inspect(await response.blob());
+   }catch(_){}finally{clearTimeout(timer);}
+  }
+  return "unknown";
+ }
  function fitPhotoViewer(dialog,stage,image,path){
   if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
-  if(path||!stage.dataset.photoMatte)stage.dataset.photoMatte=photoMatte(path||image.currentSrc||image.src);
+  const ratio=image.naturalWidth/image.naturalHeight;
+  if(dialog.open&&image.complete){
+   const src=image.src||image.currentSrc,previous=photoMatteChecks.get(stage);
+   if(previous?.image===image&&previous.src===src){
+    if(previous.result)stage.dataset.photoMatte=previous.result;
+   }else{
+    const state={image,src,result:null};photoMatteChecks.set(stage,state);
+    stage.dataset.photoMatte="unknown";
+    const current=()=>photoMatteChecks.get(stage)===state&&dialog.open&&image.isConnected&&(image.src||image.currentSrc)===src;
+    void photoMatte(image,current).then(matte=>{
+     if(!current()){if(photoMatteChecks.get(stage)===state)photoMatteChecks.delete(stage);return;}
+     state.result=matte;stage.dataset.photoMatte=matte;
+    });
+   }
+  }
+  if(ratio>=1.35&&ratio<=2.2){
+   dialog.style.setProperty("--vatra-photo-ratio",String(ratio));
+   dialog.style.setProperty("--vatra-photo-inverse",String(1/ratio));
+   dialog.dataset.photoSized="true";
+  }else delete dialog.dataset.photoSized;
  }
  function clearPhotoSlide(stage){
   const previous=photoSlides.get(stage);
@@ -533,11 +605,18 @@
    const logo=document.createElement("span");logo.className="vatra-photo-viewer-brand-001";logo.setAttribute("role","img");logo.setAttribute("aria-label","VATRA");close.after(logo);
    const bar=document.createElement("div");bar.className="ui-vatra-photo-zoom-controls-001";bar.setAttribute("role","group");bar.setAttribute("aria-label",tr("Масштаб фотографії","Photo zoom"));
    const make=(kind,label)=>{
-    const button=document.createElement("button");button.type="button";button.className="vatra-photo-zoom-button-001 vatra-photo-zoom-"+kind+"-001";button.setAttribute("aria-label",label);button.title=label;
+    const button=document.createElement("button");button.type="button";button.className="vatra-photo-zoom-button-001 vatra-photo-zoom-"+kind+"-001";button.setAttribute("aria-label",label);
     const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");svg.setAttribute("class","ui-vatra-photo-zoom-icon-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");svg.setAttribute("aria-hidden","true");path.setAttribute("class","ui-vatra-photo-zoom-path-001");path.setAttribute("d","M21 21l-5.1-5.1M10.5 3a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15ZM7.5 10.5h6"+(kind==="in"?"M10.5 7.5v6":""));svg.append(path);button.append(svg);return button;
    };
    const plus=make("in",tr("Наблизити","Zoom in")),minus=make("out",tr("Віддалити","Zoom out"));
-   const count=document.createElement("output");count.className="vatra-photo-zoom-value-001";count.setAttribute("aria-live","polite");bar.append(plus,minus,count);close.parentElement.append(bar);
+   const wrap=(button,kind)=>{const item=document.createElement("span");item.className="vatra-photo-zoom-wrap-"+kind+"-001";item.append(button);return item;};
+   const count=document.createElement("output");count.className="vatra-photo-zoom-value-001";count.setAttribute("aria-live","polite");
+   bar.append(wrap(plus,"in"),wrap(minus,"out"),count);
+   bar.addEventListener("mousedown",event=>{if(event.button===0)event.preventDefault();});
+   bar.addEventListener("dblclick",event=>{event.preventDefault();event.stopPropagation();});
+   bar.addEventListener("selectstart",event=>event.preventDefault());
+   bar.addEventListener("dragstart",event=>event.preventDefault());
+   close.parentElement.append(bar);
    state={target:null,value:1,ready:false};
    state.paint=()=>{plus.disabled=!state.ready||state.value>=3;minus.disabled=!state.ready||state.value<=1;count.value=Math.round(state.value*100)+"%";if(state.target)state.target.style.scale=state.value===1?"":String(state.value);};
    plus.onclick=()=>{if(state.ready){state.value=photoZoomLevel(state.value,1);state.paint();}};
@@ -549,8 +628,10 @@
   state.target=image.closest(".ui-profile-photo-canvas-001")||image;state.target.classList.add("vatra-photo-zoom-target-001");state.value=1;state.ready=false;state.paint();return state;
  }
  const photoLoads=new WeakMap();
- function watchPhotoViewer(dialog,stage,image,path,finish=()=>{}){
+ function watchPhotoViewer(dialog,stage,image,path,finish=()=>{},readOriginal=null){
+  if(readOriginal)photoOriginalReaders.set(image,readOriginal);else photoOriginalReaders.delete(image);
   photoLoads.get(stage)?.abort();
+  photoMatteChecks.delete(stage);stage.dataset.photoMatte="unknown";
   const controller=new AbortController();photoLoads.set(stage,controller);
   const controls=preparePhotoControls(dialog,stage,image);
   const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);if(controls){controls.ready=true;controls.paint();}finish(image);};
@@ -648,9 +729,9 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),kind==="image"?direction:0);
   const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
   element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
-  if(kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,sourcePath||post?.media_path||url,finishSlide);
+  if(kind==="image"){const path=sourcePath||post?.media_path;watchPhotoViewer(mediaDialog,mediaDialogContent,element,path||url,finishSlide,path&&client?async()=>{const {data,error}=await client.storage.from("post-images").download(path);if(error)throw error;return data;}:null);}
   else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
-  restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
+  restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
   const head=container?.querySelector(".feed-post-header")||postCard?.querySelector(".feed-post-header");
   const identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
@@ -857,7 +938,8 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    tile.addEventListener("click",()=>{
     if(tile.getAttribute("aria-busy")==="true")return;
     if(tile.classList.contains("is-gallery-unavailable")){void loadTiles(true);return;}
-    void openGallery(index);
+    if(item.media_kind==="image"&&isFeedPhotoCard(container))void openFeedPhoto(client,container,item.media_path);
+    else void openGallery(index);
    });
    slot.append(tile);
    return {item,tile,index};
@@ -978,7 +1060,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),item.media_kind==="image"?direction:0);
      const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
      mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]),prev,next,counter);
-     if(item.media_kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,item.media_path,finishSlide);
+     if(item.media_kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,item.media_path,finishSlide,async()=>{const {data,error}=await client.storage.from("post-images").download(item.media_path);if(error)throw error;return data;});
      else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
     }catch(_){}
    };
@@ -991,8 +1073,67 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   }
   return true;
  }
+ const feedPhotoCards=new WeakMap();
+ let feedPhotoSession=null;
+ function isFeedPhotoCard(card){
+  const root=document.querySelector("#feed-posts");
+  return !!root&&card.parentElement===root&&card.matches(".feed-post-card");
+ }
+ function registerFeedPhotos(client,post,card){
+  if(!card.matches(".feed-post-card"))return;
+  const raw=Array.isArray(post?.media_items)&&post.media_items.length?post.media_items.slice(0,GALLERY_LIMIT):
+   [{media_kind:post?.media_kind,media_path:post?.media_path}];
+  const items=raw.filter(item=>item?.media_kind==="image"&&name(item.media_path,"image",post.author_vatra_id));
+  feedPhotoCards.set(card,{client,post,items});
+ }
+ async function openFeedPhoto(client,card,path){
+  if(!isFeedPhotoCard(card))return;
+  const entries=[...document.querySelector("#feed-posts").children].flatMap(container=>{
+   const record=feedPhotoCards.get(container);
+   return record?.client===client?record.items.map(item=>({container,post:record.post,item})):[];
+  });
+  let index=entries.findIndex(entry=>entry.container===card&&entry.item.media_path===path);
+  if(index<0)return;
+  feedPhotoSession?.abort();
+  const controller=new AbortController();feedPhotoSession=controller;
+  let busy=false;
+  const current=()=>!controller.signal.aborted;
+  const render=async(next,direction=0)=>{
+   if(busy||!current()||!entries[next]?.container.isConnected)return;
+   busy=true;
+   const entry=entries[next];
+   try{
+    const url=await signed(client,"image",entry.item.media_path);
+    if(!current()||!entry.container.isConnected)return;
+    if(direction&&!mediaDialog?.open)return;
+    const restoreNavigationFocus=direction&&mediaDialogContent.contains(document.activeElement);
+    openFullMedia(url,"image",entry.container,entry.post,client,false,direction,entry.item.media_path);
+    index=next;
+    photoNavigation(mediaDialogContent,index,entries.length,step);
+    if(restoreNavigationFocus||direction&&!mediaDialog.contains(document.activeElement)){
+     const preferred=mediaDialogContent.querySelector(direction>0?".vatra-post-gallery-nav-next:not(:disabled)":".vatra-post-gallery-nav-prev:not(:disabled)");
+     (preferred||mediaDialogContent.querySelector(".vatra-post-gallery-nav-prev:not(:disabled),.vatra-post-gallery-nav-next:not(:disabled)")||mediaDialog.querySelector(".vatra-post-media-close-001"))?.focus({preventScroll:true});
+    }
+   }catch(_){
+    window.VATRA_TOAST?.show?.(tr("Не вдалося відкрити фото.","Could not open photo."),"error");
+   }finally{busy=false;}
+  };
+  const step=dir=>{
+   let next=index+dir;
+   while(entries[next]&&!entries[next].container.isConnected)next+=dir;
+   if(entries[next])void render(next,dir);
+  };
+  await render(index);
+  if(!current()||!mediaDialog?.open){controller.abort();return;}
+  mediaDialog.addEventListener("close",()=>controller.abort(),{once:true,signal:controller.signal});
+  mediaDialog.addEventListener("keydown",event=>{
+   if(event.target?.closest?.("input,textarea,select,[contenteditable]"))return;
+   if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}
+  },{signal:controller.signal});
+ }
  async function mount(client,post,container){
   if(!container)return;
+  registerFeedPhotos(client,post,container);
   if(post?.author_vatra_id!=null)container.dataset.vatraMediaOwnerId=String(post.author_vatra_id);
   if(Array.isArray(post?.media_items)&&post.media_items.length){
    await mountGallery(client,post,container);return;
@@ -1092,7 +1233,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     frame.addEventListener("click",async()=>{
      try{
       const current=await signed(client,"image",path);
-      if(frame.isConnected)openFullMedia(current,"image",container,post,client);
+      if(frame.isConnected){if(isFeedPhotoCard(container))await openFeedPhoto(client,container,path);else openFullMedia(current,"image",container,post,client);}
      }catch(_){failure(tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable."));}
     });
     frame.append(image);

@@ -169,6 +169,53 @@ try{
   assert.ok(geometry.every(g=>Math.abs(g.emptyOffset)<=5),
    "Empty photo comments must be vertically centered in every viewer: "+JSON.stringify(geometry));
   console.log("VATRA three viewer sidebars: common author/actions/empty/composer geometry passed.");
+  const navFixtures=[
+   ["post","ui-vatra-post-media-viewer-content-001","vatra-post-gallery-nav-prev","vatra-post-gallery-nav-next"],
+   ["avatar","ui-profile-photo-content-001","vatra-profile-avatar-prev-001","vatra-profile-avatar-next-001"],
+   ["album","ui-vatra-post-media-viewer-content-001 ui-vatra-album-viewer-media-001","vatra-post-gallery-nav-prev","vatra-post-gallery-nav-next"]
+  ].map(([id,stage,left,right])=>'<section id="arrow-'+id+'" class="'+stage+
+   '" data-photo-matte="dark" style="position:relative;width:300px;height:200px;flex:none">'+
+   '<button class="'+left+'" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor"/></svg></button>'+
+   '<button class="'+right+'" aria-label="Next"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor"/></svg></button></section>').join("");
+  await viewerGeometryPage.setContent('<!doctype html><html><head>'+
+   '<link rel="stylesheet" href="'+base+'assets/css/feed.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/profile.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/photo-albums.css"></head>'+
+   '<body class="feed-page profile-page"><main style="display:flex;gap:18px;padding:24px">'+navFixtures+
+   '</main></body></html>',{waitUntil:"load"});
+  for(const id of ["post","avatar","album"]){
+   const stage=viewerGeometryPage.locator("#arrow-"+id);
+   const left=stage.getByRole("button",{name:"Previous"}),right=stage.getByRole("button",{name:"Next"});
+   for(const [matte,color,hover,outline] of [
+    ["dark","rgb(255, 255, 255)","rgba(21, 27, 39, 0.91)","rgb(16, 20, 28)"],
+    ["white","rgb(49, 68, 95)","rgba(237, 242, 248, 0.96)","rgb(255, 255, 255)"]
+   ]){
+    await viewerGeometryPage.mouse.move(1380,890);
+    await stage.evaluate((el,value)=>{el.dataset.photoMatte=value;},matte);
+    await stage.hover();
+    await viewerGeometryPage.waitForFunction(({id,color})=>[...document.querySelectorAll("#arrow-"+id+" button")].every(el=>getComputedStyle(el).color===color),{id,color});
+    for(const button of [left,right]){
+     await stage.hover();
+     const actual=await button.evaluate(el=>({color:getComputedStyle(el).color,filter:getComputedStyle(el.querySelector("svg")).filter,background:getComputedStyle(el).backgroundColor}));
+     assert.equal(actual.color,color,id+" "+matte+" navigation color");
+     assert.ok(actual.filter.includes(outline),id+" "+matte+" navigation must have a contrasting outline");
+     assert.equal(actual.background,"rgba(0, 0, 0, 0)");
+     await button.hover();
+     await viewerGeometryPage.waitForFunction(({id,label,hover})=>{
+      const button=document.querySelector("#arrow-"+id+' button[aria-label="'+label+'"]');
+      const bg=getComputedStyle(button).backgroundColor;
+      const rgba=bg.match(/[\d.]+/g)?.map(Number),expected=hover.match(/[\d.]+/g).map(Number);
+      return rgba?.length===4&&rgba.slice(0,3).every((n,i)=>n===expected[i])&&Math.abs(rgba[3]-expected[3])<.02;
+     },{id,label:await button.getAttribute("aria-label"),hover});
+     await viewerGeometryPage.mouse.move(1380,890);
+     await viewerGeometryPage.waitForFunction(({id,label})=>getComputedStyle(document.querySelector("#arrow-"+id+' button[aria-label="'+label+'"]')).backgroundColor==="rgba(0, 0, 0, 0)",{id,label:await button.getAttribute("aria-label")});
+    }
+   }
+   await left.evaluate(el=>{el.disabled=true;});
+   await right.focus();
+   assert.equal(await left.evaluate(el=>getComputedStyle(el).pointerEvents),"none");
+  }
+  console.log("VATRA photo navigation: both matte colors, contrast outlines, hover backgrounds and disabled controls verified across three viewer types.");
  }finally{await viewerGeometryPage.close();}
 
  // Simulate previously cached stylesheet/JS content after a deployment.
@@ -2848,19 +2895,19 @@ try{
  }));
  const onePixelPng=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=","base64");
  await feedContext.route("**/storage/v1/object/public/vatra-*/**",route=>route.fulfill({
-  status:200,contentType:"image/png",body:onePixelPng
+  status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng
  }));
  // The gallery smoke fixture uses /sign/example as a fictional image URL.
  // Unlike the main context, the gallery runs in feedContext; intercept it here
  // so HeadlessChrome never creates HTTP 400 / NoSuchBucket production logs.
  await feedContext.route("**/storage/v1/object/sign/example",route=>route.fulfill({
-  status:200,contentType:"image/png",body:onePixelPng
+  status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng
  }));
  // Test-only fake thumbnails must never hit live Supabase Storage.
  await feedContext.route("**/storage/v1/object/sign/post-images/12/posts/**",route=>
-  route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+  route.fulfill({status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng}));
  await feedContext.route("**/storage/v1/object/sign/post-images/654321/posts/**",route=>
-  route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+  route.fulfill({status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng}));
  // A click-to-play fixture must not request the real Supabase Storage project.
  await feedContext.route("**/storage/v1/object/sign/videos/12/posts/00000000-0000-4000-8000-000000000123.mp4**",
   route=>route.abort("blockedbyclient"));
@@ -3522,7 +3569,7 @@ try{
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraWebpFixture.calls.signed),
    [previewFixture.item.preview_path,previewFixture.item.media_path],
    "Opening fullscreen must sign the unmodified original");
-  await feedProbe.waitForFunction(()=>{const photo=document.querySelector("#vatra-post-media-viewer .ui-vatra-post-expanded-image-001");return photo?.complete&&photo.naturalWidth>0&&photo.closest(".ui-vatra-post-media-viewer-content-001").dataset.photoMatte==="white";});
+  await feedProbe.waitForFunction(()=>{const photo=document.querySelector("#vatra-post-media-viewer .ui-vatra-post-expanded-image-001");return photo?.complete&&photo.naturalWidth>0&&photo.closest(".ui-vatra-post-media-viewer-content-001").dataset.photoMatte==="dark";});
   const postFrame=await feedProbe.evaluate(()=>{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const rect=dialog.getBoundingClientRect();
@@ -3540,8 +3587,10 @@ try{
     rootGutter:getComputedStyle(document.documentElement).scrollbarGutter};
   });
   assert.ok(postFrame.open&&postFrame.w<=postFrame.vw+2&&postFrame.h<=postFrame.vh+2&&postFrame.x>=-2&&postFrame.y>=-2&&
-   Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2&&Math.abs(postFrame.x)<=2&&Math.abs(postFrame.y)<=2&&!postFrame.sized,
-   "Post photo viewer must fill the entire viewport in both dimensions: "+JSON.stringify(postFrame));
+   (postFrame.sized&&postFrame.vw>=1100&&postFrame.vh>=620?
+    Math.abs(postFrame.x-(postFrame.vw-postFrame.w)/2)<=2&&Math.abs(postFrame.y-(postFrame.vh-postFrame.h)/2)<=2:
+    Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2),
+   "Post photo viewer must fit the viewport and center adaptive landscape photos: "+JSON.stringify(postFrame));
   assert.equal(postFrame.caption,
    language==="en"?"Photo from a post":"Фото з публікації",
    "Own post photos must not repeat the owner's name or a decorative separator");
@@ -3551,17 +3600,38 @@ try{
    Math.abs(postFrame.imageHeight-postFrame.canvasHeight)<=2,
    "Post image must use all available black canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
   assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
-  assert.equal(postFrame.background,"rgb(255, 255, 255)",
-   "Original PNG photographs must have a white matte");
+  assert.equal(postFrame.background,"rgb(17, 20, 25)",
+   "Original PNG photographs must not have white letterboxing");
   const zoomPlus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-in-001"),zoomMinus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-out-001");
   assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-viewer-brand-001").isVisible(),true);
+  const matteProbe=await feedProbe.evaluate(async()=>{
+   const canvas=document.createElement("canvas");canvas.width=4;canvas.height=4;
+   const ctx=canvas.getContext("2d");ctx.fillStyle="#3476d5";ctx.fillRect(0,0,4,4);
+   const read=async()=>{const image=new Image();image.src=canvas.toDataURL("image/png");await image.decode();return window.VATRA_POST_MEDIA.photoMatte(image);};
+   const opaque=await read();ctx.clearRect(3,3,1,1);const transparent=await read();
+   const logo=document.querySelector("#vatra-post-media-viewer .vatra-photo-viewer-brand-001"),style=getComputedStyle(logo);
+   return {opaque,transparent,logoBackground:style.backgroundColor,logoShadow:style.boxShadow};
+  });
+  assert.deepEqual(matteProbe,{opaque:"dark",transparent:"white",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"},
+   "The same PNG format must use different mattes according to actual decoded transparency, with an unboxed logo");
   assert.equal(await zoomMinus.isDisabled(),true);
+  const zoomValue=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001");
+  await feedProbe.mouse.move(0,0);
+  assert.equal(await zoomValue.isVisible(),false);
+  for(const control of [zoomPlus,zoomMinus]){
+   await control.hover({force:true});await zoomValue.waitFor({state:"visible"});
+   const b=await control.boundingBox(),v=await zoomValue.boundingBox();
+   assert.ok(Math.abs(b.x+b.width/2-v.x-v.width/2)<2&&v.y>=b.y+b.height,"Zoom percentage must be centered under hovered button");
+  }
+  await feedProbe.mouse.move(0,0);assert.equal(await zoomValue.isVisible(),false);
   for(let i=0;i<8;i++)await zoomPlus.click();
   assert.equal(await zoomPlus.isDisabled(),true);
-  assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001").textContent(),"300%");
+  assert.equal(await zoomValue.textContent(),"300%");
+  assert.equal(await feedProbe.evaluate(()=>getSelection()?.toString()||""),"","Rapid zoom clicks must not select text");
   for(let i=0;i<8;i++)await zoomMinus.click();
   assert.equal(await zoomMinus.isDisabled(),true);
-  assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001").textContent(),"100%");
+  assert.equal(await zoomValue.textContent(),"100%");
+  await feedProbe.mouse.move(0,0);assert.equal(await zoomValue.isVisible(),false);
   const postSidebar=await feedProbe.evaluate(()=>{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const side=dialog.querySelector(".ui-vatra-post-media-side-001");
@@ -3647,6 +3717,36 @@ try{
    entry.paths.includes(previewFixture.item.media_path)),
    "Deleting an image also cleans up its preview object");
   console.log("VATRA WebP: private thumbnail, original-on-click and paired cleanup OK");
+  await feedProbe.evaluate(async()=>{
+   const {client,item}=window.__vatraWebpFixture,root=document.querySelector("#feed-posts");
+   for(const [i,label] of [[1,"FeedAlpha"],[2,"FeedBeta"]]){
+    const card=document.createElement("article");card.className="feed-post-card";card.id="feed-nav-fixture-"+i;
+    card.dataset.postId="00000000-0000-4000-8000-00000000000"+i;card.dataset.postKind="person";card.dataset.vatraViewerId="99";
+    const header=document.createElement("header");header.className="feed-post-header";
+    const author=document.createElement("div");author.className="feed-post-author";
+    const authorName=document.createElement("span");authorName.className="feed-post-name";authorName.textContent=label;
+    author.append(authorName);header.append(author);card.append(header);root.append(card);
+    await window.VATRA_POST_MEDIA.mount(client,{id:card.dataset.postId,author_vatra_id:"12",kind:"person",body:label,media_kind:"image",media_path:item.media_path},card);
+   }
+  });
+  const firstFeedPhoto=feedProbe.locator("#feed-nav-fixture-1 .vatra-feed-post-media-open-001");
+  await feedProbe.locator("#feed-nav-fixture-1").scrollIntoViewIfNeeded();await firstFeedPhoto.click();
+  const feedViewer=feedProbe.locator("#vatra-post-media-viewer"),feedCounter=feedViewer.locator(".vatra-post-gallery-counter-001");
+  await feedCounter.waitFor({state:"attached"});assert.equal(await feedCounter.textContent(),"1 / 2");
+  const feedNext=feedViewer.locator(".vatra-post-gallery-nav-next");
+  assert.equal(await feedNext.isDisabled(),false);
+  await feedViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
+  await feedNext.click();
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");
+  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedBeta");
+  assert.ok((await feedViewer.locator(".vatra-post-media-footer-open-post-001").getAttribute("data-href")).includes("00000000-0000-4000-8000-000000000002"));
+  assert.ok(await feedViewer.evaluate(dialog=>dialog.contains(document.activeElement)),"Feed navigation must keep keyboard focus inside the viewer");
+  await feedProbe.keyboard.press("ArrowLeft");
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
+  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
+  await feedProbe.keyboard.press("Escape");
+  await feedProbe.evaluate(()=>{document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
+  console.log("VATRA Feed photo navigation: next post, correct author and post link, keyboard back verified.");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_COMPOSER_UI),false,
@@ -4908,14 +5008,16 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
    (language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2"),
    "Own photo captions should have no repeated name or decorative separator");
-  await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0&&document.querySelector("#profile-photo-content").dataset.photoMatte==="white";});
+  await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0&&document.querySelector("#profile-photo-content").dataset.photoMatte==="dark";});
   const fullscreenAvatar=await profilePage.evaluate(()=>{
-   const rect=document.querySelector("#profile-media-viewer").getBoundingClientRect();
-   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top};
+   const dialog=document.querySelector("#profile-media-viewer"),rect=dialog.getBoundingClientRect();
+   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top,sized:dialog.dataset.photoSized};
   });
   assert.ok(fullscreenAvatar.w<=fullscreenAvatar.vw+2&&fullscreenAvatar.h<=fullscreenAvatar.vh+2&&fullscreenAvatar.x>=-2&&fullscreenAvatar.y>=-2&&
-   Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2&&Math.abs(fullscreenAvatar.x)<=2&&Math.abs(fullscreenAvatar.y)<=2,
-   "Avatar viewer must fill the entire viewport in both dimensions: "+JSON.stringify(fullscreenAvatar));
+   (fullscreenAvatar.sized&&fullscreenAvatar.vw>=1100&&fullscreenAvatar.vh>=620?
+    Math.abs(fullscreenAvatar.x-(fullscreenAvatar.vw-fullscreenAvatar.w)/2)<=2&&Math.abs(fullscreenAvatar.y-(fullscreenAvatar.vh-fullscreenAvatar.h)/2)<=2:
+    Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2),
+   "Avatar viewer must fit the viewport: "+JSON.stringify(fullscreenAvatar));
   assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
    "Person tagging was removed from the photo viewer altogether");
   assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
@@ -4939,8 +5041,8 @@ try{
    arrowLayout.left.right<arrowLayout.right.left,
    "Navigation arrows remain aligned inside opposite edges of the photo surface: "+
    JSON.stringify(arrowLayout));
-  assert.equal(arrowLayout.background,"rgb(255, 255, 255)",
-   "WebP avatar must use the white photo surface");
+  assert.equal(arrowLayout.background,"rgb(17, 20, 25)",
+   "WebP avatar must use the neutral dark photo surface");
   assert.equal(arrowLayout.matte,"none","Avatar photos must not display a blurred duplicate");
   assert.ok(!arrowLayout.leftRadius.includes("50%"),
    "Navigation must use unframed chevrons, not round floating buttons");

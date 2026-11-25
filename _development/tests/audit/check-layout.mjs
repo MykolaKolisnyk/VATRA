@@ -2217,8 +2217,9 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
  !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
  memberCss.includes('overflow:hidden;padding:0')&&
- !systemFeedCss.includes('[data-photo-sized="true"]')&&
+ systemFeedCss.includes('[data-photo-sized="true"]')&&
  systemFeedCss.includes("width:100vw;height:100dvh;")&&
+ systemFeedCss.includes('[data-photo-matte="dark"]')&&
  systemFeedCss.includes('[data-photo-matte="white"]')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and photo sizing removes unnecessary padding");
