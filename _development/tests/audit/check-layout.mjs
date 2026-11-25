@@ -1604,9 +1604,9 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  !profileBehavior.includes('header.append(archive,remove)'),
  "Only owners have one accessible three-dot menu with archive and delete");
 assert.ok(searchLogic.includes("const compact=vw<=600;")&&
- searchLogic.includes("compact?vw-12:expanded?790:Math.max(360,inputBox.right-left+12)")&&
- searchLogic.includes("const left=compact?ox+6:Math.max(ox,anchor.left-12)")&&
- searchLogic.includes("Math.min(ox+vw-left-(compact?6:12)")&&
+ searchLogic.includes("compact?vw:expanded?790:Math.max(360,inputBox.right-left+12)")&&
+ searchLogic.includes("const left=ox")&&
+ searchLogic.includes("Math.min(ox+vw-left-(compact?0:12)")&&
  systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('.feed-top-controls{display:contents!important}')&&
  systemFeedCss.includes('.feed-top-controls > .feed-posts-section{')&&
