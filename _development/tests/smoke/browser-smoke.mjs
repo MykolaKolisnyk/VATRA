@@ -3698,7 +3698,7 @@ try{
    }
   });
   const firstFeedPhoto=feedProbe.locator("#feed-nav-fixture-1 .vatra-feed-post-media-open-001");
-  await firstFeedPhoto.scrollIntoViewIfNeeded();await firstFeedPhoto.click();
+  await feedProbe.locator("#feed-nav-fixture-1").scrollIntoViewIfNeeded();await firstFeedPhoto.click();
   const feedViewer=feedProbe.locator("#vatra-post-media-viewer"),feedCounter=feedViewer.locator(".vatra-post-gallery-counter-001");
   await feedCounter.waitFor({state:"attached"});assert.equal(await feedCounter.textContent(),"1 / 2");
   const feedNext=feedViewer.locator(".vatra-post-gallery-nav-next");
