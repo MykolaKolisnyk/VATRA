@@ -506,7 +506,20 @@
    const personIds=isPerson?[...friends].filter(id=>feedFilter!=="friends"||id!==vatraId):[];
    if(isPerson&&!personIds.length&&!searchTerm){source.done=true;return;}
    if(!isPerson&&!followedClubs.size&&!searchTerm){source.done=true;return;}
-   let query=client.from(isPerson?"feed_posts":"community_posts")
+   const clubIds=isPerson?[]:[...followedClubs.keys()];
+   const sourceKey=JSON.stringify([source.kind,feedFilter,searchTerm,source.offset,
+    [...personIds].sort(),[...clubIds].sort()]);
+   const {data,error}=await readFeedPage(client,sourceKey,()=>{
+    let query=client.from(isPerson?"feed_posts":"community_posts")
+     .select(isPerson?personFields:clubFields);
+    if(isPerson&&!searchTerm&&typeof query.in==="function"){
+     query=query.in("author_vatra_id",personIds);
+    }
+    if(isPerson){query=query.eq("is_clip",false);if(typeof query.is==="function")query=query.is("archived_at",null);}
+    if(!isPerson&&!searchTerm&&typeof query.in==="function")
+     query=query.in("club_id",clubIds);
+    if(searchTerm&&typeof query.ilike==="function")
+     query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\   let query=client.from(isPerson?"feed_posts":"community_posts")
     .select(isPerson?personFields:clubFields);
    if(isPerson&&!searchTerm&&typeof query.in==="function"){
     query=query.in("author_vatra_id",personIds);
@@ -520,6 +533,10 @@
     [...personIds].sort(),isPerson?[]:[...followedClubs.keys()].sort()]);
    const {data,error}=await readFeedPage(client,sourceKey,()=>feedDeadline(query.order("created_at",{ascending:false})
     .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1)));
+")+"%");
+    return feedDeadline(query.order("created_at",{ascending:false})
+     .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1));
+   });
    if(error){if(isPerson)throw error;source.done=true;return;}
    const raw=data||[];
    source.offset+=raw.length;
@@ -536,7 +553,9 @@
  async function takePage(){
   const result=[];
   for(let index=0;index<PAGE_SIZE;index++){
-   await Promise.all([fillSource(sourceState.person),fillSource(sourceState.group)]);
+   const sources=[sourceState.person,sourceState.group].filter(source=>!source.done&&!source.queue.length);
+   if(sources.length===2)await Promise.all(sources.map(fillSource));
+   else if(sources.length===1)await fillSource(sources[0]);
    const p=sourceState.person.queue[0],g=sourceState.group.queue[0];
    if(!p&&!g)break;
    const chosen=!p?sourceState.group:!g?sourceState.person:
