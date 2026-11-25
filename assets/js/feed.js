@@ -846,7 +846,7 @@
   };
   const failed=()=>message(t("Не вдалося видалити.","Could not delete post."));
   deleteDialog.close();pendingDelete=null;deleteConfirm.disabled=false;
-  if(toDelete.kind!=="group"&&window.VATRA_POST_INTERACTIONS?.deferPostDelete(toDelete.card,commit,failed))return;
+  if(toDelete.kind!=="group"&&window.VATRA_POST_INTERACTIONS?.deferPostDelete(toDelete.card,commit,failed,vatraId))return;
   try{await commit();}catch(_){failed();}
  }
 
@@ -888,6 +888,7 @@
    const profile=await feedDeadline(client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle());
    if(profile.error||!validId(profile.data?.vatra_id))throw profile.error||Error("Account unavailable");
    vatraId=String(profile.data.vatra_id);
+   await window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,vatraId);
    window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
 
    const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");

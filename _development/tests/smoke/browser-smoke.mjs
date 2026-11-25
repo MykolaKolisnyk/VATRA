@@ -4053,6 +4053,7 @@ try{
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
+  await feedProbe.evaluate(()=>window.dispatchEvent(new Event("pagehide")));
   await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"detached",timeout:20000});
   assert.equal(await feedProbe.locator(".feed-post-card").count(),1,
    "Denied deletion must leave the existing post untouched");
@@ -4065,12 +4066,16 @@ try{
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
+  await feedProbe.waitForTimeout(13000);
+  assert.equal(await feedProbe.locator(".vatra-post-undo-001").isVisible(),true,"Undo must remain available without a timer");
   await feedProbe.locator(".vatra-post-undo-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-owner-toggle").isVisible(),true,"Undo restores the original card without deleting media");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockMediaRemovals),0);
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
+  await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
+  await feedProbe.evaluate(()=>window.dispatchEvent(new Event("pagehide")));
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0,null,{timeout:20000});
   assert.ok((await feedProbe.locator(".ui-social-top-communities-001").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
@@ -4559,6 +4564,8 @@ try{
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
+  await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
+  await feedProbe.evaluate(()=>window.dispatchEvent(new Event("pagehide")));
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0,null,{timeout:20000});
   await feedProbe.locator("#feed-empty").waitFor({state:"visible",timeout:4500});
   assert.equal(await feedProbe.locator("#feed-empty").isVisible(),true);

@@ -345,16 +345,46 @@ function appendAudience(container,level,isGroup=false){
   const undo=make("button","vatra-post-undo-001",tr("Відновити","Restore"));undo.type="button";undo.disabled=state.committing;undo.onclick=state.restore;
   line.append(label,undo);card.append(line);
  }
- function deferPostDelete(card,commit,onError){
+ const deletionQueuePrefix=ownId=>"vatra.post-delete.pending.v1."+String(ownId)+".";
+ function queuedDeletionKey(ownId,id){
+  return validId(ownId)&&validUUID(id)?deletionQueuePrefix(ownId)+id:null;
+ }
+ function clearQueuedDeletion(key){if(key)try{localStorage.removeItem(key);}catch(_){}}
+ async function flushPendingPostDeletes(client,ownId){
+  if(!validId(ownId))return;
+  const prefix=deletionQueuePrefix(ownId);let keys=[];
+  try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith(prefix)&&validUUID(key.slice(prefix.length)))keys.push(key);}}catch(_){return;}
+  for(const key of keys.slice(0,20)){
+   const id=key.slice(prefix.length);
+   try{
+    const {data,error}=await client.from("feed_posts").delete().eq("id",id).eq("author_vatra_id",ownId).select("id,media_kind,media_path,media_items").maybeSingle();
+    if(error){if(error.code)clearQueuedDeletion(key);continue;}
+    if(!data){const result=await client.from("feed_posts").select("id").eq("id",id).eq("author_vatra_id",ownId).maybeSingle();if(result.error)continue;clearQueuedDeletion(key);if(result.data)window.VATRA_TOAST?.show?.(tr("Не вдалося видалити.","Could not delete post."),"error");continue;}
+    clearQueuedDeletion(key);
+    const items=[...(Array.isArray(data.media_items)?data.media_items:[]),...(data.media_path?[data]:[])].filter(item=>typeof item.media_path==="string"&&item.media_path.startsWith(String(ownId)+"/posts/"));
+    if(items.length)void window.VATRA_POST_MEDIA?.removeGallery(client,items).catch(()=>{});
+   }catch(_){}
+  }
+ }
+ function deferPostDelete(card,commit,onError,ownId){
   if(!card?.dataset.postId)return false;
   const key=pendingPostKey(card);if(pendingPostDeletes.has(key))return false;
-  const state={cards:new Set(),committing:false,restore:null};
+  const queueKey=queuedDeletionKey(ownId,card.dataset.postId);
+  const state={cards:new Set(),committing:false,restore:null,finish:null};
   const clear=()=>{pendingPostDeletes.delete(key);for(const element of state.cards){element.classList.remove("vatra-post-delete-pending-001");element.querySelector(".vatra-post-deleted-line-001")?.remove();}};
-  state.restore=()=>{if(state.committing)return;clearTimeout(timer);clear();};
+  state.restore=()=>{if(state.committing)return;clear();};
+  state.finish=async()=>{
+   if(state.committing)return;
+   state.committing=true;
+   if(queueKey)try{localStorage.setItem(queueKey,"1");}catch(_){}
+   for(const element of state.cards){const undo=element.querySelector(".vatra-post-undo-001");if(undo)undo.disabled=true;}
+   try{await commit();clearQueuedDeletion(queueKey);for(const element of state.cards)element.remove();clear();}
+   catch(error){if(error?.code||error?.message==="Post not deleted"||document.visibilityState==="visible")clearQueuedDeletion(queueKey);clear();onError?.(error);}
+  };
   pendingPostDeletes.set(key,state);paintPendingPostDelete(card);
-  const timer=setTimeout(async()=>{state.committing=true;for(const element of state.cards){const undo=element.querySelector(".vatra-post-undo-001");if(undo)undo.disabled=true;}try{await commit();for(const element of state.cards)element.remove();clear();}catch(error){clear();onError?.(error);}},12000);
   return true;
  }
+ window.addEventListener?.("pagehide",()=>{for(const state of pendingPostDeletes.values())void state.finish();});
  let ownerMenuListenersBound=false;
  function addOwnerMenu(header,{source="feed",onArchive=null,onDelete,client,post,ownId,onChange}={}){
   if(!header)return null;
@@ -1755,5 +1785,5 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     tr("Ця публікація недоступна.","This post is unavailable.")));
   }
  }
- window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,prefetchEngagement,appendAudience,addOwnerMenu,deferPostDelete,paintPendingPostDelete,attachMediaPanel:(container,side)=>mediaPanels.get(container)?.(side)};
+ window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,prefetchEngagement,appendAudience,addOwnerMenu,deferPostDelete,paintPendingPostDelete,flushPendingPostDeletes,attachMediaPanel:(container,side)=>mediaPanels.get(container)?.(side)};
 })();

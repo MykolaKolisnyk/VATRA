@@ -1144,7 +1144,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
      onDelete:async()=>{
       if(!await window.VATRA_PROFILE_CONFIRM({
        title:t("Видалити публікацію?","Delete this post?"),
-       description:t("Публікацію можна відновити протягом 12 секунд після видалення.","You can restore the post for 12 seconds after deletion."),
+       description:t("Публікацію можна відновити, доки ви не залишили сторінку.","You can restore the post until you leave this page."),
        action:t("Видалити","Delete")
       }))return;
       const commit=async()=>{
@@ -1156,7 +1156,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
        try{await loadPosts(client,targetId,ownId,userId);}catch(_){}
        window.dispatchEvent(new Event("vatra:profile-media-changed"));
       };
-      window.VATRA_POST_INTERACTIONS?.deferPostDelete(article,commit,()=>window.VATRA_TOAST?.show?.(t("Не вдалося видалити.","Could not delete post."),"error"));
+      window.VATRA_POST_INTERACTIONS?.deferPostDelete(article,commit,()=>window.VATRA_TOAST?.show?.(t("Не вдалося видалити.","Could not delete post."),"error"),ownId);
      }
     });
    }
@@ -3599,6 +3599,7 @@ async function start(){
    .select("vatra_id").eq("user_id",user.id).maybeSingle());
   const ownId=String(account?.vatra_id??"");
   if(accountError||!validId(ownId))throw accountError||Error("Account unavailable");
+  await window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,ownId);
   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   if(ownId){
    try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,ownId,metadata.gender)).catch(()=>{});}catch(_){}
