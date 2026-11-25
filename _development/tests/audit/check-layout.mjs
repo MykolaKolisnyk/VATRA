@@ -72,7 +72,7 @@ assert.ok(
 
 
 const missingPage=await read("404.html");
-assert.ok(missingPage.includes('src="/VATRA/assets/js/not-found.js"')&&
+assert.ok(/src="\/VATRA\/assets\/js\/not-found\.js(?:\?rev=[a-f0-9]{40})?"/.test(missingPage)&&
  missingPage.includes('href="/VATRA/assets/css/not-found.css"')&&
  !missingPage.includes('const dynamic=location.pathname.match(')&&
  notFoundCss.includes('html.vatra-dynamic-route-pending body.error-page > :not(.vatra-route-loading)'),
@@ -230,6 +230,53 @@ assert.ok(!css.includes(".orbit-badge")&&!css.includes("one-styleFix"),
  "Do not keep orphaned controls or cosmetic fix layers");
 assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,"Unbalanced CSS");
 assert.ok(auth.includes("await window.VATRA_LANGUAGE?.ready"),"Auth must wait for translated fields");
+
+ // Exercise the production startup with independently controlled locale and
+ // server promises. No cached session is accepted and no real API is called.
+{
+ const {runInNewContext}=await import("node:vm");
+ async function probe(page,user,{pending=false,matches=false,reject=false}={}){
+  let releaseLocale,releaseUser,failUser,redirects=0,requests=0,wired=0,cleared=0;
+  const locale=new Promise(resolve=>{releaseLocale=resolve;});
+  const server=new Promise((resolve,fail)=>{releaseUser=resolve;failUser=fail;});
+  const body={dataset:{page}};
+  const window={
+   VATRA_LANGUAGE:{ready:locale},
+   supabase:{createClient:()=>({auth:{getUser:()=>{requests++;return server;}}})},
+   VATRA_AUTH_ENTRY:()=>({
+    wireLogin:()=>{wired++;},wireRememberedAccount:()=>{wired++;},
+    wireCreateAccount:()=>{wired++;},
+    hasSignupPending:()=>pending,isExpectedConfirmedSignup:()=>matches
+   }),
+   addEventListener(){},
+   location:{replace(){redirects++;}}
+  };
+  const document={body,documentElement:{lang:"uk"},baseURI:"https://example.test/VATRA/",querySelectorAll:()=>[],querySelector:()=>null};
+  runInNewContext(authShared,{window,document,location:{search:"",hash:""},URL,URLSearchParams,
+   sessionStorage:{removeItem(){}},setTimeout:()=>1,clearTimeout:()=>{cleared++;}});
+  assert.equal(requests,1,page+": server check starts before locale");
+  assert.equal(wired,0,page+": no untranslated forms");
+  assert.equal(redirects,0,page+": no early redirect");
+  if(reject)failUser(new Error("offline"));else releaseUser({data:{user},error:null});
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(cleared,1,page+": finished request clears timeout");
+  assert.equal(redirects,0,page+": server result alone cannot trigger navigation");
+  releaseLocale();
+  await new Promise(resolve=>setImmediate(resolve));
+  return {redirects,ready:body.dataset.authReady};
+ }
+ assert.equal((await probe("login",{email_confirmed_at:"confirmed"})).redirects,1);
+ assert.equal((await probe("login",{})).redirects,0);
+ assert.deepEqual(await probe("login",null,{reject:true}),{redirects:0,ready:"true"});
+ assert.equal((await probe("create-account",{email_confirmed_at:"confirmed"},{pending:true,matches:false})).redirects,0);
+ assert.equal((await probe("create-account",{email_confirmed_at:"confirmed"},{pending:true,matches:true})).redirects,1);
+ for(const name of ["index","create-account","reset","verify"]){
+  const html=await read(name+".html");
+  const connect='rel="preconnect" href="https://cxrcycxrlkufozomsxcs.supabase.co"';
+  assert.ok(html.includes(connect)&&html.indexOf(connect)<html.indexOf('src="assets/js/lang.js'),name+": auth connection should start early");
+ }
+}
+
 assert.ok(auth.includes('auth.auth.signInWithPassword(')&&auth.includes('auth.auth.signUp('),"Email sign in/up missing");
 assert.ok(auth.includes('auth.auth.verifyOtp({email,token,type:"recovery"})'),"Password OTP recovery missing");
 assert.ok(auth.includes('auth.auth.resetPasswordForEmail('),"Recovery email request missing");
