@@ -25,7 +25,7 @@
    const edge=layout?.getBoundingClientRect();
    const gutter=edge&&edge.width>0?Math.max(0,edge.left):0;
    const headerBottom=Math.max(0,Math.ceil(header?.getBoundingClientRect().bottom||0));
-   const wide=innerWidth>=1100&&gutter>=108;
+   const wide=innerWidth>=1100&&gutter>=76;
    side.dataset.mode=wide?"rail":"compact";
    side.style.left=wide?"0px":"auto";
    side.style.setProperty("--vatra-scroll-rail-top",headerBottom+"px");
