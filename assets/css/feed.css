@@ -1853,7 +1853,7 @@ body.feed-page .vatra-scroll-rail[data-mode="rail"]{
 }
 body.feed-page .vatra-scroll-rail[data-mode="rail"]:hover,
 body.feed-page .vatra-scroll-rail[data-mode="rail"]:focus-visible{background:#e6edf8;color:#315eae}
-body.feed-page .vatra-scroll-rail-label{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+body.feed-page .vatra-scroll-rail-label{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px;max-width:100%;text-align:center;white-space:normal}
 body.feed-page .ui-vatra-scroll-rail-icon-001{display:block;width:18px;height:18px;flex:none}
 body.feed-page .vatra-scroll-rail:focus-visible{outline:2px solid #7aa4f2;outline-offset:-3px}
 body.feed-page .vatra-scroll-rail[data-mode="compact"]{
