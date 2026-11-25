@@ -17,6 +17,14 @@
   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
   path.setAttribute("class","ui-vatra-scroll-rail-icon-path-001");path.setAttribute("d","m6.5 14 5.5-5.5 5.5 5.5");
   icon.append(path);name.prepend(icon);side.append(name);document.body.append(side);
+  // The language catalog can finish loading after DOMContentLoaded.
+  // Keep the rail usable immediately, then refresh only its text.
+  const localize=()=>{
+   side.setAttribute("aria-label",t("Повернутися вгору"));
+   side.title=t("Вгору");
+   name.replaceChildren(icon,document.createTextNode(t("Вгору")));
+  };
+  void Promise.resolve(window.VATRA_LANGUAGE?.ready).then(localize,localize);
   const header=document.querySelector(".feed-header");
   const layout=document.querySelector(".feed-layout")||document.querySelector("main");
   let pending=false;
