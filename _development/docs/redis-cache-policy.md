@@ -116,17 +116,3 @@ During the later paid-plan migration, set a TLS `rediss://` URL and
 rotate any credential used without
 encryption, and retest authenticated/direct fallback, expiration and hit
 rates before public launch.
-
-## Public active announcements (Redis)
-
-- Shared key `vatra:public:announcements:v1:active15`, TTL 10 seconds,
-  maximum 15 active announcements with bounded public text and link metadata.
-- `public-announcements` requires a verified user JWT and reads only
-  `active=true`, `starts_at <= now`, not-yet-expired announcements under
-  caller RLS. Owner-only drafts must never be stored in this key.
-- The browser uses this cache on the official host and falls back to direct
-  PostgREST if the function or Redis is unavailable (five-minute circuit breaker).
-- `announcement_views` remains strictly viewer-specific and is never stored in
-  shared Redis. New or removed announcements may remain cached for at most 10 s.
-- Cache-Control remains `private, no-store` for all Edge responses, because
-  global HTTP/browser caching is not a replacement for server Redis.
