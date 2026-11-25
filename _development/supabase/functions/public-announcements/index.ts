@@ -2,6 +2,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient as createSupabaseClient } from "npm:@supabase/supabase-js@2.119.0";
 import { createClient as createRedisClient } from "npm:redis@5.0.1";
+import { redisDeadline } from "../_shared/redis-deadline.ts";
 
 type Announcement = {
   id: number; title_uk: string; title_en: string; body_uk: string; body_en: string;
@@ -56,7 +57,7 @@ async function redis() {
         socket: { connectTimeout: 700, reconnectStrategy: false },
       });
       client.on("error", () => { /* Never log secrets. */ });
-      await client.connect();
+      await redisDeadline(() => client.connect(), () => client.destroy());
       return client;
     })().catch(() => {
       pendingRedis = null;
@@ -65,7 +66,7 @@ async function redis() {
     });
   }
   const connection = await pendingRedis;
-  if (connection?.isOpen) return connection;
+  if (connection?.isReady) return connection;
   pendingRedis = null;
   retryAfter = Date.now() + 60_000;
   return null;
@@ -91,7 +92,7 @@ Deno.serve(async (request: Request) => {
   const cache = await redis();
   if (!cache) return reply([], "disabled", 503);
   try {
-    const raw = await cache.get(KEY);
+    const raw = await redisDeadline(() => cache.get(KEY), () => cache.destroy());
     if (raw) {
       const data: unknown = JSON.parse(raw);
       if (validList(data)) return reply(data.filter(item => withinWindow(item, Date.now())), "hit");
@@ -110,7 +111,7 @@ Deno.serve(async (request: Request) => {
     return reply([], "unavailable", 503);
   const rows = data.filter(item => withinWindow(item, Date.now()));
   try {
-    await cache.set(KEY, JSON.stringify(rows), { EX: TTL_SECONDS });
+    await redisDeadline(() => cache.set(KEY, JSON.stringify(rows), { EX: TTL_SECONDS }), () => cache.destroy());
   } catch (_) {
     return reply(rows, "write-failed");
   }
