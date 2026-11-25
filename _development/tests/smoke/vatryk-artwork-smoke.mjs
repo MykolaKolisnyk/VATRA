@@ -39,9 +39,10 @@ assert.ok(base.includes(".ui-vatra-service-notice-001"));
 console.log("VATRA: six new service illustrations and status classification verified.");
 
 const feedRuntime=await readFile("assets/js/feed.js","utf8");
-assert.ok(runtime.includes('document.body.dataset.authReady==="true"')&&
- runtime.includes('!document.body.classList.contains("vatra-shell-pending")'),
- "Service errors must not mount within an invisible pending feed");
+assert.ok(runtime.includes('make("dialog","ui-vatra-service-notice-001")')&&runtime.includes("document.body.append(panel)")&&runtime.includes("panel.showModal()")&&!runtime.includes('document.querySelector(".feed-main")')&&base.includes(".ui-vatra-service-notice-001::backdrop"),"Service errors must open a page-wide modal even within an authenticated feed");
+assert.equal(classify({code:"VATRA_FEED_TIMEOUT"}),"503");
+assert.equal(classify({status:500,code:"57014",message:"canceling statement due to statement timeout"}),"503");
+assert.equal(classify({status:500,code:"57014",message:"canceling statement due to user request"}),"500");
 assert.ok(feedRuntime.includes('loader.hidden=false;loader.dataset.loadingError="true"')&&
  feedRuntime.includes('await Promise.all([feedDeadline(client.auth.getUser()),languageReady])')&&
  feedRuntime.includes('const languageReady=feedDeadline(window.VATRA_LANGUAGE?.ready,5000)')&&
@@ -49,10 +50,14 @@ assert.ok(feedRuntime.includes('loader.hidden=false;loader.dataset.loadingError=
  "Feed startup must expose retry after bounded requests without bypassing authentication");
 const begin=feedRuntime.indexOf(" function feedDeadline("),end=feedRuntime.indexOf(" async function init(){",begin);
 assert.ok(begin>=0&&end>begin);
-const deadlineContext={Promise,Error,Object,setTimeout:(fn)=>setTimeout(fn,5),clearTimeout};
-vm.runInNewContext(feedRuntime.slice(begin,end)+"\nglobalThis.deadline=feedDeadline;",deadlineContext);
+const deadlineContext={Promise,Error,Object,AbortController,setTimeout:(fn)=>setTimeout(fn,5),clearTimeout};
+vm.runInNewContext(feedRuntime.slice(begin,end)+"\nglobalThis.deadline=feedDeadline;globalThis.queryDeadline=feedQueryDeadline;",deadlineContext);
 assert.equal(await deadlineContext.deadline(Promise.resolve("ok")),"ok");
-await assert.rejects(deadlineContext.deadline(new Promise(()=>{})),/Feed request timed out/);
+await assert.rejects(deadlineContext.deadline(new Promise(()=>{})),error=>error.code==="VATRA_FEED_TIMEOUT"&&error.status===undefined);
+let signal;
+await assert.rejects(deadlineContext.queryDeadline({abortSignal(s){signal=s;return new Promise(()=>{});}}),error=>error.code==="VATRA_FEED_TIMEOUT");
+assert.ok(signal.aborted,"A timed-out feed query must abort its underlying request");
+assert.ok(feedRuntime.includes("invalidateFeedPages(client);subscriptionsLoadedAt=0;return loadPosts(true)"),"Manual retry clears the failed cursor cache and refreshes subscription reads");
 assert.ok(feedRuntime.includes('pendingDeleteFlush=Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,vatraId))')&&
  !feedRuntime.includes('await window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes')&&
  feedRuntime.includes('await Promise.all([feedDeadline(ensureSubscriptions()),feedDeadline(pendingDeleteFlush)])'),

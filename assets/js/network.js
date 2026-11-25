@@ -15,12 +15,17 @@
  const translate=(uk,en)=>{const locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang;return locale==="en"?en:locale==="uk"?uk:window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
  const make=(tag,cls,copy)=>{const el=document.createElement(tag);el.className=cls;if(copy!==undefined)el.textContent=copy;return el;};
  let servicePanel=null;
+ function closeServiceNotice(panel){
+  if(panel.open)panel.close();
+  panel.remove();if(servicePanel===panel)servicePanel=null;
+ }
  function classifyServiceError(result,{session=false,access=true}={}){
   if(!result)return null;
   const e=result.error||result;
   const status=Number(result.status||e.status||e.statusCode||0),code=String(e.code||"");
   if(session&&["session_expired","session_not_found","refresh_token_not_found","refresh_token_already_used","bad_jwt","PGRST301","PGRST303"].includes(code))return "session";
   if(status===429||["over_request_rate_limit","over_email_send_rate_limit","over_sms_send_rate_limit"].includes(code))return "429";
+  if(code==="VATRA_FEED_TIMEOUT"||(code==="57014"&&/statement timeout/i.test(String(e.message||""))))return "503";
   if(status===500)return "500";
   if([502,503,504].includes(status))return "503";
   if(access&&(status===403||code==="42501"))return "403";
@@ -29,22 +34,27 @@
  function showServiceNotice(kind,options={}){
   const config=serviceNotices[String(kind)];
   if(!config||!document.body)return null;
-  const locked=options.locked===true||kind==="session";
+  const locked=options.locked===true||["session","blocked","deleted"].includes(String(kind));
   if(servicePanel?.isConnected){
-   if(servicePanel.dataset.serviceCode===String(kind))return servicePanel;
+   if(servicePanel.dataset.serviceCode===String(kind)&&servicePanel.dataset.locked===String(locked))return servicePanel;
    if(servicePanel.dataset.locked==="true"&&!locked)return null;
-   servicePanel.remove();servicePanel=null;
+   closeServiceNotice(servicePanel);
   }
   const [file,uk,en,copyUk,copyEn]=config;
-  const panel=make("section","ui-vatra-service-notice-001");
+  const panel=make("dialog","ui-vatra-service-notice-001");
   panel.dataset.serviceCode=String(kind);panel.dataset.locked=String(locked);
-  panel.setAttribute("role","alert");
+  panel.setAttribute("role","alertdialog");
+  panel.setAttribute("aria-modal","true");
+  panel.setAttribute("aria-labelledby","vatra-service-notice-heading");
+  panel.setAttribute("aria-describedby","vatra-service-notice-description");
+  panel.addEventListener("cancel",event=>event.preventDefault());
   const picture=make("img","ui-vatra-service-notice-art-001");
   picture.src=new URL("assets/vatryk/"+file,projectBase).href;
   picture.alt="";picture.width=240;picture.height=240;picture.decoding="async";
   picture.addEventListener("error",()=>{picture.hidden=true;},{once:true});
   const title=make("h2","vatra-service-notice-title-001",translate(uk,en));
   const copy=make("p","vatra-service-notice-copy-001",options.description||translate(copyUk,copyEn));
+  title.id="vatra-service-notice-heading";copy.id="vatra-service-notice-description";
   const actions=make("div","ui-vatra-service-notice-actions-001");
   const isSession=kind==="session",retry=["500","503"].includes(String(kind))?options.retry:null;
   const label=options.actionLabel||(isSession?translate("Увійти","Sign in"):retry?translate("Повторити спробу","Retry"):translate("Зрозуміло","Got it"));
@@ -55,10 +65,10 @@
    try{
     if(options.onAction){await options.onAction();return;}
     if(isSession){location.replace(projectBase.href);return;}
-    if(retry){panel.remove();if(servicePanel===panel)servicePanel=null;await retry();return;}
-    if(!locked){panel.remove();if(servicePanel===panel)servicePanel=null;}
-   }catch(_){
-    action.disabled=false;
+    if(retry){closeServiceNotice(panel);await retry();return;}
+    if(!locked)closeServiceNotice(panel);
+   }catch(error){
+    if(retry&&!panel.isConnected&&!servicePanel)showServiceNotice(classifyServiceError(error,{session:true})||String(kind),options);
    }finally{action.disabled=false;}
   });
   if(options.support){
@@ -66,17 +76,9 @@
    support.href="mailto:vatra.support@gmail.com";actions.append(support);
   }
   actions.append(action);panel.append(picture,title,copy,actions);
-  let host=document.body;
-  if(!locked){
-   const feed=document.querySelector(".feed-main");
-   if(feed&&!feed.closest("[hidden]")&&document.body.dataset.authReady==="true"&&
-    !document.body.classList.contains("vatra-shell-pending"))host=feed;
-  }
-  if(host===document.body){
-   panel.dataset.fullpage="true";
-   for(const loader of document.querySelectorAll(".vatra-auth-loading:not([hidden])"))loader.hidden=true;
-  }
-  host.prepend(panel);servicePanel=panel;return panel;
+  if(locked)panel.dataset.fullpage="true";
+  document.body.append(panel);servicePanel=panel;
+  panel.showModal();return panel;
  }
  window.VATRA_SERVICE_NOTICE=Object.freeze({
   show:showServiceNotice,classify:classifyServiceError,
