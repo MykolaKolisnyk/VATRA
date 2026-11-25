@@ -154,7 +154,8 @@ assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
 // Read labels from actual post media controls, including aria and error strings.
 const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/tr\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
  .map(match=>JSON.parse(match[1])))];
-assert.equal(postMediaKeys.length,45,"Post media runtime must include retry and omit the retired Show less control");
+assert.equal(postMediaKeys.length,48,"Post media runtime includes retry and all three photo zoom labels");
+for(const key of ["Масштаб фотографії","Наблизити","Віддалити"])assert.ok(postMediaKeys.includes(key),"Missing zoom label: "+key);
 assert.ok(postMediaKeys.includes("Повторити"),"Media retry action must be translated");
 for(const key of postMediaKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),

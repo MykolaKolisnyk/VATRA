@@ -1255,7 +1255,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
  sharedCss.includes("position:absolute;top:var(--vatra-account-dropdown-top,100%);right:var(--vatra-account-dropdown-right,0px);")&&
- sharedCss.includes("border-top:0;border-radius:0 0 17px 17px;")&&
+ sharedCss.includes("border-radius:0 0 17px 0!important;")&&
  sharedJs.includes("function setUpAccountPanel()")&&
  sharedJs.includes('dropdown.style.setProperty("--vatra-account-dropdown-top"')&&
  sharedJs.includes('dropdown.style.setProperty("--vatra-account-dropdown-right"')&&
@@ -1278,7 +1278,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedJs.includes('panel.style.paddingTop="0px"')&&
  sharedJs.includes('const headerTop=Math.max(oy,header?.top??oy)')&&
  sharedCss.includes("position:fixed;z-index:89;display:flex;flex-direction:column;gap:0;")&&
- sharedCss.includes("border:1px solid #e0e5ed;border-top:0;border-radius:0 0 16px 16px;")&&
+ sharedCss.includes("border:1px solid #e0e5ed;border-top:0;border-radius:0 0 16px 0;")&&
  sharedJs.includes('back.addEventListener("click"')&&
  sharedJs.includes('edit.addEventListener("click"')&&
  sharedJs.includes('clearAll.addEventListener("click"')&&

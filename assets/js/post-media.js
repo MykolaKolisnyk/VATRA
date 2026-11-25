@@ -523,11 +523,37 @@
    incoming.finished.then(()=>{if(photoSlides.get(stage)===state)clearPhotoSlide(stage);},()=>{});
   };
  }
+ const photoControls=new WeakMap();
+ function photoZoomLevel(value,step){return Math.max(1,Math.min(3,Math.round((value+step*.25)*100)/100));}
+ function preparePhotoControls(dialog,stage,image){
+  const close=dialog.querySelector(".vatra-post-media-close-001,.profile-media-viewer-close,.vatra-album-viewer-close-001");
+  if(!close?.parentElement)return null;
+  let state=photoControls.get(dialog);
+  if(!state){
+   const logo=document.createElement("span");logo.className="vatra-photo-viewer-brand-001";logo.setAttribute("role","img");logo.setAttribute("aria-label","VATRA");close.after(logo);
+   const bar=document.createElement("div");bar.className="ui-vatra-photo-zoom-controls-001";bar.setAttribute("role","group");bar.setAttribute("aria-label",tr("Масштаб фотографії","Photo zoom"));
+   const make=(kind,label)=>{
+    const button=document.createElement("button");button.type="button";button.className="vatra-photo-zoom-button-001 vatra-photo-zoom-"+kind+"-001";button.setAttribute("aria-label",label);button.title=label;
+    const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");svg.setAttribute("class","ui-vatra-photo-zoom-icon-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");svg.setAttribute("aria-hidden","true");path.setAttribute("class","ui-vatra-photo-zoom-path-001");path.setAttribute("d","M21 21l-5.1-5.1M10.5 3a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15ZM7.5 10.5h6"+(kind==="in"?"M10.5 7.5v6":""));svg.append(path);button.append(svg);return button;
+   };
+   const plus=make("in",tr("Наблизити","Zoom in")),minus=make("out",tr("Віддалити","Zoom out"));
+   const count=document.createElement("output");count.className="vatra-photo-zoom-value-001";count.setAttribute("aria-live","polite");bar.append(plus,minus,count);close.parentElement.append(bar);
+   state={target:null,value:1,ready:false};
+   state.paint=()=>{plus.disabled=!state.ready||state.value>=3;minus.disabled=!state.ready||state.value<=1;count.value=Math.round(state.value*100)+"%";if(state.target)state.target.style.scale=state.value===1?"":String(state.value);};
+   plus.onclick=()=>{if(state.ready){state.value=photoZoomLevel(state.value,1);state.paint();}};
+   minus.onclick=()=>{if(state.ready){state.value=photoZoomLevel(state.value,-1);state.paint();}};
+   dialog.addEventListener("close",()=>{if(state.target)state.target.style.removeProperty("scale");state.target=null;state.ready=false;state.value=1;state.paint();});
+   photoControls.set(dialog,state);
+  }
+  if(state.target)state.target.style.removeProperty("scale");
+  state.target=image.closest(".ui-profile-photo-canvas-001")||image;state.target.classList.add("vatra-photo-zoom-target-001");state.value=1;state.ready=false;state.paint();return state;
+ }
  const photoLoads=new WeakMap();
  function watchPhotoViewer(dialog,stage,image,path,finish=()=>{}){
   photoLoads.get(stage)?.abort();
   const controller=new AbortController();photoLoads.set(stage,controller);
-  const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);finish(image);};
+  const controls=preparePhotoControls(dialog,stage,image);
+  const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);if(controls){controls.ready=true;controls.paint();}finish(image);};
   if(image.complete&&image.naturalWidth)queueMicrotask(loaded);else image.addEventListener("load",loaded,{once:true,signal:controller.signal});
  }
 function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false,direction=0,sourcePath=null){
@@ -653,7 +679,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   const authorName=String(head?.querySelector(".feed-post-name")?.textContent||"").trim();
   const label=kind==="video"?tr("Відео з публікації","Video from a post"):tr("Фото з публікації","Photo from a post");
   mediaCaption.textContent=ownerId&&viewerId&&ownerId===viewerId?label:
-   authorName?label+" "+authorName:label;
+   authorName?label+" "+(groupPost?authorName:authorName.split(/\s+/)[0]):label;
   if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001 vatra-media-author-unified-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
   if(post){
    const description=document.createElement("div");description.className="vatra-media-description-001";

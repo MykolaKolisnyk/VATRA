@@ -3521,6 +3521,15 @@ try{
   assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
   assert.equal(postFrame.background,"rgb(255, 255, 255)",
    "Original PNG photographs must have a white matte");
+  const zoomPlus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-in-001"),zoomMinus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-out-001");
+  assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-viewer-brand-001").isVisible(),true);
+  assert.equal(await zoomMinus.isDisabled(),true);
+  for(let i=0;i<8;i++)await zoomPlus.click();
+  assert.equal(await zoomPlus.isDisabled(),true);
+  assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001").textContent(),"300%");
+  for(let i=0;i<8;i++)await zoomMinus.click();
+  assert.equal(await zoomMinus.isDisabled(),true);
+  assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001").textContent(),"100%");
   const postSidebar=await feedProbe.evaluate(()=>{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const side=dialog.querySelector(".ui-vatra-post-media-side-001");

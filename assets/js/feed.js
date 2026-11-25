@@ -223,22 +223,19 @@
    if(validId(other))nextFriends.add(other);
   }
   const ids=subscriptions.value.data.map(x=>String(x.club_id)).filter(validId);
-  if(ids.length){
-   try{
-    const {data,error}=await client.from("communities").select("club_id,name").in("club_id",ids);
-    if(error||!Array.isArray(data)||viewerId!==vatraId)return false;
-    for(const group of data)nextClubs.set(String(group.club_id),group.name);
-   }catch(_){return false;}
-  }
   const nextHidden=new Set([...hiddenPostAuthors].filter(id=>nextFriends.has(id)));
-  try{
-   const authors=[...nextFriends].filter(id=>id!==viewerId);
-   if(authors.length){
-    const result=await client.from("member_content_preferences").select("author_vatra_id")
-     .eq("viewer_vatra_id",viewerId).eq("hide_posts",true).in("author_vatra_id",authors).limit(500);
-    if(!result.error&&Array.isArray(result.data)){nextHidden.clear();for(const row of result.data){const id=String(row.author_vatra_id);if(nextFriends.has(id)&&id!==viewerId)nextHidden.add(id);}}
-   }else nextHidden.clear();
-  }catch(_){}
+  const authors=[...nextFriends].filter(id=>id!==viewerId);
+  const [groups,preferences]=await Promise.allSettled([
+   Promise.resolve().then(()=>ids.length?client.from("communities").select("club_id,name").in("club_id",ids):{data:[],error:null}),
+   Promise.resolve().then(()=>authors.length?client.from("member_content_preferences").select("author_vatra_id")
+    .eq("viewer_vatra_id",viewerId).eq("hide_posts",true).in("author_vatra_id",authors).limit(500):{data:[],error:null})
+  ]);
+  if(!hasRows(groups)||viewerId!==vatraId)return false;
+  for(const group of groups.value.data)nextClubs.set(String(group.club_id),group.name);
+  if(hasRows(preferences)){
+   nextHidden.clear();
+   for(const row of preferences.value.data){const id=String(row.author_vatra_id);if(nextFriends.has(id)&&id!==viewerId)nextHidden.add(id);}
+  }
   if(viewerId!==vatraId)return false;
   friends=nextFriends;followedClubs=nextClubs;hiddenPostAuthors=nextHidden;
   return true;
@@ -576,7 +573,7 @@
    new Map([...posts.querySelectorAll(".feed-post-card[data-post-id]")]
     .map(item=>[item.dataset.postKind+":"+item.dataset.postId,item])):null;
   if(reset){
-   if(!keepExisting)posts.replaceChildren();
+   if(!keepExisting){if(!posts.querySelector(".feed-post-placeholder")){posts.replaceChildren();for(let i=0;i<2;i++){const card=node("div","feed-post-placeholder ui-feed-post-placeholder-00"+(i+1));card.setAttribute("aria-hidden","true");card.append(node("span","feed-post-placeholder-head ui-feed-post-placeholder-head-00"+(i+1)),node("span","feed-post-placeholder-line ui-feed-post-placeholder-line-00"+(i+1)),node("span","feed-post-placeholder-line short ui-feed-post-placeholder-short-00"+(i+1)));posts.append(card);}}}
    visibleFeed=[];renderedIds=new Set();
    sourceState=makeSourceState();
    more.hidden=true;
@@ -634,6 +631,7 @@
    }
   }catch(error){
    if(version===feedRequestVersion){
+    posts.querySelectorAll(".feed-post-placeholder").forEach(el=>el.remove());
     reportFeedFailure(stage,error);
     const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>loadPosts(true)});
     if(reset){
@@ -669,6 +667,9 @@
  async function loadStories(){
   const holder=q("#feed-friend-stories");
   if(!holder||!vatraId)return;
+  if(!holder.children.length){
+   for(let i=0;i<3;i++){const skeleton=node("span","vatra-skeleton-block vatra-feed-story-skeleton-001");skeleton.setAttribute("aria-hidden","true");holder.append(skeleton);}
+  }
   try{
    await ensureSubscriptions();
    const friendIds=[...friends].filter(id=>id!==vatraId);
