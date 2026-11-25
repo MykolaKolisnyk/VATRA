@@ -492,10 +492,16 @@
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
  const photoSlides=new WeakMap();
- function photoMatte(path){return /\.(?:png|webp)(?:[?#]|$)/i.test(String(path||""))?"white":"dark";}
+ function photoMatte(){return "dark";}
  function fitPhotoViewer(dialog,stage,image,path){
   if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
-  if(path||!stage.dataset.photoMatte)stage.dataset.photoMatte=photoMatte(path||image.currentSrc||image.src);
+  const ratio=image.naturalWidth/image.naturalHeight;
+  stage.dataset.photoMatte=photoMatte(path);
+  if(ratio>=1.35&&ratio<=2.2){
+   dialog.style.setProperty("--vatra-photo-ratio",String(ratio));
+   dialog.style.setProperty("--vatra-photo-inverse",String(1/ratio));
+   dialog.dataset.photoSized="true";
+  }else delete dialog.dataset.photoSized;
  }
  function clearPhotoSlide(stage){
   const previous=photoSlides.get(stage);
