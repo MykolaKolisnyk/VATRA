@@ -4355,14 +4355,14 @@ try{
   assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();
-  const composerFirst=await feedProbe.evaluate(()=>{
+  const storiesFirst=await feedProbe.evaluate(()=>{
    const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
    const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
-   return composer.top<stories.top&&stories.top<posts.top&&
-    composer.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
+   return stories.top<composer.top&&composer.top<posts.top&&
+    stories.bottom<=composer.top+1&&stories.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
   });
-  assert.ok(composerFirst,"Composer, then Stories, then posts");
+  assert.ok(storiesFirst,"Stories, then Composer, then posts");
   await feedProbe.locator(".ui-social-top-friends-001").hover();
   assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"true",
    "Each header icon needs a VATRA tooltip on hover");
