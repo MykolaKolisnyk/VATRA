@@ -52,7 +52,7 @@ const homeMeta=uk.__pages.index.meta;
 assert.equal(homeMeta.title,"VATRA — ласкаво просимо до своїх");
 assert.ok(homeMeta.description.includes("Увійдіть або створіть акаунт")&&homeMeta.description.length<=160);
 assert.ok(
- preview.includes('<title>'+homeMeta.title+'</title>')&&
+ preview.includes('<title>VATRA</title>')&&
  preview.includes('name="description" content="'+homeMeta.description+'"')&&
  preview.includes('property="og:title" content="'+homeMeta.title+'"')&&
  preview.includes('property="og:description" content="'+homeMeta.description+'"')&&
@@ -86,6 +86,7 @@ assert.ok(start>=0&&end>start,"Find production metadata translation");
 const descriptions=new Set();
 for(const page of [...pages,...socialPages]){
  const html=await read(page+".html");
+ assert.ok(html.includes("<title>VATRA</title>"),page+": fixed brand tab title");
  const matches=[...html.matchAll(/<meta name="description" content="([^"]+)">/g)];
  assert.equal(matches.length,1,page+": one page-specific description");
  const source=matches[0][1];
