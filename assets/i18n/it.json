@@ -90,14 +90,14 @@
     },
     "index": {
       "meta": {
-        "title": "Accedi",
-        "description": "VATRA è un social network ucraino per comunicare, conoscere persone, creare, partecipare a comunità, acquistare e fare impresa.",
+        "title": "VATRA — benvenuto tra i tuoi",
+        "description": "Un social network ucraino dove nascono nuove amicizie, storie e opportunità. Accedi o crea un account e trova le tue persone.",
         "og:locale": "it_IT",
-        "og:title": "VATRA — un social network ucraino",
-        "og:description": "VATRA è un social network ucraino per comunicare, conoscere persone, creare, partecipare a comunità, acquistare e fare impresa. Le tue persone. Le tue storie. La tua VATRA.",
+        "og:title": "VATRA — benvenuto tra i tuoi",
+        "og:description": "Un social network ucraino dove nascono nuove amicizie, storie e opportunità. Accedi o crea un account e trova le tue persone.",
         "og:image:alt": "Logo ufficiale di VATRA",
-        "twitter:title": "VATRA — un social network ucraino",
-        "twitter:description": "VATRA è un social network ucraino per comunicare, conoscere persone, creare, partecipare a comunità, acquistare e fare impresa."
+        "twitter:title": "VATRA — benvenuto tra i tuoi",
+        "twitter:description": "Un social network ucraino dove nascono nuove amicizie, storie e opportunità. Accedi o crea un account e trova le tue persone."
       },
       "nodes": {
         "n500": {

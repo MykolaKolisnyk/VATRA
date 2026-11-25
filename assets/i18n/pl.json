@@ -90,14 +90,14 @@
     },
     "index": {
       "meta": {
-        "title": "Logowanie",
-        "description": "VATRA — ukraińska sieć społecznościowa do komunikacji, poznawania ludzi, twórczości, społeczności, zakupów i biznesu.",
+        "title": "VATRA — witaj wśród swoich",
+        "description": "Ukraińska sieć społecznościowa, w której rodzą się nowe znajomości, historie i możliwości. Zaloguj się lub utwórz konto i znajdź swoich ludzi.",
         "og:locale": "pl_PL",
-        "og:title": "VATRA — ukraińska sieć społecznościowa",
-        "og:description": "VATRA — ukraińska sieć społecznościowa do komunikacji, poznawania ludzi, twórczości, społeczności, zakupów i biznesu. Twoi ludzie. Twoje historie. Twoja VATRA.",
+        "og:title": "VATRA — witaj wśród swoich",
+        "og:description": "Ukraińska sieć społecznościowa, w której rodzą się nowe znajomości, historie i możliwości. Zaloguj się lub utwórz konto i znajdź swoich ludzi.",
         "og:image:alt": "Oficjalne logo VATRA",
-        "twitter:title": "VATRA — ukraińska sieć społecznościowa",
-        "twitter:description": "VATRA — ukraińska sieć społecznościowa do komunikacji, poznawania ludzi, twórczości, społeczności, zakupów i biznesu."
+        "twitter:title": "VATRA — witaj wśród swoich",
+        "twitter:description": "Ukraińska sieć społecznościowa, w której rodzą się nowe znajomości, historie i możliwości. Zaloguj się lub utwórz konto i znajdź swoich ludzi."
       },
       "nodes": {
         "n500": {

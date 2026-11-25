@@ -46,12 +46,18 @@ assert.equal((sitemap.match(/<loc>/g)||[]).length,publicPages.size,"Exactly one 
 assert.ok(!sitemap.includes("legal.html"),"Deleted overview must not remain indexed");
 await assert.rejects(stat("legal.html"),{code:"ENOENT"},"Deleted document overview must not exist");
 assert.ok(!/\/VATRA\/(?:ua|en)\//.test(sitemap),"Old locale URLs must not be in sitemap");
-// Social previews use the app's current V symbol. Keep site name, title and
-// description distinct so Telegram and other link previews do not repeat copy.
+// Social previews use the current V symbol and the localized welcome metadata.
 const preview=await read("index.html");
+const homeMeta=uk.__pages.index.meta;
+assert.equal(homeMeta.title,"VATRA — ласкаво просимо до своїх");
+assert.ok(homeMeta.description.includes("Увійдіть або створіть акаунт")&&homeMeta.description.length<=160);
 assert.ok(
- preview.includes('property="og:title" content="Ваші люди. Ваші історії. Ваша VATRA."')&&
- preview.includes('property="og:description" content="Українська соціальна мережа для спілкування, творчості, спільнот і бізнесу."')&&
+ preview.includes('<title>'+homeMeta.title+'</title>')&&
+ preview.includes('name="description" content="'+homeMeta.description+'"')&&
+ preview.includes('property="og:title" content="'+homeMeta.title+'"')&&
+ preview.includes('property="og:description" content="'+homeMeta.description+'"')&&
+ preview.includes('name="twitter:title" content="'+homeMeta.title+'"')&&
+ preview.includes('name="twitter:description" content="'+homeMeta.description+'"')&&
  preview.includes('/VATRA/assets/logo/logo_app-icon.webp?v=20261118')&&
  preview.includes('property="og:image:width" content="2048"')&&
  !preview.includes('/VATRA/assets/logo/logo.webp')&&

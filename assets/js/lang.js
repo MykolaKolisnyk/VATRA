@@ -31,10 +31,10 @@
 
 
   const titleSources={
-    index:"Вхід","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
+    index:"VATRA — ласкаво просимо до своїх","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
   };
   const instantEnglishTitles={
-    index:"Sign in","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
+    index:"VATRA — welcome to your people","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
     forgot:"Password recovery",reset:"New password",
     "404":"Page not found",
     terms:"Terms of Service",commerce:"Commerce Rules",documents:"VATRA Documents",privacy:"Privacy",
