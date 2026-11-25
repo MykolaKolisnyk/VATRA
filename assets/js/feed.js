@@ -668,11 +668,9 @@
  async function loadStories(){
   const holder=q("#feed-friend-stories");
   if(!holder||!vatraId)return;
-  if(!holder.children.length){
-   for(let i=0;i<3;i++){const skeleton=node("span","vatra-skeleton-block vatra-feed-story-skeleton-001");skeleton.setAttribute("aria-hidden","true");holder.append(skeleton);}
-  }
+  holder.setAttribute("aria-busy","true");
   try{
-   await ensureSubscriptions();
+   await feedDeadline(ensureSubscriptions());
    const friendIds=[...friends].filter(id=>id!==vatraId);
    if(!friendIds.length){
     holder.replaceChildren();
@@ -685,7 +683,7 @@
     .order("created_at",{ascending:false});
    if(friendIds.length<=100&&typeof query.in==="function")
     query=query.in("author_vatra_id",friendIds);
-   const {data,error}=await query.limit(60);
+   const {data,error}=await feedDeadline(query.limit(60));
    if(error)throw error;
    const items=[],seen=new Set();
    for(const story of data||[]){
@@ -695,7 +693,7 @@
     if(items.length>=3)break;
    }
    const authorIds=items.map(x=>x.author_vatra_id);
-   await Promise.all([loadPublicNames(authorIds),loadAvatars(authorIds)]);
+   await Promise.allSettled([feedDeadline(loadPublicNames(authorIds),4000),feedDeadline(loadAvatars(authorIds),4000)]);
    holder.replaceChildren();
    q(".feed-stories")?.classList.toggle("is-empty",items.length===0);
    for(const story of items){
@@ -726,8 +724,8 @@
      void window.VATRA_POST_MEDIA?.renderStory(client,story,q("#feed-story-view-media"));
     });
    }
-  }catch(_){holder.replaceChildren();q(".feed-stories")?.classList.add("is-empty");}
-  finally{requestAnimationFrame(updateStoryArrow);}
+  }catch(error){reportFeedFailure("stories",error);holder.replaceChildren();q(".feed-stories")?.classList.add("is-empty");}
+  finally{holder.setAttribute("aria-busy","false");requestAnimationFrame(updateStoryArrow);}
  }
  function bindComposer(){
   const dialog=q("#feed-compose-dialog"),form=q("#feed-compose-form");
