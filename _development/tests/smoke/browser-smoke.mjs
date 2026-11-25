@@ -2894,19 +2894,19 @@ try{
  }));
  const onePixelPng=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=","base64");
  await feedContext.route("**/storage/v1/object/public/vatra-*/**",route=>route.fulfill({
-  status:200,contentType:"image/png",body:onePixelPng
+  status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng
  }));
  // The gallery smoke fixture uses /sign/example as a fictional image URL.
  // Unlike the main context, the gallery runs in feedContext; intercept it here
  // so HeadlessChrome never creates HTTP 400 / NoSuchBucket production logs.
  await feedContext.route("**/storage/v1/object/sign/example",route=>route.fulfill({
-  status:200,contentType:"image/png",body:onePixelPng
+  status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng
  }));
  // Test-only fake thumbnails must never hit live Supabase Storage.
  await feedContext.route("**/storage/v1/object/sign/post-images/12/posts/**",route=>
-  route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+  route.fulfill({status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng}));
  await feedContext.route("**/storage/v1/object/sign/post-images/654321/posts/**",route=>
-  route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+  route.fulfill({status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng}));
  // A click-to-play fixture must not request the real Supabase Storage project.
  await feedContext.route("**/storage/v1/object/sign/videos/12/posts/00000000-0000-4000-8000-000000000123.mp4**",
   route=>route.abort("blockedbyclient"));
@@ -3587,7 +3587,7 @@ try{
   await feedProbe.mouse.move(0,0);
   assert.equal(await zoomValue.isVisible(),false);
   for(const control of [zoomPlus,zoomMinus]){
-   await control.hover();await zoomValue.waitFor({state:"visible"});
+   await control.hover({force:true});await zoomValue.waitFor({state:"visible"});
    const b=await control.boundingBox(),v=await zoomValue.boundingBox();
    assert.ok(Math.abs(b.x+b.width/2-v.x-v.width/2)<2&&v.y>=b.y+b.height,"Zoom percentage must be centered under hovered button");
   }
