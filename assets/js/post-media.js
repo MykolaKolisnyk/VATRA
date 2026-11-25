@@ -492,7 +492,7 @@
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
  const photoSlides=new WeakMap();
- const photoMatteChecks=new WeakMap();
+ const photoMatteChecks=new WeakMap(),photoOriginalReaders=new WeakMap();
  async function readPhotoAlpha(image,isCurrent=()=>true){
   const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d",{willReadFrequently:true});
   if(!ctx)throw Error("Canvas unavailable");
@@ -500,10 +500,10 @@
   let count=0;
   try{
    for(let y=0;y<height;y+=tile)for(let x=0;x<width;x+=tile){
-    if(!isCurrent())return "dark";
+    if(!isCurrent())return "unknown";
     const w=Math.min(tile,width-x),h=Math.min(tile,height-y);
     canvas.width=w;canvas.height=h;
-    ctx.drawImage(image,x,y,w,h,0,0,w,h);
+    ctx.drawImage(image.bitmap||image,x,y,w,h,0,0,w,h);
     const pixels=ctx.getImageData(0,0,w,h).data;
     for(let i=3;i<pixels.length;i+=4)if(pixels[i]<255)return "white";
     if(++count%8===0)await new Promise(resolve=>setTimeout(resolve,0));
@@ -511,20 +511,27 @@
    return "dark";
   }finally{canvas.width=canvas.height=0;}
  }
- async function photoMatte(image,isCurrent=()=>true){
+ async function photoMatte(image,isCurrent=()=>true,readOriginal=photoOriginalReaders.get(image)){
   try{return await readPhotoAlpha(image,isCurrent);}catch(_){}
+  if(!isCurrent())return "unknown";
   const src=image.currentSrc||image.src;
-  if(!src||!isCurrent())return "dark";
-  try{
-   const readable=await new Promise((resolve,reject)=>{
-    const copy=new Image();copy.crossOrigin="anonymous";
-    const timer=setTimeout(()=>{copy.onload=copy.onerror=null;copy.removeAttribute("src");reject(Error("Photo alpha timeout"));},5000);
-    copy.onload=()=>{clearTimeout(timer);resolve(copy);};
-    copy.onerror=()=>{clearTimeout(timer);reject(Error("Photo alpha inaccessible"));};
-    copy.src=src;
-   });
-   return isCurrent()?await readPhotoAlpha(readable,isCurrent):"dark";
-  }catch(_){return "dark";}
+  const inspect=async blob=>{
+   if(!blob||!isCurrent())return "unknown";
+   const bitmap=await createImageBitmap(blob);
+   try{return await readPhotoAlpha({naturalWidth:bitmap.width,naturalHeight:bitmap.height,bitmap},isCurrent);}
+   finally{bitmap.close();}
+  };
+  if(typeof readOriginal==="function"){
+   try{const matte=await inspect(await readOriginal());if(matte!=="unknown")return matte;}catch(_){}
+  }
+  if(src&&isCurrent()){
+   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+   try{
+    const response=await fetch(src,{mode:"cors",signal:controller.signal});
+    if(response.ok)return await inspect(await response.blob());
+   }catch(_){}finally{clearTimeout(timer);}
+  }
+  return "unknown";
  }
  function fitPhotoViewer(dialog,stage,image,path){
   if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
@@ -535,7 +542,7 @@
     if(previous.result)stage.dataset.photoMatte=previous.result;
    }else{
     const state={image,src,result:null};photoMatteChecks.set(stage,state);
-    stage.dataset.photoMatte="dark";
+    stage.dataset.photoMatte="unknown";
     const current=()=>photoMatteChecks.get(stage)===state&&dialog.open&&image.isConnected&&(image.src||image.currentSrc)===src;
     void photoMatte(image,current).then(matte=>{
      if(!current()){if(photoMatteChecks.get(stage)===state)photoMatteChecks.delete(stage);return;}
@@ -585,11 +592,18 @@
    const logo=document.createElement("span");logo.className="vatra-photo-viewer-brand-001";logo.setAttribute("role","img");logo.setAttribute("aria-label","VATRA");close.after(logo);
    const bar=document.createElement("div");bar.className="ui-vatra-photo-zoom-controls-001";bar.setAttribute("role","group");bar.setAttribute("aria-label",tr("Масштаб фотографії","Photo zoom"));
    const make=(kind,label)=>{
-    const button=document.createElement("button");button.type="button";button.className="vatra-photo-zoom-button-001 vatra-photo-zoom-"+kind+"-001";button.setAttribute("aria-label",label);button.title=label;
+    const button=document.createElement("button");button.type="button";button.className="vatra-photo-zoom-button-001 vatra-photo-zoom-"+kind+"-001";button.setAttribute("aria-label",label);
     const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");svg.setAttribute("class","ui-vatra-photo-zoom-icon-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");svg.setAttribute("aria-hidden","true");path.setAttribute("class","ui-vatra-photo-zoom-path-001");path.setAttribute("d","M21 21l-5.1-5.1M10.5 3a7.5 7.5 0 1 0 0 15 7.5 7.5 0 0 0 0-15ZM7.5 10.5h6"+(kind==="in"?"M10.5 7.5v6":""));svg.append(path);button.append(svg);return button;
    };
    const plus=make("in",tr("Наблизити","Zoom in")),minus=make("out",tr("Віддалити","Zoom out"));
-   const count=document.createElement("output");count.className="vatra-photo-zoom-value-001";count.setAttribute("aria-live","polite");bar.append(plus,minus,count);close.parentElement.append(bar);
+   const wrap=(button,kind)=>{const item=document.createElement("span");item.className="vatra-photo-zoom-wrap-"+kind+"-001";item.append(button);return item;};
+   const count=document.createElement("output");count.className="vatra-photo-zoom-value-001";count.setAttribute("aria-live","polite");
+   bar.append(wrap(plus,"in"),wrap(minus,"out"),count);
+   bar.addEventListener("mousedown",event=>{if(event.button===0)event.preventDefault();});
+   bar.addEventListener("dblclick",event=>{event.preventDefault();event.stopPropagation();});
+   bar.addEventListener("selectstart",event=>event.preventDefault());
+   bar.addEventListener("dragstart",event=>event.preventDefault());
+   close.parentElement.append(bar);
    state={target:null,value:1,ready:false};
    state.paint=()=>{plus.disabled=!state.ready||state.value>=3;minus.disabled=!state.ready||state.value<=1;count.value=Math.round(state.value*100)+"%";if(state.target)state.target.style.scale=state.value===1?"":String(state.value);};
    plus.onclick=()=>{if(state.ready){state.value=photoZoomLevel(state.value,1);state.paint();}};
@@ -601,9 +615,10 @@
   state.target=image.closest(".ui-profile-photo-canvas-001")||image;state.target.classList.add("vatra-photo-zoom-target-001");state.value=1;state.ready=false;state.paint();return state;
  }
  const photoLoads=new WeakMap();
- function watchPhotoViewer(dialog,stage,image,path,finish=()=>{}){
+ function watchPhotoViewer(dialog,stage,image,path,finish=()=>{},readOriginal=null){
+  if(readOriginal)photoOriginalReaders.set(image,readOriginal);else photoOriginalReaders.delete(image);
   photoLoads.get(stage)?.abort();
-  photoMatteChecks.delete(stage);stage.dataset.photoMatte="dark";
+  photoMatteChecks.delete(stage);stage.dataset.photoMatte="unknown";
   const controller=new AbortController();photoLoads.set(stage,controller);
   const controls=preparePhotoControls(dialog,stage,image);
   const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);if(controls){controls.ready=true;controls.paint();}finish(image);};
@@ -701,7 +716,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),kind==="image"?direction:0);
   const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
   element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
-  if(kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,sourcePath||post?.media_path||url,finishSlide);
+  if(kind==="image"){const path=sourcePath||post?.media_path;watchPhotoViewer(mediaDialog,mediaDialogContent,element,path||url,finishSlide,path&&client?async()=>{const {data,error}=await client.storage.from("post-images").download(path);if(error)throw error;return data;}:null);}
   else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
   restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
@@ -1031,7 +1046,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),item.media_kind==="image"?direction:0);
      const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
      mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]),prev,next,counter);
-     if(item.media_kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,item.media_path,finishSlide);
+     if(item.media_kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,item.media_path,finishSlide,async()=>{const {data,error}=await client.storage.from("post-images").download(item.media_path);if(error)throw error;return data;});
      else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
     }catch(_){}
    };
