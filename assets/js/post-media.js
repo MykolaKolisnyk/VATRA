@@ -731,7 +731,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
   if(kind==="image"){const path=sourcePath||post?.media_path;watchPhotoViewer(mediaDialog,mediaDialogContent,element,path||url,finishSlide,path&&client?async()=>{const {data,error}=await client.storage.from("post-images").download(path);if(error)throw error;return data;}:null);}
   else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
-  restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
+  restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
   const head=container?.querySelector(".feed-post-header")||postCard?.querySelector(".feed-post-header");
   const identity=head?.querySelector(".feed-post-author"),avatar=head?.querySelector(".feed-post-avatar");
@@ -938,7 +938,8 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    tile.addEventListener("click",()=>{
     if(tile.getAttribute("aria-busy")==="true")return;
     if(tile.classList.contains("is-gallery-unavailable")){void loadTiles(true);return;}
-    void openGallery(index);
+    if(item.media_kind==="image"&&isFeedPhotoCard(container))void openFeedPhoto(client,container,item.media_path);
+    else void openGallery(index);
    });
    slot.append(tile);
    return {item,tile,index};
@@ -1072,8 +1073,62 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   }
   return true;
  }
+ const feedPhotoCards=new WeakMap();
+ let feedPhotoSession=null;
+ function isFeedPhotoCard(card){
+  const root=document.querySelector("#feed-posts");
+  return !!root&&card.parentElement===root&&card.matches(".feed-post-card");
+ }
+ function registerFeedPhotos(client,post,card){
+  if(!card.matches(".feed-post-card"))return;
+  const raw=Array.isArray(post?.media_items)&&post.media_items.length?post.media_items.slice(0,GALLERY_LIMIT):
+   [{media_kind:post?.media_kind,media_path:post?.media_path}];
+  const items=raw.filter(item=>item?.media_kind==="image"&&name(item.media_path,"image",post.author_vatra_id));
+  feedPhotoCards.set(card,{client,post,items});
+ }
+ async function openFeedPhoto(client,card,path){
+  if(!isFeedPhotoCard(card))return;
+  const entries=[...document.querySelector("#feed-posts").children].flatMap(container=>{
+   const record=feedPhotoCards.get(container);
+   return record?.client===client?record.items.map(item=>({container,post:record.post,item})):[];
+  });
+  let index=entries.findIndex(entry=>entry.container===card&&entry.item.media_path===path);
+  if(index<0)return;
+  feedPhotoSession?.abort();
+  const controller=new AbortController();feedPhotoSession=controller;
+  let busy=false;
+  const current=()=>!controller.signal.aborted;
+  const render=async(next,direction=0)=>{
+   if(busy||!current()||!entries[next]?.container.isConnected)return;
+   busy=true;
+   const entry=entries[next];
+   try{
+    const url=await signed(client,"image",entry.item.media_path);
+    if(!current()||!entry.container.isConnected)return;
+    if(direction&&!mediaDialog?.open)return;
+    openFullMedia(url,"image",entry.container,entry.post,client,false,direction,entry.item.media_path);
+    index=next;
+    photoNavigation(mediaDialogContent,index,entries.length,step);
+   }catch(_){
+    window.VATRA_TOAST?.show?.(tr("Не вдалося відкрити фото.","Could not open photo."),"error");
+   }finally{busy=false;}
+  };
+  const step=dir=>{
+   let next=index+dir;
+   while(entries[next]&&!entries[next].container.isConnected)next+=dir;
+   if(entries[next])void render(next,dir);
+  };
+  await render(index);
+  if(!current()||!mediaDialog?.open){controller.abort();return;}
+  mediaDialog.addEventListener("close",()=>controller.abort(),{once:true,signal:controller.signal});
+  mediaDialog.addEventListener("keydown",event=>{
+   if(event.target?.closest?.("input,textarea,select,[contenteditable]"))return;
+   if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}
+  },{signal:controller.signal});
+ }
  async function mount(client,post,container){
   if(!container)return;
+  registerFeedPhotos(client,post,container);
   if(post?.author_vatra_id!=null)container.dataset.vatraMediaOwnerId=String(post.author_vatra_id);
   if(Array.isArray(post?.media_items)&&post.media_items.length){
    await mountGallery(client,post,container);return;
@@ -1173,7 +1228,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     frame.addEventListener("click",async()=>{
      try{
       const current=await signed(client,"image",path);
-      if(frame.isConnected)openFullMedia(current,"image",container,post,client);
+      if(frame.isConnected){if(isFeedPhotoCard(container))await openFeedPhoto(client,container,path);else openFullMedia(current,"image",container,post,client);}
      }catch(_){failure(tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable."));}
     });
     frame.append(image);
