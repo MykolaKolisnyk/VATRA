@@ -38,3 +38,22 @@ console.log("VATRA notifications: latest-filter race safety passed.");
  ctx.open=false;listeners.scroll();assert.equal(frames.length,0);
 }
 console.log("VATRA notification panel: coalesced layout work and no hidden-panel scheduling passed.");
+
+{
+ const a=notices.indexOf("async function noticePreviewURL("),b=notices.indexOf("async function enrichNotice(",a);
+ assert.ok(a>=0&&b>a);
+ let calls=0,finish;
+ const run={client:{storage:{from:()=>({createSignedUrl:()=>{calls++;return new Promise(resolve=>{finish=resolve;});}})}}};
+ const ctx={window:{},notificationRun:run,URL,Map,Date};
+ runInNewContext(notices.slice(a,b)+"\nglobalThis.preview=noticePreviewURL;",ctx);
+ const first=ctx.preview(run,"9/posts/preview.jpg"),second=ctx.preview(run,"9/posts/preview.jpg");
+ await Promise.resolve();assert.equal(calls,1);
+ finish({data:{signedUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/example"},error:null});
+ assert.equal(await first,await second);
+ await ctx.preview(run,"9/posts/preview.jpg");assert.equal(calls,1);
+ const old=ctx.preview(run,"9/posts/old.jpg");await Promise.resolve();
+ ctx.notificationRun={};finish({data:{signedUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/old"},error:null});
+ await assert.rejects(old,/unavailable/);
+ assert.equal(run.previewURLs.has("9/posts/old.jpg"),false);
+}
+console.log("VATRA notification previews: single-flight, reuse and stale viewer rejection passed.");
