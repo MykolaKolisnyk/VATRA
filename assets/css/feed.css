@@ -3564,7 +3564,6 @@ body.feed-page .vatra-post-comments-sentinel-001[hidden]{display:none!important}
 .vatra-media-description-input-001{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #aab7c8;border-radius:8px;background:transparent;color:inherit;font:inherit;resize:vertical}
 .vatra-media-description-form-001[hidden],.vatra-media-description-001 [hidden],.vatra-media-description-001[hidden]{display:none!important}
 
-/* Shared photo surface: intrinsic aspect ratio, full available area and directional slides. */
 @media(min-width:781px){
  body.feed-page :is(.vatra-post-media-viewer,.profile-media-viewer)[open][data-photo-sized="true"]{
   inset:0;margin:auto;width:var(--vatra-photo-width);height:var(--vatra-photo-height);max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);border-radius:12px
