@@ -1,7 +1,7 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const pickerURL=new URL("comment-picker.js?rev=c2316b22bda8f4d479858040a510c7fb1ef999a1",document.currentScript?.src||location.href).href;
+ const pickerURL=new URL("comment-picker.js?rev=225475fd9ab4a94e97aabc208e2d4216c99adb25",document.currentScript?.src||location.href).href;
  let pickerPromise=null;const loadPicker=()=>pickerPromise||(pickerPromise=import(pickerURL).catch(error=>{pickerPromise=null;throw error;}));
  const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
  const tr=(uk,english)=>{
