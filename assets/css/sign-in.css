@@ -110,3 +110,7 @@
 @media(min-width:1200px) and (max-height:760px){.intro-side{gap:10px}.vatra-login-hero-image-001{margin-block:-5%}}
 @media(max-width:1199px){.vatra-login-hero-001{max-width:640px}.intro-copy{max-width:54ch}}
 @media(max-width:540px){.vatra-login-hero-001{max-width:100%}.intro-copy p{font-size:14px;line-height:1.6}.intro-copy p strong{margin-bottom:7px}}
+
+.intro-copy{margin-block-start:clamp(7px,1.2vh,16px);max-width:min(100%,56ch)}
+@media(max-width:760px){.intro-copy{margin-block-start:8px;padding-inline:10px}}
+@media(min-width:1200px) and (max-height:760px){.intro-copy{margin-block-start:5px}}

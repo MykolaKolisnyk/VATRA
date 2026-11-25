@@ -3142,3 +3142,28 @@ body.profile-page .vatra-photo-comment-undo-001{padding:2px;border:0;background:
 body.profile-page .profile-photo-comment.is-linked-comment{background:#f2f7ff;border-radius:11px;padding-left:12px;box-shadow:inset 0 0 0 1px #d8e6ff}
 
 body.profile-page #profile-photo-footer-share[hidden],body.profile-page #profile-photo-share[hidden]{display:none!important}
+
+body.profile-page .profile-actions:not([hidden]){gap:9px;align-items:center}
+body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]),
+body.profile-page .profile-actions .ui-profile-more-menu-001>.vatra-profile-more-trigger-001,
+body.profile-page .profile-actions>.vatra-profile-contact-button-001:not([hidden]){
+ box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ height:46px;min-height:46px;padding:0 15px;border-radius:11px;
+ font:650 14px/1.3 Onest,system-ui,sans-serif;white-space:nowrap
+}
+body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button svg,
+body.profile-page .vatra-profile-contact-button-001>svg{width:20px;height:20px;flex:none}
+body.profile-page .profile-actions>.vatra-profile-contact-button-001{border:1px solid #dce5f2;background:#edf2f8;color:#365d96;cursor:pointer}
+body.profile-page .profile-actions>.vatra-profile-contact-button-001:not(.is-friend){width:46px;padding:0}
+body.profile-page .profile-actions>#profile-messenger.is-friend{background:#2865d7;color:white;border-color:#2865d7}
+body.profile-page .profile-actions>.vatra-profile-contact-button-001[hidden],
+body.profile-page .vatra-profile-contact-button-001>span[hidden]{display:none!important}
+body.profile-page .ui-profile-more-panel-001{width:min(320px,calc(100vw - 32px));min-width:0;padding:8px}
+body.profile-page .ui-profile-friend-menu-001{min-width:230px}
+body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001,
+body.profile-page .vatra-profile-friend-menu-action-001{min-height:46px;gap:12px;padding:10px 12px;font:500 14px/1.4 Onest,system-ui,sans-serif;white-space:normal}
+body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001>svg{width:21px;height:21px;stroke:#3976bc}
+body.profile-page .ui-profile-more-panel-001 :is(#profile-block-toggle,#profile-report-open)>svg{stroke:#d33a4d}
+body.profile-page .vatra-profile-all-posts-001{display:block;width:100%;padding:12px;border:1px solid #dce5f2;background:#f5f8fd;color:#285eae;font:650 14px/1.4 Onest,system-ui,sans-serif;border-radius:10px;cursor:pointer;margin-bottom:12px}
+body.profile-page #profile-posts .feed-post-card{scroll-margin-top:90px}
+@media(max-width:600px){body.profile-page .profile-actions:not([hidden]){gap:7px}body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]),body.profile-page .profile-actions .ui-profile-more-menu-001>.vatra-profile-more-trigger-001,body.profile-page .profile-actions>.vatra-profile-contact-button-001:not([hidden]){font-size:13px;padding-inline:12px}body.profile-page .ui-profile-more-panel-001{right:auto;left:0;width:min(300px,calc(100vw - 40px));max-width:calc(100vw - 40px)}}

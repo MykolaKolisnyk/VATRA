@@ -18,12 +18,12 @@
     <link rel="stylesheet" href="assets/css/base.css?rev=f3e8e92084ebf3bfea34b4f8caa6776c36698654">
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=163dda687e778993477c96327b0d7d7085e48909">
     <link rel="stylesheet" href="assets/css/feed.css?rev=4be177ebd3bf24877605b08e09f8680f6b9cee1e">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=c6d83d8fab3482861c6d381805c73d96c68347a4">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=53b593fc9d7260c199f81286f5f7b35600cccd8b">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js?rev=7c52746afcface1a493074d53328a7a0b2abe2cd"></script>
   <script defer src="assets/js/public-name-cache.js?rev=a1e9451512774e5b666e753010e57fd2ba6a0332"></script>
-    <script defer src="assets/js/post-media.js?rev=c28570ebd6b6739133021bf5de89e92d3a863db9"></script>
+    <script defer src="assets/js/post-media.js?rev=e0d44e33cd2e6113a1761ba451cb027e114e7c4c"></script>
     <script defer src="assets/js/verified.js?rev=67a961bf1783b8dcdeaa357f0ea21dd31532f948"></script>
     <script defer src="assets/js/post-interactions.js?rev=2b1c83141b3c38967b6e71095ea6deb47cd1a3c1"></script>
     <script defer src="assets/js/presence.js?rev=eac08d0779c9ed7056c915454229302600a6b759"></script>
@@ -31,7 +31,7 @@
     <script defer src="assets/js/gift-catalog.js?rev=3a4f84bd30f882272cdaa8436e9b4258137d81ee"></script>
     <script defer src="assets/js/guest-view.js?rev=3396dd0c3de7deed25f770ef52c38ae00117a3c5"></script>
     <script defer src="assets/js/feature-loader.js?rev=4d67770dc06960028ded489c8cfab640a8dea1b1"></script>
-    <script defer src="assets/js/profile.js?rev=ae109787a8adb3b83a3a632fe5c3b3cc9f3a2475"></script>
+    <script defer src="assets/js/profile.js?rev=b35699cba78d0f461e4d10a3b2072687acd55bb4"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=d51ecce833beea40715c17afec70c67ef9c340f3"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -190,9 +190,15 @@
            <button type="button" id="profile-friend-menu-action" class="vatra-profile-friend-menu-action-001" role="menuitem"><svg class="ui-profile-friend-cancel-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle class="ui-profile-friend-cancel-ring-001" cx="12" cy="12" r="9"/><path class="ui-profile-friend-cancel-slash-001" d="m6 6 12 12"/></svg><span id="profile-friend-menu-label" class="vatra-profile-friend-menu-label-001">Скасувати заявку</span></button>
          </div>
        </div>
+       <button type="button" id="profile-messenger" class="vatra-profile-contact-button-001 vatra-profile-messenger-button-001" aria-label="Повідомлення" hidden><svg class="ui-profile-messenger-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-messenger-path-001" d="M21 11.5a9 9 0 0 1-9 8.5 10 10 0 0 1-3.4-.6L4 21l1.2-4.1A8.2 8.2 0 0 1 3 11.5 9 9 0 0 1 12 3a9 9 0 0 1 9 8.5Z"/><path class="ui-profile-messenger-path-002" d="m8 13 3-3 2 2 3-3"/></svg><span class="vatra-profile-messenger-label-001" data-social-uk="Повідомлення" data-social-en="Message">Повідомлення</span></button>
+       <button type="button" id="profile-gift" class="vatra-profile-contact-button-001 vatra-profile-gift-button-001" aria-label="Подарунок" hidden><svg class="ui-profile-gift-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-gift-path-001" d="M3 8h18v4H3zM5 12v9h14v-9M12 8v13"/><path class="ui-profile-gift-path-002" d="M12 8H7.5A2.5 2.5 0 1 1 10 5.5L12 8Zm0 0h4.5A2.5 2.5 0 1 0 14 5.5L12 8Z"/></svg></button>
        <details id="profile-more-menu" class="ui-profile-more-menu-001" hidden>
          <summary id="profile-more-trigger" class="vatra-profile-more-trigger-001" aria-label="Більше дій"><span class="vatra-profile-more-trigger-text-001" data-social-uk="Більше" data-social-en="More">Більше</span><svg class="ui-profile-more-chevron-001" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-more-chevron-path-001" d="m6 9 6 6 6-6"/></svg></summary>
          <div id="profile-more-panel" class="ui-profile-more-panel-001" role="group" aria-label="Дії з профілем">
+          <button type="button" id="profile-hide-news" class="vatra-profile-more-item-001 vatra-profile-hide-news-001" hidden><svg class="ui-profile-hide-news-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-hide-news-path-001" d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M6.5 6.5C4.3 8 3 10 2 12c2.5 4 6 6 10 6 1.6 0 3-.4 4.3-1M10 6.2A10.8 10.8 0 0 1 12 6c4 0 7.5 2 10 6a16 16 0 0 1-2.5 3"/></svg><span class="vatra-profile-hide-news-label-001">Приховати новини</span></button>
+          <button type="button" id="profile-post-notice" class="vatra-profile-more-item-001 vatra-profile-post-notice-001" hidden><svg class="ui-profile-post-notice-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-post-notice-path-001" d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9ZM10 21h4"/></svg><span class="vatra-profile-post-notice-label-001" data-social-uk="Сповіщати про публікації" data-social-en="Notify about posts">Сповіщати про публікації</span></button>
+          <button type="button" id="profile-story-notice" class="vatra-profile-more-item-001 vatra-profile-story-notice-001" hidden><svg class="ui-profile-story-notice-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-story-notice-path-001" d="M12 3a9 9 0 1 1-9 9M3 9V6M6 3h3"/><path class="ui-profile-story-notice-path-002" d="M9 8l7 4-7 4z"/></svg><span class="vatra-profile-story-notice-label-001" data-social-uk="Сповіщати про історії" data-social-en="Notify about stories">Сповіщати про історії</span></button>
+          <button type="button" id="profile-remove-friend" class="vatra-profile-more-item-001 vatra-profile-remove-friend-001" hidden><svg class="ui-profile-remove-friend-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-remove-friend-path-001" d="M12 8a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0ZM2 20v-2a7 7 0 0 1 12-4.8M15 16h6"/></svg><span class="vatra-profile-remove-friend-label-001" data-social-uk="Видалити із друзів" data-social-en="Remove friend">Видалити із друзів</span></button>
           <button type="button" id="profile-block-toggle" class="vatra-profile-more-item-001 vatra-profile-block-toggle-001" data-shell-aria-uk="Заблокувати користувача" data-shell-aria-en="Block member" aria-label="Заблокувати користувача" title="Заблокувати користувача" hidden>
                 <svg class="ui-profile-block-member-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <circle class="ui-profile-block-member-head-001" cx="9.1" cy="7.4" r="3.2"/>

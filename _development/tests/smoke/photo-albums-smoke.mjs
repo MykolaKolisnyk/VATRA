@@ -263,3 +263,18 @@ assert.ok(script.includes("if(!await window.VATRA_POST_MEDIA.removeGallery(")&&s
  tab.setAttribute("aria-selected","true");observer();await settle();assert.equal(requests,3,"Reopened invalidated gallery must refresh");
 }
 console.log("VATRA profile gallery: retry routing, quick tab reuse and mutation invalidation passed.");
+
+{
+ const profile=await readFile("assets/js/profile.js","utf8");
+ const html=await readFile("profile.html","utf8");
+ const css=await readFile("assets/css/photo-albums.css","utf8");
+ const login=await readFile("assets/css/sign-in.css","utf8");
+ assert.ok(gallery.includes('new URL("id"+targetId+"?post="'),"Gallery must link to the author's profile publication");
+ assert.ok(profile.includes('if(focusPost)query=query.eq("id",focusPost)')&&profile.includes('?.("posts")'),"Profile deep link must select the publication tab and fetch the exact post");
+ for(const id of ["messenger","gift","hide-news","post-notice","story-notice","remove-friend"])assert.ok(html.includes('id="profile-'+id+'"'));
+ assert.ok(profile.includes("friendAction.hidden=accepted;messenger.hidden=false;gift.hidden=!accepted;"));
+ assert.ok(css.includes(".vatra-album-select-photo-001[aria-pressed=true]::before"));
+ assert.ok(gallery.includes('tile.addEventListener("pointerleave"'));
+ assert.ok(login.includes("margin-block-start:clamp(7px,1.2vh,16px)"));
+}
+console.log("VATRA profile: deep-linked photos, selection marks, contact actions and responsive login copy verified.");

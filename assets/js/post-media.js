@@ -598,8 +598,10 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   mediaFooterDownload.hidden=kind!=="image";
   mediaFooterOpenPost.hidden=!validPost||(groupPost&&!validClub);
   if(validPost&&(!groupPost||validClub)){
+   const profileOwner=container?.dataset.vatraMediaOwnerId||postCard?.dataset.vatraMediaOwnerId;
+   const inProfile=document.body.classList.contains("profile-page")&&/^[1-9][0-9]*$/.test(String(profileOwner||""));
    const path=groupPost?"club"+clubId+"?post="+encodeURIComponent(postId):
-    "feed?post="+encodeURIComponent(postId);
+    (inProfile?"id"+profileOwner:"feed")+"?post="+encodeURIComponent(postId);
    mediaFooterOpenPost.dataset.href=new URL(path,base).href;
   }
   const ownerId=container?.dataset.vatraMediaOwnerId||postCard?.dataset.vatraMediaOwnerId;
