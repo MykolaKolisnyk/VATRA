@@ -111,15 +111,18 @@
   }else (mark.closest("dialog[open]")||document.body).append(tip);
   mark.setAttribute("aria-expanded","true");mark.setAttribute("aria-describedby",tip.id);position();
  }
- function badge(){
+ function badge(interactive=false){
   const mark=document.createElement("span");
-  mark.className="vatra-verified-badge";mark.tabIndex=0;mark.setAttribute("role","button");mark.setAttribute("aria-label",copy()[0]);mark.setAttribute("aria-expanded","false");
+  mark.className="vatra-verified-badge";mark.setAttribute("aria-label",copy()[0]);
+  if(interactive){mark.classList.add("vatra-verified-badge-interactive");mark.tabIndex=0;mark.setAttribute("role","button");mark.setAttribute("aria-expanded","false");}
+  else mark.setAttribute("role","img");
   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg"),path=document.createElementNS("http://www.w3.org/2000/svg","path");
   svg.setAttribute("class","vatra-verified-symbol");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("aria-hidden","true");
   const seal=document.createElementNS("http://www.w3.org/2000/svg","path");
-  seal.setAttribute("class","vatra-verified-seal");seal.setAttribute("d","M12 0.35L14.511 2.631L17.825 1.911L18.859 5.141L22.089 6.175L21.369 9.489L23.65 12L21.369 14.511L22.089 17.825L18.859 18.859L17.825 22.089L14.511 21.369L12 23.65L9.489 21.369L6.175 22.089L5.141 18.859L1.911 17.825L2.631 14.511L0.35 12L2.631 9.489L1.911 6.175L5.141 5.141L6.175 1.911L9.489 2.631Z");seal.setAttribute("fill","currentColor");
-  path.setAttribute("class","vatra-verified-check");path.setAttribute("d","M7.1 12.9l3.1 3.1 6.6-6.6");path.setAttribute("stroke","#fff");path.setAttribute("stroke-width","2.35");path.setAttribute("stroke-linecap","round");path.setAttribute("stroke-linejoin","round");
+  seal.setAttribute("class","vatra-verified-seal");seal.setAttribute("d","M12 0.35L14.511 2.631L17.825 1.911L18.859 5.141L22.089 6.175L21.369 9.489L23.65 12L21.369 14.511L22.089 17.825L18.859 18.859L17.825 22.089L14.511 21.369L12 23.65L9.489 21.369L6.175 22.089L5.141 18.859L1.911 17.825L2.631 14.511L0.35 12L2.631 9.489L1.911 6.175L5.141 5.141L6.175 1.911L9.489 2.631Z");seal.setAttribute("fill","currentColor");seal.setAttribute("stroke","currentColor");seal.setAttribute("stroke-width","1.15");seal.setAttribute("stroke-linejoin","round");seal.setAttribute("transform","translate(1 1) scale(.916667)");
+  path.setAttribute("class","vatra-verified-check");path.setAttribute("d","M7.2 12.2l3.1 3.1 6.5-6.5");path.setAttribute("stroke","#fff");path.setAttribute("stroke-width","2.35");path.setAttribute("stroke-linecap","round");path.setAttribute("stroke-linejoin","round");
   svg.append(seal,path);mark.append(svg);
+  if(!interactive)return mark;
   let lastPointer="";
   mark.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse")open(mark,"hover");});
   mark.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"&&active===mark)close();});
@@ -157,7 +160,7 @@
    }
    target.classList.add("vatra-verified-name");
   }
-  target.append(badge());
+  target.append(badge(target.matches(".profile-identity .profile-name")));
  }
  document.addEventListener("pointerdown",e=>{
   inputMode="pointer";
