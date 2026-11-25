@@ -106,3 +106,21 @@ function clientFixture(){
  assert.equal(f.queries,2,"Invalid IDs must not hit PostgREST");
 }
 console.log("VATRA avatar-path cache: overlap, TTL, invalidation, auth isolation and failure retry passed.");
+
+{
+ const client={from:()=>({select:()=>({in:async(_,ids)=>({data:ids.map(id=>({vatra_id:id,avatar_path:id+"/avatar/a.webp"})),error:null})})})};
+ const results=await Promise.all(Array.from({length:4},(_,i)=>paths(client,Array.from({length:100},(_,j)=>String(i*100+j+1)))));
+ assert.ok(results.every(result=>!result.error&&result.data.length===100));
+ results[3].data[0].avatar_path="mutated";
+ assert.equal((await paths(client,["301"])).data[0].avatar_path,"301/avatar/a.webp");
+}
+{
+ const f=clientFixture(),old=paths(f.client,["1"]);
+ invalidatePath(f.client,"1");
+ const fresh=paths(f.client,["1"]);
+ assert.equal(f.queries,2,"Invalidation must detach an older pending avatar lookup");
+ f.finish([{vatra_id:1,avatar_path:"1/avatar/old.webp"}]);
+ assert.equal((await old).data.length,0);
+ f.finish([{vatra_id:1,avatar_path:"1/avatar/new.webp"}]);
+ assert.equal((await fresh).data[0].avatar_path,"1/avatar/new.webp");
+}

@@ -54,10 +54,12 @@ async function states(client,ids){
  const result=new Map();
  if(!valid.length||!client)return result;
  const bucket=stateForClient(client),generation=bucket.generation;
- const now=Date.now();
+ const now=Date.now(),snapshot=new Map();
  const missing=valid.filter(id=>{
   const entry=bucket.rows.get(id);
-  if(entry&&entry.expires>now)return false;
+  if(entry&&entry.expires>now){
+   bucket.rows.delete(id);bucket.rows.set(id,entry);snapshot.set(id,entry);return false;
+  }
   if(entry)bucket.rows.delete(id);
   return !bucket.pending.has(id);
  });
@@ -68,13 +70,14 @@ async function states(client,ids){
    if(error)throw error;
    if(bucket.generation!==generation)return;
    const found=new Map((data||[]).map(row=>[String(row.vatra_id),row]));
-   const expires=Date.now()+STATE_TTL_MS;
+   const expires=Date.now()+STATE_TTL_MS,results=new Map();
    for(const id of missing){
-    bucket.rows.delete(id);
-    bucket.rows.set(id,{record:found.get(id)||null,expires});
+    const entry={record:found.get(id)||null,expires};
+    results.set(id,entry);bucket.rows.delete(id);bucket.rows.set(id,entry);
    }
    while(bucket.rows.size>STATE_CACHE_MAX)
     bucket.rows.delete(bucket.rows.keys().next().value);
+   return results;
   })();
   for(const id of missing)bucket.pending.set(id,task);
   void task.finally(()=>{
@@ -83,10 +86,12 @@ async function states(client,ids){
   }).catch(()=>{});
  }
  const waiting=[...new Set(valid.map(id=>bucket.pending.get(id)).filter(Boolean))];
- if(waiting.length)await Promise.allSettled(waiting);
+ const responses=await Promise.allSettled(waiting);
  if(bucket.generation!==generation)return new Map();
+ for(const response of responses)if(response.status==="fulfilled")
+  for(const [id,entry] of response.value||[])snapshot.set(id,entry);
  for(const id of valid){
-  const entry=bucket.rows.get(id);
+  const entry=snapshot.get(id);
   if(!entry||entry.expires<=Date.now())continue;
   const row=entry.record;
   if(row?.state==="deleted")result.set(id,"deleted");
@@ -135,9 +140,10 @@ async function paths(client,ids){
  if(!valid.length)return {data:[],error:null};
  if(!client)return {data:[],error:Error("Missing Supabase client")};
  const state=pathsFor(client),generation=state.generation;
- const needed=[],waiting=new Set();
+ const needed=[],waiting=new Set(),snapshot=new Map();
  for(const id of valid){
-  if(cachedPath(state,id)!==undefined)continue;
+  const cached=cachedPath(state,id);
+  if(cached!==undefined){snapshot.set(id,cached);continue;}
   const pending=state.pending.get(id);
   if(pending)waiting.add(pending);
   else needed.push(id);
@@ -155,7 +161,13 @@ async function paths(client,ids){
       row.avatar_path.startsWith(id+"/avatar/"))
       found.set(id,{vatra_id:row.vatra_id,avatar_path:row.avatar_path});
     }
-    for(const id of needed)rememberPath(state,id,found.get(id)||null);
+    const results=new Map();
+    for(const id of needed){
+     if(state.pending.get(id)!==task)continue;
+     const row=found.get(id)||null;
+     results.set(id,row);rememberPath(state,id,row);
+    }
+    return results;
    });
   for(const id of needed)state.pending.set(id,task);
   waiting.add(task);
@@ -165,14 +177,16 @@ async function paths(client,ids){
   }).catch(()=>{});
  }
  try{
-  await Promise.all(waiting);
+  const responses=await Promise.all(waiting);
   if(state.generation!==generation)
    throw Error("Session changed while loading avatar paths");
-  return {data:valid.map(id=>cachedPath(state,id)).filter(Boolean),error:null};
+  for(const rows of responses)for(const [id,row] of rows||[])snapshot.set(id,row);
+  return {data:valid.map(id=>snapshot.get(id)).filter(Boolean).map(row=>({...row})),error:null};
  }catch(error){return {data:[],error};}
 }
 function invalidatePath(client,id){
- pathLookupCaches.get(client)?.rows.delete(String(id));
+ const state=pathLookupCaches.get(client),key=String(id);
+ state?.rows.delete(key);state?.pending.delete(key);
 }
 function safeUrl(input){
  if(typeof input!=="string")return null;

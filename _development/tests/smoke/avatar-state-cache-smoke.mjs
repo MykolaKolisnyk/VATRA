@@ -82,3 +82,9 @@ const states=env.stateTest;
  assert.equal(calls,2);
 }
 console.log("VATRA account-state cache: batch dedupe, negative TTL, expiry, blocked-until, failure retry and auth isolation passed.");
+
+{
+ const client={from:()=>({select:()=>({in:async(_,ids)=>({data:ids.map(id=>({vatra_id:id,state:"deleted"})),error:null})})})};
+ const results=await Promise.all(Array.from({length:4},(_,i)=>states(client,Array.from({length:100},(_,j)=>String(i*100+j+1)))));
+ assert.ok(results.every(result=>result.size===100),"Cache pressure must not discard account state results needed by concurrent callers");
+}

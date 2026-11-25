@@ -223,3 +223,28 @@ console.log("VATRA public names: verified viewer tab reuse, original expiry, acc
  assert.equal(reads,3);
 }
 console.log("VATRA names: one tab cache write per batch group and mutation-safe cache reads passed.");
+
+{
+ const names=build(true),a=userClient("Pressure");
+ const requests=Array.from({length:4},(_,i)=>names.get(a.client,Array.from({length:120},(_,j)=>i*120+j+100)));
+ const results=await Promise.all(requests);
+ assert.ok(results.every(r=>!r.error&&r.data.length===120),"Concurrent lookups must retain results even when other batches evict their cache entries");
+ assert.equal(a.calls.flat().length,480);
+}
+{
+ const code=await readFile("assets/js/verified.js","utf8");
+ const begin=code.indexOf(" const states="),end=code.indexOf(" let active=",begin);
+ const scope={window:{},queueMicrotask,Date,Map,Set,WeakMap,Promise};
+ runInNewContext(code.slice(begin,end)+"\nglobalThis.lookup=lookup;",scope);
+ let auth,reads=0;const complete=[];
+ const c={auth:{onAuthStateChange(fn){auth=fn;}},from:()=>({select:()=>({in:(_,ids)=>{
+  reads++;return new Promise(resolve=>complete.push(()=>resolve({data:ids.map(id=>({vatra_id:id})),error:null})));
+ }})})};
+ const first=scope.lookup(c,1);await Promise.resolve();
+ const same=scope.lookup(c,1);await Promise.resolve();assert.equal(reads,1);
+ complete.shift()();assert.equal(await first,true);assert.equal(await same,true);
+ const old=scope.lookup(c,2);await Promise.resolve();auth("SIGNED_OUT");assert.equal(await old,false);
+ const fresh=scope.lookup(c,2);await Promise.resolve();complete.shift()();complete.shift()();
+ assert.equal(await fresh,true);assert.equal(reads,3);
+}
+console.log("VATRA identity: concurrent name snapshots, verification single-flight and viewer isolation passed.");
