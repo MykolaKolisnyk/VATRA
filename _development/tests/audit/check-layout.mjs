@@ -2342,7 +2342,13 @@ assert.ok( consolidatedFeed.includes('width:50px;height:50px;')&&
  consolidatedFeed.includes('padding:12px 0;border:0;border-radius:0;background:transparent;box-shadow:none')&&
  !consolidatedFeed.includes('.feed-account-toggle .feed-header-avatar{')&&
  scrollRailScript.includes('side.style.left=')&&
- scrollRailScript.includes('side.hidden=window.scrollY<350'),
+ scrollRailScript.includes('side.hidden=window.scrollY<350')&&
+ scrollRailScript.includes('gutter>=76')&&
+ scrollRailScript.includes('side.dataset.mode=wide?"rail":"compact"')&&
+ scrollRailScript.includes('header?.getBoundingClientRect().bottom')&&
+ consolidatedFeed.includes('.vatra-scroll-rail[data-mode="rail"]')&&
+ consolidatedFeed.includes('top:var(--vatra-scroll-rail-top);bottom:0;right:auto;')&&
+ consolidatedFeed.includes('.vatra-scroll-rail[data-mode="compact"]'),
  "One compact social header, no overlapping rail styles and no boxed AdSense placeholder");
 const routerScript=await read("assets/js/not-found.js");
 const languageScript=await read("assets/js/lang.js");
