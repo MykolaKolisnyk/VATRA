@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-for(const path of ["assets/js/admin.js","assets/css/admin.css","assets/js/announcements.js","_development/supabase/functions/public-announcements/index.ts"])await assert.rejects(stat(path),{code:"ENOENT"});
+for(const path of ["assets/js/admin.js","assets/css/admin.css","assets/js/announcements.js","_development/supabase/functions/public-announcements/index.ts","_development/supabase/vatra-owner-admin.sql"])await assert.rejects(stat(path),{code:"ENOENT"});
 const [guard,host,settings,sql,maintenance]=await Promise.all([
  read("assets/js/account-guard.js"),read("assets/js/host.js"),read("assets/js/settings.js"),
  read("_development/supabase/migrations/20261125154722_presence_visibility_retire_admin_console.sql"),

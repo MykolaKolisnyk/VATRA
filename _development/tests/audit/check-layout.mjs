@@ -2139,9 +2139,10 @@ await assert.rejects(stat("assets/js/admin.js"),{code:"ENOENT"});
 await assert.rejects(stat("assets/css/admin.css"),{code:"ENOENT"});
 assert.ok(!ownerAdminGuard.includes('rpc("vatra_admin_access")')&&!ownerAdminGuard.includes("loadAdmin")&&!ownerAdminGuard.includes("vatra-admin-menu")&&ownerAdminGuard.includes('from("account_states")')&&!/announcement/i.test(ownerAdminGuard),"Account guard must preserve protection without retired announcements or admin panel");
 await assert.rejects(stat("assets/js/announcements.js"),{code:"ENOENT"});
-const ownerAdminSQL=await read("_development/supabase/vatra-owner-admin.sql");
+await assert.rejects(stat("_development/supabase/vatra-owner-admin.sql"),{code:"ENOENT"});
+const ownerSecuritySQL=await read("_development/supabase/migrations/20261125155615_remove_legacy_panel_and_separate_site_security.sql");
 assert.ok((await read("assets/css/feed.css")).includes(".vatra-account-blocked-action-001{"),"Blocked-account action must not depend on retired admin styles");
-assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
+assert.ok(ownerSecuritySQL.includes("drop table public.admin_audit restrict")&&ownerSecuritySQL.includes("rename to vatra_security_private")&&ownerSecuritySQL.includes("vatra_security_private.is_owner() and vatra_security_private.allowed()"),"Retire old admin installer while retaining independent maintenance and account security");
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
 const onboardingCss=await read("assets/css/onboarding.css");
