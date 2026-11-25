@@ -1301,7 +1301,7 @@ for(const page of sharedShellPages){
  for(const cls of ["ui-feed-brand-search-001","ui-social-top-feed-001",
   "ui-social-top-friends-001","ui-social-top-communities-001",
   "ui-social-top-clips-001","ui-social-top-marketplace-001",
-  "ui-feed-notifications-button-001",
+  "ui-shell-header-messenger-001","ui-feed-notifications-button-001",
   "ui-feed-music-button-001","ui-feed-account-menu-001"]){
   assert.ok(header.includes(cls),page+": shared header missing "+cls);
  }
@@ -1330,10 +1330,17 @@ for(const page of sharedShellPages){
   nav.indexOf("ui-social-top-clips-001")<nav.indexOf("ui-social-top-marketplace-001"),
   page+": five icon destinations must be in the agreed order");
  assert.ok(!controls.includes("ui-shell-header-friends-001")&&
+  controls.indexOf("ui-shell-header-messenger-001")<controls.indexOf("ui-feed-notifications-button-001")&&
   controls.indexOf("ui-feed-notifications-button-001")<controls.indexOf("ui-feed-music-button-001")&&
   controls.indexOf("ui-feed-music-button-001")<controls.indexOf("ui-feed-account-menu-001")&&
   controls.indexOf("ui-feed-account-menu-001")<controls.indexOf('id="feed-menu-name"'),
   page+": right controls must end with Avatar and first name");
+}
+for(const page of ["feed","profile","communities","club","notifications","friends","gifts","clips","marketplace","vatra-id","settings"]){
+ const header=(await read(page+".html")).match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0]||"";
+ const buttons=[...header.matchAll(/<button[^>]*ui-shell-header-messenger-001[^>]*>/g)];
+ assert.equal(buttons.length,1,page+": preserve one Messenger header icon");
+ assert.ok(buttons[0][0].includes('data-vatra-coming-soon="messenger"')&&!buttons[0][0].includes("href="),page+": Messenger remains a non-navigating placeholder");
 }
 const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
