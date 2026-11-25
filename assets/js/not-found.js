@@ -36,11 +36,6 @@
       document.documentElement.classList.add("vatra-dynamic-route-pending");
 
 
-      const titleGuard=new MutationObserver(()=>{
-        const node=document.head.querySelector("title");
-        if(node&&/^(?:404\s|Сторінку не знайдено$|Page not found$)/.test(node.textContent))node.textContent="VATRA";
-      });
-      titleGuard.observe(document.head,{childList:true,subtree:true,characterData:true});
       const file=dynamic?(dynamic[1]==="id"?"profile.html":"club.html"):staticPage[1]+".html";
       const mount=async()=>{
         try{
@@ -48,18 +43,12 @@
           if(!response.ok)throw new Error("route document unavailable");
           const markup=await response.text();
           if(!/^\s*<!doctype html>/i.test(markup))throw new Error("invalid route document");
-
-
-          titleGuard.disconnect();
           document.documentElement.classList.remove("vatra-dynamic-route-pending");
           document.open();
           document.write(markup);
           document.close();
         }catch(_){
-
-          titleGuard.disconnect();
           document.documentElement.classList.remove("vatra-dynamic-route-pending");
-          document.title="Сторінку не знайдено";
           const locale=document.createElement("script");
           locale.className="ui-404-route-locale-recovery-001";
           locale.src="/VATRA/assets/js/lang.js";
