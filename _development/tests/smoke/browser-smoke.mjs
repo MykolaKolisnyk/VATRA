@@ -746,6 +746,11 @@ try{
   if(sizes.overflow>3)console.log("Overflow diagnostic "+width+": "+JSON.stringify(sizes.offenders));
   assert.ok(sizes.overflow<=3,"Horizontal overflow at "+width+": "+sizes.overflow+"px");
   assert.ok(sizes.copy.w>200,"Description clipped at "+width);
+  const copyLayout=await page.locator(".intro-copy").evaluate(el=>{
+   const box=el.getBoundingClientRect(),panel=el.closest(".intro-side").getBoundingClientRect(),heading=el.querySelector("strong"),description=el.querySelector(".vatra-home-description-001");
+   return {width:box.width,centerDelta:Math.abs((box.left+box.right-panel.left-panel.right)/2),inside:box.left>=panel.left&&box.right<=panel.right&&box.bottom<=panel.bottom+1,overflow:el.scrollWidth-el.clientWidth,titleSize:parseFloat(getComputedStyle(heading).fontSize),bodySize:parseFloat(getComputedStyle(description).fontSize)};
+  });
+  assert.ok(copyLayout.inside&&copyLayout.centerDelta<=2&&copyLayout.overflow<=2&&copyLayout.width<=560&&copyLayout.titleSize>copyLayout.bodySize,"Login copy must be centered, compact and readable at "+width+": "+JSON.stringify(copyLayout));
   if(width>=1200){
    assert.ok(Math.abs(sizes.intro.w-sizes.form.w)<=2,"Columns unequal at "+width);
    assert.ok(Math.abs(sizes.intro.y-sizes.form.y)<=2,"Columns misaligned vertically at "+width);
@@ -933,7 +938,7 @@ try{
  await wizard.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(wizard);
  const progressColors=()=>wizard.locator(".signup-progress-segment").evaluateAll(nodes=>nodes.map(node=>({color:getComputedStyle(node).backgroundColor,image:getComputedStyle(node).backgroundImage})));
- assert.deepEqual(await progressColors(),[{color:"rgb(36, 100, 215)",image:"none"},{color:"rgb(230, 235, 246)",image:"none"}],"Signup step one uses VATRA blue and a neutral inactive segment");
+ assert.deepEqual(await progressColors(),[{color:"rgb(22, 72, 240)",image:"none"},{color:"rgb(230, 235, 246)",image:"none"}],"Signup step one uses VATRA blue and a neutral inactive segment");
  assert.ok(await wizard.locator(".signup-brand").evaluate(node=>["::before","::after"].every(pseudo=>["none","normal"].includes(getComputedStyle(node,pseudo).content))),"Remove corner ornaments from registration while retaining the central logo");
  assert.equal(await wizard.locator('.signup-step[data-create-account-step="2"]').isVisible(),false,"Second step must start hidden");
  await wizard.locator("#create-account-next").click();
@@ -950,8 +955,8 @@ try{
  await wizard.locator("#create-account-next").click();
  await wizard.locator('.signup-step[data-create-account-step="2"]').waitFor({state:"visible"});
  assert.equal(await wizard.locator(".signup-progress").getAttribute("aria-valuenow"),"2","Progress should announce step two");
- await wizard.waitForFunction(()=>[...document.querySelectorAll(".signup-progress-segment")].every(node=>getComputedStyle(node).backgroundColor==="rgb(36, 100, 215)"&&getComputedStyle(node).backgroundImage==="none"));
- assert.deepEqual(await progressColors(),[{color:"rgb(36, 100, 215)",image:"none"},{color:"rgb(36, 100, 215)",image:"none"}],"Both completed signup segments use the same VATRA blue");
+ await wizard.waitForFunction(()=>[...document.querySelectorAll(".signup-progress-segment")].every((node,index)=>getComputedStyle(node).backgroundColor===["rgb(22, 72, 240)","rgb(250, 71, 125)"][index]&&getComputedStyle(node).backgroundImage==="none"));
+ assert.deepEqual(await progressColors(),[{color:"rgb(22, 72, 240)",image:"none"},{color:"rgb(250, 71, 125)",image:"none"}],"Completed signup segments use the blue and coral-pink VATRA logo colors");
  assert.equal(await wizard.locator('.signup-step[data-create-account-step="1"]').isVisible(),false,"Identity step should be hidden");
  await wizard.locator(".create-account-help-email summary").hover();
  await wizard.waitForFunction(()=>document.querySelector(".create-account-help-email")?.open===true);
