@@ -1071,6 +1071,14 @@ assert.ok(reactionsVerifiedDelete.every(part=>reactionsSource.includes(part))&&
 
 const profileExtraScript=await read("assets/js/profile.js");
 const scrollRailScript=await read("assets/js/scroll-rail.js");
+const dynamicPostClasses=await read("assets/js/post-interactions.js");
+const dynamicShellClasses=await read("assets/js/social-shell.js");
+assert.ok(dynamicPostClasses.includes('ui-vatra-post-action-path-')&&
+ dynamicPostClasses.includes('ui-feed-post-audience-path-001')&&
+ dynamicPostClasses.includes('ui-vatra-post-owner-dot-')&&
+ dynamicShellClasses.includes('ui-vatra-account-menu-icon-path-')&&
+ dynamicShellClasses.includes('ui-vatra-account-guard-script-001'),
+ "Dynamically created social SVG parts and account guard script must have component-owned classes");
 assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
  interactionsScript.includes('vatra-post-comments-count-001')&&
  interactionsScript.includes('vatra-post-shares-count-001')&&
@@ -1486,10 +1494,12 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  !memberProfileMarkup.includes('class="feed-sidebar ui-feed-sidebar-001"')&&
  feedMarkup.includes('id="feed-posts"')&&
  feedMarkup.includes('id="feed-delete-dialog"')&&
- feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001"')<
- feedMarkup.indexOf('class="feed-stories is-empty ui-feed-stories-001"')&&
  feedMarkup.indexOf('class="feed-stories is-empty ui-feed-stories-001"')<
+ feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001 vatra-quick-compose-001"')&&
+ feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001 vatra-quick-compose-001"')<
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')&&
+ feedStyle.includes('grid-column:1/-1;grid-row:1;width:100%')&&
+ !feedScript.includes("vatra-feed-story-skeleton-001")&&
  memberProfileMarkup.includes('id="profile-compose-dialog"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from(publishAt?"scheduled_feed_posts":"feed_posts").insert(payload)')&&
@@ -1500,7 +1510,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('grid-template-columns:minmax(170px,210px) minmax(0,1fr)!important')&&
  auth.includes('window.location.replace(url("feed"))'),
- "VATRA Feed must render the composer before real Stories and personalized posts");
+ "VATRA Feed must render Stories above the composer, right rail and personalized posts without fake story cards");
 assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{display:none!important}')&&
  feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .feed-post-placeholder{')&&
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
@@ -2627,7 +2637,7 @@ assert.ok(
  feedStoryOptimization.includes("let subscriptionsLoadedAt=0,subscriptionsInflight=null")&&
  feedStoryOptimization.includes("function ensureSubscriptions()")&&
  feedStoryOptimization.includes("if(subscriptionsInflight)return subscriptionsInflight;")&&
- feedStoryOptimization.includes("await ensureSubscriptions();")&&
+ feedStoryOptimization.includes("await feedDeadline(ensureSubscriptions());")&&
  feedStoryOptimization.includes('if(!friendIds.length){')&&
  feedStoryOptimization.includes('query=query.in("author_vatra_id",friendIds)')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),

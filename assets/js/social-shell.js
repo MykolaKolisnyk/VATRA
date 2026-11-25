@@ -85,6 +85,7 @@
    if(!svg)return;
    const ns="http://www.w3.org/2000/svg",makePath=d=>{
     const path=document.createElementNS(ns,"path");
+    path.setAttribute("class","ui-vatra-account-menu-icon-path-"+kind);
     path.setAttribute("d",d);return path;
    };
    svg.replaceChildren();
@@ -769,7 +770,7 @@
  }
  const shellScript=document.currentScript?.src;
  const boot=()=>{
-  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.src=new URL("account-guard.js?rev=75e4057976db3593814de6d14beae75016283fae",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
+  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.className="ui-vatra-account-guard-script-001";s.src=new URL("account-guard.js?rev=75e4057976db3593814de6d14beae75016283fae",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
   showPendingShell();
   setUpAccountPanel();
   setupRouteMotion();
