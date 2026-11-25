@@ -3685,6 +3685,35 @@ try{
    entry.paths.includes(previewFixture.item.media_path)),
    "Deleting an image also cleans up its preview object");
   console.log("VATRA WebP: private thumbnail, original-on-click and paired cleanup OK");
+  await feedProbe.evaluate(async()=>{
+   const {client,item}=window.__vatraWebpFixture,root=document.querySelector("#feed-posts");
+   for(const [i,label] of [[1,"FeedAlpha"],[2,"FeedBeta"]]){
+    const card=document.createElement("article");card.className="feed-post-card";card.id="feed-nav-fixture-"+i;
+    card.dataset.postId="00000000-0000-4000-8000-00000000000"+i;card.dataset.postKind="person";card.dataset.vatraViewerId="99";
+    const header=document.createElement("header");header.className="feed-post-header";
+    const author=document.createElement("div");author.className="feed-post-author";
+    const authorName=document.createElement("span");authorName.className="feed-post-name";authorName.textContent=label;
+    author.append(authorName);header.append(author);card.append(header);root.append(card);
+    await window.VATRA_POST_MEDIA.mount(client,{id:card.dataset.postId,author_vatra_id:"12",kind:"person",body:label,media_kind:"image",media_path:item.media_path},card);
+   }
+  });
+  const firstFeedPhoto=feedProbe.locator("#feed-nav-fixture-1 .vatra-feed-post-media-open-001");
+  await firstFeedPhoto.scrollIntoViewIfNeeded();await firstFeedPhoto.click();
+  const feedViewer=feedProbe.locator("#vatra-post-media-viewer"),feedCounter=feedViewer.locator(".vatra-post-gallery-counter-001");
+  await feedCounter.waitFor({state:"attached"});assert.equal(await feedCounter.textContent(),"1 / 2");
+  const feedNext=feedViewer.locator(".vatra-post-gallery-nav-next");
+  assert.equal(await feedNext.isDisabled(),false);
+  await feedViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
+  await feedNext.click();
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");
+  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedBeta");
+  assert.ok((await feedViewer.locator(".vatra-post-media-footer-open-post-001").getAttribute("data-href")).includes("00000000-0000-4000-8000-000000000002"));
+  await feedProbe.keyboard.press("ArrowLeft");
+  await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
+  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
+  await feedProbe.keyboard.press("Escape");
+  await feedProbe.evaluate(()=>{document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
+  console.log("VATRA Feed photo navigation: next post, correct author and post link, keyboard back verified.");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_COMPOSER_UI),false,
