@@ -2340,7 +2340,7 @@ assert.ok( consolidatedFeed.includes('width:50px;height:50px;')&&
  !consolidatedFeed.includes('.feed-account-toggle .feed-header-avatar{')&&
  scrollRailScript.includes('side.style.left=')&&
  scrollRailScript.includes('side.hidden=window.scrollY<350')&&
- scrollRailScript.includes('gutter>=108')&&
+ scrollRailScript.includes('gutter>=76')&&
  scrollRailScript.includes('side.dataset.mode=wide?"rail":"compact"')&&
  scrollRailScript.includes('header?.getBoundingClientRect().bottom')&&
  consolidatedFeed.includes('.vatra-scroll-rail[data-mode="rail"]')&&
