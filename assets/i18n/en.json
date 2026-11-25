@@ -337,7 +337,8 @@
     },
     "maintenance": {
       "meta": {
-        "title": "Maintenance"
+        "title": "Maintenance",
+        "description": "Temporary maintenance on VATRA."
       },
       "nodes": {
         "maintenance-kicker": {
@@ -360,7 +361,7 @@
     "feed": {
       "meta": {
         "title": "Feed",
-        "description": "Posts and stories on VATRA."
+        "description": "View posts and stories from friends and communities on VATRA."
       },
       "nodes": {
         "n12": {
@@ -443,7 +444,7 @@
         "description": "Create your VATRA account — a Ukrainian social network for conversations, communities, and creativity.",
         "og:locale": "en_US",
         "og:title": "Create account · VATRA",
-        "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
+        "og:description": "Create your VATRA account — a Ukrainian social network for conversations, communities, and creativity.",
         "og:image:alt": "Official VATRA app icon"
       },
       "nodes": {
@@ -856,7 +857,7 @@
         "description": "Recover access to VATRA, the Ukrainian social network.",
         "og:locale": "en_US",
         "og:title": "Password recovery · VATRA",
-        "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
+        "og:description": "Recover access to VATRA, the Ukrainian social network.",
         "og:image:alt": "Official VATRA app icon"
       },
       "nodes": {
@@ -1032,7 +1033,7 @@
         "description": "Create a new password for VATRA, the Ukrainian social network.",
         "og:locale": "en_US",
         "og:title": "New password · VATRA",
-        "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
+        "og:description": "Create a new password for VATRA, the Ukrainian social network.",
         "og:image:alt": "Official VATRA app icon"
       },
       "nodes": {
@@ -1188,7 +1189,7 @@
         "description": "VATRA terms: accounts, posts, communities, copyright, marketplace, and safety.",
         "og:locale": "en_US",
         "og:title": "Terms of Service — VATRA",
-        "og:description": "VATRA terms of use: registration, account access, and security."
+        "og:description": "VATRA terms: accounts, posts, communities, copyright, marketplace, and safety."
       },
       "nodes": {
         "n1": {
@@ -2138,7 +2139,8 @@
     },
     "offline": {
       "meta": {
-        "title": "No connection"
+        "title": "No connection",
+        "description": "No internet connection. Check your connection and try again."
       },
       "nodes": {
         "n6": {
@@ -2366,7 +2368,7 @@
     "profile": {
       "meta": {
         "title": "My profile",
-        "description": "Your page on VATRA."
+        "description": "View your profile, photos and posts on VATRA."
       },
       "nodes": {
         "n42": {
@@ -2426,7 +2428,10 @@
     "verify": {
       "meta": {
         "title": "Verification",
-        "description": "Verify your email address."
+        "description": "Verify the email address for your VATRA account.",
+        "og:title": "Verification · VATRA",
+        "og:description": "Verify the email address for your VATRA account.",
+        "og:locale": "en_US"
       },
       "nodes": {
         "n4": {
@@ -3018,7 +3023,7 @@
         "description": "VATRA documents: Terms of Service, Privacy, Cookies and Marketplace Rules.",
         "og:locale": "en_US",
         "og:title": "VATRA Documents",
-        "og:description": "Official information and rules for using VATRA."
+        "og:description": "VATRA documents: Terms of Service, Privacy, Cookies and Marketplace Rules."
       },
       "nodes": {
         "docs_back_home_001": {
@@ -3949,5 +3954,14 @@
   "Виберіть фото JPEG, PNG, WebP до 6 МБ або відео MP4, WebM до 50 МБ.": "Choose JPEG, PNG, WebP up to 6 MB or MP4, WebM up to 50 MB.",
   "Не вдалося відкрити файл.": "Could not open the file.",
   "Не вдалося зберегти медіафайл історії. Повторіть спробу з новим файлом.": "The story media failed validation. Try again with a new file.",
-  "Не вдалося опублікувати історію. Спробуйте ще раз.": "Could not publish the story. Try again."
+  "Не вдалося опублікувати історію. Спробуйте ще раз.": "Could not publish the story. Try again.",
+  "Переглядайте короткі відео та діліться власними кліпами у VATRA.": "Watch short videos and share your own clips on VATRA.",
+  "Переглядайте публікації, учасників та інформацію про спільноту у VATRA.": "View a community’s posts, members and information on VATRA.",
+  "Знаходьте спільноти за інтересами, приєднуйтеся до них і створюйте власні у VATRA.": "Discover communities by interest, join them and create your own on VATRA.",
+  "Переглядайте друзів, надсилайте та приймайте заявки в друзі у VATRA.": "View your friends, send and accept friend requests on VATRA.",
+  "Переглядайте віртуальні подарунки та даруйте їх користувачам VATRA.": "Browse virtual gifts and give them to VATRA members.",
+  "Знаходьте товари й розміщуйте власні оголошення на маркетплейсі VATRA.": "Find products and publish your own listings on the VATRA marketplace.",
+  "Переглядайте вподобання Ваших публікацій, коментарів і фото профілю, заявки в друзі та відповіді на них у VATRA.": "See likes on your posts, comments and profile photos, friend requests and their responses on VATRA.",
+  "Керуйте налаштуваннями акаунта, конфіденційності та сповіщень у VATRA.": "Manage account, privacy and notification settings on VATRA.",
+  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "View information about your VATRA ID, your unique account identifier."
 }
