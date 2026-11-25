@@ -610,9 +610,9 @@ try{
        }
        await view.goto(base+entry.path,{waitUntil:"domcontentloaded",timeout:20000});
        const pageName=entry.path===""?"index":entry.path.slice(0,-5);
-       const expectedTitle=localeTitles[language][pageName].meta.title;
+       const expectedTitle="VATRA";
        assert.equal(await view.title(),expectedTitle,
-        engine+" "+entry.path+" "+language+" tab title must match locale synchronously, before the language fetch completes");
+        engine+" "+entry.path+" "+language+" tab title must remain VATRA synchronously, before the language fetch completes");
        if(language==="en"){
         await view.waitForTimeout(210);
         assert.equal(await view.title(),expectedTitle,
@@ -1092,31 +1092,29 @@ try{
   await page.locator(".ui-offline-vatryk-001").evaluate(img=>img.decode());
   const metrics=await page.evaluate(()=>{
    const rect=sel=>document.querySelector(sel).getBoundingClientRect();
-   const card=rect("main"),logo=rect(".offline-brand img"),icon=rect(".ui-offline-vatryk-001");
+   const card=rect("main"),icon=rect(".ui-offline-vatryk-001");
    const actions=[...document.querySelectorAll(".offline-actions>*")].map(x=>x.getBoundingClientRect().height);
    return {overflow:document.documentElement.scrollWidth-innerWidth,
     cardCenter:Math.abs((card.left+card.right)/2-innerWidth/2),
-    logoLeft:logo.left-card.left,logoTop:logo.top-card.top,
-    logoRight:logo.right-card.left,iconTop:icon.top-card.top,
+    iconTop:icon.top-card.top,
     mascotLoaded:document.querySelector(".ui-offline-vatryk-001").naturalWidth>0,
     mascotInside:icon.left>=card.left&&icon.right<=card.right,
     titleSize:parseFloat(getComputedStyle(document.querySelector("h1")).fontSize),
     font:getComputedStyle(document.querySelector("h1")).fontFamily,
-    isStandaloneV:document.querySelector(".offline-brand img").getAttribute("src").startsWith("data:image/svg+xml"),
+    hasStandaloneV:!!document.querySelector(".offline-brand img"),
     actionHeights:actions,buttonCount:actions.length};
   });
   assert.ok(metrics.overflow<=3&&metrics.cardCenter<=2,
    "Offline fallback must fit and center horizontally at "+width+": "+JSON.stringify(metrics));
-  assert.ok(metrics.isStandaloneV&&metrics.logoLeft>=15&&metrics.logoRight<260&&
-   metrics.logoTop<metrics.iconTop,
-   "Standalone V must sit at the top-left of the offline card at "+width+": "+JSON.stringify(metrics));
+  assert.ok(!metrics.hasStandaloneV&&metrics.iconTop>=15,
+   "Offline mascot must appear without a standalone V at "+width+": "+JSON.stringify(metrics));
   assert.ok(metrics.mascotLoaded&&metrics.mascotInside,"Offline mascot must load and fit at "+width);
   assert.ok(metrics.font.includes("Onest")&&metrics.titleSize>=27&&
    metrics.buttonCount===2&&metrics.actionHeights.every(h=>h>=48),
    "Offline typography and touch targets must remain legible at "+width+": "+JSON.stringify(metrics));
   await page.close();
  }
- console.log("VATRA offline page responsive V mark and typography: OK");
+ console.log("VATRA offline page responsive mascot and typography: OK");
 
  // Both back links use the same copy and the same leftward hover animation.
  for(const [route,lang] of [["create-account.html","uk"],["forgot.html","uk"],["reset.html","uk"],["create-account.html","en"],["forgot.html","en"],["reset.html","en"]]){
@@ -1541,8 +1539,8 @@ try{
  await titleContext.route("**/assets/js/host.js",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
  }));
- for(const [language,expected] of [["uk","Сторінку не знайдено"],
-  ["en","Page not found"]]){
+ for(const [language,expected] of [["uk","VATRA"],
+  ["en","VATRA"]]){
   // VATRA's language cookie is authoritative over localStorage.
   await titleContext.addCookies([{name:"vatra-language",value:language,url:base}]);
   const tab=await titleContext.newPage();
@@ -1550,7 +1548,7 @@ try{
   await tab.goto(base+"404.html",{waitUntil:"load"});
   await tab.waitForFunction(lang=>document.documentElement.lang===lang,language);
   assert.equal(await tab.title(),expected,
-   "Missing-page tab title must omit the status code and branding: "+language);
+   "Missing-page tab title must display only VATRA: "+language);
   const verifyMissingPage=async()=>{
    await tab.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending"));
    const mascot=await tab.evaluate(async()=>{
@@ -2371,7 +2369,7 @@ try{
  }));
  await confirmationPage.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
- assert.equal(await confirmationPage.title(),await confirmationPage.evaluate(()=>document.documentElement.lang==="en"?"Create account":"Створити акаунт"));
+ assert.equal(await confirmationPage.title(),"VATRA");
  await confirmationPage.locator("#first-name").fill("Тест");
  await confirmationPage.locator("#last-name").fill("Користувач");
  await confirmationPage.evaluate(()=>{
@@ -3262,7 +3260,7 @@ try{
    "A full-route skeleton must disappear once the shell is ready");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockCreateClientCalls),1,
    "Feed uses exactly one Supabase auth client");
-  const expectedTitle=language==="en"?"Feed":"Стрічка";
+  const expectedTitle="VATRA";
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),0);
