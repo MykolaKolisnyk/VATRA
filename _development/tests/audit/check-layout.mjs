@@ -2132,11 +2132,11 @@ assert.equal(uk.__pages.feed.meta.title,"Стрічка");
 assert.equal(en.__pages.feed.meta.title,"Feed");
 const onboardingJs=await read("assets/js/onboarding.js");
 const ownerAdminGuard=await read("assets/js/account-guard.js");
-const ownerAdminJs=await read("assets/js/admin.js");
+await assert.rejects(stat("assets/js/admin.js"),{code:"ENOENT"});
+await assert.rejects(stat("assets/css/admin.css"),{code:"ENOENT"});
 assert.ok(!ownerAdminGuard.includes('rpc("vatra_admin_access")')&&!ownerAdminGuard.includes("loadAdmin")&&!ownerAdminGuard.includes("vatra-admin-menu")&&ownerAdminGuard.includes('from("account_states")')&&ownerAdminGuard.includes("loadAnnouncements"),"Account guard must preserve protection and announcements without exposing admin panel");
 const ownerAdminSQL=await read("_development/supabase/vatra-owner-admin.sql");
-assert.ok(!ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("marketView(host,")&&!ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
-assert.ok((await read("assets/css/feed.css")).includes(".vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
+assert.ok((await read("assets/css/feed.css")).includes(".vatra-admin-primary-001{"),"Blocked-account action must not depend on retired admin styles");
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
@@ -2408,7 +2408,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2726,7 +2726,7 @@ const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
 const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
 for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
-for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
+for(const module of [editorRuntime,clipComposerRuntime])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
 for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
@@ -2769,10 +2769,9 @@ assert.ok(money.marketMatchesPrice({price:10,currency:"USD"},"USD",0,20));
 assert.ok(money.marketMatchesPrice({price:10},"UAH",0,20));
 assert.ok(money.marketMatchesPrice({price:10,currency:"EUR"},"all",null,null));
 assert.ok(sectionsRuntime.includes("price:marketAmount(price.value),currency:currency.value")&&sectionsRuntime.includes("form.prepend(categoryGroup)")&&sectionsRuntime.includes("price,currency,city"),"Persist currency, read it back and show required category first");
-assert.ok(sectionsRuntime.includes('rules_accepted:true')&&sectionsRuntime.includes('eq("moderation_status","approved")')&&ownerAdminJs.includes('pending:t("На перевірці"')&&ownerAdminJs.includes('.eq("moderation_status",kind)'),"Marketplace must submit for moderation and show only approved listings in the public catalog");
-assert.ok(sectionsRuntime.includes('marketplace_cases')&&ownerAdminJs.includes('marketplace_moderators')&&sectionsRuntime.includes('marketplace_suspensions')&&ownerAdminJs.includes('marketplace_moderation_history'),"Moderation, appeals, reports, suspensions and history must use server records");
-assert.ok(!marketplaceRuntime.includes("VATRA_OPEN_MARKET_MODERATION")&&!marketplaceRuntime.includes("marketplace_moderators")&&!marketplaceRuntime.includes("marketplace_moderation_history")&&!marketplaceRuntime.includes("modControls"),"Only ADMIN PANEL owns staff marketplace moderation");
-assert.ok(ownerAdminJs.includes('client.rpc("vatra_admin_access")')&&ownerAdminJs.includes('from("marketplace_moderators")')&&ownerAdminJs.includes('from("marketplace_listings").update')&&ownerAdminJs.includes('from("marketplace_cases").update')&&ownerAdminJs.includes('from("marketplace_suspensions").insert')&&ownerAdminJs.includes('from("marketplace_moderation_history")')&&ownerAdminJs.includes('!ready||!check.checked'),"Owner moderation must check server roles and require manual photo review");
+assert.ok(sectionsRuntime.includes('rules_accepted:true')&&sectionsRuntime.includes('eq("moderation_status","approved")'),"Marketplace must submit for moderation and show only approved listings in the public catalog");
+assert.ok(sectionsRuntime.includes('marketplace_cases')&&sectionsRuntime.includes('marketplace_suspensions'),"Moderation, appeals, reports, suspensions and history must use server records");
+assert.ok(!marketplaceRuntime.includes("VATRA_OPEN_MARKET_MODERATION")&&!marketplaceRuntime.includes("marketplace_moderators")&&!marketplaceRuntime.includes("marketplace_moderation_history")&&!marketplaceRuntime.includes("modControls"),"Public catalog must not expose staff moderation actions");
 for(const file of ["business","business-bookings","business-brand","business-inbox","business-jobs","business-stores"])await assert.rejects(stat("assets/js/"+file+".js"),{code:"ENOENT"});
 const moderationSQL=await read("_development/supabase/vatra-marketplace-moderation.sql");
 const moderationMediaSQL=await read("_development/supabase/vatra-marketplace-moderation-media.sql");

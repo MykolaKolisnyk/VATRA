@@ -75,7 +75,8 @@ assert.ok(
 );
 assert.ok(
  !profileCss.includes("ui-profile-photo-content-001:hover :is(.vatra-profile-avatar-prev-001")&&
- postCss.includes("ui-vatra-post-media-viewer-content-001:hover")&&
+ postCss.includes("ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001):hover")&&
+ postCss.includes("ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001):focus-within")&&
  profile.includes("file.size>31457280")&&
  postMedia.includes("limit:31457280")&&
  postInteractions.includes("31457280"),

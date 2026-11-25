@@ -4,18 +4,17 @@ import {runInNewContext} from "node:vm";
 const read=path=>readFile(path,"utf8");
 const host=await read("assets/js/host.js");
 const page=await read("maintenance.html");
-const panel=await read("assets/js/admin.js");
 const maintenanceScript=await read("assets/js/maintenance.js");
 assert.ok(page.includes("assets/vatryk/vatryk_technician.webp")&&
  page.includes('data-i18n="maintenance-heading"')&&page.includes('data-i18n="maintenance-copy"'));
 assert.doesNotMatch(page,/<(?:header|footer|button|a|section)\b|data-language-trigger|maintenance-admin=1|maintenance-status/);
 assert.ok(host.includes('get("maintenance-admin")==="1"'),"Direct owner recovery route is retained");
-assert.ok(panel.includes('from("site_maintenance").update({enabled:next})')&&panel.includes("maintenance.html?preview=1"));
+assert.ok(host.includes('rpc("vatra_maintenance_access")'));
 async function simulate({enabled,owner=false,path="/VATRA/feed",search="",failure=false}){
  const redirects=[],requests=[],events={},roleChecks=[];
  const location={protocol:"https:",hostname:"mykolakolisnyk.github.io",origin:"https://mykolakolisnyk.github.io",pathname:path,search,replace:url=>redirects.push(url)};
  const doc={readyState:"complete",visibilityState:"visible",addEventListener:(name,fn)=>{events[name]=fn;}};
- const window={addEventListener:(name,fn)=>{events[name]=fn;},supabase:{createClient:()=>({rpc:async name=>{assert.equal(name,"vatra_admin_access");roleChecks.push(name);return {data:owner,error:null};},auth:{stopAutoRefresh(){}}})}};
+ const window={addEventListener:(name,fn)=>{events[name]=fn;},supabase:{createClient:()=>({rpc:async name=>{assert.equal(name,"vatra_maintenance_access");roleChecks.push(name);return {data:owner,error:null};},auth:{stopAutoRefresh(){}}})}};
  let value=enabled;
  const timers=new Map();let id=0;
  const context={document:doc,window,location,URL,URLSearchParams,AbortController,

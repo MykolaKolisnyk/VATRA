@@ -40,7 +40,7 @@
       try{
         client=window.VATRA_ADMIN_CONTEXT?.client;
         if(!client){temporary=true;client=window.supabase.createClient(endpoint,key,{auth:{persistSession:true,autoRefreshToken:false,detectSessionInUrl:false,flowType:"pkce"}});}
-        const result=await Promise.race([client.rpc("vatra_admin_access"),new Promise(resolve=>setTimeout(()=>resolve(null),3000))]);
+        const result=await Promise.race([client.rpc("vatra_maintenance_access"),new Promise(resolve=>setTimeout(()=>resolve(null),3000))]);
         return result?.data===true&&!result.error;
       }catch(_){return false;}finally{if(temporary)client?.auth?.stopAutoRefresh?.();}
     }
