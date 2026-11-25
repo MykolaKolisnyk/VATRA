@@ -476,9 +476,8 @@
 
 
    const compact=vw<=600;
-   const width=Math.max(1,Math.min(vw-(compact?12:24),expanded?790:505));
-   const left=compact?ox+6:Math.max(ox+12,
-    Math.min(inputBox.left,ox+vw-width-12));
+   const left=compact?ox+6:Math.max(ox,anchor.left-12);
+   const width=Math.max(1,Math.min(ox+vw-left-(compact?6:12),expanded?790:Math.max(360,inputBox.right-left+12)));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(headerBottom)+"px";
@@ -529,7 +528,7 @@
    if(!typed)recentViews.forEach((view,index)=>{
     const item={...view,kind:view.post_kind,display_name:view.title,name:view.title,title:view.title};const href=resultHref(view.kind,item);if(!href)return;
     const suffix="recent-"+String(index+1).padStart(3,"0"),row=make("div","vatra-search-history-row ui-vatra-search-history-row-"+suffix);row.setAttribute("role","listitem");
-    const link=make("a","vatra-search-history-term ui-vatra-search-recent-link-001");link.href=href;link.append(resultIcon(view.kind,item,suffix),make("span","vatra-search-history-text-"+suffix,view.title));if(view.kind==="people")link.append(make("small","vatra-search-result-id-001","ID "+view.vatra_id));
+    const link=make("a","vatra-search-history-term ui-vatra-search-recent-link-001");link.href=href;link.append(icon("ui-vatra-search-recent-clock-"+suffix,"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM12 7v5l3 2"),make("span","vatra-search-history-text-"+suffix,view.title),resultIcon(view.kind,item,suffix));
     link.addEventListener("click",()=>rememberView(view.kind,item));const remove=make("button","vatra-search-history-remove ui-vatra-search-history-remove-"+suffix);remove.type="button";remove.setAttribute("aria-label",tr("Видалити з історії","Remove from history"));remove.append(icon("ui-vatra-search-remove-"+suffix,"M6 6l12 12M18 6 6 18"));remove.addEventListener("click",()=>{recentViews=recentViews.filter(v=>v!==view);storeViews();render();position();});row.append(link,remove);fragment.append(row);
    });
    visibleTerms.forEach((term,index)=>{
@@ -587,7 +586,7 @@
    clearAll.hidden=live||clearAll.hidden;
    const heading=panel.querySelector(".vatra-search-panel-heading-001");
    if(heading)heading.textContent=live?tr("Результати пошуку","Search results"):
-    tr("Нещодавно переглянуті","Recently viewed");
+    tr("Нещодавні","Recent");
    if(visible)scheduleLive(term);else if(!live)clearLive();
   }
   function route(scope){

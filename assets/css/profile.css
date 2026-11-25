@@ -349,7 +349,7 @@ body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  position:relative;z-index:8;align-self:flex-start;flex:none;}
 
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap.is-menu-open{
- z-index:110
+ z-index:8
 }
 body.profile-page .profile-avatar-trigger{
  display:block;position:relative;width:100%;height:100%;padding:0;
@@ -2723,8 +2723,8 @@ body.profile-page :is(.ui-profile-avatar-publish-post-001,.ui-profile-avatar-pub
 @media(max-width:600px){body.profile-page .vatra-profile-avatar-plus-001{width:26px;height:26px;right:1px;bottom:1px}body.profile-page .vatra-profile-cover-change-001{right:12px;top:12px;padding:7px 10px;min-height:36px;font-size:12px}body.profile-page .ui-profile-avatar-crop-dialog-001,body.profile-page .ui-profile-avatar-finish-dialog-001,body.profile-page .ui-profile-cover-edit-dialog-001{padding:18px}body.profile-page .vatra-profile-avatar-finish-copy-001{font-size:18px}}
 
 
-body.profile-page .is-owner-avatar .profile-avatar-menu{min-width:210px;padding:6px;gap:2px;border-radius:15px;box-shadow:0 12px 30px rgba(25,42,81,.14)}
-body.profile-page .is-owner-avatar .profile-avatar-menu button{display:flex;align-items:center;gap:11px;min-height:42px;padding:9px 11px;font:550 14px/1.4 Onest,system-ui,sans-serif}
+body.profile-page .is-owner-avatar .profile-avatar-menu{min-width:232px;padding:6px;gap:2px;border-radius:12px;box-shadow:0 10px 28px rgba(25,42,81,.14)}
+body.profile-page .is-owner-avatar .profile-avatar-menu button{display:flex;align-items:center;gap:12px;min-height:44px;padding:9px 12px;font:550 14px/1.4 Onest,system-ui,sans-serif}
 body.profile-page .is-owner-avatar .profile-avatar-menu button svg{flex:0 0 20px;width:20px;height:20px;stroke-width:1.7;color:#3d6eae}
 body.profile-page .is-owner-avatar .profile-avatar-menu .profile-avatar-menu-delete svg{color:#c04859}
 body.profile-page .profile-last-seen{display:block;margin:0;flex:none;align-self:flex-start;text-align:left;font:520 13px/1.5 "Onest",system-ui,sans-serif;color:#74839a}
@@ -3165,3 +3165,5 @@ body.profile-page .ui-profile-more-panel-001 :is(#profile-block-toggle,#profile-
 body.profile-page .vatra-profile-all-posts-001{display:block;width:100%;padding:12px;border:1px solid #dce5f2;background:#f5f8fd;color:#285eae;font:650 14px/1.4 Onest,system-ui,sans-serif;border-radius:10px;cursor:pointer;margin-bottom:12px}
 body.profile-page #profile-posts .feed-post-card{scroll-margin-top:90px}
 @media(max-width:600px){body.profile-page .profile-actions:not([hidden]){gap:7px}body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]),body.profile-page .profile-actions .ui-profile-more-menu-001>.vatra-profile-more-trigger-001,body.profile-page .profile-actions>.vatra-profile-contact-button-001:not([hidden]){font-size:13px;padding-inline:12px}body.profile-page .ui-profile-more-panel-001{right:auto;left:0;width:min(300px,calc(100vw - 40px));max-width:calc(100vw - 40px)}}
+
+body.profile-page .profile-content-panel:is([data-profile-panel="photos"],[data-profile-panel="videos"],[data-profile-panel="clips"],[data-profile-panel="communities"],[data-profile-panel="saved"],[data-profile-panel="archive-stories"],[data-profile-panel="archive-posts"]){padding-block:20px;gap:8px}

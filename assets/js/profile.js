@@ -2514,19 +2514,22 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const positionAvatarMenu=()=>{
   if(avatarMenu.hidden)return;
   const anchor=(canEdit?plus:avatarTrigger).getBoundingClientRect(),wrap=avatarWrap.getBoundingClientRect();
-  const viewport=window.visualViewport, left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=top+(viewport?.height||innerHeight);
-  const w=avatarMenu.offsetWidth,h=Math.max(avatarMenu.scrollHeight,avatarMenu.offsetHeight),gap=5,padding=12;
+  const viewport=window.visualViewport,left=viewport?.offsetLeft||0,viewportTop=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=viewportTop+(viewport?.height||innerHeight);
+  const top=Math.max(viewportTop,document.querySelector(".feed-header")?.getBoundingClientRect().bottom||0);
+  if(anchor.bottom<=top||anchor.top>=bottom){closeAvatarMenu();return false;}
+  const w=avatarMenu.offsetWidth,h=Math.max(avatarMenu.scrollHeight,avatarMenu.offsetHeight),gap=7,padding=10;
   const above=anchor.top-top-padding,below=bottom-anchor.bottom-padding;
   const upwards=below<h+gap&&above>below;
   const room=Math.max(44,(upwards?above:below)-gap);
   avatarMenu.style.setProperty("--avatar-menu-max-height",Math.floor(room)+"px");
   const height=Math.min(h,room);
-  const x=Math.max(left+padding,Math.min(anchor.right-w,right-padding-w));
+  const x=Math.max(left+padding,Math.min(wrap.left,right-padding-w));
   const y=upwards?Math.max(top+padding,anchor.top-gap-height):anchor.bottom+gap;
   avatarMenu.style.setProperty("--avatar-menu-left",Math.round(x-wrap.left)+"px");
   avatarMenu.style.setProperty("--avatar-menu-top",Math.round(y-wrap.top)+"px");
+  return true;
  };
- const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden)return;positionAvatarMenu();avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
+ const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden||positionAvatarMenu()===false)return;avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
  const repositionAvatarMenu=()=>{if(avatarWrap.classList.contains("is-menu-open"))positionAvatarMenu();};
  window.addEventListener("resize",repositionAvatarMenu,{passive:true});window.addEventListener("scroll",repositionAvatarMenu,{passive:true});window.visualViewport?.addEventListener("resize",repositionAvatarMenu,{passive:true});
  const scheduleMenuClose=()=>{clearTimeout(menuTimer);menuTimer=setTimeout(()=>{if(!avatarMenu.contains(document.activeElement))closeAvatarMenu();},160);};

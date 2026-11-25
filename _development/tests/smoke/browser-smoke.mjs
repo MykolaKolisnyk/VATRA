@@ -4127,7 +4127,7 @@ try{
     Number(getComputedStyle(icon).opacity)<.15;
   },null,{timeout:2400});
   assert.equal((await feedProbe.locator(".vatra-search-panel-heading-001").innerText()).trim(),
-   language==="en"?"Recently viewed":"Нещодавно переглянуті");
+   language==="en"?"Recent":"Нещодавні");
   assert.equal((await feedProbe.locator("#vatra-search-edit").innerText()).trim(),
    language==="en"?"Edit":"Редагувати");
   assert.equal(await feedProbe.locator("#feed-search-clear-input").isVisible(),false,
@@ -4168,7 +4168,7 @@ try{
    (menuGeometry.viewportWidth<=600?
     menuGeometry.left>=0&&menuGeometry.left<=12&&
     menuGeometry.right>=menuGeometry.viewportWidth-12:
-    Math.abs(menuGeometry.left-menuGeometry.searchLeft)<=6&&
+    menuGeometry.left<=menuGeometry.backLeft+2&&menuGeometry.backLeft-menuGeometry.left<=16&&
     menuGeometry.right>=menuGeometry.searchRight-1&&
     menuGeometry.right-menuGeometry.left<=790)&&
    menuGeometry.panelZ<menuGeometry.headerZ,
@@ -4750,6 +4750,10 @@ try{
   await profilePage.locator("#profile-avatar-menu").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0);
+  const avatarLayers=await profilePage.evaluate(()=>({avatar:Number(getComputedStyle(document.querySelector("#profile-avatar-wrap")).zIndex),header:Number(getComputedStyle(document.querySelector(".feed-header")).zIndex)}));
+  assert.ok(avatarLayers.avatar<avatarLayers.header,"Opening the avatar menu must never lift the avatar above the sticky header");
+  for(const panel of ["photos","videos","clips","communities","saved","archive-stories","archive-posts"])
+   assert.equal(await profilePage.locator('[data-profile-panel="'+panel+'"] > h2').count(),0,"Profile tabs must not duplicate their headings");
   const avatarMenuRect=await profilePage.locator("#profile-avatar-menu").boundingBox();
   assert.ok(avatarMenuRect&&avatarMenuRect.width>=200,
    "Avatar hover actions must not be clipped by the profile card");
@@ -5175,7 +5179,7 @@ try{
   assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
   await tileMenu.getByRole("button",{name:language==="en"?"Select multiple":"Вибрати декілька",exact:true}).click();
   await galleryTiles.nth(1).locator("[data-vatra-select-photo]").click();
-  assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),"2");
+  assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),"Вибрано: 2");
   await profilePage.locator(".vatra-album-bulk-more-001").click();
   await profilePage.locator(".vatra-album-bulk-menu-items-001 .vatra-albums-danger-001").click();
   await profilePage.locator(".ui-vatra-albums-confirm-001 .vatra-albums-danger-001").click();

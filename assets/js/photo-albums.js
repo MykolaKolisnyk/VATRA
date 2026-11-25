@@ -53,11 +53,10 @@
   const section=document.querySelector("#profile-photos-section");
   if(!section||section.dataset.vatraAlbumsReady==="true"||!validId(targetId))return;
   section.dataset.vatraAlbumsReady="true";
-  const heading=section.querySelector(".vatra-profile-photos-title-001");
   const gallery=section.querySelector("#profile-photo-gallery");
   const empty=section.querySelector("#profile-photos-empty");
   const more=section.querySelector("#profile-photos-more");
-  if(!heading||!gallery||!empty||!more)return;
+  if(!gallery||!empty||!more)return;
   const postPane=make("div","ui-vatra-albums-post-pane-001");
   const albumPane=make("div","ui-vatra-albums-pane-001");
   const albumGrid=make("div","ui-vatra-albums-grid-001");
@@ -78,7 +77,7 @@
   tabs.append(postTab,albumTab,archiveTab);controls.append(tabs,uploadDirect,create);
   postPane.append(gallery,empty,more,featured);
   albumPane.append(albumGrid);albumPane.hidden=true;
-  heading.after(controls,postPane,albumPane,archivePane);
+  section.prepend(controls,postPane,albumPane,archivePane);
   const uploadInput=make("input","ui-vatra-albums-file-input-001");
   uploadInput.type="file";uploadInput.multiple=true;uploadInput.accept="image/jpeg,image/png,image/webp";uploadInput.hidden=true;
   section.append(uploadInput);
