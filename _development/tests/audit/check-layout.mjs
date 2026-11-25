@@ -1597,14 +1597,15 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  !profileBehavior.includes('header.append(archive,remove)'),
  "Only owners have one accessible three-dot menu with archive and delete");
 assert.ok(searchLogic.includes("const compact=vw<=600;")&&
- searchLogic.includes("expanded?790:505")&&
- searchLogic.includes("Math.min(inputBox.left,ox+vw-width-12)")&&
+ searchLogic.includes("compact?vw-12:expanded?790:Math.max(360,inputBox.right-left+12)")&&
+ searchLogic.includes("const left=compact?ox+6:Math.max(ox,anchor.left-12)")&&
+ searchLogic.includes("Math.min(ox+vw-left-(compact?6:12)")&&
  systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('.feed-top-controls{display:contents!important}')&&
  systemFeedCss.includes('.feed-top-controls > .feed-posts-section{')&&
  systemFeedCss.includes('grid-column:1;grid-row:3;width:100%;min-width:0;margin:0')&&
  systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
- "Search must align to its field without overflowing; Stories and Posts retain the Composer column; avatar is larger");
+ "Search must align to the header search area without overflowing; Stories and Posts retain the Composer column; avatar is larger");
 
 // A single rule touches the bottom of post content, above the SVG action counts.
 // Comments, shares and the composer do not add more divider lines.

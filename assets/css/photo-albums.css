@@ -1,6 +1,6 @@
 body.profile-page .ui-vatra-albums-controls-001{
  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
- margin:14px 0 18px;padding-bottom:14px;border-bottom:1px solid #e6ebf4
+ margin:0 0 8px;padding-bottom:12px;border-bottom:1px solid #e6ebf4
 }
 body.profile-page .ui-vatra-albums-tabs-001{display:flex;align-items:center;gap:5px;padding:4px;background:#f1f5fb;border-radius:12px}
 body.profile-page .vatra-albums-tab-001{

@@ -17,8 +17,8 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css?rev=f3e8e92084ebf3bfea34b4f8caa6776c36698654">
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=163dda687e778993477c96327b0d7d7085e48909">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=4be177ebd3bf24877605b08e09f8680f6b9cee1e">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=05371c09e54607d15cb5014ee192b92d34957fb3">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=cff4a1bc308710d5b02a6854267951c3b21c543f">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=77d3776dcb39fc17e9f868c36122ffdd9dadc074">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js?rev=7c52746afcface1a493074d53328a7a0b2abe2cd"></script>
@@ -30,10 +30,10 @@
     <script defer src="assets/js/notifications.js?rev=d588191f7743d6ee9ba9fce2acf3fad605d4f4de"></script>
     <script defer src="assets/js/gift-catalog.js?rev=3a4f84bd30f882272cdaa8436e9b4258137d81ee"></script>
     <script defer src="assets/js/guest-view.js?rev=3396dd0c3de7deed25f770ef52c38ae00117a3c5"></script>
-    <script defer src="assets/js/feature-loader.js?rev=c3e6b99ad08165e8978b9f686c15ca3e5bd887dd"></script>
-    <script defer src="assets/js/profile.js?rev=b35699cba78d0f461e4d10a3b2072687acd55bb4"></script>
+    <script defer src="assets/js/feature-loader.js?rev=c96a6153112e20ef434d375b92a03e90c67c06fe"></script>
+    <script defer src="assets/js/profile.js?rev=da83b82fb8039de534024ae1823b185be7653a14"></script>
     <script defer src="assets/js/network.js"></script>
-    <script defer src="assets/js/social-shell.js?rev=d51ecce833beea40715c17afec70c67ef9c340f3"></script>
+    <script defer src="assets/js/social-shell.js?rev=b0a6c25393d2861dc7b28b54c7bc95282436f6c9"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
     <meta name="application-name" content="VATRA">
     <meta name="apple-mobile-web-app-title" content="VATRA">
@@ -251,7 +251,7 @@
                 </h2>
                 <p id="profile-about-text" class="vatra-profile-about-text-001" hidden></p>
                 <div id="profile-about-empty" class="profile-about-empty ui-profile-about-empty-001" hidden>
-                  <svg class="ui-profile-about-empty-icon-001" viewBox="0 0 32 32" width="31" height="31" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-profile-about-empty-circle-001" cx="16" cy="16" r="11"/><path class="ui-profile-about-empty-lines-001" d="M12 15h8m-8 5h6M16 10v.1"/></svg>
+                  <svg class="ui-profile-about-empty-icon-001" viewBox="0 0 32 32" width="31" height="31" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-profile-about-empty-card-001" x="4.5" y="6" width="23" height="20" rx="4"/><circle class="ui-profile-about-empty-person-001" cx="11.5" cy="13" r="3"/><path class="ui-profile-about-empty-lines-001" d="M6.8 22v-1a4.7 4.7 0 0 1 9.4 0v1M19 12h5M19 16h5M19 20h3"/></svg>
                   <p class="vatra-profile-about-empty-label-001" data-social-uk="Інформації поки немає." data-social-en="No information yet.">Інформації поки немає.</p>
                 </div>
               </aside>
@@ -314,9 +314,6 @@
               </p>
             </section>
             <section id="profile-photos-section" class="profile-content-panel ui-profile-photos-section-001" data-profile-panel="photos" role="tabpanel" aria-labelledby="profile-tab-photos" hidden>
-              <h2 class="vatra-profile-photos-title-001" data-social-uk="Фотографії" data-social-en="Photos">
-                Фотографії
-              </h2>
               <div id="profile-photo-gallery" class="profile-media-gallery ui-profile-photo-gallery-001" aria-live="polite">
               </div>
               <p id="profile-photos-empty" class="vatra-profile-photos-empty-text-001" hidden>
@@ -324,7 +321,6 @@
               <button id="profile-photos-more" class="vatra-profile-photos-more-001" type="button" hidden>Показати ще</button>
             </section>
             <section id="profile-videos-section" class="profile-content-panel ui-profile-videos-section-001" data-profile-panel="videos" role="tabpanel" aria-labelledby="profile-tab-videos" hidden>
-              <h2 class="vatra-profile-videos-title-001" data-social-uk="Відео" data-social-en="Videos">Відео</h2>
               <div id="profile-video-gallery" class="profile-media-gallery ui-profile-video-gallery-001" aria-live="polite">
               </div>
               <p id="profile-videos-empty" class="vatra-profile-videos-empty-001" hidden>
@@ -332,14 +328,11 @@
               <button id="profile-videos-more" class="vatra-profile-videos-more-001" type="button" hidden data-social-uk="Показати ще" data-social-en="Show more">Показати ще</button>
             </section>
             <section id="profile-clips-section" class="profile-content-panel ui-profile-clips-section-001" data-profile-panel="clips" role="tabpanel" aria-labelledby="profile-tab-clips" hidden>
-              <h2 class="vatra-profile-clips-title-001" data-social-uk="Кліпи" data-social-en="Clips">Кліпи</h2>
               <div id="profile-clips-gallery" class="profile-media-gallery ui-profile-clips-gallery-001" aria-live="polite"></div>
               <p id="profile-clips-empty" class="vatra-profile-clips-empty-001" hidden>Кліпів поки немає.</p>
               <button id="profile-clips-more" class="vatra-profile-clips-more-001" type="button" hidden data-social-uk="Показати ще" data-social-en="Show more">Показати ще</button>
             </section>
             <section id="profile-communities-section" class="profile-content-panel ui-profile-communities-section-001" data-profile-panel="communities" role="tabpanel" aria-labelledby="profile-tab-communities" hidden>
-              <h2 class="vatra-profile-communities-heading-001" data-social-uk="Спільноти" data-social-en="Communities">Спільноти</h2>
-              <p class="vatra-profile-communities-description-001" data-social-uk="Спільноти, на які підписаний користувач" data-social-en="Communities followed by this member">Спільноти, на які підписаний користувач</p>
               <div id="profile-communities-list" class="profile-community-grid ui-profile-community-grid-001" aria-live="polite"></div>
               <p id="profile-communities-empty" class="vatra-profile-communities-empty-001" hidden></p>
             </section>
@@ -351,27 +344,18 @@
               <p id="profile-gifts-empty" class="vatra-profile-gifts-empty-001" hidden></p>
             </section>
             <section id="profile-saved-section" class="profile-content-panel ui-profile-saved-section-001" data-profile-panel="saved" role="tabpanel" aria-labelledby="profile-tab-saved" hidden>
-              <h2 class="vatra-profile-saved-heading-001" data-social-uk="Збережене" data-social-en="Saved">
-                Збережене
-              </h2>
               <div id="profile-saved-list" class="profile-extra-list ui-profile-saved-list-001" aria-live="polite">
               </div>
               <p id="profile-saved-empty" class="vatra-profile-saved-empty-001" hidden>
               </p>
             </section>
             <section id="profile-archive-stories-section" class="profile-content-panel ui-profile-archive-stories-section-001" data-profile-panel="archive-stories" role="tabpanel" aria-label="Архів історій" hidden>
-              <h2 class="vatra-profile-archive-stories-heading-001" data-social-uk="Архів історій" data-social-en="Story archive">
-                Архів історій
-              </h2>
               <div id="profile-archive-stories-list" class="profile-extra-list ui-profile-archive-stories-list-001" aria-live="polite">
               </div>
               <p id="profile-archive-stories-empty" class="vatra-profile-archive-stories-empty-001" hidden>
               </p>
             </section>
             <section id="profile-archive-posts-section" class="profile-content-panel ui-profile-archive-posts-section-001" data-profile-panel="archive-posts" role="tabpanel" aria-label="Архів публікацій" hidden>
-              <h2 class="vatra-profile-archive-posts-heading-001" data-social-uk="Архів публікацій" data-social-en="Post archive">
-                Архів публікацій
-              </h2>
               <div id="profile-archive-posts-list" class="profile-extra-list ui-profile-archive-posts-list-001" aria-live="polite">
               </div>
               <p id="profile-archive-posts-empty" class="vatra-profile-archive-posts-empty-001" hidden>
