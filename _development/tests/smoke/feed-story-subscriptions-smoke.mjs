@@ -11,7 +11,11 @@ const storiesEnd=feed.indexOf(" function bindComposer(){",storiesStart);
 assert.ok(subscriptionsStart>=0&&subscriptionsEnd>subscriptionsStart&&
  storiesStart>subscriptionsEnd&&storiesEnd>storiesStart,
  "Locate real Feed subscription and story loaders");
-const source=feed.slice(subscriptionsStart,subscriptionsEnd)+"\n"+
+const deadlineStart=feed.indexOf(" function feedDeadline(");
+const deadlineEnd=feed.indexOf(" async function init(){",deadlineStart);
+assert.ok(deadlineStart>=0&&deadlineEnd>deadlineStart,"Locate real Feed deadline helpers");
+const source=feed.slice(deadlineStart,deadlineEnd)+"\n"+
+ feed.slice(subscriptionsStart,subscriptionsEnd)+"\n"+
  feed.slice(storiesStart,storiesEnd);
 
 let now=Date.parse("2026-11-14T08:00:00Z");
@@ -79,7 +83,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
   subscriptionsLoadedAt:0,subscriptionsInflight:null,
   validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
   q:key=>key==="#feed-friend-stories"?holder:key===".feed-stories"?style:null,
-  requestAnimationFrame(fn){fn();},updateStoryArrow(){},feedDeadline:task=>Promise.resolve(task),
+  requestAnimationFrame(fn){fn();},updateStoryArrow(){},setTimeout,clearTimeout,
   loadPublicNames:async()=>{},loadAvatars:async()=>{},
   window:{VATRA_POST_MEDIA:{renderStory(){rendererCalls++;}}},
   memberName:id=>"Name "+id,initials:()=> "N",applyAvatar(){},
