@@ -4528,7 +4528,22 @@ try{
   assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"));
   assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
    "mailto:vatra.support@gmail.com");
-  assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),4);
+  const accountPanel=feedProbe.locator(".feed-account-dropdown");
+  const accountProfileGroup=accountPanel.locator(":scope > .ui-vatra-account-profile-group-001");
+  assert.equal(await accountProfileGroup.count(),1);
+  assert.equal(await accountPanel.locator(":scope > a").count(),2,
+   "Support and Settings are the only standalone account links");
+  assert.equal(await accountPanel.locator("a").count(),4,
+   "Profile, VATRA ID, Support and Settings must remain available");
+  assert.deepEqual(await accountProfileGroup.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-account-profile")?"profile":link.classList.contains("vatra-account-manage-001")?"manage":"unexpected")),["profile","manage"],
+   "VATRA ID must be directly below My Profile in the same group");
+  const manageAccount=accountProfileGroup.locator(".vatra-account-manage-001");
+  assert.ok(await manageAccount.isVisible());
+  assert.equal(await manageAccount.evaluate(link=>new URL(link.href).pathname),"/VATRA/vatra-id");
+  assert.equal(await manageAccount.locator(".ui-vatra-account-id-symbol-001").count(),1);
+  assert.equal((await manageAccount.locator(".vatra-account-id-label-001").textContent()).trim(),"ID");
+  assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
+   "Support must precede Settings in the account menu");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
    "Account menu contains logout and the tutorial replay action");
   assert.equal(await feedProbe.locator("#vatra-onboarding-replay").count(),1);
@@ -4554,28 +4569,36 @@ try{
     height:innerHeight,headerBottom:header.bottom,headerRight:header.right,
     toggleRight:document.querySelector(".feed-account-toggle").getBoundingClientRect().right,
     toggleBottom:document.querySelector(".feed-account-toggle").getBoundingClientRect().bottom,
+    rightEdge:document.documentElement.clientWidth,bottomRightRadius:getComputedStyle(dropdown).borderBottomRightRadius,topRightRadius:getComputedStyle(dropdown).borderTopRightRadius,
     positioned:!!dropdown.style.getPropertyValue("--vatra-account-dropdown-top")};
   });
   await feedProbe.waitForFunction(()=>
    !!document.querySelector(".feed-account-dropdown").style.getPropertyValue("--vatra-account-dropdown-top"));
+  await feedProbe.waitForFunction(()=>{
+   const menu=document.querySelector(".feed-account-dropdown").getBoundingClientRect();
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   return Math.abs(menu.top-header.bottom)<=2&&Math.abs(menu.right-document.documentElement.clientWidth)<=2;
+  });
   const menuRect=await checkAccountGeometry();
-  assert.ok(menuRect.left>=0&&menuRect.right<=menuRect.width+1&&
+  assert.ok(menuRect.left>=-1&&menuRect.right<=menuRect.rightEdge+1&&
    menuRect.top>=0&&menuRect.bottom<=menuRect.height+1&&
-   menuRect.top>=menuRect.toggleBottom+2&&
-   Math.abs(menuRect.right-menuRect.toggleRight)<=4,
-   "Account menu must appear under the avatar button: "+JSON.stringify(menuRect));
+   Math.abs(menuRect.top-menuRect.headerBottom)<=2&&
+   Math.abs(menuRect.right-menuRect.rightEdge)<=2&&
+   menuRect.bottomRightRadius==="0px"&&menuRect.topRightRadius==="0px",
+   "Account menu must meet the header and right viewport edge without rounded right corners: "+JSON.stringify(menuRect));
   assert.deepEqual(await navCenters(feedProbe),navBeforeMenu,
    "Opening account menu must not move header icons");
   const savedViewport=feedProbe.viewportSize();
   await feedProbe.setViewportSize({width:600,height:800});
   await feedProbe.waitForFunction(()=>{
    const menu=document.querySelector(".feed-account-dropdown").getBoundingClientRect();
-   const toggle=document.querySelector(".feed-account-toggle").getBoundingClientRect();
-   return menu.top>=toggle.bottom+2&&Math.abs(menu.right-toggle.right)<=4;
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   return Math.abs(menu.top-header.bottom)<=2&&Math.abs(menu.right-document.documentElement.clientWidth)<=2;
   },null,{timeout:3500});
   const mobileMenu=await checkAccountGeometry();
   assert.ok(Math.abs(mobileMenu.top-mobileMenu.headerBottom)<=2&&
-   Math.abs(mobileMenu.right-mobileMenu.toggleRight)<=4&&
+   Math.abs(mobileMenu.right-mobileMenu.rightEdge)<=2&&
+   mobileMenu.topRightRadius==="0px"&&mobileMenu.bottomRightRadius==="0px"&&
    mobileMenu.left>=-1&&mobileMenu.bottom<=mobileMenu.height+1,
    "Account menu must join the two-row mobile header too: "+JSON.stringify(mobileMenu));
   await feedProbe.setViewportSize(savedViewport);
