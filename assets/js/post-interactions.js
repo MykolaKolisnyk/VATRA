@@ -106,19 +106,19 @@
  function commentPageState(client){
   let state=commentPageCaches.get(client);
   if(state)return state;
-  state={entries:new Map(),generation:0};
+  state={entries:new Map(),pending:new Map(),generation:0};
   commentPageCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
     if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
-    state.generation++;state.entries.clear();
+    state.generation++;state.entries.clear();state.pending.clear();
    });
   }
   return state;
  }
  function invalidateComments(client){
   const state=client&&commentPageCaches.get(client);
-  if(state){state.generation++;state.entries.clear();}
+  if(state){state.generation++;state.entries.clear();state.pending.clear();}
  }
  async function commentThreadPage(client,params){
   const {p_kind,p_post_id,p_sort,p_parent,p_offset,p_limit}=params||{};
@@ -131,15 +131,16 @@
    return {data:null,error:Error("Invalid comment page request")};
   const state=commentPageState(client),generation=state.generation;
   const key=JSON.stringify([p_kind,p_post_id,p_sort,p_parent,p_offset,p_limit]);
-  const previous=state.entries.get(key);
-  if(previous){
-   if(previous.pending){
+  const shared=state.pending.get(key);
+  if(shared){
     try{
-     const rows=await previous.pending;
+     const rows=await shared;
      if(state.generation!==generation)throw Error("Viewer changed");
      return {data:rows.map(row=>({...row})),error:null};
     }catch(error){return {data:null,error};}
-   }
+  }
+  const previous=state.entries.get(key);
+  if(previous){
    if(previous.expires>Date.now()){
     state.entries.delete(key);state.entries.set(key,previous);
     return {data:previous.rows.map(row=>({...row})),error:null};
@@ -153,20 +154,20 @@
    if(!Array.isArray(data))throw Error("Invalid comment page response");
    return data;
   })();
-  state.entries.set(key,{pending,expires:0});
-  while(state.entries.size>COMMENT_PAGE_MAX)
-   state.entries.delete(state.entries.keys().next().value);
+  state.pending.set(key,pending);
   try{
    const rows=await pending;
    if(state.generation!==generation)throw Error("Viewer changed");
-   if(state.entries.get(key)?.pending===pending){
+   if(state.pending.get(key)===pending){
     state.entries.delete(key);
     state.entries.set(key,{rows:rows.map(row=>({...row})),expires:Date.now()+COMMENT_PAGE_TTL_MS});
+    while(state.entries.size>COMMENT_PAGE_MAX)state.entries.delete(state.entries.keys().next().value);
    }
    return {data:rows.map(row=>({...row})),error:null};
   }catch(error){
-   if(state.entries.get(key)?.pending===pending)state.entries.delete(key);
    return {data:null,error};
+  }finally{
+   if(state.pending.get(key)===pending)state.pending.delete(key);
   }
  }
 
@@ -196,21 +197,25 @@
   bindEngagementAuth(client);
   const key=requested.map(post=>post.kind+":"+post.id).sort().join("|");
   let cache=engagementQueryCache.get(client);
-  if(!cache){cache=new Map();engagementQueryCache.set(client,cache);}
-  const previous=cache.get(key);
-  if(previous){
-   if(previous.pending){
+  if(!cache){cache={entries:new Map(),pending:new Map()};engagementQueryCache.set(client,cache);}
+  const shared=cache.pending.get(key);
+  if(shared){
     try{
-     const result=await previous.pending;
+     const result=await shared;
      return engagementQueryCache.get(client)===cache?new Map(result):new Map();
     }catch(_){return new Map();}
+  }
+  const previous=cache.entries.get(key);
+  if(previous){
+   if(previous.expires>Date.now()){
+    cache.entries.delete(key);cache.entries.set(key,previous);return new Map(previous.data);
    }
-   if(previous.expires>Date.now())return new Map(previous.data);
-   cache.delete(key);
+   cache.entries.delete(key);
   }
   const pending=(async()=>{
    const result=new Map();
    for(let i=0;i<requested.length;i+=24){
+    if(engagementQueryCache.get(client)!==cache)throw Error("Viewer changed");
     const {data,error}=await client.rpc("post_engagement_page",{
      p_posts:requested.slice(i,i+24)
     });
@@ -222,21 +227,21 @@
    }
    return result;
   })();
-  cache.set(key,{pending,expires:0});
+  cache.pending.set(key,pending);
   try{
    const result=await pending;
 
    if(engagementQueryCache.get(client)!==cache)return new Map();
    if(engagementQueryCache.get(client)===cache){
-    cache.delete(key);
-    cache.set(key,{data:new Map(result),expires:Date.now()+ENGAGEMENT_TTL_MS});
-    while(cache.size>ENGAGEMENT_MAX_PAGES)cache.delete(cache.keys().next().value);
+    cache.entries.delete(key);
+    cache.entries.set(key,{data:new Map(result),expires:Date.now()+ENGAGEMENT_TTL_MS});
+    while(cache.entries.size>ENGAGEMENT_MAX_PAGES)cache.entries.delete(cache.entries.keys().next().value);
    }
    return result;
   }catch(_){
-   if(engagementQueryCache.get(client)===cache)cache.delete(key);
-
    return new Map();
+  }finally{
+   if(cache.pending.get(key)===pending)cache.pending.delete(key);
   }
  }
 function appendAudience(container,level,isGroup=false){

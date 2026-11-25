@@ -101,3 +101,26 @@ const row=body=>({id,body,author_vatra_id:"12"});
  assert.equal(a.calls,2,"Invalid sort should not call RPC");
 }
 console.log("VATRA comment cache: single-flight, TTL, account isolation, writes and failure retry passed.");
+
+{
+ const a=fakeClient(),pages=Array.from({length:48},(_,i)=>commentThreadPage(a.client,{...params,p_offset:i}));
+ const duplicate=commentThreadPage(a.client,params);
+ assert.equal(a.calls,48,"Pending comments must survive pressure on settled cache");
+ while(a.requests.length)a.complete([row("ok")]);
+ await Promise.all([...pages,duplicate]);
+ assert.equal((await commentThreadPage(a.client,{...params,p_offset:47})).data[0].body,"ok");
+ assert.equal(a.calls,48);
+}
+{
+ const a=full.indexOf(" const engagementQueryCache="),b=full.indexOf("function appendAudience(",a);
+ const ctx={Map,WeakMap,WeakSet,Set,Date,Promise,validUUID:env.validUUID};
+ runInNewContext(full.slice(a,b)+"\nglobalThis.api={prefetchEngagement,engagementQueryCache};",ctx);
+ let calls=0;const finish=[],client={rpc(){calls++;return new Promise(resolve=>finish.push(resolve));}};
+ const posts=i=>[{id:"94fe25a7-77d5-4abf-b077-"+String(i).padStart(12,"0"),kind:"person"}];
+ const pages=Array.from({length:24},(_,i)=>ctx.api.prefetchEngagement(client,posts(i)));
+ const duplicate=ctx.api.prefetchEngagement(client,posts(0));
+ assert.equal(calls,24);
+ finish.forEach(resolve=>resolve({data:[],error:null}));
+ await Promise.all([...pages,duplicate]);
+ assert.equal(ctx.api.engagementQueryCache.get(client).entries.size,16);
+}
