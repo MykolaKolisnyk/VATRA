@@ -3008,12 +3008,6 @@ body.profile-page .vatra-profile-gifts-dialog-more-001[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){body.profile-page .ui-profile-photo-footer-menu-001,body.profile-page .vatra-profile-photo-tag-name-001{transition:none}}
 
 body.profile-page .ui-profile-photo-canvas-001 .profile-media-viewer-image{object-fit:contain;object-position:center}
-@media(hover:hover) and (pointer:fine){
- body.profile-page .ui-profile-photo-content-001 :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001):not([hidden]){opacity:0;pointer-events:none;transition:opacity .26s ease,color .16s ease,background .16s ease}
- body.profile-page .ui-profile-photo-content-001:hover :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001):not([hidden]),
- body.profile-page .ui-profile-photo-content-001:focus-within :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001):not([hidden]){opacity:1;pointer-events:auto}
- body.profile-page .ui-profile-photo-content-001:hover :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001):disabled{opacity:.28;pointer-events:none}
-}
 @media(prefers-reduced-motion:reduce){body.profile-page .ui-profile-photo-content-001 :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001){transition:none}}
 
 

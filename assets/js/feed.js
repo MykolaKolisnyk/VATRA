@@ -607,7 +607,7 @@
    }
    stage="metadata";
    const engagement=feedDeadline(Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||new Map()),4000).catch(error=>{reportFeedFailure("engagement",error);return new Map();});
-   await Promise.allSettled([
+   const metadata=Promise.allSettled([
     feedDeadline(loadPublicNames(page.map(p=>p.author_vatra_id)),4000),
     feedDeadline(loadAvatars(page.map(p=>p.author_vatra_id)),4000)
    ]);
@@ -624,6 +624,15 @@
    }
    if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}
    else posts.append(batch);
+   void metadata.then(()=>{
+    if(version!==feedRequestVersion)return;
+    const authors=new Map(page.map(post=>[post.kind+":"+post.id,String(post.author_vatra_id)]));
+    for(const card of posts.querySelectorAll(".feed-post-card[data-post-id]")){
+     const id=authors.get(card.dataset.postKind+":"+card.dataset.postId);if(!id)continue;
+     const name=card.querySelector(".feed-post-name");if(name){const label=name.querySelector(".vatra-verified-name-text")||name;if(label.textContent!==memberName(id))label.textContent=memberName(id);}
+     applyAvatar(card.querySelector(".feed-post-avatar"),id);
+    }
+   });
    const outstanding=[sourceState.person,sourceState.group].some(x=>x.queue.length||!x.done);
    more.hidden=!outstanding;
    displayEmpty();

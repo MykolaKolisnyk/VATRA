@@ -532,7 +532,7 @@ for(const n of ["01","02","03"]){
 assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  loginHeroSource.includes("Math.random()")&&loginHeroSource.includes("i!==current")&&
  loginHeroSource.includes("image.decode()")&&loginHeroSource.includes("visibilitychange")&&
- loginHeroSource.includes("!reduced.matches"),"Login hero must select randomly, preload the next image, and respect visibility and motion preferences");
+ signInCss.includes("@media(prefers-reduced-motion:reduce){.vatra-login-hero-layer-001{transition:none}}"),"Login hero rotates on visible pages; reduced motion removes only the animation");
 // Exercise the actual rotation script with a deterministic clock, image loading and random choice.
 {
  const {runInNewContext}=await import("node:vm");
@@ -575,8 +575,8 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  assert.equal(new Set([first,second,third]).size,3,"Show all three before repeating");
  doc.hidden=true;events.get("visibilitychange")();
  await tick(90_000);assert.equal(selected(),third,"Do not rotate in a hidden tab");
- doc.hidden=false;events.get("visibilitychange")();motion.matches=true;motion.change();
- await tick(90_000);assert.equal(selected(),third,"Respect reduced-motion preference");
+ doc.hidden=false;events.get("visibilitychange")();motion.matches=true;
+ await tick(30_000);assert.notEqual(selected(),third,"Reduced motion must not stop rotation");
 }
 
 assert.ok(

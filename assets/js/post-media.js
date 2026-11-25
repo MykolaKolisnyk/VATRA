@@ -711,7 +711,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
-    clearPhotoSlide(mediaDialogContent);photoLoads.get(mediaDialogContent)?.abort();delete mediaDialogContent.dataset.photoMatte;
+    clearPhotoSlide(mediaDialogContent);photoLoads.get(mediaDialogContent)?.abort();mediaDialogContent.ontouchstart=mediaDialogContent.ontouchcancel=mediaDialogContent.ontouchend=null;delete mediaDialogContent.dataset.photoMatte;
     mediaDialogContent.replaceChildren();restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();mediaFooterDelete.hidden=true;
    });
    document.body.append(mediaDialog);
@@ -1009,6 +1009,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    try{
     const initial=await signed(client,current.media_kind,current.media_path);
     if(!slot.isConnected)return;
+    feedPhotoSession?.abort();feedPhotoSession=null;photoSourceTicket++;photoSourceCleanup?.();photoSourceCleanup=null;
     openFullMedia(initial,current.media_kind,container,post,client,false,0,current.media_path);
    }catch(_){return;}
    const controller=new AbortController();
@@ -1070,8 +1071,8 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
  const feedPhotoCards=new WeakMap();
  let feedPhotoSession=null;
  function isFeedPhotoCard(card){
-  const root=document.querySelector("#feed-posts");
-  return !!root&&card.parentElement===root&&card.matches(".feed-post-card");
+  const root=card.closest("#feed-posts,#profile-posts");
+  return !!root&&card.matches(".feed-post-card");
  }
  function registerFeedPhotos(client,post,card){
   if(!card.matches(".feed-post-card"))return;
@@ -1082,13 +1083,15 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
  }
  async function openFeedPhoto(client,card,path){
   if(!isFeedPhotoCard(card))return;
-  const entries=[...document.querySelector("#feed-posts").children].flatMap(container=>{
+  const root=card.closest("#feed-posts,#profile-posts");
+  const entries=[...root.querySelectorAll(".feed-post-card")].flatMap(container=>{
    const record=feedPhotoCards.get(container);
    return record?.client===client?record.items.map(item=>({container,post:record.post,item})):[];
   });
   let index=entries.findIndex(entry=>entry.container===card&&entry.item.media_path===path);
   if(index<0)return;
   feedPhotoSession?.abort();
+  photoSourceTicket++;photoSourceCleanup?.();photoSourceCleanup=null;
   const controller=new AbortController();feedPhotoSession=controller;
   let busy=false;
   const current=()=>!controller.signal.aborted;
@@ -1261,10 +1264,15 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
    const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d",dir<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6");svg.append(path);button.append(svg);button.disabled=dir<0?index===0:index>=total-1&&!hasMore;button.hidden=total<2&&!hasMore;button.onclick=()=>step(dir);return button;});
   const count=document.createElement("span");count.className="vatra-post-gallery-counter-001";count.textContent=(index+1)+" / "+total+(hasMore?"+":"");count.hidden=total<2&&!hasMore;stage.append(...buttons,count);
+  let start=null;
+  stage.ontouchstart=event=>{start=event.touches.length===1&&!event.target?.closest?.("button,video")?{x:event.touches[0].clientX,y:event.touches[0].clientY}:null;};
+  stage.ontouchcancel=()=>{start=null;};
+  stage.ontouchend=event=>{const p=start;start=null;if(!p||event.changedTouches.length!==1)return;const touch=event.changedTouches[0],dx=touch.clientX-p.x,dy=touch.clientY-p.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.4)step(dx<0?1:-1);};
  }
  async function openPostPhoto(client,post,item,settings={}){
   if(!client||!post||item?.media_kind!=="image"||
    !name(item?.media_path,"image",post.author_vatra_id))return;
+  feedPhotoSession?.abort();feedPhotoSession=null;
   const ticket=++photoSourceTicket;let src;
   try{src=await signed(client,"image",item.media_path);}catch(_){return;}
   if(ticket!==photoSourceTicket)return;
@@ -1334,7 +1342,8 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      }finally{stepping=false;}
     };
     photoNavigation(mediaDialogContent,Math.max(0,index),items.length,step,!!settings.hasMore?.());
-    mediaDialog.addEventListener("keydown",event=>{if(event.target.closest("textarea,input,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}},{signal:controller.signal});
+    if(!mediaDialog.contains(document.activeElement))mediaDialog.querySelector(".vatra-post-media-close-001")?.focus({preventScroll:true});
+    mediaDialog.addEventListener("keydown",event=>{if(event.target?.closest?.("textarea,input,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}},{signal:controller.signal});
     if(String(settings.ownId)===String(post.author_vatra_id)&&settings.removePhoto){mediaFooterDelete.hidden=false;mediaFooterDelete.onclick=()=>settings.removePhoto(post,item);}
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}

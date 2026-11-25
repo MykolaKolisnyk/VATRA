@@ -74,12 +74,12 @@ assert.ok(
  "Photo viewers must share the footer, preserve owner permissions, move Save into actions, and show red likes"
 );
 assert.ok(
- profileCss.includes("ui-profile-photo-content-001:hover")&&
+ !profileCss.includes("ui-profile-photo-content-001:hover :is(.vatra-profile-avatar-prev-001")&&
  postCss.includes("ui-vatra-post-media-viewer-content-001:hover")&&
  profile.includes("file.size>31457280")&&
  postMedia.includes("limit:31457280")&&
  postInteractions.includes("31457280"),
- "Photo uploads must respect the new 30 MB bucket limit and gallery arrows must fade on hover"
+ "Photo uploads must respect the 30 MB bucket limit and gallery arrows remain accessible"
 );
 assert.ok(
  profile.includes('ui-profile-photo-empty-state-001')&&
