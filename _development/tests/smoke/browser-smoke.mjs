@@ -3730,21 +3730,35 @@ try{
   const firstFeedPhoto=feedProbe.locator("#feed-nav-fixture-1 .vatra-feed-post-media-open-001");
   await feedProbe.locator("#feed-nav-fixture-1").scrollIntoViewIfNeeded();await firstFeedPhoto.click();
   const feedViewer=feedProbe.locator("#vatra-post-media-viewer"),feedCounter=feedViewer.locator(".vatra-post-gallery-counter-001");
+  await feedViewer.waitFor({state:"visible"});
+  assert.equal(await feedViewer.locator(".vatra-post-gallery-nav-next:visible,.vatra-post-gallery-nav-prev:visible,.vatra-post-gallery-counter-001:visible").count(),0,"Single post photo has no gallery navigation");
+  await feedProbe.keyboard.press("ArrowRight");
+  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
+  await feedProbe.keyboard.press("Escape");
+  await feedProbe.evaluate(async()=>{
+   const {client,item}=window.__vatraWebpFixture,card=document.querySelector("#feed-nav-fixture-1");
+   card.querySelector(".feed-post-media")?.remove();
+   const second={...item};
+   second.media_path=item.media_path.replace(/\.webp$/,"-second.webp");
+   await window.VATRA_POST_MEDIA.mount(client,{id:card.dataset.postId,author_vatra_id:"12",kind:"person",body:"FeedAlpha",media_items:[item,second]},card);
+  });
+  await feedProbe.locator("#feed-nav-fixture-1 .vatra-post-gallery-tile").first().click();
   await feedCounter.waitFor({state:"attached"});assert.equal(await feedCounter.textContent(),"1 / 2");
   const feedNext=feedViewer.locator(".vatra-post-gallery-nav-next");
   assert.equal(await feedNext.isDisabled(),false);
   await feedViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
   await feedNext.click();
   await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");
-  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedBeta");
-  assert.ok((await feedViewer.locator(".vatra-post-media-footer-open-post-001").getAttribute("data-href")).includes("00000000-0000-4000-8000-000000000002"));
-  assert.ok(await feedViewer.evaluate(dialog=>dialog.contains(document.activeElement)),"Feed navigation must keep keyboard focus inside the viewer");
+  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
+  assert.ok((await feedViewer.locator(".vatra-post-media-footer-open-post-001").getAttribute("data-href")).includes("00000000-0000-4000-8000-000000000001"));
+  assert.equal(await feedNext.isDisabled(),true);
+  await feedProbe.keyboard.press("ArrowRight");
+  assert.equal(await feedCounter.textContent(),"2 / 2");
   await feedProbe.keyboard.press("ArrowLeft");
   await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
-  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
   await feedProbe.keyboard.press("Escape");
   await feedProbe.evaluate(()=>{document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
-  console.log("VATRA Feed photo navigation: next post, correct author and post link, keyboard back verified.");
+  console.log("VATRA Feed photo navigation: single photo isolation, same-post gallery and keyboard bounds verified.");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_COMPOSER_UI),false,

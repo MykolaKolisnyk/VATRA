@@ -1091,11 +1091,9 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
  }
  async function openFeedPhoto(client,card,path){
   if(!isFeedPhotoCard(card))return;
-  const root=card.closest("#feed-posts,#profile-posts");
-  const entries=[...root.querySelectorAll(".feed-post-card")].flatMap(container=>{
-   const record=feedPhotoCards.get(container);
-   return record?.client===client?record.items.map(item=>({container,post:record.post,item})):[];
-  });
+  const record=feedPhotoCards.get(card);
+  if(record?.client!==client)return;
+  const entries=record.items.map(item=>({container:card,post:record.post,item}));
   let index=entries.findIndex(entry=>entry.container===card&&entry.item.media_path===path);
   if(index<0)return;
   feedPhotoSession?.abort();
@@ -1114,7 +1112,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     const restoreNavigationFocus=direction&&mediaDialogContent.contains(document.activeElement);
     openFullMedia(url,"image",entry.container,entry.post,client,false,direction,entry.item.media_path);
     index=next;
-    photoNavigation(mediaDialogContent,index,entries.length,step);
+    if(entries.length>1)photoNavigation(mediaDialogContent,index,entries.length,step);
     if(restoreNavigationFocus||direction&&!mediaDialog.contains(document.activeElement)){
      const preferred=mediaDialogContent.querySelector(direction>0?".vatra-post-gallery-nav-next:not(:disabled)":".vatra-post-gallery-nav-prev:not(:disabled)");
      (preferred||mediaDialogContent.querySelector(".vatra-post-gallery-nav-prev:not(:disabled),.vatra-post-gallery-nav-next:not(:disabled)")||mediaDialog.querySelector(".vatra-post-media-close-001"))?.focus({preventScroll:true});
@@ -1133,7 +1131,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   mediaDialog.addEventListener("close",()=>controller.abort(),{once:true,signal:controller.signal});
   mediaDialog.addEventListener("keydown",event=>{
    if(event.target?.closest?.("input,textarea,select,[contenteditable]"))return;
-   if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}
+   if(entries.length>1&&(event.key==="ArrowLeft"||event.key==="ArrowRight")){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}
   },{signal:controller.signal});
  }
  async function mount(client,post,container){
