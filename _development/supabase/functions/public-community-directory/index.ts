@@ -3,6 +3,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient as createSupabaseClient } from "npm:@supabase/supabase-js@2.119.0";
 import { createClient as createRedisClient } from "npm:redis@5.0.1";
+import { redisDeadline } from "../_shared/redis-deadline.ts";
 
 type Community = {
   club_id: number;
@@ -41,7 +42,7 @@ async function redis() {
       client.on("error", () => {
         // Never print connection strings, credentials or public IP addresses.
       });
-      await client.connect();
+      await redisDeadline(() => client.connect(), () => client.destroy());
       return client;
     })().catch(() => {
       redisRetryAt = Date.now() + 60_000;
@@ -50,7 +51,7 @@ async function redis() {
     });
   }
   const connection = await redisConnection;
-  if (connection?.isOpen) return connection;
+  if (connection?.isReady) return connection;
   // A previously connected free-tier instance can close idle sockets.
   // Avoid hanging on an offline queue and reconnect after a short cooldown.
   redisConnection = null;
@@ -116,7 +117,7 @@ Deno.serve(async (request) => {
   const cache = await redis();
   if (cache) {
     try {
-      const raw = await cache.get(cacheKey);
+      const raw = await redisDeadline(() => cache.get(cacheKey), () => cache.destroy());
       if (raw) {
         const parsed: unknown = JSON.parse(raw);
         if (clubId === null) {
@@ -151,7 +152,7 @@ Deno.serve(async (request) => {
     if (!validateCommunity(data) || data.club_id !== clubId)
       return new Response("Unexpected community response", { status: 503, headers: CORS });
     if (cache) {
-      try { await cache.set(cacheKey, JSON.stringify(data), { EX: TTL_SECONDS }); }
+      try { await redisDeadline(() => cache.set(cacheKey, JSON.stringify(data), { EX: TTL_SECONDS }), () => cache.destroy()); }
       catch (_) { /* PostgreSQL remains authoritative if Redis is offline. */ }
     }
     return reply(data, cache ? "miss" : "disabled");
@@ -165,7 +166,7 @@ Deno.serve(async (request) => {
 
   const entries = validateCached(data) || [];
   if (cache) {
-    try { await cache.set(cacheKey, JSON.stringify(entries), { EX: TTL_SECONDS }); }
+    try { await redisDeadline(() => cache.set(cacheKey, JSON.stringify(entries), { EX: TTL_SECONDS }), () => cache.destroy()); }
     catch (_) { /* Redis outage never blocks a public directory. */ }
   }
   return reply(entries, cache ? "miss" : "disabled");

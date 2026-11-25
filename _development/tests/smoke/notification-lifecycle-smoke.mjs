@@ -111,13 +111,20 @@ assert.equal(badge.hidden,false);
 notices.start(second,"13");
 assert.equal(countCalls.length,3,"Starting the same viewer twice must be a no-op");
 assert.equal(guardStarts.length,2,"Same session must not recheck owner access");
+const fire=(name,event={})=>{for(const listener of listeners.filter(x=>x.name===name&&!x.opts?.signal?.aborted))listener.fn(event);};
+context.document.hidden=true;fire("visibilitychange");
+assert.equal(timers.size,0,"Hidden tabs must suspend notification polling");
+context.document.hidden=false;fire("visibilitychange");
+assert.equal(timers.size,1,"Foreground restores one poll timer");
+fire("pagehide",{persisted:true});assert.equal(timers.size,0);
+fire("pageshow",{persisted:true});assert.equal(timers.size,1);
 second.state.authHandler("SIGNED_OUT");
 assert.equal(context.window.VATRA_ADMIN_CONTEXT,undefined);
 assert.deepEqual(guardEnds,[["A","12"],["B","13"]]);
 assert.equal(notices.run(),null,"Sign-out must discard the viewer");
 assert.equal(badge.hidden,true);
 assert.equal(removedChannels.length,2);
-assert.equal(cleared.length,2);
+assert.equal(cleared.length,4);
 assert.equal(timers.size,0);
 
 const shown=Array.from({length:7},(_,i)=>({
@@ -227,7 +234,9 @@ console.log("VATRA notifications: in-flight coalescing, session teardown, no sta
  const dateLocales={uk:"uk-UA",en:"en-GB",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
  let locale="uk";
  class Clock extends Date{static now(){return fixedNow;}}
- const ctx={Date:Clock,Intl,Math,Object,Number,dateLocales,language:()=>locale,t:(uk,en)=>locale==="en"?en:uk};
+ let formatterCreations=0;
+ const CountingIntl={RelativeTimeFormat:function(...args){formatterCreations++;return new Intl.RelativeTimeFormat(...args);}};
+ const ctx={Date:Clock,Intl:CountingIntl,Math,Object,Number,dateLocales,language:()=>locale,t:(uk,en)=>locale==="en"?en:uk};
  const time=runInNewContext(section("const plural=(n,a,b,c)=>","const hrefFor=r=>")+"\ntimeValue;",ctx);
  const stamp=age=>new Date(fixedNow-age).toISOString();
  for(const code of ["pl","de","fr","it","ka","bg"]){
@@ -237,6 +246,7 @@ console.log("VATRA notifications: in-flight coalescing, session teardown, no sta
    assert.equal(time(stamp(age)),formatter.format(-amount,unit),code+" "+unit);
   }
  }
+ assert.equal(formatterCreations,6,"Reuse one formatter per supported locale");
  locale="uk";assert.equal(time(stamp(300000)),"5 хвилин тому");
  locale="en";assert.equal(time(stamp(7200000)),"2 hours ago");
  assert.equal(time("invalid"),"");
