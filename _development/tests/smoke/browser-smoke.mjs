@@ -4470,14 +4470,21 @@ try{
   assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();
-  const storiesFirst=await feedProbe.evaluate(()=>{
+  await feedProbe.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await feedProbe.waitForFunction(()=>window.scrollY<=1);
+  const storyGeometry=await feedProbe.evaluate(()=>{
    const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
    const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
-   return stories.top<composer.top&&composer.top<posts.top&&
-    stories.bottom<=composer.top+1&&stories.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   return {storiesTop:stories.top,storiesBottom:stories.bottom,composerTop:composer.top,
+    composerBottom:composer.bottom,postsTop:posts.top,headerBottom:header.bottom,scrollY:window.scrollY};
   });
-  assert.ok(storiesFirst,"Stories, then Composer, then posts");
+  assert.ok(storyGeometry.storiesTop<storyGeometry.composerTop&&
+   storyGeometry.composerBottom<=storyGeometry.postsTop+1&&
+   storyGeometry.storiesBottom<=storyGeometry.composerTop+1&&
+   storyGeometry.storiesTop>=storyGeometry.headerBottom-1,
+   "Stories, then Composer, then posts: "+JSON.stringify(storyGeometry));
   await feedProbe.locator(".ui-social-top-friends-001").hover();
   assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"true",
    "Each header icon needs a VATRA tooltip on hover");
