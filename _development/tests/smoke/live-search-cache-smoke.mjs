@@ -46,3 +46,11 @@ function viewer(label,{slow=false,fail=false}={}){
  const v=viewer("Fail",{fail:true});context.client=v.client;await assert.rejects(findSite("vatra"));await assert.rejects(findSite("vatra"));assert.equal(v.calls.length,2);
 }
 console.log("VATRA global search: single RPC, seven categories, cache TTL, viewer isolation, cancellation, exact input and errors passed.");
+
+{
+ const sql=await readFile("_development/supabase/search-site.sql","utf8");
+ assert.ok(sql.includes("exact_id::numeric<=9223372036854775807::numeric then exact_id::bigint"),"Exact ID conversion must guard bigint overflow");
+ assert.ok(sql.includes("p.vatra_id=q.exact_bigint")&&!sql.includes("p.vatra_id::text=q.exact_id"),"Exact search must compare the indexed bigint column directly");
+ assert.ok(sql.includes("where q.exact_id is not null")&&sql.includes("where q.exact_id is null and (p.display_name ilike q.pattern or p.status_text ilike q.pattern)"),"Numeric and pattern lookup branches must stay mutually exclusive");
+}
+console.log("VATRA server search: bounded numeric cast and separate exact lookup verified.");
