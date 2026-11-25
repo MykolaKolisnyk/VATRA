@@ -60,6 +60,9 @@ const timeValue=date=>{
  const y=Math.floor(days/365);return language()==="en"?y+" years ago":plural(y,"рік","роки","років")+" тому";
 };
 const hrefFor=r=>{
+ if(["member_post","member_story"].includes(r.kind)){
+  const u=new URL("id"+r.actor_vatra_id,root);u.searchParams.set(r.kind==="member_story"?"story":"post",r.target_id);return u.href;
+ }
  if(["friend_request","friend_accepted","friend_declined"].includes(r.kind))
   return new URL("id"+r.actor_vatra_id,root).href;
  if(["avatar","avatar_comment"].includes(r.target_kind)){
@@ -79,7 +82,9 @@ const notificationTemplates={
  post_like:["{name} вподобав вашу публікацію","{name} liked your post"],
  comment_like:["{name} вподобав ваш коментар","{name} liked your comment"],
  avatar_like:["{name} вподобав ваше фото профілю","{name} liked your profile photo"],
- avatar_comment_like:["{name} вподобав ваш коментар під фото","{name} liked your photo comment"]
+ avatar_comment_like:["{name} вподобав ваш коментар під фото","{name} liked your photo comment"],
+ member_post:["{name} поділився публікацією","{name} shared a post"],
+ member_story:["{name} поділився історією","{name} shared a story"]
 };
 const feminineEvents={
  friend_accepted:"{name} прийняла вашу заявку в друзі",
@@ -87,7 +92,9 @@ const feminineEvents={
  post_like:"{name} вподобала вашу публікацію",
  comment_like:"{name} вподобала ваш коментар",
  avatar_like:"{name} вподобала ваше фото профілю",
- avatar_comment_like:"{name} вподобала ваш коментар під фото"
+ avatar_comment_like:"{name} вподобала ваш коментар під фото",
+ member_post:"{name} поділилася публікацією",
+ member_story:"{name} поділилася історією"
 };
 const neutralEvents={
  friend_accepted:"Вашу заявку в друзі прийнято: {name}",
@@ -95,7 +102,9 @@ const neutralEvents={
  post_like:"Вашу публікацію вподобано: {name}",
  comment_like:"Ваш коментар вподобано: {name}",
  avatar_like:"Ваше фото профілю вподобано: {name}",
- avatar_comment_like:"Ваш коментар під фото вподобано: {name}"
+ avatar_comment_like:"Ваш коментар під фото вподобано: {name}",
+ member_post:"Нова публікація: {name}",
+ member_story:"Нова історія: {name}"
 };
 const messageFor=(kind,name,form)=>{
  const first=String(name||"").trim().split(/\s+/u)[0]||name;
@@ -242,7 +251,7 @@ async function noticePreviewURL(run,path){
 }
 async function enrichNotice(record,body,link){
  const run=notificationRun;
- if(!run||!["post_like","comment_like","avatar_like","avatar_comment_like"].includes(record.kind))return;
+ if(!run||!["post_like","comment_like","avatar_like","avatar_comment_like","member_post"].includes(record.kind))return;
  try{
   const kind=record.kind;let content=null,photoPath="",bucket="post-images";
   if(kind==="avatar_like"){
@@ -283,7 +292,7 @@ async function enrichNotice(record,body,link){
   if(run!==notificationRun||!body.isConnected)return;
   const excerpt=String(content?.body||"").trim().slice(0,175);
   const label=kind==="comment_like"||kind==="avatar_comment_like"?
-   t("Коментар: ","Comment: "):kind==="post_like"?t("Публікація: ","Post: "):"";
+   t("Коментар: ","Comment: "):["post_like","member_post"].includes(kind)?t("Публікація: ","Post: "):"";
   const card=make("div","vatra-notice-preview-001");
   card.textContent=excerpt?label+excerpt+(String(content.body).length>175?"…":""):
    kind==="avatar_like"?t("Фото профілю","Profile photo"):t("Переглянути публікацію","View the post");
