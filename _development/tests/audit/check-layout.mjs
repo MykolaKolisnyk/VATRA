@@ -535,7 +535,8 @@ assert.ok(
  "Landing description must remain translated and appear only once");
 assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
  css.includes('font-size:clamp(31px,2.55vw,40px)')&&
- css.includes("max-width:69ch")&&
+ signInCss.includes("max-width:54ch")&&
+ signInCss.includes("text-wrap:balance")&&
  css.includes(".intro-copy p{margin:0;color:var(--soft);font-size:15px"),
  "Landing columns and welcome description must be consistently readable");
 assert.ok(createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
@@ -2358,7 +2359,8 @@ assert.ok(landing.includes('id="saved-account-return" class="saved-account-retur
  en["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
  "Saved account must have a top-left return control, equal state heights and localized password guidance");
 assert.ok(css.includes('.signup-progress-segment:first-child')&&
- createAccountCss.includes('.signup-progress-segment:first-child,.create-account-page[data-create-account-step="2"] .signup-progress-segment:last-child{background:var(--blue)}')&&
+ createAccountCss.includes('.signup-progress-segment:first-child{background:#1648f0}')&&
+ createAccountCss.includes('.create-account-page[data-create-account-step="2"] .signup-progress-segment:last-child{background:#fa477d}')&&
  !createAccountCss.includes('#8759e5')&&
  !/\.signup-brand::?(?:before|after)\b/.test(createAccountCss)&&
  createAccountCss.includes('.signup-brand-art-halo{')&&
