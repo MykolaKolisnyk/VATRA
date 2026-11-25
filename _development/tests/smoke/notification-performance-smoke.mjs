@@ -74,13 +74,23 @@ console.log("VATRA notification previews: single-flight, reuse and stale viewer 
  await storyNotice.events.click();assert.equal(row.notify_stories,true);assert.equal(row.notify_posts,true);
  await postNotice.events.click();assert.equal(row.notify_posts,false);assert.equal(row.notify_stories,true);
  window.VATRA_AUTH_MEMBER_ID="3";await hideNews.events.click();assert.equal(row.hide_posts,false);
- const a=notices.indexOf("const hrefFor=r=>{"),b=notices.indexOf("const notificationTemplates=",a);
- const route={URL,root:"https://example.test/VATRA/",ownId:"2"};
+ const a=notices.indexOf("const interactionKinds="),b=notices.indexOf("const notificationTemplates=",a);
+ const route={URL,root:"https://example.test/VATRA/",ownId:"2",validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id))};
  runInNewContext(notices.slice(a,b)+"\nglobalThis.href=hrefFor;",route);
  const id="94fe25a7-77d5-4abf-b077-123456789012";
  assert.equal(route.href({kind:"member_post",actor_vatra_id:1,target_id:id}),route.root+"id1?post="+id);
  assert.equal(route.href({kind:"member_story",actor_vatra_id:1,target_id:id}),route.root+"id1?story="+id);
  assert.ok(feed.includes("!hiddenPostAuthors.has(id)"));
+ const post="94fe25a7-77d5-4abf-b077-123456789013",album="94fe25a7-77d5-4abf-b077-123456789014",photo="94fe25a7-77d5-4abf-b077-123456789015";
+ assert.equal(route.href({kind:"post_reply",actor_vatra_id:3,target_id:id,context_id:post,event_key:"post_reply:1:"+id}),route.root+"id1?post="+post+"&comment="+id);
+ assert.equal(route.href({kind:"post_comment",actor_vatra_id:3,target_id:id,context_id:post,event_key:"post_comment:1:"+id}),route.root+"id1?post="+post+"&comment="+id);
+ assert.equal(route.href({kind:"album_comment",actor_vatra_id:3,target_id:id,context_id:photo,event_key:"album_comment:1:"+album+":"+id+":3"}),route.root+"id1?album="+album+"&photo="+photo+"&comment="+id);
+ assert.equal(route.href({kind:"album_photo_like",actor_vatra_id:3,target_id:photo,context_id:photo,event_key:"album_photo_like:1:"+album+":"+photo+":3"}),route.root+"id1?album="+album+"&photo="+photo);
+ assert.equal(route.href({kind:"post_like",target_kind:"person",target_id:post}),route.root+"id2?post="+post);
+ assert.equal(route.href({kind:"post_reply",target_id:id,context_id:"invalid",event_key:"post_reply:1:"+id}),null);
+ assert.equal(route.href({kind:"comment_like",target_kind:"post_comment",target_id:id}),null);
+ const albums=await readFile("assets/js/photo-albums.js","utf8");
+ assert.ok(albums.includes('.eq("photo_id",photo.id).eq("id",linked).maybeSingle()'));
  assert.ok(profile.includes('if(exact)query=query.eq("id",requestedStory)'));
 }
 console.log("VATRA content preferences: lazy read, independent toggles, session isolation, feed exclusion and exact notification routes passed.");

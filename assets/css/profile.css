@@ -365,7 +365,7 @@ body.profile-page .profile-avatar-wrap.has-active-story::before{
  background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8)
 }
 body.profile-page .profile-avatar-menu{
- position:absolute;z-index:35;top:var(--avatar-menu-top,calc(100% + 9px));left:var(--avatar-menu-left,0);max-height:var(--avatar-menu-max-height,60dvh);overflow:auto;
+ position:absolute;box-sizing:border-box;z-index:35;top:var(--avatar-menu-top,calc(100% + 9px));left:var(--avatar-menu-left,0);max-height:var(--avatar-menu-max-height,60dvh);overflow:auto;
  display:flex;flex-direction:column;min-width:216px;max-width:calc(100vw - 28px);opacity:0;visibility:hidden;transform:translateY(-5px);pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s;
  gap:4px;padding:9px;border:1px solid #e2e8f3;border-radius:18px;
  background:#fff;box-shadow:0 18px 42px rgba(25,42,81,.16)
@@ -2703,7 +2703,7 @@ body.profile-page :is(.vatra-profile-editor-id-link-001,.vatra-profile-editor-ve
 body.profile-page .vatra-profile-cover-change-001{position:absolute;z-index:5;top:20px;right:20px;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;min-height:42px;border:0;border-radius:11px;background:rgba(25,37,57,.62);color:#fff;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .16s}
 body.profile-page .vatra-profile-cover-change-001[hidden],body.profile-page .vatra-profile-avatar-plus-001[hidden]{display:none!important}
 body.profile-page .profile-cover:hover .vatra-profile-cover-change-001,body.profile-page .profile-cover:focus-within .vatra-profile-cover-change-001,body.profile-page .vatra-profile-cover-change-001:focus-visible{opacity:1;pointer-events:auto}
-body.profile-page .vatra-profile-avatar-plus-001{position:absolute;z-index:9;right:4px;bottom:4px;width:28px;height:28px;display:grid;place-items:center;padding:0;border:2px solid #fff;border-radius:50%;background:var(--vatra-action-primary,#376de8);color:#fff;cursor:pointer;box-shadow:0 1px 4px #172b5020}
+body.profile-page .vatra-profile-avatar-plus-001{position:absolute;z-index:9;right:4px;bottom:4px;width:28px;height:28px;display:grid;place-items:center;scroll-margin-top:100px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--vatra-action-primary,#376de8);color:#fff;cursor:pointer;box-shadow:0 1px 4px #172b5020}
 body.profile-page .profile-avatar-wrap.is-owner-avatar .profile-avatar-trigger{cursor:pointer}
 body.profile-page .ui-profile-avatar-crop-dialog-001,body.profile-page .ui-profile-avatar-finish-dialog-001,body.profile-page .ui-profile-cover-edit-dialog-001{box-sizing:border-box;width:min(680px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:26px;border:1px solid #e1e7f1;border-radius:20px;background:#fff;color:#293951;box-shadow:0 24px 70px #172b5033;margin:auto}
 body.profile-page .ui-profile-avatar-crop-dialog-001::backdrop,body.profile-page .ui-profile-avatar-finish-dialog-001::backdrop,body.profile-page .ui-profile-cover-edit-dialog-001::backdrop{background:rgba(21,31,49,.62)}

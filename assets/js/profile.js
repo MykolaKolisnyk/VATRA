@@ -1177,7 +1177,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
   if(append)list.append(batch);else list.replaceChildren(batch);
   if(focusPost){
    const back=node("button","vatra-profile-all-posts-001",t("До всіх публікацій","All posts"));back.type="button";
-   back.addEventListener("click",()=>{const url=new URL(location.href);url.searchParams.delete("post");history.replaceState(history.state,"",url.href);void loadPosts(client,targetId,ownId,userId);});
+   back.addEventListener("click",()=>{const url=new URL(location.href);url.searchParams.delete("post");url.searchParams.delete("comment");history.replaceState(history.state,"",url.href);void loadPosts(client,targetId,ownId,userId);});
    list.prepend(back);
    requestAnimationFrame(()=>list.querySelector(".feed-post-card")?.scrollIntoView({block:"start",behavior:"auto"}));
   }
@@ -2563,14 +2563,14 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const viewport=window.visualViewport,left=viewport?.offsetLeft||0,viewportTop=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=viewportTop+(viewport?.height||innerHeight);
   const top=Math.max(viewportTop,document.querySelector(".feed-header")?.getBoundingClientRect().bottom||0);
   if(anchor.bottom<=top||anchor.top>=bottom){closeAvatarMenu();return false;}
-  const w=avatarMenu.offsetWidth,h=Math.max(avatarMenu.scrollHeight,avatarMenu.offsetHeight),gap=7,padding=10;
+  const w=avatarMenu.offsetWidth,h=Math.max(avatarMenu.scrollHeight+2,avatarMenu.offsetHeight),gap=7,padding=10;
   const above=anchor.top-top-padding,below=bottom-anchor.bottom-padding;
   const upwards=below<h+gap&&above>below;
   const room=Math.max(44,(upwards?above:below)-gap);
   avatarMenu.style.setProperty("--avatar-menu-max-height",Math.floor(room)+"px");
   const height=Math.min(h,room);
   const x=Math.max(left+padding,Math.min(wrap.left,right-padding-w));
-  const y=upwards?Math.max(top+padding,anchor.top-gap-height):anchor.bottom+gap;
+  const y=Math.max(top+padding,Math.min(upwards?anchor.top-gap-height:anchor.bottom+gap,bottom-padding-height));
   avatarMenu.style.setProperty("--avatar-menu-left",Math.round(x-wrap.left)+"px");
   avatarMenu.style.setProperty("--avatar-menu-top",Math.round(y-wrap.top)+"px");
   return true;
