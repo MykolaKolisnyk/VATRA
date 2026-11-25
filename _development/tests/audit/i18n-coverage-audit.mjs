@@ -614,3 +614,15 @@ for(const code of ["en",...codes]){
   code+": missing Clips translation: "+key);
 }
 console.log("VATRA Clips: complete dynamic label coverage in seven non-Ukrainian locales.");
+
+const homeMarkup=await readFile("index.html","utf8");
+for(const code of ["uk","en","pl","de","fr","it","ka","bg"]){
+ const meta=(await read(code)).__pages.index.meta;
+ assert.ok(meta.title.startsWith("VATRA — ")&&meta.title.length>15,code+": descriptive VATRA home title");
+ assert.equal(meta["og:title"],meta.title);assert.equal(meta["twitter:title"],meta.title);
+ assert.equal(meta["og:description"],meta.description);assert.equal(meta["twitter:description"],meta.description);
+ if(code==="uk"){
+  assert.ok(homeMarkup.includes("<title>"+meta.title+"</title>"));
+  assert.ok(homeMarkup.includes('<meta name="description" content="'+meta.description+'">'));
+ }
+}
