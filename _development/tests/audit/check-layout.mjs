@@ -372,12 +372,12 @@ assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("s
  network.includes('worker.addEventListener("controllerchange"')&&
  network.includes('if(!navigator.onLine||edited||document.querySelector("dialog[open]"))return'),
  "SW updates should refresh unedited pages without a hard reload");
-assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
- offline.includes('class="offline-brand ui-offline-brand-001"')&&
+assert.ok(!offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
+ !offline.includes("offline-brand ui-offline-brand-001")&&
+ !offline.includes("ui-offline-img-001")&&!offlineStyles.includes(".offline-brand")&&
  offline.includes('class="offline-actions ui-offline-actions-001"')&&
- offline.includes('class="ui-offline-img-001"')&&
  !offline.includes("logo.svg"),
- "Offline page must show only the self-contained V mark at the card top-left");
+ "Offline card must retain its actions without a standalone brand mark or orphaned logo styles");
 assert.ok(offline.includes('class="ui-offline-vatryk-001" src="assets/vatryk/vatryk_offline.webp"')&&
  offlineStyles.includes(".ui-offline-vatryk-001")&&!offlineStyles.includes(".offline-icon")&&
  !offline.includes("ui-offline-path-004")&&sw.includes('ROOT+"assets/vatryk/vatryk_offline.webp"')&&
