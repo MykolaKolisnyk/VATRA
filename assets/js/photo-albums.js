@@ -333,6 +333,7 @@
   photoLoading.setAttribute("role","status");
   photoContent.append(photoImage,photoLoading);
   photoImage.addEventListener("load",()=>{photoLoading.hidden=true;});
+  window.addEventListener("resize",()=>{if(photoDialog.open)window.VATRA_POST_MEDIA?.fitPhotoViewer(photoDialog,photoContent,photoImage,state.currentPhoto?.media_path);},{passive:true});
   photoImage.addEventListener("error",()=>{
    photoLoading.hidden=false;
    photoLoading.textContent=t("Не вдалося завантажити фотографію.","Could not load photograph.");
@@ -430,6 +431,7 @@
   photoDialog.append(photoStage,photoSide);
   photoDialog.addEventListener("click",e=>{if(e.target===photoDialog)photoDialog.close();});
   photoDialog.addEventListener("close",()=>{
+   window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete photoDialog.dataset.photoSized;delete photoContent.dataset.photoMatte;
    photoLikeTicket++;photoImage.removeAttribute("src");state.currentPhoto=null;photoMore.open=false;
    if(commentsBox.parentElement===photoSide){commentsDialog.append(commentsBox);commentsClose.hidden=false;}
   });
@@ -809,7 +811,8 @@
    menu.addEventListener("toggle",()=>{if(menu.open)for(const other of section.querySelectorAll(".ui-vatra-album-tile-menu-001[open]"))if(other!==menu)other.open=false;});
    return wrap;
   }
-  async function openPhoto(row,album){
+  async function openPhoto(row,album,direction=0){
+   const finishSlide=window.VATRA_POST_MEDIA?.beginPhotoSlide(photoContent,photoImage,direction);
    state.currentPhoto=row;paintDescription();
    photoCaption.textContent=album.is_personal?t("Фото користувача","Member photo"):
     t("Фото з альбому «","Photo from album “")+album.title+(lang()==="en"?"”":"»");
@@ -845,7 +848,7 @@
       next=currentItems()[index+dir];
      }
      const nextAlbum=state.albums.find(a=>a.id===next?.album_id);
-     if(next&&nextAlbum)await openPhoto(next,nextAlbum);
+     if(next&&nextAlbum)await openPhoto(next,nextAlbum,dir);
      else{photoContent.querySelectorAll(".vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-post-gallery-counter-001").forEach(el=>el.remove());window.VATRA_POST_MEDIA?.photoNavigation(photoContent,index,currentItems().length,step,hasMore());}
     }finally{stepping=false;}
    };
@@ -859,7 +862,7 @@
      if(photoDialog.open&&state.currentPhoto===row)void window.VATRA_VERIFIED?.attach?.(client,photoAuthorName,targetId);
     }catch(_){}
    })();
-   try{const url=await signedUrl(row.media_path);if(photoDialog.open&&state.currentPhoto===row)photoImage.src=url;}
+   try{const url=await signedUrl(row.media_path);if(photoDialog.open&&state.currentPhoto===row){photoImage.src=url;window.VATRA_POST_MEDIA?.watchPhotoViewer(photoDialog,photoContent,photoImage,row.media_path,finishSlide);}}
    catch(_){if(photoDialog.open&&state.currentPhoto===row){notify(t("Фото недоступне.","Photo unavailable."));photoDialog.close();}}
   }
   async function removePhoto(row=state.currentPhoto){
