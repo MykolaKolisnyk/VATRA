@@ -1968,7 +1968,8 @@ assert.ok(
 assert.ok(
  systemFeedCss.includes('width:min(calc(100% - 36px),1190px)!important')&&
  systemFeedCss.includes('grid-template-columns:minmax(0,1fr) 220px!important')&&
- systemFeedCss.includes('row-gap:13px!important')&&
+ systemFeedCss.includes('row-gap:var(--vatra-card-gap)!important')&&
+ systemProfileCss.includes('gap:var(--vatra-content-card-gap)!important')&&
  systemFeedCss.includes('.feed-main:has(.feed-status:not([hidden]))')&&
  systemFeedCss.includes('max-height:640px;object-fit:contain')&&
  systemFeedCss.includes('width:min(calc(100% - 24px),720px)!important')&&
