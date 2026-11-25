@@ -576,7 +576,7 @@
    new Map([...posts.querySelectorAll(".feed-post-card[data-post-id]")]
     .map(item=>[item.dataset.postKind+":"+item.dataset.postId,item])):null;
   if(reset){
-   if(!keepExisting)posts.replaceChildren();
+   if(!keepExisting){if(!posts.querySelector(".feed-post-placeholder")){posts.replaceChildren();for(let i=0;i<2;i++){const card=node("div","feed-post-placeholder ui-feed-post-placeholder-00"+(i+1));card.setAttribute("aria-hidden","true");card.append(node("span","feed-post-placeholder-head ui-feed-post-placeholder-head-00"+(i+1)),node("span","feed-post-placeholder-line ui-feed-post-placeholder-line-00"+(i+1)),node("span","feed-post-placeholder-line short ui-feed-post-placeholder-short-00"+(i+1)));posts.append(card);}}}
    visibleFeed=[];renderedIds=new Set();
    sourceState=makeSourceState();
    more.hidden=true;
@@ -634,6 +634,7 @@
    }
   }catch(error){
    if(version===feedRequestVersion){
+    posts.querySelectorAll(".feed-post-placeholder").forEach(el=>el.remove());
     reportFeedFailure(stage,error);
     const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>loadPosts(true)});
     if(reset){

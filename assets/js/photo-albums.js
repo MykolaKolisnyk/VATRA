@@ -216,7 +216,7 @@
    else queueMicrotask(()=>void revealImage(image));
   }
   function loading(el){
-   el.replaceChildren(make("p","vatra-albums-hint-001",t("Завантаження альбомів…","Loading albums…")));
+   const skeleton=make("div","vatra-section-skeleton-001 ui-vatra-album-skeleton-001");skeleton.dataset.layout="tiles";skeleton.setAttribute("aria-hidden","true");for(let i=0;i<6;i++){const item=make("span","vatra-section-skeleton-item-001");item.append(make("span","vatra-skeleton-block vatra-section-skeleton-visual-001"));skeleton.append(item);}el.replaceChildren(skeleton);
   }
   function albumUrl(id){
    const url=new URL(location.href);url.searchParams.set("album",id);url.searchParams.delete("photo");
@@ -332,13 +332,13 @@
   const photoStage=make("div","vatra-post-media-viewer-frame ui-vatra-album-viewer-stage-001");
   const photoImage=make("img","ui-vatra-post-expanded-image-001 ui-vatra-album-viewer-image-001");photoImage.alt=t("Фотографія","Photograph");
   const photoContent=make("div","ui-vatra-post-media-viewer-content-001 ui-vatra-album-viewer-media-001");
-  const photoLoading=make("div","vatra-album-photo-loading-001",t("Завантаження фотографії…","Loading photograph…"));
+  const photoLoading=make("div","vatra-album-photo-loading-001 vatra-skeleton-block is-skeleton");
   photoLoading.setAttribute("role","status");
   photoContent.append(photoImage,photoLoading);
   photoImage.addEventListener("load",()=>{photoLoading.hidden=true;});
   window.addEventListener("resize",()=>{if(photoDialog.open)window.VATRA_POST_MEDIA?.fitPhotoViewer(photoDialog,photoContent,photoImage,state.currentPhoto?.media_path);},{passive:true});
   photoImage.addEventListener("error",()=>{
-   photoLoading.hidden=false;
+   photoLoading.hidden=false;photoLoading.classList.remove("vatra-skeleton-block","is-skeleton");
    photoLoading.textContent=t("Не вдалося завантажити фотографію.","Could not load photograph.");
   });
   const photoSide=make("aside","ui-vatra-post-media-side-001 ui-vatra-album-photo-side-001 vatra-media-side-unified-001");
@@ -822,7 +822,7 @@
     t("Фото з альбому «","Photo from album “")+album.title+(lang()==="en"?"”":"»");
    photoDelete.hidden=!isMine;
    photoImage.removeAttribute("src");photoLiked=false;photoLikeCount=0;
-   photoLoading.hidden=false;photoLoading.textContent=t("Завантаження фотографії…","Loading photograph…");
+   photoLoading.hidden=false;photoLoading.classList.add("vatra-skeleton-block","is-skeleton");photoLoading.textContent="";
    photoLike.disabled=true;paintPhotoLike();
    photoMoreItems.replaceChildren(...photoActionButtons(row,album));
    photoAuthorImage.style.backgroundImage=state.avatar?.url?"url("+JSON.stringify(state.avatar.url)+")":"";

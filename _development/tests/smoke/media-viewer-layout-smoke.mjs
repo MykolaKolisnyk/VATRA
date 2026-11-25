@@ -261,3 +261,9 @@ console.log("VATRA media viewer layout checks passed.");
  assert.ok(profileCss.includes("overflow:hidden;padding:0"));
 }
 console.log("VATRA photos: fullscreen viewer, matte selection and directional transitions verified.");
+
+assert.ok(postMedia.includes('authorName.split(/\\s+/)[0]')&&postMedia.includes('function preparePhotoControls(')&&postCss.includes('transition:scale .24s')&&postCss.includes('.vatra-photo-viewer-brand-001'),"Photo viewer controls must be shared and personal captions use first names");
+{
+ const source=postMedia.match(/function photoZoomLevel\(value,step\)\{[^\n]+\}/)?.[0];assert.ok(source);const context={};runInNewContext(source+";globalThis.zoom=photoZoomLevel;",context);
+ let value=1;for(let i=0;i<20;i++)value=context.zoom(value,1);assert.equal(value,3);for(let i=0;i<20;i++)value=context.zoom(value,-1);assert.equal(value,1);assert.equal(context.zoom(1,1),1.25);
+}

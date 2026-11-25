@@ -1073,8 +1073,10 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
  if(!append){
 
   if(!list.querySelector(".feed-post-card")){
-   empty.textContent=t("Завантаження публікацій…","Loading posts…");
-   empty.hidden=false;
+   empty.hidden=true;
+   if(!list.querySelector(".feed-post-placeholder"))for(let i=0;i<2;i++){
+    const card=node("div","feed-post-placeholder ui-profile-post-placeholder-00"+(i+1));card.setAttribute("aria-hidden","true");card.append(node("span","feed-post-placeholder-head ui-profile-post-placeholder-head-00"+(i+1)),node("span","feed-post-placeholder-line ui-profile-post-placeholder-line-00"+(i+1)));list.append(card);
+   }
   }
   if(more)more.hidden=true;
  }
@@ -1679,11 +1681,12 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  });
  const firstName=value=>String(value||"").trim().split(/\s+/)[0]||t("Учасник","Member");
  const giftInfo=code=>window.VATRA_GIFTS_CATALOG?.byCode(code)||null;
- const loading=(el,value)=>{
-  el.replaceChildren(node("p","vatra-profile-mini-loading-001",value));
+ const loading=(el,layout,count)=>{
+  if(!el)return;const skeleton=node("div","vatra-section-skeleton-001 ui-vatra-profile-social-skeleton-001");skeleton.dataset.layout=layout;skeleton.setAttribute("aria-hidden","true");
+  for(let i=0;i<count;i++){const item=node("span","vatra-section-skeleton-item-001");item.append(node("span","vatra-skeleton-block vatra-section-skeleton-visual-001"));if(layout!=="tiles")item.append(node("span","vatra-skeleton-block vatra-section-skeleton-line-001"));skeleton.append(item);}el.replaceChildren(skeleton);
  };
- loading(friendsPreview,t("Завантаження друзів…","Loading friends…"));
- loading(giftsPreview,t("Завантаження подарунків…","Loading gifts…"));
+ loading(friendsPreview,"friends",4);
+ loading(giftsPreview,"tiles",3);
  let cachedFriends=[],cachedGifts=[],communitiesLoaded=false;
  let allFriendsPending=null,allGiftsPending=null;
  function personCard(member,compact){
@@ -1742,7 +1745,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   });
  }
  const showFriends=async()=>{
-  loading(friendsAll,t("Завантаження друзів…","Loading friends…"));
+  loading(friendsAll,"rows",4);
   try{
    if(!allFriendsPending){
     allFriendsPending=(async()=>{
@@ -1768,7 +1771,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  };
  window.VATRA_PROFILE_SHOW_FRIENDS=showFriends;
  const showGifts=async()=>{
-  loading(giftsAll,t("Завантаження подарунків…","Loading gifts…"));
+  loading(giftsAll,"tiles",6);
   try{
    if(!allGiftsPending){
     allGiftsPending=(async()=>{
@@ -1866,34 +1869,23 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
    previewEmpty("#profile-communities-empty",t("Не вдалося завантажити спільноти.","Could not load communities."));
   }
  };
- const jobs=await Promise.allSettled([
-  client.from("friendships").select("requester_id,recipient_id,created_at")
-   .eq("status","accepted")
-   .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
-   .order("created_at",{ascending:false}).limit(4),
-  client.from("profile_gifts").select("id,gift_code,created_at")
-   .eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).limit(3)
- ]);
- if(jobs[0].status==="fulfilled"&&!jobs[0].value.error){
-  cachedFriends=await resolveFriendships(jobs[0].value.data||[]);
-  friendsPreview.replaceChildren();
-  for(const friend of cachedFriends.slice(0,4))friendsPreview.append(personCard(friend,true));
-  toggleFriendActions(cachedFriends.length>0);
-  if(!cachedFriends.length)previewEmpty("#profile-friends-preview-empty",t("Друзів поки немає.","No friends yet."));
- }else{
-  friendsPreview.replaceChildren();
-  toggleFriendActions(false);
-  previewEmpty("#profile-friends-preview-empty",t("Друзі тимчасово недоступні.","Friends are temporarily unavailable."));
- }
- if(jobs[1].status==="fulfilled"&&!jobs[1].value.error){
-  cachedGifts=(jobs[1].value.data||[]).filter(x=>giftInfo(x.gift_code));
-  giftsPreview.replaceChildren();
-  for(const gift of cachedGifts.slice(0,3))giftsPreview.append(giftCard(gift,true));
-  if(!cachedGifts.length)previewEmpty("#profile-gifts-preview-empty",t("Подарунків поки немає.","No gifts yet."));
- }else{
-  giftsPreview.replaceChildren();
-  previewEmpty("#profile-gifts-preview-empty",t("Не вдалося завантажити подарунки.","Could not load gifts."));
- }
+ const previewFriends=(async()=>{
+  try{
+   const result=await client.from("friendships").select("requester_id,recipient_id,created_at").eq("status","accepted").or("requester_id.eq."+targetId+",recipient_id.eq."+targetId).order("created_at",{ascending:false}).limit(4);
+   if(result.error)throw result.error;cachedFriends=await resolveFriendships(result.data||[]);
+   friendsPreview.replaceChildren();for(const friend of cachedFriends.slice(0,4))friendsPreview.append(personCard(friend,true));toggleFriendActions(cachedFriends.length>0);
+   if(!cachedFriends.length)previewEmpty("#profile-friends-preview-empty",t("Друзів поки немає.","No friends yet."));
+  }catch(_){friendsPreview.replaceChildren();toggleFriendActions(false);previewEmpty("#profile-friends-preview-empty",t("Друзі тимчасово недоступні.","Friends are temporarily unavailable."));}
+ })();
+ const previewGifts=(async()=>{
+  try{
+   const result=await client.from("profile_gifts").select("id,gift_code,created_at").eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).limit(3);
+   if(result.error)throw result.error;cachedGifts=(result.data||[]).filter(x=>giftInfo(x.gift_code));giftsPreview.replaceChildren();
+   for(const gift of cachedGifts.slice(0,3))giftsPreview.append(giftCard(gift,true));
+   if(!cachedGifts.length)previewEmpty("#profile-gifts-preview-empty",t("Подарунків поки немає.","No gifts yet."));
+  }catch(_){giftsPreview.replaceChildren();previewEmpty("#profile-gifts-preview-empty",t("Не вдалося завантажити подарунки.","Could not load gifts."));}
+ })();
+ await Promise.allSettled([previewFriends,previewGifts]);
 }
 
 
@@ -2839,7 +2831,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    photoCommentHasMore=false;photoCommentSentinel.hidden=true;
   }
   commentList.setAttribute("aria-busy","true");photoCommentSentinel.hidden=true;
-  if(!append&&!reuse)feedback(t("Завантаження коментарів…","Loading comments…"));
+  if(!append&&!reuse){feedback("");const skeleton=node("div","vatra-section-skeleton-001 ui-vatra-avatar-comments-skeleton-001");skeleton.dataset.layout="rows";skeleton.setAttribute("aria-hidden","true");for(let i=0;i<3;i++){const row=node("span","vatra-section-skeleton-item-001");row.append(node("span","vatra-skeleton-block vatra-section-skeleton-visual-001"),node("span","vatra-skeleton-block vatra-section-skeleton-line-001"));skeleton.append(row);}commentList.append(skeleton);}
   try{
    const commentsPromise=avatarCommentPage(path,photoCommentSort,photoCommentOffset);
    const likesPromise=refreshLikes?Promise.all([
@@ -2908,7 +2900,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }catch(_){
    if(ticket===activityTicket)feedback(t("Коментарі поки недоступні.","Comments are temporarily unavailable."),true);
   }finally{
-   if(ticket===activityTicket){commentList.setAttribute("aria-busy","false");photoCommentLoading=false;}
+   if(ticket===activityTicket){commentList.querySelector(".ui-vatra-avatar-comments-skeleton-001")?.remove();commentList.setAttribute("aria-busy","false");photoCommentLoading=false;}
   }
  }
  
@@ -3015,7 +3007,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   interaction.hidden=false;activityTicket++;
   const displayName=String(q("#profile-heading").textContent||"").trim();
   const photoTitle=isMine?t("Фото профілю","Profile photo"):
-   t("Фото профілю ","Profile photo of ")+displayName;
+   t("Фото профілю ","Profile photo of ")+displayName.split(/\s+/)[0];
   mediaHeading.textContent=photoTitle;mediaHeading.hidden=true;
   mediaDialog.setAttribute("aria-label",photoTitle);
   mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
