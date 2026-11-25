@@ -192,7 +192,10 @@ try{
    ]){
     await viewerGeometryPage.mouse.move(1380,890);
     await stage.evaluate((el,value)=>{el.dataset.photoMatte=value;},matte);
+    await stage.hover();
+    await viewerGeometryPage.waitForFunction(({id,color})=>[...document.querySelectorAll("#arrow-"+id+" button")].every(el=>getComputedStyle(el).color===color),{id,color});
     for(const button of [left,right]){
+     await stage.hover();
      const actual=await button.evaluate(el=>({color:getComputedStyle(el).color,filter:getComputedStyle(el.querySelector("svg")).filter,background:getComputedStyle(el).backgroundColor}));
      assert.equal(actual.color,color,id+" "+matte+" navigation color");
      assert.ok(actual.filter.includes(outline),id+" "+matte+" navigation must have a contrasting outline");
