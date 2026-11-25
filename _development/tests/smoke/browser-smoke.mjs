@@ -4852,7 +4852,10 @@ try{
    const root=document.createElement("section");root.className="profile-identity";
    const profileName=document.createElement("h2");profileName.className="profile-name";profileName.textContent="Profile";
    const postName=document.createElement("a");postName.className="feed-post-name";postName.textContent="Post";
-   root.append(profileName,postName);document.body.append(root);
+   root.style.cssText="position:fixed;inset:24px auto auto 24px;display:block;width:260px;height:auto;z-index:100";
+   profileName.style.cssText="display:flex;align-items:center;position:static;visibility:visible";
+   postName.style.cssText="display:flex;align-items:center;position:static;visibility:visible";
+   root.append(profileName,postName);document.querySelector("#profile-media-viewer").append(root);
    await window.VATRA_VERIFIED.attach(client,profileName,"987654321");
    await window.VATRA_VERIFIED.attach(client,postName,"987654321");
    const interactive=profileName.querySelector(".vatra-verified-badge"),passive=postName.querySelector(".vatra-verified-badge");
