@@ -421,7 +421,7 @@
  function feedPageState(client){
   let state=feedPageCaches.get(client);
   if(state)return state;
-  state={entries:new Map(),generation:0,viewer:typeof user!=="undefined"?user?.id||null:null};
+  state={entries:new Map(),pending:new Map(),generation:0,viewer:typeof user!=="undefined"?user?.id||null:null};
   feedPageCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange((event,session)=>{
@@ -429,26 +429,27 @@
     const next=session?.user?.id||null;
     if(event==="SIGNED_IN"&&next&&next===state.viewer)return;
     state.viewer=next;
-    state.generation++;state.entries.clear();
+    state.generation++;state.entries.clear();state.pending.clear();
    });
   }
   return state;
  }
  function invalidateFeedPages(client){
   const state=client&&feedPageCaches.get(client);
-  if(state){state.generation++;state.entries.clear();}
+  if(state){state.generation++;state.entries.clear();state.pending.clear();}
  }
  async function readFeedPage(client,key,queryPage){
   const state=feedPageState(client),generation=state.generation;
-  const previous=state.entries.get(key);
-  if(previous){
-   if(previous.pending){
+  const shared=state.pending.get(key);
+  if(shared){
     try{
-     const rows=await previous.pending;
+     const rows=await shared;
      if(state.generation!==generation)throw Error("Viewer changed");
      return {data:rows.map(row=>({...row})),error:null};
     }catch(error){return {data:null,error};}
-   }
+  }
+  const previous=state.entries.get(key);
+  if(previous){
    if(previous.expires>Date.now()){
     state.entries.delete(key);state.entries.set(key,previous);
     return {data:previous.rows.map(row=>({...row})),error:null};
@@ -462,20 +463,20 @@
    if(!Array.isArray(data))throw Error("Invalid feed cursor response");
    return data;
   })();
-  state.entries.set(key,{pending,expires:0});
-  while(state.entries.size>FEED_PAGE_MAX)
-   state.entries.delete(state.entries.keys().next().value);
+  state.pending.set(key,pending);
   try{
    const rows=await pending;
    if(state.generation!==generation)throw Error("Viewer changed");
-   if(state.entries.get(key)?.pending===pending){
+   if(state.pending.get(key)===pending){
     state.entries.delete(key);
     state.entries.set(key,{rows:rows.map(row=>({...row})),expires:Date.now()+FEED_PAGE_TTL_MS});
+    while(state.entries.size>FEED_PAGE_MAX)state.entries.delete(state.entries.keys().next().value);
    }
    return {data:rows.map(row=>({...row})),error:null};
   }catch(error){
-   if(state.entries.get(key)?.pending===pending)state.entries.delete(key);
    return {data:null,error};
+  }finally{
+   if(state.pending.get(key)===pending)state.pending.delete(key);
   }
  }
  const makeSourceState=()=>({

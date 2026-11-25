@@ -140,3 +140,15 @@ console.log("VATRA Feed cursor: repeated same-account SIGNED_IN preserves author
  assert.equal(builders,5);assert.equal(requests,5,"Invalidation still fetches fresh authorized rows");
 }
 console.log("VATRA Feed: chronological merge, pagination, lazy query construction and invalidation passed.");
+
+{
+ const client={},finish=[];let requests=0;
+ const query=()=>{requests++;return new Promise(resolve=>finish.push(resolve));};
+ const pages=Array.from({length:40},(_,i)=>readFeedPage(client,"pressure-"+i,query));
+ const duplicate=readFeedPage(client,"pressure-0",query);
+ assert.equal(requests,40,"Pending cursor must survive pressure on settled cache");
+ finish.forEach(resolve=>resolve({data:[row("ok")],error:null}));
+ await Promise.all([...pages,duplicate]);
+ assert.equal((await readFeedPage(client,"pressure-39",query)).data[0].body,"ok");
+ assert.equal(requests,40);
+}
