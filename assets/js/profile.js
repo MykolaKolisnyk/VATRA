@@ -378,21 +378,23 @@
    notice.append(svg("lock"));
    const copy=make("div","ui-profile-locked-notice-content-001");
    copy.append(make("h2","vatra-profile-locked-heading-001",
-    blockAccess?.blockedByThem?
-     tr("Доступ до сторінки обмежено","Access to this profile is restricted"):
     blockAccess?.blockedByMe?
      tr("Ви заблокували цього користувача","You blocked this member"):
+    blockAccess?.blockedByThem?
+     tr("Доступ до сторінки обмежено","Access to this profile is restricted"):
      tr("Ця сторінка закрита","This profile is private")));
-   copy.append(make("p","vatra-profile-locked-description-001",
+   if(!blockAccess?.blockedByMe)copy.append(make("p","vatra-profile-locked-description-001",
     blockAccess?.blockedByThem?
      tr("Користувач обмежив вам доступ до своєї сторінки.",
       "This member has restricted your access to their profile."):
-    blockAccess?.blockedByMe?
-     tr("Ви можете розблокувати користувача за допомогою іконки вище.",
-      "Use the icon above to unblock this member."):
      tr("Публікації, фотографії та інформацію бачать лише друзі користувача.",
       "Only this member's friends can see posts, photos and personal information.")));
    notice.append(copy);
+   if(blockAccess?.blockedByMe){
+    const unblock=make("button","vatra-profile-unblock-direct-001",tr("Розблокувати","Unblock"));
+    unblock.id="profile-unblock-direct";unblock.type="button";notice.append(unblock);
+   }
+   select("#profile-last-seen")?.setAttribute("hidden","");
    select(".profile-hero")?.insertAdjacentElement("afterend",notice);
   }
   if(!isMine)return {locked};
@@ -1890,7 +1892,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
 
 
 function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
- const button=q("#profile-block-toggle"),moreMenu=q("#profile-more-menu");
+ const button=q("#profile-block-toggle"),moreMenu=q("#profile-more-menu"),direct=q("#profile-unblock-direct");
  if(!button||isMine||!validId(ownId)||!validId(targetId))return;
  if(moreMenu)moreMenu.hidden=false;
  const rawFirst=String(q("#profile-heading")?.textContent||"").trim().split(/\s+/)[0].slice(0,60);
@@ -1906,17 +1908,20 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
   const actionLabel=q("#profile-block-action-label");
   if(actionLabel)actionLabel.textContent=label;
   button.dataset.blocked=String(blocked);
+  const mark=button.querySelector(".ui-profile-block-member-ban-stroke-001");
+  if(mark)mark.setAttribute("d",blocked?"m14.5 16.9 1.8 1.8 3.6-3.6":"m13.9 13.5 6.6 6.6");
   button.setAttribute("aria-label",label);
   button.title=label;
  };
  paint();
+ direct?.addEventListener("click",()=>button.click());
  button.addEventListener("click",async()=>{
   if(busy)return;
   if(moreMenu)moreMenu.open=false;
+  busy=true;
   const approved=await window.VATRA_PROFILE_CONFIRM(blocked?{
    title:t("Розблокувати користувача?","Unblock this member?"),
-   description:t("Користувач знову зможе переглядати доступний йому вміст вашої сторінки та звертатися до вас.",
-    "This member will be able to view your accessible profile content and contact you again."),
+   description:t("Блокування з вашого боку буде знято.","Your block on this member will be removed."),
    action:t("Розблокувати","Unblock"),tone:"primary"
   }:{
    title:t("Заблокувати користувача?","Block this member?"),
@@ -1924,8 +1929,8 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
     "They will see only your cover, avatar and name. Posts, stories, profile details and direct messages will be unavailable."),
    action:t("Заблокувати","Block"),tone:"danger"
   });
-  if(!approved)return;
-  busy=true;button.disabled=true;
+  if(!approved){busy=false;return;}
+  button.disabled=true;if(direct){direct.disabled=true;direct.setAttribute("aria-busy","true");}
   const status=q("#profile-action-status");
   try{
    const operation=blocked?
@@ -1946,7 +1951,7 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
      "Could not update blocking. Please retry.");
     status.hidden=false;
    }
-  }finally{busy=false;button.disabled=false;}
+  }finally{busy=false;button.disabled=false;if(direct){direct.disabled=false;direct.removeAttribute("aria-busy");}}
  });
 }
 

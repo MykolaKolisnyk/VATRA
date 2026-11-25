@@ -2193,9 +2193,6 @@ body.profile-page .profile-safety-action:focus-visible{
 }
 body.profile-page .vatra-profile-block-toggle-001{margin-left:auto}
 body.profile-page .vatra-profile-report-open-001{margin-left:0}
-body.profile-page .vatra-profile-block-toggle-001[data-blocked="true"]{
- color:#b15d70;background:#fff3f5
-}
 body.profile-page[data-member-blocked="true"] .social-profile-tabs [data-profile-tab],
 body.profile-page[data-member-blocked="true"] .profile-archive-wrap{
  display:none!important
@@ -2210,6 +2207,13 @@ body.profile-page .profile-locked-notice[data-lock-reason="block"] > svg{
 body.profile-page .profile-locked-notice[data-lock-reason="block"] .ui-profile-locked-notice-content-001{
  max-width:520px
 }
+body.profile-page .vatra-profile-unblock-direct-001{
+ position:relative;min-height:40px;max-width:100%;padding:9px 20px;border:0;border-radius:10px;
+ background:#2863d8;color:#fff;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .vatra-profile-unblock-direct-001:hover{background:#2054bd}
+body.profile-page .vatra-profile-unblock-direct-001:focus-visible{outline:2px solid #2863d8;outline-offset:3px}
+body.profile-page .vatra-profile-unblock-direct-001:disabled{cursor:wait}
 
 
 body.profile-page .profile-confirm-dialog{
@@ -3068,7 +3072,8 @@ body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001{
  width:100%;height:auto;min-height:44px;margin:0;padding:10px 12px;box-shadow:none
 }
 body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001[hidden]{display:none!important}
-body.profile-page .ui-profile-more-panel-001 .vatra-profile-block-toggle-001[data-blocked="true"]{color:#c8ddff}
+body.profile-page .ui-profile-more-panel-001 .vatra-profile-block-toggle-001[data-blocked="true"]{color:#245ebd}
+body.profile-page .ui-profile-more-panel-001 .vatra-profile-block-toggle-001[data-blocked="true"]>svg{stroke:currentColor}
 body.profile-page .profile-actions{position:relative;z-index:10;overflow:visible}
 @media(max-width:610px){
  body.profile-page .profile-actions{flex-wrap:wrap!important;justify-content:flex-start!important;row-gap:9px}
@@ -3152,7 +3157,7 @@ body.profile-page .ui-profile-more-panel-001{width:min(320px,calc(100vw - 32px))
 body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001,
 body.profile-page .vatra-profile-friend-menu-action-001{min-height:46px;gap:12px;padding:10px 12px;font:500 14px/1.4 Onest,system-ui,sans-serif;white-space:normal}
 body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001>svg{width:21px;height:21px;stroke:#3976bc}
-body.profile-page .ui-profile-more-panel-001 :is(#profile-block-toggle,#profile-report-open)>svg{stroke:#d33a4d}
+body.profile-page .ui-profile-more-panel-001 :is(#profile-block-toggle:not([data-blocked="true"]),#profile-report-open)>svg{stroke:#d33a4d}
 body.profile-page .vatra-profile-all-posts-001{display:block;width:100%;padding:12px;border:1px solid #dce5f2;background:#f5f8fd;color:#285eae;font:650 14px/1.4 Onest,system-ui,sans-serif;border-radius:10px;cursor:pointer;margin-bottom:12px}
 body.profile-page #profile-posts .feed-post-card{scroll-margin-top:90px}
 @media(max-width:600px){body.profile-page .profile-actions:not([hidden]){gap:7px}body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]),body.profile-page .profile-actions .ui-profile-more-menu-001>.vatra-profile-more-trigger-001,body.profile-page .profile-actions>.vatra-profile-contact-button-001:not([hidden]){font-size:13px;padding-inline:12px}body.profile-page .ui-profile-more-panel-001{right:auto;left:0;width:min(300px,calc(100vw - 40px));max-width:calc(100vw - 40px)}}

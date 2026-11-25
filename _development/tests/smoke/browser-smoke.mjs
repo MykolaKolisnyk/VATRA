@@ -5635,8 +5635,18 @@ try{
    language==="en"?"restricted your access":"обмежив вам доступ"));
   await profilePage.goto(base+"id789012?block-test=me",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  await profilePage.waitForFunction(()=>document.body.dataset.authReady==="true"&&document.body.dataset.profileLocked==="true",null,{timeout:14000});
   assert.equal(await profilePage.locator("#profile-block-toggle").getAttribute("data-blocked"),"true");
   assert.equal(await profilePage.locator(".profile-locked-notice[data-lock-reason='block']").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-last-seen").isVisible(),false);
+  assert.equal(await profilePage.locator(".vatra-profile-locked-description-001").count(),0);
+  assert.equal(await profilePage.locator("#profile-unblock-direct").isVisible(),true);
+  await profilePage.locator("#profile-unblock-direct").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),true);
+  await profilePage.locator("#profile-confirm-cancel").click();
+  await profilePage.locator("#profile-more-trigger").click();
+  assert.equal(await profilePage.locator("#profile-block-toggle").evaluate(el=>getComputedStyle(el).color),"rgb(36, 94, 189)");
+  await profilePage.locator("#profile-more-trigger").click();
   // Test a genuinely private route after the public visitor geometry checks.
   await profilePage.goto(base+"id789012?locked-test=1&photo=avatar",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
