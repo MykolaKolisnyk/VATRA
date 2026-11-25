@@ -133,3 +133,32 @@ assert.equal(fallbackContext.names.get("222"),"Fallback member");
 assert.equal(fallbackContext.photos.has("222"),true);
 assert.deepEqual(directTables,["friendships","public_profiles","profile_media"]);
 console.log("VATRA shared social cache: 205 friends, RLS fallbacks, notification avatars and account states passed.");
+
+
+// Redis must never block the optional cache path indefinitely.
+{
+ const {redisDeadline}=await import("../../supabase/functions/_shared/redis-deadline.ts");
+ let retired=0;
+ const retire=()=>{retired++;};
+ assert.equal(await redisDeadline(()=>Promise.resolve("hit"),retire,30),"hit");
+ assert.equal(retired,0);
+ await assert.rejects(redisDeadline(()=>Promise.reject(Error("network")),retire,30),/network/);
+ assert.equal(retired,0);
+ await assert.rejects(redisDeadline(()=>new Promise(()=>{}),retire,5),/Redis deadline exceeded/);
+ assert.equal(retired,1);
+ let complete;
+ const late=redisDeadline(()=>new Promise(resolve=>{complete=resolve;}),retire,5);
+ await assert.rejects(late,/Redis deadline exceeded/);
+ complete("late");
+ await Promise.resolve();
+ assert.equal(retired,2);
+ for(const name of ["public-profile-names","public-community-directory","public-announcements"]){
+  const edge=await readFile("_development/supabase/functions/"+name+"/index.ts","utf8");
+  assert.ok(edge.includes("await redisDeadline(() => client.connect(), () => client.destroy())"));
+  assert.ok(edge.includes("connection?.isReady"));
+  assert.ok(!/await (?:cache\.(?:mGet|get|set)|writes\.exec)\(/.test(edge));
+ }
+ const names=await readFile("_development/supabase/functions/public-profile-names/index.ts","utf8");
+ assert.ok(names.includes("await Promise.all([")&&names.includes("if (error || badgeError)"));
+}
+console.log("VATRA Redis: bounded connection/read/write operations, stalled socket retirement and parallel profile reads verified.");

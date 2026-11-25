@@ -28,11 +28,14 @@ let pageHooks={};
 function validateBirthday(){return pageHooks.validateBirthday?.()??null;}
 let navigatingAuth=false;
 const markAuthReady=()=>{if(!navigatingAuth)document.body.dataset.authReady="true";};
-function sessionCheckWithTimeout(){
- return Promise.race([
-  auth.auth.getUser(),
-  new Promise(resolve=>setTimeout(()=>resolve({data:{user:null},error:new Error("Session check timed out")}),8000))
- ]);
+async function sessionCheckWithTimeout(){
+ let timer;
+ try{
+  return await Promise.race([
+   auth.auth.getUser(),
+   new Promise(resolve=>{timer=setTimeout(()=>resolve({data:{user:null},error:new Error("Session check timed out")}),8000);})
+  ]);
+ }finally{clearTimeout(timer);}
 }
 const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account";
 const LOGGED_OUT_KEY="vatra-just-signed-out";
@@ -262,24 +265,27 @@ function validPassword(value){return passwordIssue(value)==="";}
 async function initialize(){
  try{
 
+ let authInitError="";
+ if(!window.supabase?.createClient){
+  authInitError="Не вдалося завантажити модуль входу. Перевірте з'єднання та оновіть сторінку.";
+ }else{
+  try{
+   auth=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
+    auth:{autoRefreshToken:page!=="reset"&&page!=="forgot",
+     persistSession:page!=="reset"&&page!=="forgot",
+     detectSessionInUrl:page!=="forgot",flowType:"pkce"}
+   });
+  }catch(_){
+   authInitError="Не вдалося підключитися до сервісу авторизації.";
+  }
+ }
+ const initialSession=auth&&(page==="login"||page==="create-account")
+  ?sessionCheckWithTimeout().catch(error=>({data:{user:null},error})):null;
  await window.VATRA_LANGUAGE?.ready;
-
 
  wirePasswordButtons();
  wireFloatingHints();
- if(!window.supabase?.createClient){
-  feedback("Не вдалося завантажити модуль входу. Перевірте з'єднання та оновіть сторінку.","error");
-  return;
- }
- try{
-  auth=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
-   auth:{autoRefreshToken:page!=="reset"&&page!=="forgot",
-    persistSession:page!=="reset"&&page!=="forgot",
-    detectSessionInUrl:page!=="forgot",flowType:"pkce"}
-  });
- }catch(_){
-  feedback("Не вдалося підключитися до сервісу авторизації.","error");return;
- }
+ if(authInitError){feedback(authInitError,"error");return;}
  const entry=window.VATRA_AUTH_ENTRY;
  if(typeof entry!=="function")throw new Error("Missing page-specific authentication controller");
  pageHooks=entry({q,url,translate,english,page,auth,replayAuthContent,busy,getMessage,
@@ -293,14 +299,14 @@ async function initialize(){
  if(page==="login"){
   pageHooks.wireLogin?.();
   try{
-   const {data,error}=await sessionCheckWithTimeout();
+   const {data,error}=await initialSession;
    if(!error&&data?.user?.email_confirmed_at){await goToFeed();return;}
   }catch(_){ }
   pageHooks.wireRememberedAccount?.();
  }
  if(page==="create-account"){
   try{
-   const {data,error}=await sessionCheckWithTimeout();
+   const {data,error}=await initialSession;
    if(!error&&data?.user?.email_confirmed_at&&
     (!pageHooks.hasSignupPending?.()||pageHooks.isExpectedConfirmedSignup?.(data.user))){
     try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
