@@ -236,14 +236,15 @@ assert.ok(
 console.log("VATRA media viewer layout checks passed.");
 
 {
- const start=postMedia.indexOf(" function photoMatte("),end=postMedia.indexOf(" function clearPhotoSlide(",start);
+ const start=postMedia.indexOf(" const photoMatteChecks="),end=postMedia.indexOf(" function clearPhotoSlide(",start);
  assert.ok(start>=0&&end>start);
- const ctx={};runInNewContext(postMedia.slice(start,end)+"\nglobalThis.geometry={photoMatte,fitPhotoViewer};",ctx);
+ let alpha=255,tainted=false;
+ const ctx={setTimeout,document:{createElement(){return {width:0,height:0,getContext(){return {drawImage(){},getImageData(){if(tainted)throw Error("CORS");return {data:new Uint8ClampedArray([0,0,0,alpha])};}};}};}}};
+ runInNewContext(postMedia.slice(start,end)+"\nglobalThis.geometry={photoMatte,fitPhotoViewer};",ctx);
  const {fitPhotoViewer,photoMatte}=ctx.geometry;
  for(const [w,h] of [[1024,1024],[6000,4000],[4000,6000],[7680,4320],[500,1800]]){
   const vars={},dialog={dataset:{},style:{setProperty:(k,v)=>vars[k]=v}},stage={dataset:{}};
   fitPhotoViewer(dialog,stage,{naturalWidth:w,naturalHeight:h},"photo.png");
-  assert.equal(stage.dataset.photoMatte,"dark");
   const landscape=w/h>=1.35&&w/h<=2.2;
   assert.equal(dialog.dataset.photoSized,landscape?"true":undefined);
   if(landscape){assert.equal(Number(vars["--vatra-photo-ratio"]),w/h);assert.equal(Number(vars["--vatra-photo-inverse"]),h/w);}
@@ -254,11 +255,19 @@ console.log("VATRA media viewer layout checks passed.");
   const rule=source.slice(source.indexOf(selector)).split("}")[0];
   assert.ok(rule.includes("inset:0")&&rule.includes("width:100vw")&&rule.includes("height:100dvh")&&rule.includes("max-width:none")&&rule.includes("max-height:none")&&rule.includes("margin:0")&&rule.includes("border-radius:0"),"All three photo viewers retain the fullscreen fallback");
  }
- for(const [path,expected] of [["a.webp","dark"],["a.png?x=1","dark"],["a.jpg","dark"],["a.jpeg?token=1","dark"]])assert.equal(photoMatte(path),expected);
+ for(const src of ["a.png","a.webp","a.jpg"]){
+  alpha=255;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"dark");
+  alpha=0;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"white");
+  alpha=128;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"white");
+ }
+ tainted=true;assert.equal(await photoMatte({src:"private.png",naturalWidth:1,naturalHeight:1}),"dark");
+ tainted=false;
  assert.ok(postMedia.includes("duration:300")&&postMedia.includes("prefers-reduced-motion: reduce"));
  assert.ok(postMedia.includes("(-sign*distance)")&&postMedia.includes("(sign*distance)"));
  assert.ok(profile.includes("renderGalleryPhoto(delta)")&&albums.includes("openPhoto(next,nextAlbum,dir)"));
- assert.ok(postCss.includes('[data-photo-matte="dark"]{background:#111419}'));
+ assert.ok(postCss.includes('[data-photo-matte="dark"]{background:#111419}')&&postCss.includes('[data-photo-matte="white"]{background:#fff}'));
+ const logoRule=postCss.match(/\.vatra-photo-viewer-brand-001\{[^}]+\}/)?.[0]||"";
+ assert.ok(logoRule.includes("background:transparent")&&!logoRule.includes("border-radius")&&!logoRule.includes("box-shadow"),"Viewer logo must not have a white disc or shadow");
  assert.ok(profileCss.includes("overflow:hidden;padding:0"));
 }
 console.log("VATRA photos: aspect-adaptive landscape viewer, fullscreen fallback, dark matte and directional transitions verified.");
