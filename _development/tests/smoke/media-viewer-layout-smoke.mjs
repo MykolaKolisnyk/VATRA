@@ -236,14 +236,22 @@ assert.ok(
 console.log("VATRA media viewer layout checks passed.");
 
 {
- const start=postMedia.indexOf(" function photoMatte("),end=postMedia.indexOf(" function fitPhotoViewer(",start);
+ const start=postMedia.indexOf(" function photoMatte("),end=postMedia.indexOf(" function clearPhotoSlide(",start);
  assert.ok(start>=0&&end>start);
- const ctx={};runInNewContext(postMedia.slice(start,end)+"\nglobalThis.geometry={photoMatte,photoFit};",ctx);
- const {photoFit,photoMatte}=ctx.geometry;
- for(const [w,h] of [[1024,1024],[6000,4000],[4000,6000],[7680,4320],[500,1800]])for(const [vw,vh] of [[1366,768],[1920,1080],[2560,1440]]){
-  const side=Math.round(Math.max(318,Math.min(415,vw*.25))),r=photoFit(w,h,vw,vh,side,54);
-  assert.ok(r.width<=vw-32&&r.height<=vh-32);
-  assert.ok(Math.abs((r.width-side)/(r.height-54)-w/h)<.015);
+ const ctx={};runInNewContext(postMedia.slice(start,end)+"\nglobalThis.geometry={photoMatte,fitPhotoViewer};",ctx);
+ const {fitPhotoViewer,photoMatte}=ctx.geometry;
+ for(const [w,h] of [[1024,1024],[6000,4000],[4000,6000],[7680,4320],[500,1800]]){
+  const dialog={dataset:{},style:{width:"",height:""}},stage={dataset:{}};
+  fitPhotoViewer(dialog,stage,{naturalWidth:w,naturalHeight:h},"photo.png");
+  assert.equal(stage.dataset.photoMatte,"white");
+  assert.deepEqual(dialog.dataset,{});
+  assert.deepEqual(dialog.style,{width:"",height:""});
+ }
+ assert.ok(!postCss.includes('[data-photo-sized="true"]')&&!postMedia.includes("--vatra-photo-width")&&!postMedia.includes("--vatra-photo-height"));
+ const albumsCss=await read("assets/css/photo-albums.css");
+ for(const [source,selector] of [[postCss,".vatra-post-media-viewer{"],[profileCss,"body.profile-page .profile-media-viewer{"],[albumsCss,"body.profile-page .ui-vatra-album-viewer-001{"]]){
+  const rule=source.slice(source.indexOf(selector)).split("}")[0];
+  assert.ok(rule.includes("inset:0")&&rule.includes("width:100vw")&&rule.includes("height:100dvh")&&rule.includes("max-width:none")&&rule.includes("max-height:none")&&rule.includes("margin:0")&&rule.includes("border-radius:0"),"All three photo viewers must fill both viewport dimensions");
  }
  for(const [path,expected] of [["a.webp","white"],["a.png?x=1","white"],["a.jpg","dark"],["a.jpeg?token=1","dark"]])assert.equal(photoMatte(path),expected);
  assert.ok(postMedia.includes("duration:300")&&postMedia.includes("prefers-reduced-motion: reduce"));
@@ -252,4 +260,4 @@ console.log("VATRA media viewer layout checks passed.");
  assert.ok(postCss.includes('[data-photo-matte="white"]{background:#fff}'));
  assert.ok(profileCss.includes("overflow:hidden;padding:0"));
 }
-console.log("VATRA photos: intrinsic proportions, matte selection and directional transitions verified.");
+console.log("VATRA photos: fullscreen viewer, matte selection and directional transitions verified.");

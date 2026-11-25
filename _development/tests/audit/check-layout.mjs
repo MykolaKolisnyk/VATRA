@@ -1120,7 +1120,8 @@ const normalizedSocialHeader=html=>{
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
 /* profileMarkup already loaded during the footer audit. */
 assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
- (profileMarkup.match(/data-profile-panel="/g)||[]).length===10&&
+ (profileMarkup.match(/data-profile-panel="/g)||[]).length===11&&
+ profileMarkup.includes('data-profile-panel="archive-photos"')&&
  profileMarkup.includes('id="profile-friends-preview"')&&
  profileMarkup.includes('id="profile-gifts-preview"')&&
  profileMarkup.includes('id="profile-tab-clips"')&&
@@ -2140,7 +2141,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
  !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
  memberCss.includes('overflow:hidden;padding:0')&&
- systemFeedCss.includes('[data-photo-sized="true"]')&&
+ !systemFeedCss.includes('[data-photo-sized="true"]')&&
+ systemFeedCss.includes("width:100vw;height:100dvh;")&&
  systemFeedCss.includes('[data-photo-matte="white"]')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and photo sizing removes unnecessary padding");
