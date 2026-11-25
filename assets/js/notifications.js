@@ -259,7 +259,7 @@ async function remove(id){
 function renderEmpty(node){
  node.replaceChildren();
  const art=make("span","vatra-notice-empty-illustration-001");
- art.append(icon("bell-off","M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9ZM10 21h4M4 4l16 16"));
+ art.append(icon("bell-off","M10 20a2 2 0 0 0 4 0M18 13V9a6 6 0 0 0-9.8-4.6M6 9c0 5-1 6-3 8h14M3 3l18 18M18 13c0 1 .2 2 .6 2.7"));
  node.append(art,make("strong","vatra-notice-empty-title-001",t("Поки немає сповіщень","No notifications yet")),make("span","vatra-notice-empty-description-001",t("Нові сповіщення з'являться тут.","New notifications will appear here.")));
  node.hidden=false;
 }

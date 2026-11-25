@@ -72,9 +72,31 @@ async function preferences(){
  const layout=make("div","ui-vatra-preferences-layout-001"),panel=make("div","ui-vatra-preferences-content-001"),side=card("ui-vatra-preferences-nav-001");
  const sections=[["general",t("Загальні","General")],["privacy",t("Приватність","Privacy")],["notifications",t("Сповіщення","Notifications")],["blocked",t("Чорний список","Blocked members")]];
  const menu=tabs(sections,id=>{if(location.hash==="#"+id)void show(id);else location.hash=id;});
- side.append(menu,link(t("Безпека акаунта","Account security"),"vatra-id#security","vatra-preferences-id-link-001"),link(t("Керування акаунтом","Manage account"),"vatra-id","vatra-preferences-id-link-001"));layout.append(panel,side);content.append(layout);
+ const security=link(t("Безпека","Security"),"vatra-id#security","vatra-preferences-id-link-001");
+ const brand=make("span","vatra-preferences-id-badge-001");const logo=make("img","vatra-preferences-id-logo-001");logo.src="assets/logo/logo_symbol.svg";logo.alt="";brand.append(logo,document.createTextNode("ID"));security.append(brand);side.append(menu,security);layout.append(panel,side);content.append(layout);
  const prefKey="vatra:notification-display:"+ownId;
- const notificationKinds=[["friend_request",t("Запити в друзі","Friend requests"),t("Нові заявки у друзі.","New friend requests.")],["friend_accepted",t("Прийняті запити","Accepted requests"),t("Ваш запит у друзі прийняли.","Your friend request was accepted.")],["post_like",t("Вподобання дописів","Post likes"),t("Реакції на ваші публікації.","Reactions to your posts.")],["comment_like",t("Вподобання коментарів","Comment likes"),t("Реакції на ваші коментарі.","Reactions to your comments.")],["avatar_like",t("Вподобання фотографій","Photo likes"),t("Реакції на фотографії профілю.","Reactions to profile photos.")],["avatar_comment_like",t("Вподобання коментарів до фото","Photo comment likes"),t("Реакції на коментарі під фотографіями.","Reactions to photo comments.")]];
+ const notificationKinds=[
+ ["feedback",t("Зворотний зв’язок","Feedback"),[
+ ["post_like",t("Вподобання дописів","Post likes"),t("Реакції на ваші публікації.","Reactions to your posts.")],
+ ["comment_like",t("Вподобання коментарів","Comment likes"),""],
+ ["avatar_like",t("Вподобання фотографій профілю","Profile photo likes"),""],
+ ["avatar_comment_like",t("Вподобання коментарів до фото","Photo comment likes"),""],
+ ["album_photo_like",t("Вподобання фото в альбомах","Album photo likes"),""],
+ ["post_comment",t("Коментарі до публікацій","Post comments"),""],
+ ["post_reply",t("Відповіді на коментарі","Comment replies"),""],
+ ["avatar_comment",t("Коментарі до фото профілю","Profile photo comments"),""],
+ ["album_comment",t("Коментарі до фото в альбомах","Album photo comments"),""],
+ ["post_share",t("Поширення публікацій","Post shares"),""]]],
+ ["events",t("Події","Events"),[
+ ["friend_request",t("Запити в друзі","Friend requests"),""],
+ ["friend_accepted",t("Прийняті запити","Accepted requests"),""],
+ ["friend_declined",t("Відхилені запити","Declined requests"),""],
+ ["post_mention",t("Згадки у публікаціях","Post mentions"),""],
+ ["comment_mention",t("Згадки у коментарях","Comment mentions"),""]]],
+ ["updates",t("Оновлення","Updates"),[
+ ["member_post",t("Нові публікації","New posts"),""],
+ ["member_story",t("Нові історії","New stories"),""]]]
+ ];
  function settingsCard(heading){const c=card("ui-vatra-preferences-card-001");c.append(make("h2","vatra-preferences-heading-001",heading));return c;}
  function row(c,heading,description,control,key){const line=make("div","ui-vatra-preferences-row-001"),copy=make("div","ui-vatra-preferences-row-copy-001"),label=make("label","vatra-preferences-label-001",heading);if(key){control.id="vatra-preference-"+key;label.htmlFor=control.id;}copy.append(label);if(description)copy.append(make("p","vatra-preferences-description-001",description));line.append(copy,control);c.append(line);return line;}
  async function show(id){
@@ -83,26 +105,34 @@ async function preferences(){
   if(id==="general"){
    const c=settingsCard(t("Загальні","General")),language=btn(t("Змінити","Change"),"vatra-preferences-action-001",()=>window.VATRA_LANGUAGE?.openPicker?.());
    row(c,t("Мова","Language"),new Intl.DisplayNames([locale],{type:"language"}).of(locale),language);
-   row(c,t("VATRA ID","VATRA ID"),t("Особисті дані, безпека та верифікація.","Personal data, security and verification."),link(t("Відкрити","Open"),"vatra-id","vatra-preferences-action-001"));panel.append(c);return;
+   panel.append(c);const accountCard=settingsCard("VATRA ID");row(accountCard,t("Особисті дані","Personal data"),t("Керування іменем та акаунтом.","Manage your name and account."),link(t("Відкрити","Open"),"vatra-id#personal","vatra-preferences-action-001"));row(accountCard,t("Безпека акаунта","Account security"),t("Пароль, електронна пошта, пристрої та сеанси.","Password, email, devices and sessions."),link(t("Відкрити","Open"),"vatra-id#security","vatra-preferences-action-001"));row(accountCard,t("Верифікація","Verification"),"",link(t("Відкрити","Open"),"vatra-id#verification","vatra-preferences-action-001"));panel.append(accountCard);return;
   }
   if(id==="privacy"){
-   const c=settingsCard(t("Моя сторінка","My profile")),select=make("select","ui-vatra-preferences-select-001");
-   select.append(new Option(t("Відкритий","Public"),"public"),new Option(t("Лише друзі","Friends only"),"friends"));
-   select.disabled=true;row(c,t("Тип профілю","Profile visibility"),t("Кому доступна інформація вашої сторінки.","Who can access information on your profile."),select,"visibility");panel.append(c);
-   const result=await client.from("profile_preferences").select("profile_visibility").eq("vatra_id",ownId).maybeSingle();if(ticket!==renderTicket)return;
+   const profile=settingsCard(t("Моя сторінка","My profile")),activity=settingsCard(t("Активність","Activity"));
+   const visibility=make("select","ui-vatra-preferences-select-001"),presence=make("select","ui-vatra-preferences-select-001");
+   visibility.append(new Option(t("Відкритий","Public"),"public"),new Option(t("Лише друзі","Friends only"),"friends"));
+   presence.append(new Option(t("Усі користувачі","All members"),"public"),new Option(t("Лише друзі","Friends only"),"friends"),new Option(t("Лише я","Only me"),"private"));
+   visibility.disabled=presence.disabled=true;
+   row(profile,t("Тип профілю","Profile visibility"),t("Кому доступна інформація вашої сторінки.","Who can access information on your profile."),visibility,"visibility");
+   row(activity,t("Хто бачить, що я онлайн","Who can see when I am online"),t("Видимість статусу онлайн та останньої активності. Налаштування закритого профілю також діють.","Visibility of online status and last activity. Closed-profile restrictions also apply."),presence,"presence");
+   panel.append(profile,activity);
+   const result=await client.from("profile_preferences").select("profile_visibility,presence_visibility").eq("vatra_id",ownId).maybeSingle();if(ticket!==renderTicket)return;
    if(result.error){message(t("Не вдалося завантажити приватність.","Could not load privacy settings."),true);return;}
-   let saved=result.data?.profile_visibility||"public";select.value=saved;select.disabled=false;
-   select.addEventListener("change",async()=>{const desired=select.value;select.disabled=true;message("");
-    try{const result=await client.from("profile_preferences").upsert({vatra_id:ownId,profile_visibility:desired,updated_at:new Date().toISOString()},{onConflict:"vatra_id"}).select("profile_visibility").maybeSingle();if(result.error||result.data?.profile_visibility!==desired)throw Error("Preference not saved");saved=desired;if(ticket===renderTicket)message(t("Зміни збережено.","Changes saved."));}
-    catch(_){select.value=saved;if(ticket===renderTicket)message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}finally{select.disabled=false;}
+   const saved={profile_visibility:result.data?.profile_visibility||"public",presence_visibility:result.data?.presence_visibility||"public"};
+   visibility.value=saved.profile_visibility;presence.value=saved.presence_visibility;visibility.disabled=presence.disabled=false;
+   for(const [key,control] of [["profile_visibility",visibility],["presence_visibility",presence]])control.addEventListener("change",async()=>{const desired=control.value;visibility.disabled=presence.disabled=true;message("");
+    try{const result=await client.from("profile_preferences").upsert({vatra_id:ownId,[key]:desired,updated_at:new Date().toISOString()},{onConflict:"vatra_id"}).select(key).maybeSingle();if(result.error||result.data?.[key]!==desired)throw Error("Preference not saved");saved[key]=desired;if(ticket===renderTicket)message(t("Зміни збережено.","Changes saved."));}
+    catch(_){control.value=saved[key];if(ticket===renderTicket)message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}finally{visibility.disabled=presence.disabled=false;}
    });return;
   }
   if(id==="notifications"){
    const c=settingsCard(t("Сповіщення на сайті","Site notifications"));c.append(make("p","vatra-preferences-description-001",t("Ці параметри визначають, які сповіщення видно в цьому браузері. Вони не видаляють повідомлення з акаунта.","These settings control which notifications appear in this browser. They do not delete account notifications.")));
    let hidden=[];try{const value=JSON.parse(localStorage.getItem(prefKey)||"[]");if(Array.isArray(value))hidden=value.filter(x=>typeof x==="string");}catch(_){}
-   for(const [key,label,description] of notificationKinds){const control=make("input","ui-vatra-preferences-toggle-001");control.type="checkbox";control.setAttribute("role","switch");control.checked=!hidden.includes(key);row(c,label,description,control,key);
+   panel.append(c);
+   for(const [,heading,kinds] of notificationKinds){const c=settingsCard(heading);panel.append(c);
+   for(const [key,label,description] of kinds){const control=make("input","ui-vatra-preferences-toggle-001");control.type="checkbox";control.setAttribute("role","switch");control.checked=!hidden.includes(key);row(c,label,description,control,key);
     control.addEventListener("change",()=>{const before=hidden;const next=control.checked?hidden.filter(x=>x!==key):[...new Set([...hidden,key])];try{localStorage.setItem(prefKey,JSON.stringify(next));hidden=next;window.dispatchEvent(new Event("vatra-notification-display-changed"));message(t("Зміни збережено.","Changes saved."));}catch(_){control.checked=!before.includes(key);message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}});}
-   panel.append(c);return;
+   }return;
   }
   const c=settingsCard(t("Чорний список","Blocked members")),form=make("form","ui-vatra-preferences-block-form-001"),idInput=field(form,"blocked-id","VATRA ID","text",19,true);idInput.inputMode="numeric";idInput.pattern="[1-9][0-9]{0,18}";c.append(form);
   const list=make("div","ui-vatra-preferences-block-list-001");c.append(list);panel.append(c);
