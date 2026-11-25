@@ -68,7 +68,8 @@
     },
     "maintenance": {
       "meta": {
-        "title": "Wartungsarbeiten"
+        "title": "Wartungsarbeiten",
+        "description": "Vorübergehende Wartungsarbeiten auf VATRA."
       },
       "nodes": {
         "maintenance-kicker": {
@@ -286,7 +287,7 @@
     "feed": {
       "meta": {
         "title": "Feed",
-        "description": "Beiträge und Storys auf VATRA."
+        "description": "Sieh Beiträge und Storys von Freunden und Communitys auf VATRA."
       },
       "nodes": {
         "n12": {
@@ -366,7 +367,7 @@
     "profile": {
       "meta": {
         "title": "Meine Seite",
-        "description": "Deine Seite auf VATRA."
+        "description": "Sieh dein Profil, deine Fotos und Beiträge auf VATRA."
       },
       "nodes": {
         "n42": {
@@ -425,7 +426,8 @@
     },
     "offline": {
       "meta": {
-        "title": "Keine Verbindung"
+        "title": "Keine Verbindung",
+        "description": "Keine Internetverbindung. Prüfe die Verbindung und versuche es erneut."
       },
       "nodes": {
         "n6": {
@@ -458,7 +460,10 @@
     "verify": {
       "meta": {
         "title": "Bestätigung",
-        "description": "Bestätige deine E-Mail-Adresse."
+        "description": "Bestätige die E-Mail-Adresse deines VATRA-Kontos.",
+        "og:title": "Bestätigung · VATRA",
+        "og:description": "Bestätige die E-Mail-Adresse deines VATRA-Kontos.",
+        "og:locale": "de_DE"
       },
       "nodes": {
         "n4": {
@@ -489,7 +494,7 @@
         "description": "Erstelle ein Konto bei VATRA – dem ukrainischen sozialen Netzwerk für Gespräche, Communitys und Kreativität.",
         "og:locale": "de_DE",
         "og:title": "Konto erstellen · VATRA",
-        "og:description": "VATRA – ein ukrainisches soziales Netzwerk. Deine Menschen. Deine Geschichten. Deine VATRA.",
+        "og:description": "Erstelle ein Konto bei VATRA – dem ukrainischen sozialen Netzwerk für Gespräche, Communitys und Kreativität.",
         "og:image:alt": "Offizielles VATRA-App-Symbol"
       },
       "nodes": {
@@ -902,7 +907,7 @@
         "description": "Stelle den Zugang zu deinem VATRA-Konto wieder her.",
         "og:locale": "de_DE",
         "og:title": "Passwort wiederherstellen · VATRA",
-        "og:description": "VATRA – ein ukrainisches soziales Netzwerk. Deine Menschen. Deine Geschichten. Deine VATRA.",
+        "og:description": "Stelle den Zugang zu deinem VATRA-Konto wieder her.",
         "og:image:alt": "Offizielles VATRA-App-Symbol"
       },
       "nodes": {
@@ -1078,7 +1083,7 @@
         "description": "Erstelle ein neues Passwort für das ukrainische soziale Netzwerk VATRA.",
         "og:locale": "de_DE",
         "og:title": "Neues Passwort · VATRA",
-        "og:description": "VATRA – ein ukrainisches soziales Netzwerk. Deine Menschen. Deine Geschichten. Deine VATRA.",
+        "og:description": "Erstelle ein neues Passwort für das ukrainische soziale Netzwerk VATRA.",
         "og:image:alt": "Offizielles VATRA-App-Symbol"
       },
       "nodes": {
@@ -1234,7 +1239,7 @@
         "description": "VATRA-Regeln für Konten, Beiträge, Communitys, Urheberrecht, Marktplatz und Sicherheit.",
         "og:locale": "de_DE",
         "og:title": "Nutzungsbedingungen — VATRA",
-        "og:description": "VATRA-Nutzungsbedingungen: Registrierung, Kontozugang und Sicherheit."
+        "og:description": "VATRA-Regeln für Konten, Beiträge, Communitys, Urheberrecht, Marktplatz und Sicherheit."
       },
       "nodes": {
         "n1": {
@@ -1561,7 +1566,7 @@
         "description": "Datenschutzerklärung von VATRA, dem ukrainischen sozialen Netzwerk. So werden personenbezogene Daten verarbeitet.",
         "og:locale": "de_DE",
         "og:title": "Datenschutz — VATRA",
-        "og:description": "VATRA-Datenschutzerklärung: Umgang mit personenbezogenen Daten."
+        "og:description": "Datenschutzerklärung von VATRA, dem ukrainischen sozialen Netzwerk. So werden personenbezogene Daten verarbeitet."
       },
       "nodes": {
         "n1": {
@@ -4091,5 +4096,14 @@
   "Виберіть фото JPEG, PNG, WebP до 6 МБ або відео MP4, WebM до 50 МБ.": "Wähle ein JPEG-, PNG- oder WebP-Foto bis 6 MB oder ein MP4-/WebM-Video bis 50 MB.",
   "Не вдалося відкрити файл.": "Datei konnte nicht geöffnet werden.",
   "Не вдалося зберегти медіафайл історії. Повторіть спробу з новим файлом.": "Die Story-Datei konnte nicht geprüft werden. Versuche es mit einer anderen Datei.",
-  "Не вдалося опублікувати історію. Спробуйте ще раз.": "Story konnte nicht veröffentlicht werden. Versuche es erneut."
+  "Не вдалося опублікувати історію. Спробуйте ще раз.": "Story konnte nicht veröffentlicht werden. Versuche es erneut.",
+  "Переглядайте короткі відео та діліться власними кліпами у VATRA.": "Sieh dir kurze Videos an und teile eigene Clips auf VATRA.",
+  "Переглядайте публікації, учасників та інформацію про спільноту у VATRA.": "Sieh dir Beiträge, Mitglieder und Informationen einer Community auf VATRA an.",
+  "Знаходьте спільноти за інтересами, приєднуйтеся до них і створюйте власні у VATRA.": "Entdecke Communitys nach Interessen, tritt ihnen bei und erstelle eigene auf VATRA.",
+  "Переглядайте друзів, надсилайте та приймайте заявки в друзі у VATRA.": "Sieh deine Freunde an, sende und akzeptiere Freundschaftsanfragen auf VATRA.",
+  "Переглядайте віртуальні подарунки та даруйте їх користувачам VATRA.": "Entdecke virtuelle Geschenke und verschenke sie an VATRA-Mitglieder.",
+  "Знаходьте товари й розміщуйте власні оголошення на маркетплейсі VATRA.": "Finde Produkte und veröffentliche eigene Angebote auf dem VATRA-Marktplatz.",
+  "Переглядайте вподобання Ваших публікацій, коментарів і фото профілю, заявки в друзі та відповіді на них у VATRA.": "Sieh Likes für deine Beiträge, Kommentare und Profilfotos sowie Freundschaftsanfragen und Antworten darauf auf VATRA.",
+  "Керуйте налаштуваннями акаунта, конфіденційності та сповіщень у VATRA.": "Verwalte Konto-, Datenschutz- und Benachrichtigungseinstellungen auf VATRA.",
+  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "Sieh Informationen zu deiner VATRA ID, der eindeutigen Kontokennung."
 }
