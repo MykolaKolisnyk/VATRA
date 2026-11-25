@@ -32,7 +32,7 @@ function setup({small=false,decodeFails=false,noFallback=false,previewUploadFail
   decode(){return Promise.resolve();}
  }
  const context={
-  window:{},
+  window:new EventTarget(),
   document,
   URL:{createObjectURL:()=>{releases.push("created");return "blob:preview";},
        revokeObjectURL:()=>releases.push("revoked")},
