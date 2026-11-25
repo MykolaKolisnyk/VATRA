@@ -1376,7 +1376,7 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  !legacyScript.includes("legacyProfile")&&
  !profileScript.includes('new URL("profile.html?vatra_id="+encodeURIComponent(id),home).href')&&
  !profileScript.includes('home+"id="+')&&
- lang.includes('const dynamicMember=/^id[1-9]'),
+ lang.includes('if(/^id[1-9][0-9]{0,18}$/.test(segment))return "profile";'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
 const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
 assert.ok(communityBannerMarkup.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>')&&
