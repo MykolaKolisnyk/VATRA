@@ -4080,9 +4080,11 @@ try{
    return direct;
   });
   assert.deepEqual(headerOrder,[
-    "ui-feed-notifications-button-001","ui-feed-music-button-001",
+    "ui-shell-header-messenger-001","ui-feed-notifications-button-001","ui-feed-music-button-001",
     "ui-feed-account-menu-001"],
-   "Right controls must be notifications, music and the avatar-name pill");
+   "Right controls must be Messenger, notifications, music and the avatar-name pill");
+  assert.equal(await feedProbe.locator('.ui-shell-header-messenger-001[data-vatra-coming-soon="messenger"]').count(),1,
+   "Messenger must be visible as a single coming-soon header button");
   assert.equal(await feedProbe.locator(".feed-header .feed-search-form").isVisible(),true,
    "Search VATRA must be next to the V logo on every page");
   const searchStyles=await feedProbe.evaluate(()=>{
