@@ -6,8 +6,8 @@ import {runInNewContext} from "node:vm";
 const source=await readFile("assets/js/post-media.js","utf8");
 const interactions=await readFile("assets/js/post-interactions.js","utf8");
 assert.ok(source.includes("collapsibleBody,signed};"),"Expose the shared signed URL helper");
-assert.ok(source.includes("if(imageTiles.length>1)await preSignGallery(client,imageTiles);"),
- "Small galleries must avoid the expensive bulk-sign endpoint");
+assert.ok(source.includes("if(missing.length>1)await preSignGallery(client,missing,ttl);")&&source.includes("await preSignVisible(client,imageTiles)"),
+ "Only multiple uncached visible previews may trigger bulk signing");
 assert.ok(interactions.includes("getSigned(client,kind,path,300)")&&
  interactions.includes('client.storage.from(bucket).createSignedUrl(path,300)'),
  "Comment attachments must still use the helper with a safe direct fallback");
@@ -19,8 +19,8 @@ const context={Map,WeakMap,Set,Date,URL,Promise,Number,setTimeout,clearTimeout,
  location:{origin:"https://example.test"},
  bucketFor:kind=>kind==="image"?"post-images":"videos"};
 runInNewContext(source.slice(start,end)+
- "\nglobalThis.mediaCacheTest={signed,preSignGallery,forgetFailedSignedURL};",context);
-const {signed,preSignGallery}=context.mediaCacheTest;
+ "\nglobalThis.mediaCacheTest={signed,preSignGallery,preSignVisible,forgetFailedSignedURL};",context);
+const {signed,preSignGallery,preSignVisible}=context.mediaCacheTest;
 const host="https://cxrcycxrlkufozomsxcs.supabase.co";
 const path="7/comments/example.png";
 function makeClient(owner){
@@ -449,3 +449,23 @@ console.log("VATRA media: LRU signed URLs, bounded sprite image references and r
  assert.equal(active,4,"Old queued requests must never reach Storage");
 }
 console.log("VATRA media: bounded bulk requests, cache pressure and queued session cancellation passed.");
+
+// Separate visible cards arriving in one render turn share a single batch.
+// Single previews remain single-sign requests, cached items do not rebatch,
+// and an auth change before the queued batch dispatch prevents any request.
+{
+ const c=makeClient("visible"),item=media_path=>({media_kind:"image",media_path});
+ const a=item("9/posts/visible-a.jpg"),b=item("9/posts/visible-b.jpg"),d=item("9/posts/visible-c.jpg");
+ await Promise.all([preSignVisible(c.client,[a],300),preSignVisible(c.client,[b,a],300),preSignVisible(c.client,[d],300)]);
+ assert.equal(c.bulkCalls,1);
+ for(const row of [a,b,d])await signed(c.client,"image",row.media_path,300);
+ assert.equal(c.calls,0,"Three visible previews must use one Storage request, not three");
+ const next=item("9/posts/visible-next.jpg");
+ await preSignVisible(c.client,[a,next],300);
+ await signed(c.client,"image",next.media_path,300);
+ assert.equal(c.bulkCalls,1);assert.equal(c.calls,1,"One uncached preview uses a single signature");
+ const queued=preSignVisible(c.client,[item("9/posts/old-a.jpg"),item("9/posts/old-b.jpg")],300);
+ c.event("SIGNED_OUT");
+ assert.equal(await queued,false);assert.equal(c.bulkCalls,1,"Old viewer's queued previews must not reach Storage");
+}
+console.log("VATRA visible preview batching: cross-card request reduction, cache hits and session cancellation verified.");
