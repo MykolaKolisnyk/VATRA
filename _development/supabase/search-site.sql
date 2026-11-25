@@ -2,15 +2,25 @@ create or replace function public.search_site(p_query text,p_limit integer defau
 returns jsonb language sql stable security invoker set search_path='' as $$
 with args as (
  select left(btrim(coalesce(p_query,'')),120) as term, greatest(1,least(coalesce(p_limit,20),30)) as n
-), q as (
+), parsed as (
  select *, '%'||replace(replace(replace(term,chr(92),chr(92)||chr(92)),'%',chr(92)||'%'),'_',chr(92)||'_')||'%' as pattern,
  substring(lower(term) from '^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$') as exact_id
  from args where char_length(term)>=2 or term ~ '^[1-9]$'
+), q as (
+ select *,case when exact_id is not null and exact_id::numeric<=9223372036854775807::numeric then exact_id::bigint end as exact_bigint
+ from parsed
 ), people as (
  select p.vatra_id::text as vatra_id,p.display_name,left(p.status_text,180) as status_text,m.avatar_path,
  exists(select 1 from public.verified_accounts v where v.vatra_id=p.vatra_id) as verified
- from public.public_profiles p cross join q left join public.profile_media m on m.vatra_id=p.vatra_id
- where (q.exact_id is not null and p.vatra_id::text=q.exact_id) or (q.exact_id is null and (p.display_name ilike q.pattern or p.status_text ilike q.pattern))
+ from (
+  select p.vatra_id,p.display_name,p.status_text
+  from q join public.public_profiles p on p.vatra_id=q.exact_bigint
+  where q.exact_id is not null
+  union all
+  select p.vatra_id,p.display_name,p.status_text
+  from public.public_profiles p cross join q
+  where q.exact_id is null and (p.display_name ilike q.pattern or p.status_text ilike q.pattern)
+ ) p left join public.profile_media m on m.vatra_id=p.vatra_id
  order by p.display_name,p.vatra_id limit (select n from args)
 ), clubs as (
  select c.club_id::text as club_id,c.name,left(c.description,180) as description
