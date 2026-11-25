@@ -391,7 +391,7 @@ try{
  for(const width of [1366,420]){
   await spacingProbe.setViewportSize({width,height:900});
   const expected=width>770?16:12;
-  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+  await spacingProbe.setContent('<!doctype html><html><head>'<link rel="stylesheet" href="'+base+'assets/css/base.css">'+sharedStyles+'</head>'+
    '<body class="profile-page feed-page">'+
    '<main class="profile-posts-section">'+
    '<div class="profile-left-stack"><aside id="profile-friends-preview" class="profile-mini-card">'+
@@ -437,7 +437,7 @@ try{
   assert.ok(profileLoaded.display!=="none"&&nearly(profileLoaded.gap,expected),
    "Populated profile posts must use the same spacing as empty posts at "+width+"px: "+
     JSON.stringify(profileLoaded));
-  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+  await spacingProbe.setContent('<!doctype html><html><head>'<link rel="stylesheet" href="'+base+'assets/css/base.css">'+sharedStyles+'</head>'+
    '<body class="feed-page"><section class="feed-posts-section">'+
    '<div id="feed-posts" class="feed-posts"> \n </div>'+
    '<div id="feed-empty" class="feed-empty">Поки немає публікацій</div>'+
@@ -464,7 +464,7 @@ try{
   assert.ok(feedLoaded.listDisplay!=="none"&&nearly(feedLoaded.top,0),
    "Populated Feed posts cannot jump relative to the empty state: "+
     JSON.stringify({width,...feedLoaded}));
-  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+  await spacingProbe.setContent('<!doctype html><html><head>'<link rel="stylesheet" href="'+base+'assets/css/base.css">'+sharedStyles+'</head>'+
    '<body class="feed-page community-page"><section class="club-posts-section">'+
    '<h2 class="vatra-club-posts-title-001">Публікації</h2>'+
    '<div id="club-posts" class="club-posts"> \n </div>'+
