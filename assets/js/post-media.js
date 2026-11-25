@@ -1106,9 +1106,14 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     const url=await signed(client,"image",entry.item.media_path);
     if(!current()||!entry.container.isConnected)return;
     if(direction&&!mediaDialog?.open)return;
+    const restoreNavigationFocus=direction&&mediaDialogContent.contains(document.activeElement);
     openFullMedia(url,"image",entry.container,entry.post,client,false,direction,entry.item.media_path);
     index=next;
     photoNavigation(mediaDialogContent,index,entries.length,step);
+    if(restoreNavigationFocus||direction&&!mediaDialog.contains(document.activeElement)){
+     const preferred=mediaDialogContent.querySelector(direction>0?".vatra-post-gallery-nav-next:not(:disabled)":".vatra-post-gallery-nav-prev:not(:disabled)");
+     (preferred||mediaDialogContent.querySelector(".vatra-post-gallery-nav-prev:not(:disabled),.vatra-post-gallery-nav-next:not(:disabled)")||mediaDialog.querySelector(".vatra-post-media-close-001"))?.focus({preventScroll:true});
+    }
    }catch(_){
     window.VATRA_TOAST?.show?.(tr("Не вдалося відкрити фото.","Could not open photo."),"error");
    }finally{busy=false;}
