@@ -67,6 +67,8 @@ jobs:
         run: node _development/tests/smoke/feed-page-cache-smoke.mjs
       - name: Check Feed friend/community subscription cache and retry
         run: node _development/tests/smoke/feed-subscriptions-smoke.mjs
+      - name: Check AdSense consent and visible slot without live ad requests
+        run: node _development/tests/smoke/adsense-slot-smoke.mjs
       - name: Check global Feed search cancellation without production queries
         run: node _development/tests/smoke/feed-global-search-smoke.mjs
       - name: Verify polls and scheduled post contracts
