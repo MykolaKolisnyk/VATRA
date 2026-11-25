@@ -1776,7 +1776,6 @@ body.feed-page .feed-story-create:focus-visible{
  transform:none;border-color:#c8d8f7;box-shadow:0 5px 16px rgba(43,65,110,.075)
 }
 
-body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create:hover,
 @media(prefers-reduced-motion:reduce){
  .vatra-notification-panel{animation:none}
 }
