@@ -104,7 +104,7 @@
 .site .auth-footer-content{width:calc(100% - 24px);justify-content:center;text-align:center}}
 
 .vatra-login-hero-001{display:grid;place-items:center;flex:0 0 auto;width:100%;max-width:720px;min-height:0;margin:0 auto;overflow:visible}
-.vatra-login-hero-image-001{display:block;width:100%;height:auto;object-fit:contain;object-position:center;filter:drop-shadow(0 18px 34px rgba(37,51,111,.08))}
+.vatra-login-hero-image-001{display:block;width:100%;aspect-ratio:1 / 1;background:url("../illustrations/login-hero.webp") center / contain no-repeat;pointer-events:none;user-select:none;filter:drop-shadow(0 18px 34px rgba(37,51,111,.08))}
 @media(min-width:1200px){.vatra-login-hero-image-001{width:85%;margin-block:-4%;filter:drop-shadow(0 12px 25px rgba(37,51,111,.055))}}
 @media(min-width:1400px) and (min-height:761px){.vatra-login-hero-image-001{width:86%}}
 @media(min-width:1200px) and (max-height:760px){.intro-side{gap:10px}.vatra-login-hero-image-001{margin-block:-5%}}
