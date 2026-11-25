@@ -11,5 +11,28 @@ export function stickerArt(pack,index){
  void sheet(pack).then(img=>{const ratio=w*img.naturalWidth/(h*img.naturalHeight);if(!Number.isFinite(ratio)||ratio<=0)return;art.style.width=Math.min(1,ratio)*100+"%";art.style.height=Math.min(1,1/ratio)*100+"%";art.style.visibility="";}).catch(()=>{});
  return art;
 }
-async function sheet(pack){if(!images.has(pack.id)){const p=new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=url(pack);});images.set(pack.id,p);p.catch(()=>images.delete(pack.id));}return images.get(pack.id);}
+const SHEET_CACHE_MAX=3;
+function trimSheets(){
+ let settled=0;
+ for(const entry of images.values())if(entry.ready)settled++;
+ for(const [id,entry] of images){
+  if(settled<=SHEET_CACHE_MAX)break;
+  if(entry.ready){images.delete(id);settled--;}
+ }
+}
+async function sheet(pack){
+ let entry=images.get(pack.id);
+ if(entry){images.delete(pack.id);images.set(pack.id,entry);return entry.promise;}
+ entry={ready:false,promise:null};
+ entry.promise=new Promise((resolve,reject)=>{
+  const img=new Image();
+  img.onload=()=>resolve(img);img.onerror=reject;img.src=url(pack);
+ });
+ images.set(pack.id,entry);
+ entry.promise.then(()=>{
+  if(images.get(pack.id)!==entry)return;
+  entry.ready=true;trimSheets();
+ },()=>{if(images.get(pack.id)===entry)images.delete(pack.id);});
+ return entry.promise;
+}
 export async function stickerFile(packId,index){const pack=packs.find(p=>p.id===packId),r=pack?.rects[index];if(!r||!Number.isInteger(index))throw Error("Unknown sticker");const img=await sheet(pack);const [x,y,w,h]=r;const sx=Math.round(x*img.naturalWidth),sy=Math.round(y*img.naturalHeight),sw=Math.round((x+w)*img.naturalWidth)-sx,sh=Math.round((y+h)*img.naturalHeight)-sy;if(sw<=0||sh<=0)throw Error("Empty sticker crop");const canvas=document.createElement("canvas");canvas.width=sw;canvas.height=sh;const context=canvas.getContext("2d");if(!context)throw Error("Canvas unavailable");context.drawImage(img,sx,sy,sw,sh,0,0,sw,sh);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error("Sticker encoding failed")),"image/webp",0.99));if(blob.type!=="image/webp")throw Error("WebP unavailable");return new File([blob],"vatra-"+pack.id+"-"+(index+1)+".webp",{type:"image/webp"});}
