@@ -503,7 +503,8 @@ const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes(
 // VATRA now displays the hero illustration on sign-in; animated orbit remains retired.
 assert.ok(
  landing.includes('class="vatra-login-hero-001 ui-home-hero-001"')&&
- landing.includes('class="vatra-login-hero-image-001 ui-home-hero-image-001" src="assets/illustrations/login-hero.webp"')&&
+ landing.includes('<div class="vatra-login-hero-image-001 ui-home-hero-image-001" role="img" aria-label="VATRA"></div>')&&
+ !landing.includes('<img class="vatra-login-hero-image-001')&&
  !landing.includes('class="intro-symbol ui-home-img-002"')&&
  !landing.includes('class="intro-circle')&&
  !landing.includes('class="orbit-node')&&
@@ -511,7 +512,9 @@ assert.ok(
  "Login must display only the VATRA hero illustration, without previous orbital icons");
 assert.ok(signInCss.includes(".vatra-login-hero-001{")&&
  signInCss.includes(".vatra-login-hero-image-001{")&&
- signInCss.includes("object-fit:contain")&&
+ signInCss.includes('background:url("../illustrations/login-hero.webp") center / contain no-repeat')&&
+ signInCss.includes("aspect-ratio:1447 / 1087")&&
+ signInCss.includes("pointer-events:none;user-select:none")&&
  !/\.(?:orbit-|intro-circle|intro-art|intro-symbol)/.test(signInCss)&&
  !/vatraOrbitClockwise|vatraIconUpright|vatraGlyphFloat/.test(css)&&
  !(await read("assets/js/sign-in.js")).includes("wireOrbitTooltips")&&
