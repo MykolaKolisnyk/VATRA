@@ -676,9 +676,9 @@ try{
   await page.setViewportSize({width,height});
   await page.goto(base,{waitUntil:"domcontentloaded",timeout:20000});
   await waitReady(page);
-  await page.locator(".vatra-login-hero-image-001").evaluate(async hero=>{
-   const asset=new Image();asset.src=getComputedStyle(hero).backgroundImage.slice(5,-2);await asset.decode();
-  });
+  const heroLayer=page.locator(".vatra-login-hero-image-001 .vatra-login-hero-layer-001.is-active");
+  await heroLayer.waitFor({state:"visible"});
+  await heroLayer.evaluate(async image=>{await image.decode();});
   const sizes=await page.evaluate(()=>{
    const r=selector=>{const b=document.querySelector(selector)?.getBoundingClientRect();return b?{x:b.x,y:b.y,w:b.width,h:b.height}:null};
    const offenders=[...document.querySelectorAll("body *")].map(node=>({node,b:node.getBoundingClientRect()}))
@@ -700,7 +700,7 @@ try{
      footerAligned:Math.abs(footerContent.left-rect.left)<=2&&Math.abs(footerContent.right-rect.right)<=2,
      authAnimation:getComputedStyle(document.querySelector(".form-box")).animationName,
      fieldGap:getComputedStyle(document.querySelector(".form-box .field-stack")).gap,
-     heroReady:(()=>{const hero=document.querySelector(".vatra-login-hero-image-001");return !!hero&&hero.tagName==="DIV"&&getComputedStyle(hero).backgroundImage.includes("login-hero.webp");})(),
+     heroReady:(()=>{const hero=document.querySelector(".vatra-login-hero-image-001");const image=hero?.querySelector(".vatra-login-hero-layer-001.is-active");return !!hero&&hero.tagName==="DIV"&&!!image?.naturalWidth&&/login_hero-0[123]\.webp$/.test(image.currentSrc||image.src);})(),
      obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol,.intro-circle,.intro-art").length,
      heroWidth:document.querySelector(".vatra-login-hero-image-001").getBoundingClientRect().width,
      heroBefore:getComputedStyle(brand,"::before").content,
@@ -725,7 +725,7 @@ try{
   assert.ok(design.heroWidth>=minHeroWidth-2,"Hero must remain readable regardless of viewport height at "+width+": "+JSON.stringify(design));
   if(desktopHero)assert.ok(design.heroWidth<=sizes.intro.w*.85+2,"Hero must not dominate the login form at "+width+": "+JSON.stringify(design));
   const artwork=await page.locator(".vatra-login-hero-image-001").evaluate(async img=>{
-   const asset=new Image();asset.src=getComputedStyle(img).backgroundImage.slice(5,-2);await asset.decode();
+   const asset=img.querySelector(".vatra-login-hero-layer-001.is-active");await asset.decode();
    const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
    const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(asset,0,0,256,256);
    const pixels=ctx.getImageData(0,0,256,256).data;
@@ -764,13 +764,13 @@ try{
   if(width===360||width===1440){
    const hero=await page.locator(".vatra-login-hero-image-001").evaluate(async img=>{
     const box=img.getBoundingClientRect(),computed=getComputedStyle(img);
-    const asset=new Image();asset.src=computed.backgroundImage.slice(5,-2);await asset.decode();
+    const asset=img.querySelector(".vatra-login-hero-layer-001.is-active");await asset.decode();
     return {loaded:asset.complete&&asset.naturalWidth>0,
-     src:new URL(asset.src,location.href).pathname,nonInteractive:img.tagName==="DIV"&&computed.pointerEvents==="none"&&!img.closest("a")&&!img.querySelector("img"),
+     src:new URL(asset.src,location.href).pathname,nonInteractive:img.tagName==="DIV"&&computed.pointerEvents==="none"&&!img.closest("a")&&getComputedStyle(asset).pointerEvents==="none"&&asset.alt===""&&!asset.draggable,
      box:{left:box.left,right:box.right,top:box.top,bottom:box.bottom},
-     fit:computed.backgroundSize,ratio:asset.naturalWidth/asset.naturalHeight,renderedRatio:box.width/box.height};
+     fit:getComputedStyle(asset).objectFit,ratio:asset.naturalWidth/asset.naturalHeight,renderedRatio:box.width/box.height};
    });
-   assert.ok(hero.loaded&&hero.nonInteractive&&hero.src.endsWith("/assets/illustrations/login-hero.webp")&&hero.fit==="contain"&&Number.isFinite(hero.ratio)&&hero.ratio>0&&Math.abs(hero.renderedRatio/hero.ratio-1)<0.01,
+   assert.ok(hero.loaded&&hero.nonInteractive&&/\/assets\/illustrations\/login_hero-0[123]\.webp$/.test(hero.src)&&hero.fit==="contain"&&Number.isFinite(hero.ratio)&&hero.ratio>0&&Math.abs(hero.renderedRatio/hero.ratio-1)<0.01,
     "Login must render the supplied hero without cropping: "+JSON.stringify(hero));
    assert.ok(hero.box.right<=width+2&&hero.box.left>=-2,
     "Login hero must remain within viewport horizontally: "+JSON.stringify(hero));
@@ -1646,6 +1646,7 @@ try{
    await probe.setViewportSize({width,height});
    await probe.goto(base+route,{waitUntil:"domcontentloaded"});
    await waitReady(probe);
+   if(!route)await probe.locator(".vatra-login-hero-layer-001.is-active").waitFor({state:"visible"});
    const v=await probe.evaluate(()=>{
     const login=!!document.querySelector(".site");
     const style=sel=>{
@@ -1658,7 +1659,7 @@ try{
       desc:style(login?".login-description":".signup-step-heading .subtitle"),
       logo:style(login?".vatra-login-hero-image-001":".signup-brand-symbol"),
       copyAlign:getComputedStyle(document.querySelector(login?".intro-copy":".signup-brand-copy")).textAlign,
-      svg:login?new URL(getComputedStyle(document.querySelector(".vatra-login-hero-image-001")).backgroundImage.slice(5,-2)).pathname.split("/assets/")[1]:document.querySelector(".signup-brand-symbol").getAttribute("src"),
+      svg:login?new URL(document.querySelector(".vatra-login-hero-layer-001.is-active").currentSrc).pathname.split("/assets/")[1]:document.querySelector(".signup-brand-symbol").getAttribute("src"),
       primary:getComputedStyle(document.querySelector(login?".form-box .action.primary":".signup-form-panel .action.primary")).backgroundImage};
    });
    assert.equal(v.copyAlign,"center","Promo copy must be centered "+route+" "+width);
@@ -1671,7 +1672,7 @@ try{
     assert.equal(login[key][prop],signup[key][prop],
      "Typography mismatch "+width+" "+key+"."+prop+": "+JSON.stringify(settings));
   assert.equal(login.primary,signup.primary,"CTA gradients must match "+width);
-  assert.equal(login.svg,"illustrations/login-hero.webp","Login must use the original hero at "+width);
+  assert.match(login.svg,/^illustrations\/login_hero-0[123]\.webp$/,"Login must use one of the three supplied hero illustrations at "+width);
   assert.equal(signup.svg,"assets/logo/logo_symbol.svg","Signup must retain the brand symbol at "+width);
   assert.equal(login.logo.animation,"none","The login hero must not rotate or pulse at "+width);
   assert.ok(signup.logo.animation.includes("vatraSignupSymbol"),
