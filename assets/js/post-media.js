@@ -493,24 +493,9 @@
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
  const photoSlides=new WeakMap();
  function photoMatte(path){return /\.(?:png|webp)(?:[?#]|$)/i.test(String(path||""))?"white":"dark";}
- function photoFit(width,height,vw,vh,side,footer){
-  const maxW=Math.max(1,vw-32-side),maxH=Math.max(1,vh-32-footer);
-  const scale=Math.min(maxW/width,maxH/height);
-  return {width:Math.floor(width*scale)+side,height:Math.floor(height*scale)+footer};
- }
  function fitPhotoViewer(dialog,stage,image,path){
   if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
   if(path||!stage.dataset.photoMatte)stage.dataset.photoMatte=photoMatte(path||image.currentSrc||image.src);
-  const vw=window.visualViewport?.width||innerWidth,vh=window.visualViewport?.height||innerHeight;
-  const side=dialog.querySelector(".profile-avatar-engagement,.ui-vatra-post-media-side-001");
-  const footer=dialog.querySelector(".ui-profile-photo-footer-001,.ui-vatra-post-media-footer-001,.ui-vatra-album-viewer-bottom-001");
-  const sideW=side&&!side.hidden?Math.round(Math.max(318,Math.min(415,vw*.25))):0;
-  const footerH=footer&&!footer.hidden?Math.max(54,footer.offsetHeight):0;
-  if(vw<=780){delete dialog.dataset.photoSized;dialog.style.removeProperty("--vatra-photo-width");dialog.style.removeProperty("--vatra-photo-height");return;}
-  const size=photoFit(image.naturalWidth,image.naturalHeight,vw,vh,sideW,footerH);
-  dialog.style.setProperty("--vatra-photo-width",Math.min(vw-32,Math.max(sideW+160,size.width))+"px");
-  dialog.style.setProperty("--vatra-photo-height",Math.min(vh-32,Math.max(280,size.height))+"px");
-  dialog.dataset.photoSized="true";
  }
  function clearPhotoSlide(stage){
   const previous=photoSlides.get(stage);

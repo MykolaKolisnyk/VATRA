@@ -3504,8 +3504,8 @@ try{
     rootGutter:getComputedStyle(document.documentElement).scrollbarGutter};
   });
   assert.ok(postFrame.open&&postFrame.w<=postFrame.vw+2&&postFrame.h<=postFrame.vh+2&&postFrame.x>=-2&&postFrame.y>=-2&&
-   (postFrame.vw<=780?Math.abs(postFrame.w-postFrame.vw)<=2:postFrame.sized==="true"&&(Math.abs(postFrame.w-(postFrame.vw-32))<=3||Math.abs(postFrame.h-(postFrame.vh-32))<=3)),
-   "Post photos must fill the available dimension without overflowing: "+JSON.stringify(postFrame));
+   Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2&&Math.abs(postFrame.x)<=2&&Math.abs(postFrame.y)<=2&&!postFrame.sized,
+   "Post photo viewer must fill the entire viewport in both dimensions: "+JSON.stringify(postFrame));
   assert.equal(postFrame.caption,
    language==="en"?"Photo from a post":"Фото з публікації",
    "Own post photos must not repeat the owner's name or a decorative separator");
@@ -4811,8 +4811,8 @@ try{
    return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top};
   });
   assert.ok(fullscreenAvatar.w<=fullscreenAvatar.vw+2&&fullscreenAvatar.h<=fullscreenAvatar.vh+2&&fullscreenAvatar.x>=-2&&fullscreenAvatar.y>=-2&&
-   (fullscreenAvatar.vw<=780?Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2:Math.abs(fullscreenAvatar.w-(fullscreenAvatar.vw-32))<=3||Math.abs(fullscreenAvatar.h-(fullscreenAvatar.vh-32))<=3),
-   "Avatar viewer must use the available space while keeping its original proportions: "+JSON.stringify(fullscreenAvatar));
+   Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2&&Math.abs(fullscreenAvatar.x)<=2&&Math.abs(fullscreenAvatar.y)<=2,
+   "Avatar viewer must fill the entire viewport in both dimensions: "+JSON.stringify(fullscreenAvatar));
   assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
    "Person tagging was removed from the photo viewer altogether");
   assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
