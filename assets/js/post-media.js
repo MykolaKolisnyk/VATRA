@@ -399,8 +399,6 @@
   await Promise.allSettled([...waiting]);
   trimSignedCache(signedURLs);
  }
- // Coalesce only previews already requested by the viewport. No offscreen
- // files, video autoplay, or cross-session signed URLs are prefetched.
  function preSignVisible(client,items,ttl=3600){
   const state=signedCacheFor(client),version=state.version;
   let batch=state.previewBatches.get(ttl);
