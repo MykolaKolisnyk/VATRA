@@ -3626,12 +3626,18 @@ body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close,.vatr
 body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close,.vatra-album-viewer-close-001,.vatra-photo-zoom-button-001):hover:not(:disabled){background:#46536bc9;transform:scale(1.06);box-shadow:0 3px 12px #101a3440}
 body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close,.vatra-album-viewer-close-001,.vatra-photo-zoom-button-001):active:not(:disabled){transform:scale(.95)}
 body.feed-page .vatra-photo-viewer-brand-001{position:absolute;z-index:5;top:18px;left:70px;width:42px;height:42px;background:transparent url("../logo/logo_symbol.svg") center / contain no-repeat;pointer-events:none}
-body.feed-page .ui-vatra-photo-zoom-controls-001{position:absolute;z-index:5;top:18px;right:18px;display:flex;gap:8px;align-items:center;color:#fff}
+body.feed-page .ui-vatra-photo-zoom-controls-001{position:absolute;z-index:5;top:18px;right:18px;display:flex;gap:8px;align-items:center;color:#fff;--vatra-zoom-button-size:42px;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 body.feed-page .vatra-photo-zoom-button-001{display:grid;place-items:center;width:42px;height:42px;border:1px solid #ffffff30;border-radius:50%;padding:0;background:#182132cf;color:#fff;cursor:pointer}
 body.feed-page .vatra-photo-zoom-button-001:disabled{opacity:.42;cursor:default}
 body.feed-page .vatra-photo-zoom-button-001:focus-visible{outline:2px solid #9bb9ff;outline-offset:2px}
 body.feed-page .ui-vatra-photo-zoom-icon-001{width:22px;height:22px;display:block}
-body.feed-page .vatra-photo-zoom-value-001{position:absolute;right:0;top:48px;pointer-events:none;background:#182132cf;border-radius:8px;padding:3px 8px;font:600 12px/1.4 Onest,system-ui,sans-serif}
+body.feed-page .ui-vatra-photo-zoom-controls-001 *{user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+body.feed-page :is(.vatra-photo-zoom-wrap-in-001,.vatra-photo-zoom-wrap-out-001){display:block;flex:none}
+body.feed-page .vatra-photo-zoom-value-001{position:absolute;left:calc(var(--vatra-zoom-button-size) / 2);top:calc(100% + 6px);transform:translateX(-50%);pointer-events:none;opacity:0;visibility:hidden;background:#182132cf;border-radius:8px;padding:3px 8px;font:600 12px/1.4 Onest,system-ui,sans-serif;white-space:nowrap;transition:opacity .15s ease}
+body.feed-page .ui-vatra-photo-zoom-controls-001:has(.vatra-photo-zoom-wrap-in-001:hover,.vatra-photo-zoom-in-001:focus-visible) .vatra-photo-zoom-value-001{opacity:1;visibility:visible;left:calc(var(--vatra-zoom-button-size) / 2)}
+body.feed-page .ui-vatra-photo-zoom-controls-001:has(.vatra-photo-zoom-wrap-out-001:hover,.vatra-photo-zoom-out-001:focus-visible) .vatra-photo-zoom-value-001{opacity:1;visibility:visible;left:calc(100% - var(--vatra-zoom-button-size) / 2)}
+body.feed-page .vatra-photo-zoom-target-001{-webkit-user-drag:none;user-select:none}
+body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="unknown"]{background:#252932}
 body.feed-page .vatra-post-media-viewer:has(.ui-vatra-post-expanded-video-001) .ui-vatra-photo-zoom-controls-001{display:none}
 body.feed-page .profile-media-viewer.is-photo-deleted .ui-vatra-photo-zoom-controls-001{visibility:hidden}
 body.feed-page .vatra-photo-zoom-target-001{transform-origin:center;transition:scale .24s cubic-bezier(.22,.61,.36,1)}
@@ -3647,7 +3653,7 @@ body.feed-page .vatra-section-skeleton-001[data-layout="rows"] .vatra-section-sk
 body.feed-page .vatra-section-skeleton-line-001{height:12px;width:72%;border-radius:6px}
 body.feed-page .vatra-album-photo-loading-001.is-skeleton{width:min(80%,640px);height:70%;border-radius:12px}
 body.feed-page .vatra-album-photo-loading-001[hidden]{display:none!important}
-@media(max-width:780px){body.feed-page .vatra-photo-viewer-brand-001{top:12px;left:62px;width:36px;height:36px}body.feed-page .ui-vatra-photo-zoom-controls-001{top:12px;right:12px;gap:5px}body.feed-page .vatra-photo-zoom-button-001{width:36px;height:36px}body.feed-page .vatra-photo-zoom-value-001{top:42px}}
+@media(max-width:780px){body.feed-page .vatra-photo-viewer-brand-001{top:12px;left:62px;width:36px;height:36px}body.feed-page .ui-vatra-photo-zoom-controls-001{top:12px;right:12px;gap:5px;--vatra-zoom-button-size:36px}body.feed-page .vatra-photo-zoom-button-001{width:36px;height:36px}body.feed-page .vatra-photo-zoom-value-001{top:calc(100% + 6px)}}
 @media(prefers-reduced-motion:reduce){body.feed-page :is(.vatra-photo-zoom-target-001,.vatra-photo-zoom-button-001,.vatra-post-media-close-001,.profile-media-viewer-close,.vatra-album-viewer-close-001){transition:none}body.feed-page .vatra-section-skeleton-001 .vatra-skeleton-block{animation:none}}
 
 body.feed-page .vatra-feed-story-skeleton-001{flex:0 0 108px;min-width:108px;width:108px;height:158px;border-radius:13px;scroll-snap-align:start;pointer-events:none}
