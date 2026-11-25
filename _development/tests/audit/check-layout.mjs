@@ -512,7 +512,11 @@ assert.ok(
  "Login must display only the VATRA hero illustration, without previous orbital icons");
 assert.ok(signInCss.includes(".vatra-login-hero-001{")&&
  signInCss.includes(".vatra-login-hero-image-001{")&&
- signInCss.includes('background:url("../illustrations/login-hero.webp") center / contain no-repeat')&&
+ signInCss.includes(".vatra-login-hero-layer-001{")&&
+ signInCss.includes("object-fit:contain")&&
+ signInCss.includes("transition:opacity .9s ease-in-out")&&
+ !signInCss.includes("login-hero.webp")&&
+ landing.includes("assets/js/login-hero.js?rev=")&&
  signInCss.includes("aspect-ratio:1 / 1")&&
  signInCss.includes("pointer-events:none;user-select:none")&&
  !/\.(?:orbit-|intro-circle|intro-art|intro-symbol)/.test(signInCss)&&
@@ -520,6 +524,15 @@ assert.ok(signInCss.includes(".vatra-login-hero-001{")&&
  !(await read("assets/js/sign-in.js")).includes("wireOrbitTooltips")&&
  !signInCss.includes(".intro-side:before"),
  "Login hero illustration must retain its dimensions and aspect ratio at every breakpoint");
+const loginHeroSource=await read("assets/js/login-hero.js");
+for(const n of ["01","02","03"]){
+ const path="assets/illustrations/login_hero-"+n+".webp";
+ assert.ok((await stat(path)).size>0&&loginHeroSource.includes("../illustrations/login_hero-"+n+".webp"),"All three login hero images must be available");
+}
+assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
+ loginHeroSource.includes("Math.random()")&&loginHeroSource.includes("i!==current")&&
+ loginHeroSource.includes("image.decode()")&&loginHeroSource.includes("visibilitychange")&&
+ loginHeroSource.includes("!reduced.matches"),"Login hero must select randomly, preload the next image, and respect visibility and motion preferences");
 assert.ok(
  landing.includes('class="vatra-home-paragraph-01">')&&
  landing.includes('class="vatra-home-emphasis-04" data-i18n="n100"')&&
