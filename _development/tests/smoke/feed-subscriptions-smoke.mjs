@@ -44,7 +44,12 @@ const context={client,vatraId:"10",
  subscriptionsInflight:null,subscriptionsLoadedAt:0,
  Promise,Set,Map,Date:Clock,String,Array
 };
-runInNewContext(source.slice(begin,end)+
+const deadlineBegin=source.indexOf(" function feedDeadline(");
+const deadlineEnd=source.indexOf(" async function init(){",deadlineBegin);
+assert.ok(deadlineBegin>=0&&deadlineEnd>deadlineBegin,"Find production deadline helpers");
+context.setTimeout=setTimeout;
+context.clearTimeout=clearTimeout;
+runInNewContext(source.slice(deadlineBegin,deadlineEnd)+source.slice(begin,end)+
  "\nglobalThis.feedAudience={ensureSubscriptions,loadSubscriptions};",context);
 const {ensureSubscriptions}=context.feedAudience;
 const friend=id=>({requester_id:"10",recipient_id:String(id),status:"accepted"});
