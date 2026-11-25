@@ -676,9 +676,9 @@ try{
   await page.setViewportSize({width,height});
   await page.goto(base,{waitUntil:"domcontentloaded",timeout:20000});
   await waitReady(page);
-  await page.locator(".vatra-login-hero-image-001").evaluate(async hero=>{
-   const asset=new Image();asset.src=getComputedStyle(hero).backgroundImage.slice(5,-2);await asset.decode();
-  });
+  const heroLayer=page.locator(".vatra-login-hero-image-001 .vatra-login-hero-layer-001.is-active");
+  await heroLayer.waitFor({state:"visible"});
+  await heroLayer.evaluate(async image=>{await image.decode();});
   const sizes=await page.evaluate(()=>{
    const r=selector=>{const b=document.querySelector(selector)?.getBoundingClientRect();return b?{x:b.x,y:b.y,w:b.width,h:b.height}:null};
    const offenders=[...document.querySelectorAll("body *")].map(node=>({node,b:node.getBoundingClientRect()}))
@@ -700,7 +700,7 @@ try{
      footerAligned:Math.abs(footerContent.left-rect.left)<=2&&Math.abs(footerContent.right-rect.right)<=2,
      authAnimation:getComputedStyle(document.querySelector(".form-box")).animationName,
      fieldGap:getComputedStyle(document.querySelector(".form-box .field-stack")).gap,
-     heroReady:(()=>{const hero=document.querySelector(".vatra-login-hero-image-001");return !!hero&&hero.tagName==="DIV"&&getComputedStyle(hero).backgroundImage.includes("login-hero.webp");})(),
+     heroReady:(()=>{const hero=document.querySelector(".vatra-login-hero-image-001");const image=hero?.querySelector(".vatra-login-hero-layer-001.is-active");return !!hero&&hero.tagName==="DIV"&&!!image?.naturalWidth&&/login_hero-0[123]\.webp$/.test(image.currentSrc||image.src);})(),
      obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol,.intro-circle,.intro-art").length,
      heroWidth:document.querySelector(".vatra-login-hero-image-001").getBoundingClientRect().width,
      heroBefore:getComputedStyle(brand,"::before").content,
