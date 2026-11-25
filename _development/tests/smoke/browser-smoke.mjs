@@ -3583,12 +3583,23 @@ try{
   assert.deepEqual(matteProbe,{opaque:"dark",transparent:"white",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"},
    "The same PNG format must use different mattes according to actual decoded transparency, with an unboxed logo");
   assert.equal(await zoomMinus.isDisabled(),true);
+  const zoomValue=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001");
+  await feedProbe.mouse.move(0,0);
+  assert.equal(await zoomValue.isVisible(),false);
+  for(const control of [zoomPlus,zoomMinus]){
+   await control.hover();await zoomValue.waitFor({state:"visible"});
+   const b=await control.boundingBox(),v=await zoomValue.boundingBox();
+   assert.ok(Math.abs(b.x+b.width/2-v.x-v.width/2)<2&&v.y>=b.y+b.height,"Zoom percentage must be centered under hovered button");
+  }
+  await feedProbe.mouse.move(0,0);assert.equal(await zoomValue.isVisible(),false);
   for(let i=0;i<8;i++)await zoomPlus.click();
   assert.equal(await zoomPlus.isDisabled(),true);
-  assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001").textContent(),"300%");
+  assert.equal(await zoomValue.textContent(),"300%");
+  assert.equal(await feedProbe.evaluate(()=>getSelection()?.toString()||""),"","Rapid zoom clicks must not select text");
   for(let i=0;i<8;i++)await zoomMinus.click();
   assert.equal(await zoomMinus.isDisabled(),true);
-  assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001").textContent(),"100%");
+  assert.equal(await zoomValue.textContent(),"100%");
+  await feedProbe.mouse.move(0,0);assert.equal(await zoomValue.isVisible(),false);
   const postSidebar=await feedProbe.evaluate(()=>{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const side=dialog.querySelector(".ui-vatra-post-media-side-001");
