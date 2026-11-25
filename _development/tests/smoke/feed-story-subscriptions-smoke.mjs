@@ -107,6 +107,8 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
  const stories=v.context.feedTest.loadStories();
  assert.equal(v.friendCalls,1,"Feed and Stories share one friendship query");
  assert.equal(v.storyCalls,0,"Stories must wait for the friend query");
+ assert.equal(v.holder.children.length,3,"Story placeholders remain visible while friendships load");
+ assert.ok(v.holder.children.every(item=>item.cls.includes("vatra-feed-story-skeleton-001")));
  v.release();
  await Promise.all([feedReady,stories]);
  assert.equal(v.storyCalls,1);
