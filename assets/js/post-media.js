@@ -491,7 +491,61 @@
  }
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
-function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false){
+ const photoSlides=new WeakMap();
+ function photoMatte(path){return /\.(?:png|webp)(?:[?#]|$)/i.test(String(path||""))?"white":"dark";}
+ function photoFit(width,height,vw,vh,side,footer){
+  const maxW=Math.max(1,vw-32-side),maxH=Math.max(1,vh-32-footer);
+  const scale=Math.min(maxW/width,maxH/height);
+  return {width:Math.floor(width*scale)+side,height:Math.floor(height*scale)+footer};
+ }
+ function fitPhotoViewer(dialog,stage,image,path){
+  if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
+  if(path||!stage.dataset.photoMatte)stage.dataset.photoMatte=photoMatte(path||image.currentSrc||image.src);
+  const vw=window.visualViewport?.width||innerWidth,vh=window.visualViewport?.height||innerHeight;
+  const side=dialog.querySelector(".profile-avatar-engagement,.ui-vatra-post-media-side-001");
+  const footer=dialog.querySelector(".ui-profile-photo-footer-001,.ui-vatra-post-media-footer-001,.ui-vatra-album-viewer-bottom-001");
+  const sideW=side&&!side.hidden?Math.round(Math.max(318,Math.min(415,vw*.25))):0;
+  const footerH=footer&&!footer.hidden?Math.max(54,footer.offsetHeight):0;
+  if(vw<=780){delete dialog.dataset.photoSized;dialog.style.removeProperty("--vatra-photo-width");dialog.style.removeProperty("--vatra-photo-height");return;}
+  const size=photoFit(image.naturalWidth,image.naturalHeight,vw,vh,sideW,footerH);
+  dialog.style.setProperty("--vatra-photo-width",Math.min(vw-32,Math.max(sideW+160,size.width))+"px");
+  dialog.style.setProperty("--vatra-photo-height",Math.min(vh-32,Math.max(280,size.height))+"px");
+  dialog.dataset.photoSized="true";
+ }
+ function clearPhotoSlide(stage){
+  const previous=photoSlides.get(stage);
+  if(previous){previous.cancel();photoSlides.delete(stage);}
+ }
+ function beginPhotoSlide(stage,image,direction){
+  clearPhotoSlide(stage);
+  if(!direction||!image?.naturalWidth||!image.complete||window.matchMedia?.("(prefers-reduced-motion: reduce)").matches||typeof image.animate!=="function")return ()=>{};
+  const ghost=document.createElement("img");
+  ghost.className="vatra-photo-slide-outgoing-001";ghost.alt="";ghost.setAttribute("aria-hidden","true");
+  ghost.src=image.currentSrc||image.src;
+  ghost.style.background=stage.dataset.photoMatte==="white"?"#fff":"#111419";
+  stage.append(ghost);
+  let animation=null,incoming=null,timer=null;
+  const state={cancel(){clearTimeout(timer);animation?.cancel();incoming?.cancel();ghost.remove();}};
+  photoSlides.set(stage,state);
+  timer=setTimeout(()=>{if(photoSlides.get(stage)===state)clearPhotoSlide(stage);},15000);
+  return next=>{
+   if(photoSlides.get(stage)!==state||!next?.naturalWidth||!stage.isConnected)return;
+   clearTimeout(timer);
+   const distance=Math.max(1,stage.clientWidth),sign=direction>0?1:-1;
+   const options={duration:300,easing:"cubic-bezier(.22,.61,.36,1)",fill:"both"};
+   animation=ghost.animate([{transform:"translateX(0)"},{transform:"translateX("+(-sign*distance)+"px)"}],options);
+   incoming=next.animate([{transform:"translateX("+(sign*distance)+"px)"},{transform:"translateX(0)"}],options);
+   incoming.finished.then(()=>{if(photoSlides.get(stage)===state)clearPhotoSlide(stage);},()=>{});
+  };
+ }
+ const photoLoads=new WeakMap();
+ function watchPhotoViewer(dialog,stage,image,path,finish=()=>{}){
+  photoLoads.get(stage)?.abort();
+  const controller=new AbortController();photoLoads.set(stage,controller);
+  const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);finish(image);};
+  if(image.complete&&image.naturalWidth)queueMicrotask(loaded);else image.addEventListener("load",loaded,{once:true,signal:controller.signal});
+ }
+function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false,direction=0,sourcePath=null){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
    mediaDialog.id="vatra-post-media-viewer";
@@ -571,6 +625,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
+    clearPhotoSlide(mediaDialogContent);photoLoads.get(mediaDialogContent)?.abort();delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;
     mediaDialogContent.replaceChildren();restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();mediaFooterDelete.hidden=true;
    });
    document.body.append(mediaDialog);
@@ -579,7 +634,11 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   element.className=kind==="video"?"ui-vatra-post-expanded-video-001":"ui-vatra-post-expanded-image-001";
   if(kind==="video"){element.controls=true;element.autoplay=true;element.playsInline=true;}
   else element.alt=tr("Фото публікації","Post photo");
-  element.src=url;mediaDialogContent.replaceChildren(element);
+  const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),kind==="image"?direction:0);
+  const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
+  element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
+  if(kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,sourcePath||post?.media_path||url,finishSlide);
+  else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
   restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
   const head=container?.querySelector(".feed-post-header")||postCard?.querySelector(".feed-post-header");
@@ -863,7 +922,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    try{
     const initial=await signed(client,current.media_kind,current.media_path);
     if(!slot.isConnected)return;
-    openFullMedia(initial,current.media_kind,container,post,client);
+    openFullMedia(initial,current.media_kind,container,post,client,false,0,current.media_path);
    }catch(_){return;}
    const controller=new AbortController();
    mediaDialog.addEventListener("close",()=>{active=false;controller.abort();},{once:true});
@@ -882,7 +941,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     svg.append(path);button.append(svg);return button;
    };
    let renderTicket=0;
-   const render=async()=>{
+   const render=async(direction=0)=>{
     const token=++renderTicket,item=media[index];
     try{
      const url=await signed(client,item.media_kind,item.media_path);
@@ -891,7 +950,8 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      element.className=item.media_kind==="video"?"ui-vatra-post-expanded-video-001":"ui-vatra-post-expanded-image-001";
      if(item.media_kind==="video"){element.controls=true;element.playsInline=true;}
      else element.alt=tr("Фото публікації","Post photo");
-     element.src=url;
+     if(item.media_kind==="image"){await loadImageSource(element,url);if(!active||token!==renderTicket||!mediaDialog.open)return;}
+     else element.src=url;
      const prev=makeNav(-1,tr("Попередній файл","Previous media"));
      const next=makeNav(1,tr("Наступний файл","Next media"));
      const counter=document.createElement("span");
@@ -900,17 +960,21 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      prev.disabled=index===0;next.disabled=index>=media.length-1;
      prev.hidden=next.hidden=media.length<2;
      counter.hidden=media.length<2;
-     prev.addEventListener("click",()=>{if(index>0){index--;void render();}});
-     next.addEventListener("click",()=>{if(index<media.length-1){index++;void render();}});
+     prev.addEventListener("click",()=>{if(index>0){index--;void render(-1);}});
+     next.addEventListener("click",()=>{if(index<media.length-1){index++;void render(1);}});
      const currentVideo=mediaDialogContent.querySelector("video");
      currentVideo?.pause();
-     mediaDialogContent.replaceChildren(element,prev,next,counter);
+     const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),item.media_kind==="image"?direction:0);
+     const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
+     mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]),prev,next,counter);
+     if(item.media_kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,item.media_path,finishSlide);
+     else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
     }catch(_){}
    };
    mediaDialog.addEventListener("keydown",event=>{
     if(event.target?.closest?.("input,textarea,select,video,[contenteditable]"))return;
-    if(event.key==="ArrowLeft"&&index>0){event.preventDefault();index--;void render();}
-    if(event.key==="ArrowRight"&&index<media.length-1){event.preventDefault();index++;void render();}
+    if(event.key==="ArrowLeft"&&index>0){event.preventDefault();index--;void render(-1);}
+    if(event.key==="ArrowRight"&&index<media.length-1){event.preventDefault();index++;void render(1);}
    },{signal:controller.signal});
    void render();
   }
@@ -1103,7 +1167,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    try{await verifyAuthor();}catch(_){}
    if(ticket!==photoSourceTicket){host.remove();createdDialogs.forEach(dialog=>dialog.remove());return;}
    restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();
-   openFullMedia(src,"image",host,post,client,true);
+   openFullMedia(src,"image",host,post,client,true,settings.direction||0,item.media_path);
    if(mediaDialog?.open){
     const controller=new AbortController();
     photoSourceCleanup=()=>{controller.abort();host.remove();createdDialogs.forEach(dialog=>dialog.remove());};
@@ -1116,7 +1180,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      try{
       let entry=items[index+dir];
       if(!entry&&dir>0&&settings.hasMore?.()){await settings.loadMore?.();if(ticket!==photoSourceTicket||!mediaDialog.open)return;entry=items[index+dir];}
-      if(entry)await openPostPhoto(client,entry.post,entry.item,{...settings,items});
+      if(entry)await openPostPhoto(client,entry.post,entry.item,{...settings,items,direction:dir});
       else if(ticket===photoSourceTicket&&mediaDialog.open){
        mediaDialogContent.querySelectorAll(".vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-post-gallery-counter-001").forEach(el=>el.remove());
        photoNavigation(mediaDialogContent,Math.max(0,index),items.length,step,!!settings.hasMore?.());
@@ -1129,5 +1193,6 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
- window.VATRA_POST_MEDIA={bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.addEventListener("resize",()=>{if(mediaDialog?.open){const image=mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)");if(image)fitPhotoViewer(mediaDialog,mediaDialogContent,image);}}, {passive:true});
+ window.VATRA_POST_MEDIA={photoFit,photoMatte,fitPhotoViewer,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();

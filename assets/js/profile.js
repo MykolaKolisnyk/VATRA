@@ -2493,6 +2493,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const resetTagMode=()=>{tagMode=false;photoCanvas.classList.remove("is-tagging");closeTagPicker();};
  const fitPhoto=()=>{
   if(!mediaImage.complete||!mediaImage.naturalWidth||!mediaImage.naturalHeight)return;
+  window.VATRA_POST_MEDIA?.fitPhotoViewer(mediaDialog,photoContent,mediaImage,gallery[galleryIndex]);
   const style=getComputedStyle(photoContent);
   const roomW=photoContent.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
   const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
@@ -3001,7 +3002,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  client.auth?.onAuthStateChange?.((event,session)=>{
   if(event==="SIGNED_OUT"||(session?.user?.id&&session.user.id!==userId))avatarGalleryLoader.invalidate();
  });
- const renderGalleryPhoto=()=>{
+ const renderGalleryPhoto=(direction=0)=>{
+  const finishSlide=window.VATRA_POST_MEDIA?.beginPhotoSlide(photoContent,mediaImage,direction);
   const path=gallery[galleryIndex],url=getPublicPath(path,"avatar");if(!url)return;
   const current=path===saved?.avatar_path;
   mediaDialog.dataset.kind=current?"avatar":"avatar-history";
@@ -3022,6 +3024,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    mediaImage.onerror=null;mediaImage.src=url;originalLink.href=url;
   };
   mediaImage.alt=photoTitle;mediaImage.src=sourceUrl||url;
+  window.VATRA_POST_MEDIA?.watchPhotoViewer(mediaDialog,photoContent,mediaImage,path,finishSlide);
   if(mediaImage.complete)queueMicrotask(fitPhoto);
   originalLink.href=sourceUrl||url;photoFooter.hidden=false;
   resetTagMode();closeMore();reportTag("");tagMarkers.replaceChildren();tagEpoch++;
@@ -3055,7 +3058,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   void reloadPhotoActivity(false,true,lastAvatarCommentKey===path+"|"+photoCommentSort);
   void loadTags();
  };
- const stepPhoto=delta=>{if(pendingAvatarUndo)return;const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
+ const stepPhoto=delta=>{if(pendingAvatarUndo)return;const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto(delta);};
  prevPhoto.addEventListener("click",()=>stepPhoto(-1));nextPhoto.addEventListener("click",()=>stepPhoto(1));
  document.addEventListener("keydown",event=>{if(!mediaDialog.open||!["avatar","avatar-history"].includes(mediaDialog.dataset.kind)||event.target.matches?.("input,textarea,select,[contenteditable]")||document.querySelector("dialog[open]:not(#profile-media-viewer)"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();stepPhoto(event.key==="ArrowLeft"?-1:1);}});
  let swipeStart=null;mediaImage.addEventListener("touchstart",event=>{swipeStart=event.touches[0]?.clientX??null;},{passive:true});
@@ -3105,6 +3108,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  coverView.addEventListener("click",()=>void openCover());
  mediaDialog.addEventListener("close",()=>{
+  window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete mediaDialog.dataset.photoSized;delete photoContent.dataset.photoMatte;
   galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();
   hideAvatarUndo();discardAvatarUndo();
  });

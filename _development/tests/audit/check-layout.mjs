@@ -2132,9 +2132,11 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('.profile-media-viewer.is-photo-deleted')&&
  memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
  !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
- memberCss.includes('padding:48px 68px 8px')&&
+ memberCss.includes('overflow:hidden;padding:0')&&
+ systemFeedCss.includes('[data-photo-sized="true"]')&&
+ systemFeedCss.includes('[data-photo-matte="white"]')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
- "Avatar deletions preserve a restorable backup and chevrons stay outside the image");
+ "Avatar deletions preserve a restorable backup and photo sizing removes unnecessary padding");
 
 const photoReportMigration=await read("_development/supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
 const photoReportNotNull=await read("_development/supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
