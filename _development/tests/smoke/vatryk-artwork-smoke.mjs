@@ -52,7 +52,16 @@ const deadlineContext={Promise,Error,Object,setTimeout:(fn)=>setTimeout(fn,5),cl
 vm.runInNewContext(feedRuntime.slice(begin,end)+"\nglobalThis.deadline=feedDeadline;",deadlineContext);
 assert.equal(await deadlineContext.deadline(Promise.resolve("ok")),"ok");
 await assert.rejects(deadlineContext.deadline(new Promise(()=>{})),/Feed request timed out/);
-console.log("VATRA Feed: visible startup error, auth deadline and fail-closed account check verified.");
+assert.ok(feedRuntime.includes('pendingDeleteFlush=Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,vatraId))')&&
+ !feedRuntime.includes('await window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes')&&
+ feedRuntime.includes('await Promise.all([feedDeadline(ensureSubscriptions()),feedDeadline(pendingDeleteFlush)])'),
+ "Authenticated shell must not wait for queued deletions; post reads must still wait for deletion replay");
+assert.ok(feedRuntime.indexOf('if(profile.error||!validId(profile.data?.vatra_id))')<
+ feedRuntime.indexOf('pendingDeleteFlush=Promise.resolve().then')&&
+ feedRuntime.indexOf('pendingDeleteFlush=Promise.resolve().then')<
+ feedRuntime.indexOf('q("#feed-app").hidden=false;'),
+ "Deletion replay must begin only after the verified account, before the shell opens");
+console.log("VATRA Feed: visible startup error, auth deadline, fail-closed account check and non-blocking deletion replay verified.");
 
 const profileRuntime=await readFile("assets/js/profile.js","utf8");
 assert.ok(profileRuntime.includes('const prepared=profileDeadline(window.VATRA_PROFILE_DETAILS.prepare({client,ownId,targetId,isMine}))')&&
