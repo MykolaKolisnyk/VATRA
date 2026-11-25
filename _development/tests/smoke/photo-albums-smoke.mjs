@@ -26,6 +26,11 @@ assert.ok(
  script.includes('section.dataset.vatraAlbumsReady="true"'),
  "Photo albums must initialize once using existing authenticated profile state"
 );
+assert.ok(html.includes('data-profile-archive="archive-photos"')&&html.includes('data-profile-panel="archive-photos"')&&
+ script.includes("tabs.append(postTab,albumTab)")&&!script.includes("const archiveTab=")&&
+ script.includes("archiveSection.append(archivePane)")&&script.includes("archiveSection.prepend(bulk)")&&
+ profile.includes('["saved","archive-stories","archive-posts","archive-photos"].includes(name)'),
+ "Photo archive must be a separate owner-only profile archive section with existing bulk actions");
 for(const marker of [
  'photo_albums").insert','photo_albums").update','photo_albums").delete',
  'album_photos").insert','album_photos").delete','photo_album_comments").insert',

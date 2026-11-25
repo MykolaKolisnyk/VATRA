@@ -4607,9 +4607,17 @@ try{
   assert.equal(await profilePage.evaluate(()=>window.__vatraFriendLimitCalls.includes(300)),false,
    "Opening a profile must not fetch 300 friendships without opening the Friends tab");
 
-  // Real browser smoke for VATRA albums: independent album tab and safe owner editor.
+  // Real browser smoke for VATRA albums: archive opens independently before the photo tab.
+  await profilePage.locator("#profile-archive-toggle").click();
+  assert.equal(await profilePage.locator("#profile-archive-menu [data-profile-archive]").count(),3);
+  await profilePage.locator('[data-profile-archive="archive-photos"]').click();
+  await profilePage.locator("#profile-archive-photos-section .vatra-album-archive-pane-001").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-archive-toggle").evaluate(el=>el.classList.contains("social-profile-tab-active")),true);
   await profilePage.locator("#profile-tab-photos").click();
+  assert.equal(await profilePage.locator("#profile-archive-photos-section").isVisible(),false);
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator(".vatra-albums-tab-001").count(),2,"Photos must only contain Photos and Albums tabs");
   await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
   await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
   assert.ok((await profilePage.locator(".vatra-albums-card-title-001").first().textContent()).trim().length>0,
@@ -4753,7 +4761,7 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0);
   const avatarLayers=await profilePage.evaluate(()=>({avatar:Number(getComputedStyle(document.querySelector("#profile-avatar-wrap")).zIndex),header:Number(getComputedStyle(document.querySelector(".feed-header")).zIndex)}));
   assert.ok(avatarLayers.avatar<avatarLayers.header,"Opening the avatar menu must never lift the avatar above the sticky header");
-  for(const panel of ["photos","videos","clips","communities","saved","archive-stories","archive-posts"])
+  for(const panel of ["photos","videos","clips","communities","saved","archive-stories","archive-posts","archive-photos"])
    assert.equal(await profilePage.locator('[data-profile-panel="'+panel+'"] > h2').count(),0,"Profile tabs must not duplicate their headings");
   const avatarMenuRect=await profilePage.locator("#profile-avatar-menu").boundingBox();
   assert.ok(avatarMenuRect&&avatarMenuRect.width>=200,
@@ -5297,6 +5305,7 @@ try{
 
   await profilePage.locator("#profile-tab-photos").click();
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator(".vatra-albums-tab-001").count(),2,"Photos must only contain Photos and Albums tabs");
   await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
   await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
   assert.equal(await profilePage.locator(".ui-vatra-albums-controls-001 .vatra-albums-primary-001").isVisible(),false,

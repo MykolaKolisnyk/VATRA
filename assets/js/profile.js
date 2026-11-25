@@ -1434,7 +1434,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
   }catch(_){empty("#profile-archive-posts-empty",t("Не вдалося завантажити архів.","Could not load archive."));}
  };
  const dispatch=name=>{
-  toggle?.classList.toggle("social-profile-tab-active",name==="archive-stories"||name==="archive-posts");
+  toggle?.classList.toggle("social-profile-tab-active",["archive-stories","archive-posts","archive-photos"].includes(name));
   if(name==="saved")void saved();
   if(name==="archive-stories")void stories();
   if(name==="archive-posts")void archivedPosts();
@@ -1458,7 +1458,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  for(const button of menu.querySelectorAll("[data-profile-archive]")){
   button.addEventListener("click",()=>{
    window.VATRA_PROFILE_CHOOSE_TAB?.(button.dataset.profileArchive);
-   dispatch(button.dataset.profileArchive);close();
+   close();
   });
  }
  document.addEventListener("pointerdown",event=>{if(!archiveWrap.contains(event.target)&&!menu.contains(event.target))close();});
@@ -1515,8 +1515,8 @@ function bindProfileStoryComposer(client,ownId){
  trigger.addEventListener("click",firstClick);
 }
 function setupLazyProfileAlbums(client,ownId,targetId,userId,isMine){
- const tab=q("#profile-tab-photos"),section=q("#profile-photos-section");
- if(!tab||!section)return;
+ const tab=q("#profile-tab-photos"),section=q("#profile-photos-section"),archiveSection=q("#profile-archive-photos-section");
+ if(!tab||!section||!archiveSection)return;
  let pending=null;
  function activate(){
   if(section.dataset.vatraAlbumsReady==="true"||pending)return;
@@ -1529,10 +1529,11 @@ function setupLazyProfileAlbums(client,ownId,targetId,userId,isMine){
   tab.setAttribute("aria-busy","true");
  }
  function onSelection(){
-  if(tab.getAttribute("aria-selected")==="true")activate();
+  if(tab.getAttribute("aria-selected")==="true"||(isMine&&!archiveSection.hidden))activate();
  }
  tab.addEventListener("click",onSelection);
  new MutationObserver(onSelection).observe(tab,{attributes:true,attributeFilter:["aria-selected"]});
+ if(isMine)new MutationObserver(onSelection).observe(archiveSection,{attributes:true,attributeFilter:["hidden"]});
  const album=new URLSearchParams(location.search).get("album");
  if(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(album||"")))activate();
  else onSelection();
@@ -2129,7 +2130,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  let loadFriends=async()=>{};
  const tabs=[...document.querySelectorAll("[data-profile-tab]")];
  function choose(name){
-  if(!isMine&&["saved","archive-stories","archive-posts"].includes(name))return;
+  if(!isMine&&["saved","archive-stories","archive-posts","archive-photos"].includes(name))return;
 
   for(const tab of tabs){
    const active=tab.dataset.profileTab===name;
