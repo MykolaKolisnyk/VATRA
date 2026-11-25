@@ -68,7 +68,8 @@
     },
     "maintenance": {
       "meta": {
-        "title": "Maintenance"
+        "title": "Maintenance",
+        "description": "Maintenance temporaire sur VATRA."
       },
       "nodes": {
         "maintenance-kicker": {
@@ -286,7 +287,7 @@
     "feed": {
       "meta": {
         "title": "Fil d’actualité",
-        "description": "Publications et stories sur VATRA."
+        "description": "Consultez les publications et stories de vos amis et communautés sur VATRA."
       },
       "nodes": {
         "n12": {
@@ -366,7 +367,7 @@
     "profile": {
       "meta": {
         "title": "Ma page",
-        "description": "Votre page sur VATRA."
+        "description": "Consultez votre profil, vos photos et vos publications sur VATRA."
       },
       "nodes": {
         "n42": {
@@ -425,7 +426,8 @@
     },
     "offline": {
       "meta": {
-        "title": "Aucune connexion"
+        "title": "Aucune connexion",
+        "description": "Aucune connexion Internet. Vérifiez votre connexion et réessayez."
       },
       "nodes": {
         "n6": {
@@ -458,7 +460,10 @@
     "verify": {
       "meta": {
         "title": "Vérification",
-        "description": "Vérifiez votre adresse e-mail."
+        "description": "Vérifiez l’adresse e-mail de votre compte VATRA.",
+        "og:title": "Vérification · VATRA",
+        "og:description": "Vérifiez l’adresse e-mail de votre compte VATRA.",
+        "og:locale": "fr_FR"
       },
       "nodes": {
         "n4": {
@@ -489,7 +494,7 @@
         "description": "Créez un compte VATRA, le réseau social ukrainien dédié aux échanges, aux communautés et à la créativité.",
         "og:locale": "fr_FR",
         "og:title": "Créer un compte · VATRA",
-        "og:description": "VATRA — un réseau social ukrainien. Vos proches. Vos histoires. Votre VATRA.",
+        "og:description": "Créez un compte VATRA, le réseau social ukrainien dédié aux échanges, aux communautés et à la créativité.",
         "og:image:alt": "Icône officielle de VATRA"
       },
       "nodes": {
@@ -902,7 +907,7 @@
         "description": "Récupérez l’accès à votre compte sur le réseau social ukrainien VATRA.",
         "og:locale": "fr_FR",
         "og:title": "Récupération du mot de passe · VATRA",
-        "og:description": "VATRA — un réseau social ukrainien. Vos proches. Vos histoires. Votre VATRA.",
+        "og:description": "Récupérez l’accès à votre compte sur le réseau social ukrainien VATRA.",
         "og:image:alt": "Icône officielle de VATRA"
       },
       "nodes": {
@@ -1078,7 +1083,7 @@
         "description": "Créez un nouveau mot de passe pour VATRA, le réseau social ukrainien.",
         "og:locale": "fr_FR",
         "og:title": "Nouveau mot de passe · VATRA",
-        "og:description": "VATRA — un réseau social ukrainien. Vos proches. Vos histoires. Votre VATRA.",
+        "og:description": "Créez un nouveau mot de passe pour VATRA, le réseau social ukrainien.",
         "og:image:alt": "Icône officielle de VATRA"
       },
       "nodes": {
@@ -1234,7 +1239,7 @@
         "description": "Règles de VATRA : comptes, publications, communautés, droits d’auteur, marketplace et sécurité.",
         "og:locale": "fr_FR",
         "og:title": "Conditions d’utilisation — VATRA",
-        "og:description": "Conditions d’utilisation de VATRA : inscription, accès au compte et sécurité."
+        "og:description": "Règles de VATRA : comptes, publications, communautés, droits d’auteur, marketplace et sécurité."
       },
       "nodes": {
         "n1": {
@@ -1561,7 +1566,7 @@
         "description": "Politique de confidentialité de VATRA, le réseau social ukrainien. Traitement des données personnelles.",
         "og:locale": "fr_FR",
         "og:title": "Confidentialité — VATRA",
-        "og:description": "Politique de confidentialité de VATRA : traitement des données personnelles."
+        "og:description": "Politique de confidentialité de VATRA, le réseau social ukrainien. Traitement des données personnelles."
       },
       "nodes": {
         "n1": {
@@ -4091,5 +4096,14 @@
   "Виберіть фото JPEG, PNG, WebP до 6 МБ або відео MP4, WebM до 50 МБ.": "Choisissez une photo JPEG, PNG ou WebP de 6 Mo maximum, ou une vidéo MP4 ou WebM de 50 Mo maximum.",
   "Не вдалося відкрити файл.": "Impossible d'ouvrir le fichier.",
   "Не вдалося зберегти медіафайл історії. Повторіть спробу з новим файлом.": "Le média de la story n'a pas pu être validé. Réessayez avec un autre fichier.",
-  "Не вдалося опублікувати історію. Спробуйте ще раз.": "Impossible de publier la story. Réessayez."
+  "Не вдалося опублікувати історію. Спробуйте ще раз.": "Impossible de publier la story. Réessayez.",
+  "Переглядайте короткі відео та діліться власними кліпами у VATRA.": "Regardez des vidéos courtes et partagez vos propres clips sur VATRA.",
+  "Переглядайте публікації, учасників та інформацію про спільноту у VATRA.": "Consultez les publications, les membres et les informations d’une communauté sur VATRA.",
+  "Знаходьте спільноти за інтересами, приєднуйтеся до них і створюйте власні у VATRA.": "Découvrez des communautés selon vos intérêts, rejoignez-les et créez les vôtres sur VATRA.",
+  "Переглядайте друзів, надсилайте та приймайте заявки в друзі у VATRA.": "Consultez vos amis, envoyez et acceptez des invitations sur VATRA.",
+  "Переглядайте віртуальні подарунки та даруйте їх користувачам VATRA.": "Découvrez des cadeaux virtuels et offrez-les aux membres de VATRA.",
+  "Знаходьте товари й розміщуйте власні оголошення на маркетплейсі VATRA.": "Trouvez des produits et publiez vos propres annonces sur le marketplace de VATRA.",
+  "Переглядайте вподобання Ваших публікацій, коментарів і фото профілю, заявки в друзі та відповіді на них у VATRA.": "Consultez les mentions J’aime sur vos publications, commentaires et photos de profil, les invitations d’amis et leurs réponses sur VATRA.",
+  "Керуйте налаштуваннями акаунта, конфіденційності та сповіщень у VATRA.": "Gérez les paramètres du compte, de confidentialité et de notifications sur VATRA.",
+  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "Consultez les informations sur votre VATRA ID, l’identifiant unique de votre compte."
 }
