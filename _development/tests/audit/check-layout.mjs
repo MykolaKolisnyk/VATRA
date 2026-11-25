@@ -1420,6 +1420,9 @@ assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
  storyPreviewMarkup.includes('id="feed-compose-form"')&&
  storyPreviewMarkup.includes('id="feed-story-dialog"')&&storyPreviewMarkup.includes('assets/js/feature-loader.js?rev=')&&
  !storyPreviewMarkup.includes('src="assets/js/story-editor.js?rev=')&&
+ storyPreviewMarkup.includes('id="feed-story-create-avatar"')&&
+ !storyPreviewMarkup.includes("vatra-feed-story-create-subtitle-001")&&
+ !storyPreviewMarkup.includes("ui-feed-story-logo-001")&&
  !storyPreviewMarkup.includes("ui-feed-story-preview-001")&&
  !storyPreviewMarkup.includes('data-vatra-coming-soon="stories"'),
  "Feed must show real friend Stories without fabricated previews, then the post composer");

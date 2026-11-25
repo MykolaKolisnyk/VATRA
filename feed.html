@@ -19,7 +19,7 @@
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css?rev=f3e8e92084ebf3bfea34b4f8caa6776c36698654">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=a2e3ab881bf4bea35fa1d025df7a9d39a4b4b89c">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=111385a232ad8a79e8e6acd4633643785577f879">
     <link rel="stylesheet" href="assets/css/onboarding.css">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -33,7 +33,7 @@
     <script defer src="assets/js/ads.js?rev=2f9839001dcc172c5eafe3e70e70ba185e2ffffa"></script>
     <script defer src="assets/js/onboarding.js"></script>
     <script defer src="assets/js/feature-loader.js?rev=8824849bce16db436561159479dacfa414d2c25e"></script>
-    <script defer src="assets/js/feed.js?rev=bc69c2d818f733227cea94e18ee38554dbfa7278"></script>
+    <script defer src="assets/js/feed.js?rev=07dd7b3124ec77682afea68954c2d7c66329e8eb"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=63887cc3ef91e55aec81799a21f9840dbdd604eb"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -146,11 +146,10 @@
             <section class="feed-stories is-empty ui-feed-stories-001" aria-label="Історії" data-shell-aria-uk="Історії" data-shell-aria-en="Stories">
               <div class="feed-stories-track ui-feed-stories-track-001">
                 <button type="button" id="feed-create-story" class="feed-story-create ui-feed-story-create-001" data-story-title-uk="Ваша історія" data-story-title-en="Your story" aria-label="Створити історію">
-       <img src="assets/logo/logo_symbol.svg" class="ui-feed-story-logo-001" width="80" height="80" alt="" aria-hidden="true">
+       <span id="feed-story-create-avatar" class="vatra-feed-story-create-avatar-001 ui-feed-story-create-avatar-001" aria-hidden="true"></span>
        <span class="vatra-feed-story-create-plus-001" aria-hidden="true">+</span>
        <span class="vatra-feed-story-create-label-001" data-social-uk="Ваша історія" data-social-en="Your story">Ваша історія</span>
-       <span class="vatra-feed-story-create-subtitle-001" data-social-uk="Поділіться фотографією, відео або напишіть щось" data-social-en="Share a photo, video, or write something">Поділіться фотографією, відео або напишіть щось</span>
-      </button>
+             </button>
                 <div id="feed-friend-stories" class="feed-friend-stories ui-feed-friend-stories-001" aria-live="polite">
                 </div>
               </div>

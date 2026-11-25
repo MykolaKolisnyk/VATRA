@@ -3415,12 +3415,13 @@ try{
     Math.abs(geometry.storyWidth-geometry.mainWidth)<3&&
     Math.abs(geometry.postWidth-geometry.composerWidth)<3&&
     geometry.storyBottom<=geometry.composerTop+1&&
-    geometry.storyCardWidth>=300&&geometry.storyCardWidth<=geometry.storyWidth+2&&
-    geometry.storyCardHeight>=72&&geometry.storyCardHeight<=82&&
+    geometry.storyCardWidth>=95&&geometry.storyCardWidth<=120&&
+    geometry.storyCardHeight>=169&&geometry.storyCardHeight<=212&&
+    geometry.storyCardHeight>geometry.storyCardWidth*1.65&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
-    "VATRA header symmetry and full-width Stories above composer: "+
+    "VATRA header symmetry and vertical Story tiles above composer: "+
     JSON.stringify(geometry));
   }
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0,
@@ -4421,7 +4422,9 @@ try{
   assert.equal(await feedProbe.locator(".feed-story-empty-note").count(),0,
    "A missing story must not create an explanatory row");
   assert.equal(await feedProbe.locator(".feed-stories").evaluate(el=>el.classList.contains("is-empty")),true);
-  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),false);
+  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").count(),0);
+  assert.equal(await feedProbe.locator("#feed-story-create-avatar").isVisible(),true);
+  assert.equal(await feedProbe.locator(".vatra-feed-story-create-subtitle-001").count(),0);
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_STORY_EDITOR),false,
    "Story editor should not load before opening it");
   await feedProbe.locator("#feed-create-story").click();

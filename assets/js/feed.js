@@ -172,6 +172,7 @@
    }
    applyAvatar(q("#feed-header-avatar"),vatraId);
    applyAvatar(q("#feed-composer-avatar"),vatraId);
+   applyAvatar(q("#feed-story-create-avatar"),vatraId);
   }catch(_){ }
  }
  const memberName=id=>{
@@ -671,27 +672,22 @@
   holder.setAttribute("aria-busy","true");
   try{
    await feedDeadline(ensureSubscriptions());
-   const friendIds=[...friends].filter(id=>id!==vatraId);
-   if(!friendIds.length){
-    holder.replaceChildren();
-    q(".feed-stories")?.classList.add("is-empty");
-    return;
-   }
+   const storyAuthors=[...new Set([vatraId,...friends])];
    let query=client.from("stories")
     .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
     .gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false});
-   if(friendIds.length<=100&&typeof query.in==="function")
-    query=query.in("author_vatra_id",friendIds);
+   if(storyAuthors.length<=100&&typeof query.in==="function")
+    query=query.in("author_vatra_id",storyAuthors);
    const {data,error}=await feedDeadline(query.limit(60));
    if(error)throw error;
    const items=[],seen=new Set();
    for(const story of data||[]){
     const id=String(story.author_vatra_id);
-    if(id===vatraId||!friends.has(id)||seen.has(id))continue;
+    if((id!==vatraId&&!friends.has(id))||seen.has(id))continue;
     items.push(story);seen.add(id);
-    if(items.length>=3)break;
    }
+   items.sort((a,b)=>Number(String(b.author_vatra_id)===vatraId)-Number(String(a.author_vatra_id)===vatraId));
    const authorIds=items.map(x=>x.author_vatra_id);
    await Promise.allSettled([feedDeadline(loadPublicNames(authorIds),4000),feedDeadline(loadAvatars(authorIds),4000)]);
    holder.replaceChildren();
@@ -712,9 +708,8 @@
      void window.VATRA_POST_MEDIA?.renderStory(client,story,cover,true);
     }else holder.append(button);
     const body=String(story.body||"").trim();
-    button.append(node("span","vatra-feed-story-live-body-001",body||
-     (story.media_kind==="video"?t("Відео","Video"):t("Фото","Photo"))),
-     node("span","vatra-feed-story-live-name-001",memberName(id)));
+    if(body&&!story.media_kind)button.append(node("span","vatra-feed-story-live-body-001",body));
+    button.append(node("span","vatra-feed-story-live-name-001",id===vatraId?t("Ваша історія","Your story"):memberName(id)));
     button.addEventListener("click",()=>{
      q("#feed-story-view-heading").textContent=memberName(id);
      const text=q("#feed-story-view-body");

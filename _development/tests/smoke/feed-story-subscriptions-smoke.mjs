@@ -109,11 +109,11 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
  assert.equal(v.storyCalls,0,"Stories must wait for the friend query");
  assert.equal(v.holder.children.length,0,"Never render fictitious friend story cards");
  assert.equal(v.holder.busy,"true","Friend list loading is exposed through aria-busy");
- assert.equal(v.style.empty,true,"Keep the full-width creation card while loading");
+ assert.equal(v.style.empty,true,"Keep only the vertical creation tile while loading");
  v.release();
  await Promise.all([feedReady,stories]);
  assert.equal(v.storyCalls,1);
- assert.deepEqual(v.storyFilters[0].ids,["789012"]);
+ assert.deepEqual(v.storyFilters[0].ids,[owner,"789012"]);
  assert.equal(v.holder.children.length,1,"Friend stories must remain visible on slow networks");
  assert.equal(v.style.empty,false);
  assert.equal(v.holder.busy,"false");
@@ -123,14 +123,15 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
  await v.context.feedTest.loadStories();
  assert.equal(v.friendCalls,2,"A refreshed snapshot must eventually be fetched");
 }
-// Do not request even one story when the viewer has no friends.
+// A member without friends must still see their own published story.
 {
- const v=makeViewer([]);
+ const v=makeViewer([],{storyRows:[{author_vatra_id:owner,body:"Own story",theme:0}]});
  await Promise.all([v.context.feedTest.ensureSubscriptions(),v.context.feedTest.loadStories()]);
  assert.equal(v.friendCalls,1);
- assert.equal(v.storyCalls,0,"Empty friend list must skip the stories query");
- assert.equal(v.holder.children.length,0);
- assert.equal(v.style.empty,true);
+ assert.equal(v.storyCalls,1,"Read only own stories without friends");
+ assert.deepEqual(v.storyFilters[0].ids,[owner]);
+ assert.equal(v.holder.children.length,1);
+ assert.equal(v.style.empty,false);
 }
 // A targeted PostgREST filter excludes unrelated stories before the limit.
 {
@@ -152,4 +153,4 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
  assert.equal(v.storyCalls,1);
  assert.equal(v.storyFilters.length,0);
 }
-console.log("VATRA Feed stories: shared friendship singleflight, no-friend skip, targeted RLS reads and TTL passed.");
+console.log("VATRA Feed stories: shared friendship singleflight, own stories without friends, targeted RLS reads and TTL passed.");
