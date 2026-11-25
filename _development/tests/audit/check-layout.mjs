@@ -2698,16 +2698,18 @@ assert.ok(siteSearchSQL.includes("security invoker")&&
  "Server search must keep RLS, public posts, approved listings and authenticated access");
 await import("../smoke/live-search-cache-smoke.mjs");
 
-/* Friend stories share the Feed's social graph; don't query all stories while
-   waiting for friendships or when the viewer has no friends. */
+/* Stories share the Feed's social graph; wait for the friendship snapshot,
+   include the viewer's own stories, and filter other authors against friends. */
 const feedStoryOptimization=await read("assets/js/feed.js");
 assert.ok(
  feedStoryOptimization.includes("let subscriptionsLoadedAt=0,subscriptionsInflight=null")&&
  feedStoryOptimization.includes("function ensureSubscriptions()")&&
  feedStoryOptimization.includes("if(subscriptionsInflight)return subscriptionsInflight;")&&
  feedStoryOptimization.includes("await feedDeadline(ensureSubscriptions());")&&
- feedStoryOptimization.includes('if(!friendIds.length){')&&
- feedStoryOptimization.includes('query=query.in("author_vatra_id",friendIds)')&&
+ feedStoryOptimization.includes('const storyAuthors=[...new Set([vatraId,...friends])];')&&
+ feedStoryOptimization.includes('if(storyAuthors.length<=100&&typeof query.in==="function")')&&
+ feedStoryOptimization.includes('query=query.in("author_vatra_id",storyAuthors)')&&
+ feedStoryOptimization.includes('if((id!==vatraId&&!friends.has(id))||seen.has(id))continue;')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
 await import("../smoke/feed-story-subscriptions-smoke.mjs");
