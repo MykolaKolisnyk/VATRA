@@ -866,7 +866,7 @@
      if(photoDialog.open&&state.currentPhoto===row)void window.VATRA_VERIFIED?.attach?.(client,photoAuthorName,targetId);
     }catch(_){}
    })();
-   try{const url=await signedUrl(row.media_path);if(photoDialog.open&&state.currentPhoto===row){photoImage.src=url;window.VATRA_POST_MEDIA?.watchPhotoViewer(photoDialog,photoContent,photoImage,row.media_path,finishSlide);}}
+   try{const url=await signedUrl(row.media_path);if(photoDialog.open&&state.currentPhoto===row){photoImage.src=url;window.VATRA_POST_MEDIA?.watchPhotoViewer(photoDialog,photoContent,photoImage,row.media_path,finishSlide,async()=>{const {data,error}=await client.storage.from(BUCKET).download(row.media_path);if(error)throw error;return data;});}}
    catch(_){if(photoDialog.open&&state.currentPhoto===row){notify(t("Фото недоступне.","Photo unavailable."));photoDialog.close();}}
   }
   async function removePhoto(row=state.currentPhoto){
