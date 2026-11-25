@@ -9,7 +9,7 @@ assert.ok(start>=0&&end>start,"Find the exact engagement implementation");
 const isolated=full.slice(start,end)+"\nglobalThis.cacheTest={prefetchEngagement,invalidateEngagement};";
 // Card fallbacks for likes and comment/share counts must share the same
 // viewer-scoped snapshot rather than issue three/four independent reads.
-const hydrateStart=full.indexOf("  const hydrateLike=()=>{");
+const hydrateStart=full.indexOf("  const hydrateLike=(retry=false)=>{");
 const hydrateEnd=full.indexOf("  if(!snapshot&&typeof IntersectionObserver",hydrateStart);
 const socialStart=full.indexOf("  async function refreshSocial(){");
 const socialEnd=full.indexOf("  if(snapshot){",socialStart);
@@ -20,7 +20,9 @@ const socialFallback=full.slice(socialStart,socialEnd);
 for(const consumer of [likeFallback,socialFallback])
  assert.ok(consumer.includes('prefetchEngagement(client,[{kind,id:post.id}])'),
   "Like and social count fallbacks must share one engagement snapshot");
-assert.ok(!likeFallback.includes('from("post_likes")'),
+assert.ok(likeFallback.includes("if(!current&&initialEngagement&&!retry)")&&
+ full.includes('if(!current){commentsCount.textContent="";sharesCount.textContent="";return;}')&&
+ !likeFallback.includes('from("post_likes")'),
  "Like fallback must not make duplicate per-post reads");
 assert.ok(!socialFallback.includes('from("post_comments")')&&
  !socialFallback.includes('from("feed_posts")'),
