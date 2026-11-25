@@ -3092,8 +3092,8 @@ try{
    list:async(folder,options)=>({data:bucket==="avatars"&&folder==="654321/avatar"&&!new URLSearchParams(location.search).has("no-avatar-test")&&!options?.offset?[{name:"test-profile.webp"},{name:"previous-profile.webp"}]:[],error:null}),
    download:async path=>{
     window.__vatraAvatarDownloadedPaths.push(path);
-    const bytes=Uint8Array.from(atob("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="),c=>c.charCodeAt(0));
-    return {data:new Blob([bytes],{type:"image/gif"}),error:null};
+    const bytes=Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="),c=>c.charCodeAt(0));
+    return {data:new Blob([bytes],{type:"image/png"}),error:null};
    },
    upload:async path=>{if(bucket==="avatars")window.__vatraAvatarRestoredPaths.push(path);return {error:null};},
    remove:async paths=>{window.__feedMockMediaRemovals++;
@@ -4759,8 +4759,7 @@ try{
   // New canonical Storage buckets start empty. Supply the sample uploaded
   // avatar locally instead of depending on legacy objects in Supabase.
   await profilePage.route("**/storage/v1/object/public/avatars/**",route=>route.fulfill({
-   status:200,contentType:"image/gif",
-   body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")
+   status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng
   }));
   if(language==="uk")await profilePage.setViewportSize({width:1366,height:844});
   await profilePage.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
