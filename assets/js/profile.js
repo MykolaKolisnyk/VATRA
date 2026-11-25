@@ -1058,7 +1058,7 @@ function missingProfile(state="not-found"){
  finish();
 }
 let profilePostsRequest=0;
-async function loadPosts(client,targetId,ownId,userId,append=false){
+async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=null){
  const list=q("#profile-posts"),empty=q("#profile-posts-empty"),more=q("#profile-posts-more");
  if(!list||(append&&list.dataset.loading==="true"))return;
  const ticket=++profilePostsRequest;
@@ -1086,7 +1086,8 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   if(typeof query.is==="function")query=query.is("archived_at",null);
 
 
-  if(year>=2026&&year<=9999){
+  if(focusPost)query=query.eq("id",focusPost);
+  else if(year>=2026&&year<=9999){
    const start=new Date(year,month?month-1:0,1);
    const end=month?new Date(year,month,1):new Date(year+1,0,1);
    query=query.gte("created_at",start.toISOString())
@@ -1174,6 +1175,12 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    batch.append(article);
   }
   if(append)list.append(batch);else list.replaceChildren(batch);
+  if(focusPost){
+   const back=node("button","vatra-profile-all-posts-001",t("До всіх публікацій","All posts"));back.type="button";
+   back.addEventListener("click",()=>{const url=new URL(location.href);url.searchParams.delete("post");history.replaceState(history.state,"",url.href);void loadPosts(client,targetId,ownId,userId);});
+   list.prepend(back);
+   requestAnimationFrame(()=>list.querySelector(".feed-post-card")?.scrollIntoView({block:"start",behavior:"auto"}));
+  }
   list.dataset.profileScope=scope;
   list.dataset.offset=String(offset+rows.length);
   empty.hidden=list.querySelector(".feed-post-card")!==null;
@@ -1181,7 +1188,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    t("За вибраний період публікацій немає.","No posts in the selected period."):
    t("Публікацій поки немає.","No posts yet.");
   if(more){
-   more.hidden=rows.length<12;
+   more.hidden=!!focusPost||rows.length<12;
    if(!more.dataset.bound){
     more.dataset.bound="true";
     more.addEventListener("click",()=>void loadPosts(client,targetId,ownId,userId,true));
@@ -2157,6 +2164,13 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   const friendAction=q("#profile-friend-action"),friendMenu=q("#profile-friend-menu");
   const friendMenuAction=q("#profile-friend-menu-action"),friendMenuLabel=q("#profile-friend-menu-label");
   friendAction.hidden=false;friendButton.hidden=false;
+  const moreMenu=q("#profile-more-menu"),morePanel=q("#profile-more-panel");
+  const messenger=q("#profile-messenger"),gift=q("#profile-gift"),hideNews=q("#profile-hide-news"),postNotice=q("#profile-post-notice"),storyNotice=q("#profile-story-notice"),removeFriend=q("#profile-remove-friend");
+  const unavailable=t("Функція в розробці","Coming soon");
+  for(const item of [messenger,gift,hideNews,postNotice,storyNotice])if(item){item.title=unavailable;item.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;window.VATRA_TOAST?.show?.(unavailable,"info");});}
+  const first=String(q("#profile-heading")?.textContent||"").trim().split(/\s+/u)[0].slice(0,60);
+  if(hideNews)hideNews.querySelector("span").textContent=t("Приховати новини від ","Hide news from ")+first;
+  if(morePanel&&removeFriend)removeFriend.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;void changeFriendship();});
   let relation=null,busy=false,friendMenuCloseTimer=null;
   const friendMenuOpen=state=>{
    clearTimeout(friendMenuCloseTimer);
@@ -2168,7 +2182,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   const scheduleFriendMenuClose=()=>{
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=setTimeout(()=>{
-    if(!friendAction.matches(":hover")&&!friendAction.contains(document.activeElement))friendMenuOpen(false);
+    if(!friendAction.matches(":hover"))friendMenuOpen(false);
    },340);
   };
   friendButton.setAttribute("aria-haspopup","menu");
@@ -2196,15 +2210,20 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    friendButton.dataset.friendState=relation?.status==="accepted"?"friends":
     relation?.status==="pending"?(outgoing?"outgoing":"incoming"):"none";
    const state=friendButton.dataset.friendState;
+   const accepted=state==="friends";
+   friendAction.hidden=accepted;messenger.hidden=false;gift.hidden=!accepted;hideNews.hidden=!accepted;removeFriend.hidden=!accepted;postNotice.hidden=false;storyNotice.hidden=false;
+   messenger.classList.toggle("is-friend",accepted);
+   messenger.querySelector("span").hidden=!accepted;
    q("#profile-friend-label").textContent=state==="friends"?t("У друзях","Friends"):
     state==="outgoing"?t("Заявку надіслано","Request sent"):
     state==="incoming"?t("Прийняти заявку","Accept request"):t("Долучити до друзів","Add friend");
    friendMenuLabel.textContent=state==="friends"?t("Видалити з друзів","Remove friend"):
     t("Скасувати заявку","Cancel request");
    friendButton.setAttribute("aria-label",q("#profile-friend-label").textContent);
-   friendButton.dataset.friendBusy="false";
+   friendButton.dataset.friendBusy="false";friendButton.disabled=false;
    friendMenuOpen(false);
   };
+  friendButton.disabled=true;
   q("#profile-friend-label").textContent=t("Долучити до друзів","Add friend");
   void refreshFriend().catch(()=>show(actionStatus,t("Статус дружби недоступний.","Friendship status unavailable.")));
   const changeFriendship=async()=>{
@@ -2491,30 +2510,35 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   image.onerror=()=>resolve(false);
   image.src=url;
  });
- const closeAvatarMenu=()=>{clearTimeout(menuTimer);avatarWrap.classList.remove("is-menu-open");avatarTrigger.setAttribute("aria-expanded","false");plus.setAttribute("aria-expanded","false");};
+ const viewportMenu=typeof avatarMenu.showPopover==="function"&&typeof avatarMenu.hidePopover==="function";
+ if(viewportMenu){avatarMenu.setAttribute("popover","manual");avatarMenu.classList.add("is-viewport-menu");}
+ const closeAvatarMenu=()=>{clearTimeout(menuTimer);avatarWrap.classList.remove("is-menu-open");if(viewportMenu&&avatarMenu.matches(":popover-open"))avatarMenu.hidePopover();avatarTrigger.setAttribute("aria-expanded","false");plus.setAttribute("aria-expanded","false");};
  const positionAvatarMenu=()=>{
   if(avatarMenu.hidden)return;
   const anchor=(canEdit?plus:avatarTrigger).getBoundingClientRect(),wrap=avatarWrap.getBoundingClientRect();
-  const viewport=window.visualViewport, left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=top+(viewport?.height||innerHeight);
-  const w=avatarMenu.offsetWidth,h=Math.max(avatarMenu.scrollHeight,avatarMenu.offsetHeight),gap=5,padding=12;
+  const viewport=window.visualViewport,left=viewport?.offsetLeft||0,viewportTop=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=viewportTop+(viewport?.height||innerHeight);
+  const top=Math.max(viewportTop,document.querySelector(".feed-header")?.getBoundingClientRect().bottom||0);
+  if(anchor.bottom<=top||anchor.top>=bottom){closeAvatarMenu();return false;}
+  const w=avatarMenu.offsetWidth,h=Math.max(avatarMenu.scrollHeight+2,avatarMenu.offsetHeight),gap=7,padding=10;
   const above=anchor.top-top-padding,below=bottom-anchor.bottom-padding;
   const upwards=below<h+gap&&above>below;
   const room=Math.max(44,(upwards?above:below)-gap);
   avatarMenu.style.setProperty("--avatar-menu-max-height",Math.floor(room)+"px");
   const height=Math.min(h,room);
-  const x=Math.max(left+padding,Math.min(anchor.right-w,right-padding-w));
-  const y=upwards?Math.max(top+padding,anchor.top-gap-height):anchor.bottom+gap;
-  avatarMenu.style.setProperty("--avatar-menu-left",Math.round(x-wrap.left)+"px");
-  avatarMenu.style.setProperty("--avatar-menu-top",Math.round(y-wrap.top)+"px");
+  const x=Math.max(left+padding,Math.min(wrap.left,right-padding-w));
+  const y=Math.max(top+padding,Math.min(upwards?anchor.top-gap-height:anchor.bottom+gap,bottom-padding-height));
+  avatarMenu.style.setProperty("--avatar-menu-left",Math.round(viewportMenu?x:x-wrap.left)+"px");
+  avatarMenu.style.setProperty("--avatar-menu-top",Math.round(viewportMenu?y:y-wrap.top)+"px");
+  return true;
  };
- const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden)return;positionAvatarMenu();avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
+ const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden)return;if(viewportMenu&&!avatarMenu.matches(":popover-open"))avatarMenu.showPopover();if(positionAvatarMenu()===false)return;avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
  const repositionAvatarMenu=()=>{if(avatarWrap.classList.contains("is-menu-open"))positionAvatarMenu();};
  window.addEventListener("resize",repositionAvatarMenu,{passive:true});window.addEventListener("scroll",repositionAvatarMenu,{passive:true});window.visualViewport?.addEventListener("resize",repositionAvatarMenu,{passive:true});
  const scheduleMenuClose=()=>{clearTimeout(menuTimer);menuTimer=setTimeout(()=>{if(!avatarMenu.contains(document.activeElement))closeAvatarMenu();},160);};
  const syncAvatarMenu=()=>{
   const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
   avatarWrap.classList.toggle("has-active-story",hasStory);
-  avatarMenu.hidden=!canViewPhoto||!canEdit;
+  avatarMenu.hidden=!canViewPhoto||!canEdit;if(avatarMenu.hidden)closeAvatarMenu();
   visitorStory.hidden=!canViewPhoto||canEdit||!hasStory||!hasPhoto;
   storyButton.hidden=!canViewPhoto||!hasStory;
   deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;
@@ -3698,7 +3722,9 @@ async function start(){
    }
   }
   if(!locked)setupProfilePresence(client,targetId,ownId,metadata.gender);
-  const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id);
+  const postParam=requestedAction.get("post"),focusPost=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(postParam||"")?postParam:null;
+  if(focusPost&&!locked)window.VATRA_PROFILE_CHOOSE_TAB?.("posts");
+  const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id,false,focusPost);
 
 
   finish();

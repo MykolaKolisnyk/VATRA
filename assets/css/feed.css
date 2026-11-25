@@ -1607,12 +1607,12 @@ body.feed-page .vatra-notification-count[hidden]{display:none!important}
  position:fixed;z-index:132;display:flex;flex-direction:column;gap:0;
  width:min(390px,calc(100vw - 24px));min-height:185px;max-height:min(76dvh,575px);
  overflow:auto;overscroll-behavior:contain;padding:0;
- border:1px solid #dce5f2;border-radius:16px;background:#fff;color:#30415b;
+ border:1px solid #dce5f2;border-top:0;border-radius:0 0 16px 16px;background:#fff;color:#30415b;
  box-shadow:0 18px 52px rgba(26,45,81,.15);font-family:"Onest",system-ui,sans-serif;
  animation:vatraNotifyReveal .22s cubic-bezier(.2,.78,.24,1) both
 }
 .vatra-notification-panel[hidden]{display:none!important}
-@keyframes vatraNotifyReveal{from{opacity:0;transform:translateY(-7px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes vatraNotifyReveal{from{opacity:0}to{opacity:1}}
 .vatra-notification-panel-heading{
  position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;
  gap:12px;padding:15px 17px 12px;border-bottom:1px solid #edf1f7;background:#fff
@@ -1963,7 +1963,7 @@ body.feed-page .feed-post-body{font:470 14.5px/1.65 "Onest",system-ui,sans-serif
 body.feed-page .vatra-notification-link{font:660 13px/1.48 "Onest",system-ui,sans-serif}
 body.feed-page .vatra-notification-time{font:500 11px/1.45 "Onest",system-ui,sans-serif}
 body.feed-page .vatra-search-panel .vatra-search-panel-heading-001{font:780 17px/1.3 "Onest",system-ui,sans-serif;letter-spacing:-.027em}
-body.feed-page .vatra-search-history-term{font:570 13px/1.5 "Onest",system-ui,sans-serif}
+body.feed-page .vatra-search-history-term{font:570 14px/1.5 "Onest",system-ui,sans-serif}
 body.feed-page .vatra-search-input-clear-001{display:grid;place-items:center;flex:none;width:27px;height:27px;padding:5px;border:0;border-radius:9px;background:transparent;color:#8598b8;cursor:pointer;transition:background .22s,color .22s}
 body.feed-page .vatra-search-input-clear-001[hidden]{display:none!important}
 body.feed-page .vatra-search-input-clear-001:hover{background:#e5ecf8;color:#3b67bc}
@@ -2138,9 +2138,9 @@ body.feed-page .vatra-search-live-icon[data-kind="communities"]{background:#edea
 body.feed-page .vatra-search-live-icon img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 body.feed-page .vatra-search-result-id-001{flex:none;margin-left:auto;padding:5px 9px;border:1px solid #dce6f7;border-radius:9px;background:#f3f7ff;color:#587bad;font:600 12px/1.35 Onest,system-ui,sans-serif;white-space:nowrap}
 body.feed-page .ui-vatra-search-recent-link-001{text-decoration:none}
-body.feed-page .ui-vatra-search-recent-link-001 .vatra-search-live-icon{display:grid;padding:0;flex:none}
+body.feed-page .ui-vatra-search-recent-link-001 .vatra-search-live-icon{display:grid;padding:0;flex:none;width:40px;height:40px;margin-left:auto}
 body.feed-page .ui-vatra-search-recent-link-001 .vatra-search-live-icon svg{width:22px;height:22px;padding:0;background:transparent;border-radius:0}
-body.feed-page .ui-vatra-search-recent-link-001 .vatra-search-result-id-001{display:block;margin-left:auto}
+body.feed-page .ui-vatra-search-recent-link-001 > span:not(.vatra-search-live-icon){flex:1;min-width:0}
 
 
 

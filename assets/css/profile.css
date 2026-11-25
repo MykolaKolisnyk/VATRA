@@ -349,7 +349,7 @@ body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  position:relative;z-index:8;align-self:flex-start;flex:none;}
 
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap.is-menu-open{
- z-index:110
+ z-index:8
 }
 body.profile-page .profile-avatar-trigger{
  display:block;position:relative;width:100%;height:100%;padding:0;
@@ -365,11 +365,12 @@ body.profile-page .profile-avatar-wrap.has-active-story::before{
  background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8)
 }
 body.profile-page .profile-avatar-menu{
- position:absolute;z-index:35;top:var(--avatar-menu-top,calc(100% + 9px));left:var(--avatar-menu-left,0);max-height:var(--avatar-menu-max-height,60dvh);overflow:auto;
+ position:absolute;box-sizing:border-box;z-index:35;top:var(--avatar-menu-top,calc(100% + 9px));left:var(--avatar-menu-left,0);max-height:var(--avatar-menu-max-height,60dvh);overflow:auto;
  display:flex;flex-direction:column;min-width:216px;max-width:calc(100vw - 28px);opacity:0;visibility:hidden;transform:translateY(-5px);pointer-events:none;transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s;
  gap:4px;padding:9px;border:1px solid #e2e8f3;border-radius:18px;
  background:#fff;box-shadow:0 18px 42px rgba(25,42,81,.16)
 }
+body.profile-page .profile-avatar-menu.is-viewport-menu{position:fixed;inset:auto;top:var(--avatar-menu-top,0);left:var(--avatar-menu-left,0);margin:0}
 body.profile-page .profile-avatar-wrap.is-menu-open .profile-avatar-menu:not([hidden]){opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;transition-delay:0s}
 body.profile-page .profile-avatar-menu[hidden],
 body.profile-page .profile-avatar-menu button[hidden]{display:none!important}
@@ -2703,7 +2704,7 @@ body.profile-page :is(.vatra-profile-editor-id-link-001,.vatra-profile-editor-ve
 body.profile-page .vatra-profile-cover-change-001{position:absolute;z-index:5;top:20px;right:20px;display:inline-flex;align-items:center;gap:8px;padding:10px 14px;min-height:42px;border:0;border-radius:11px;background:rgba(25,37,57,.62);color:#fff;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .16s}
 body.profile-page .vatra-profile-cover-change-001[hidden],body.profile-page .vatra-profile-avatar-plus-001[hidden]{display:none!important}
 body.profile-page .profile-cover:hover .vatra-profile-cover-change-001,body.profile-page .profile-cover:focus-within .vatra-profile-cover-change-001,body.profile-page .vatra-profile-cover-change-001:focus-visible{opacity:1;pointer-events:auto}
-body.profile-page .vatra-profile-avatar-plus-001{position:absolute;z-index:9;right:4px;bottom:4px;width:28px;height:28px;display:grid;place-items:center;padding:0;border:2px solid #fff;border-radius:50%;background:var(--vatra-action-primary,#376de8);color:#fff;cursor:pointer;box-shadow:0 1px 4px #172b5020}
+body.profile-page .vatra-profile-avatar-plus-001{position:absolute;z-index:9;right:4px;bottom:4px;width:28px;height:28px;display:grid;place-items:center;scroll-margin-top:100px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--vatra-action-primary,#376de8);color:#fff;cursor:pointer;box-shadow:0 1px 4px #172b5020}
 body.profile-page .profile-avatar-wrap.is-owner-avatar .profile-avatar-trigger{cursor:pointer}
 body.profile-page .ui-profile-avatar-crop-dialog-001,body.profile-page .ui-profile-avatar-finish-dialog-001,body.profile-page .ui-profile-cover-edit-dialog-001{box-sizing:border-box;width:min(680px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:26px;border:1px solid #e1e7f1;border-radius:20px;background:#fff;color:#293951;box-shadow:0 24px 70px #172b5033;margin:auto}
 body.profile-page .ui-profile-avatar-crop-dialog-001::backdrop,body.profile-page .ui-profile-avatar-finish-dialog-001::backdrop,body.profile-page .ui-profile-cover-edit-dialog-001::backdrop{background:rgba(21,31,49,.62)}
@@ -2723,8 +2724,8 @@ body.profile-page :is(.ui-profile-avatar-publish-post-001,.ui-profile-avatar-pub
 @media(max-width:600px){body.profile-page .vatra-profile-avatar-plus-001{width:26px;height:26px;right:1px;bottom:1px}body.profile-page .vatra-profile-cover-change-001{right:12px;top:12px;padding:7px 10px;min-height:36px;font-size:12px}body.profile-page .ui-profile-avatar-crop-dialog-001,body.profile-page .ui-profile-avatar-finish-dialog-001,body.profile-page .ui-profile-cover-edit-dialog-001{padding:18px}body.profile-page .vatra-profile-avatar-finish-copy-001{font-size:18px}}
 
 
-body.profile-page .is-owner-avatar .profile-avatar-menu{min-width:210px;padding:6px;gap:2px;border-radius:15px;box-shadow:0 12px 30px rgba(25,42,81,.14)}
-body.profile-page .is-owner-avatar .profile-avatar-menu button{display:flex;align-items:center;gap:11px;min-height:42px;padding:9px 11px;font:550 14px/1.4 Onest,system-ui,sans-serif}
+body.profile-page .is-owner-avatar .profile-avatar-menu{min-width:232px;padding:6px;gap:2px;border-radius:12px;box-shadow:0 10px 28px rgba(25,42,81,.14)}
+body.profile-page .is-owner-avatar .profile-avatar-menu button{display:flex;align-items:center;gap:12px;min-height:44px;padding:9px 12px;font:550 14px/1.4 Onest,system-ui,sans-serif}
 body.profile-page .is-owner-avatar .profile-avatar-menu button svg{flex:0 0 20px;width:20px;height:20px;stroke-width:1.7;color:#3d6eae}
 body.profile-page .is-owner-avatar .profile-avatar-menu .profile-avatar-menu-delete svg{color:#c04859}
 body.profile-page .profile-last-seen{display:block;margin:0;flex:none;align-self:flex-start;text-align:left;font:520 13px/1.5 "Onest",system-ui,sans-serif;color:#74839a}
@@ -3039,7 +3040,7 @@ body.profile-page .ui-profile-more-panel-001{
  padding:7px;box-sizing:border-box;border:1px solid #dce5f2;border-radius:13px;
  background:#fff;box-shadow:0 16px 44px rgba(27,48,87,.16);color:#334966
 }
-body.profile-page .ui-profile-friend-menu-001{left:0;right:auto;min-width:208px}
+body.profile-page .ui-profile-friend-menu-001{left:0;right:auto;min-width:230px}
 body.profile-page .vatra-profile-friend-menu-action-001,
 body.profile-page .vatra-profile-more-item-001{
  display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;
@@ -3097,7 +3098,7 @@ body.profile-page .profile-actions > button:not([hidden]):where(button){
  min-height:38px;padding:7px 12px;border-radius:9px;
  font:680 12px/1.35 "Onest",system-ui,sans-serif
 }
-body.profile-page .profile-actions:not([hidden]){gap:7px}
+body.profile-page .profile-actions:not([hidden]){gap:9px;align-items:center}
 @media(max-width:600px){
  body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]){
   min-height:42px;height:42px;padding:9px 12px
@@ -3142,3 +3143,31 @@ body.profile-page .vatra-photo-comment-undo-001{padding:2px;border:0;background:
 body.profile-page .profile-photo-comment.is-linked-comment{background:#f2f7ff;border-radius:11px;padding-left:12px;box-shadow:inset 0 0 0 1px #d8e6ff}
 
 body.profile-page #profile-photo-footer-share[hidden],body.profile-page #profile-photo-share[hidden]{display:none!important}
+
+body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]),
+body.profile-page .profile-actions .ui-profile-more-menu-001>.vatra-profile-more-trigger-001,
+body.profile-page .profile-actions>.vatra-profile-contact-button-001:not([hidden]){
+ box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ height:46px;min-height:46px;padding:0 15px;border-radius:11px;
+ font:650 14px/1.3 Onest,system-ui,sans-serif;white-space:nowrap
+}
+body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button svg,
+body.profile-page .vatra-profile-contact-button-001>svg{width:20px;height:20px;flex:none}
+body.profile-page .profile-actions>.vatra-profile-contact-button-001{border:1px solid #dce5f2;background:#edf2f8;color:#365d96;cursor:pointer}
+body.profile-page .profile-actions>.vatra-profile-contact-button-001:not(.is-friend){width:46px;padding:0}
+body.profile-page .profile-actions>#profile-messenger.is-friend{background:#2865d7;color:white;border-color:#2865d7}
+body.profile-page .profile-actions>.vatra-profile-contact-button-001[hidden],
+body.profile-page .vatra-profile-contact-button-001>span[hidden]{display:none!important}
+body.profile-page .ui-profile-more-panel-001{width:min(320px,calc(100vw - 32px));min-width:0;padding:8px}
+body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001,
+body.profile-page .vatra-profile-friend-menu-action-001{min-height:46px;gap:12px;padding:10px 12px;font:500 14px/1.4 Onest,system-ui,sans-serif;white-space:normal}
+body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001>svg{width:21px;height:21px;stroke:#3976bc}
+body.profile-page .ui-profile-more-panel-001 :is(#profile-block-toggle,#profile-report-open)>svg{stroke:#d33a4d}
+body.profile-page .vatra-profile-all-posts-001{display:block;width:100%;padding:12px;border:1px solid #dce5f2;background:#f5f8fd;color:#285eae;font:650 14px/1.4 Onest,system-ui,sans-serif;border-radius:10px;cursor:pointer;margin-bottom:12px}
+body.profile-page #profile-posts .feed-post-card{scroll-margin-top:90px}
+@media(max-width:600px){body.profile-page .profile-actions:not([hidden]){gap:7px}body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]),body.profile-page .profile-actions .ui-profile-more-menu-001>.vatra-profile-more-trigger-001,body.profile-page .profile-actions>.vatra-profile-contact-button-001:not([hidden]){font-size:13px;padding-inline:12px}body.profile-page .ui-profile-more-panel-001{right:auto;left:0;width:min(300px,calc(100vw - 40px));max-width:calc(100vw - 40px)}}
+
+body.profile-page .profile-content-panel:is([data-profile-panel="photos"],[data-profile-panel="videos"],[data-profile-panel="clips"],[data-profile-panel="communities"],[data-profile-panel="saved"],[data-profile-panel="archive-stories"],[data-profile-panel="archive-posts"]){padding-block:20px;gap:8px}
+
+body.profile-page .vatra-toast-item-001{pointer-events:none}
+body.profile-page .vatra-toast-item-001 :is(.vatra-toast-close-001,.vatra-toast-action-001){pointer-events:auto}
