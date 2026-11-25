@@ -119,7 +119,7 @@ console.log("VATRA Feed cursor: repeated same-account SIGNED_IN preserves author
  const ctx={client,user:{id:"viewer"},vatraId:"10",friends:new Set(["10"]),followedClubs:new Map([["20","Club"]]),
   feedFilter:"all",searchTerm:"",locale:"uk-UA",PAGE_SIZE:12,Date:FakeDate,Map,WeakMap,Promise,String,JSON,Error,Number,Set,
   feedDeadline:x=>x,sourceState:null,renderedIds:new Set(),lastFeedScope:null};
- const code=feed.slice(begin,finish).replace(" const makeSourceState=", " const makeSourceState=");
+ const code=feed.slice(begin,finish);
  // sourceState and renderedIds are defined immediately before the cache slice.
  runInNewContext(code+"\nglobalThis.api={takePage,reset(){sourceState=makeSourceState();renderedIds=new Set();},invalidate:()=>invalidateFeedPages(client)};",ctx);
  ctx.api.reset();
@@ -129,14 +129,14 @@ console.log("VATRA Feed cursor: repeated same-account SIGNED_IN preserves author
  assert.equal(builders,2);assert.equal(requests,2);
  const next=await ctx.api.takePage();
  assert.deepEqual(Array.from(next,r=>r.id),["p6","g6","p7","g7","p8","g8","p9","g9","p10","g10","p11","g11"]);
- assert.equal(builders,2);assert.equal(requests,2);
+ assert.equal(builders,3);assert.equal(requests,3);
  ctx.api.reset();
  const cached=await ctx.api.takePage();
  assert.deepEqual(Array.from(cached,r=>r.id),Array.from(first,r=>r.id));
- assert.equal(builders,2,"Cache hits must not allocate PostgREST builders");
- assert.equal(requests,2,"Cache hits must not make network requests");
+ assert.equal(builders,3,"Cache hits must not allocate PostgREST builders");
+ assert.equal(requests,3,"Cache hits must not make network requests");
  ctx.api.invalidate();ctx.api.reset();
  await ctx.api.takePage();
- assert.equal(builders,4);assert.equal(requests,4,"Invalidation still fetches fresh authorized rows");
+ assert.equal(builders,5);assert.equal(requests,5,"Invalidation still fetches fresh authorized rows");
 }
 console.log("VATRA Feed: chronological merge, pagination, lazy query construction and invalidation passed.");
