@@ -31,10 +31,10 @@
 
 
   const titleSources={
-    index:"VATRA — ласкаво просимо до своїх","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
+    index:"VATRA — ласкаво просимо до своїх","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",settings:"Налаштування",profile:"Профіль",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
   };
   const instantEnglishTitles={
-    index:"VATRA — welcome to your people","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
+    index:"VATRA — welcome to your people","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",settings:"Settings",profile:"My profile",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
     forgot:"Password recovery",reset:"New password",
     "404":"Page not found",
     terms:"Terms of Service",commerce:"Commerce Rules",documents:"VATRA Documents",privacy:"Privacy",
@@ -266,6 +266,11 @@
 
     const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts"||page==="clips"||page==="marketplace"||page==="vatra-id";
     const entry=table.__pages?.[page]||(communityShell?table.__pages?.feed:null);
+    if(communityShell||page==="settings"){
+      const description=document.querySelector('meta[name="description"]');
+      const source=description?.getAttribute("content");
+      if(source&&typeof table[source]==="string")description.setAttribute("content",table[source]);
+    }
     if (!entry) return;
     for (const element of document.querySelectorAll("[data-i18n]")) {
       const record=entry.nodes?.[element.getAttribute("data-i18n")];
