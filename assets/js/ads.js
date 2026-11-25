@@ -11,7 +11,6 @@
   if(slot.dataset.adsLoaded||slot.dataset.adsPending)return;
   let started=false,ready=false,ins=null,observer=null,resize=null;
   const original=[...slot.childNodes];
-  // A future certified CMP adapter must explicitly authorize the ad request.
   const eligible=()=>{
    try{return !app.hidden&&document.body.dataset.authReady==="true"&&slot.getBoundingClientRect().width>0&&slot.getClientRects().length>0&&window.VATRA_ADS_CONSENT?.canRequestAds?.()===true;}catch(_){return false;}
   };
