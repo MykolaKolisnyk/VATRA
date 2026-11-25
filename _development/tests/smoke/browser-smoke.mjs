@@ -4844,6 +4844,33 @@ try{
   await profilePage.locator("#profile-avatar-trigger").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
   await profilePage.locator("#profile-photo-owner .vatra-verified-badge").waitFor({state:"visible",timeout:6000});
+  const passiveBadge=profilePage.locator("#profile-photo-owner .vatra-verified-badge");
+  assert.equal(await passiveBadge.getAttribute("role"),"img");
+  assert.equal(await passiveBadge.getAttribute("tabindex"),null);
+  await passiveBadge.hover();
+  assert.equal(await profilePage.locator("#vatra-verified-tooltip").count(),0,"Photo verification badge must not display a tooltip");
+  const badgePolicy=await profilePage.evaluate(async()=>{
+   const client={from(){return {select(){return {in:async()=>({data:[{vatra_id:"987654321"}],error:null})};}};}};
+   const root=document.createElement("section");root.className="profile-identity";
+   const profileName=document.createElement("h2");profileName.className="profile-name";profileName.textContent="Profile";
+   const postName=document.createElement("a");postName.className="feed-post-name";postName.textContent="Post";
+   root.style.cssText="position:fixed;inset:24px auto auto 24px;display:block;width:260px;height:auto;z-index:100";
+   profileName.style.cssText="display:flex;align-items:center;position:static;visibility:visible";
+   postName.style.cssText="display:flex;align-items:center;position:static;visibility:visible";
+   root.append(profileName,postName);document.querySelector("#profile-media-viewer").append(root);
+   await window.VATRA_VERIFIED.attach(client,profileName,"987654321");
+   await window.VATRA_VERIFIED.attach(client,postName,"987654321");
+   const interactive=profileName.querySelector(".vatra-verified-badge"),passive=postName.querySelector(".vatra-verified-badge");
+   if(!interactive||!passive){root.remove();return null;}
+   passive.dispatchEvent(new PointerEvent("pointerenter",{pointerType:"mouse"}));
+   const postTip=!!document.querySelector("#vatra-verified-tooltip");
+   interactive.dispatchEvent(new PointerEvent("pointerenter",{pointerType:"mouse"}));
+   const profileTip=!!document.querySelector("#vatra-verified-tooltip");
+   interactive.dispatchEvent(new PointerEvent("pointerleave",{pointerType:"mouse"}));
+   const result={postTip,profileTip,postRole:passive.getAttribute("role"),profileRole:interactive.getAttribute("role")};
+   root.remove();return result;
+  });
+  assert.deepEqual(badgePolicy,{postTip:false,profileTip:true,postRole:"img",profileRole:"button"});
   assert.equal(await profilePage.locator("#profile-photo-owner .vatra-verified-badge").count(),1,
    "Verified profile must show the existing badge inside the avatar photo sidebar");
   await profilePage.waitForFunction(()=>
@@ -4873,7 +4900,9 @@ try{
    Math.abs(avatarSidebar.closeX-18)<=2&&Math.abs(avatarSidebar.closeY-18)<=2,
    "Avatar viewer must share exact sidebar spacing and close-button geometry with posts: "+JSON.stringify(avatarSidebar));
   assert.ok(/\/avatars\/654321\/avatar\/test-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
+  await profilePage.locator("#profile-photo-content").hover();
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-avatar-next")).pointerEvents==="auto");
   await profilePage.locator("#profile-avatar-next").click();
   assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
