@@ -19,7 +19,7 @@
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css?rev=f3e8e92084ebf3bfea34b4f8caa6776c36698654">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=45a8aced61d9bc2dbb4132be584e97b331dad321">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=69d9565832528b9cc050fa564fd260c45a9abf1e">
     <link rel="stylesheet" href="assets/css/onboarding.css">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -33,7 +33,7 @@
     <script defer src="assets/js/ads.js?rev=2f9839001dcc172c5eafe3e70e70ba185e2ffffa"></script>
     <script defer src="assets/js/onboarding.js"></script>
     <script defer src="assets/js/feature-loader.js?rev=18ba315d755ee9d9ab4217883b899dcd8de33369"></script>
-    <script defer src="assets/js/feed.js?rev=dc58a1c12a8b13fb20ebfa6cdbe9f21d106f9469"></script>
+    <script defer src="assets/js/feed.js?rev=bc69c2d818f733227cea94e18ee38554dbfa7278"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=63887cc3ef91e55aec81799a21f9840dbdd604eb"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -143,13 +143,6 @@
             Стрічка
           </h1>
           <div class="feed-top-controls ui-feed-top-controls-001">
-            <section class="feed-quick-compose ui-feed-quick-compose-001 vatra-quick-compose-001" aria-label="Новий допис">
-              <span id="feed-composer-avatar" class="feed-avatar feed-composer-avatar vatra-feed-composer-avatar-001 vatra-quick-compose-avatar-001" aria-hidden="true">V</span>
-     <button type="button" id="feed-compose-open" class="feed-compose-open vatra-feed-compose-open-001 vatra-quick-compose-open-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
-         <button id="feed-quick-media" class="feed-quick-media vatra-feed-quick-media-001 vatra-quick-compose-media-001" type="button" aria-label="Додати фото або відео" data-shell-aria-uk="Додати фото або відео" data-shell-aria-en="Add photo or video">
- <svg class="vatra-quick-compose-media-icon-001 ui-feed-quick-media-icon-001" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-quick-media-frame-001" x="2.5" y="3.5" width="17.5" height="17" rx="3.4"/><circle class="ui-feed-quick-media-sun-001" cx="8.4" cy="9.3" r="1.6"/><path class="ui-feed-quick-media-land-001" d="m4.5 17 4.3-4.1 3.2 2.8 2.5-2.8"/><circle class="ui-feed-quick-media-video-badge-001" cx="18.5" cy="18.2" r="4.5" fill="#f3f6ff"/><path class="ui-feed-quick-media-play-001" d="m17.4 16.2 3 2-3 2Z" fill="currentColor" stroke="none"/></svg>
-</button>
-            </section>
             <section class="feed-stories is-empty ui-feed-stories-001" aria-label="Історії" data-shell-aria-uk="Історії" data-shell-aria-en="Stories">
               <div class="feed-stories-track ui-feed-stories-track-001">
                 <button type="button" id="feed-create-story" class="feed-story-create ui-feed-story-create-001" data-story-title-uk="Ваша історія" data-story-title-en="Your story" aria-label="Створити історію">
@@ -164,6 +157,13 @@
               <button id="feed-stories-next" type="button" class="feed-stories-next vatra-feed-stories-next-001" aria-label="Наступні історії" data-shell-aria-uk="Наступні історії" data-shell-aria-en="Next stories" hidden>
       <svg class="ui-feed-stories-next-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-stories-next-path-001" d="m9 5 7 7-7 7"/></svg>
      </button>
+            </section>
+            <section class="feed-quick-compose ui-feed-quick-compose-001 vatra-quick-compose-001" aria-label="Новий допис">
+              <span id="feed-composer-avatar" class="feed-avatar feed-composer-avatar vatra-feed-composer-avatar-001 vatra-quick-compose-avatar-001" aria-hidden="true">V</span>
+     <button type="button" id="feed-compose-open" class="feed-compose-open vatra-feed-compose-open-001 vatra-quick-compose-open-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
+         <button id="feed-quick-media" class="feed-quick-media vatra-feed-quick-media-001 vatra-quick-compose-media-001" type="button" aria-label="Додати фото або відео" data-shell-aria-uk="Додати фото або відео" data-shell-aria-en="Add photo or video">
+ <svg class="vatra-quick-compose-media-icon-001 ui-feed-quick-media-icon-001" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-quick-media-frame-001" x="2.5" y="3.5" width="17.5" height="17" rx="3.4"/><circle class="ui-feed-quick-media-sun-001" cx="8.4" cy="9.3" r="1.6"/><path class="ui-feed-quick-media-land-001" d="m4.5 17 4.3-4.1 3.2 2.8 2.5-2.8"/><circle class="ui-feed-quick-media-video-badge-001" cx="18.5" cy="18.2" r="4.5" fill="#f3f6ff"/><path class="ui-feed-quick-media-play-001" d="m17.4 16.2 3 2-3 2Z" fill="currentColor" stroke="none"/></svg>
+</button>
             </section>
             <aside class="ui-feed-right-rail-001">
             <div class="feed-filter-row ui-feed-filter-row-001" role="group" aria-label="Фільтри стрічки" data-shell-aria-uk="Фільтри стрічки" data-shell-aria-en="Feed filters">

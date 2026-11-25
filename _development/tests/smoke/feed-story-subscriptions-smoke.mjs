@@ -61,9 +61,9 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
    throw Error("Unexpected table "+table);
   }
  };
- const holder={children:[],replaceChildren(){this.children=[];},
+ const holder={children:[],busy:"false",setAttribute(key,value){assert.equal(key,"aria-busy");this.busy=value;},replaceChildren(){this.children=[];},
   append(item){this.children.push(item);}};
- const style={empty:false,classList:{
+ const style={empty:true,classList:{
   add(value){assert.equal(value,"is-empty");style.empty=true;},
   toggle(value,state){assert.equal(value,"is-empty");style.empty=state;}
  }};
@@ -79,7 +79,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
   subscriptionsLoadedAt:0,subscriptionsInflight:null,
   validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
   q:key=>key==="#feed-friend-stories"?holder:key===".feed-stories"?style:null,
-  requestAnimationFrame(fn){fn();},updateStoryArrow(){},
+  requestAnimationFrame(fn){fn();},updateStoryArrow(){},feedDeadline:task=>Promise.resolve(task),
   loadPublicNames:async()=>{},loadAvatars:async()=>{},
   window:{VATRA_POST_MEDIA:{renderStory(){rendererCalls++;}}},
   memberName:id=>"Name "+id,initials:()=> "N",applyAvatar(){},
@@ -107,14 +107,16 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
  const stories=v.context.feedTest.loadStories();
  assert.equal(v.friendCalls,1,"Feed and Stories share one friendship query");
  assert.equal(v.storyCalls,0,"Stories must wait for the friend query");
- assert.equal(v.holder.children.length,3,"Story placeholders remain visible while friendships load");
- assert.ok(v.holder.children.every(item=>item.cls.includes("vatra-feed-story-skeleton-001")));
+ assert.equal(v.holder.children.length,0,"Never render fictitious friend story cards");
+ assert.equal(v.holder.busy,"true","Friend list loading is exposed through aria-busy");
+ assert.equal(v.style.empty,true,"Keep the full-width creation card while loading");
  v.release();
  await Promise.all([feedReady,stories]);
  assert.equal(v.storyCalls,1);
  assert.deepEqual(v.storyFilters[0].ids,["789012"]);
  assert.equal(v.holder.children.length,1,"Friend stories must remain visible on slow networks");
  assert.equal(v.style.empty,false);
+ assert.equal(v.holder.busy,"false");
  await v.context.feedTest.loadStories();
  assert.equal(v.friendCalls,1,"A second story visit reuses the same snapshot for 60s");
  now+=60_100;

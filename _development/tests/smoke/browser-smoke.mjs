@@ -3354,7 +3354,7 @@ try{
      account=r(".feed-account-toggle"),search=r(".feed-header .feed-search-form"),
      brand=r(".feed-header-brand");
     return {storyLeft:story.left,postLeft:posts.left,storyWidth:story.width,postWidth:posts.width,
-     composerWidth:composer.width,composerLeft:composer.left,
+     composerWidth:composer.width,composerLeft:composer.left,storyBottom:story.bottom,composerTop:composer.top,mainWidth:r(".feed-main").width,
      storyCardWidth:storyCard.width,storyCardHeight:storyCard.height,
      storyCenter:(story.left+story.right)/2,
      navCenter:(nav.left+nav.right)/2,viewportCenter:document.documentElement.clientWidth/2,
@@ -3364,14 +3364,15 @@ try{
    });
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.storyLeft-geometry.composerLeft)<3&&
-    Math.abs(geometry.storyWidth-geometry.composerWidth)<3&&
-    Math.abs(geometry.postWidth-geometry.storyWidth)<3&&
+    Math.abs(geometry.storyWidth-geometry.mainWidth)<3&&
+    Math.abs(geometry.postWidth-geometry.composerWidth)<3&&
+    geometry.storyBottom<=geometry.composerTop+1&&
     geometry.storyCardWidth>=300&&geometry.storyCardWidth<=geometry.storyWidth+2&&
     geometry.storyCardHeight>=72&&geometry.storyCardHeight<=82&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
-    "VATRA header symmetry and composer aligned with its Story card: "+
+    "VATRA header symmetry and full-width Stories above composer: "+
     JSON.stringify(geometry));
   }
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0,
@@ -4354,14 +4355,14 @@ try{
   assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();
-  const composerFirst=await feedProbe.evaluate(()=>{
+  const storiesFirst=await feedProbe.evaluate(()=>{
    const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
    const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
-   return composer.top<stories.top&&stories.top<posts.top&&
-    composer.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
+   return stories.top<composer.top&&composer.top<posts.top&&
+    stories.bottom<=composer.top+1&&stories.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
   });
-  assert.ok(composerFirst,"Composer, then Stories, then posts");
+  assert.ok(storiesFirst,"Stories, then Composer, then posts");
   await feedProbe.locator(".ui-social-top-friends-001").hover();
   assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"true",
    "Each header icon needs a VATRA tooltip on hover");
@@ -4513,33 +4514,33 @@ try{
      filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,
      filterWidth:filters.width,composeLeft:composer.left,
      composeRight:composer.right,composerWidth:composer.width,storiesWidth:stories.width,
-     storiesLeft:stories.left,screenWidth:innerWidth,
+     storiesLeft:stories.left,screenWidth:innerWidth,mainWidth:wrap.width,
      storyBottom:stories.bottom,postsTop:posts.top,
      gridGap:getComputedStyle(document.querySelector(".feed-main")).rowGap,
      statusVisible:!document.querySelector(".feed-status").hidden};
    });
    assert.ok(Math.abs(filterGeometry.right-filterGeometry.edge)<=3,
     "Feed filter must stay at the far right edge: "+JSON.stringify(filterGeometry));
-   assert.ok(Math.abs(filterGeometry.storiesWidth-filterGeometry.composerWidth)<3&&
+   assert.ok(Math.abs(filterGeometry.storiesWidth-filterGeometry.mainWidth)<3&&
     Math.abs(filterGeometry.storiesLeft-filterGeometry.composeLeft)<3&&
     Math.abs(filterGeometry.postWidth-filterGeometry.composerWidth)<3&&
     Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
-    "Create post and Your story must use exactly the same left-column width");
+    "Stories span the main workspace while composer and posts align");
    assert.ok(filterGeometry.postWidth<=770&&
     filterGeometry.gridGap===(filterGeometry.screenWidth>770?"16px":"12px")&&
     (filterGeometry.screenWidth<=950||filterGeometry.statusVisible||
-     filterGeometry.postsTop-filterGeometry.storyBottom>=8&&
-     filterGeometry.postsTop-filterGeometry.storyBottom<=21),
-    "Posts must remain compact; story-to-post gap cannot double: "+JSON.stringify(filterGeometry));
+     filterGeometry.postsTop-filterGeometry.composerBottom>=8&&
+     filterGeometry.postsTop-filterGeometry.composerBottom<=21),
+    "Posts must remain compact; composer-to-post gap cannot double: "+JSON.stringify(filterGeometry));
    assert.ok(filterGeometry.screenWidth>950?
     (filterGeometry.composerWidth>filterGeometry.filterWidth*1.7&&
      filterGeometry.filterLeft>=filterGeometry.composeRight+10&&
      Math.abs(filterGeometry.composerTop-filterGeometry.filterTop)<3&&
-     filterGeometry.storyTop>=filterGeometry.filterBottom-3):
+     filterGeometry.storyBottom<=filterGeometry.filterTop+1):
     (Math.abs(filterGeometry.filterWidth-filterGeometry.composerWidth)<3&&
      Math.abs(filterGeometry.filterLeft-filterGeometry.composeLeft)<3&&
-     filterGeometry.storyTop>=filterGeometry.composerBottom-3&&
-     filterGeometry.filterTop>=filterGeometry.storyBottom-3),
+     filterGeometry.storyBottom<=filterGeometry.composerTop+1&&
+     filterGeometry.filterTop>=filterGeometry.composerBottom-3),
     "Feed post lane and independent filter must fit without overlap: "+JSON.stringify(filterGeometry));
    if(filterGeometry.viewportWidth>1200){
     assert.ok(filterGeometry.adRight+12<=filterGeometry.composeLeft&&
