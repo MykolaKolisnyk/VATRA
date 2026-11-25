@@ -1661,7 +1661,9 @@ assert.ok(
  systemProfileCss.includes("#profile-photo-gallery,#profile-video-gallery,#profile-clips-gallery,#profile-saved-list")&&
  systemProfileCss.includes("#profile-archive-stories-list,#profile-archive-posts-list")&&
  systemProfileCss.includes("):not(:has(> *)){")&&
- systemProfileCss.includes("--vatra-content-card-gap:16px")&&
+ systemProfileCss.includes("--vatra-content-card-gap:var(--vatra-card-gap)")&&
+ systemAvatarCss.includes("--vatra-card-gap:var(--vatra-space-4)")&&
+ systemAvatarCss.includes("--vatra-space-4:16px")&&
  systemFeedCss.includes("#feed-posts:not(:has(> *))")&&
  systemFeedCss.includes("#club-posts:not(:has(> *))")&&
  systemFeedCss.includes("row-gap:var(--vatra-content-card-gap)!important"),
