@@ -272,57 +272,63 @@ function appendAudience(container,level,isGroup=false){
  }
 
 
- function openPostEditor(client,post,ownId,onChange){
-  if(document.querySelector(".ui-vatra-post-edit-dialog-001[open]"))return;
+ async function openPostEditor(client,post,ownId,onChange){
+  if(document.querySelector(".ui-vatra-post-edit-dialog-001"))return;
   const api=window.VATRA_POST_MEDIA;if(!api)return;
   const original=Array.isArray(post.media_items)?post.media_items:[],legacy=post.media_path&&post.media_kind?{media_kind:post.media_kind,media_path:post.media_path}:null;
   const existing=original.length?original:legacy?[legacy]:[];
-  let entries=existing.map(item=>({item})),busy=false,paintTicket=0;
-  const urls=new Set();
-  const dialog=make("dialog","ui-vatra-post-edit-dialog-001"),form=make("form","ui-vatra-post-edit-form-001");
-  const heading=make("h2","vatra-post-edit-heading-001",tr("Редагувати публікацію","Edit post"));
-  const close=make("button","vatra-post-edit-close-001");close.type="button";close.setAttribute("aria-label",tr("Закрити","Close"));close.append(glyph("x"));
-  const head=make("header","ui-vatra-post-edit-header-001");head.append(heading,close);
-  const stage=make("div","ui-vatra-post-edit-media-001"),grid=make("div","ui-vatra-post-edit-grid-001"),empty=make("div","ui-vatra-post-edit-empty-001");
-  const emptyIcon=glyph("camera");const emptyTitle=make("strong","vatra-post-edit-empty-title-001",tr("Додайте фото або відео","Add photos or videos"));
-  const choose=action("vatra-post-edit-upload-001","paperclip",tr("Завантажити з пристрою","Upload from device"));
-  empty.append(emptyIcon,emptyTitle,choose);stage.append(grid,empty);
-  const file=make("input","ui-vatra-post-edit-file-001");file.type="file";file.multiple=true;file.accept="image/jpeg,image/png,image/webp,video/mp4,video/webm";file.hidden=true;
-  const toolbar=make("div","ui-vatra-post-edit-toolbar-001"),add=action("vatra-post-edit-add-001","camera",tr("Фото/Відео","Photo/Video"));
-  toolbar.append(add);
-  const input=make("textarea","ui-vatra-post-edit-text-001");input.value=post.body||"";input.maxLength=2000;input.rows=5;input.placeholder=tr("Додайте опис…","Add a description…");input.setAttribute("aria-label",tr("Текст публікації","Post text"));
-  const textWrap=make("div","ui-vatra-post-edit-description-001"),emoji=action("vatra-post-edit-emoji-001","smile",tr("Емодзі","Emoji")),emojiPanel=make("div","ui-vatra-post-edit-emoji-panel-001");emojiPanel.hidden=true;
-  for(const symbol of ["😀","😊","❤️","👍","🔥","😂","😍","🎉","🤔","😢","👏","✨"]){const btn=make("button","vatra-post-edit-emoji-option-001",symbol);btn.type="button";btn.onclick=()=>{if(busy)return;const start=input.selectionStart,end=input.selectionEnd;if(input.value.length-(end-start)+symbol.length<=2000)input.setRangeText(symbol,start,end,"end");input.focus();emojiPanel.hidden=true;};emojiPanel.append(btn);}
-  emoji.onclick=()=>{emojiPanel.hidden=!emojiPanel.hidden;};textWrap.append(input,emoji,emojiPanel);
-  const note=make("p","vatra-post-edit-note-001");note.setAttribute("role","status");
-  const actions=make("footer","ui-vatra-post-edit-actions-001"),cancel=make("button","vatra-post-edit-cancel-001",tr("Скасувати","Cancel")),save=make("button","vatra-post-edit-save-001",tr("Зберегти","Save"));cancel.type="button";save.type="submit";actions.append(cancel,save);
+  let entries=existing.map(item=>({item})),busy=false,paintTicket=0,composerUI=null;
+  const urls=new Set(),disabledBefore=new Map();
+  const dialog=make("dialog","feed-compose-dialog ui-vatra-post-edit-dialog-001"),form=make("form","ui-vatra-post-edit-form-001");
+  const field=(tag,cls,suffix,label)=>{const el=make(tag,cls,label);el.id="edit-compose-"+suffix;return el;};
+  dialog.id="edit-compose-dialog";dialog.setAttribute("aria-labelledby","edit-compose-title");form.id="edit-compose-form";
+  const heading=field("h2","vatra-post-edit-heading-001","title",tr("Редагувати публікацію","Edit post"));
+  const input=field("textarea","ui-vatra-post-edit-text-001","text");input.value=post.body||"";input.maxLength=2000;input.setAttribute("aria-label",tr("Текст публікації","Post text"));
+  const counter=field("span","vatra-post-edit-counter-001","counter",Array.from(input.value).length+" / 2000");
+  input.addEventListener("input",()=>{counter.textContent=Array.from(input.value).length+" / 2000";});
+  const audience=make("label","vatra-compose-visibility ui-vatra-post-edit-visibility-001");audience.htmlFor="edit-compose-visibility";
+  audience.append(make("span","vatra-visibility-label-001",tr("Хто може бачити","Who can see this")));
+  const visibility=field("select","ui-vatra-visibility-select-001","visibility");
+  for(const [value,label] of [["public",tr("Публічно","Public")],["friends",tr("Друзі","Friends")],["only_me",tr("Лише я","Only me")]]){const option=make("option","vatra-visibility-option-"+value+"-001",label);option.value=value;visibility.append(option);}
+  visibility.value=["public","friends","only_me"].includes(post.visibility)?post.visibility:"public";visibility.disabled=!["public","friends","only_me"].includes(post.visibility);audience.append(visibility);
+  const controls=make("div","vatra-compose-media-controls ui-vatra-post-edit-media-controls-001");
+  const choose=field("button","vatra-post-edit-upload-001","media-choose",tr("Фото / відео","Photo / video"));choose.type="button";
+  const file=field("input","ui-vatra-post-edit-file-001","media");file.type="file";file.multiple=true;file.accept="image/jpeg,image/png,image/webp,video/mp4,video/webm";file.hidden=true;
+  controls.append(choose,file);
+  const stage=field("div","vatra-compose-media-preview ui-vatra-post-edit-media-001","media-preview"),grid=make("div","vatra-gallery-picker-grid ui-vatra-post-edit-grid-001");stage.append(grid);
+  const note=field("p","vatra-post-composer-notice-001","status");note.setAttribute("role","status");note.hidden=true;
+  const setError=value=>{note.textContent=value;note.hidden=!value;};
+  const actions=make("div","profile-compose-actions ui-vatra-post-edit-actions-001"),cancel=field("button","vatra-post-edit-cancel-001","cancel",tr("Закрити","Close")),save=field("button","vatra-post-edit-save-001","submit",tr("Зберегти","Save"));cancel.type="button";save.type="submit";actions.append(cancel,save);
   const release=()=>{for(const url of urls)URL.revokeObjectURL(url);urls.clear();};
   const paint=()=>{
-   const ticket=++paintTicket;release();grid.replaceChildren();grid.hidden=!entries.length;empty.hidden=!!entries.length;add.hidden=!entries.length;grid.dataset.single=String(entries.length===1);
+   const ticket=++paintTicket;release();grid.replaceChildren();stage.hidden=!entries.length;grid.dataset.single=String(entries.length===1);
    entries.forEach((entry,index)=>{
-    const tile=make("div","ui-vatra-post-edit-tile-001"),kind=entry.item?.media_kind||(entry.file.type.startsWith("video/")?"video":"image");
+    const tile=make("div","vatra-gallery-picker-tile ui-vatra-post-edit-tile-001"),kind=entry.item?.media_kind||(entry.file.type.startsWith("video/")?"video":"image");
     const media=make(kind==="video"?"video":"img","ui-vatra-post-edit-preview-001");if(kind==="video"){media.controls=true;media.preload="metadata";media.playsInline=true;}else media.alt=tr("Фото публікації","Post photo");
-    const remove=make("button","vatra-post-edit-remove-001");remove.type="button";remove.setAttribute("aria-label",tr("Прибрати файл ","Remove file ")+(index+1));remove.append(glyph("x"));remove.onclick=()=>{if(busy)return;entries.splice(index,1);note.textContent="";paint();};
+    const remove=make("button","vatra-gallery-picker-remove vatra-post-edit-remove-001");remove.type="button";remove.setAttribute("aria-label",tr("Прибрати файл ","Remove file ")+(index+1));remove.append(glyph("x"));remove.onclick=()=>{if(busy)return;entries.splice(index,1);setError("");paint();};
     tile.append(media,remove);grid.append(tile);
-    if(entry.file){const url=URL.createObjectURL(entry.file);urls.add(url);media.src=url;}else void api.signed(client,kind,entry.item.media_path,120).then(url=>{if(ticket===paintTicket&&media.isConnected)media.src=url;}).catch(()=>{if(ticket===paintTicket&&media.isConnected)tile.classList.add("is-unavailable");});
+    if(entry.file){const url=URL.createObjectURL(entry.file);urls.add(url);media.src=url;}else void api.signed(client,kind,entry.item.media_path).then(url=>{if(ticket===paintTicket&&media.isConnected)media.src=url;}).catch(()=>{if(ticket===paintTicket&&media.isConnected)tile.classList.add("is-unavailable");});
    });
+   composerUI?.sync();
   };
-  const pick=()=>{if(!busy)file.click();};choose.onclick=add.onclick=pick;
-  file.onchange=()=>{const files=Array.from(file.files||[]);file.value="";if(!files.length||busy)return;try{const next=[...entries,...files.map(file=>({file}))];if(next.length>12||next.filter(e=>e.item?.media_kind==="video"||e.file?.type.startsWith("video/")).length>4)throw Error(tr("До 12 фото та відео, з них до 4 відео.","Up to 12 media files, including up to 4 videos."));api.validateGallery(next.filter(e=>e.file).map(e=>e.file));entries=next;note.textContent="";paint();}catch(error){note.textContent=error.message;}};
-  const setBusy=value=>{busy=value;for(const el of [close,cancel,save,choose,add,file,input,emoji,...grid.querySelectorAll("button"),...emojiPanel.querySelectorAll("button")])el.disabled=value;dialog.setAttribute("aria-busy",String(value));};
-  close.onclick=cancel.onclick=()=>{if(!busy)dialog.close();};
+  choose.onclick=()=>{if(!busy)file.click();};
+  file.onchange=()=>{const files=Array.from(file.files||[]);file.value="";if(!files.length||busy)return;try{const next=[...entries,...files.map(file=>({file}))];if(next.length>12||next.filter(e=>e.item?.media_kind==="video"||e.file?.type.startsWith("video/")).length>4)throw Error(tr("До 12 фото та відео, з них до 4 відео.","Up to 12 media files, including up to 4 videos."));api.validateGallery(next.filter(e=>e.file).map(e=>e.file));entries=next;setError("");paint();}catch(error){setError(error.message);}};
+  const setBusy=value=>{busy=value;if(value){for(const el of form.querySelectorAll("button,input,textarea,select")){disabledBefore.set(el,el.disabled);el.disabled=true;}}else{for(const [el,disabled] of disabledBefore)el.disabled=disabled;disabledBefore.clear();composerUI?.sync();}dialog.setAttribute("aria-busy",String(value));};
+  cancel.onclick=()=>{if(!busy)dialog.close();};
   dialog.addEventListener("cancel",event=>{if(busy)event.preventDefault();});
   dialog.addEventListener("close",()=>{paintTicket++;release();dialog.remove();},{once:true});
   form.onsubmit=async event=>{
    event.preventDefault();if(busy)return;const body=input.value.trim();
-   if(!body&&!entries.length&&!post.poll&&!post.shared_post_id){note.textContent=tr("Додайте текст, фото або відео.","Add text, photos or videos.");return;}
-   setBusy(true);note.textContent="";let uploaded=[],saved=false,writeStarted=false,definiteFailure=false;
+   if(!body&&!entries.length&&!post.poll&&!post.shared_post_id){setError(tr("Додайте текст, фото або відео.","Add text, photos or videos."));return;}
+   setBusy(true);setError("");let uploaded=[],saved=false,writeStarted=false,definiteFailure=false;
    try{
     const files=entries.filter(e=>e.file).map(e=>e.file);if(files.length)uploaded=await api.uploadGallery(client,ownId,files);
     let index=0;const next=entries.map(e=>e.item||uploaded[index++]);
     const mediaChanged=files.length>0||next.length!==existing.length||next.some((e,i)=>e!==existing[i]);
     const changes=mediaChanged?{body,media_items:next,media_kind:null,media_path:null}:{body};
+    if(["public","friends","only_me"].includes(post.visibility)&&visibility.value!==post.visibility)changes.visibility=visibility.value;
     let query=client.from("feed_posts").update(changes).eq("id",post.id).eq("author_vatra_id",ownId);
+    if(changes.visibility!==undefined)query=query.eq("visibility",post.visibility);
     if(post.body!==undefined)query=post.body===null?query.is("body",null):query.eq("body",post.body);
     if(Array.isArray(post.media_items))query=query.eq("media_items",JSON.stringify(post.media_items));
     if(post.media_path!==undefined)query=post.media_path===null?query.is("media_path",null):query.eq("media_path",post.media_path);
@@ -331,11 +337,17 @@ function appendAudience(container,level,isGroup=false){
     saved=true;
     if(mediaChanged){const keep=new Set(next.map(e=>e.media_path));const removed=[...existing,...(legacy?[legacy]:[])].filter(e=>!keep.has(e.media_path)&&e.media_path.startsWith(String(ownId)+"/posts/"));if(removed.length)void api.removeGallery(client,removed).catch(()=>{});}
     dialog.close();
-   }catch(error){if(uploaded.length&&!saved&&(!writeStarted||definiteFailure))try{await api.removeGallery(client,uploaded);}catch(_){};note.textContent=tr("Не вдалося зберегти. Оновіть сторінку та повторіть спробу.","Could not save. Refresh and try again.");}
+   }catch(error){if(uploaded.length&&!saved&&(!writeStarted||definiteFailure))try{await api.removeGallery(client,uploaded);}catch(_){};setError(tr("Не вдалося зберегти. Оновіть сторінку та повторіть спробу.","Could not save. Refresh and try again."));}
    finally{setBusy(false);}
    if(saved){window.dispatchEvent(new Event("vatra:profile-media-changed"));try{onChange?.();}catch(_){};}
   };
-  form.append(head,stage,toolbar,file,textWrap,note,actions);dialog.append(form);document.body.append(dialog);paint();dialog.showModal();
+  form.append(heading,audience,input,counter,controls,stage,note,actions);dialog.append(form);document.body.append(dialog);
+  try{
+   const module=await window.VATRA_FEATURES.load("composer");
+   composerUI=module.bind({prefix:"edit",ownerId:ownId,client,getFile:()=>entries[0],editing:true,existingContent:!!(post.poll||post.shared_post_id)});
+   if(!composerUI)throw Error("Editor unavailable");
+   paint();dialog.showModal();composerUI.open();
+  }catch(_){release();dialog.remove();window.VATRA_TOAST?.show?.(tr("Не вдалося відкрити редактор публікацій.","Could not open post editor."),"error");}
  }
  const pendingPostDeletes=new Map();
  function pendingPostKey(card){return (card.dataset.postKind||"person")+":"+card.dataset.postId;}

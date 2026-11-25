@@ -1009,7 +1009,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    try{
     const initial=await signed(client,current.media_kind,current.media_path);
     if(!slot.isConnected)return;
-    feedPhotoSession?.abort();feedPhotoSession=null;photoSourceTicket++;photoSourceCleanup?.();photoSourceCleanup=null;
+    feedPhotoSession?.abort();feedPhotoSession=null;photoSourceTicket++;restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();photoSourceCleanup=null;
     openFullMedia(initial,current.media_kind,container,post,client,false,0,current.media_path);
    }catch(_){return;}
    const controller=new AbortController();
@@ -1091,7 +1091,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   let index=entries.findIndex(entry=>entry.container===card&&entry.item.media_path===path);
   if(index<0)return;
   feedPhotoSession?.abort();
-  photoSourceTicket++;photoSourceCleanup?.();photoSourceCleanup=null;
+  photoSourceTicket++;restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();photoSourceCleanup=null;
   const controller=new AbortController();feedPhotoSession=controller;
   let busy=false;
   const current=()=>!controller.signal.aborted;
@@ -1325,7 +1325,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    if(mediaDialog?.open){
     const controller=new AbortController();
     photoSourceCleanup=()=>{controller.abort();host.remove();createdDialogs.forEach(dialog=>dialog.remove());};
-    mediaDialog.addEventListener("close",()=>{photoSourceTicket++;photoSourceCleanup?.();photoSourceCleanup=null;},{once:true,signal:controller.signal});
+    mediaDialog.addEventListener("close",()=>{photoSourceTicket++;restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();photoSourceCleanup=null;},{once:true,signal:controller.signal});
     const items=settings.items||[{post,item}],index=items.findIndex(entry=>entry.post.id===post.id&&entry.item.media_path===item.media_path);
     let stepping=false;
     const step=async dir=>{

@@ -1717,6 +1717,7 @@ assert.ok(
  profileExtraScript.includes("media_items:uploaded||[]")&&
  clubPostScript.includes("media_items:uploaded||[]")&&
  postComposerScript.includes('vatra-post-composer-dialog')&&
+ postComposerScript.includes('editing=false,existingContent=false')&&
  (await read("feed.html")).includes('type="file" multiple')&&
  (await read("profile.html")).includes('type="file" multiple')&&
  (await read("club.html")).includes('type="file" multiple'),

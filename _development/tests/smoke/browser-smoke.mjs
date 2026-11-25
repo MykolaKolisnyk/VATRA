@@ -4696,7 +4696,8 @@ try{
   for(const action of ["pin","edit","copy","comments"])assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-"+action+"-001").isVisible(),true);
   await feedProbe.locator(".vatra-post-owner-edit-001").click();
   await feedProbe.locator(".ui-vatra-post-edit-dialog-001").waitFor({state:"visible"});
-  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-media-001").isVisible(),true);
+  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-dialog-001 .vatra-post-composer-zone").isVisible(),true);
+  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-dialog-001").evaluate(el=>el.classList.contains("vatra-post-composer-dialog")),true,"Create and edit must use the same composer");
   assert.equal(await feedProbe.locator(".ui-vatra-post-edit-text-001").isVisible(),true);
   await feedProbe.locator(".vatra-post-edit-cancel-001").click();
   await feedProbe.locator(".vatra-post-owner-toggle").click();
