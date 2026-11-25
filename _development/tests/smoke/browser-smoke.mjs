@@ -3739,7 +3739,8 @@ try{
    const {client,item}=window.__vatraWebpFixture,card=document.querySelector("#feed-nav-fixture-1");
    card.querySelector(".feed-post-media")?.remove();
    const second={...item};
-   second.media_path=item.media_path.replace(/\.webp$/,"-second.webp");
+   second.media_path="12/posts/00000000-0000-4000-8000-000000000099.png";
+   second.preview_path="12/posts/00000000-0000-4000-8000-000000000098.webp";
    await window.VATRA_POST_MEDIA.mount(client,{id:card.dataset.postId,author_vatra_id:"12",kind:"person",body:"FeedAlpha",media_items:[item,second]},card);
   });
   await feedProbe.locator("#feed-nav-fixture-1 .vatra-post-gallery-tile").first().click();
