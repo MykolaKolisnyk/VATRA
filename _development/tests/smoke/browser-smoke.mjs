@@ -4052,7 +4052,8 @@ try{
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
-  await feedProbe.waitForFunction(()=>!document.querySelector("#feed-delete-dialog").open);
+  await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
+  await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"detached",timeout:20000});
   assert.equal(await feedProbe.locator(".feed-post-card").count(),1,
    "Denied deletion must leave the existing post untouched");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockMediaRemovals),0,
@@ -4064,7 +4065,13 @@ try{
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
+  await feedProbe.locator(".vatra-post-undo-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-owner-toggle").isVisible(),true,"Undo restores the original card without deleting media");
+  assert.equal(await feedProbe.evaluate(()=>window.__feedMockMediaRemovals),0);
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
+  await feedProbe.locator(".feed-post-delete").click();
+  await feedProbe.locator("#feed-delete-confirm").click();
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0,null,{timeout:20000});
   assert.ok((await feedProbe.locator(".ui-social-top-communities-001").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
@@ -4536,6 +4543,12 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-archive-001").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-delete-001").isVisible(),true);
   for(const action of ["pin","edit","copy","comments"])assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-"+action+"-001").isVisible(),true);
+  await feedProbe.locator(".vatra-post-owner-edit-001").click();
+  await feedProbe.locator(".ui-vatra-post-edit-dialog-001").waitFor({state:"visible"});
+  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-media-001").isVisible(),true);
+  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-text-001").isVisible(),true);
+  await feedProbe.locator(".vatra-post-edit-cancel-001").click();
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".vatra-post-owner-panel").waitFor({state:"hidden"});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
@@ -4546,7 +4559,7 @@ try{
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0,null,{timeout:20000});
   await feedProbe.locator("#feed-empty").waitFor({state:"visible",timeout:4500});
   assert.equal(await feedProbe.locator("#feed-empty").isVisible(),true);
   await feedProbe.locator("#feed-search-input").fill("Новий пошук VATRA");

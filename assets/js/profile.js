@@ -1144,16 +1144,19 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
      onDelete:async()=>{
       if(!await window.VATRA_PROFILE_CONFIRM({
        title:t("Видалити публікацію?","Delete this post?"),
-       description:t("Публікацію буде видалено з вашої сторінки без можливості відновлення.",
-        "This post will be removed from your profile permanently."),
+       description:t("Публікацію можна відновити протягом 12 секунд після видалення.","You can restore the post for 12 seconds after deletion."),
        action:t("Видалити","Delete")
       }))return;
-      const {data,error}=await client.from("feed_posts").delete().eq("id",post.id)
-       .eq("author_vatra_id",ownId).select("id");
-      if(error||!data?.length)return;
-      if(post.media_path)void window.VATRA_POST_MEDIA?.remove(client,post);
-      if(post.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,post.media_items);
-      void loadPosts(client,targetId,ownId,userId);
+      const commit=async()=>{
+       const {data,error}=await client.from("feed_posts").delete().eq("id",post.id)
+        .eq("author_vatra_id",ownId).select("id");
+       if(error||!data?.length)throw Error("Post not deleted");
+       if(post.media_path)void window.VATRA_POST_MEDIA?.remove(client,post);
+       if(post.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,post.media_items);
+       try{await loadPosts(client,targetId,ownId,userId);}catch(_){}
+       window.dispatchEvent(new Event("vatra:profile-media-changed"));
+      };
+      window.VATRA_POST_INTERACTIONS?.deferPostDelete(article,commit,()=>window.VATRA_TOAST?.show?.(t("Не вдалося видалити.","Could not delete post."),"error"));
      }
     });
    }
@@ -1172,6 +1175,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
     onShared:()=>{if(String(ownId)===String(targetId))
      void loadPosts(client,targetId,ownId,userId);}
    });
+   window.VATRA_POST_INTERACTIONS?.paintPendingPostDelete(article);
    batch.append(article);
   }
   if(append)list.append(batch);else list.replaceChildren(batch);

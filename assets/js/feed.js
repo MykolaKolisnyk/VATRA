@@ -294,7 +294,7 @@
    window.VATRA_POST_INTERACTIONS?.addOwnerMenu(head,{
     source:"feed",client,post,ownId:vatraId,onChange:()=>{invalidateFeedPages(client);void loadPosts(true);},
     onDelete:()=>{
-     pendingDelete={id:post.id,kind:post.kind,media_kind:post.media_kind,media_path:post.media_path,media_items:post.media_items};
+     pendingDelete={id:post.id,kind:post.kind,media_kind:post.media_kind,media_path:post.media_path,media_items:post.media_items,card:item};
      deleteDialog?.showModal();q("#feed-delete-cancel")?.focus();
     },
     onArchive:post.kind==="person"?async()=>{
@@ -320,6 +320,7 @@
     engagementPromise:engagement,
     onShared:()=>{invalidateFeedPages(client);void loadPosts(true);}
    }));
+  window.VATRA_POST_INTERACTIONS?.paintPendingPostDelete(item);
   return item;
  }
  function recoverFeedCard(post,engagement){
@@ -832,19 +833,23 @@
   event.preventDefault();
   if(!pendingDelete)return;
   const toDelete=pendingDelete;deleteConfirm.disabled=true;
-  try{
+  const commit=async()=>{
    const table=toDelete.kind==="group"?"community_posts":"feed_posts";
    const {data,error}=await client.from(table).delete().eq("id",toDelete.id)
     .eq("author_vatra_id",vatraId).select("id").maybeSingle();
    if(error||String(data?.id)!==String(toDelete.id))throw error||Error("Post not deleted");
    if(toDelete.media_path)void window.VATRA_POST_MEDIA?.remove(client,toDelete).catch(()=>{});
    if(toDelete.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,toDelete.media_items);
-   deleteDialog.close();pendingDelete=null;
    invalidateFeedPages(client);
-   await loadPosts(true);message(t("Публікацію видалено.","Post deleted."),"success");
-  }catch(_){deleteDialog.close();pendingDelete=null;message(t("Не вдалося видалити.","Could not delete post."));}
-  finally{deleteConfirm.disabled=false;}
+   try{await loadPosts(true);}catch(_){}
+   message(t("Публікацію видалено.","Post deleted."),"success");
+  };
+  const failed=()=>message(t("Не вдалося видалити.","Could not delete post."));
+  deleteDialog.close();pendingDelete=null;deleteConfirm.disabled=false;
+  if(toDelete.kind!=="group"&&window.VATRA_POST_INTERACTIONS?.deferPostDelete(toDelete.card,commit,failed))return;
+  try{await commit();}catch(_){failed();}
  }
+
  function feedDeadline(task,ms=15000){
   let timer;
   return Promise.race([Promise.resolve(task),new Promise((_,reject)=>{
