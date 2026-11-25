@@ -48,6 +48,7 @@
 
  let client=null,user=null,vatraId=null,displayName="",loading=false,refreshQueued=false,offset=0,searchTerm="",feedFilter="all";
  let feedRequestVersion=0;
+ let pendingDeleteFlush=Promise.resolve();
  let visibleFeed=[],friends=new Set(),hiddenPostAuthors=new Set(),publicNames=new Map(),followedClubs=new Map();
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
  const filterSummary=q("#feed-filter-summary");
@@ -580,7 +581,7 @@
   }
   let stage="subscriptions";
   try{
-   await feedDeadline(ensureSubscriptions());
+   await Promise.all([feedDeadline(ensureSubscriptions()),feedDeadline(pendingDeleteFlush)]);
    if(version!==feedRequestVersion)return;
    stage="posts";
    if(!sourceState)sourceState=makeSourceState();
@@ -889,7 +890,8 @@
    const profile=await feedDeadline(client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle());
    if(profile.error||!validId(profile.data?.vatra_id))throw profile.error||Error("Account unavailable");
    vatraId=String(profile.data.vatra_id);
-   await window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,vatraId);
+   pendingDeleteFlush=Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,vatraId));
+   void pendingDeleteFlush.catch(()=>{});
    window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
 
    const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
