@@ -30,21 +30,16 @@ function harness(allowed,blocked=false){
  return {menu,styles,imports,calls,open,events,alerts,placements,window,client};
 }
 for(const [id,allowed,blocked] of [["2",true,false],["1",false,false],["1",true,true]]){
- const h=harness(allowed,blocked);await h.window.VATRA_ADMIN_SESSION(h.client,id);
+ const h=harness(allowed,blocked);await h.window.VATRA_ACCOUNT_SESSION(h.client,id);
  assert.equal(h.menu.some(x=>x.id==="vatra-admin-menu"),false);
  assert.equal(h.styles.length,0);assert.equal(h.imports.length,0);
  if(id!=="1"||blocked)assert.ok(!h.calls.includes("vatra_admin_access"));
 }
 const owner=harness(true);
-await owner.window.VATRA_ADMIN_SESSION(owner.client,"1");
-assert.equal(owner.menu.length,1);assert.ok(owner.calls.includes("vatra_admin_access"));assert.deepEqual(owner.placements,["before-logout"],"Owner entry remains before logout");
+await owner.window.VATRA_ACCOUNT_SESSION(owner.client,"1");
+assert.equal(owner.menu.length,0);assert.deepEqual(owner.calls,["account_states"]);
 assert.equal(owner.imports.length,0);assert.equal(owner.styles.length,0);
-await owner.menu[0].click();
-assert.equal(owner.imports.length,1);assert.ok(owner.imports[0].includes("/assets/js/admin.js?rev="));
-assert.equal(owner.styles.length,1);assert.deepEqual(owner.open,["1"]);assert.equal(owner.alerts.length,0);
-await owner.menu[0].click();assert.equal(owner.imports.length,1);assert.equal(owner.styles.length,1);
-owner.window.VATRA_ADMIN_END({}, "1");assert.equal(owner.menu.length,1,"Unrelated session cannot clear owner");
-owner.events[0]("SIGNED_OUT");assert.equal(owner.menu.length,0);assert.equal(owner.open.length,0);
+owner.events[0]("SIGNED_OUT");assert.equal(owner.menu.length,0);
 for(const name of ["clips","marketplace","settings"]){
  const src=await readFile("assets/js/"+name+".js","utf8");
  let registered=0;new Function("window","document",src)({VATRA_SECTION_CORE:{start(init){assert.equal(typeof init,"function");registered++;}}},{body:{dataset:{page:name}}});
@@ -58,7 +53,7 @@ for(const name of ["communities","club"]){
  assert.equal(registered,1,name+" registers only its own initializer");
  new Function("window",src)({VATRA_HOST_ALLOWED:false,VATRA_COMMUNITY_CORE:{start(){throw Error("Forbidden host");}}});
 }
-console.log("VATRA lazy architecture: owner role gate, click-only modules, sign-out cleanup and isolated page registration verified.");
+console.log("VATRA lazy architecture: retired owner panel, account-state checks, sign-out cleanup and isolated page registration verified.");
 
 // Execute the real lazy factories, not just a simulated dynamic import.
 function element(tag,cls="",copy=""){
@@ -114,37 +109,12 @@ for(const [id] of catalog.marketTypes){
  const price=byClass(listing,"input-market-price");
  assert.equal(Boolean(price.readOnly),id==="free","Free listing price must be locked only for free listings");
 }
-const admin=await readFile("assets/js/admin.js","utf8"),requests=[];
-let permitted=true;
-const actualAdmin=new Function("document","window","URL","location","confirm","Option",admin.replace(/^export /gm,"")+"\nreturn {openPanel,clearPanel};")(doc,{},URL,{assign(){}},()=>true,function Option(text,value){const el=element("option");el.textContent=text;el.value=value;return el;});
-const adminClient={async rpc(name,params){
- requests.push({...params,rpc_name:name});
- if(name==="admin_console_read"){
-  if(params.p_action==="members_page")return {data:{total:1,page:0,page_size:25,items:[{vatra_id:17,name:"Профіль",created_at:"2026-11-21T10:00:00Z",verified:false,state:"active"}]},error:null};
-  if(params.p_action==="member_detail")return {data:{posts:0,comments:0,stories:0,reports:0,recent_actions:[]},error:null};
-  throw Error("Unexpected admin read "+params.p_action);
- }
- assert.equal(name,"vatra_admin_manage");
- return {data:params.p_action==="lookup"?{vatra_id:17,name:"Профіль",created_at:"2026-11-21T10:00:00Z",verified:false,state:"active"}:{},error:null};
-}};
-const valid=id=>/^[1-9][0-9]{0,18}$/.test(String(id||""));
-assert.ok(guard.includes("{root,t,node,button,icon,valid}"),"Guard must provide the actual ID validator");
-actualAdmin.openPanel({client:adminClient,id:"1"},()=>permitted,{root:"https://example.com/VATRA/",t:text,node:make,button,icon:()=>element("svg"),valid});
-const adminDialog=doc.body.children.at(-1);
-assert.equal(adminDialog.open,true);
-await byClass(adminDialog,"vatra-admin-nav-button-users").fire("click");
-const form=byClass(adminDialog,"ui-vatra-admin-lookup-001"),input=byClass(form,"ui-vatra-admin-id-input-001");
-input.value="bad";await form.fire("submit");await new Promise(resolve=>setImmediate(resolve));
-assert.equal(requests.filter(r=>r.p_action==="lookup").length,0,"Name search must not perform a member mutation lookup");
-assert.ok(requests.some(r=>r.p_action==="members_page"&&r.p_payload.query==="bad"),"Global member search must be server-side");
-input.value="17";await form.fire("submit");await new Promise(resolve=>setImmediate(resolve));
-assert.ok(requests.some(r=>r.p_action==="members_page"&&r.p_payload.query==="17"),"Exact ID search must use the paginated server API");
-const entry=byClass(adminDialog,"ui-vatra-admin-directory-row-001");
-assert.ok(entry,"Member directory must render a row");
-await entry.fire("click");await new Promise(resolve=>setImmediate(resolve));
-const lookups=requests.filter(r=>r.p_action==="lookup");assert.equal(lookups.length,1);
-assert.equal(lookups[0].p_id,"17");
-permitted=false;input.value="18";await form.fire("submit");await new Promise(resolve=>setImmediate(resolve));
-assert.equal(requests.filter(r=>r.p_action==="members_page"&&r.p_payload.query==="18").length,0,"Expired owner role must not issue admin calls");
-actualAdmin.clearPanel();
-console.log("VATRA lazy forms: marketplace controls, owner-only server member search, detail lookup and expired-session protection passed.");
+console.log("VATRA lazy forms: marketplace controls and listing validation passed.");
+
+// Authentication and localization are independent; neither should delay starting the other.
+for(const name of ["feed","profile","core","friends","gifts","notifications"]){
+ const source=await readFile("assets/js/"+name+".js","utf8");
+ const auth=source.match(/Promise\.all\(\[[^\n]*\.auth\.getUser\(\)[^\n]*,(?:languageReady|window\.VATRA_LANGUAGE\?\.ready)\]\)/);
+ assert.ok(auth,name+" must overlap server-verified authentication with language initialization");
+}
+console.log("VATRA startup: authentication and localization overlap across signed-in sections.");

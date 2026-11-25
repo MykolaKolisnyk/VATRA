@@ -10,7 +10,6 @@
   "../illustrations/login_hero-03.webp"
  ].map(path=>new URL(path,script.src).href);
  const INTERVAL=30_000,PRELOAD=25_000,FADE=950;
- const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
  let current=-1,active=null,bag=[],pending=null,preloadTimer=null,swapTimer=null,epoch=0;
  function choose(){
   if(!bag.length)bag=sources.map((_,i)=>i).filter(i=>i!==current);
@@ -42,7 +41,7 @@
   ++epoch;clearTimeout(preloadTimer);clearTimeout(swapTimer);
   preloadTimer=swapTimer=null;
  }
- function eligible(){return !!active&&!document.hidden&&!reduced.matches;}
+ function eligible(){return !!active&&!document.hidden;}
  function prepare(){return pending||(pending=load(choose()));}
  function schedule(){
   stop();
@@ -59,8 +58,6 @@
   },INTERVAL);
  }
  document.addEventListener("visibilitychange",schedule);
- if(typeof reduced.addEventListener==="function")reduced.addEventListener("change",schedule);
- else reduced.addListener?.(schedule);
  void (async()=>{
   for(let attempt=0;attempt<sources.length;attempt++){
    const entry=await load(choose());

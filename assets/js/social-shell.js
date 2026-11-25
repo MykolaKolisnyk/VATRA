@@ -76,7 +76,11 @@
    manage.append(brand,
     make("span","vatra-account-manage-label-001",tr("Керування акаунтом","Manage account")),
     make("small","vatra-account-id-label-001","ID"));
-   (dropdown.querySelector(".feed-account-profile")||dropdown.firstElementChild)?.after(manage);
+   const profile=dropdown.querySelector(".feed-account-profile");
+   if(profile){
+    const group=make("div","ui-vatra-account-profile-group-001");
+    profile.before(group);group.append(profile,manage);
+   }else dropdown.prepend(manage);
   }
   const support=dropdown.querySelector(".feed-menu-support"),settings=dropdown.querySelector(".feed-menu-settings-link");
   if(support&&settings)settings.before(support);
@@ -115,10 +119,8 @@
 
    const gapTop=Math.max(0,headerBox.bottom-menuBox.top);
    const gapRight=0;
-   const width=Math.min(344,innerWidth-24);
-   const minLeft=12-menuBox.left;
-   const maxLeft=innerWidth-12-width-menuBox.left;
-   const gapLeft=Math.max(minLeft,Math.min(menuBox.width-width,maxLeft));
+   const width=Math.min(344,document.documentElement.clientWidth);
+   const gapLeft=document.documentElement.clientWidth-width-menuBox.left;
    const height=Math.max(0,viewTop+viewHeight-menuBox.bottom-15);
    dropdown.style.setProperty("--vatra-account-dropdown-top",Math.round(gapTop)+"px");
    dropdown.style.setProperty("--vatra-account-dropdown-right",Math.round(gapRight)+"px");
@@ -570,8 +572,9 @@
    list.replaceChildren(fragment);
    panel.classList.toggle("has-query",!!typed);
    empty.hidden=visibleTerms.length>0||(!typed&&recentViews.length>0);
-   empty.textContent=typed?t("Немає збігів в історії","No matches in history"):
-    t("Історія пошуку порожня","No search history");
+   const art=icon("ui-vatra-search-empty-icon-001","M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5m4-1v5l3 2");
+   empty.replaceChildren(art,make("span","vatra-search-empty-label-001",typed?t("Немає збігів в історії","No matches in history"):
+    t("Історія пошуку порожня","No search history")));
    const total=visibleTerms.length+(!typed?recentViews.length:0);
    count.textContent=total?
     (lang()==="uk"?total+" записів":
@@ -770,7 +773,7 @@
  }
  const shellScript=document.currentScript?.src;
  const boot=()=>{
-  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-admin]")){const s=document.createElement("script");s.className="ui-vatra-account-guard-script-001";s.src=new URL("account-guard.js?rev=75e4057976db3593814de6d14beae75016283fae",shellScript).href;s.dataset.vatraAdmin="true";document.head.append(s);}
+  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-account-guard]")){const s=document.createElement("script");s.className="ui-vatra-account-guard-script-001";s.src=new URL("account-guard.js?rev=4d050593dc092a4cb3b50af4929c55acfc795a4a",shellScript).href;s.dataset.vatraAccountGuard="true";document.head.append(s);}
   showPendingShell();
   setUpAccountPanel();
   setupRouteMotion();

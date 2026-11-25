@@ -64,8 +64,8 @@ function clearFeedback(){window.VATRA_TOAST?.clear?.();}
 function busy(form,isBusy){
  form.querySelectorAll("button[type=submit]").forEach(btn=>{
   btn.disabled=isBusy;
-  if(isBusy){btn.dataset.oldLabel=btn.textContent;btn.textContent=translate("Зачекайте…");}
-  else if(btn.dataset.oldLabel){btn.textContent=btn.dataset.oldLabel;delete btn.dataset.oldLabel;}
+  if(isBusy)btn.setAttribute("aria-busy","true");
+  else btn.removeAttribute("aria-busy");
  });
 }
 function getMessage(error){

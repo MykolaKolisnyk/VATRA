@@ -378,21 +378,23 @@
    notice.append(svg("lock"));
    const copy=make("div","ui-profile-locked-notice-content-001");
    copy.append(make("h2","vatra-profile-locked-heading-001",
-    blockAccess?.blockedByThem?
-     tr("Доступ до сторінки обмежено","Access to this profile is restricted"):
     blockAccess?.blockedByMe?
      tr("Ви заблокували цього користувача","You blocked this member"):
+    blockAccess?.blockedByThem?
+     tr("Доступ до сторінки обмежено","Access to this profile is restricted"):
      tr("Ця сторінка закрита","This profile is private")));
-   copy.append(make("p","vatra-profile-locked-description-001",
+   if(!blockAccess?.blockedByMe)copy.append(make("p","vatra-profile-locked-description-001",
     blockAccess?.blockedByThem?
      tr("Користувач обмежив вам доступ до своєї сторінки.",
       "This member has restricted your access to their profile."):
-    blockAccess?.blockedByMe?
-     tr("Ви можете розблокувати користувача за допомогою іконки вище.",
-      "Use the icon above to unblock this member."):
      tr("Публікації, фотографії та інформацію бачать лише друзі користувача.",
       "Only this member's friends can see posts, photos and personal information.")));
    notice.append(copy);
+   if(blockAccess?.blockedByMe){
+    const unblock=make("button","vatra-profile-unblock-direct-001",tr("Розблокувати","Unblock"));
+    unblock.id="profile-unblock-direct";unblock.type="button";notice.append(unblock);
+   }
+   select("#profile-last-seen")?.setAttribute("hidden","");
    select(".profile-hero")?.insertAdjacentElement("afterend",notice);
   }
   if(!isMine)return {locked};
@@ -812,12 +814,7 @@
     nameLine.append(make("strong","vatra-profile-editor-identity-name-001",select("#profile-heading")?.querySelector(".vatra-verified-name-text")?.textContent||select("#profile-heading")?.textContent.trim()||"VATRA"));
     const idLink=make("a","vatra-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id",location.href).href;
     nameLine.append(idLink);identityInfo.append(avatarButton,nameLine);
-    const verification=make("div","ui-profile-editor-verification-row-001");
-    const verifyLabel=make("span","vatra-profile-editor-verification-label-001",tr("Верифікація","Verification"));
-    const verifyState=make("span","vatra-profile-editor-verification-state-001",tr("Перевірка статусу…","Checking status…"));
-    const verifyLink=make("a","vatra-profile-editor-verification-link-001",tr("Подати заявку","Apply"));verifyLink.href=new URL("vatra-id#verification",location.href).href;
-    verification.append(verifyLabel,verifyState,verifyLink);identityInfo.append(verification);identity.append(coverPreview,identityInfo);fields.append(identity);
-    void (async()=>{try{const {data,error}=await client.from("verified_accounts").select("vatra_id").eq("vatra_id",ownId).maybeSingle();if(error)throw error;verifyState.textContent=data?tr("Сторінку верифіковано","Verified profile"):tr("Сторінка не верифікована","Not verified");verifyLink.hidden=Boolean(data);}catch(_){verifyState.textContent=tr("Статус недоступний","Status unavailable");}})();
+    identity.append(coverPreview,identityInfo);fields.append(identity);
     const privacy=make("div","profile-editor-privacy ui-profile-editor-privacy-001");
     const privacySymbol=make("div","ui-profile-editor-privacy-symbol-001");
     privacySymbol.append(svg("lock"));
@@ -1890,7 +1887,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
 
 
 function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
- const button=q("#profile-block-toggle"),moreMenu=q("#profile-more-menu");
+ const button=q("#profile-block-toggle"),moreMenu=q("#profile-more-menu"),direct=q("#profile-unblock-direct");
  if(!button||isMine||!validId(ownId)||!validId(targetId))return;
  if(moreMenu)moreMenu.hidden=false;
  const rawFirst=String(q("#profile-heading")?.textContent||"").trim().split(/\s+/)[0].slice(0,60);
@@ -1906,17 +1903,20 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
   const actionLabel=q("#profile-block-action-label");
   if(actionLabel)actionLabel.textContent=label;
   button.dataset.blocked=String(blocked);
+  const mark=button.querySelector(".ui-profile-block-member-ban-stroke-001");
+  if(mark)mark.setAttribute("d",blocked?"m14.5 16.9 1.8 1.8 3.6-3.6":"m13.9 13.5 6.6 6.6");
   button.setAttribute("aria-label",label);
   button.title=label;
  };
  paint();
+ direct?.addEventListener("click",()=>button.click());
  button.addEventListener("click",async()=>{
   if(busy)return;
   if(moreMenu)moreMenu.open=false;
+  busy=true;
   const approved=await window.VATRA_PROFILE_CONFIRM(blocked?{
    title:t("Розблокувати користувача?","Unblock this member?"),
-   description:t("Користувач знову зможе переглядати доступний йому вміст вашої сторінки та звертатися до вас.",
-    "This member will be able to view your accessible profile content and contact you again."),
+   description:t("Блокування з вашого боку буде знято.","Your block on this member will be removed."),
    action:t("Розблокувати","Unblock"),tone:"primary"
   }:{
    title:t("Заблокувати користувача?","Block this member?"),
@@ -1924,8 +1924,8 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
     "They will see only your cover, avatar and name. Posts, stories, profile details and direct messages will be unavailable."),
    action:t("Заблокувати","Block"),tone:"danger"
   });
-  if(!approved)return;
-  busy=true;button.disabled=true;
+  if(!approved){busy=false;return;}
+  button.disabled=true;if(direct){direct.disabled=true;direct.setAttribute("aria-busy","true");}
   const status=q("#profile-action-status");
   try{
    const operation=blocked?
@@ -1946,7 +1946,7 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
      "Could not update blocking. Please retry.");
     status.hidden=false;
    }
-  }finally{busy=false;button.disabled=false;}
+  }finally{busy=false;button.disabled=false;if(direct){direct.disabled=false;direct.removeAttribute("aria-busy");}}
  });
 }
 
@@ -3563,15 +3563,17 @@ function profileDeadline(task,ms=15000){
 }
 async function start(){
  try{
-  await profileDeadline(window.VATRA_LANGUAGE?.ready,5000);
-  localizeSocial();
+  const languageReady=profileDeadline(window.VATRA_LANGUAGE?.ready,5000);
   if(!window.supabase?.createClient){
+   await languageReady;
+   localizeSocial();
    gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));return;
   }
   const client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
   });
-  const {data,error}=await profileDeadline(client.auth.getUser());
+  const [{data,error}]=await Promise.all([profileDeadline(client.auth.getUser()),languageReady]);
+  localizeSocial();
   if(error&&![401,403].includes(Number(error.status))&&error.name!=="AuthSessionMissingError"&&!["session_expired","session_not_found","refresh_token_not_found","refresh_token_already_used","bad_jwt"].includes(error.code))throw error;
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
    const id=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1];

@@ -66,7 +66,7 @@ function mount({q,t,coverPhoto,getCoverUrl,getSavedCoverPath,getPublicPath,allow
      (destination.width/Math.max(1,origin.width))+","+
      (destination.height/Math.max(1,origin.height))+")",
      borderRadius:"12px"}
-   ],{duration:460,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
+   ],{duration:260,easing:"cubic-bezier(.22,1,.36,1)",fill:"forwards"});
    void coverAnimation.finished.then(arrivedAtCenter).catch(()=>{});
   }
   if(coverImage.complete&&coverImage.naturalWidth)queueMicrotask(prepareImage);

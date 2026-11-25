@@ -391,7 +391,7 @@ try{
  for(const width of [1366,420]){
   await spacingProbe.setViewportSize({width,height:900});
   const expected=width>770?16:12;
-  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+  await spacingProbe.setContent('<!doctype html><html><head><link rel="stylesheet" href="'+base+'assets/css/base.css">'+sharedStyles+'</head>'+
    '<body class="profile-page feed-page">'+
    '<main class="profile-posts-section">'+
    '<div class="profile-left-stack"><aside id="profile-friends-preview" class="profile-mini-card">'+
@@ -437,7 +437,7 @@ try{
   assert.ok(profileLoaded.display!=="none"&&nearly(profileLoaded.gap,expected),
    "Populated profile posts must use the same spacing as empty posts at "+width+"px: "+
     JSON.stringify(profileLoaded));
-  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+  await spacingProbe.setContent('<!doctype html><html><head><link rel="stylesheet" href="'+base+'assets/css/base.css">'+sharedStyles+'</head>'+
    '<body class="feed-page"><section class="feed-posts-section">'+
    '<div id="feed-posts" class="feed-posts"> \n </div>'+
    '<div id="feed-empty" class="feed-empty">Поки немає публікацій</div>'+
@@ -464,7 +464,7 @@ try{
   assert.ok(feedLoaded.listDisplay!=="none"&&nearly(feedLoaded.top,0),
    "Populated Feed posts cannot jump relative to the empty state: "+
     JSON.stringify({width,...feedLoaded}));
-  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+  await spacingProbe.setContent('<!doctype html><html><head><link rel="stylesheet" href="'+base+'assets/css/base.css">'+sharedStyles+'</head>'+
    '<body class="feed-page community-page"><section class="club-posts-section">'+
    '<h2 class="vatra-club-posts-title-001">Публікації</h2>'+
    '<div id="club-posts" class="club-posts"> \n </div>'+
@@ -3092,8 +3092,8 @@ try{
    list:async(folder,options)=>({data:bucket==="avatars"&&folder==="654321/avatar"&&!new URLSearchParams(location.search).has("no-avatar-test")&&!options?.offset?[{name:"test-profile.webp"},{name:"previous-profile.webp"}]:[],error:null}),
    download:async path=>{
     window.__vatraAvatarDownloadedPaths.push(path);
-    const bytes=Uint8Array.from(atob("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="),c=>c.charCodeAt(0));
-    return {data:new Blob([bytes],{type:"image/gif"}),error:null};
+    const bytes=Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="),c=>c.charCodeAt(0));
+    return {data:new Blob([bytes],{type:"image/png"}),error:null};
    },
    upload:async path=>{if(bucket==="avatars")window.__vatraAvatarRestoredPaths.push(path);return {error:null};},
    remove:async paths=>{window.__feedMockMediaRemovals++;
@@ -3415,12 +3415,13 @@ try{
     Math.abs(geometry.storyWidth-geometry.mainWidth)<3&&
     Math.abs(geometry.postWidth-geometry.composerWidth)<3&&
     geometry.storyBottom<=geometry.composerTop+1&&
-    geometry.storyCardWidth>=300&&geometry.storyCardWidth<=geometry.storyWidth+2&&
-    geometry.storyCardHeight>=72&&geometry.storyCardHeight<=82&&
+    geometry.storyCardWidth>=95&&geometry.storyCardWidth<=120&&
+    geometry.storyCardHeight>=169&&geometry.storyCardHeight<=212&&
+    geometry.storyCardHeight>geometry.storyCardWidth*1.65&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
-    "VATRA header symmetry and full-width Stories above composer: "+
+    "VATRA header symmetry and vertical Story tiles above composer: "+
     JSON.stringify(geometry));
   }
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0,
@@ -3575,7 +3576,7 @@ try{
    const rect=dialog.getBoundingClientRect();
    const canvas=dialog.querySelector(".ui-vatra-post-media-viewer-content-001");
    const photo=canvas.querySelector(".ui-vatra-post-expanded-image-001");
-   return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top,sized:dialog.dataset.photoSized,
+   return {open:dialog.open,w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top,
     caption:dialog.querySelector(".vatra-post-media-caption-001")?.textContent,
     imageFit:getComputedStyle(photo).objectFit,
     imageWidth:photo.getBoundingClientRect().width,
@@ -3586,11 +3587,8 @@ try{
     background:getComputedStyle(canvas).backgroundColor,
     rootGutter:getComputedStyle(document.documentElement).scrollbarGutter};
   });
-  assert.ok(postFrame.open&&postFrame.w<=postFrame.vw+2&&postFrame.h<=postFrame.vh+2&&postFrame.x>=-2&&postFrame.y>=-2&&
-   (postFrame.sized&&postFrame.vw>=1100&&postFrame.vh>=620?
-    Math.abs(postFrame.x-(postFrame.vw-postFrame.w)/2)<=2&&Math.abs(postFrame.y-(postFrame.vh-postFrame.h)/2)<=2:
-    Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2),
-   "Post photo viewer must fit the viewport and center adaptive landscape photos: "+JSON.stringify(postFrame));
+  assert.ok(postFrame.open&&Math.abs(postFrame.w-postFrame.vw)<=2&&Math.abs(postFrame.h-postFrame.vh)<=2&&Math.abs(postFrame.x)<=2&&Math.abs(postFrame.y)<=2,
+   "Photo viewer must fill the entire viewport regardless of image aspect ratio: "+JSON.stringify(postFrame));
   assert.equal(postFrame.caption,
    language==="en"?"Photo from a post":"Фото з публікації",
    "Own post photos must not repeat the owner's name or a decorative separator");
@@ -3732,21 +3730,36 @@ try{
   const firstFeedPhoto=feedProbe.locator("#feed-nav-fixture-1 .vatra-feed-post-media-open-001");
   await feedProbe.locator("#feed-nav-fixture-1").scrollIntoViewIfNeeded();await firstFeedPhoto.click();
   const feedViewer=feedProbe.locator("#vatra-post-media-viewer"),feedCounter=feedViewer.locator(".vatra-post-gallery-counter-001");
+  await feedViewer.waitFor({state:"visible"});
+  assert.equal(await feedViewer.locator(".vatra-post-gallery-nav-next:visible,.vatra-post-gallery-nav-prev:visible,.vatra-post-gallery-counter-001:visible").count(),0,"Single post photo has no gallery navigation");
+  await feedProbe.keyboard.press("ArrowRight");
+  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
+  await feedProbe.keyboard.press("Escape");
+  await feedProbe.evaluate(async()=>{
+   const {client,item}=window.__vatraWebpFixture,card=document.querySelector("#feed-nav-fixture-1");
+   card.querySelector(".feed-post-media")?.remove();
+   const second={...item};
+   second.media_path="12/posts/00000000-0000-4000-8000-000000000099.png";
+   second.preview_path="12/posts/00000000-0000-4000-8000-000000000098.webp";
+   await window.VATRA_POST_MEDIA.mount(client,{id:card.dataset.postId,author_vatra_id:"12",kind:"person",body:"FeedAlpha",media_items:[item,second]},card);
+  });
+  await feedProbe.locator("#feed-nav-fixture-1 .vatra-post-gallery-tile").first().click();
   await feedCounter.waitFor({state:"attached"});assert.equal(await feedCounter.textContent(),"1 / 2");
   const feedNext=feedViewer.locator(".vatra-post-gallery-nav-next");
   assert.equal(await feedNext.isDisabled(),false);
   await feedViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
   await feedNext.click();
   await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");
-  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedBeta");
-  assert.ok((await feedViewer.locator(".vatra-post-media-footer-open-post-001").getAttribute("data-href")).includes("00000000-0000-4000-8000-000000000002"));
-  assert.ok(await feedViewer.evaluate(dialog=>dialog.contains(document.activeElement)),"Feed navigation must keep keyboard focus inside the viewer");
+  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
+  assert.ok((await feedViewer.locator(".vatra-post-media-footer-open-post-001").getAttribute("data-href")).includes("00000000-0000-4000-8000-000000000001"));
+  assert.equal(await feedNext.isDisabled(),true);
+  await feedProbe.keyboard.press("ArrowRight");
+  assert.equal(await feedCounter.textContent(),"2 / 2");
   await feedProbe.keyboard.press("ArrowLeft");
   await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
-  assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
   await feedProbe.keyboard.press("Escape");
   await feedProbe.evaluate(()=>{document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
-  console.log("VATRA Feed photo navigation: next post, correct author and post link, keyboard back verified.");
+  console.log("VATRA Feed photo navigation: single photo isolation, same-post gallery and keyboard bounds verified.");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_COMPOSER_UI),false,
@@ -4424,7 +4437,9 @@ try{
   assert.equal(await feedProbe.locator(".feed-story-empty-note").count(),0,
    "A missing story must not create an explanatory row");
   assert.equal(await feedProbe.locator(".feed-stories").evaluate(el=>el.classList.contains("is-empty")),true);
-  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),false);
+  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").count(),0);
+  assert.equal(await feedProbe.locator("#feed-story-create-avatar").isVisible(),true);
+  assert.equal(await feedProbe.locator(".vatra-feed-story-create-subtitle-001").count(),0);
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_STORY_EDITOR),false,
    "Story editor should not load before opening it");
   await feedProbe.locator("#feed-create-story").click();
@@ -4456,14 +4471,21 @@ try{
   assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();
-  const storiesFirst=await feedProbe.evaluate(()=>{
+  await feedProbe.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await feedProbe.waitForFunction(()=>window.scrollY<=1);
+  const storyGeometry=await feedProbe.evaluate(()=>{
    const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
    const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
-   return stories.top<composer.top&&composer.top<posts.top&&
-    stories.bottom<=composer.top+1&&stories.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   return {storiesTop:stories.top,storiesBottom:stories.bottom,composerTop:composer.top,
+    composerBottom:composer.bottom,postsTop:posts.top,headerBottom:header.bottom,scrollY:window.scrollY};
   });
-  assert.ok(storiesFirst,"Stories, then Composer, then posts");
+  assert.ok(storyGeometry.storiesTop<storyGeometry.composerTop&&
+   storyGeometry.composerBottom<=storyGeometry.postsTop+1&&
+   storyGeometry.storiesBottom<=storyGeometry.composerTop+1&&
+   storyGeometry.storiesTop>=storyGeometry.headerBottom-1,
+   "Stories, then Composer, then posts: "+JSON.stringify(storyGeometry));
   await feedProbe.locator(".ui-social-top-friends-001").hover();
   assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"true",
    "Each header icon needs a VATRA tooltip on hover");
@@ -4506,7 +4528,22 @@ try{
   assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"));
   assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
    "mailto:vatra.support@gmail.com");
-  assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),4);
+  const accountPanel=feedProbe.locator(".feed-account-dropdown");
+  const accountProfileGroup=accountPanel.locator(":scope > .ui-vatra-account-profile-group-001");
+  assert.equal(await accountProfileGroup.count(),1);
+  assert.equal(await accountPanel.locator(":scope > a").count(),2,
+   "Support and Settings are the only standalone account links");
+  assert.equal(await accountPanel.locator("a").count(),4,
+   "Profile, VATRA ID, Support and Settings must remain available");
+  assert.deepEqual(await accountProfileGroup.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-account-profile")?"profile":link.classList.contains("vatra-account-manage-001")?"manage":"unexpected")),["profile","manage"],
+   "VATRA ID must be directly below My Profile in the same group");
+  const manageAccount=accountProfileGroup.locator(".vatra-account-manage-001");
+  assert.ok(await manageAccount.isVisible());
+  assert.equal(await manageAccount.evaluate(link=>new URL(link.href).pathname),"/VATRA/vatra-id");
+  assert.equal(await manageAccount.locator(".ui-vatra-account-id-symbol-001").count(),1);
+  assert.equal((await manageAccount.locator(".vatra-account-id-label-001").textContent()).trim(),"ID");
+  assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
+   "Support must precede Settings in the account menu");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
    "Account menu contains logout and the tutorial replay action");
   assert.equal(await feedProbe.locator("#vatra-onboarding-replay").count(),1);
@@ -4532,28 +4569,36 @@ try{
     height:innerHeight,headerBottom:header.bottom,headerRight:header.right,
     toggleRight:document.querySelector(".feed-account-toggle").getBoundingClientRect().right,
     toggleBottom:document.querySelector(".feed-account-toggle").getBoundingClientRect().bottom,
+    rightEdge:document.documentElement.clientWidth,bottomRightRadius:getComputedStyle(dropdown).borderBottomRightRadius,topRightRadius:getComputedStyle(dropdown).borderTopRightRadius,
     positioned:!!dropdown.style.getPropertyValue("--vatra-account-dropdown-top")};
   });
   await feedProbe.waitForFunction(()=>
    !!document.querySelector(".feed-account-dropdown").style.getPropertyValue("--vatra-account-dropdown-top"));
+  await feedProbe.waitForFunction(()=>{
+   const menu=document.querySelector(".feed-account-dropdown").getBoundingClientRect();
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   return Math.abs(menu.top-header.bottom)<=2&&Math.abs(menu.right-document.documentElement.clientWidth)<=2;
+  });
   const menuRect=await checkAccountGeometry();
-  assert.ok(menuRect.left>=0&&menuRect.right<=menuRect.width+1&&
+  assert.ok(menuRect.left>=-1&&menuRect.right<=menuRect.rightEdge+1&&
    menuRect.top>=0&&menuRect.bottom<=menuRect.height+1&&
-   menuRect.top>=menuRect.toggleBottom+2&&
-   Math.abs(menuRect.right-menuRect.toggleRight)<=4,
-   "Account menu must appear under the avatar button: "+JSON.stringify(menuRect));
+   Math.abs(menuRect.top-menuRect.headerBottom)<=2&&
+   Math.abs(menuRect.right-menuRect.rightEdge)<=2&&
+   menuRect.bottomRightRadius==="0px"&&menuRect.topRightRadius==="0px",
+   "Account menu must meet the header and right viewport edge without rounded right corners: "+JSON.stringify(menuRect));
   assert.deepEqual(await navCenters(feedProbe),navBeforeMenu,
    "Opening account menu must not move header icons");
   const savedViewport=feedProbe.viewportSize();
   await feedProbe.setViewportSize({width:600,height:800});
   await feedProbe.waitForFunction(()=>{
    const menu=document.querySelector(".feed-account-dropdown").getBoundingClientRect();
-   const toggle=document.querySelector(".feed-account-toggle").getBoundingClientRect();
-   return menu.top>=toggle.bottom+2&&Math.abs(menu.right-toggle.right)<=4;
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   return Math.abs(menu.top-header.bottom)<=2&&Math.abs(menu.right-document.documentElement.clientWidth)<=2;
   },null,{timeout:3500});
   const mobileMenu=await checkAccountGeometry();
   assert.ok(Math.abs(mobileMenu.top-mobileMenu.headerBottom)<=2&&
-   Math.abs(mobileMenu.right-mobileMenu.toggleRight)<=4&&
+   Math.abs(mobileMenu.right-mobileMenu.rightEdge)<=2&&
+   mobileMenu.topRightRadius==="0px"&&mobileMenu.bottomRightRadius==="0px"&&
    mobileMenu.left>=-1&&mobileMenu.bottom<=mobileMenu.height+1,
    "Account menu must join the two-row mobile header too: "+JSON.stringify(mobileMenu));
   await feedProbe.setViewportSize(savedViewport);
@@ -4696,7 +4741,8 @@ try{
   for(const action of ["pin","edit","copy","comments"])assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-"+action+"-001").isVisible(),true);
   await feedProbe.locator(".vatra-post-owner-edit-001").click();
   await feedProbe.locator(".ui-vatra-post-edit-dialog-001").waitFor({state:"visible"});
-  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-media-001").isVisible(),true);
+  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-dialog-001 .vatra-post-composer-zone").isVisible(),true);
+  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-dialog-001").evaluate(el=>el.classList.contains("vatra-post-composer-dialog")),true,"Create and edit must use the same composer");
   assert.equal(await feedProbe.locator(".ui-vatra-post-edit-text-001").isVisible(),true);
   await feedProbe.locator(".vatra-post-edit-cancel-001").click();
   await feedProbe.locator(".vatra-post-owner-toggle").click();
@@ -4758,8 +4804,7 @@ try{
   // New canonical Storage buckets start empty. Supply the sample uploaded
   // avatar locally instead of depending on legacy objects in Supabase.
   await profilePage.route("**/storage/v1/object/public/avatars/**",route=>route.fulfill({
-   status:200,contentType:"image/gif",
-   body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")
+   status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng
   }));
   if(language==="uk")await profilePage.setViewportSize({width:1366,height:844});
   await profilePage.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
@@ -5011,13 +5056,10 @@ try{
   await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0&&document.querySelector("#profile-photo-content").dataset.photoMatte==="dark";});
   const fullscreenAvatar=await profilePage.evaluate(()=>{
    const dialog=document.querySelector("#profile-media-viewer"),rect=dialog.getBoundingClientRect();
-   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top,sized:dialog.dataset.photoSized};
+   return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top};
   });
-  assert.ok(fullscreenAvatar.w<=fullscreenAvatar.vw+2&&fullscreenAvatar.h<=fullscreenAvatar.vh+2&&fullscreenAvatar.x>=-2&&fullscreenAvatar.y>=-2&&
-   (fullscreenAvatar.sized&&fullscreenAvatar.vw>=1100&&fullscreenAvatar.vh>=620?
-    Math.abs(fullscreenAvatar.x-(fullscreenAvatar.vw-fullscreenAvatar.w)/2)<=2&&Math.abs(fullscreenAvatar.y-(fullscreenAvatar.vh-fullscreenAvatar.h)/2)<=2:
-    Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2),
-   "Avatar viewer must fit the viewport: "+JSON.stringify(fullscreenAvatar));
+  assert.ok(Math.abs(fullscreenAvatar.w-fullscreenAvatar.vw)<=2&&Math.abs(fullscreenAvatar.h-fullscreenAvatar.vh)<=2&&Math.abs(fullscreenAvatar.x)<=2&&Math.abs(fullscreenAvatar.y)<=2,
+   "Photo viewer must fill the entire viewport regardless of image aspect ratio: "+JSON.stringify(fullscreenAvatar));
   assert.equal(await profilePage.locator("#profile-photo-footer-tag").count(),0,
    "Person tagging was removed from the photo viewer altogether");
   assert.equal(await profilePage.locator("#profile-photo-report").isVisible(),false,
@@ -5638,8 +5680,18 @@ try{
    language==="en"?"restricted your access":"обмежив вам доступ"));
   await profilePage.goto(base+"id789012?block-test=me",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  await profilePage.waitForFunction(()=>document.body.dataset.authReady==="true"&&document.body.dataset.profileLocked==="true",null,{timeout:14000});
   assert.equal(await profilePage.locator("#profile-block-toggle").getAttribute("data-blocked"),"true");
   assert.equal(await profilePage.locator(".profile-locked-notice[data-lock-reason='block']").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-last-seen").isVisible(),false);
+  assert.equal(await profilePage.locator(".vatra-profile-locked-description-001").count(),0);
+  assert.equal(await profilePage.locator("#profile-unblock-direct").isVisible(),true);
+  await profilePage.locator("#profile-unblock-direct").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),true);
+  await profilePage.locator("#profile-confirm-cancel").click();
+  await profilePage.locator("#profile-more-trigger").click();
+  assert.equal(await profilePage.locator("#profile-block-toggle").evaluate(el=>getComputedStyle(el).color),"rgb(36, 94, 189)");
+  await profilePage.locator("#profile-more-trigger").click();
   // Test a genuinely private route after the public visitor geometry checks.
   await profilePage.goto(base+"id789012?locked-test=1&photo=avatar",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});

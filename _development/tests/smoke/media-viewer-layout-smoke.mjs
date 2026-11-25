@@ -74,12 +74,13 @@ assert.ok(
  "Photo viewers must share the footer, preserve owner permissions, move Save into actions, and show red likes"
 );
 assert.ok(
- profileCss.includes("ui-profile-photo-content-001:hover")&&
- postCss.includes("ui-vatra-post-media-viewer-content-001:hover")&&
+ !profileCss.includes("ui-profile-photo-content-001:hover :is(.vatra-profile-avatar-prev-001")&&
+ postCss.includes("ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001):hover")&&
+ postCss.includes("ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001):focus-within")&&
  profile.includes("file.size>31457280")&&
  postMedia.includes("limit:31457280")&&
  postInteractions.includes("31457280"),
- "Photo uploads must respect the new 30 MB bucket limit and gallery arrows must fade on hover"
+ "Photo uploads must respect the 30 MB bucket limit and gallery arrows remain accessible"
 );
 assert.ok(
  profile.includes('ui-profile-photo-empty-state-001')&&
@@ -245,15 +246,14 @@ console.log("VATRA media viewer layout checks passed.");
  for(const [w,h] of [[1024,1024],[6000,4000],[4000,6000],[7680,4320],[500,1800]]){
   const vars={},dialog={dataset:{},style:{setProperty:(k,v)=>vars[k]=v}},stage={dataset:{}};
   fitPhotoViewer(dialog,stage,{naturalWidth:w,naturalHeight:h},"photo.png");
-  const landscape=w/h>=1.35&&w/h<=2.2;
-  assert.equal(dialog.dataset.photoSized,landscape?"true":undefined);
-  if(landscape){assert.equal(Number(vars["--vatra-photo-ratio"]),w/h);assert.equal(Number(vars["--vatra-photo-inverse"]),h/w);}
+  assert.equal(dialog.dataset.photoSized,undefined,"Image proportions must never resize the viewer");
+  assert.deepEqual(vars,{},"Photo loading must not set viewport dimensions");
  }
- assert.ok(postCss.includes('[data-photo-sized="true"]')&&postCss.includes('var(--vatra-photo-inverse)')&&postCss.includes('var(--vatra-photo-ratio)'));
+ assert.ok(!postCss.includes("data-photo-sized")&&!postMedia.includes("photoSized")&&!postCss.includes("--vatra-photo-ratio")&&!postCss.includes("--vatra-photo-inverse"),"No aspect-dependent window mode");
  const albumsCss=await read("assets/css/photo-albums.css");
  for(const [source,selector] of [[postCss,".vatra-post-media-viewer{"],[profileCss,"body.profile-page .profile-media-viewer{"],[albumsCss,"body.profile-page .ui-vatra-album-viewer-001{"]]){
   const rule=source.slice(source.indexOf(selector)).split("}")[0];
-  assert.ok(rule.includes("inset:0")&&rule.includes("width:100vw")&&rule.includes("height:100dvh")&&rule.includes("max-width:none")&&rule.includes("max-height:none")&&rule.includes("margin:0")&&rule.includes("border-radius:0"),"All three photo viewers retain the fullscreen fallback");
+  assert.ok(rule.includes("inset:0")&&rule.includes("width:100vw")&&rule.includes("height:100dvh")&&rule.includes("max-width:none")&&rule.includes("max-height:none")&&rule.includes("margin:0")&&rule.includes("border-radius:0"),"All three photo viewers always fill the viewport");
  }
  for(const src of ["a.png","a.webp","a.jpg"]){
   alpha=255;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"dark");
@@ -273,10 +273,12 @@ console.log("VATRA media viewer layout checks passed.");
  assert.ok(logoRule.includes("background:transparent")&&!logoRule.includes("border-radius")&&!logoRule.includes("box-shadow"),"Viewer logo must not have a white disc or shadow");
  assert.ok(profileCss.includes("overflow:hidden;padding:0"));
 }
-console.log("VATRA photos: aspect-adaptive landscape viewer, fullscreen fallback, dark matte and directional transitions verified.");
+console.log("VATRA photos: fullscreen for every image ratio, dark matte and directional transitions verified.");
 
 assert.ok(postMedia.includes('authorName.split(/\\s+/)[0]')&&postMedia.includes('function preparePhotoControls(')&&postCss.includes('transition:scale .24s')&&postCss.includes('.vatra-photo-viewer-brand-001'),"Photo viewer controls must be shared and personal captions use first names");
 {
  const source=postMedia.match(/function photoZoomLevel\(value,step\)\{[^\n]+\}/)?.[0];assert.ok(source);const context={};runInNewContext(source+";globalThis.zoom=photoZoomLevel;",context);
  let value=1;for(let i=0;i<20;i++)value=context.zoom(value,1);assert.equal(value,3);for(let i=0;i<20;i++)value=context.zoom(value,-1);assert.equal(value,1);assert.equal(context.zoom(1,1),1.25);
 }
+
+assert.ok(postMedia.includes("finish(image);void fitPhotoViewer(dialog,stage,image,path);"),"Ready photos and controls must not wait for asynchronous matte detection");

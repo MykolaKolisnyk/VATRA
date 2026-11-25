@@ -101,7 +101,7 @@ body.feed-page .ui-communities-main-001{grid-template-areas:"sidebar cover" "sid
 .ui-community-discovery-main-001 .vatra-community-list-heading-001{margin:0;font:680 18px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.025em}
 .ui-community-list-001{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;min-width:0}
 .ui-community-list-001 .ui-community-directory-empty-001{grid-column:1/-1;min-height:160px;border:0;background:transparent}
-.ui-community-card-001{min-width:0;overflow:hidden;display:flex;flex-direction:column;padding:0;gap:0;border:1px solid #e2e9f4;border-radius:16px;background:#fff;box-shadow:0 4px 16px #243b6208}
+.ui-community-card-001{min-width:0;overflow:hidden;display:flex;flex-direction:column;padding:0;gap:0;border:1px solid #e2e9f4;border-radius:var(--vatra-card-radius);background:#fff;box-shadow:0 4px 16px #243b6208}
 .ui-community-card-001:focus-within,.ui-community-card-001:hover{border-color:#c5d4ed;box-shadow:0 8px 24px #243b6210}
 .ui-community-card-cover-001{aspect-ratio:2.25;position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(132deg,#dce9fc,#e9e0f6);display:grid;place-items:center;text-decoration:none}
 .ui-community-card-cover-001::before{content:"";position:absolute;z-index:-1;inset:-50% -25% auto auto;width:80%;aspect-ratio:1;border:1px solid #fff8;border-radius:50%;box-shadow:0 0 0 24px #ffffff24,0 0 0 48px #ffffff17}
@@ -124,7 +124,7 @@ body.feed-page .ui-communities-main-001{grid-template-areas:"sidebar cover" "sid
 @media(max-width:380px){.ui-community-list-001{grid-template-columns:minmax(0,1fr)}}
 
 
-body.community-page dialog.ui-community-create-001{box-sizing:border-box;position:fixed;inset:0;margin:auto;width:min(540px,calc(100% - 24px));max-width:none;max-height:90dvh;min-height:0;padding:0;border:1px solid #e2e9f4;border-radius:18px;background:#fff;color:var(--ink);box-shadow:0 18px 70px #243b6233;overflow:hidden}
+body.community-page dialog.ui-community-create-001{box-sizing:border-box;position:fixed;inset:0;margin:auto;width:min(540px,calc(100% - 24px));max-width:none;max-height:90dvh;min-height:0;padding:0;border:1px solid #e2e9f4;border-radius:var(--vatra-dialog-radius);background:#fff;color:var(--ink);box-shadow:0 18px 70px #243b6233;overflow:hidden}
 body.community-page dialog.ui-community-create-001[open]{display:flex;flex-direction:column}
 body.community-page dialog.ui-community-create-001:not([open]),body.community-page dialog.ui-community-create-001[hidden]{display:none!important}
 body.community-page dialog.ui-community-create-001::backdrop{background:#17243999}

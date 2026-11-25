@@ -172,6 +172,7 @@
    }
    applyAvatar(q("#feed-header-avatar"),vatraId);
    applyAvatar(q("#feed-composer-avatar"),vatraId);
+   applyAvatar(q("#feed-story-create-avatar"),vatraId);
   }catch(_){ }
  }
  const memberName=id=>{
@@ -566,7 +567,7 @@
   if(reset)feedRequestVersion++;
   if(loading){if(reset)refreshQueued=true;return;}
   const version=feedRequestVersion;
-  loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
+  loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;more.setAttribute("aria-busy","true");
   const scope=JSON.stringify([feedFilter,searchTerm]);
   const keepExisting=reset&&scope===lastFeedScope;
   const previousFeed=keepExisting?[...visibleFeed]:null;
@@ -606,7 +607,7 @@
    }
    stage="metadata";
    const engagement=feedDeadline(Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||new Map()),4000).catch(error=>{reportFeedFailure("engagement",error);return new Map();});
-   await Promise.allSettled([
+   const metadata=Promise.allSettled([
     feedDeadline(loadPublicNames(page.map(p=>p.author_vatra_id)),4000),
     feedDeadline(loadAvatars(page.map(p=>p.author_vatra_id)),4000)
    ]);
@@ -623,6 +624,15 @@
    }
    if(reset){posts.replaceChildren(batch);lastFeedScope=scope;}
    else posts.append(batch);
+   void metadata.then(()=>{
+    if(version!==feedRequestVersion)return;
+    const authors=new Map(page.map(post=>[post.kind+":"+post.id,String(post.author_vatra_id)]));
+    for(const card of posts.querySelectorAll(".feed-post-card[data-post-id]")){
+     const id=authors.get(card.dataset.postKind+":"+card.dataset.postId);if(!id)continue;
+     const name=card.querySelector(".feed-post-name");if(name){const label=name.querySelector(".vatra-verified-name-text")||name;if(label.textContent!==memberName(id))label.textContent=memberName(id);}
+     applyAvatar(card.querySelector(".feed-post-avatar"),id);
+    }
+   });
    const outstanding=[sourceState.person,sourceState.group].some(x=>x.queue.length||!x.done);
    more.hidden=!outstanding;
    displayEmpty();
@@ -649,7 +659,7 @@
     }
    }
   }finally{
-   loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;
+   loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;more.removeAttribute("aria-busy");
    if(refreshQueued){refreshQueued=false;void loadPosts(true);}
   }
  }
@@ -671,27 +681,22 @@
   holder.setAttribute("aria-busy","true");
   try{
    await feedDeadline(ensureSubscriptions());
-   const friendIds=[...friends].filter(id=>id!==vatraId);
-   if(!friendIds.length){
-    holder.replaceChildren();
-    q(".feed-stories")?.classList.add("is-empty");
-    return;
-   }
+   const storyAuthors=[...new Set([vatraId,...friends])];
    let query=client.from("stories")
     .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
     .gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false});
-   if(friendIds.length<=100&&typeof query.in==="function")
-    query=query.in("author_vatra_id",friendIds);
+   if(storyAuthors.length<=100&&typeof query.in==="function")
+    query=query.in("author_vatra_id",storyAuthors);
    const {data,error}=await feedDeadline(query.limit(60));
    if(error)throw error;
    const items=[],seen=new Set();
    for(const story of data||[]){
     const id=String(story.author_vatra_id);
-    if(id===vatraId||!friends.has(id)||seen.has(id))continue;
+    if((id!==vatraId&&!friends.has(id))||seen.has(id))continue;
     items.push(story);seen.add(id);
-    if(items.length>=3)break;
    }
+   items.sort((a,b)=>Number(String(b.author_vatra_id)===vatraId)-Number(String(a.author_vatra_id)===vatraId));
    const authorIds=items.map(x=>x.author_vatra_id);
    await Promise.allSettled([feedDeadline(loadPublicNames(authorIds),4000),feedDeadline(loadAvatars(authorIds),4000)]);
    holder.replaceChildren();
@@ -712,9 +717,8 @@
      void window.VATRA_POST_MEDIA?.renderStory(client,story,cover,true);
     }else holder.append(button);
     const body=String(story.body||"").trim();
-    button.append(node("span","vatra-feed-story-live-body-001",body||
-     (story.media_kind==="video"?t("Відео","Video"):t("Фото","Photo"))),
-     node("span","vatra-feed-story-live-name-001",memberName(id)));
+    if(body&&!story.media_kind)button.append(node("span","vatra-feed-story-live-body-001",body));
+    button.append(node("span","vatra-feed-story-live-name-001",id===vatraId?t("Ваша історія","Your story"):memberName(id)));
     button.addEventListener("click",()=>{
      q("#feed-story-view-heading").textContent=memberName(id);
      const text=q("#feed-story-view-body");
@@ -858,15 +862,17 @@
  }
  async function init(){
   try{
-   await feedDeadline(window.VATRA_LANGUAGE?.ready,5000);
-   localizeSocial();
+   const languageReady=feedDeadline(window.VATRA_LANGUAGE?.ready,5000);
    if(!window.supabase?.createClient){
+    await languageReady;
+    localizeSocial();
     showErrorAtGate(t("Не вдалося завантажити VATRA.","Could not load VATRA."));return;
    }
    client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
     auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
    });
-   const {data,error}=await feedDeadline(client.auth.getUser());
+   const [{data,error}]=await Promise.all([feedDeadline(client.auth.getUser()),languageReady]);
+   localizeSocial();
    if(error||!data?.user?.id){
     if(error){
      const kind=window.VATRA_SERVICE_NOTICE?.classify(error,{session:true,access:false});

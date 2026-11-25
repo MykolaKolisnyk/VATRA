@@ -259,7 +259,7 @@ async function remove(id){
 function renderEmpty(node){
  node.replaceChildren();
  const art=make("span","vatra-notice-empty-illustration-001");
- art.append(icon("bell-off","M18 8a6 6 0 0 0-12 0c0 7-3 8-3 9h18c0-1-3-2-3-9ZM10 21h4M4 4l16 16"));
+ art.append(icon("bell-off","M10 20a2 2 0 0 0 4 0M18 13V9a6 6 0 0 0-9.8-4.6M6 9c0 5-1 6-3 8h14M3 3l18 18M18 13c0 1 .2 2 .6 2.7"));
  node.append(art,make("strong","vatra-notice-empty-title-001",t("Поки немає сповіщень","No notifications yet")),make("span","vatra-notice-empty-description-001",t("Нові сповіщення з'являться тут.","New notifications will appear here.")));
  node.hidden=false;
 }
@@ -803,8 +803,8 @@ function stop(){
  sectionPage=0;sectionLoading=false;sectionQueued=false;sectionScope=null;
  client=null;ownId=null;
  window.VATRA_AUTH_MEMBER_ID=null;
- if(window.VATRA_ADMIN_CONTEXT?.client===run.client&&window.VATRA_ADMIN_CONTEXT.id===run.id)delete window.VATRA_ADMIN_CONTEXT;
- window.VATRA_ADMIN_END?.(run.client,run.id);
+ if(window.VATRA_ACCOUNT_CONTEXT?.client===run.client&&window.VATRA_ACCOUNT_CONTEXT.id===run.id)delete window.VATRA_ACCOUNT_CONTEXT;
+ window.VATRA_ACCOUNT_END?.(run.client,run.id);
  window.VATRA_SEARCH_HISTORY?.setViewer(null);
 }
 function incomingToast(row){
@@ -825,8 +825,8 @@ function start(c,id){
 
  window.VATRA_AUTH_MEMBER_ID=ownId;
 
- window.VATRA_ADMIN_CONTEXT={client:c,id:ownId};
- void window.VATRA_ADMIN_SESSION?.(c,ownId);
+ window.VATRA_ACCOUNT_CONTEXT={client:c,id:ownId};
+ void window.VATRA_ACCOUNT_SESSION?.(c,ownId);
  window.VATRA_SEARCH_HISTORY?.setViewer(ownId);
  headerUI();
  if(!bell)return;
@@ -942,13 +942,12 @@ function pageUI(){
 }
 async function pageBoot(){
  if(document.body?.dataset.page!=="notifications")return;
- await window.VATRA_LANGUAGE?.ready;
  if(!window.supabase?.createClient)return;
  const clientRef=window.supabase.createClient("https://cxrcycxrlkufozomsxcs.supabase.co",
   "sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i",
   {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
  try{
-  const {data,error}=await clientRef.auth.getUser();
+  const [{data,error}]=await Promise.all([clientRef.auth.getUser(),window.VATRA_LANGUAGE?.ready]);
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
    location.replace(root.href);return;
   }

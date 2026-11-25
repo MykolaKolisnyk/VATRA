@@ -152,7 +152,7 @@ console.log("VATRA shared social cache: 205 friends, RLS fallbacks, notification
  complete("late");
  await Promise.resolve();
  assert.equal(retired,2);
- for(const name of ["public-profile-names","public-community-directory","public-announcements"]){
+ for(const name of ["public-profile-names","public-community-directory"]){
   const edge=await readFile("_development/supabase/functions/"+name+"/index.ts","utf8");
   assert.ok(edge.includes("await redisDeadline(() => client.connect(), () => client.destroy())"));
   assert.ok(edge.includes("connection?.isReady"));

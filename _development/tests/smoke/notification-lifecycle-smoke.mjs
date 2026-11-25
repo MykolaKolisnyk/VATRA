@@ -49,7 +49,7 @@ function clientFor(label){
 const context={
  URL,Date,Promise,AbortController,Map,Set,
  localStorage:{getItem:key=>preferences.get(key)||null},
- window:{addEventListener(name,fn,opts){listeners.push({name,fn,opts});},VATRA_ADMIN_SESSION(client,id){guardStarts.push([client.label,id]);},VATRA_ADMIN_END(client,id){guardEnds.push([client.label,id]);}},
+ window:{addEventListener(name,fn,opts){listeners.push({name,fn,opts});},VATRA_ACCOUNT_SESSION(client,id){guardStarts.push([client.label,id]);},VATRA_ACCOUNT_END(client,id){guardEnds.push([client.label,id]);}},
  document:{hidden:false,addEventListener(name,fn,opts){listeners.push({name,fn,opts});}},
  setInterval(fn){const id=++timerId;timers.set(id,fn);return id;},
  clearInterval(id){cleared.push(id);timers.delete(id);},
@@ -82,14 +82,14 @@ const first=clientFor("A"),second=clientFor("B");
 notices.start(first,"12");
 assert.equal(countCalls.length,1);
 assert.equal(countCalls[0].id,"12");
-assert.equal(context.window.VATRA_ADMIN_CONTEXT.client,first);
-assert.equal(context.window.VATRA_ADMIN_CONTEXT.id,"12");
+assert.equal(context.window.VATRA_ACCOUNT_CONTEXT.client,first);
+assert.equal(context.window.VATRA_ACCOUNT_CONTEXT.id,"12");
 assert.deepEqual(guardStarts,[["A","12"]]);
 const oldRun=notices.run();
 notices.start(second,"13");
 assert.equal(countCalls.length,2);
 assert.equal(countCalls[1].id,"13");
-assert.equal(context.window.VATRA_ADMIN_CONTEXT.client,second);
+assert.equal(context.window.VATRA_ACCOUNT_CONTEXT.client,second);
 assert.deepEqual(guardStarts,[["A","12"],["B","13"]]);
 assert.deepEqual(guardEnds,[["A","12"]]);
 assert.equal(oldRun.controller.signal.aborted,true,"Old event handlers must be aborted");
@@ -119,7 +119,7 @@ assert.equal(timers.size,1,"Foreground restores one poll timer");
 fire("pagehide",{persisted:true});assert.equal(timers.size,0);
 fire("pageshow",{persisted:true});assert.equal(timers.size,1);
 second.state.authHandler("SIGNED_OUT");
-assert.equal(context.window.VATRA_ADMIN_CONTEXT,undefined);
+assert.equal(context.window.VATRA_ACCOUNT_CONTEXT,undefined);
 assert.deepEqual(guardEnds,[["A","12"],["B","13"]]);
 assert.equal(notices.run(),null,"Sign-out must discard the viewer");
 assert.equal(badge.hidden,true);

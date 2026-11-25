@@ -532,7 +532,7 @@ for(const n of ["01","02","03"]){
 assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  loginHeroSource.includes("Math.random()")&&loginHeroSource.includes("i!==current")&&
  loginHeroSource.includes("image.decode()")&&loginHeroSource.includes("visibilitychange")&&
- loginHeroSource.includes("!reduced.matches"),"Login hero must select randomly, preload the next image, and respect visibility and motion preferences");
+ signInCss.includes("@media(prefers-reduced-motion:reduce){.vatra-login-hero-layer-001{transition:none}}"),"Login hero rotates on visible pages; reduced motion removes only the animation");
 // Exercise the actual rotation script with a deterministic clock, image loading and random choice.
 {
  const {runInNewContext}=await import("node:vm");
@@ -575,8 +575,8 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  assert.equal(new Set([first,second,third]).size,3,"Show all three before repeating");
  doc.hidden=true;events.get("visibilitychange")();
  await tick(90_000);assert.equal(selected(),third,"Do not rotate in a hidden tab");
- doc.hidden=false;events.get("visibilitychange")();motion.matches=true;motion.change();
- await tick(90_000);assert.equal(selected(),third,"Respect reduced-motion preference");
+ doc.hidden=false;events.get("visibilitychange")();motion.matches=true;
+ await tick(30_000);assert.notEqual(selected(),third,"Reduced motion must not stop rotation");
 }
 
 assert.ok(
@@ -1333,8 +1333,8 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  !sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
  sharedCss.includes("max-width:292px;height:36px")&&
- sharedCss.includes("flex:0 0 108px")&&
- sharedCss.includes("flex:0 0 86px")&&
+ sharedCss.includes("flex:0 0 118px")&&
+ sharedCss.includes("flex:0 0 96px")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) 220px!important;")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(290px,54dvh)")&&
@@ -1420,6 +1420,9 @@ assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
  storyPreviewMarkup.includes('id="feed-compose-form"')&&
  storyPreviewMarkup.includes('id="feed-story-dialog"')&&storyPreviewMarkup.includes('assets/js/feature-loader.js?rev=')&&
  !storyPreviewMarkup.includes('src="assets/js/story-editor.js?rev=')&&
+ storyPreviewMarkup.includes('id="feed-story-create-avatar"')&&
+ !storyPreviewMarkup.includes("vatra-feed-story-create-subtitle-001")&&
+ !storyPreviewMarkup.includes("ui-feed-story-logo-001")&&
  !storyPreviewMarkup.includes("ui-feed-story-preview-001")&&
  !storyPreviewMarkup.includes('data-vatra-coming-soon="stories"'),
  "Feed must show real friend Stories without fabricated previews, then the post composer");
@@ -1658,7 +1661,9 @@ assert.ok(
  systemProfileCss.includes("#profile-photo-gallery,#profile-video-gallery,#profile-clips-gallery,#profile-saved-list")&&
  systemProfileCss.includes("#profile-archive-stories-list,#profile-archive-posts-list")&&
  systemProfileCss.includes("):not(:has(> *)){")&&
- systemProfileCss.includes("--vatra-content-card-gap:16px")&&
+ systemProfileCss.includes("--vatra-content-card-gap:var(--vatra-card-gap)")&&
+ systemAvatarCss.includes("--vatra-card-gap:var(--vatra-space-4)")&&
+ systemAvatarCss.includes("--vatra-space-4:16px")&&
  systemFeedCss.includes("#feed-posts:not(:has(> *))")&&
  systemFeedCss.includes("#club-posts:not(:has(> *))")&&
  systemFeedCss.includes("row-gap:var(--vatra-content-card-gap)!important"),
@@ -1714,6 +1719,7 @@ assert.ok(
  profileExtraScript.includes("media_items:uploaded||[]")&&
  clubPostScript.includes("media_items:uploaded||[]")&&
  postComposerScript.includes('vatra-post-composer-dialog')&&
+ postComposerScript.includes('editing=false,existingContent=false')&&
  (await read("feed.html")).includes('type="file" multiple')&&
  (await read("profile.html")).includes('type="file" multiple')&&
  (await read("club.html")).includes('type="file" multiple'),
@@ -1962,7 +1968,8 @@ assert.ok(
 assert.ok(
  systemFeedCss.includes('width:min(calc(100% - 36px),1190px)!important')&&
  systemFeedCss.includes('grid-template-columns:minmax(0,1fr) 220px!important')&&
- systemFeedCss.includes('row-gap:13px!important')&&
+ systemFeedCss.includes('row-gap:var(--vatra-card-gap)!important')&&
+ systemProfileCss.includes('gap:var(--vatra-content-card-gap)!important')&&
  systemFeedCss.includes('.feed-main:has(.feed-status:not([hidden]))')&&
  systemFeedCss.includes('max-height:640px;object-fit:contain')&&
  systemFeedCss.includes('width:min(calc(100% - 24px),720px)!important')&&
@@ -2128,12 +2135,14 @@ assert.equal(uk.__pages.feed.meta.title,"Стрічка");
 assert.equal(en.__pages.feed.meta.title,"Feed");
 const onboardingJs=await read("assets/js/onboarding.js");
 const ownerAdminGuard=await read("assets/js/account-guard.js");
-const ownerAdminJs=await read("assets/js/admin.js");
-assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js?rev=')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
-const ownerAdminSQL=await read("_development/supabase/vatra-owner-admin.sql");
-assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("marketView(host,")&&!ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
-assert.ok((await read("assets/css/feed.css")).includes(".vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
-assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
+await assert.rejects(stat("assets/js/admin.js"),{code:"ENOENT"});
+await assert.rejects(stat("assets/css/admin.css"),{code:"ENOENT"});
+assert.ok(!ownerAdminGuard.includes('rpc("vatra_admin_access")')&&!ownerAdminGuard.includes("loadAdmin")&&!ownerAdminGuard.includes("vatra-admin-menu")&&ownerAdminGuard.includes('from("account_states")')&&!/announcement/i.test(ownerAdminGuard),"Account guard must preserve protection without retired announcements or admin panel");
+await assert.rejects(stat("assets/js/announcements.js"),{code:"ENOENT"});
+await assert.rejects(stat("_development/supabase/vatra-owner-admin.sql"),{code:"ENOENT"});
+const ownerSecuritySQL=await read("_development/supabase/migrations/20261125155615_remove_legacy_panel_and_separate_site_security.sql");
+assert.ok((await read("assets/css/feed.css")).includes(".vatra-account-blocked-action-001{"),"Blocked-account action must not depend on retired admin styles");
+assert.ok(ownerSecuritySQL.includes("drop table public.admin_audit restrict")&&ownerSecuritySQL.includes("rename to vatra_security_private")&&ownerSecuritySQL.includes("vatra_security_private.is_owner() and vatra_security_private.allowed()"),"Retire old admin installer while retaining independent maintenance and account security");
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
 const onboardingCss=await read("assets/css/onboarding.css");
@@ -2217,12 +2226,12 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
  !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
  memberCss.includes('overflow:hidden;padding:0')&&
- systemFeedCss.includes('[data-photo-sized="true"]')&&
+ !systemFeedCss.includes("data-photo-sized")&&
  systemFeedCss.includes("width:100vw;height:100dvh;")&&
  systemFeedCss.includes('[data-photo-matte="dark"]')&&
  systemFeedCss.includes('[data-photo-matte="white"]')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
- "Avatar deletions preserve a restorable backup and photo sizing removes unnecessary padding");
+ "Avatar deletions preserve a restorable backup and viewers always fill the viewport");
 
 const photoReportMigration=await read("_development/supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
 const photoReportNotNull=await read("_development/supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
@@ -2404,7 +2413,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2694,16 +2703,18 @@ assert.ok(siteSearchSQL.includes("security invoker")&&
  "Server search must keep RLS, public posts, approved listings and authenticated access");
 await import("../smoke/live-search-cache-smoke.mjs");
 
-/* Friend stories share the Feed's social graph; don't query all stories while
-   waiting for friendships or when the viewer has no friends. */
+/* Stories share the Feed's social graph; wait for the friendship snapshot,
+   include the viewer's own stories, and filter other authors against friends. */
 const feedStoryOptimization=await read("assets/js/feed.js");
 assert.ok(
  feedStoryOptimization.includes("let subscriptionsLoadedAt=0,subscriptionsInflight=null")&&
  feedStoryOptimization.includes("function ensureSubscriptions()")&&
  feedStoryOptimization.includes("if(subscriptionsInflight)return subscriptionsInflight;")&&
  feedStoryOptimization.includes("await feedDeadline(ensureSubscriptions());")&&
- feedStoryOptimization.includes('if(!friendIds.length){')&&
- feedStoryOptimization.includes('query=query.in("author_vatra_id",friendIds)')&&
+ feedStoryOptimization.includes('const storyAuthors=[...new Set([vatraId,...friends])];')&&
+ feedStoryOptimization.includes('if(storyAuthors.length<=100&&typeof query.in==="function")')&&
+ feedStoryOptimization.includes('query=query.in("author_vatra_id",storyAuthors)')&&
+ feedStoryOptimization.includes('if((id!==vatraId&&!friends.has(id))||seen.has(id))continue;')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
 await import("../smoke/feed-story-subscriptions-smoke.mjs");
@@ -2720,7 +2731,7 @@ const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
 const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
 for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
-for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
+for(const module of [editorRuntime,clipComposerRuntime])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
 for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
@@ -2734,7 +2745,7 @@ assert.ok(marketplaceRuntime.includes("IntersectionObserver")&&marketplaceRuntim
 assert.ok(marketplaceRuntime.includes('import(new URL("assets/js/marketplace-editor.js?rev=')&&clipsRuntime.includes('import(new URL("assets/js/clip-composer.js?rev='));
 await assert.rejects(stat("assets/js/sections.js"),{code:"ENOENT"});
 await assert.rejects(stat("assets/css/sections.css"),{code:"ENOENT"});
-assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
+assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&!sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
 assert.ok(sectionsRuntime.includes('photo.multiple=true')&&sectionsRuntime.includes('image_paths:paths')&&sectionsRuntime.includes('photoPaths(row)')&&sectionsRuntime.includes('ui-vatra-market-sidebar-scroll-001')&&sectionsRuntime.includes('const marketLimit=10')&&sectionsRuntime.includes('ui-vatra-market-editor-preview-001')&&sectionsStyle.includes('ui-vatra-market-detail-thumbs-001'),
  "Marketplace uses independent sidebar scrolling, ten photos and live preview");
 const marketCatalogSource=sectionsRuntime.slice(sectionsRuntime.indexOf("const categories="),sectionsRuntime.indexOf("const marketConditions="));
@@ -2763,10 +2774,9 @@ assert.ok(money.marketMatchesPrice({price:10,currency:"USD"},"USD",0,20));
 assert.ok(money.marketMatchesPrice({price:10},"UAH",0,20));
 assert.ok(money.marketMatchesPrice({price:10,currency:"EUR"},"all",null,null));
 assert.ok(sectionsRuntime.includes("price:marketAmount(price.value),currency:currency.value")&&sectionsRuntime.includes("form.prepend(categoryGroup)")&&sectionsRuntime.includes("price,currency,city"),"Persist currency, read it back and show required category first");
-assert.ok(sectionsRuntime.includes('rules_accepted:true')&&sectionsRuntime.includes('eq("moderation_status","approved")')&&ownerAdminJs.includes('pending:t("На перевірці"')&&ownerAdminJs.includes('.eq("moderation_status",kind)'),"Marketplace must submit for moderation and show only approved listings in the public catalog");
-assert.ok(sectionsRuntime.includes('marketplace_cases')&&ownerAdminJs.includes('marketplace_moderators')&&sectionsRuntime.includes('marketplace_suspensions')&&ownerAdminJs.includes('marketplace_moderation_history'),"Moderation, appeals, reports, suspensions and history must use server records");
-assert.ok(!marketplaceRuntime.includes("VATRA_OPEN_MARKET_MODERATION")&&!marketplaceRuntime.includes("marketplace_moderators")&&!marketplaceRuntime.includes("marketplace_moderation_history")&&!marketplaceRuntime.includes("modControls"),"Only ADMIN PANEL owns staff marketplace moderation");
-assert.ok(ownerAdminJs.includes('client.rpc("vatra_admin_access")')&&ownerAdminJs.includes('from("marketplace_moderators")')&&ownerAdminJs.includes('from("marketplace_listings").update')&&ownerAdminJs.includes('from("marketplace_cases").update')&&ownerAdminJs.includes('from("marketplace_suspensions").insert')&&ownerAdminJs.includes('from("marketplace_moderation_history")')&&ownerAdminJs.includes('!ready||!check.checked'),"Owner moderation must check server roles and require manual photo review");
+assert.ok(sectionsRuntime.includes('rules_accepted:true')&&sectionsRuntime.includes('eq("moderation_status","approved")'),"Marketplace must submit for moderation and show only approved listings in the public catalog");
+assert.ok(sectionsRuntime.includes('marketplace_cases')&&sectionsRuntime.includes('marketplace_suspensions'),"Moderation, appeals, reports, suspensions and history must use server records");
+assert.ok(!marketplaceRuntime.includes("VATRA_OPEN_MARKET_MODERATION")&&!marketplaceRuntime.includes("marketplace_moderators")&&!marketplaceRuntime.includes("marketplace_moderation_history")&&!marketplaceRuntime.includes("modControls"),"Public catalog must not expose staff moderation actions");
 for(const file of ["business","business-bookings","business-brand","business-inbox","business-jobs","business-stores"])await assert.rejects(stat("assets/js/"+file+".js"),{code:"ENOENT"});
 const moderationSQL=await read("_development/supabase/vatra-marketplace-moderation.sql");
 const moderationMediaSQL=await read("_development/supabase/vatra-marketplace-moderation-media.sql");

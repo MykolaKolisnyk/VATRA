@@ -54,7 +54,7 @@ const iconUpload=()=>{
  }
  return svg;
 };
-function bind({prefix,ownerId,getFile,client}){
+function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false}){
  const q=s=>document.querySelector(s);
  const dialog=q("#"+prefix+"-compose-dialog"),form=q("#"+prefix+"-compose-form");
  const title=q("#"+prefix+"-compose-title"),textarea=q("#"+prefix+"-compose-text");
@@ -83,14 +83,15 @@ function bind({prefix,ownerId,getFile,client}){
  back.append(vectorIcon("back","ui-vatra-post-composer-back-icon-001"),
   make("span","vatra-post-composer-back-label-001",t("Редагувати","Edit")));
  back.type="button";back.hidden=true;
- title.textContent=(language()==="uk"?"Нова публікація":t("Новий пост","New post"));
+ const editorTitle=()=>editing?t("Редагувати публікацію","Edit post"):(language()==="uk"?"Нова публікація":t("Новий пост","New post"));
+ title.textContent=editorTitle();
  const drafts=make("button","vatra-post-composer-drafts-001");
  drafts.append(vectorIcon("drafts","ui-vatra-post-composer-drafts-icon-001"),
   make("span","vatra-post-composer-drafts-label-001",t("Чернетки","Drafts")));
  drafts.type="button";drafts.setAttribute("aria-label",t("Мої чернетки на цьому пристрої","Drafts on this device"));
  cancel.replaceChildren(vectorIcon("close","ui-vatra-post-composer-cancel-icon-001"));
  cancel.setAttribute("aria-label",t("Закрити редактор","Close editor"));
- header.append(back,title,drafts,cancel);
+ header.append(back,title,...(editing?[]:[drafts]),cancel);
 
  const edit=make("section","vatra-post-composer-edit ui-vatra-post-composer-edit-001");
  const zone=make("div","vatra-post-composer-zone ui-vatra-post-composer-zone-001");
@@ -117,7 +118,7 @@ function bind({prefix,ownerId,getFile,client}){
  pollToggle.append(vectorIcon("poll","ui-vatra-post-composer-poll-icon-001"),
   make("span","vatra-post-composer-poll-label-001",t("Опитування","Poll")));
  pollToggle.setAttribute("aria-expanded","false");
- mediaTools.prepend(pollToggle);
+ if(!editing)mediaTools.prepend(pollToggle);
  const pollSection=make("section","vatra-post-composer-poll ui-vatra-post-composer-poll-001");
  pollSection.hidden=true;
  const pollHeading=make("h3","vatra-post-composer-poll-heading-001",t("Опитування","Poll"));
@@ -255,6 +256,7 @@ function bind({prefix,ownerId,getFile,client}){
  const localOnly=make("p","vatra-post-composer-settings-note-001",
   t("Публікація з’явиться одразу після натискання «Опублікувати».",
    "Your post will appear as soon as you press Publish."));
+ if(editing)localOnly.textContent=t("Зміни буде збережено в наявній публікації.","Changes will be saved to the existing post.");
  settings.append(localOnly);
  const scheduleBox=make("div","vatra-post-composer-schedule-box-001");
  const scheduleLabel=make("label","vatra-post-composer-schedule-toggle-label-001");
@@ -290,14 +292,14 @@ function bind({prefix,ownerId,getFile,client}){
       "The server will publish automatically at the selected time."):
     t("Виберіть майбутню дату щонайменше через дві хвилини.",
       "Choose a time at least two minutes in the future.")):"";
-  submit.textContent=active?t("Запланувати","Schedule"):t("Опублікувати","Publish");
+  submit.textContent=editing?t("Зберегти","Save"):active?t("Запланувати","Schedule"):t("Опублікувати","Publish");
   localOnly.hidden=active;
   sync();
  };
  scheduleLabel.addEventListener("change",syncSchedule);
  scheduleInput.addEventListener("change",syncSchedule);
  scheduleBox.append(scheduleLabel,scheduleInput,scheduleHint);
- settings.append(scheduleBox);
+ if(!editing)settings.append(scheduleBox);
  const draftsPanel=make("section","vatra-post-composer-drafts-panel ui-vatra-post-composer-drafts-001");
  draftsPanel.hidden=true;
  const draftList=make("div","vatra-post-composer-draft-list ui-vatra-post-composer-draft-list-001");
@@ -417,14 +419,14 @@ function bind({prefix,ownerId,getFile,client}){
  const next=make("button","vatra-post-composer-next-001",t("Далі","Next"));
  next.type="button";
  const footerActions=make("div","vatra-post-composer-footer-actions ui-vatra-post-composer-footer-actions-001");
- left.append(tips,tip);footerActions.append(draftSave,next,submit);
+ left.append(tips,tip);footerActions.append(...(editing?[]:[draftSave]),next,submit);
  footer.append(left,footerActions);
  actions.remove();
  const notice=make("p","vatra-post-composer-notice-001");notice.hidden=true;
  const showNotice=value=>{notice.textContent=value;notice.hidden=!value;};
  function sync(){
   const hasMedia=!!(typeof getFile==="function"&&getFile());
-  const hasContent=!!textarea.value.trim()||hasMedia;
+  const hasContent=!!textarea.value.trim()||hasMedia||existingContent;
   next.disabled=!(hasContent||getPoll())||(pollEnabled&&!getPoll());
   if(stage==="settings")submit.disabled=(pollEnabled&&!getPoll())||
    (scheduleToggle.checked&&!getScheduledAt());
@@ -436,12 +438,12 @@ function bind({prefix,ownerId,getFile,client}){
    t("Додайте фото або відео","Add a photo or video"));
  }
  function setStage(name){
-  if(name==="settings"&&!textarea.value.trim()&&!(typeof getFile==="function"&&getFile())&&!getPoll())return false;
+  if(name==="settings"&&!existingContent&&!textarea.value.trim()&&!(typeof getFile==="function"&&getFile())&&!getPoll())return false;
   view="compose";stage=name;
   edit.hidden=name!=="edit";settings.hidden=name!=="settings";draftsPanel.hidden=true;
   back.hidden=name==="edit";drafts.hidden=name!=="edit";
   title.textContent=name==="settings"?t("Налаштування","Settings"):
-   (language()==="uk"?"Нова публікація":t("Новий пост","New post"));
+   editorTitle();
   if(name==="settings"){
    syncSchedule();
    const body=textarea.value.trim(),selected=mediaPreview?.querySelectorAll(".vatra-gallery-picker-tile").length||0;
@@ -449,7 +451,7 @@ function bind({prefix,ownerId,getFile,client}){
    summary.textContent=preview.slice(0,155)+(preview.length>155?"…":"")+
     (selected?" · 📎 "+selected:"");
   }
-  next.hidden=name!=="edit";draftSave.hidden=name!=="edit";submit.hidden=name!=="settings";
+  next.hidden=name!=="edit";draftSave.hidden=editing||name!=="edit";submit.hidden=name!=="settings";
   tips.hidden=name!=="edit";tip.hidden=true;showNotice("");
   sync();return true;
  }

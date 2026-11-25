@@ -548,26 +548,28 @@
  }
  function fitPhotoViewer(dialog,stage,image,path){
   if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
-  const ratio=image.naturalWidth/image.naturalHeight;
   if(dialog.open&&image.complete){
    const src=image.src||image.currentSrc,previous=photoMatteChecks.get(stage);
    if(previous?.image===image&&previous.src===src){
     if(previous.result)stage.dataset.photoMatte=previous.result;
+    return previous.pending;
    }else{
     const state={image,src,result:null};photoMatteChecks.set(stage,state);
     stage.dataset.photoMatte="unknown";
     const current=()=>photoMatteChecks.get(stage)===state&&dialog.open&&image.isConnected&&(image.src||image.currentSrc)===src;
-    void photoMatte(image,current).then(matte=>{
+    let deadline,settled=false;
+    state.pending=Promise.race([
+     photoMatte(image,()=>current()&&!settled),
+     new Promise(resolve=>{deadline=setTimeout(()=>resolve("unknown"),1200);})
+    ]).catch(()=>"unknown").then(matte=>{
+     settled=true;clearTimeout(deadline);
      if(!current()){if(photoMatteChecks.get(stage)===state)photoMatteChecks.delete(stage);return;}
-     state.result=matte;stage.dataset.photoMatte=matte;
+     state.result=matte==="dark"?"dark":"white";
+     stage.dataset.photoMatte=state.result;
     });
+    return state.pending;
    }
   }
-  if(ratio>=1.35&&ratio<=2.2){
-   dialog.style.setProperty("--vatra-photo-ratio",String(ratio));
-   dialog.style.setProperty("--vatra-photo-inverse",String(1/ratio));
-   dialog.dataset.photoSized="true";
-  }else delete dialog.dataset.photoSized;
  }
  function clearPhotoSlide(stage){
   const previous=photoSlides.get(stage);
@@ -634,7 +636,7 @@
   photoMatteChecks.delete(stage);stage.dataset.photoMatte="unknown";
   const controller=new AbortController();photoLoads.set(stage,controller);
   const controls=preparePhotoControls(dialog,stage,image);
-  const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);if(controls){controls.ready=true;controls.paint();}finish(image);};
+  const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;if(controls){controls.ready=true;controls.paint();}finish(image);void fitPhotoViewer(dialog,stage,image,path);};
   if(image.complete&&image.naturalWidth)queueMicrotask(loaded);else image.addEventListener("load",loaded,{once:true,signal:controller.signal});
  }
 function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false,direction=0,sourcePath=null){
@@ -717,7 +719,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
-    clearPhotoSlide(mediaDialogContent);photoLoads.get(mediaDialogContent)?.abort();delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;
+    clearPhotoSlide(mediaDialogContent);photoLoads.get(mediaDialogContent)?.abort();mediaDialogContent.ontouchstart=mediaDialogContent.ontouchcancel=mediaDialogContent.ontouchend=null;delete mediaDialogContent.dataset.photoMatte;
     mediaDialogContent.replaceChildren();restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();mediaFooterDelete.hidden=true;
    });
    document.body.append(mediaDialog);
@@ -730,7 +732,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
   element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
   if(kind==="image"){const path=sourcePath||post?.media_path;watchPhotoViewer(mediaDialog,mediaDialogContent,element,path||url,finishSlide,path&&client?async()=>{const {data,error}=await client.storage.from("post-images").download(path);if(error)throw error;return data;}:null);}
-  else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
+  else{delete mediaDialogContent.dataset.photoMatte;}
   restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
   const head=container?.querySelector(".feed-post-header")||postCard?.querySelector(".feed-post-header");
@@ -957,7 +959,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    const imageTiles=activeTiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
     media_kind:"image",media_path:previewPath(item)||item.media_path
    }));
-   if(imageTiles.length>2)await preSignGallery(client,imageTiles);
+   if(imageTiles.length>1)await preSignGallery(client,imageTiles);
    await Promise.allSettled(activeTiles.map(async({item,tile,index})=>{
     tile.classList.remove("is-gallery-unavailable");
     tile.querySelector(".vatra-gallery-unavailable-001")?.remove();
@@ -979,7 +981,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
        candidate.alt=tr("Фото публікації","Post photo");
        candidate.loading="eager";
        candidate.decoding="async";
-       if(priority<=2)candidate.fetchPriority="high";
+       if(priority===1&&index===0)candidate.fetchPriority="high";
        candidate.classList.add("is-gallery-pending");
        tile.prepend(candidate);
        try{await loadImageSource(candidate,src);}
@@ -1015,6 +1017,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    try{
     const initial=await signed(client,current.media_kind,current.media_path);
     if(!slot.isConnected)return;
+    feedPhotoSession?.abort();feedPhotoSession=null;photoSourceTicket++;restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();photoSourceCleanup=null;
     openFullMedia(initial,current.media_kind,container,post,client,false,0,current.media_path);
    }catch(_){return;}
    const controller=new AbortController();
@@ -1061,7 +1064,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
      mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]),prev,next,counter);
      if(item.media_kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,item.media_path,finishSlide,async()=>{const {data,error}=await client.storage.from("post-images").download(item.media_path);if(error)throw error;return data;});
-     else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
+     else{delete mediaDialogContent.dataset.photoMatte;}
     }catch(_){}
    };
    mediaDialog.addEventListener("keydown",event=>{
@@ -1076,8 +1079,8 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
  const feedPhotoCards=new WeakMap();
  let feedPhotoSession=null;
  function isFeedPhotoCard(card){
-  const root=document.querySelector("#feed-posts");
-  return !!root&&card.parentElement===root&&card.matches(".feed-post-card");
+  const root=card.closest("#feed-posts,#profile-posts");
+  return !!root&&card.matches(".feed-post-card");
  }
  function registerFeedPhotos(client,post,card){
   if(!card.matches(".feed-post-card"))return;
@@ -1088,13 +1091,13 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
  }
  async function openFeedPhoto(client,card,path){
   if(!isFeedPhotoCard(card))return;
-  const entries=[...document.querySelector("#feed-posts").children].flatMap(container=>{
-   const record=feedPhotoCards.get(container);
-   return record?.client===client?record.items.map(item=>({container,post:record.post,item})):[];
-  });
+  const record=feedPhotoCards.get(card);
+  if(record?.client!==client)return;
+  const entries=record.items.map(item=>({container:card,post:record.post,item}));
   let index=entries.findIndex(entry=>entry.container===card&&entry.item.media_path===path);
   if(index<0)return;
   feedPhotoSession?.abort();
+  photoSourceTicket++;restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();photoSourceCleanup=null;
   const controller=new AbortController();feedPhotoSession=controller;
   let busy=false;
   const current=()=>!controller.signal.aborted;
@@ -1109,7 +1112,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     const restoreNavigationFocus=direction&&mediaDialogContent.contains(document.activeElement);
     openFullMedia(url,"image",entry.container,entry.post,client,false,direction,entry.item.media_path);
     index=next;
-    photoNavigation(mediaDialogContent,index,entries.length,step);
+    if(entries.length>1)photoNavigation(mediaDialogContent,index,entries.length,step);
     if(restoreNavigationFocus||direction&&!mediaDialog.contains(document.activeElement)){
      const preferred=mediaDialogContent.querySelector(direction>0?".vatra-post-gallery-nav-next:not(:disabled)":".vatra-post-gallery-nav-prev:not(:disabled)");
      (preferred||mediaDialogContent.querySelector(".vatra-post-gallery-nav-prev:not(:disabled),.vatra-post-gallery-nav-next:not(:disabled)")||mediaDialog.querySelector(".vatra-post-media-close-001"))?.focus({preventScroll:true});
@@ -1128,7 +1131,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   mediaDialog.addEventListener("close",()=>controller.abort(),{once:true,signal:controller.signal});
   mediaDialog.addEventListener("keydown",event=>{
    if(event.target?.closest?.("input,textarea,select,[contenteditable]"))return;
-   if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}
+   if(entries.length>1&&(event.key==="ArrowLeft"||event.key==="ArrowRight")){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}
   },{signal:controller.signal});
  }
  async function mount(client,post,container){
@@ -1267,10 +1270,15 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
    const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d",dir<0?"m15 18-6-6 6-6":"m9 18 6-6-6-6");svg.append(path);button.append(svg);button.disabled=dir<0?index===0:index>=total-1&&!hasMore;button.hidden=total<2&&!hasMore;button.onclick=()=>step(dir);return button;});
   const count=document.createElement("span");count.className="vatra-post-gallery-counter-001";count.textContent=(index+1)+" / "+total+(hasMore?"+":"");count.hidden=total<2&&!hasMore;stage.append(...buttons,count);
+  let start=null;
+  stage.ontouchstart=event=>{start=event.touches.length===1&&!event.target?.closest?.("button,video")?{x:event.touches[0].clientX,y:event.touches[0].clientY}:null;};
+  stage.ontouchcancel=()=>{start=null;};
+  stage.ontouchend=event=>{const p=start;start=null;if(!p||event.changedTouches.length!==1)return;const touch=event.changedTouches[0],dx=touch.clientX-p.x,dy=touch.clientY-p.y;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.4)step(dx<0?1:-1);};
  }
  async function openPostPhoto(client,post,item,settings={}){
   if(!client||!post||item?.media_kind!=="image"||
    !name(item?.media_path,"image",post.author_vatra_id))return;
+  feedPhotoSession?.abort();feedPhotoSession=null;
   const ticket=++photoSourceTicket;let src;
   try{src=await signed(client,"image",item.media_path);}catch(_){return;}
   if(ticket!==photoSourceTicket)return;
@@ -1323,7 +1331,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    if(mediaDialog?.open){
     const controller=new AbortController();
     photoSourceCleanup=()=>{controller.abort();host.remove();createdDialogs.forEach(dialog=>dialog.remove());};
-    mediaDialog.addEventListener("close",()=>{photoSourceTicket++;photoSourceCleanup?.();photoSourceCleanup=null;},{once:true,signal:controller.signal});
+    mediaDialog.addEventListener("close",()=>{photoSourceTicket++;restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();photoSourceCleanup=null;},{once:true,signal:controller.signal});
     const items=settings.items||[{post,item}],index=items.findIndex(entry=>entry.post.id===post.id&&entry.item.media_path===item.media_path);
     let stepping=false;
     const step=async dir=>{
@@ -1340,7 +1348,8 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      }finally{stepping=false;}
     };
     photoNavigation(mediaDialogContent,Math.max(0,index),items.length,step,!!settings.hasMore?.());
-    mediaDialog.addEventListener("keydown",event=>{if(event.target.closest("textarea,input,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}},{signal:controller.signal});
+    if(!mediaDialog.contains(document.activeElement))mediaDialog.querySelector(".vatra-post-media-close-001")?.focus({preventScroll:true});
+    mediaDialog.addEventListener("keydown",event=>{if(event.target?.closest?.("textarea,input,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();step(event.key==="ArrowLeft"?-1:1);}},{signal:controller.signal});
     if(String(settings.ownId)===String(post.author_vatra_id)&&settings.removePhoto){mediaFooterDelete.hidden=false;mediaFooterDelete.onclick=()=>settings.removePhoto(post,item);}
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}

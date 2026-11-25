@@ -10,6 +10,17 @@
   const localFile=location.protocol==="file:";
   const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
   const ROOT=new URL("../../",scriptUrl).pathname;
+  const isDecorativeImage=event=>{
+    const img=event.target?.closest?.("img");
+    if(!img)return false;
+    try{
+      const src=new URL(img.currentSrc||img.src,document.baseURI);
+      return src.origin===scriptUrl.origin&&src.pathname.startsWith(ROOT)&&
+        /^(?:assets\/)(?:vatryk|logo|illustrations|flags|gifts|stickers)\//.test(src.pathname.slice(ROOT.length));
+    }catch(_){return false;}
+  };
+  for(const type of ["contextmenu","dragstart"])
+    document.addEventListener(type,event=>{if(isDecorativeImage(event))event.preventDefault();},{capture:true});
   const LANGUAGE_KEY = "vatra-language";
   const supportedLanguages=["uk","en","pl","de","fr","it","ka","bg"];
   const validLanguage=value=>supportedLanguages.includes(value);
