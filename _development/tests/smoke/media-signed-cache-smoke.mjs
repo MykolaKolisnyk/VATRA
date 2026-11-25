@@ -268,6 +268,7 @@ console.log("VATRA media: failed image URL invalidation and fresh retry verified
  let signedCalls=0,invalidated=[],opened=[];
  const env={document:{createElement:el,createElementNS:(_ns,tag)=>el(tag)},
   tr:(_uk,en)=>en,name:()=>true,
+  registerFeedPhotos:(_client,post)=>assert.equal(post.media_kind,"video"),
   signed:async()=>host+"/video?token="+(++signedCalls),
   forgetFailedSignedURL:async(_client,kind,p,url)=>{invalidated.push({kind,p,url});},
   openFullMedia:(url)=>opened.push(url)};
