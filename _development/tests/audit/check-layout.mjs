@@ -513,7 +513,7 @@ assert.ok(
 assert.ok(signInCss.includes(".vatra-login-hero-001{")&&
  signInCss.includes(".vatra-login-hero-image-001{")&&
  signInCss.includes('background:url("../illustrations/login-hero.webp") center / contain no-repeat')&&
- signInCss.includes("aspect-ratio:1447 / 1087")&&
+ signInCss.includes("aspect-ratio:1 / 1")&&
  signInCss.includes("pointer-events:none;user-select:none")&&
  !/\.(?:orbit-|intro-circle|intro-art|intro-symbol)/.test(signInCss)&&
  !/vatraOrbitClockwise|vatraIconUpright|vatraGlyphFloat/.test(css)&&
