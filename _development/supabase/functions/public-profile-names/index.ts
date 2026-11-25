@@ -2,6 +2,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient as createSupabaseClient } from "npm:@supabase/supabase-js@2.119.0";
 import { createClient as createRedisClient } from "npm:redis@5.0.1";
+import { redisDeadline } from "../_shared/redis-deadline.ts";
 
 type PublicName = { vatra_id: number; display_name: string; verified: boolean };
 const TTL_SECONDS = 120;
@@ -40,7 +41,7 @@ async function redis() {
         socket: { connectTimeout: 700, reconnectStrategy: false },
       });
       client.on("error", () => { /* Never log Redis credentials. */ });
-      await client.connect();
+      await redisDeadline(() => client.connect(), () => client.destroy());
       return client;
     })().catch(() => {
       redisConnection = null;
@@ -49,7 +50,7 @@ async function redis() {
     });
   }
   const connection = await redisConnection;
-  if (connection?.isOpen) return connection;
+  if (connection?.isReady) return connection;
   redisConnection = null;
   retryAfter = Date.now() + 60_000;
   return null;
@@ -98,7 +99,7 @@ Deno.serve(async (request) => {
   const entries = new Map<number, PublicName>();
   const missing: number[] = [];
   try {
-    const raw = await cache.mGet(ids.map(id => PREFIX + id));
+    const raw = await redisDeadline(() => cache.mGet(ids.map(id => PREFIX + id)), () => cache.destroy());
     ids.forEach((id, index) => {
       try {
         const value = raw[index] ? JSON.parse(raw[index]!) : null;
@@ -112,14 +113,11 @@ Deno.serve(async (request) => {
 
   if (missing.length) {
     // User JWT is forwarded to PostgREST: normal authenticated RLS and GRANTs apply.
-    const { data, error } = await client.from("public_profiles")
-      .select("vatra_id,display_name").in("vatra_id", missing);
-    if (error) return reply([], "unavailable", 503);
-    // Verified status is public to authenticated members under RLS.
-    // Never cache viewer permissions, private posts, or blocked content.
-    const { data: badges, error: badgeError } = await client.from("verified_accounts")
-      .select("vatra_id").in("vatra_id", missing);
-    if (badgeError) return reply([], "unavailable", 503);
+    const [{ data, error }, { data: badges, error: badgeError }] = await Promise.all([
+      client.from("public_profiles").select("vatra_id,display_name").in("vatra_id", missing),
+      client.from("verified_accounts").select("vatra_id").in("vatra_id", missing),
+    ]);
+    if (error || badgeError) return reply([], "unavailable", 503);
     const verified = new Set((badges || []).filter(item => validId(item.vatra_id))
       .map(item => item.vatra_id));
     const returned = new Set(missing);
@@ -134,7 +132,7 @@ Deno.serve(async (request) => {
       try {
         const writes = cache.multi();
         fresh.forEach(row => writes.set(PREFIX + row.vatra_id, JSON.stringify(row), { EX: TTL_SECONDS }));
-        await writes.exec();
+        await redisDeadline(() => writes.exec(), () => cache.destroy());
       } catch (_) { /* A failed write must not fail the authenticated read. */ }
     }
   }
