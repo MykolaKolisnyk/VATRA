@@ -3021,7 +3021,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    mediaImage.onerror=null;mediaImage.src=url;originalLink.href=url;
   };
   mediaImage.alt=photoTitle;mediaImage.src=sourceUrl||url;
-  window.VATRA_POST_MEDIA?.watchPhotoViewer(mediaDialog,photoContent,mediaImage,path,finishSlide);
+  window.VATRA_POST_MEDIA?.watchPhotoViewer(mediaDialog,photoContent,mediaImage,path,finishSlide,async()=>{const {data,error}=await client.storage.from("avatars").download(path);if(error)throw error;return data;});
   if(mediaImage.complete)queueMicrotask(fitPhoto);
   originalLink.href=sourceUrl||url;photoFooter.hidden=false;
   resetTagMode();closeMore();reportTag("");tagMarkers.replaceChildren();tagEpoch++;
