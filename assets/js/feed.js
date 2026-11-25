@@ -519,21 +519,7 @@
     if(!isPerson&&!searchTerm&&typeof query.in==="function")
      query=query.in("club_id",clubIds);
     if(searchTerm&&typeof query.ilike==="function")
-     query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\   let query=client.from(isPerson?"feed_posts":"community_posts")
-    .select(isPerson?personFields:clubFields);
-   if(isPerson&&!searchTerm&&typeof query.in==="function"){
-    query=query.in("author_vatra_id",personIds);
-   }
-   if(isPerson){query=query.eq("is_clip",false);if(typeof query.is==="function")query=query.is("archived_at",null);}
-   if(!isPerson&&!searchTerm&&typeof query.in==="function")
-    query=query.in("club_id",[...followedClubs.keys()]);
-   if(searchTerm&&typeof query.ilike==="function")
-    query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\$&")+"%");
-   const sourceKey=JSON.stringify([source.kind,feedFilter,searchTerm,source.offset,
-    [...personIds].sort(),isPerson?[]:[...followedClubs.keys()].sort()]);
-   const {data,error}=await readFeedPage(client,sourceKey,()=>feedDeadline(query.order("created_at",{ascending:false})
-    .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1)));
-")+"%");
+     query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\$&")+"%");
     return feedDeadline(query.order("created_at",{ascending:false})
      .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1));
    });
