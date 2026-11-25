@@ -230,11 +230,11 @@ body.feed-page .feed-story-preview[data-theme="3"]{background:linear-gradient(13
 body.feed-page .feed-story-preview[data-theme="4"]{background:linear-gradient(135deg,#5b4b92,#c085b3)}
 body.feed-page .feed-story-preview .vatra-feed-story-live-body-001{
  display:-webkit-box;position:relative;z-index:1;flex:1;overflow:hidden;
- -webkit-line-clamp:6;-webkit-box-orient:vertical;width:100%;padding:25px 13px 0;
- color:#fff;text-align:center;overflow-wrap:anywhere;font:740 14px/1.45 "Onest",sans-serif
+ -webkit-line-clamp:6;-webkit-box-orient:vertical;width:100%;align-content:center;padding:12px 9px 83px;
+ color:#fff;text-align:center;overflow-wrap:anywhere;font:740 13px/1.45 "Onest",sans-serif
 }
 body.feed-page .feed-story-preview .vatra-feed-story-live-name-001{
- display:block;position:relative;z-index:1;flex:none;width:100%;padding:12px 10px 14px;
+ display:block;position:relative;z-index:1;flex:none;width:100%;margin-top:auto;text-align:center;padding:0 6px 12px;
  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;
  font:760 12px/1.35 "Onest",sans-serif;text-shadow:0 1px 5px rgba(18,32,64,.26)
 }
@@ -1176,7 +1176,7 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-post-body{
 body.feed-page .vatra-feed-stories-heading{font:760 clamp(18px,1.8vw,21px)/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.032em;color:#2C3850;text-rendering:optimizeLegibility}
 body.feed-page .feed-stories-heading{padding:0 2px}
 body.feed-page .feed-stories-track{
- display:flex;gap:9px;padding:1px 1px 2px;overflow-x:auto;
+ display:flex;align-items:flex-start;gap:9px;padding:3px 2px 5px;overflow-x:auto;
  scroll-snap-type:x proximity;scrollbar-width:thin;overscroll-behavior-x:contain
 }
 body.feed-page .feed-story-create,
@@ -1305,8 +1305,8 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-post-card .feed-pos
 }
 body.feed-page .feed-stories{position:relative;min-width:0}
 body.feed-page .feed-story-preview .feed-story-author-avatar{
- position:absolute;z-index:3;left:8px;top:9px;flex:none;
- display:grid;place-items:center;width:32px;height:32px;padding:0;
+ position:absolute;z-index:3;left:50%;top:auto;bottom:39px;transform:translateX(-50%);flex:none;
+ display:grid;place-items:center;width:40px;height:40px;padding:0;
  border:2px solid #fff;border-radius:50%;
  background:linear-gradient(135deg,#406fe5,#9154d7);
  background-size:cover;background-position:center;background-repeat:no-repeat;
@@ -1314,7 +1314,7 @@ body.feed-page .feed-story-preview .feed-story-author-avatar{
  box-shadow:0 0 0 2px #5275e8
 }
 body.feed-page .feed-stories-next{
- position:absolute;z-index:4;right:-7px;top:calc(50% + 12px);
+ position:absolute;z-index:4;right:-7px;top:50%;
  transform:translateY(-50%);display:grid;place-items:center;
  width:40px;height:40px;padding:0;border:1px solid #e2e7f2;border-radius:50%;
  background:#fff;color:#526781;box-shadow:0 4px 16px rgba(35,55,95,.16);
@@ -1325,7 +1325,7 @@ body.feed-page .feed-stories-next[hidden]{display:none!important}
 body.feed-page .feed-stories-next:focus-visible{outline:2px solid #507ae8;outline-offset:3px}
 @media(max-width:600px){
  body.feed-page .feed-story-preview .feed-story-author-avatar{
-  width:28px;height:28px;top:7px;left:6px
+  width:34px;height:34px;bottom:35px
  }
  body.feed-page .feed-stories-next{right:-5px;width:34px;height:34px}
  body.feed-page:not(.profile-page):not(.community-page) .feed-post-card{padding:12px}
@@ -3576,10 +3576,5 @@ body.feed-page .feed-story-create .vatra-feed-story-create-avatar-001{position:a
 body.feed-page .feed-story-create::after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(180deg,transparent,rgba(12,18,29,.88));pointer-events:none}
 body.feed-page .feed-story-create .vatra-feed-story-create-plus-001{position:absolute;z-index:2;bottom:42px;left:50%;transform:translateX(-50%);display:grid;place-items:center;width:42px;height:42px;border:2px solid #fff;border-radius:50%;background:#fff;color:#3675dc;font:550 30px/1 Onest,system-ui,sans-serif;box-shadow:0 2px 9px #17274235;pointer-events:none}
 body.feed-page .feed-story-create .vatra-feed-story-create-label-001{position:relative;z-index:2;display:block;width:100%;padding:0 6px 12px;color:#fff;font:740 12px/1.3 Onest,system-ui,sans-serif;text-shadow:0 1px 5px #18253b80;pointer-events:none}
-body.feed-page .feed-story-preview .feed-story-author-avatar{position:absolute;top:auto;bottom:39px;left:50%;transform:translateX(-50%);width:40px;height:40px;padding:0;background-size:cover}
-body.feed-page .feed-story-preview .vatra-feed-story-live-body-001{position:relative;flex:1;display:-webkit-box;align-content:center;padding:12px 9px 83px;text-align:center;overflow-wrap:anywhere;font-size:13px}
 body.feed-page .feed-story-preview .vatra-feed-story-live-body-001:empty{display:none}
-body.feed-page .feed-story-preview .vatra-feed-story-live-name-001{margin-top:auto;text-align:center;padding:0 6px 12px}
-body.feed-page .feed-stories-track{align-items:flex-start;padding:3px 2px 5px;gap:9px}
-body.feed-page .feed-stories-next{top:50%}
-@media(max-width:600px){body.feed-page .feed-story-create .vatra-feed-story-create-plus-001{width:36px;height:36px;bottom:37px;font-size:26px}body.feed-page .feed-story-preview .feed-story-author-avatar{width:34px;height:34px;bottom:35px}body.feed-page .feed-story-preview .vatra-feed-story-live-body-001{padding-bottom:70px;font-size:12px}}
+@media(max-width:600px){body.feed-page .feed-story-create .vatra-feed-story-create-plus-001{width:36px;height:36px;bottom:37px;font-size:26px}body.feed-page .feed-story-preview .vatra-feed-story-live-body-001{padding-bottom:70px;font-size:12px}}

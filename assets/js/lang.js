@@ -10,7 +10,6 @@
   const localFile=location.protocol==="file:";
   const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
   const ROOT=new URL("../../",scriptUrl).pathname;
-  // Only bundled artwork is decorative; member photos retain native image actions.
   const isDecorativeImage=event=>{
     const img=event.target?.closest?.("img");
     if(!img)return false;

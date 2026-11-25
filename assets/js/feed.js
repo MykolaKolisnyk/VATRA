@@ -567,7 +567,7 @@
   if(reset)feedRequestVersion++;
   if(loading){if(reset)refreshQueued=true;return;}
   const version=feedRequestVersion;
-  loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
+  loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;more.setAttribute("aria-busy","true");
   const scope=JSON.stringify([feedFilter,searchTerm]);
   const keepExisting=reset&&scope===lastFeedScope;
   const previousFeed=keepExisting?[...visibleFeed]:null;
@@ -659,7 +659,7 @@
     }
    }
   }finally{
-   loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;
+   loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;more.removeAttribute("aria-busy");
    if(refreshQueued){refreshQueued=false;void loadPosts(true);}
   }
  }

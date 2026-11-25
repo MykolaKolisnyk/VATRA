@@ -802,9 +802,9 @@ textarea{resize:none}
 html.vatra-toast-enabled :is(#profile-action-status,#profile-photo-status,#profile-status-error,#profile-edit-message,#profile-report-error,#profile-compose-status,#profile-photo-tag-status,#feed-status,#feed-compose-error,#club-status,#club-compose-error,#community-create-status,#community-list-status,.vatra-section-dialog-status-001,.vatra-post-interactions-status-001,.vatra-profile-photo-comment-status-001){display:none!important}
 @media(prefers-reduced-motion:reduce){.vatra-toast-item-001{transition:none;transform:none}}
 
-/* Keep the accessible label and button geometry while a submission is pending. */
-button[type="submit"][aria-busy="true"]{position:relative;color:transparent!important;cursor:wait}
-button[type="submit"][aria-busy="true"]>*{visibility:hidden}
-button[type="submit"][aria-busy="true"]::after{content:"";position:absolute;inset:0;margin:auto;width:20px;height:20px;box-sizing:border-box;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:vatra-submit-spinner .75s linear infinite;pointer-events:none}
+:where(button[aria-busy="true"]){position:relative}
+button[aria-busy="true"]{color:transparent!important;text-shadow:none!important;cursor:wait}
+button[aria-busy="true"]>*{opacity:0}
+button[aria-busy="true"]::before{content:"";position:absolute;z-index:10;inset:0;margin:auto;width:20px;height:20px;box-sizing:border-box;border:2px solid #849bc7;border-top-color:#fff;border-radius:50%;animation:vatra-submit-spinner .75s linear infinite;pointer-events:none}
 @keyframes vatra-submit-spinner{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){button[type="submit"][aria-busy="true"]::after{animation-duration:1.5s}}
+@media(prefers-reduced-motion:reduce){button[aria-busy="true"]::before{animation-duration:1.5s}}

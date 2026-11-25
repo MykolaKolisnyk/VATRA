@@ -520,7 +520,7 @@ function appendAudience(container,level,isGroup=false){
     more.type="button";
     more.addEventListener("click",()=>{
      more.disabled=true;
-     more.textContent=tr("Завантаження…","Loading…");
+     more.setAttribute("aria-busy","true");
      loadVoters(index,panel,count,true);
     });
     panel.append(more);

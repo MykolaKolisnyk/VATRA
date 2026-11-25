@@ -436,7 +436,8 @@ function syncSignupCountdown(){
  if(!button)return;
  const remaining=Math.max(0,(signupPending.nextAllowedAt||0)-Date.now());
  button.disabled=signupSending||remaining>0||!signupPending.email||!auth;
- button.textContent=signupSending?translate("Надсилаємо…"):remaining
+ button.setAttribute("aria-busy",String(signupSending));
+ button.textContent=remaining
   ?translate("Повторити через")+" "+signupClock(remaining):translate("Надіслати лист ще раз");
 }
 function showSignupMessage(message,error=false){feedback(message,error?"error":"success");}

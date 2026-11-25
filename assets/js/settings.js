@@ -25,7 +25,7 @@ async function renderDevices(panel){
  });
  c.append(logout);panel.append(c);
  async function load(){
-  if(refresh.disabled)return;refresh.disabled=true;list.setAttribute("aria-busy","true");
+  if(refresh.disabled)return;refresh.disabled=true;refresh.setAttribute("aria-busy","true");list.setAttribute("aria-busy","true");
   try{
    const {data,error}=await client.rpc("vatra_my_sessions");if(error)throw error;if(!c.isConnected)return;
    list.replaceChildren();
@@ -41,7 +41,7 @@ async function renderDevices(panel){
    }
    if(!data?.length)list.append(empty(t("Немає доступних відомостей про сеанси.","No session details available.")));
   }catch(_){if(c.isConnected)list.replaceChildren(empty(t("Не вдалося завантажити сеанси.","Could not load sessions.")));}
-  finally{refresh.disabled=false;list.setAttribute("aria-busy","false");}
+  finally{refresh.disabled=false;refresh.removeAttribute("aria-busy");list.setAttribute("aria-busy","false");}
  }
  await load();
 }
