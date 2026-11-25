@@ -43,7 +43,8 @@ assert.ok(runtime.includes('document.body.dataset.authReady==="true"')&&
  runtime.includes('!document.body.classList.contains("vatra-shell-pending")'),
  "Service errors must not mount within an invisible pending feed");
 assert.ok(feedRuntime.includes('loader.hidden=false;loader.dataset.loadingError="true"')&&
- feedRuntime.includes('await feedDeadline(client.auth.getUser())')&&
+ feedRuntime.includes('await Promise.all([feedDeadline(client.auth.getUser()),languageReady])')&&
+ feedRuntime.includes('const languageReady=feedDeadline(window.VATRA_LANGUAGE?.ready,5000)')&&
  feedRuntime.includes('if(profile.error||!validId(profile.data?.vatra_id))'),
  "Feed startup must expose retry after bounded requests without bypassing authentication");
 const begin=feedRuntime.indexOf(" function feedDeadline("),end=feedRuntime.indexOf(" async function init(){",begin);
