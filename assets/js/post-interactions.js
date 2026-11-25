@@ -29,6 +29,7 @@
   svg.setAttribute("aria-hidden","true");svg.classList.add("ui-vatra-post-action-symbol-001");
   const path=(d)=>{
    const el=document.createElementNS("http://www.w3.org/2000/svg","path");
+   el.setAttribute("class","ui-vatra-post-action-path-"+type+"-"+(svg.childElementCount+1));
    el.setAttribute("d",d);svg.append(el);
   };
   if(type==="poll")path("M4 4h16v16H4zM8 16v-5M12 16V8M16 16v-3");
@@ -261,6 +262,7 @@ function appendAudience(container,level,isGroup=false){
   symbol.replaceChildren();
   const ns="http://www.w3.org/2000/svg";
   const path=document.createElementNS(ns,"path");
+  path.setAttribute("class","ui-feed-post-audience-path-001");
   if(visibility==="only_me")path.setAttribute("d","M7 10V7a5 5 0 0 1 10 0v3M5.5 10.5h13v10h-13z");
   else if(visibility==="public")path.setAttribute("d","M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18");
   else if(visibility==="friends")path.setAttribute("d","M12.1 8a3.1 3.1 0 1 1-6.2 0 3.1 3.1 0 1 1 6.2 0ZM3.2 19.7v-1.5c0-3 2.2-4.8 5.8-4.8s5.8 1.8 5.8 4.8v1.5M16.6 5.3a3 3 0 0 1 0 5.9M17.6 14.1c2.1.5 3.2 2 3.2 4.1v1.5");
@@ -401,6 +403,7 @@ function appendAudience(container,level,isGroup=false){
   dots.classList.add("ui-vatra-post-owner-dots-001");
   for(const x of [5,12,19]){
    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+   c.setAttribute("class","ui-vatra-post-owner-dot-"+x);
    c.setAttribute("cx",String(x));c.setAttribute("cy","12");c.setAttribute("r","1.65");
    dots.append(c);
   }
