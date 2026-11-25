@@ -279,8 +279,6 @@ async function initialize(){
    authInitError="Не вдалося підключитися до сервісу авторизації.";
   }
  }
- // Start server verification while the locale is downloading. Never trust a
- // cached user or navigate before translated UI and page-specific checks.
  const initialSession=auth&&(page==="login"||page==="create-account")
   ?sessionCheckWithTimeout().catch(error=>({data:{user:null},error})):null;
  await window.VATRA_LANGUAGE?.ready;
