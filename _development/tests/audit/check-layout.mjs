@@ -1912,7 +1912,11 @@ assert.ok(
  postMediaScript.includes('Promise.allSettled(batch.map(file=>upload(client,id,file)))')&&
  interactionsScript.includes('const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);')&&
  !interactionsScript.includes('const [commentsResult,sharesResult]=await Promise.all([')&&
- interactionsScript.includes('const hydrateSaved=()=>{')&&
+ interactionsScript.includes('const hydrateSaved=(retry=false)=>{')&&
+ interactionsScript.includes('if(initialEngagement&&!retry)return false;')&&
+ interactionsScript.includes('if(!current&&initialEngagement&&!retry){count.textContent="";return;}')&&
+ interactionsScript.includes('if(!current){commentsCount.textContent="";sharesCount.textContent="";return;}')&&
+ !interactionsScript.includes('Вподобання тимчасово недоступні.')&&
  notificationPerfScript.includes('period=subscribed?300000:120000')&&
  notificationPerfScript.includes('Date.now()-lastRefresh<15000')&&
  /const CACHE="vatra-offline-shell-v[0-9]+"/.test(workerPerfScript)&&

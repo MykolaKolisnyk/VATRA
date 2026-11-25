@@ -185,10 +185,9 @@ const postEngagementKeys=[
  "Прибрати зі збереженого",
  "Не вдалося змінити збереження.",
  "Не вдалося змінити збереження. Спробуйте ще раз.",
- "Вподобання тимчасово недоступні.",
  "Не вдалося змінити вподобання."
 ];
-assert.equal(postEngagementKeys.length,17,"Unexpected count of engagement translations");
+assert.equal(postEngagementKeys.length,16,"Unexpected count of engagement translations");
 for(const key of postEngagementKeys){
  assert.ok(postInteractionsRuntime.includes(key)&&typeof en[key]==="string"&&en[key].trim(),
   "Missing English post engagement string: "+key);
