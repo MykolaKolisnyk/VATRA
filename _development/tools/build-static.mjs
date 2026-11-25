@@ -9,7 +9,7 @@ const output=resolve(root,"dist");
 assert.equal(version,"0.28.2","Use the pinned esbuild version");
 assert.notEqual(output,resolve(root),"Refusing to replace source");
 await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
-const publicFiles=(await readdir(root,{withFileTypes:true})).filter(x=>x.isFile()&&(/\.html$/.test(x.name)||["sw.js","site.webmanifest","sitemap.xml","CNAME","robots.txt",".nojekyll"].includes(x.name)));
+const publicFiles=(await readdir(root,{withFileTypes:true})).filter(x=>x.isFile()&&(/\.html$/.test(x.name)||["sw.js","site.webmanifest","sitemap.xml","CNAME","robots.txt","ads.txt",".nojekyll"].includes(x.name)));
 for(const entry of publicFiles)await cp(join(root,entry.name),join(output,entry.name));
 await cp(join(root,"assets"),join(output,"assets"),{recursive:true});
 await writeFile(join(output,".nojekyll"),"");
@@ -36,6 +36,7 @@ for(const page of ["index.html","feed.html","profile.html","marketplace.html","c
 }
 assert.ok(count>10&&after<before,"Expected smaller production assets");
 assert.ok(!(await readdir(output)).includes("_development"),"Development files must never ship");
+assert.equal(await readFile(join(output,"ads.txt"),"utf8"),await readFile(join(root,"ads.txt"),"utf8"),"Publisher authorization must ship unchanged at /ads.txt");
 const summary={files:count,originalBytes:before,minifiedBytes:after,savedBytes:before-after};
 console.log("VATRA static build: "+JSON.stringify(summary));
 await writeFile(join(root,"build-summary.json"),JSON.stringify(summary,null,2)+"\n");
