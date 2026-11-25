@@ -2424,15 +2424,11 @@ assert.ok(auth.includes('persistSession:page!=="reset"&&page!=="forgot"')&&
  uk.__pages.reset.nodes.n34.text["0"]==="Увійти з новим паролем",
  "Recovery authentication must be session-isolated, explicitly released, and lead to password sign-in");
 for(const name of pages){
- const enTitle=en.__pages[name]?.meta?.title;
- if(!enTitle)continue;
- assert.ok(lang.includes((/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)?name:JSON.stringify(name))+":"+JSON.stringify(enTitle)),
-  "An English browser tab title must be available synchronously for "+name);
+ const html=await read(name+".html");
+ assert.ok(html.includes("<title>VATRA</title>"),name+": brand tab title is present before translation");
 }
-assert.ok(lang.includes('new MutationObserver(applyTitle)')&&
- lang.includes('observer.disconnect()')&&
- lang.includes('document.head.querySelector("title")'),
- "English tab titles should never briefly show Ukrainian during async translation");
+assert.ok(!lang.includes("document.title")&&!lang.includes("new MutationObserver(applyTitle)"),
+ "Localization must preserve the static VATRA tab title");
 
 /* Cache regression: public display names only, fail-closed auth and direct
    RLS fallback. Scripts must load before authors are rendered. */
