@@ -91,9 +91,12 @@ writes[2].resolve({data:{vatra_id:"12"},error:null});
 await new Promise(resolve=>setImmediate(resolve));
 
 // Hidden tabs do not write, but returning to the foreground refreshes activity.
-document.visibilityState="hidden";now+=120000;tick();
+document.visibilityState="hidden";fire("visibilitychange");
+assert.equal(intervals.size,0,"Hidden tabs must not retain a heartbeat interval");
+now+=120000;tick();
 assert.equal(writes.length,3);
 document.visibilityState="visible";fire("visibilitychange");
+assert.equal(intervals.size,1,"Visibility resume restores exactly one interval");
 assert.equal(writes.length,4);
 writes[3].resolve({data:{vatra_id:"12"},error:null});
 await new Promise(resolve=>setImmediate(resolve));
@@ -101,7 +104,9 @@ await new Promise(resolve=>setImmediate(resolve));
 // The back-forward cache must not permanently orphan presence tracking.
 now+=60000;fire("pagehide",{persisted:true});
 assert.equal(presence.active()?.id,"12");
-fire("pageshow",{persisted:true});assert.equal(writes.length,5);
+assert.equal(intervals.size,0,"BFCache suspends heartbeat");
+fire("pageshow",{persisted:true});
+assert.equal(intervals.size,1);assert.equal(writes.length,5);
 writes[4].resolve({data:{vatra_id:"12"},error:null});
 await new Promise(resolve=>setImmediate(resolve));
 const old=presence.active();
