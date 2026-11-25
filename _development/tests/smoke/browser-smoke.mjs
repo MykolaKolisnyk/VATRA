@@ -4898,7 +4898,9 @@ try{
    Math.abs(avatarSidebar.closeX-18)<=2&&Math.abs(avatarSidebar.closeY-18)<=2,
    "Avatar viewer must share exact sidebar spacing and close-button geometry with posts: "+JSON.stringify(avatarSidebar));
   assert.ok(/\/avatars\/654321\/avatar\/test-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
+  await profilePage.locator("#profile-photo-content").hover();
   await profilePage.locator("#profile-avatar-next").waitFor({state:"visible"});
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-avatar-next")).pointerEvents==="auto");
   await profilePage.locator("#profile-avatar-next").click();
   assert.ok(/\/avatars\/654321\/avatar\/previous-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
