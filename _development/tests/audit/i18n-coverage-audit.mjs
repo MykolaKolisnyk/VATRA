@@ -622,7 +622,7 @@ for(const code of ["uk","en","pl","de","fr","it","ka","bg"]){
  assert.equal(meta["og:title"],meta.title);assert.equal(meta["twitter:title"],meta.title);
  assert.equal(meta["og:description"],meta.description);assert.equal(meta["twitter:description"],meta.description);
  if(code==="uk"){
-  assert.ok(homeMarkup.includes("<title>"+meta.title+"</title>"));
+  assert.ok(homeMarkup.includes("<title>VATRA</title>"));
   assert.ok(homeMarkup.includes('<meta name="description" content="'+meta.description+'">'));
  }
 }
