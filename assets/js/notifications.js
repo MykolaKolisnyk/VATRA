@@ -41,13 +41,15 @@ let notificationRun=null,panelLoadPending=null,panelLoadQueued=false;
 let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false,sectionQueued=false,sectionScope=null;
 const pageURL=()=>new URL("notifications",root).href;
 const plural=(n,a,b,c)=>{const x=n%100,d=n%10;return n+" "+(d===1&&x!==11?a:d>=2&&d<=4&&(x<12||x>14)?b:c)};
+const relativeFormatters=new Map();
 const timeValue=date=>{
  const d=new Date(date),ms=Math.max(0,Date.now()-d.getTime());if(!Number.isFinite(d.getTime()))return "";
  if(ms<60000)return t("щойно","just now");
  const n=Math.floor(ms/60000),h=Math.floor(ms/3600000),days=Math.floor(ms/86400000);
  const code=language();
  if(code!=="uk"&&code!=="en"&&Object.hasOwn(dateLocales,code)){
-  const relative=new Intl.RelativeTimeFormat(dateLocales[code],{numeric:"always"});
+  let relative=relativeFormatters.get(code);
+  if(!relative){relative=new Intl.RelativeTimeFormat(dateLocales[code],{numeric:"always"});relativeFormatters.set(code,relative);}
   const [amount,unit]=ms<3600000?[n,"minute"]:ms<86400000?[h,"hour"]:days<30?[days,"day"]:days<365?[Math.floor(days/30),"month"]:[Math.floor(days/365),"year"];
   return relative.format(-amount,unit);
  }
@@ -497,9 +499,15 @@ function headerUI(){
  document.addEventListener("keydown",event=>{
   if(open&&event.key==="Escape"){closePanel();bell.focus();}
  });
- window.addEventListener("resize",positionPanel,{passive:true});
- window.addEventListener("scroll",positionPanel,{passive:true});
- window.visualViewport?.addEventListener("resize",positionPanel,{passive:true});
+ let positionPending=false;
+ const schedulePosition=()=>{
+  if(!open||positionPending)return;
+  positionPending=true;
+  requestAnimationFrame(()=>{positionPending=false;positionPanel();});
+ };
+ window.addEventListener("resize",schedulePosition,{passive:true});
+ window.addEventListener("scroll",schedulePosition,{passive:true});
+ window.visualViewport?.addEventListener("resize",schedulePosition,{passive:true});
 }
 
 
@@ -661,15 +669,27 @@ function start(c,id){
   if(notificationRun!==run||document.hidden||(!force&&Date.now()-lastRefresh<15000))return;
   lastRefresh=Date.now();void unreadCount();if(open)void panelLoad();
  };
- window.addEventListener("focus",()=>refresh(),{passive:true,signal:run.controller.signal});
- document.addEventListener("visibilitychange",()=>refresh(),{passive:true,signal:run.controller.signal});
- window.addEventListener("pagehide",event=>{if(!event.persisted)stop();},{signal:run.controller.signal});
- run.timer=setInterval(()=>{
+ const poll=()=>{
   if(document.hidden)return;
   const now=Date.now(),period=subscribed?300000:120000;
   if(now-lastPoll<period)return;
   lastPoll=now;refresh();
- },60000);
+ };
+ const pause=()=>{
+  if(run.timer!==null){clearInterval(run.timer);run.timer=null;}
+ };
+ const resume=()=>{
+  if(notificationRun!==run||document.hidden)return;
+  if(run.timer===null)run.timer=setInterval(poll,60000);
+  refresh();
+ };
+ window.addEventListener("focus",resume,{passive:true,signal:run.controller.signal});
+ window.addEventListener("pageshow",resume,{signal:run.controller.signal});
+ document.addEventListener("visibilitychange",()=>{
+  if(document.hidden)pause();else resume();
+ },{passive:true,signal:run.controller.signal});
+ window.addEventListener("pagehide",event=>{if(event.persisted)pause();else stop();},{signal:run.controller.signal});
+ if(!document.hidden)run.timer=setInterval(poll,60000);
  try{
   if(typeof c.channel==="function")
    liveChannel=c.channel("vatra-notices-"+run.id)

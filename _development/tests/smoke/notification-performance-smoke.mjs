@@ -21,3 +21,20 @@ const notices=await readFile("assets/js/notifications.js","utf8");
  assert.deepEqual(calls,["all","unread"],"Latest notification filter must be loaded after the pending request");
 }
 console.log("VATRA notifications: latest-filter race safety passed.");
+
+
+{
+ const a=notices.indexOf(" let positionPending=false;");
+ const b=notices.indexOf("\n}",a);
+ assert.ok(a>=0&&b>a);
+ let positions=0;const frames=[],listeners={};
+ const ctx={open:true,positionPanel:()=>{positions++;},requestAnimationFrame:fn=>frames.push(fn),
+  window:{addEventListener:(name,fn)=>{listeners[name]=fn;},visualViewport:{addEventListener:(name,fn)=>{listeners["viewport-"+name]=fn;}}}};
+ runInNewContext(notices.slice(a,b),ctx);
+ for(let i=0;i<50;i++)listeners.scroll();
+ listeners.resize();listeners["viewport-resize"]();
+ assert.equal(frames.length,1,"Coalesce a burst of 52 events into one frame");
+ frames.shift()();assert.equal(positions,1);
+ ctx.open=false;listeners.scroll();assert.equal(frames.length,0);
+}
+console.log("VATRA notification panel: coalesced layout work and no hidden-panel scheduling passed.");

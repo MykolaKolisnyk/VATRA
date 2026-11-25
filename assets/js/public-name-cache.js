@@ -28,7 +28,7 @@
  const stateFor=client=>{
   let state=caches.get(client);
   if(state)return state;
-  state={rows:new Map(),pending:new Map(),generation:0,retryRemoteAt:edgeRetryAt(),viewer:null};
+  state={rows:new Map(),pending:new Map(),generation:0,retryRemoteAt:edgeRetryAt(),viewer:null,revision:0,persistedRevision:0};
   caches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange(event=>{
@@ -37,6 +37,7 @@
     state.generation++;
     state.rows.clear();
     state.pending.clear();
+    state.revision=state.persistedRevision=0;
     state.retryRemoteAt=edgeRetryAt();
    });
   }
@@ -48,6 +49,7 @@
   const state=stateFor(client);
   if(state.viewer===viewer)return true;
   state.generation++;state.rows.clear();state.pending.clear();
+  state.revision=state.persistedRevision=0;
   state.viewer=viewer;
   const stored=readTab(),now=Date.now();
   if(stored?.viewer!==viewer){
@@ -63,14 +65,17 @@
   return true;
  }
  function persistTab(state){
-  if(!state.viewer)return;
+  if(!state.viewer||state.revision===state.persistedRevision)return;
   const now=Date.now(),rows=[];
   for(const entry of state.rows.values()){
    if(!validName(entry.row)||entry.expires<=now||entry.tabExpiry<=now)continue;
    rows.push({row:{vatra_id:entry.row.vatra_id,display_name:entry.row.display_name},
     expires:Math.min(entry.expires,entry.tabExpiry)});
   }
-  try{sessionStorage.setItem(TAB_KEY,JSON.stringify({viewer:state.viewer,rows:rows.slice(-MAX_ENTRIES)}));}catch(_){}
+  try{
+   sessionStorage.setItem(TAB_KEY,JSON.stringify({viewer:state.viewer,rows:rows.slice(-MAX_ENTRIES)}));
+   state.persistedRevision=state.revision;
+  }catch(_){}
  }
  const entryFor=(state,id)=>{
   const entry=state.rows.get(id);
@@ -87,6 +92,7 @@
   state.rows.delete(id);
   const now=Date.now();
   state.rows.set(id,{row,expires:now+(row?TTL:MISSING_TTL),tabExpiry:now+TAB_TTL});
+  state.revision++;
   while(state.rows.size>MAX_ENTRIES)state.rows.delete(state.rows.keys().next().value);
  };
  async function fetchMissing(client,ids,state){
@@ -132,7 +138,6 @@
       {vatra_id:Number(id),display_name:value.display_name,
        ...(typeof value.verified==="boolean"?{verified:value.verified}:{})}:null);
     }
-    persistTab(state);
    });
    for(const id of batch)state.pending.set(id,task);
    tasks.add(task);
@@ -145,8 +150,9 @@
    await Promise.all(tasks);
    if(state.generation!==generation)
     throw Error("Session changed while loading public names");
-   return {data:unique.map(id=>entryFor(state,id)?.row).filter(Boolean),error:null};
+   return {data:unique.map(id=>entryFor(state,id)?.row).filter(Boolean).map(row=>({...row})),error:null};
   }catch(error){return {data:[],error};}
+  finally{if(state.generation===generation)persistTab(state);}
  }
  window.VATRA_PUBLIC_NAMES={get,bindViewer};
 })();
