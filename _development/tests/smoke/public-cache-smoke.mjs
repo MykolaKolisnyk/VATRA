@@ -200,3 +200,26 @@ console.log("VATRA public-name cache: overlapping singleflight, viewer isolation
  assert.equal(entries.has("vatra:public-names:tab:v1"),false,"An unbound client must not persist names");
 }
 console.log("VATRA public names: verified viewer tab reuse, original expiry, account isolation and logout verified.");
+
+
+{
+ const entries=new Map(),key="vatra:public-names:tab:v1";
+ let writes=0,reads=0;
+ const storage={getItem:k=>entries.get(k)||null,setItem(k,v){if(k===key)writes++;entries.set(k,v);},removeItem:k=>entries.delete(k)};
+ const window={VATRA_NAME_CACHE_EDGE_ENABLED:false};
+ runInNewContext(source,{window,sessionStorage:storage,Date:TestDate,Number,String,Map,Set,WeakMap,Promise,Error,JSON});
+ const api=window.VATRA_PUBLIC_NAMES;
+ const client={from:()=>({select:()=>({in:async(_key,ids)=>{
+  reads++;return {data:ids.map(id=>({vatra_id:Number(id),display_name:"Name "+id})),error:null};
+ }})})};
+ api.bindViewer(client,"11111111-1111-4111-8111-111111111111");
+ const ids=Array.from({length:120},(_,i)=>i+1);
+ const result=await api.get(client,ids);
+ assert.equal(result.data.length,120);assert.equal(reads,3);
+ assert.equal(writes,1,"Persist a multi-batch read in one storage write");
+ result.data[0].display_name="Mutated";
+ assert.equal((await api.get(client,[1])).data[0].display_name,"Name 1");
+ assert.equal(writes,1,"Cache hits must not serialize unchanged entries");
+ assert.equal(reads,3);
+}
+console.log("VATRA names: one tab cache write per batch group and mutation-safe cache reads passed.");
