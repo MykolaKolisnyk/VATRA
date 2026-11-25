@@ -492,11 +492,57 @@
 
  let mediaDialog=null,mediaDialogContent=null,mediaSide=null,restoreMediaPanel=null,restoreOwnerMenu=null,mediaCaption=null,mediaFooterActions=null,mediaFooterShare=null,mediaFooterDelete=null,mediaFooterDownload=null,mediaFooterOpenPost=null;
  const photoSlides=new WeakMap();
- function photoMatte(){return "dark";}
+ const photoMatteChecks=new WeakMap();
+ async function readPhotoAlpha(image,isCurrent=()=>true){
+  const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d",{willReadFrequently:true});
+  if(!ctx)throw Error("Canvas unavailable");
+  const width=image.naturalWidth,height=image.naturalHeight,tile=512;
+  let count=0;
+  try{
+   for(let y=0;y<height;y+=tile)for(let x=0;x<width;x+=tile){
+    if(!isCurrent())return "dark";
+    const w=Math.min(tile,width-x),h=Math.min(tile,height-y);
+    canvas.width=w;canvas.height=h;
+    ctx.drawImage(image,x,y,w,h,0,0,w,h);
+    const pixels=ctx.getImageData(0,0,w,h).data;
+    for(let i=3;i<pixels.length;i+=4)if(pixels[i]<255)return "white";
+    if(++count%8===0)await new Promise(resolve=>setTimeout(resolve,0));
+   }
+   return "dark";
+  }finally{canvas.width=canvas.height=0;}
+ }
+ async function photoMatte(image,isCurrent=()=>true){
+  try{return await readPhotoAlpha(image,isCurrent);}catch(_){}
+  const src=image.currentSrc||image.src;
+  if(!src||!isCurrent())return "dark";
+  try{
+   const readable=await new Promise((resolve,reject)=>{
+    const copy=new Image();copy.crossOrigin="anonymous";
+    const timer=setTimeout(()=>{copy.onload=copy.onerror=null;copy.removeAttribute("src");reject(Error("Photo alpha timeout"));},5000);
+    copy.onload=()=>{clearTimeout(timer);resolve(copy);};
+    copy.onerror=()=>{clearTimeout(timer);reject(Error("Photo alpha inaccessible"));};
+    copy.src=src;
+   });
+   return isCurrent()?await readPhotoAlpha(readable,isCurrent):"dark";
+  }catch(_){return "dark";}
+ }
  function fitPhotoViewer(dialog,stage,image,path){
   if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
   const ratio=image.naturalWidth/image.naturalHeight;
-  stage.dataset.photoMatte=photoMatte(path);
+  if(dialog.open&&image.complete){
+   const src=image.src||image.currentSrc,previous=photoMatteChecks.get(stage);
+   if(previous?.image===image&&previous.src===src){
+    if(previous.result)stage.dataset.photoMatte=previous.result;
+   }else{
+    const state={image,src,result:null};photoMatteChecks.set(stage,state);
+    stage.dataset.photoMatte="dark";
+    const current=()=>photoMatteChecks.get(stage)===state&&dialog.open&&image.isConnected&&(image.src||image.currentSrc)===src;
+    void photoMatte(image,current).then(matte=>{
+     if(!current()){if(photoMatteChecks.get(stage)===state)photoMatteChecks.delete(stage);return;}
+     state.result=matte;stage.dataset.photoMatte=matte;
+    });
+   }
+  }
   if(ratio>=1.35&&ratio<=2.2){
    dialog.style.setProperty("--vatra-photo-ratio",String(ratio));
    dialog.style.setProperty("--vatra-photo-inverse",String(1/ratio));
@@ -557,6 +603,7 @@
  const photoLoads=new WeakMap();
  function watchPhotoViewer(dialog,stage,image,path,finish=()=>{}){
   photoLoads.get(stage)?.abort();
+  photoMatteChecks.delete(stage);stage.dataset.photoMatte="dark";
   const controller=new AbortController();photoLoads.set(stage,controller);
   const controls=preparePhotoControls(dialog,stage,image);
   const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);if(controls){controls.ready=true;controls.paint();}finish(image);};
