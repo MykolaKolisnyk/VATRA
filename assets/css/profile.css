@@ -3039,7 +3039,7 @@ body.profile-page .ui-profile-more-panel-001{
  padding:7px;box-sizing:border-box;border:1px solid #dce5f2;border-radius:13px;
  background:#fff;box-shadow:0 16px 44px rgba(27,48,87,.16);color:#334966
 }
-body.profile-page .ui-profile-friend-menu-001{left:0;right:auto;min-width:208px}
+body.profile-page .ui-profile-friend-menu-001{left:0;right:auto;min-width:230px}
 body.profile-page .vatra-profile-friend-menu-action-001,
 body.profile-page .vatra-profile-more-item-001{
  display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;
@@ -3097,7 +3097,7 @@ body.profile-page .profile-actions > button:not([hidden]):where(button){
  min-height:38px;padding:7px 12px;border-radius:9px;
  font:680 12px/1.35 "Onest",system-ui,sans-serif
 }
-body.profile-page .profile-actions:not([hidden]){gap:7px}
+body.profile-page .profile-actions:not([hidden]){gap:9px;align-items:center}
 @media(max-width:600px){
  body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]){
   min-height:42px;height:42px;padding:9px 12px
@@ -3143,7 +3143,6 @@ body.profile-page .profile-photo-comment.is-linked-comment{background:#f2f7ff;bo
 
 body.profile-page #profile-photo-footer-share[hidden],body.profile-page #profile-photo-share[hidden]{display:none!important}
 
-body.profile-page .profile-actions:not([hidden]){gap:9px;align-items:center}
 body.profile-page .profile-actions .ui-profile-friend-action-001>.profile-friend-button:not([hidden]),
 body.profile-page .profile-actions .ui-profile-more-menu-001>.vatra-profile-more-trigger-001,
 body.profile-page .profile-actions>.vatra-profile-contact-button-001:not([hidden]){
@@ -3159,7 +3158,6 @@ body.profile-page .profile-actions>#profile-messenger.is-friend{background:#2865
 body.profile-page .profile-actions>.vatra-profile-contact-button-001[hidden],
 body.profile-page .vatra-profile-contact-button-001>span[hidden]{display:none!important}
 body.profile-page .ui-profile-more-panel-001{width:min(320px,calc(100vw - 32px));min-width:0;padding:8px}
-body.profile-page .ui-profile-friend-menu-001{min-width:230px}
 body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001,
 body.profile-page .vatra-profile-friend-menu-action-001{min-height:46px;gap:12px;padding:10px 12px;font:500 14px/1.4 Onest,system-ui,sans-serif;white-space:normal}
 body.profile-page .ui-profile-more-panel-001 .vatra-profile-more-item-001>svg{width:21px;height:21px;stroke:#3976bc}
