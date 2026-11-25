@@ -1333,8 +1333,8 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  !sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
  sharedCss.includes("max-width:292px;height:36px")&&
- sharedCss.includes("flex:0 0 108px")&&
- sharedCss.includes("flex:0 0 86px")&&
+ sharedCss.includes("flex:0 0 118px")&&
+ sharedCss.includes("flex:0 0 96px")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) 220px!important;")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(290px,54dvh)")&&
