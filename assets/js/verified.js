@@ -6,19 +6,34 @@
   const id=String(value??"");
   if(!client||!(/^[1-9][0-9]{0,18}$/.test(id)))return Promise.resolve(false);
   let state=states.get(client);
-  if(!state){state={cache:new Map(),pending:new Map(),scheduled:false};states.set(client,state);}
+  if(!state){
+   state={cache:new Map(),pending:new Map(),queued:new Set(),scheduled:false,generation:0};
+   states.set(client,state);
+   client.auth?.onAuthStateChange?.(event=>{
+    if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+    state.generation++;state.cache.clear();state.queued.clear();
+    for(const entry of state.pending.values())entry.resolve(false);
+    state.pending.clear();
+   });
+  }
   const cached=state.cache.get(id);
-  if(cached&&cached.until>Date.now())return Promise.resolve(cached.ok);
-  return new Promise(resolve=>{
-   if(!state.pending.has(id))state.pending.set(id,[]);
-   state.pending.get(id).push(resolve);
-   if(state.scheduled)return;
+  if(cached&&cached.until>Date.now()){
+   state.cache.delete(id);state.cache.set(id,cached);return Promise.resolve(cached.ok);
+  }
+  if(cached)state.cache.delete(id);
+  const existing=state.pending.get(id);
+  if(existing)return existing.promise;
+  const entry={resolve:null,promise:null};
+  entry.promise=new Promise(resolve=>{entry.resolve=resolve;});
+  state.pending.set(id,entry);state.queued.add(id);
+  if(!state.scheduled){
    state.scheduled=true;
    queueMicrotask(async()=>{
     state.scheduled=false;
-    const pending=state.pending;state.pending=new Map();
-    const ids=[...pending.keys()];
+    const generation=state.generation,ids=[...state.queued];
+    state.queued.clear();
     for(let offset=0;offset<ids.length;offset+=100){
+     if(state.generation!==generation)return;
      const batch=ids.slice(offset,offset+100);
      let verified=new Set(),success=false;
      try{
@@ -33,19 +48,22 @@
        }
       }
      }catch(_){}
+     if(state.generation!==generation)return;
      if(!success)try{
       const {data,error}=await client.from("verified_accounts").select("vatra_id").in("vatra_id",batch);
       if(!error){verified=new Set((data||[]).map(row=>String(row.vatra_id)));success=true;}
      }catch(_){}
+     if(state.generation!==generation)return;
      for(const key of batch){
-      const ok=verified.has(key);
+      const ok=verified.has(key),waiting=state.pending.get(key);
       if(success)state.cache.set(key,{ok,until:Date.now()+60000});
-      for(const done of pending.get(key))done(ok);
+      state.pending.delete(key);waiting?.resolve(ok);
      }
      while(state.cache.size>500)state.cache.delete(state.cache.keys().next().value);
     }
    });
-  });
+  }
+  return entry.promise;
  }
  let active=null,tip=null,activeMode=null,inputMode="keyboard";
  const labels={

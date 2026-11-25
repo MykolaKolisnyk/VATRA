@@ -120,9 +120,10 @@
   if(!unique.length)return {data:[],error:null};
   if(!client)return {data:[],error:Error("Missing Supabase client")};
   const state=stateFor(client),generation=state.generation,needed=[];
-  const tasks=new Set();
+  const tasks=new Set(),snapshot=new Map();
   for(const id of unique){
-   if(entryFor(state,id)!==undefined)continue;
+   const cached=entryFor(state,id);
+   if(cached!==undefined){snapshot.set(id,cached.row);continue;}
    const existing=state.pending.get(id);
    if(existing)tasks.add(existing);
    else needed.push(id);
@@ -132,12 +133,14 @@
    const task=fetchMissing(client,batch,state).then(data=>{
     if(state.generation!==generation)return;
     const found=new Map(data.map(row=>[validId(row.vatra_id),row]));
+    const results=new Map();
     for(const id of batch){
      const value=found.get(id);
-     remember(state,id,value?
-      {vatra_id:Number(id),display_name:value.display_name,
-       ...(typeof value.verified==="boolean"?{verified:value.verified}:{})}:null);
+     const row=value?{vatra_id:Number(id),display_name:value.display_name,
+       ...(typeof value.verified==="boolean"?{verified:value.verified}:{})}:null;
+     results.set(id,row);remember(state,id,row);
     }
+    return results;
    });
    for(const id of batch)state.pending.set(id,task);
    tasks.add(task);
@@ -147,10 +150,11 @@
    }).catch(()=>{});
   }
   try{
-   await Promise.all(tasks);
+   const results=await Promise.all(tasks);
    if(state.generation!==generation)
     throw Error("Session changed while loading public names");
-   return {data:unique.map(id=>entryFor(state,id)?.row).filter(Boolean).map(row=>({...row})),error:null};
+   for(const rows of results)for(const [id,row] of rows||[])snapshot.set(id,row);
+   return {data:unique.map(id=>snapshot.get(id)).filter(Boolean).map(row=>({...row})),error:null};
   }catch(error){return {data:[],error};}
   finally{if(state.generation===generation)persistTab(state);}
  }
