@@ -162,3 +162,15 @@ for(const id of many){
 assert.ok(readState(a.client).entries.size<=64,
  "Presence snapshots must remain bounded in a long-running tab");
 console.log("VATRA presence cache: single-flight, TTL, session isolation, abort, no stale rows and bounded memory passed.");
+
+{
+ const c=viewer("pressure");
+ const pending=Array.from({length:63},(_,i)=>load(c.client,String(1000+i)));
+ const completed=load(c.client,"2000");
+ c.pending.at(-1).finish({data:profile(2000),error:null});await completed;
+ const newest=load(c.client,"2001");
+ assert.equal(c.pending[0].signal.aborted,false,"Evict a settled row before aborting an active request");
+ assert.ok(readState(c.client).entries.size<=64);
+ c.auth("SIGNED_OUT");await Promise.all([...pending,newest]);
+}
+console.log("VATRA presence: settled-first eviction preserves in-flight requests.");

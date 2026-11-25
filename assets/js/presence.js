@@ -110,7 +110,10 @@ async function load(client,targetId){
  const key=String(targetId),state=presenceReadState(client);
  const previous=state.entries.get(key);
  if(previous){
-  if(previous.pending)return previous.pending.then(value=>value?{...value}:null);
+  if(previous.pending){
+   state.entries.delete(key);state.entries.set(key,previous);
+   return previous.pending.then(value=>value?{...value}:null);
+  }
   if(previous.expires>Date.now()){
    state.entries.delete(key);state.entries.set(key,previous);
    return previous.value?{...previous.value}:null;
@@ -132,8 +135,7 @@ async function load(client,targetId){
     state.entries.delete(key);
     state.entries.set(key,{value:record,expires:Date.now()+
      (record?PRESENCE_READ_TTL_MS:PRESENCE_MISSING_TTL_MS)});
-    while(state.entries.size>PRESENCE_CACHE_MAX)
-     state.entries.delete(state.entries.keys().next().value);
+
    }
    return record?{...record}:null;
   }catch(_){return null;}
@@ -145,7 +147,7 @@ async function load(client,targetId){
  entry.pending=request;
  state.entries.set(key,entry);
  while(state.entries.size>PRESENCE_CACHE_MAX){
-  const oldest=state.entries.keys().next().value;
+  const oldest=[...state.entries].find(([,candidate])=>!candidate.pending)?.[0]??state.entries.keys().next().value;
   const expired=state.entries.get(oldest);
   expired.controller?.abort();
   state.entries.delete(oldest);

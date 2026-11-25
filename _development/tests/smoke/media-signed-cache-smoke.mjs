@@ -423,3 +423,28 @@ console.log("VATRA media: shared viewport observer, batched mounts, removal clea
  assert.equal(env.images.size,3,"Finished image references are capped at three");
 }
 console.log("VATRA media: LRU signed URLs, bounded sprite image references and retry safety verified.");
+
+{
+ const c=makeClient("burst");
+ const tasks=Array.from({length:260},(_,i)=>signed(c.client,"image","9/posts/burst-"+i+".jpg",300));
+ await Promise.all([...tasks,signed(c.client,"image","9/posts/burst-0.jpg",300)]);
+ assert.equal(c.calls,260,"In-flight signatures survive cache pressure");
+ const items=Array.from({length:205},(_,i)=>({media_kind:"image",media_path:"9/posts/batch-"+i+".jpg"}));
+ await preSignGallery(c.client,items,300);
+ assert.equal(c.bulkCalls,3,"Bulk signatures are limited to groups of 100");
+}
+{
+ let auth,active=0;const resolve=[];
+ const c={auth:{onAuthStateChange(fn){auth=fn;}},storage:{from:()=>({createSignedUrl:path=>{
+  active++;return new Promise(done=>resolve.push(()=>done({data:{signedUrl:host+"/"+path},error:null})));
+ }})}};
+ const jobs=Array.from({length:10},(_,i)=>signed(c,"image","9/posts/queued-"+i+".jpg",300));
+ const all=Promise.allSettled(jobs);
+ await Promise.resolve();assert.equal(active,4);
+ auth("SIGNED_OUT",null);
+ assert.ok((await Promise.allSettled(jobs.slice(4))).every(x=>x.status==="rejected"));
+ resolve.forEach(fn=>fn());
+ assert.ok((await all).every(x=>x.status==="rejected"));
+ assert.equal(active,4,"Old queued requests must never reach Storage");
+}
+console.log("VATRA media: bounded bulk requests, cache pressure and queued session cancellation passed.");

@@ -305,7 +305,7 @@
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
-  state={signedURLs:new Map(),bulkPending:new Map(),version:0,active:0,queue:[],viewer:null,token:null};
+  state={signedURLs:new Map(),singlePending:new Map(),bulkPending:new Map(),version:0,active:0,queue:[],viewer:null,token:null};
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange((event,session)=>{
@@ -315,7 +315,9 @@
     state.viewer=viewer;state.token=token;
     state.version++;
     state.signedURLs.clear();
+    state.singlePending.clear();
     state.bulkPending.clear();
+    for(const queued of state.queue.splice(0))queued.cancel();
    });
   }
   return state;
@@ -343,11 +345,12 @@
     state.active++;
     let timer;
     const deadline=new Promise((_,fail)=>{timer=setTimeout(()=>fail(Error("Media signing timed out")),SIGN_TIMEOUT);});
-    Promise.race([Promise.resolve().then(task),deadline]).then(resolve,reject).finally(()=>{
+    Promise.race([Promise.resolve().then(()=>{if(state.version!==version)throw Error("Session changed while signing media");return task();}),deadline]).then(resolve,reject).finally(()=>{
      clearTimeout(timer);state.active--;
      while(state.active<SIGN_LIMIT&&state.queue.length)state.queue.shift()();
     });
    };
+   start.cancel=()=>reject(Error("Session changed while signing media"));
    if(state.active<SIGN_LIMIT)start();else state.queue.push(start);
   });
  }
@@ -360,16 +363,17 @@
    const kind=item?.media_kind,path=item?.media_path;
    if(!["image","video"].includes(kind)||typeof path!=="string")continue;
    const key=ttl+":"+kind+":"+path;
-   const cached=cachedSignedURL(signedURLs,key),pending=state.bulkPending.get(key);
+   const cached=cachedSignedURL(signedURLs,key),pending=state.singlePending.get(key)||state.bulkPending.get(key);
    if(cached){waiting.add(cached.promise);continue;}
    if(pending){waiting.add(pending);continue;}
    if(!grouped.has(kind))grouped.set(kind,new Set());
    grouped.get(kind).add(path);
   }
   for(const [kind,pathSet] of grouped){
-   const paths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
+   const allPaths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
    if(typeof bucket.createSignedUrls!=="function")continue;
-   const keys=paths.map(path=>ttl+":"+kind+":"+path);
+   for(let offset=0;offset<allPaths.length;offset+=100){
+   const paths=allPaths.slice(offset,offset+100),keys=paths.map(path=>ttl+":"+kind+":"+path);
    const pending=(async()=>{
     const {data,error}=await scheduleSigning(state,version,()=>bucket.createSignedUrls(paths,ttl));
     if(error||!Array.isArray(data)||state.version!==version)return;
@@ -382,12 +386,14 @@
       signedURLs.set(keys[i],{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)});
      }catch(_){}
     }
+    trimSignedCache(signedURLs);
    })();
    for(const key of keys)state.bulkPending.set(key,pending);
    waiting.add(pending);
    void pending.finally(()=>{
     for(const key of keys)if(state.bulkPending.get(key)===pending)state.bulkPending.delete(key);
    }).catch(()=>{});
+   }
   }
   await Promise.allSettled([...waiting]);
   trimSignedCache(signedURLs);
@@ -399,6 +405,9 @@
   if(bulk){await bulk.catch(()=>{});if(state.version!==version)throw Error("Session changed while signing media");}
   const entry=cachedSignedURL(signedURLs,key);
   if(entry)return entry.promise;
+  const pending=state.singlePending.get(key);
+  if(pending)return pending;
+  const expiry=Date.now()+Math.max(0,ttl-30)*1000;
   const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl)).then(({data,error})=>{
 
    if(state.version!==version)throw Error("Session changed while signing media");
@@ -406,13 +415,13 @@
    const url=new URL(data.signedUrl);
    if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")
     throw Error("Unexpected signed asset URL");
+   signedURLs.set(key,{expiry,promise:Promise.resolve(url.href)});
+   trimSignedCache(signedURLs);
    return url.href;
-  }).catch(error=>{
-   if(signedURLs.get(key)?.promise===promise)signedURLs.delete(key);
-   throw error;
+  }).finally(()=>{
+   if(state.singlePending.get(key)===promise)state.singlePending.delete(key);
   });
-  signedURLs.set(key,{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise});
-  trimSignedCache(signedURLs);
+  state.singlePending.set(key,promise);
   return promise;
  }
  async function forgetFailedSignedURL(client,kind,path,failedURL,ttl=3600){

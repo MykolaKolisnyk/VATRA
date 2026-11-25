@@ -210,6 +210,36 @@ function renderEmpty(node){
  node.hidden=false;
 }
 const noticeUUID=x=>/^[0-9a-f-]{36}$/i.test(String(x||""));
+async function noticePreviewURL(run,path){
+ if(run!==notificationRun)throw Error("Notification viewer changed");
+ const shared=window.VATRA_POST_MEDIA?.signed;
+ if(typeof shared==="function")return shared(run.client,"image",path,300);
+ const cache=run.previewURLs||(run.previewURLs=new Map());
+ const previous=cache.get(path);
+ if(previous&&(previous.pending||previous.expires>Date.now())){
+  cache.delete(path);cache.set(path,previous);return previous.promise;
+ }
+ if(previous)cache.delete(path);
+ const entry={pending:true,expires:0,promise:null};
+ entry.promise=Promise.resolve().then(async()=>{
+  if(run!==notificationRun)throw Error("Notification viewer changed");
+  const result=await run.client.storage.from("post-images").createSignedUrl(path,300);
+  if(run!==notificationRun||result.error||!result.data?.signedUrl)throw Error("Notification preview unavailable");
+  const url=new URL(result.data.signedUrl);
+  if(url.protocol!=="https:"||url.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")throw Error("Unexpected notification preview URL");
+  entry.expires=Date.now()+270000;
+  return url.href;
+ }).finally(()=>{
+  entry.pending=false;
+  if(!entry.expires&&cache.get(path)===entry)cache.delete(path);
+  for(const [key,value] of cache){
+   if(cache.size<=64)break;
+   if(!value.pending)cache.delete(key);
+  }
+ });
+ cache.set(path,entry);
+ return entry.promise;
+}
 async function enrichNotice(record,body,link){
  const run=notificationRun;
  if(!run||!["post_like","comment_like","avatar_like","avatar_comment_like"].includes(record.kind))return;
@@ -227,7 +257,7 @@ async function enrichNotice(record,body,link){
     kind==="avatar_comment_like"?"id,body,owner_vatra_id,avatar_path":
     "id,body,media_kind,media_path,media_items";
    const result=await run.client.from(table).select(fields).eq("id",record.target_id).maybeSingle();
-   if(result.error||!result.data)return;
+   if(run!==notificationRun||!body.isConnected||result.error||!result.data)return;
    content=result.data;
    if(kind==="comment_like"&&content.post_id){
     const url=new URL("feed",root);url.searchParams.set("post",content.post_id);
@@ -260,12 +290,12 @@ async function enrichNotice(record,body,link){
   body.insertBefore(card,body.querySelector(".vatra-notification-time"));
   if(bucket==="avatars"&&/^\d+\/avatar\/[A-Za-z0-9._-]+$/.test(photoPath)){
    const publicUrl=run.client.storage.from("avatars").getPublicUrl(photoPath)?.data?.publicUrl;
-   if(publicUrl){const thumb=make("img","vatra-notice-preview-thumb-001");thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.src=publicUrl;card.prepend(thumb);}
+   if(publicUrl){const thumb=make("img","vatra-notice-preview-thumb-001");thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.src=publicUrl;card.prepend(thumb);}
   }else if(bucket==="post-images"&&/^\d+\/(?:posts|comments)\/[A-Za-z0-9._-]+\.(?:jpg|png|webp)$/i.test(photoPath)){
-   const result=await run.client.storage.from("post-images").createSignedUrl(photoPath,300);
-   if(!result.error&&result.data?.signedUrl&&body.isConnected){
+   const signedUrl=await noticePreviewURL(run,photoPath);
+   if(run===notificationRun&&card.isConnected){
     const thumb=make("img","vatra-notice-preview-thumb-001");
-    thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.src=result.data.signedUrl;card.prepend(thumb);
+    thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.src=signedUrl;card.prepend(thumb);
    }
   }
  }catch(_){}
@@ -324,6 +354,7 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null,form=nu
  window.VATRA_AVATAR?.fallback(avatar,accountState||"default");
  if(photoUrl&&!accountState){
   const picture=new Image();
+  picture.decoding="async";
   picture.onload=()=>{
    if(!avatar.isConnected)return;
    window.VATRA_AVATAR?.clearFallback(avatar);
@@ -695,8 +726,9 @@ function start(c,id){
    liveChannel=c.channel("vatra-notices-"+run.id)
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"member_notifications",
      filter:"recipient_vatra_id=eq."+run.id},payload=>{
+       if(notificationRun!==run)return;
        refresh(true);
-       if(notificationRun===run&&!document.hidden){
+       if(!document.hidden){
         window.VATRA_SOUNDS?.play?.(["friend_request","friend_accepted","friend_declined"].includes(payload?.new?.kind)?"newFollower":"notification");
         incomingToast(payload?.new);
        }
