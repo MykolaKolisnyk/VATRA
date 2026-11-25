@@ -675,6 +675,64 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    if(image.complete)loaded();
   });
  }
+ const pendingMedia=new Map();
+ let mediaIntersection=null,mediaMountObserver=null;
+ let mediaScanQueued=false;
+ function removeMediaTarget(slot){
+  const entry=pendingMedia.get(slot);
+  if(!entry)return;
+  if(entry.observed)mediaIntersection?.unobserve(slot);
+  clearTimeout(entry.timer);
+  pendingMedia.delete(slot);
+  if(!pendingMedia.size){
+   mediaIntersection?.disconnect();mediaIntersection=null;
+   mediaMountObserver?.disconnect();mediaMountObserver=null;
+  }
+ }
+ function startMediaTarget(slot){
+  const entry=pendingMedia.get(slot);
+  if(!entry)return;
+  removeMediaTarget(slot);
+  if(slot.isConnected)void entry.load();
+ }
+ function scanMediaTargets(){
+  for(const [slot,entry] of pendingMedia){
+   if(!slot.isConnected){
+    if(entry.observed)removeMediaTarget(slot);
+    else if(entry.timer===null)entry.timer=setTimeout(()=>removeMediaTarget(slot),15000);
+    continue;
+   }
+   if(entry.observed)continue;
+   clearTimeout(entry.timer);
+   if(entry.priority<=2||typeof IntersectionObserver!=="function"){
+    startMediaTarget(slot);continue;
+   }
+   if(!mediaIntersection)mediaIntersection=new IntersectionObserver(entries=>{
+    for(const item of entries)
+     if(item.isIntersecting||item.intersectionRatio>0)startMediaTarget(item.target);
+   },{rootMargin:"440px 0px",threshold:0});
+   entry.observed=true;mediaIntersection.observe(slot);
+  }
+ }
+ function watchMediaTarget(slot,priority,load){
+  if(pendingMedia.has(slot))return;
+  const entry={priority,load,observed:false,timer:null};
+  pendingMedia.set(slot,entry);
+  if(mediaScanQueued)return;
+  mediaScanQueued=true;
+  queueMicrotask(()=>{
+   mediaScanQueued=false;
+   scanMediaTargets();
+   if(!pendingMedia.size)return;
+   if(!mediaMountObserver&&typeof MutationObserver==="function"){
+    mediaMountObserver=new MutationObserver(records=>{
+     if(records.some(record=>record.removedNodes.length)||
+        [...pendingMedia.values()].some(value=>!value.observed))scanMediaTargets();
+    });
+    mediaMountObserver.observe(document.documentElement,{childList:true,subtree:true});
+   }
+  });
+ }
  async function mountGallery(client,post,container){
   const id=post.author_vatra_id;
   const media=Array.isArray(post.media_items)?post.media_items.slice(0,GALLERY_LIMIT).filter(item=>
@@ -780,23 +838,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     }finally{tile.removeAttribute("aria-busy");}
    }));
   }
-  const startWhenMounted=()=>{
-   if(!slot.isConnected)return false;
-   if(priority<=2||typeof IntersectionObserver==="undefined"){void loadTiles();return true;}
-   const observer=new IntersectionObserver(entries=>{
-    if(entries.some(entry=>entry.isIntersecting||entry.intersectionRatio>0)){
-     observer.disconnect();void loadTiles();
-    }
-   },{rootMargin:"440px 0px",threshold:0});
-   observer.observe(slot);return true;
-  };
-  queueMicrotask(()=>{
-   if(startWhenMounted())return;
-   if(typeof MutationObserver!=="function")return;
-   const observer=new MutationObserver(()=>{if(startWhenMounted()){observer.disconnect();clearTimeout(timer);}});
-   const timer=setTimeout(()=>observer.disconnect(),15000);
-   observer.observe(document.documentElement,{childList:true,subtree:true});
-  });
+  watchMediaTarget(slot,priority,loadTiles);
   async function openGallery(startIndex){
    let index=startIndex,active=true;
    const current=media[index];
@@ -977,13 +1019,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    slot.append(retry);
   }
 
-  if(priority<=2||typeof IntersectionObserver==="undefined")void load();
-  else{
-   const observer=new IntersectionObserver(entries=>{
-    if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();void load();}
-   },{rootMargin:"440px 0px",threshold:0});
-   observer.observe(slot);
-  }
+  watchMediaTarget(slot,priority,load);
  }
  let photoSourceCleanup=null,photoSourceTicket=0;
  function photoMenuIcon(kind){
