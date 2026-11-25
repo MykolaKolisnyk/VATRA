@@ -5179,7 +5179,7 @@ try{
   assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
   await tileMenu.getByRole("button",{name:language==="en"?"Select multiple":"Вибрати декілька",exact:true}).click();
   await galleryTiles.nth(1).locator("[data-vatra-select-photo]").click();
-  assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),"Вибрано: 2");
+  assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),language==="en"?"Selected: 2":"Вибрано: 2");
   await profilePage.locator(".vatra-album-bulk-more-001").click();
   await profilePage.locator(".vatra-album-bulk-menu-items-001 .vatra-albums-danger-001").click();
   await profilePage.locator(".ui-vatra-albums-confirm-001 .vatra-albums-danger-001").click();
