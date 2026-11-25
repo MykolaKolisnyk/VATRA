@@ -61,15 +61,25 @@ function start(client,ownId,gender){
    if(event==="SIGNED_OUT"&&active===state)stop();
   })?.data?.subscription||null;
  }catch(_){}
+ const pause=()=>{
+  if(state.interval!==null){clearInterval(state.interval);state.interval=null;}
+ };
+ const resume=()=>{
+  if(active!==state||document.visibilityState==="hidden")return;
+  if(state.interval===null)state.interval=setInterval(()=>pulse(false),20000);
+  pulse(true);
+ };
  window.addEventListener("pagehide",event=>{
-  if(active===state&&!event?.persisted)stop();
+  if(active!==state)return;
+  if(event?.persisted)pause();else stop();
  },{signal:state.controller.signal});
- window.addEventListener("pageshow",()=>pulse(true),{signal:state.controller.signal});
- window.addEventListener("focus",()=>pulse(true),{signal:state.controller.signal});
- window.addEventListener("online",()=>pulse(true),{signal:state.controller.signal});
- document.addEventListener("visibilitychange",()=>pulse(true),
-  {passive:true,signal:state.controller.signal});
- state.interval=setInterval(()=>pulse(false),20000);
+ window.addEventListener("pageshow",resume,{signal:state.controller.signal});
+ window.addEventListener("focus",resume,{signal:state.controller.signal});
+ window.addEventListener("online",resume,{signal:state.controller.signal});
+ document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="hidden")pause();else resume();
+ },{passive:true,signal:state.controller.signal});
+ if(document.visibilityState!=="hidden")state.interval=setInterval(()=>pulse(false),20000);
  state.promise=(async()=>{
   if(Date.now()-state.lastSuccessAt>=HEARTBEAT_INTERVAL_MS)return update();
   return true;
