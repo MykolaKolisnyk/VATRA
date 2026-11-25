@@ -71,3 +71,49 @@ for(const page of publicPages){
   page+": duplicate SVG favicon link");
 }
 console.log("VATRA: one canonical HTML per page, bilingual JSON, metadata, and sitemap verified.");
+
+
+// Static Ukrainian descriptions and localized social previews must describe
+// the same page; the social shell must never inherit the feed description.
+const socialPages=["clips","club","communities","friends","gifts","marketplace","notifications","settings","vatra-id"];
+const locales=["uk","en","pl","de","fr","it","ka","bg"];
+const catalogs=await Promise.all(locales.map(async code=>JSON.parse(await read("assets/i18n/"+code+".json"))));
+const {runInNewContext}=await import("node:vm");
+const langSource=await read("assets/js/lang.js");
+const start=langSource.indexOf("  function applyTranslation(table) {");
+const end=langSource.indexOf("  const ready=Promise.all",start);
+assert.ok(start>=0&&end>start,"Find production metadata translation");
+const descriptions=new Set();
+for(const page of [...pages,...socialPages]){
+ const html=await read(page+".html");
+ const matches=[...html.matchAll(/<meta name="description" content="([^"]+)">/g)];
+ assert.equal(matches.length,1,page+": one page-specific description");
+ const source=matches[0][1];
+ assert.ok(!descriptions.has(source),page+": duplicate page description");
+ descriptions.add(source);
+ const previewDescription=html.match(/<meta property="og:description" content="([^"]+)">/)?.[1];
+ if(previewDescription)assert.equal(previewDescription,source,page+": preview description mismatch");
+ if(socialPages.includes(page)){
+  assert.ok(html.includes('name="robots" content="noindex,follow"'),page+": keep private page out of search");
+  for(const [i,table] of catalogs.entries()){
+   assert.ok(typeof table[source]==="string"&&table[source].trim(),locales[i]+": missing social page description");
+   const node={value:source,getAttribute(){return this.value;},setAttribute(_key,value){this.value=value;}};
+   const document={querySelector:()=>node,querySelectorAll:()=>[]};
+   const apply=runInNewContext(langSource.slice(start,end)+"\napplyTranslation;",{document,pageFromPath:()=>page});
+   apply(table);
+   assert.equal(node.value,table[source],locales[i]+": social page metadata must use its own translation");
+  }
+ }else{
+  assert.equal(source,uk.__pages[page].meta.description,page+": static/catalog mismatch");
+  for(const [i,table] of catalogs.entries()){
+   const meta=table.__pages[page].meta;
+   assert.ok(typeof meta.description==="string"&&meta.description.trim(),locales[i]+": missing "+page+" description");
+   if(meta["og:description"])assert.equal(meta["og:description"],meta.description,locales[i]+": "+page+" Open Graph");
+   if(meta["twitter:description"])assert.equal(meta["twitter:description"],meta.description,locales[i]+": "+page+" Twitter");
+  }
+ }
+}
+assert.ok((await read("notifications.html")).includes("вподобання Ваших публікацій, коментарів і фото профілю, заявки в друзі"));
+assert.ok(!(await read("offline.html")).includes("offline-brand ui-offline-brand-001"));
+assert.ok((await read("offline.html")).includes('name="robots" content="noindex,nofollow"'));
+console.log("VATRA: all 24 page descriptions, eight locales, social preview consistency and offline card verified.");
