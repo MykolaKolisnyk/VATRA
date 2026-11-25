@@ -31,7 +31,7 @@
     <script defer src="assets/js/gift-catalog.js?rev=3a4f84bd30f882272cdaa8436e9b4258137d81ee"></script>
     <script defer src="assets/js/guest-view.js?rev=3396dd0c3de7deed25f770ef52c38ae00117a3c5"></script>
     <script defer src="assets/js/feature-loader.js?rev=7327bb97f5dc6312a4628064bae1b687e1dd57b1"></script>
-    <script defer src="assets/js/profile.js?rev=b7c75c60620af884a70d7afbfc6eae569441febb"></script>
+    <script defer src="assets/js/profile.js?rev=eb43eefcd24d03b800478e468ebec194f171966c"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=ee850940789329a9d851901e37d5572d7018dad5"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -208,13 +208,6 @@
                   <path class="ui-profile-block-member-ban-stroke-001" d="m13.9 13.5 6.6 6.6"/>
                 </svg>
               <span id="profile-block-action-label" class="vatra-profile-more-action-label-001">Заблокувати користувача</span></button>
-          <button type="button" id="profile-report-open" class="vatra-profile-more-item-001 vatra-profile-report-open-001" data-shell-aria-uk="Поскаржитися на користувача" data-shell-aria-en="Report member" aria-label="Поскаржитися на користувача" title="Поскаржитися на користувача" hidden>
-                <svg class="ui-profile-report-warning-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path class="ui-profile-report-warning-bubble-001" d="M6 4h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-6.7L6 21v-3a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
-                  <path class="ui-profile-report-warning-mark-001" d="M12 8v5"/>
-                  <circle class="ui-profile-report-warning-dot-001" cx="12" cy="16" r=".9" fill="currentColor" stroke="none"/>
-                </svg>
-              <span class="vatra-profile-more-action-label-002">Поскаржитися</span></button>
          </div>
        </details>
               </div>
@@ -381,18 +374,6 @@
             <button id="profile-confirm-accept" type="button" class="vatra-profile-confirm-accept-001">Підтвердити</button>
           </div>
         </dialog>
-        <dialog id="profile-report-dialog" class="profile-report-dialog ui-profile-report-dialog-001" aria-labelledby="profile-report-heading">
-          <div class="profile-report-head ui-profile-report-head-001">
-            <button id="profile-report-back" type="button" class="vatra-profile-report-back-001" aria-label="Назад" hidden><svg class="ui-profile-report-back-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-report-back-path-001" d="m14.5 5-7 7 7 7"/></svg></button>
-            <h2 id="profile-report-heading" class="vatra-profile-report-heading-001" data-social-uk="Скарга" data-social-en="Report">Скарга</h2>
-            <button id="profile-report-close" type="button" class="vatra-profile-report-close-001" aria-label="Закрити"><svg class="ui-profile-report-close-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-report-close-path-001" d="M6 6l12 12M18 6 6 18"/></svg></button>
-          </div>
-          <div id="profile-report-content" class="profile-report-content ui-profile-report-content-001" aria-live="polite"></div>
-          <p id="profile-report-error" class="vatra-profile-report-error-001" role="alert" hidden></p>
-          <div id="profile-report-footer" class="profile-report-footer ui-profile-report-footer-001" hidden>
-            <button id="profile-report-submit" type="button" class="vatra-profile-report-submit-001" data-social-uk="Надіслати" data-social-en="Submit">Надіслати</button>
-          </div>
-        </dialog>
         <dialog id="profile-status-dialog" class="profile-edit-dialog ui-profile-status-dialog-001" aria-labelledby="profile-status-dialog-heading">
           <form id="profile-status-form" class="profile-edit-form ui-profile-status-form-001">
             <h2 id="profile-status-dialog-heading" class="vatra-profile-status-dialog-heading-001" data-social-uk="Статус" data-social-en="Status">
@@ -471,7 +452,6 @@
                   <div id="profile-photo-footer-menu" class="ui-profile-photo-footer-menu-001" role="menu" aria-label="Додаткові дії">
                     <button id="profile-photo-set-current" class="vatra-profile-photo-set-current-001" type="button" role="menuitem" hidden>Зробити фотографією профілю</button>
                      <a id="profile-photo-original" class="vatra-profile-photo-original-001" target="_blank" rel="noopener noreferrer" role="menuitem">Відкрити оригінал</a>
-                    <button id="profile-photo-report" class="vatra-profile-photo-report-001" type="button" role="menuitem" hidden>Поскаржитися на фото</button>
                   </div>
                 </div>
               </nav>

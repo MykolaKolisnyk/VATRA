@@ -5604,36 +5604,20 @@ try{
   await profilePage.locator("#profile-more-trigger").click();
   const moreColor=await profilePage.locator("#profile-more-panel").evaluate(el=>getComputedStyle(el).backgroundColor);
   assert.equal(moreColor,"rgb(255, 255, 255)","More submenu must not have a dark visual theme");
-  assert.equal(await profilePage.locator("#profile-report-open").isVisible(),true,
-   "Visitor's More menu exposes the report action");
-  assert.equal(await profilePage.locator("#profile-report-open svg").count(),1,
-   "Report action retains the accessible SVG icon in the menu");
-  // A photo-specific report can open above the existing avatar viewer and
-  // binds to a concrete profile-owned avatar path without submitting it.
-  const reportTarget="789012/avatar/test-visitor-photo.webp";
-  await profilePage.evaluate(path=>window.VATRA_REPORT_PROFILE_PHOTO?.(path),reportTarget);
-  assert.equal(await profilePage.locator("#profile-report-dialog").evaluate(el=>el.open),true,
-   "Visitors should be able to report a specific profile photo");
-  assert.ok((await profilePage.locator("#profile-report-content").textContent()).includes(
-   language==="en"?"Why are you reporting this photo?":"Чому ви скаржитеся на цю фотографію?"));
-  await profilePage.locator(".ui-profile-report-option-001").first().click();
-  assert.ok((await profilePage.locator("#profile-report-content").textContent()).includes(
-   language==="en"?"Profile photo":"Фотографія профілю"));
-  assert.ok((await profilePage.locator(".ui-profile-report-photo-preview-001").getAttribute("src")).includes(reportTarget));
-  await profilePage.locator("#profile-report-close").click();
-  assert.equal(await profilePage.locator("#profile-report-dialog").evaluate(el=>el.open),false);
-
-  await profilePage.locator("#profile-more-trigger").click();
+  assert.equal(await profilePage.locator("#profile-report-open").count(),0,"Retired profile report action must be absent");
+  assert.equal(await profilePage.locator("#profile-photo-report").count(),0);
+  assert.equal(await profilePage.locator("#profile-report-dialog").count(),0);
+  assert.equal(await profilePage.evaluate(()=>typeof window.VATRA_REPORT_PROFILE_PHOTO),"undefined");
   assert.equal(await profilePage.locator("#profile-block-toggle").isVisible(),true,
-   "The More menu exposes Block next to Report");
+   "The More menu retains personal blocking");
   assert.equal(await profilePage.locator("#profile-block-toggle svg").count(),1);
   const firstVisitorName=(await profilePage.locator("#profile-heading").textContent()).trim().split(/\s+/)[0];
   assert.ok((await profilePage.locator("#profile-block-toggle").getAttribute("aria-label")).includes(firstVisitorName),
    "Block action must identify only the first name, not the surname");
   assert.equal(await profilePage.locator(".ui-profile-block-member-icon-001").count(),1,
    "VATRA block icon should depict a member with a prohibition marker");
-  assert.equal(await profilePage.locator(".ui-profile-report-warning-icon-001").count(),1,
-   "VATRA report icon should depict a warning in a message bubble");
+  assert.equal(await profilePage.locator(".ui-profile-report-warning-icon-001").count(),0,
+   "Retired report icon must be absent");
   await profilePage.locator("#profile-block-toggle").click();
   assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),true,
    "Blocking opens a custom styled dialog instead of window.confirm");

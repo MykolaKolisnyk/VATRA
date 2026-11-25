@@ -1196,8 +1196,8 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
  profileMarkup.includes('id="profile-gifts-preview"')&&
  profileMarkup.includes('id="profile-tab-clips"')&&
  profileMarkup.includes('id="profile-tab-communities"')&&
- profileMarkup.includes('id="profile-report-dialog"')&&
- profileMarkup.includes('id="profile-report-open"')&&
+ !profileMarkup.includes('id="profile-report-dialog"')&&
+ !profileMarkup.includes('id="profile-report-open"')&&
  profileMarkup.includes('id="profile-friend-button"')&&
  !profileMarkup.includes('id="profile-message-button"')&&
  !profileMarkup.includes('id="profile-message-dialog"')&&
@@ -1815,9 +1815,9 @@ assert.ok(
  renamedLikerAndReports.includes("insert into public.post_like_members(")&&
  renamedLikerAndReports.includes("CREATE VIEW public.vatra_profile_reports WITH (security_invoker = true)")&&
  renamedLikerAndReports.includes("GRANT INSERT ON TABLE public.vatra_profile_reports TO authenticated;")&&
- profileScript.includes('client.from("profile_reports").insert(')&&
+ !profileScript.includes('client.from("profile_reports").insert(')&&
  !profileScript.includes('client.from("vatra_profile_reports")'),
- "Profile reports and public like membership tables must retain RLS and legacy client write support");
+ "Historical report migration remains reproducible; retired reporting must not issue new writes");
 
 const socialDomainMigration=await read("_development/supabase/migrations/20261113175644_rename_fourteen_social_tables_with_rls_compatibility.sql");
 const socialDomainPairs=[
@@ -1937,7 +1937,7 @@ assert.ok(
 assert.ok(
  memberProfileMarkup.includes('id="profile-block-toggle"')&&
  memberProfileMarkup.includes('ui-profile-block-member-icon-001')&&
- memberProfileMarkup.includes('ui-profile-report-warning-icon-001')&&
+ !memberProfileMarkup.includes('ui-profile-report-warning-icon-001')&&
  profileBehavior.includes('function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess)')&&
  profileBehavior.includes('client.from("member_blocks")')&&
  profileBehavior.includes('blockAccess.blockedByThem')&&
@@ -2234,17 +2234,16 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
 
 const photoReportMigration=await read("_development/supabase/migrations/20261121081853_add_specific_avatar_photo_reports.sql");
 const photoReportNotNull=await read("_development/supabase/migrations/20261121082718_require_path_for_specific_avatar_reports.sql");
-assert.ok(memberProfileMarkup.includes('id="profile-photo-report"')&&
- profileScript.includes('window.VATRA_REPORT_PROFILE_PHOTO=path')&&
- profileScript.includes('category="specific_photo"')&&
- profileScript.includes('photo_path:photoPath')&&
+assert.ok(!memberProfileMarkup.includes('id="profile-photo-report"')&&
+ !profileScript.includes('VATRA_REPORT_PROFILE_PHOTO')&&
+ !profileScript.includes('photo_path:photoPath')&&
  !memberProfileMarkup.includes('id="profile-photo-footer-tag"')&&
  !profileScript.includes('footerTag.addEventListener("click"')&&
  memberCss.includes('object-fit:contain')&&
  photoReportMigration.includes("profile_reports_photo_reference_check")&&
  photoReportMigration.includes("profile_reports_unique_target_reason_photo")&&
  photoReportNotNull.includes("photo_path IS NOT NULL"),
- "Avatar gallery labels and secure per-photo moderation reporting must remain available");
+ "Retired avatar reporting is absent; gallery layout and migration history remain intact");
 
 assert.ok(
  memberCss.includes('body.profile-page .profile-media-viewer[open]{\n display:grid;grid-template-columns:minmax(0,1fr) clamp(318px,25vw,415px)')&&
@@ -2744,7 +2743,7 @@ assert.ok(marketplaceRuntime.includes("IntersectionObserver")&&marketplaceRuntim
 assert.ok(marketplaceRuntime.includes('import(new URL("assets/js/marketplace-editor.js?rev=')&&clipsRuntime.includes('import(new URL("assets/js/clip-composer.js?rev='));
 await assert.rejects(stat("assets/js/sections.js"),{code:"ENOENT"});
 await assert.rejects(stat("assets/css/sections.css"),{code:"ENOENT"});
-assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
+assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&!sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
 assert.ok(sectionsRuntime.includes('photo.multiple=true')&&sectionsRuntime.includes('image_paths:paths')&&sectionsRuntime.includes('photoPaths(row)')&&sectionsRuntime.includes('ui-vatra-market-sidebar-scroll-001')&&sectionsRuntime.includes('const marketLimit=10')&&sectionsRuntime.includes('ui-vatra-market-editor-preview-001')&&sectionsStyle.includes('ui-vatra-market-detail-thumbs-001'),
  "Marketplace uses independent sidebar scrolling, ten photos and live preview");
 const marketCatalogSource=sectionsRuntime.slice(sectionsRuntime.indexOf("const categories="),sectionsRuntime.indexOf("const marketConditions="));
