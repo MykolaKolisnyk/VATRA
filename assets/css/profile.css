@@ -3171,3 +3171,12 @@ body.profile-page .profile-content-panel:is([data-profile-panel="photos"],[data-
 
 body.profile-page .vatra-toast-item-001{pointer-events:none}
 body.profile-page .vatra-toast-item-001 :is(.vatra-toast-close-001,.vatra-toast-action-001){pointer-events:auto}
+
+/* Social placeholders occupy the whole preview grid, not a single grid cell. */
+body.profile-page .ui-vatra-profile-social-skeleton-001{grid-column:1/-1;justify-self:stretch;width:100%;min-width:0}
+body.profile-page .profile-friends-preview-grid>.ui-vatra-profile-social-skeleton-001{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:6px;row-gap:10px}
+body.profile-page .profile-friends-preview-grid .vatra-section-skeleton-item-001{gap:4px}
+body.profile-page .profile-friends-preview-grid .vatra-section-skeleton-visual-001{width:min(100%,68px);height:auto;aspect-ratio:1;border-radius:50%;flex:none}
+body.profile-page .profile-friends-preview-grid .vatra-section-skeleton-line-001{height:10px;width:min(72%,52px);flex:none}
+body.profile-page .profile-gifts-preview-grid .vatra-section-skeleton-visual-001{width:min(100%,104px);height:auto;aspect-ratio:1;flex:none}
+@media(max-width:450px){body.profile-page .profile-friends-preview-grid>.ui-vatra-profile-social-skeleton-001{column-gap:4px}}

@@ -709,12 +709,13 @@ function appendAudience(container,level,isGroup=false){
     const label=stored?tr("Прибрати зі збереженого","Remove from saved"):tr("Зберегти","Save");
     saved.querySelector("span").textContent=label;
     saved.setAttribute("aria-label",label);saved.title=label;};
-   const hydrateSaved=()=>{
+   const hydrateSaved=(retry=false)=>{
     if(saveReady)return Promise.resolve(true);
     if(savePending)return savePending;
     savePending=(async()=>{
      const current=await initialSnapshot;
      if(current){stored=!!current.viewer_saved;saveReady=true;refresh();return true;}
+     if(initialEngagement&&!retry)return false;
      const {data,error}=await client.from("post_saves").select("post_id")
       .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id).maybeSingle();
      if(error)throw error;
@@ -733,7 +734,7 @@ function appendAudience(container,level,isGroup=false){
    saved.addEventListener("click",async()=>{
     if(saved.disabled)return;saved.disabled=true;
     try{
-     if(!await hydrateSaved())throw Error("Save state unavailable");
+     if(!await hydrateSaved(true)&&!await hydrateSaved(true))throw Error("Save state unavailable");
      const result=stored?await client.from("post_saves").delete()
       .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id)
       .select("post_id").maybeSingle():
@@ -764,11 +765,12 @@ function appendAudience(container,level,isGroup=false){
    like.classList.toggle("is-liked",liked);
   }
   const likeFilter=query=>query.eq("post_kind",kind).eq("post_id",post.id);
-  const hydrateLike=()=>{
+  const hydrateLike=(retry=false)=>{
    if(likeReady)return Promise.resolve();
    if(likePending)return likePending;
    likePending=(async()=>{
     let current=await initialSnapshot;
+    if(!current&&initialEngagement&&!retry){count.textContent="";return;}
     if(!current){
      const snapshotMap=await prefetchEngagement(client,[{kind,id:post.id}]);
      current=snapshotMap.get(kind+":"+post.id);
@@ -779,7 +781,7 @@ function appendAudience(container,level,isGroup=false){
     count.textContent=String(Math.max(0,likeCount));
     like.setAttribute("aria-pressed",String(liked));
     like.classList.toggle("is-liked",liked);
-   })().catch(()=>feedback(tr("Вподобання тимчасово недоступні.","Likes temporarily unavailable."),true))
+   })().catch(()=>{count.textContent="";})
     .finally(()=>{likePending=null;});
    return likePending;
   };
@@ -793,7 +795,8 @@ function appendAudience(container,level,isGroup=false){
    if(like.disabled)return;
    like.disabled=true;feedback("");
    try{
-    if(!likeReady)await hydrateLike();
+    if(!likeReady)await hydrateLike(true);
+    if(!likeReady)await hydrateLike(true);
     if(!likeReady)throw Error("Likes unavailable");
     const result=liked?
      await likeFilter(client.from("post_likes").delete()).eq("liker_id",userId)
@@ -1612,7 +1615,7 @@ function appendAudience(container,level,isGroup=false){
    const ticket=++socialTicket;
    void initialSnapshot.then(current=>{
     if(!shell.isConnected||ticket!==socialTicket)return;
-    if(!current){void refreshSocial();return;}
+    if(!current){commentsCount.textContent="";sharesCount.textContent="";return;}
     commentsCount.textContent=String(Math.max(0,Number(current.comment_count)||0));
     sharesCount.textContent=String(Math.max(0,Number(current.share_count)||0));
    });
