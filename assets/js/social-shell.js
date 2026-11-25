@@ -477,7 +477,7 @@
 
    const compact=vw<=600;
    const left=compact?ox+6:Math.max(ox,anchor.left-12);
-   const width=Math.max(1,Math.min(ox+vw-left-(compact?6:12),expanded?790:Math.max(360,inputBox.right-left+12)));
+   const width=Math.max(1,Math.min(ox+vw-left-(compact?6:12),compact?vw-12:expanded?790:Math.max(360,inputBox.right-left+12)));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(headerBottom)+"px";
