@@ -4,9 +4,9 @@ const root=new URL("../../",document.currentScript.src);
 const t=(uk,en)=>{const code=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";if(code==="uk")return uk;if(code==="en")return en;return window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
 const node=(tag,cls,copy)=>{const el=document.createElement(tag);el.className=cls;if(copy!==undefined)el.textContent=copy;return el;};
 const button=(cls,copy,fn)=>{const b=node("button",cls,copy);b.type="button";b.addEventListener("click",fn);return b;};
-let context=null,epoch=0,subscription=null,blockedDialog=null,announcementsPromise=null,announcementsModule=null;
+let context=null,epoch=0,subscription=null,blockedDialog=null;
 const valid=id=>/^[1-9][0-9]{0,18}$/.test(String(id||""));
-function clear(){epoch++;announcementsModule?.stop();blockedDialog?.remove();blockedDialog=null;subscription?.unsubscribe?.();subscription=null;context=null;}
+function clear(){epoch++;blockedDialog?.remove();blockedDialog=null;subscription?.unsubscribe?.();subscription=null;context=null;}
 async function session(client,id){
  if(!client||!valid(id))return;if(context?.client===client&&context.id===id)return;
  clear();const current={client,id};context=current;const ticket=epoch;
@@ -15,13 +15,8 @@ async function session(client,id){
  const {data:state,error}=await client.from("account_states").select("state,blocked_until").eq("vatra_id",id).maybeSingle();
  if(ticket!==epoch)return;
  if(!error&&(state?.state==="deleted"||state?.state==="blocked"&&(!state.blocked_until||Date.parse(state.blocked_until)>Date.now()))){showBlocked(client,state);return;}
- void loadAnnouncements().then(module=>{if(ticket===epoch&&context===current)void module.start(client,id,()=>ticket===epoch&&context===current);}).catch(()=>{});
 
  }catch(_){}
-}
-function loadAnnouncements(){
- if(!announcementsPromise)announcementsPromise=import(new URL("assets/js/announcements.js?rev=00dda73fd10196ae9c9a4085a72c9280934b8d35",root).href).then(module=>{announcementsModule=module;return module;}).catch(error=>{announcementsPromise=null;throw error;});
- return announcementsPromise;
 }
 function showBlocked(client,state){
  if(blockedDialog)return;
