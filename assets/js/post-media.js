@@ -500,7 +500,7 @@
  }
  function fitPhotoViewer(dialog,stage,image,path){
   if(!dialog||!stage||!image?.naturalWidth||!image.naturalHeight)return;
-  stage.dataset.photoMatte=photoMatte(path||image.currentSrc||image.src);
+  if(path||!stage.dataset.photoMatte)stage.dataset.photoMatte=photoMatte(path||image.currentSrc||image.src);
   const vw=window.visualViewport?.width||innerWidth,vh=window.visualViewport?.height||innerHeight;
   const side=dialog.querySelector(".profile-avatar-engagement,.ui-vatra-post-media-side-001");
   const footer=dialog.querySelector(".ui-profile-photo-footer-001,.ui-vatra-post-media-footer-001,.ui-vatra-album-viewer-bottom-001");
@@ -538,11 +538,14 @@
    incoming.finished.then(()=>{if(photoSlides.get(stage)===state)clearPhotoSlide(stage);},()=>{});
   };
  }
+ const photoLoads=new WeakMap();
  function watchPhotoViewer(dialog,stage,image,path,finish=()=>{}){
-  const loaded=()=>{if(!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);finish(image);};
-  if(image.complete&&image.naturalWidth)queueMicrotask(loaded);else image.addEventListener("load",loaded,{once:true});
+  photoLoads.get(stage)?.abort();
+  const controller=new AbortController();photoLoads.set(stage,controller);
+  const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);finish(image);};
+  if(image.complete&&image.naturalWidth)queueMicrotask(loaded);else image.addEventListener("load",loaded,{once:true,signal:controller.signal});
  }
-function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false,direction=0){
+function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false,direction=0,sourcePath=null){
   if(!mediaDialog){
    mediaDialog=document.createElement("dialog");
    mediaDialog.id="vatra-post-media-viewer";
@@ -622,7 +625,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    mediaDialog.addEventListener("close",()=>{
     const video=mediaDialogContent.querySelector("video");
     if(video){video.pause();video.removeAttribute("src");video.load();}
-    clearPhotoSlide(mediaDialogContent);delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;
+    clearPhotoSlide(mediaDialogContent);photoLoads.get(mediaDialogContent)?.abort();delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;
     mediaDialogContent.replaceChildren();restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();mediaFooterDelete.hidden=true;
    });
    document.body.append(mediaDialog);
@@ -634,7 +637,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),kind==="image"?direction:0);
   const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
   element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
-  if(kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,url,finishSlide);
+  if(kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,sourcePath||post?.media_path||url,finishSlide);
   else{delete mediaDialog.dataset.photoSized;delete mediaDialogContent.dataset.photoMatte;}
   restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
@@ -919,7 +922,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    try{
     const initial=await signed(client,current.media_kind,current.media_path);
     if(!slot.isConnected)return;
-    openFullMedia(initial,current.media_kind,container,post,client);
+    openFullMedia(initial,current.media_kind,container,post,client,false,0,current.media_path);
    }catch(_){return;}
    const controller=new AbortController();
    mediaDialog.addEventListener("close",()=>{active=false;controller.abort();},{once:true});
@@ -1164,7 +1167,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    try{await verifyAuthor();}catch(_){}
    if(ticket!==photoSourceTicket){host.remove();createdDialogs.forEach(dialog=>dialog.remove());return;}
    restoreMediaPanel?.();restoreMediaPanel=null;photoSourceCleanup?.();
-   openFullMedia(src,"image",host,post,client,true,settings.direction||0);
+   openFullMedia(src,"image",host,post,client,true,settings.direction||0,item.media_path);
    if(mediaDialog?.open){
     const controller=new AbortController();
     photoSourceCleanup=()=>{controller.abort();host.remove();createdDialogs.forEach(dialog=>dialog.remove());};
