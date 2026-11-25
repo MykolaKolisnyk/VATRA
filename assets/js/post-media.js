@@ -517,12 +517,25 @@
   const src=image.currentSrc||image.src;
   const inspect=async blob=>{
    if(!blob||!isCurrent())return "unknown";
-   const bitmap=await createImageBitmap(blob);
-   try{return await readPhotoAlpha({naturalWidth:bitmap.width,naturalHeight:bitmap.height,bitmap},isCurrent);}
-   finally{bitmap.close();}
+   if(typeof createImageBitmap==="function"){
+    try{
+     const bitmap=await createImageBitmap(blob);
+     try{return await readPhotoAlpha({naturalWidth:bitmap.width,naturalHeight:bitmap.height,bitmap},isCurrent);}
+     finally{bitmap.close();}
+    }catch(_){}
+   }
+   const url=URL.createObjectURL(blob);
+   try{
+    const copy=new Image();copy.src=url;await copy.decode();
+    return await readPhotoAlpha(copy,isCurrent);
+   }finally{URL.revokeObjectURL(url);}
   };
   if(typeof readOriginal==="function"){
-   try{const matte=await inspect(await readOriginal());if(matte!=="unknown")return matte;}catch(_){}
+   let timer;
+   try{
+    const blob=await Promise.race([Promise.resolve().then(readOriginal),new Promise(resolve=>{timer=setTimeout(()=>resolve(null),8000);})]);
+    const matte=await inspect(blob);if(matte!=="unknown")return matte;
+   }catch(_){}finally{clearTimeout(timer);}
   }
   if(src&&isCurrent()){
    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
