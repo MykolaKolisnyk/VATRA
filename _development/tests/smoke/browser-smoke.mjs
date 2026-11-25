@@ -169,6 +169,50 @@ try{
   assert.ok(geometry.every(g=>Math.abs(g.emptyOffset)<=5),
    "Empty photo comments must be vertically centered in every viewer: "+JSON.stringify(geometry));
   console.log("VATRA three viewer sidebars: common author/actions/empty/composer geometry passed.");
+  const navFixtures=[
+   ["post","ui-vatra-post-media-viewer-content-001","vatra-post-gallery-nav-prev","vatra-post-gallery-nav-next"],
+   ["avatar","ui-profile-photo-content-001","vatra-profile-avatar-prev-001","vatra-profile-avatar-next-001"],
+   ["album","ui-vatra-post-media-viewer-content-001 ui-vatra-album-viewer-media-001","vatra-post-gallery-nav-prev","vatra-post-gallery-nav-next"]
+  ].map(([id,stage,left,right])=>'<section id="arrow-'+id+'" class="'+stage+
+   '" data-photo-matte="dark" style="position:relative;width:300px;height:200px;flex:none">'+
+   '<button class="'+left+'" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor"/></svg></button>'+
+   '<button class="'+right+'" aria-label="Next"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor"/></svg></button></section>').join("");
+  await viewerGeometryPage.setContent('<!doctype html><html><head>'+
+   '<link rel="stylesheet" href="'+base+'assets/css/feed.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/profile.css">'+
+   '<link rel="stylesheet" href="'+base+'assets/css/photo-albums.css"></head>'+
+   '<body class="feed-page profile-page"><main style="display:flex;gap:18px;padding:24px">'+navFixtures+
+   '</main></body></html>',{waitUntil:"load"});
+  for(const id of ["post","avatar","album"]){
+   const stage=viewerGeometryPage.locator("#arrow-"+id);
+   const left=stage.getByRole("button",{name:"Previous"}),right=stage.getByRole("button",{name:"Next"});
+   for(const [matte,color,hover,outline] of [
+    ["dark","rgb(255, 255, 255)","rgba(21, 27, 39, 0.91)","rgb(16, 20, 28)"],
+    ["white","rgb(49, 68, 95)","rgba(237, 242, 248, 0.96)","rgb(255, 255, 255)"]
+   ]){
+    await viewerGeometryPage.mouse.move(1380,890);
+    await stage.evaluate((el,value)=>{el.dataset.photoMatte=value;},matte);
+    for(const button of [left,right]){
+     const actual=await button.evaluate(el=>({color:getComputedStyle(el).color,filter:getComputedStyle(el.querySelector("svg")).filter,background:getComputedStyle(el).backgroundColor}));
+     assert.equal(actual.color,color,id+" "+matte+" navigation color");
+     assert.ok(actual.filter.includes(outline),id+" "+matte+" navigation must have a contrasting outline");
+     assert.equal(actual.background,"rgba(0, 0, 0, 0)");
+     await button.hover();
+     await viewerGeometryPage.waitForFunction(({id,label,hover})=>{
+      const button=document.querySelector("#arrow-"+id+' button[aria-label="'+label+'"]');
+      const bg=getComputedStyle(button).backgroundColor;
+      const rgba=bg.match(/[\d.]+/g)?.map(Number),expected=hover.match(/[\d.]+/g).map(Number);
+      return rgba?.length===4&&rgba.slice(0,3).every((n,i)=>n===expected[i])&&Math.abs(rgba[3]-expected[3])<.02;
+     },{id,label:await button.getAttribute("aria-label"),hover});
+     await viewerGeometryPage.mouse.move(1380,890);
+     await viewerGeometryPage.waitForFunction(({id,label})=>getComputedStyle(document.querySelector("#arrow-"+id+' button[aria-label="'+label+'"]')).backgroundColor==="rgba(0, 0, 0, 0)",{id,label:await button.getAttribute("aria-label")});
+    }
+   }
+   await left.evaluate(el=>{el.disabled=true;});
+   await right.focus();
+   assert.equal(await left.evaluate(el=>getComputedStyle(el).pointerEvents),"none");
+  }
+  console.log("VATRA photo navigation: both matte colors, contrast outlines, hover backgrounds and disabled controls verified across three viewer types.");
  }finally{await viewerGeometryPage.close();}
 
  // Simulate previously cached stylesheet/JS content after a deployment.
