@@ -805,7 +805,6 @@ async function pageBoot(){
    const query=pick("#feed-search-input")?.value.trim()||"";
    location.href=new URL("feed"+(query?"?q="+encodeURIComponent(query):""),root).href;
   });
-  document.title=t("Сповіщення","Notifications");
   pick("#feed-app").hidden=false;pick("#feed-loading").hidden=true;
   document.body.dataset.authReady="true";document.body.classList.remove("vatra-shell-pending");
   start(clientRef,id);pageUI();

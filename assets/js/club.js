@@ -199,7 +199,6 @@ async function openClub(client,ownId,userId){
   $("#club-public-id").textContent="";
   $("#club-description").textContent=t("Ця спільнота не існує або її видалено.",
    "This community does not exist or was deleted.");
-  document.title=t("Спільноту не знайдено","Community not found");
  };
  if(!idPattern.test(number)){displayError();return;}
  const {data,error}=await fetchPublicClub(client,number);
@@ -213,7 +212,6 @@ async function openClub(client,ownId,userId){
  $("#club-public-id").textContent="Club ID "+String(data.club_id);
  $("#club-description").textContent=data.description||
   t("Опису поки немає.","No description yet.");
- document.title=data.name;
  await setupClubSocial(client,String(data.club_id),ownId,userId);
  const linkedId=query.get("post");
  const suffix=postPattern.test(linkedId||"")?"?post="+encodeURIComponent(linkedId):"";

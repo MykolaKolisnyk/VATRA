@@ -68,7 +68,8 @@
     },
     "maintenance": {
       "meta": {
-        "title": "Prace techniczne"
+        "title": "Prace techniczne",
+        "description": "Tymczasowe prace techniczne w VATRA."
       },
       "nodes": {
         "maintenance-kicker": {
@@ -286,7 +287,7 @@
     "feed": {
       "meta": {
         "title": "Aktualności",
-        "description": "Posty i historie w VATRA."
+        "description": "Przeglądaj posty i historie znajomych oraz społeczności w VATRA."
       },
       "nodes": {
         "n12": {
@@ -366,7 +367,7 @@
     "profile": {
       "meta": {
         "title": "Moja strona",
-        "description": "Twoja strona w VATRA."
+        "description": "Przeglądaj swój profil, zdjęcia i posty w VATRA."
       },
       "nodes": {
         "n42": {
@@ -425,7 +426,8 @@
     },
     "offline": {
       "meta": {
-        "title": "Brak połączenia"
+        "title": "Brak połączenia",
+        "description": "Brak połączenia z internetem. Sprawdź połączenie i spróbuj ponownie."
       },
       "nodes": {
         "n6": {
@@ -458,7 +460,10 @@
     "verify": {
       "meta": {
         "title": "Weryfikacja",
-        "description": "Potwierdź swój adres e-mail."
+        "description": "Potwierdź adres e-mail swojego konta VATRA.",
+        "og:title": "Weryfikacja · VATRA",
+        "og:description": "Potwierdź adres e-mail swojego konta VATRA.",
+        "og:locale": "pl_PL"
       },
       "nodes": {
         "n4": {
@@ -489,7 +494,7 @@
         "description": "Utwórz konto w VATRA — ukraińskiej sieci społecznościowej do rozmów, społeczności i twórczości.",
         "og:locale": "pl_PL",
         "og:title": "Utwórz konto · VATRA",
-        "og:description": "VATRA — ukraińska sieć społecznościowa. Twoi ludzie. Twoje historie. Twoja VATRA.",
+        "og:description": "Utwórz konto w VATRA — ukraińskiej sieci społecznościowej do rozmów, społeczności i twórczości.",
         "og:image:alt": "Oficjalna ikona VATRA"
       },
       "nodes": {
@@ -902,7 +907,7 @@
         "description": "Odzyskaj dostęp do konta VATRA — ukraińskiej sieci społecznościowej.",
         "og:locale": "pl_PL",
         "og:title": "Odzyskiwanie hasła · VATRA",
-        "og:description": "VATRA — ukraińska sieć społecznościowa. Twoi ludzie. Twoje historie. Twoja VATRA.",
+        "og:description": "Odzyskaj dostęp do konta VATRA — ukraińskiej sieci społecznościowej.",
         "og:image:alt": "Oficjalna ikona VATRA"
       },
       "nodes": {
@@ -1078,7 +1083,7 @@
         "description": "Utwórz nowe hasło do VATRA — ukraińskiej sieci społecznościowej.",
         "og:locale": "pl_PL",
         "og:title": "Nowe hasło · VATRA",
-        "og:description": "VATRA — ukraińska sieć społecznościowa. Twoi ludzie. Twoje historie. Twoja VATRA.",
+        "og:description": "Utwórz nowe hasło do VATRA — ukraińskiej sieci społecznościowej.",
         "og:image:alt": "Oficjalna ikona VATRA"
       },
       "nodes": {
@@ -1234,7 +1239,7 @@
         "description": "Zasady VATRA: konta, publikacje, społeczności, prawa autorskie, marketplace i bezpieczeństwo.",
         "og:locale": "pl_PL",
         "og:title": "Warunki korzystania — VATRA",
-        "og:description": "Warunki korzystania z VATRA: rejestracja, dostęp do konta i bezpieczeństwo."
+        "og:description": "Zasady VATRA: konta, publikacje, społeczności, prawa autorskie, marketplace i bezpieczeństwo."
       },
       "nodes": {
         "n1": {
@@ -1561,7 +1566,7 @@
         "description": "Polityka prywatności VATRA, ukraińskiej sieci społecznościowej. Jak przetwarzamy dane osobowe.",
         "og:locale": "pl_PL",
         "og:title": "Prywatność — VATRA",
-        "og:description": "Polityka prywatności VATRA: jak przetwarzane są dane osobowe."
+        "og:description": "Polityka prywatności VATRA, ukraińskiej sieci społecznościowej. Jak przetwarzamy dane osobowe."
       },
       "nodes": {
         "n1": {
@@ -4091,5 +4096,14 @@
   "Виберіть фото JPEG, PNG, WebP до 6 МБ або відео MP4, WebM до 50 МБ.": "Wybierz zdjęcie JPEG, PNG, WebP do 6 MB albo wideo MP4, WebM do 50 MB.",
   "Не вдалося відкрити файл.": "Nie udało się otworzyć pliku.",
   "Не вдалося зберегти медіафайл історії. Повторіть спробу з новим файлом.": "Nie udało się zweryfikować pliku relacji. Spróbuj ponownie z nowym plikiem.",
-  "Не вдалося опублікувати історію. Спробуйте ще раз.": "Nie udało się opublikować relacji. Spróbuj ponownie."
+  "Не вдалося опублікувати історію. Спробуйте ще раз.": "Nie udało się opublikować relacji. Spróbuj ponownie.",
+  "Переглядайте короткі відео та діліться власними кліпами у VATRA.": "Oglądaj krótkie filmy i udostępniaj własne klipy w VATRA.",
+  "Переглядайте публікації, учасників та інформацію про спільноту у VATRA.": "Przeglądaj posty, członków i informacje o społeczności w VATRA.",
+  "Знаходьте спільноти за інтересами, приєднуйтеся до них і створюйте власні у VATRA.": "Odkrywaj społeczności według zainteresowań, dołączaj do nich i twórz własne w VATRA.",
+  "Переглядайте друзів, надсилайте та приймайте заявки в друзі у VATRA.": "Przeglądaj znajomych oraz wysyłaj i akceptuj zaproszenia w VATRA.",
+  "Переглядайте віртуальні подарунки та даруйте їх користувачам VATRA.": "Przeglądaj wirtualne prezenty i obdarowuj użytkowników VATRA.",
+  "Знаходьте товари й розміщуйте власні оголошення на маркетплейсі VATRA.": "Znajduj produkty i publikuj własne ogłoszenia na rynku VATRA.",
+  "Переглядайте вподобання Ваших публікацій, коментарів і фото профілю, заявки в друзі та відповіді на них у VATRA.": "Sprawdzaj polubienia swoich postów, komentarzy i zdjęć profilowych, zaproszenia do znajomych oraz odpowiedzi na nie w VATRA.",
+  "Керуйте налаштуваннями акаунта, конфіденційності та сповіщень у VATRA.": "Zarządzaj ustawieniami konta, prywatności i powiadomień w VATRA.",
+  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "Sprawdź informacje o swoim VATRA ID — unikalnym identyfikatorze konta."
 }

@@ -30,40 +30,6 @@
   const current = localFile ? "uk" : preferred();
 
 
-  const titleSources={
-    index:"VATRA — ласкаво просимо до своїх","create-account":"Реєстрація",feed:"Стрічка",friends:"Друзі",gifts:"Подарунки",notifications:"Сповіщення",profile:"Профіль",verify:"Підтвердження",communities:"Спільноти",club:"Спільнота",clips:"Кліпи",marketplace:"Маркетплейс","vatra-id":"VATRA ID",forgot:"Відновлення пароля",reset:"Новий пароль","404":"Сторінку не знайдено",terms:"Умови використання",commerce:"Правила торгівлі VATRA",documents:"Документи VATRA",privacy:"Конфіденційність",cookies:"Cookies",offline:"Немає з’єднання",maintenance:"Технічні роботи"
-  };
-  const instantEnglishTitles={
-    index:"VATRA — welcome to your people","create-account":"Create account",feed:"Feed",friends:"Friends",gifts:"Gifts",notifications:"Notifications",profile:"My profile",verify:"Verification",communities:"Communities",club:"Community",clips:"Clips",marketplace:"Marketplace","vatra-id":"VATRA ID",
-    forgot:"Password recovery",reset:"New password",
-    "404":"Page not found",
-    terms:"Terms of Service",commerce:"Commerce Rules",documents:"VATRA Documents",privacy:"Privacy",
-    cookies:"Cookies and browser storage",offline:"No connection",maintenance:"Maintenance"
-  };
-  if(current==="en"){
-    const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
-    const dynamicMember=/^id[1-9][0-9]{0,18}$/.test(segment);
-    const dynamicClub=/^club[1-9][0-9]{0,18}$/.test(segment);
-
-
-    const title=dynamicMember?instantEnglishTitles.profile:
-      dynamicClub?instantEnglishTitles.club:
-      instantEnglishTitles[segment]||instantEnglishTitles["404"];
-    if(title){
-      const applyTitle=()=>{
-        const node=document.head.querySelector("title");
-        if(node&&node.textContent!==title)node.textContent=title;
-      };
-      const observer=new MutationObserver(applyTitle);
-      observer.observe(document.head,{childList:true,subtree:true,characterData:true});
-      applyTitle();
-      document.addEventListener("DOMContentLoaded",()=>{
-        applyTitle();observer.disconnect();
-      },{once:true});
-    }
-  }
-
-
   if(location.protocol!=="file:"){
     const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|commerce|documents|offline|404)\.html$/,(_all,route)=>"/"+route);
     if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
@@ -266,6 +232,11 @@
 
     const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts"||page==="clips"||page==="marketplace"||page==="vatra-id";
     const entry=table.__pages?.[page]||(communityShell?table.__pages?.feed:null);
+    if(communityShell||page==="settings"){
+      const description=document.querySelector('meta[name="description"]');
+      const source=description?.getAttribute("content");
+      if(source&&typeof table[source]==="string")description.setAttribute("content",table[source]);
+    }
     if (!entry) return;
     for (const element of document.querySelectorAll("[data-i18n]")) {
       const record=entry.nodes?.[element.getAttribute("data-i18n")];
@@ -282,7 +253,6 @@
 
     if(communityShell)return;
     const meta=entry.meta||{};
-    if (meta.title) document.title=meta.title;
     for (const [name,value] of Object.entries(meta)) {
       if (name==="title") continue;
       const selector=name.startsWith("og:")?'meta[property="'+name+'"]':'meta[name="'+name+'"]';
@@ -293,14 +263,6 @@
   const ready=Promise.all([domReady,translations]).then(([,json])=>{
     errors=json&&typeof json==="object"?json:{};
     applyTranslation(errors);
-    if(current!=="uk"&&current!=="en"){
-      const segment=pageFromPath();
-      const source=titleSources[segment]||titleSources["404"];
-      const translated=errors[source];
-      const meta=errors.__pages?.[segment]?.meta?.title;
-      const title=meta||(typeof translated==="string"?translated:null);
-      if(title)document.title=title;
-    }
   }).finally(()=>{
     document.documentElement.classList.remove("i18n-pending");
     if(staticLocaleLoader){

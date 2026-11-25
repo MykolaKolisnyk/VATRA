@@ -72,7 +72,7 @@ assert.ok(
 
 
 const missingPage=await read("404.html");
-assert.ok(missingPage.includes('src="/VATRA/assets/js/not-found.js"')&&
+assert.ok(/src="\/VATRA\/assets\/js\/not-found\.js(?:\?rev=[a-f0-9]{40})?"/.test(missingPage)&&
  missingPage.includes('href="/VATRA/assets/css/not-found.css"')&&
  !missingPage.includes('const dynamic=location.pathname.match(')&&
  notFoundCss.includes('html.vatra-dynamic-route-pending body.error-page > :not(.vatra-route-loading)'),
@@ -81,16 +81,9 @@ assert.ok(missingPage.includes('src="/VATRA/assets/js/not-found.js"')&&
 
 const captcha=await read("assets/js/captcha.js");
 const lang=await read("assets/js/lang.js");
-// These account sections must never show "404 Page not found" in the
-// English browser tab while the asynchronous translation JSON is loading.
-const instantEnglishTitles=lang.slice(lang.indexOf("  const instantEnglishTitles={"),
- lang.indexOf("\n  };",lang.indexOf("  const instantEnglishTitles={")));
-for(const [page,title] of [["friends","Friends"],["gifts","Gifts"]]){
+for(const page of ["friends","gifts"]){
  const html=await read(page+".html");
- assert.ok(instantEnglishTitles.includes(page+':"'+title+'"')&&
-  html.indexOf('src="assets/js/lang.js')>=0&&
-  html.indexOf('src="assets/js/lang.js')<html.indexOf("<title>"),
-  page+": English tab title must be ready before DOM and remote translations");
+ assert.ok(html.includes("<title>VATRA</title>"),page+": fixed brand tab title");
 }
 const sw=await read("sw.js");
 const host=await read("assets/js/host.js");
@@ -419,12 +412,12 @@ assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("s
  network.includes('worker.addEventListener("controllerchange"')&&
  network.includes('if(!navigator.onLine||edited||document.querySelector("dialog[open]"))return'),
  "SW updates should refresh unedited pages without a hard reload");
-assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
- offline.includes('class="offline-brand ui-offline-brand-001"')&&
+assert.ok(!offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
+ !offline.includes("offline-brand ui-offline-brand-001")&&
+ !offline.includes("ui-offline-img-001")&&!offlineStyles.includes(".offline-brand")&&
  offline.includes('class="offline-actions ui-offline-actions-001"')&&
- offline.includes('class="ui-offline-img-001"')&&
  !offline.includes("logo.svg"),
- "Offline page must show only the self-contained V mark at the card top-left");
+ "Offline card must retain its actions without a standalone brand mark or orphaned logo styles");
 assert.ok(offline.includes('class="ui-offline-vatryk-001" src="assets/vatryk/vatryk_offline.webp"')&&
  offlineStyles.includes(".ui-offline-vatryk-001")&&!offlineStyles.includes(".offline-icon")&&
  !offline.includes("ui-offline-path-004")&&sw.includes('ROOT+"assets/vatryk/vatryk_offline.webp"')&&
@@ -1383,7 +1376,7 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  !legacyScript.includes("legacyProfile")&&
  !profileScript.includes('new URL("profile.html?vatra_id="+encodeURIComponent(id),home).href')&&
  !profileScript.includes('home+"id="+')&&
- lang.includes('const dynamicMember=/^id[1-9]'),
+ lang.includes('if(/^id[1-9][0-9]{0,18}$/.test(segment))return "profile";'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
 const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
 assert.ok(communityBannerMarkup.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>')&&
@@ -2224,12 +2217,8 @@ assert.ok(legacyScript.includes('classList.add("vatra-dynamic-route-pending")')&
 
 assert.equal(uk.__pages["404"].meta.title,"Сторінку не знайдено");
 assert.equal(en.__pages["404"].meta.title,"Page not found");
-assert.ok(errorPage.includes("<title>"+uk.__pages["404"].meta.title+"</title>"),
- "404 HTML fallback must match the Ukrainian translation");
-assert.ok(lang.includes('"404":'+JSON.stringify(en.__pages["404"].meta.title)),
- "404 immediate English tab title must match the translated value");
-assert.ok(lang.includes('instantEnglishTitles[segment]||instantEnglishTitles["404"]'),
- "Unknown URL must immediately use the English 404 title");
+assert.ok(errorPage.includes("<title>VATRA</title>"),"404 tab must retain VATRA");
+assert.ok(!lang.includes("document.title")&&!lang.includes("instantEnglishTitles"),"Language changes must not overwrite the brand tab");
 assert.ok(auth.includes('dialog?.addEventListener("close",()=>removeTooltip?.suppress())')&&
  auth.includes('removeTooltip?.suppress();')&&
  auth.includes('if(suppressRestore||event?.pointerType==="touch"'),
@@ -2402,14 +2391,14 @@ assert.ok(
  !authRecovery.includes('"Якщо акаунт із такою адресою існує, лист із кодом надіслано. Введіть код нижче."'),
  "Initial recovery email must reveal the code step without a redundant green notice");
 assert.ok(
- profileScript.includes('document.title=titleName;')&&
+ !profileScript.includes('document.title=')&&
  socialMotion.includes('const eligible=target=>')&&
  socialMotion.includes('feed|profile|friends|gifts|communities|notifications|')&&
  !socialMotion.includes('new URL(ownProfile?"profile.html":"club.html"')&&
  !socialMotion.includes('searchParams.set("vatra_id"')&&
  !profileScript.includes('query.get("vatra_id")')&&
  (await read("assets/js/notifications.js")).includes('if(!window.VATRA_NAVIGATE?.to(link.href))'),
- "Member titles and direct /idN routing must never generate query-style profile URLs");
+ "Brand tab title and direct /idN routing must never generate query-style profile URLs");
 
 /* English dictionaries are asynchronous: no UI reveal may finish while the
    translated page is hidden. This applies to 404, documents and all auth UIs.
@@ -2435,15 +2424,11 @@ assert.ok(auth.includes('persistSession:page!=="reset"&&page!=="forgot"')&&
  uk.__pages.reset.nodes.n34.text["0"]==="Увійти з новим паролем",
  "Recovery authentication must be session-isolated, explicitly released, and lead to password sign-in");
 for(const name of pages){
- const enTitle=en.__pages[name]?.meta?.title;
- if(!enTitle)continue;
- assert.ok(lang.includes((/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)?name:JSON.stringify(name))+":"+JSON.stringify(enTitle)),
-  "An English browser tab title must be available synchronously for "+name);
+ const html=await read(name+".html");
+ assert.ok(html.includes("<title>VATRA</title>"),name+": brand tab title is present before translation");
 }
-assert.ok(lang.includes('new MutationObserver(applyTitle)')&&
- lang.includes('observer.disconnect()')&&
- lang.includes('document.head.querySelector("title")'),
- "English tab titles should never briefly show Ukrainian during async translation");
+assert.ok(!lang.includes("document.title")&&!lang.includes("new MutationObserver(applyTitle)"),
+ "Localization must preserve the static VATRA tab title");
 
 /* Cache regression: public display names only, fail-closed auth and direct
    RLS fallback. Scripts must load before authors are rendered. */
@@ -2706,7 +2691,7 @@ assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMark
 
 assert.ok(memberProfileMarkup.includes('id="profile-cover-edit-dialog"')&&memberProfileMarkup.includes('id="profile-cover-preview-desktop"')&&memberProfileMarkup.includes('id="profile-cover-preview-mobile"')&&profileScript.includes('void startCoverEditor(fileCover.files[0])')&&profileCoverScript.includes('uploadImage(file,"cover",coverSourceFile)')&&!profileScript.includes('uploadImage(fileCover.files[0],"cover")'),"Cover selection requires crop and device preview before explicit saving");
 
-for(const dirEntry of await readdir(".")){if(!dirEntry.endsWith(".html"))continue;const html=await read(dirEntry);assert.ok(!/<title>[^<]* · VATRA<\/title>/.test(html),dirEntry+": remove the redundant brand suffix from the browser tab");}
+for(const dirEntry of await readdir(".")){if(!dirEntry.endsWith(".html"))continue;const html=await read(dirEntry);assert.ok(html.includes("<title>VATRA</title>"),dirEntry+": browser tab must display only VATRA");}
 for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))continue;const catalog=JSON.parse(await read("assets/i18n/"+file));assert.ok(Object.values(catalog.__pages||{}).every(page=>!page.meta?.title?.endsWith(" · VATRA")),file+": localized tab title must be suffix-free");}
 
 await import("../smoke/maintenance-smoke.mjs");

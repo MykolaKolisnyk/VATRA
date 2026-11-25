@@ -1055,7 +1055,6 @@ function missingProfile(state="not-found"){
  q("#profile-edit-open")?.remove();
  q(".ui-profile-tab-row-001")?.remove();
  q(".profile-panels")?.remove();
- document.title=title;
  finish();
 }
 let profilePostsRequest=0;
@@ -3633,9 +3632,6 @@ async function start(){
   }
 
 
-  const titleName=String(publicName||(isMine?cleanOwnName:t("Учасник VATRA","VATRA member")))
-   .replace(/\s+/g," ").trim().slice(0,100)||t("Учасник VATRA","VATRA member");
-  document.title=titleName;
 
   const preloadedMedia=isMine?ownHeaderMedia:
    Promise.resolve().then(()=>client.from("profile_media")
