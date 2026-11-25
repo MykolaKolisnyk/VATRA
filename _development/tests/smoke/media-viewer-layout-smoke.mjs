@@ -280,3 +280,5 @@ assert.ok(postMedia.includes('authorName.split(/\\s+/)[0]')&&postMedia.includes(
  const source=postMedia.match(/function photoZoomLevel\(value,step\)\{[^\n]+\}/)?.[0];assert.ok(source);const context={};runInNewContext(source+";globalThis.zoom=photoZoomLevel;",context);
  let value=1;for(let i=0;i<20;i++)value=context.zoom(value,1);assert.equal(value,3);for(let i=0;i<20;i++)value=context.zoom(value,-1);assert.equal(value,1);assert.equal(context.zoom(1,1),1.25);
 }
+
+assert.ok(postMedia.includes("finish(image);void fitPhotoViewer(dialog,stage,image,path);"),"Ready photos and controls must not wait for asynchronous matte detection");

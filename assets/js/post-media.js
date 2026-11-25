@@ -636,7 +636,7 @@
   photoMatteChecks.delete(stage);stage.dataset.photoMatte="unknown";
   const controller=new AbortController();photoLoads.set(stage,controller);
   const controls=preparePhotoControls(dialog,stage,image);
-  const loaded=async()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;await fitPhotoViewer(dialog,stage,image,path);if(controller.signal.aborted||!dialog.open||!image.isConnected)return;if(controls){controls.ready=true;controls.paint();}finish(image);};
+  const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;if(controls){controls.ready=true;controls.paint();}finish(image);void fitPhotoViewer(dialog,stage,image,path);};
   if(image.complete&&image.naturalWidth)queueMicrotask(loaded);else image.addEventListener("load",loaded,{once:true,signal:controller.signal});
  }
 function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false,direction=0,sourcePath=null){
@@ -959,7 +959,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    const imageTiles=activeTiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
     media_kind:"image",media_path:previewPath(item)||item.media_path
    }));
-   if(imageTiles.length>2)await preSignGallery(client,imageTiles);
+   if(imageTiles.length>1)await preSignGallery(client,imageTiles);
    await Promise.allSettled(activeTiles.map(async({item,tile,index})=>{
     tile.classList.remove("is-gallery-unavailable");
     tile.querySelector(".vatra-gallery-unavailable-001")?.remove();
@@ -981,7 +981,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
        candidate.alt=tr("Фото публікації","Post photo");
        candidate.loading="eager";
        candidate.decoding="async";
-       if(priority<=2)candidate.fetchPriority="high";
+       if(priority===1&&index===0)candidate.fetchPriority="high";
        candidate.classList.add("is-gallery-pending");
        tile.prepend(candidate);
        try{await loadImageSource(candidate,src);}
