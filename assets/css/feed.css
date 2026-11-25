@@ -3551,7 +3551,8 @@ body.feed-page .vatra-photo-zoom-value-001{position:absolute;left:calc(var(--vat
 body.feed-page .ui-vatra-photo-zoom-controls-001:has(.vatra-photo-zoom-wrap-in-001:hover,.vatra-photo-zoom-in-001:focus-visible) .vatra-photo-zoom-value-001{opacity:1;visibility:visible;left:calc(var(--vatra-zoom-button-size) / 2)}
 body.feed-page .ui-vatra-photo-zoom-controls-001:has(.vatra-photo-zoom-wrap-out-001:hover,.vatra-photo-zoom-out-001:focus-visible) .vatra-photo-zoom-value-001{opacity:1;visibility:visible;left:calc(100% - var(--vatra-zoom-button-size) / 2)}
 body.feed-page .vatra-photo-zoom-target-001{-webkit-user-drag:none;user-select:none}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="unknown"]{background:#252932}
+body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="unknown"]{background:#fff}
+body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="unknown"] .vatra-photo-zoom-target-001{visibility:hidden}
 body.feed-page .vatra-post-media-viewer:has(.ui-vatra-post-expanded-video-001) .ui-vatra-photo-zoom-controls-001{display:none}
 body.feed-page .profile-media-viewer.is-photo-deleted .ui-vatra-photo-zoom-controls-001{visibility:hidden}
 body.feed-page .vatra-photo-zoom-target-001{transform-origin:center;transition:scale .24s cubic-bezier(.22,.61,.36,1)}

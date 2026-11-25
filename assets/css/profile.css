@@ -2840,7 +2840,7 @@ body.profile-page .ui-profile-cover-viewer-001::backdrop{
  animation:vatra-cover-backdrop-in .3s ease-out both
 }
 body.profile-page .vatra-profile-cover-viewer-close-001{
- position:fixed;z-index:7;top:clamp(14px,3vh,24px);left:clamp(14px,3vw,24px);
+ position:fixed;z-index:7;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));
  display:grid;place-items:center;width:44px;height:44px;padding:0;
  border:1px solid rgba(255,255,255,.28);border-radius:50%;
  background:rgba(27,37,56,.78);color:#fff;cursor:pointer
@@ -2849,10 +2849,6 @@ body.profile-page .vatra-profile-cover-viewer-close-001:hover{background:rgba(54
 body.profile-page .vatra-profile-cover-viewer-close-001:focus-visible,
 body.profile-page .vatra-profile-cover-viewer-original-001:focus-visible{
  outline:3px solid #9bb9ff;outline-offset:3px
-}
-body.profile-page .vatra-profile-cover-viewer-title-001{
- position:fixed;top:clamp(23px,4vh,34px);left:clamp(75px,7vw,88px);
- margin:0;color:#f8f9fc;font:700 15px/1.4 "Onest",system-ui,sans-serif
 }
 body.profile-page .ui-profile-cover-viewer-stage-001{
  box-sizing:border-box;position:relative;display:block;
@@ -2885,7 +2881,6 @@ body.profile-page .vatra-profile-cover-viewer-original-001:hover{background:#344
 body.profile-page .vatra-profile-cover-viewer-original-001[hidden]{display:none!important}
 @media(max-width:600px){
  body.profile-page .ui-profile-cover-viewer-stage-001{width:calc(100vw - 24px);border-radius:9px}
- body.profile-page .vatra-profile-cover-viewer-title-001{font-size:13px}
 }
 @media(prefers-reduced-motion:reduce){
  body.profile-page .ui-profile-cover-viewer-001::backdrop{animation:none}

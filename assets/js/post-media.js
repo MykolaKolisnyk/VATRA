@@ -552,14 +552,22 @@
    const src=image.src||image.currentSrc,previous=photoMatteChecks.get(stage);
    if(previous?.image===image&&previous.src===src){
     if(previous.result)stage.dataset.photoMatte=previous.result;
+    return previous.pending;
    }else{
     const state={image,src,result:null};photoMatteChecks.set(stage,state);
     stage.dataset.photoMatte="unknown";
     const current=()=>photoMatteChecks.get(stage)===state&&dialog.open&&image.isConnected&&(image.src||image.currentSrc)===src;
-    void photoMatte(image,current).then(matte=>{
+    let deadline,settled=false;
+    state.pending=Promise.race([
+     photoMatte(image,()=>current()&&!settled),
+     new Promise(resolve=>{deadline=setTimeout(()=>resolve("unknown"),1200);})
+    ]).catch(()=>"unknown").then(matte=>{
+     settled=true;clearTimeout(deadline);
      if(!current()){if(photoMatteChecks.get(stage)===state)photoMatteChecks.delete(stage);return;}
-     state.result=matte;stage.dataset.photoMatte=matte;
+     state.result=matte==="dark"?"dark":"white";
+     stage.dataset.photoMatte=state.result;
     });
+    return state.pending;
    }
   }
  }
@@ -628,7 +636,7 @@
   photoMatteChecks.delete(stage);stage.dataset.photoMatte="unknown";
   const controller=new AbortController();photoLoads.set(stage,controller);
   const controls=preparePhotoControls(dialog,stage,image);
-  const loaded=()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;fitPhotoViewer(dialog,stage,image,path);if(controls){controls.ready=true;controls.paint();}finish(image);};
+  const loaded=async()=>{if(controller.signal.aborted||!dialog.open||!image.isConnected)return;await fitPhotoViewer(dialog,stage,image,path);if(controller.signal.aborted||!dialog.open||!image.isConnected)return;if(controls){controls.ready=true;controls.paint();}finish(image);};
   if(image.complete&&image.naturalWidth)queueMicrotask(loaded);else image.addEventListener("load",loaded,{once:true,signal:controller.signal});
  }
 function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false,direction=0,sourcePath=null){

@@ -10,7 +10,7 @@ const features=Object.freeze({
  "profile-gallery":{js:"assets/js/profile-gallery.js?rev=f00fbc6f618ecf4d4ac111f279a8c5d0da590fd5",key:"VATRA_PROFILE_GALLERY"},
  "cover-editor":{js:"assets/js/profile-cover-editor.js?rev=95d2182c4b03c53a74e7b9ebdbc9761d585898b9",key:"VATRA_PROFILE_COVER_EDITOR"},
  "avatar-editor":{js:"assets/js/profile-avatar-editor.js?rev=633a59bbf180682416062cae5f853e5de3f80c2f",key:"VATRA_PROFILE_AVATAR_EDITOR"},
- "cover-viewer":{js:"assets/js/profile-cover-viewer.js?rev=2b1285daeb16ac2e55e71ea75eb6f05b226ebc91",key:"VATRA_PROFILE_COVER_VIEWER"},
+ "cover-viewer":{js:"assets/js/profile-cover-viewer.js?rev=e26a6692a25b9cfd46490a4dd71a0aee69d54c53",key:"VATRA_PROFILE_COVER_VIEWER"},
  "avatar-comment-row":{js:"assets/js/profile-avatar-comment-row.js?rev=cbe6f015aeeea1995d5b196e4d63e9a4fcbf415c",key:"VATRA_PROFILE_AVATAR_COMMENT_ROW"}
 });
 const pending=new Map();
