@@ -4052,7 +4052,9 @@ try{
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
-  await feedProbe.waitForFunction(()=>!document.querySelector("#feed-delete-dialog").open);
+  await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
+  await feedProbe.evaluate(()=>window.VATRA_POST_INTERACTIONS.finalizePendingPostDeletes());
+  await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"detached",timeout:20000});
   assert.equal(await feedProbe.locator(".feed-post-card").count(),1,
    "Denied deletion must leave the existing post untouched");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockMediaRemovals),0,
@@ -4064,7 +4066,17 @@ try{
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
+  await feedProbe.waitForTimeout(13000);
+  assert.equal(await feedProbe.locator(".vatra-post-undo-001").isVisible(),true,"Undo must remain available without a timer");
+  await feedProbe.locator(".vatra-post-undo-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-owner-toggle").isVisible(),true,"Undo restores the original card without deleting media");
+  assert.equal(await feedProbe.evaluate(()=>window.__feedMockMediaRemovals),0);
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
+  await feedProbe.locator(".feed-post-delete").click();
+  await feedProbe.locator("#feed-delete-confirm").click();
+  await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
+  await feedProbe.evaluate(()=>window.VATRA_POST_INTERACTIONS.finalizePendingPostDeletes());
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0,null,{timeout:20000});
   assert.ok((await feedProbe.locator(".ui-social-top-communities-001").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
@@ -4081,9 +4093,11 @@ try{
    return direct;
   });
   assert.deepEqual(headerOrder,[
-    "ui-feed-notifications-button-001","ui-feed-music-button-001",
+    "ui-shell-header-messenger-001","ui-feed-notifications-button-001","ui-feed-music-button-001",
     "ui-feed-account-menu-001"],
-   "Right controls must be notifications, music and the avatar-name pill");
+   "Right controls must be Messenger, notifications, music and the avatar-name pill");
+  assert.equal(await feedProbe.locator('.ui-shell-header-messenger-001[data-vatra-coming-soon="messenger"]').count(),1,
+   "Messenger must be visible as a single coming-soon header button");
   assert.equal(await feedProbe.locator(".feed-header .feed-search-form").isVisible(),true,
    "Search VATRA must be next to the V logo on every page");
   const searchStyles=await feedProbe.evaluate(()=>{
@@ -4166,14 +4180,13 @@ try{
   });
   assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerBottom)<=2&&
    menuGeometry.firstRowTop>=menuGeometry.headerBottom&&
+   Math.abs(menuGeometry.left)<=1&&
    (menuGeometry.viewportWidth<=600?
-    menuGeometry.left>=0&&menuGeometry.left<=12&&
-    menuGeometry.right>=menuGeometry.viewportWidth-12:
-    menuGeometry.left<=menuGeometry.backLeft+2&&menuGeometry.backLeft-menuGeometry.left<=16&&
+    menuGeometry.right>=menuGeometry.viewportWidth-1:
     menuGeometry.right>=menuGeometry.searchRight-1&&
     menuGeometry.right-menuGeometry.left<=790)&&
    menuGeometry.panelZ<menuGeometry.headerZ,
-   "Search sheet must anchor to the input and stay below the header: "+JSON.stringify(menuGeometry));
+   "Search sheet must reach the left viewport edge and stay below the header: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
@@ -4536,6 +4549,12 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-archive-001").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-delete-001").isVisible(),true);
   for(const action of ["pin","edit","copy","comments"])assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vatra-post-owner-"+action+"-001").isVisible(),true);
+  await feedProbe.locator(".vatra-post-owner-edit-001").click();
+  await feedProbe.locator(".ui-vatra-post-edit-dialog-001").waitFor({state:"visible"});
+  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-media-001").isVisible(),true);
+  assert.equal(await feedProbe.locator(".ui-vatra-post-edit-text-001").isVisible(),true);
+  await feedProbe.locator(".vatra-post-edit-cancel-001").click();
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".vatra-post-owner-panel").waitFor({state:"hidden"});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
@@ -4546,7 +4565,9 @@ try{
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
+  await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
+  await feedProbe.evaluate(()=>window.VATRA_POST_INTERACTIONS.finalizePendingPostDeletes());
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0,null,{timeout:20000});
   await feedProbe.locator("#feed-empty").waitFor({state:"visible",timeout:4500});
   assert.equal(await feedProbe.locator("#feed-empty").isVisible(),true);
   await feedProbe.locator("#feed-search-input").fill("Новий пошук VATRA");
@@ -4607,9 +4628,17 @@ try{
   assert.equal(await profilePage.evaluate(()=>window.__vatraFriendLimitCalls.includes(300)),false,
    "Opening a profile must not fetch 300 friendships without opening the Friends tab");
 
-  // Real browser smoke for VATRA albums: independent album tab and safe owner editor.
+  // Real browser smoke for VATRA albums: archive opens independently before the photo tab.
+  await profilePage.locator("#profile-archive-toggle").click();
+  assert.equal(await profilePage.locator("#profile-archive-menu [data-profile-archive]").count(),3);
+  await profilePage.locator('[data-profile-archive="archive-photos"]').click();
+  await profilePage.locator("#profile-archive-photos-section .vatra-album-archive-pane-001").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-archive-toggle").evaluate(el=>el.classList.contains("social-profile-tab-active")),true);
   await profilePage.locator("#profile-tab-photos").click();
+  assert.equal(await profilePage.locator("#profile-archive-photos-section").isVisible(),false);
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator(".vatra-albums-tab-001").count(),2,"Photos must only contain Photos and Albums tabs");
   await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
   await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
   assert.ok((await profilePage.locator(".vatra-albums-card-title-001").first().textContent()).trim().length>0,
@@ -4753,7 +4782,7 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0);
   const avatarLayers=await profilePage.evaluate(()=>({avatar:Number(getComputedStyle(document.querySelector("#profile-avatar-wrap")).zIndex),header:Number(getComputedStyle(document.querySelector(".feed-header")).zIndex)}));
   assert.ok(avatarLayers.avatar<avatarLayers.header,"Opening the avatar menu must never lift the avatar above the sticky header");
-  for(const panel of ["photos","videos","clips","communities","saved","archive-stories","archive-posts"])
+  for(const panel of ["photos","videos","clips","communities","saved","archive-stories","archive-posts","archive-photos"])
    assert.equal(await profilePage.locator('[data-profile-panel="'+panel+'"] > h2').count(),0,"Profile tabs must not duplicate their headings");
   const avatarMenuRect=await profilePage.locator("#profile-avatar-menu").boundingBox();
   assert.ok(avatarMenuRect&&avatarMenuRect.width>=200,
@@ -5297,6 +5326,7 @@ try{
 
   await profilePage.locator("#profile-tab-photos").click();
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator(".vatra-albums-tab-001").count(),2,"Photos must only contain Photos and Albums tabs");
   await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
   await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
   assert.equal(await profilePage.locator(".ui-vatra-albums-controls-001 .vatra-albums-primary-001").isVisible(),false,

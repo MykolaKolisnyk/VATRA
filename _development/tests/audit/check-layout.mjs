@@ -1120,7 +1120,8 @@ const normalizedSocialHeader=html=>{
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
 /* profileMarkup already loaded during the footer audit. */
 assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
- (profileMarkup.match(/data-profile-panel="/g)||[]).length===10&&
+ (profileMarkup.match(/data-profile-panel="/g)||[]).length===11&&
+ profileMarkup.includes('data-profile-panel="archive-photos"')&&
  profileMarkup.includes('id="profile-friends-preview"')&&
  profileMarkup.includes('id="profile-gifts-preview"')&&
  profileMarkup.includes('id="profile-tab-clips"')&&
@@ -1301,7 +1302,7 @@ for(const page of sharedShellPages){
  for(const cls of ["ui-feed-brand-search-001","ui-social-top-feed-001",
   "ui-social-top-friends-001","ui-social-top-communities-001",
   "ui-social-top-clips-001","ui-social-top-marketplace-001",
-  "ui-feed-notifications-button-001",
+  "ui-shell-header-messenger-001","ui-feed-notifications-button-001",
   "ui-feed-music-button-001","ui-feed-account-menu-001"]){
   assert.ok(header.includes(cls),page+": shared header missing "+cls);
  }
@@ -1330,10 +1331,17 @@ for(const page of sharedShellPages){
   nav.indexOf("ui-social-top-clips-001")<nav.indexOf("ui-social-top-marketplace-001"),
   page+": five icon destinations must be in the agreed order");
  assert.ok(!controls.includes("ui-shell-header-friends-001")&&
+  controls.indexOf("ui-shell-header-messenger-001")<controls.indexOf("ui-feed-notifications-button-001")&&
   controls.indexOf("ui-feed-notifications-button-001")<controls.indexOf("ui-feed-music-button-001")&&
   controls.indexOf("ui-feed-music-button-001")<controls.indexOf("ui-feed-account-menu-001")&&
   controls.indexOf("ui-feed-account-menu-001")<controls.indexOf('id="feed-menu-name"'),
   page+": right controls must end with Avatar and first name");
+}
+for(const page of ["feed","profile","communities","club","notifications","friends","gifts","clips","marketplace","vatra-id","settings"]){
+ const header=(await read(page+".html")).match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0]||"";
+ const buttons=[...header.matchAll(/<button[^>]*ui-shell-header-messenger-001[^>]*>/g)];
+ assert.equal(buttons.length,1,page+": preserve one Messenger header icon");
+ assert.ok(buttons[0][0].includes('data-vatra-coming-soon="messenger"')&&!buttons[0][0].includes("href="),page+": Messenger remains a non-navigating placeholder");
 }
 const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
@@ -1597,9 +1605,9 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  !profileBehavior.includes('header.append(archive,remove)'),
  "Only owners have one accessible three-dot menu with archive and delete");
 assert.ok(searchLogic.includes("const compact=vw<=600;")&&
- searchLogic.includes("compact?vw-12:expanded?790:Math.max(360,inputBox.right-left+12)")&&
- searchLogic.includes("const left=compact?ox+6:Math.max(ox,anchor.left-12)")&&
- searchLogic.includes("Math.min(ox+vw-left-(compact?6:12)")&&
+ searchLogic.includes("compact?vw:expanded?790:Math.max(360,inputBox.right-left+12)")&&
+ searchLogic.includes("const left=ox")&&
+ searchLogic.includes("Math.min(ox+vw-left-(compact?0:12)")&&
  systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('.feed-top-controls{display:contents!important}')&&
  systemFeedCss.includes('.feed-top-controls > .feed-posts-section{')&&
@@ -2133,7 +2141,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('.ui-profile-photo-deleted-notice-001')&&
  !memberCss.includes('profile-media-viewer-stage{background:#fff}')&&
  memberCss.includes('overflow:hidden;padding:0')&&
- systemFeedCss.includes('[data-photo-sized="true"]')&&
+ !systemFeedCss.includes('[data-photo-sized="true"]')&&
+ systemFeedCss.includes("width:100vw;height:100dvh;")&&
  systemFeedCss.includes('[data-photo-matte="white"]')&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and photo sizing removes unnecessary padding");

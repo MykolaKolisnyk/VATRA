@@ -1144,16 +1144,19 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
      onDelete:async()=>{
       if(!await window.VATRA_PROFILE_CONFIRM({
        title:t("Видалити публікацію?","Delete this post?"),
-       description:t("Публікацію буде видалено з вашої сторінки без можливості відновлення.",
-        "This post will be removed from your profile permanently."),
+       description:t("Публікацію можна відновити, доки ви не залишили сторінку.","You can restore the post until you leave this page."),
        action:t("Видалити","Delete")
       }))return;
-      const {data,error}=await client.from("feed_posts").delete().eq("id",post.id)
-       .eq("author_vatra_id",ownId).select("id");
-      if(error||!data?.length)return;
-      if(post.media_path)void window.VATRA_POST_MEDIA?.remove(client,post);
-      if(post.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,post.media_items);
-      void loadPosts(client,targetId,ownId,userId);
+      const commit=async()=>{
+       const {data,error}=await client.from("feed_posts").delete().eq("id",post.id)
+        .eq("author_vatra_id",ownId).select("id");
+       if(error||!data?.length)throw Error("Post not deleted");
+       if(post.media_path)void window.VATRA_POST_MEDIA?.remove(client,post);
+       if(post.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,post.media_items);
+       try{await loadPosts(client,targetId,ownId,userId);}catch(_){}
+       window.dispatchEvent(new Event("vatra:profile-media-changed"));
+      };
+      window.VATRA_POST_INTERACTIONS?.deferPostDelete(article,commit,()=>window.VATRA_TOAST?.show?.(t("Не вдалося видалити.","Could not delete post."),"error"),ownId);
      }
     });
    }
@@ -1172,6 +1175,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false,focusPost=nul
     onShared:()=>{if(String(ownId)===String(targetId))
      void loadPosts(client,targetId,ownId,userId);}
    });
+   window.VATRA_POST_INTERACTIONS?.paintPendingPostDelete(article);
    batch.append(article);
   }
   if(append)list.append(batch);else list.replaceChildren(batch);
@@ -1434,7 +1438,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
   }catch(_){empty("#profile-archive-posts-empty",t("Не вдалося завантажити архів.","Could not load archive."));}
  };
  const dispatch=name=>{
-  toggle?.classList.toggle("social-profile-tab-active",name==="archive-stories"||name==="archive-posts");
+  toggle?.classList.toggle("social-profile-tab-active",["archive-stories","archive-posts","archive-photos"].includes(name));
   if(name==="saved")void saved();
   if(name==="archive-stories")void stories();
   if(name==="archive-posts")void archivedPosts();
@@ -1458,7 +1462,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  for(const button of menu.querySelectorAll("[data-profile-archive]")){
   button.addEventListener("click",()=>{
    window.VATRA_PROFILE_CHOOSE_TAB?.(button.dataset.profileArchive);
-   dispatch(button.dataset.profileArchive);close();
+   close();
   });
  }
  document.addEventListener("pointerdown",event=>{if(!archiveWrap.contains(event.target)&&!menu.contains(event.target))close();});
@@ -1515,8 +1519,8 @@ function bindProfileStoryComposer(client,ownId){
  trigger.addEventListener("click",firstClick);
 }
 function setupLazyProfileAlbums(client,ownId,targetId,userId,isMine){
- const tab=q("#profile-tab-photos"),section=q("#profile-photos-section");
- if(!tab||!section)return;
+ const tab=q("#profile-tab-photos"),section=q("#profile-photos-section"),archiveSection=q("#profile-archive-photos-section");
+ if(!tab||!section||!archiveSection)return;
  let pending=null;
  function activate(){
   if(section.dataset.vatraAlbumsReady==="true"||pending)return;
@@ -1529,10 +1533,11 @@ function setupLazyProfileAlbums(client,ownId,targetId,userId,isMine){
   tab.setAttribute("aria-busy","true");
  }
  function onSelection(){
-  if(tab.getAttribute("aria-selected")==="true")activate();
+  if(tab.getAttribute("aria-selected")==="true"||(isMine&&!archiveSection.hidden))activate();
  }
  tab.addEventListener("click",onSelection);
  new MutationObserver(onSelection).observe(tab,{attributes:true,attributeFilter:["aria-selected"]});
+ if(isMine)new MutationObserver(onSelection).observe(archiveSection,{attributes:true,attributeFilter:["hidden"]});
  const album=new URLSearchParams(location.search).get("album");
  if(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(album||"")))activate();
  else onSelection();
@@ -2129,7 +2134,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  let loadFriends=async()=>{};
  const tabs=[...document.querySelectorAll("[data-profile-tab]")];
  function choose(name){
-  if(!isMine&&["saved","archive-stories","archive-posts"].includes(name))return;
+  if(!isMine&&["saved","archive-stories","archive-posts","archive-photos"].includes(name))return;
 
   for(const tab of tabs){
    const active=tab.dataset.profileTab===name;
@@ -3595,6 +3600,7 @@ async function start(){
    .select("vatra_id").eq("user_id",user.id).maybeSingle());
   const ownId=String(account?.vatra_id??"");
   if(accountError||!validId(ownId))throw accountError||Error("Account unavailable");
+  await window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,ownId);
   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   if(ownId){
    try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,ownId,metadata.gender)).catch(()=>{});}catch(_){}
