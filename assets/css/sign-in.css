@@ -1,5 +1,5 @@
 
-.site{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 12% 28%,#f2effb 0%,transparent 38%),linear-gradient(125deg,#fdfcff,#f7f9fe 75%)}.intro-side{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1vw,18px);position:relative;isolation:isolate;overflow:hidden;border:1px solid #e4e9f5;border-right:0;border-radius:28px 0 0 28px;padding:clamp(26px,3vw,46px) clamp(14px,1.4vw,22px);background:radial-gradient(ellipse at 53% 43%,rgba(226,232,255,.77),transparent 66%),linear-gradient(145deg,#fcfaff 8%,#f1f5ff 100%)}
+.site{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 12% 28%,#f2effb 0%,transparent 38%),linear-gradient(125deg,#fdfcff,#f7f9fe 75%)}.intro-side{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1vw,18px);position:relative;isolation:isolate;overflow:hidden;border:1px solid #e4e9f5;border-right:0;border-radius:28px 0 0 28px;padding:clamp(26px,3vw,46px) clamp(14px,1.4vw,22px);background:radial-gradient(ellipse at 18% 25%,rgba(190,213,255,.44),transparent 58%),radial-gradient(ellipse at 86% 36%,rgba(250,207,231,.34),transparent 58%),radial-gradient(ellipse at 48% 52%,rgba(220,214,255,.48),transparent 70%),linear-gradient(145deg,#f9faff 0%,#f0f2fc 58%,#faf5fb 100%)}
 .login-form-overline{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .login-form-kicker{display:inline-flex;align-items:center;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
 .site .form-box .field-stack{gap:19px}
@@ -92,7 +92,7 @@
   .login-layout .split{margin:auto}
   .site .auth-footer-content{width:min(calc(100% - 40px),670px);justify-content:space-between;text-align:left}
   .form-side{order:0;min-height:0;padding:42px clamp(24px,5vw,48px) 43px;align-items:center;justify-content:center;border:1px solid #e4e9f5;border-bottom:0;border-radius:24px 24px 0 0}
-  .intro-side{order:1;display:flex;flex-direction:column;border:1px solid #e4e9f5;border-radius:0 0 24px 24px;padding:26px 14px 32px;gap:12px;justify-content:center;overflow-x:clip;overflow-y:visible;background:radial-gradient(circle at 50% 39%,#e7edff 0%,transparent 62%),linear-gradient(145deg,#fcfaff,#f1f5ff)}
+  .intro-side{order:1;display:flex;flex-direction:column;border:1px solid #e4e9f5;border-radius:0 0 24px 24px;padding:26px 14px 32px;gap:12px;justify-content:center;overflow-x:clip;overflow-y:visible}
 
 }
 @media (max-width:540px){
