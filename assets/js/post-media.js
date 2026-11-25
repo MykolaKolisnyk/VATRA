@@ -321,6 +321,13 @@
   return state;
  }
 
+ const cachedSignedURL=(signedURLs,key)=>{
+  const entry=signedURLs.get(key);
+  if(!entry)return null;
+  if(entry.expiry<=Date.now()){signedURLs.delete(key);return null;}
+  signedURLs.delete(key);signedURLs.set(key,entry);
+  return entry;
+ };
  const trimSignedCache=signedURLs=>{
   const now=Date.now();
   for(const [key,entry] of signedURLs)
@@ -353,8 +360,8 @@
    const kind=item?.media_kind,path=item?.media_path;
    if(!["image","video"].includes(kind)||typeof path!=="string")continue;
    const key=ttl+":"+kind+":"+path;
-   const cached=signedURLs.get(key),pending=state.bulkPending.get(key);
-   if(cached?.expiry>Date.now()){waiting.add(cached.promise);continue;}
+   const cached=cachedSignedURL(signedURLs,key),pending=state.bulkPending.get(key);
+   if(cached){waiting.add(cached.promise);continue;}
    if(pending){waiting.add(pending);continue;}
    if(!grouped.has(kind))grouped.set(kind,new Set());
    grouped.get(kind).add(path);
@@ -390,8 +397,8 @@
   const version=state.version,key=ttl+":"+kind+":"+path;
   const bulk=state.bulkPending.get(key);
   if(bulk){await bulk.catch(()=>{});if(state.version!==version)throw Error("Session changed while signing media");}
-  const entry=signedURLs.get(key);
-  if(entry&&entry.expiry>Date.now())return entry.promise;
+  const entry=cachedSignedURL(signedURLs,key);
+  if(entry)return entry.promise;
   const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl)).then(({data,error})=>{
 
    if(state.version!==version)throw Error("Session changed while signing media");
