@@ -3525,6 +3525,16 @@ try{
    "Original PNG photographs must not have white letterboxing");
   const zoomPlus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-in-001"),zoomMinus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-out-001");
   assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-viewer-brand-001").isVisible(),true);
+  const matteProbe=await feedProbe.evaluate(async()=>{
+   const canvas=document.createElement("canvas");canvas.width=4;canvas.height=4;
+   const ctx=canvas.getContext("2d");ctx.fillStyle="#3476d5";ctx.fillRect(0,0,4,4);
+   const read=async()=>{const image=new Image();image.src=canvas.toDataURL("image/png");await image.decode();return window.VATRA_POST_MEDIA.photoMatte(image);};
+   const opaque=await read();ctx.clearRect(3,3,1,1);const transparent=await read();
+   const logo=document.querySelector("#vatra-post-media-viewer .vatra-photo-viewer-brand-001"),style=getComputedStyle(logo);
+   return {opaque,transparent,logoBackground:style.backgroundColor,logoShadow:style.boxShadow};
+  });
+  assert.deepEqual(matteProbe,{opaque:"dark",transparent:"white",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"},
+   "The same PNG format must use different mattes according to actual decoded transparency, with an unboxed logo");
   assert.equal(await zoomMinus.isDisabled(),true);
   for(let i=0;i<8;i++)await zoomPlus.click();
   assert.equal(await zoomPlus.isDisabled(),true);
