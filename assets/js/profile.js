@@ -3568,15 +3568,17 @@ function profileDeadline(task,ms=15000){
 }
 async function start(){
  try{
-  await profileDeadline(window.VATRA_LANGUAGE?.ready,5000);
-  localizeSocial();
+  const languageReady=profileDeadline(window.VATRA_LANGUAGE?.ready,5000);
   if(!window.supabase?.createClient){
+   await languageReady;
+   localizeSocial();
    gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));return;
   }
   const client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
   });
-  const {data,error}=await profileDeadline(client.auth.getUser());
+  const [{data,error}]=await Promise.all([profileDeadline(client.auth.getUser()),languageReady]);
+  localizeSocial();
   if(error&&![401,403].includes(Number(error.status))&&error.name!=="AuthSessionMissingError"&&!["session_expired","session_not_found","refresh_token_not_found","refresh_token_already_used","bad_jwt"].includes(error.code))throw error;
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
    const id=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1];

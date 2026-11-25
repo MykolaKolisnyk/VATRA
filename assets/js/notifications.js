@@ -942,13 +942,12 @@ function pageUI(){
 }
 async function pageBoot(){
  if(document.body?.dataset.page!=="notifications")return;
- await window.VATRA_LANGUAGE?.ready;
  if(!window.supabase?.createClient)return;
  const clientRef=window.supabase.createClient("https://cxrcycxrlkufozomsxcs.supabase.co",
   "sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i",
   {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
  try{
-  const {data,error}=await clientRef.auth.getUser();
+  const [{data,error}]=await Promise.all([clientRef.auth.getUser(),window.VATRA_LANGUAGE?.ready]);
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
    location.replace(root.href);return;
   }

@@ -862,15 +862,17 @@
  }
  async function init(){
   try{
-   await feedDeadline(window.VATRA_LANGUAGE?.ready,5000);
-   localizeSocial();
+   const languageReady=feedDeadline(window.VATRA_LANGUAGE?.ready,5000);
    if(!window.supabase?.createClient){
+    await languageReady;
+    localizeSocial();
     showErrorAtGate(t("Не вдалося завантажити VATRA.","Could not load VATRA."));return;
    }
    client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
     auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
    });
-   const {data,error}=await feedDeadline(client.auth.getUser());
+   const [{data,error}]=await Promise.all([feedDeadline(client.auth.getUser()),languageReady]);
+   localizeSocial();
    if(error||!data?.user?.id){
     if(error){
      const kind=window.VATRA_SERVICE_NOTICE?.classify(error,{session:true,access:false});

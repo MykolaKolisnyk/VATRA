@@ -208,13 +208,12 @@ function render(){
 }
 async function boot(){
  if(document.body?.dataset.page!=="friends")return;
- await window.VATRA_LANGUAGE?.ready;
  if(!window.supabase?.createClient)return;
  client=window.supabase.createClient("https://cxrcycxrlkufozomsxcs.supabase.co",
   "sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i",
   {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
  try{
-  const {data:auth,error:authError}=await client.auth.getUser();
+  const [{data:auth,error:authError}]=await Promise.all([client.auth.getUser(),window.VATRA_LANGUAGE?.ready]);
   if(authError||!auth?.user?.id||!auth.user.email_confirmed_at){location.replace(root.href);return;}
   const user=auth.user;
   const account=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();

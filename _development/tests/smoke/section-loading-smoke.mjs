@@ -110,3 +110,11 @@ for(const [id] of catalog.marketTypes){
  assert.equal(Boolean(price.readOnly),id==="free","Free listing price must be locked only for free listings");
 }
 console.log("VATRA lazy forms: marketplace controls and listing validation passed.");
+
+// Authentication and localization are independent; neither should delay starting the other.
+for(const name of ["feed","profile","core","friends","gifts","notifications"]){
+ const source=await readFile("assets/js/"+name+".js","utf8");
+ const auth=source.match(/Promise\.all\(\[[^\n]*\.auth\.getUser\(\)[^\n]*,(?:languageReady|window\.VATRA_LANGUAGE\?\.ready)\]\)/);
+ assert.ok(auth,name+" must overlap server-verified authentication with language initialization");
+}
+console.log("VATRA startup: authentication and localization overlap across signed-in sections.");

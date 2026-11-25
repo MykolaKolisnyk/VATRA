@@ -37,10 +37,10 @@ function sectionIcon(key){const ns="http://www.w3.org/2000/svg",svg=document.cre
 function sectionIconButton(key,label,cls,fn){const b=btn("",cls,fn);b.title=label;b.setAttribute("aria-label",label);b.append(sectionIcon(key));return b;}
 function discoveryIcons(bar,keys){for(const button of bar.children){const icon=make("span","vatra-discovery-nav-icon ui-vatra-discovery-icon-"+button.dataset.tab);icon.append(sectionIcon(keys[button.dataset.tab]||"catalog"));const label=make("span","vatra-discovery-label-"+button.dataset.tab,button.textContent);button.replaceChildren(icon,label);}}
 async function boot(init){
- try{await window.VATRA_LANGUAGE?.ready;locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+ try{
  client=window.supabase?.createClient("https://cxrcycxrlkufozomsxcs.supabase.co","sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
  if(!client)throw Error("client");
- const result=await client.auth.getUser();user=result.data?.user;
+ const [result]=await Promise.all([client.auth.getUser(),window.VATRA_LANGUAGE?.ready]);locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";user=result.data?.user;
  if(result.error||!user?.id||!user.email_confirmed_at){if(result.error&&window.VATRA_SERVICE_NOTICE?.report(result,{session:true,access:false,retry:()=>location.reload()})){const loader=$("#feed-loading");if(loader)loader.textContent=t("Не вдалося підключитися до VATRA.","Could not connect to VATRA.");return;}location.replace(root.href);return;}
  const accountResult=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();if(accountResult.error){window.VATRA_SERVICE_NOTICE?.report(accountResult,{session:true,retry:()=>location.reload()});throw accountResult.error;}if(!valid(accountResult.data?.vatra_id))throw Error("account");ownId=String(accountResult.data.vatra_id);
  const name=String(user.user_metadata?.first_name||user.user_metadata?.full_name||"VATRA");window.VATRA_AVATAR?.setHeader({client,email:user.email,name:name.split(/\s+/)[0].slice(0,28),initials:name.slice(0,1),id:ownId});window.VATRA_AVATAR?.applyRemembered($("#feed-header-avatar"),user.email);
