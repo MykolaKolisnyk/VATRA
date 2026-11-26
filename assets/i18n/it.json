@@ -4145,5 +4145,6 @@
   "На цьому пристрої потрібно буде увійти повторно.": "Dovrai accedere di nuovo su questo dispositivo.",
   "Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.": "Sessione revocata. L’accesso termina alla scadenza del token attuale.",
   "Не вдалося завершити сеанс.": "Impossibile terminare la sessione.",
-  "Остання активність: ": "Ultima attività: "
+  "Остання активність: ": "Ultima attività: ",
+  "Країна": "Paese"
 }

@@ -1651,6 +1651,14 @@ assert.ok(
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
  "Profile must fetch only four friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
+const countrySource=profileScript.slice(profileScript.indexOf(" const countryCities="),profileScript.indexOf(" const choiceLabel="));
+const countryTest=new Function("window","document",countrySource+"return {countryCodes,citiesForCountry,countryLabel};")({VATRA_LANGUAGE:{locale:"uk"}},{documentElement:{lang:"uk"}});
+assert.deepEqual([...countryTest.countryCodes].sort(),["BG","DE","FR","GB","GE","IT","PL","UA"]);
+assert.ok(countryTest.citiesForCountry("UA").includes("Ужгород")&&!countryTest.citiesForCountry("PL").includes("Ужгород"));
+assert.ok(countryTest.citiesForCountry("PL").includes("Warszawa")&&!countryTest.citiesForCountry("UA").includes("Warszawa"));
+assert.equal(countryTest.citiesForCountry("XX").length,0);
+assert.ok(profileScript.includes('key==="country"?countryCodes.map')&&profileScript.includes('key!=="country"&&selectedValue')&&profileScript.includes('citiesForCountry(draft.get("country")?.value)'));
+
 assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
  "Exactly one page-level profile controller must be loaded");
 assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module has invalid JavaScript");

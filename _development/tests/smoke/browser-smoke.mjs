@@ -5346,13 +5346,37 @@ try{
    assert.equal(await profilePage.locator("#"+id+"-native").inputValue(),value);
    assert.equal(await trigger.getAttribute("aria-expanded"),"false");
   };
+  const countryOptions=await profilePage.locator("#profile-editor-country-native").evaluate(el=>Array.from(el.options,option=>({value:option.value,label:option.textContent})));
+  assert.deepEqual(countryOptions.map(option=>option.value),["","UA","GB","PL","DE","FR","IT","BG","GE"],
+   "Country is a fixed list of exactly the eight VATRA interface countries");
+  assert.equal(await profilePage.locator("#profile-editor-country").evaluate(el=>el.tagName),"BUTTON",
+   "Country must be selected rather than typed");
+  const selectCountry=async code=>chooseProfileEditorOption("profile-editor-country",code,countryOptions.find(option=>option.value===code).label);
+  const checkCityOptions=async(id,expected,excluded)=>{
+   const input=profilePage.locator("#"+id);
+   await input.scrollIntoViewIfNeeded();
+   await input.click();
+   const panelId=await input.getAttribute("aria-controls");
+   assert.ok(panelId,"A country-specific city menu must open");
+   const panel=profilePage.locator("#"+panelId);
+   assert.equal(await panel.getByRole("option",{name:expected,exact:true}).count(),1);
+   assert.equal(await panel.getByRole("option",{name:excluded,exact:true}).count(),0);
+   await panel.getByRole("option",{name:expected,exact:true}).click();
+   assert.equal(await input.inputValue(),expected);
+  };
+  await selectCountry("PL");
+  await checkCityOptions("profile-editor-hometown","Warszawa","Київ");
+  await selectCountry("UA");
+  assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Warszawa",
+   "Changing country must not silently delete an existing hometown");
+  await checkCityOptions("profile-editor-hometown","Львів","Warszawa");
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
   assert.equal(await profilePage.locator("#profile-editor-page-visibility, #profile-editor-page-visibility-native").count(),0,
    "Global profile visibility belongs exclusively in Settings");
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
-  await profilePage.locator("#profile-editor-city").fill("Київ");
+  await checkCityOptions("profile-editor-city","Київ","Warszawa");
   await profilePage.locator("#profile-editor-website").fill("https://example.org");
   await chooseProfileEditorOption("profile-editor-visibility-website","public",language==="en"?"Everyone":"Для всіх");
   await profilePage.locator('.profile-editor-nav-link[data-group="profile"]').click();
@@ -5391,6 +5415,10 @@ try{
   await profilePage.locator("#profile-about-more").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),true,
    "More details opens the full personal-information dialog");
+  assert.equal((await profilePage.locator(".vatra-profile-detail-value-country").textContent()).trim(),countryOptions.find(option=>option.value==="UA").label,
+   "The stored country is displayed using its localized name");
+  assert.equal(await profilePage.evaluate(()=>window.__profileDetailRows.find(row=>row.field_key==="country")?.field_value),"UA",
+   "Country must persist as an ISO code, not as translated text");
   assert.equal((await profilePage.locator(".vatra-profile-detail-value-hometown").textContent()).trim(),"Львів",
    "Both location fields belong in the full dialog");
   assert.equal((await profilePage.locator(".vatra-profile-detail-bio-001").textContent()).trim(),"Тестова інформація");
