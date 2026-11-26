@@ -4656,15 +4656,15 @@ try{
   // Header search now expands global results, not Feed. Refresh the real
   // cursor by switching categories after the twelve-second cache lifetime.
   await feedProbe.waitForTimeout(12100);
-  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false);
-  await feedProbe.locator("#feed-filter-toggle").click();
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true);
+  assert.equal(await feedProbe.locator("#feed-filter-toggle").count(),0);
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true);
   await feedProbe.locator('[data-feed-filter="friends"]').click();
   await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&document.querySelector('[data-feed-filter="friends"]')?.getAttribute("aria-pressed")==="true");
   await feedProbe.locator('[data-feed-filter="all"]').click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
   await feedProbe.keyboard.press("Escape");
-  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false);
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true);
   assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Feed author names must link to numeric member profile URLs");
   assert.ok((await feedProbe.locator(".feed-post-profile-avatar").getAttribute("href")).endsWith("/VATRA/id654321"),
@@ -4697,11 +4697,11 @@ try{
    });
    assert.ok(Math.abs(filterGeometry.right-filterGeometry.edge)<=3,
     "Feed filter must stay at the far right edge: "+JSON.stringify(filterGeometry));
-   assert.ok(Math.abs(filterGeometry.storiesWidth-filterGeometry.mainWidth)<3&&
+   assert.ok(Math.abs(filterGeometry.storiesWidth-filterGeometry.composerWidth)<3&&
     Math.abs(filterGeometry.storiesLeft-filterGeometry.composeLeft)<3&&
     Math.abs(filterGeometry.postWidth-filterGeometry.composerWidth)<3&&
     Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
-    "Stories span the main workspace while composer and posts align");
+    "Stories, composer and posts align in the reading column");
    assert.ok(filterGeometry.postWidth<=770&&
     filterGeometry.gridGap===(filterGeometry.screenWidth>770?"16px":"12px")&&
     (filterGeometry.screenWidth<=950||filterGeometry.statusVisible||
@@ -4711,8 +4711,7 @@ try{
    assert.ok(filterGeometry.screenWidth>950?
     (filterGeometry.composerWidth>filterGeometry.filterWidth*1.7&&
      filterGeometry.filterLeft>=filterGeometry.composeRight+10&&
-     Math.abs(filterGeometry.composerTop-filterGeometry.filterTop)<3&&
-     filterGeometry.storyBottom<=filterGeometry.filterTop+1):
+     Math.abs(filterGeometry.storyTop-filterGeometry.filterTop)<3):
     (Math.abs(filterGeometry.filterWidth-filterGeometry.composerWidth)<3&&
      Math.abs(filterGeometry.filterLeft-filterGeometry.composeLeft)<3&&
      filterGeometry.storyBottom<=filterGeometry.composerTop+1&&
@@ -4730,11 +4729,11 @@ try{
      "At narrower widths ads move below the reading lane rather than squeezing posts");
    }
   }
-  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false,
-   "Feed filter choices start collapsed");
-  await feedProbe.locator("#feed-filter-toggle").click();
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true,
-   "Feed filter choices open with the toggle");
+   "Feed filter choices remain visible");
+  assert.equal(await feedProbe.locator("#feed-filter-toggle").count(),0);
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true,
+   "Feed filter choices are always visible");
   await feedProbe.locator('[data-feed-filter="friends"]').click();
   await feedProbe.waitForFunction(()=>
    document.querySelector('#feed-posts')?.getAttribute('aria-busy')==='false'&&
@@ -5245,6 +5244,8 @@ try{
   assert.equal(await coverActions.locator('[data-action="upload"]').count(),1);
   assert.equal(await coverActions.locator('[data-action="crop"]').count(),initialCover?1:0);
   assert.equal(await coverActions.locator('[data-action="trash"]').count(),initialCover?1:0);
+  await profilePage.locator("#profile-heading").hover();await coverActions.waitFor({state:"hidden"});
+  await profilePage.locator("#profile-cover-change").hover();await coverActions.waitFor({state:"visible"});
   await profilePage.keyboard.press("Escape");await coverActions.waitFor({state:"hidden"});
   const coverFixture=await profilePage.evaluate(()=>{const c=document.createElement("canvas");c.width=960;c.height=640;const ctx=c.getContext("2d");ctx.fillStyle="#927fe4";ctx.fillRect(0,0,960,640);ctx.fillStyle="#fff";ctx.fillRect(0,240,960,160);return c.toDataURL("image/png").split(",")[1];});
   assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-editor.js"]').count(),0,
@@ -5467,6 +5468,7 @@ try{
    await profilePage.locator(selector).click();
    const menu=profilePage.locator("#profile-owner-media-menu");await menu.waitFor({state:"visible"});
    assert.ok(await menu.evaluate(el=>el.classList.contains("is-compact")),"Editor media menu is compact");
+   if(action==="profile-avatar-change")assert.equal(await menu.locator('[data-action="profile-add-story"]').count(),0,"Editor avatar menu has only photo actions");
    const [chooser]=await Promise.all([profilePage.waitForEvent("filechooser",{timeout:10000}),menu.locator('[data-action="'+action+'"]').click()]);
    assert.equal(await chooser.element().getAttribute("id"),inputId,"Media menu action opens the existing file picker");
   }
