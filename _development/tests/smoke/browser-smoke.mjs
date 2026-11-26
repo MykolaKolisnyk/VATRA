@@ -4484,6 +4484,16 @@ try{
   await feedProbe.locator(".ui-vatra-story-discard-dialog-001").waitFor({state:"visible"});
   await feedProbe.locator(".vatra-story-discard-keep-001").click();
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true,"Cancel discard keeps the draft");
+  await feedProbe.locator(".vatra-story-frame-001").click();
+  assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"media");
+  await feedProbe.locator(".vatra-story-photo-contain-001").click();
+  assert.equal(await feedProbe.locator(".vatra-story-photo-contain-001").getAttribute("aria-pressed"),"true");
+  await feedProbe.locator(".ui-vatra-story-photo-zoom-range-001").evaluate(el=>{el.value="175";el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));});
+  assert.equal(await feedProbe.locator(".vatra-story-photo-zoom-value-001").textContent(),"175");
+  await feedProbe.locator(".vatra-story-undo-001").click();
+  assert.equal(await feedProbe.locator(".ui-vatra-story-photo-zoom-range-001").inputValue(),"100");
+  await feedProbe.locator(".vatra-story-photo-reset-001").click();
+  assert.equal(await feedProbe.locator(".vatra-story-photo-cover-001").getAttribute("aria-pressed"),"true");
   await feedProbe.locator(".vatra-story-tool-filters-001").click();
   assert.equal(await feedProbe.locator(".ui-vatra-story-filter-preview-001").count(),6,"Every filter has a local visual preview");
   await feedProbe.locator(".vatra-story-filter-001").nth(1).click();
