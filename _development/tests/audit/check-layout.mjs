@@ -2808,7 +2808,8 @@ assert.ok(
  feedStoryOptimization.includes('const storyAuthors=[...new Set([vatraId,...friends])];')&&
  feedStoryOptimization.includes('if(storyAuthors.length<=100&&typeof query.in==="function")')&&
  feedStoryOptimization.includes('query=query.in("author_vatra_id",storyAuthors)')&&
- feedStoryOptimization.includes('if((id!==vatraId&&!friends.has(id))||seen.has(id))continue;')&&
+ feedStoryOptimization.includes('if((id!==vatraId&&!friends.has(id))||!storyLive(story))continue;')&&
+ feedStoryOptimization.includes('if(seen.has(id))continue;items.push(story);seen.add(id);')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
 await import("../smoke/feed-story-subscriptions-smoke.mjs");
