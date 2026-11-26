@@ -1,7 +1,7 @@
 body.vatra-section-page[data-page="vatra-id"] .ui-vatra-section-main-001{width:min(1120px,calc(100% - 32px));margin:20px auto 56px;min-width:0}
 body.vatra-section-page .ui-vatra-id-layout-001{display:grid;grid-template-columns:260px minmax(0,1fr);gap:var(--vatra-card-gap);align-items:start;max-width:940px;margin:0 auto}
 body.vatra-section-page[data-page="vatra-id"] .ui-vatra-section-heading-001{max-width:940px;margin-inline:auto}
-body.vatra-section-page .ui-vatra-id-sidebar-001{padding:12px;position:sticky;top:calc(var(--vatra-header-height,78px) + 16px)}
+body.vatra-section-page .ui-vatra-id-sidebar-001{padding:12px;position:sticky;top:81px}
 body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001{flex-direction:column}
 body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001 button{min-height:44px}
 body.vatra-section-page .vatra-id-back-001{display:block;padding:15px 10px 5px;margin-top:9px;border-top:1px solid #edf1f7}
@@ -34,7 +34,7 @@ body.vatra-section-page .ui-vatra-id-content-001>.ui-vatra-section-card-001{padd
 
 body.vatra-section-page .ui-vatra-preferences-layout-001{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,280px);gap:var(--vatra-card-gap);align-items:start;max-width:1080px;margin:auto}
 body.vatra-section-page .ui-vatra-preferences-content-001{display:grid;gap:var(--vatra-card-gap);min-width:0}
-body.vatra-section-page .ui-vatra-preferences-nav-001{position:sticky;top:calc(var(--vatra-header-height,78px) + 16px);padding:12px}
+body.vatra-section-page .ui-vatra-preferences-nav-001{position:sticky;top:81px;padding:12px}
 body.vatra-section-page .ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001{flex-direction:column}
 body.vatra-section-page .vatra-preferences-id-link-001{display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;color:#3563b3;font:650 14px/1.4 Onest,system-ui,sans-serif;padding:12px 10px}
 body.vatra-section-page .ui-vatra-preferences-card-001{padding:var(--vatra-card-padding);min-width:0}
@@ -50,7 +50,15 @@ body.vatra-section-page .ui-vatra-preferences-toggle-001::before{content:"";posi
 body.vatra-section-page .ui-vatra-preferences-toggle-001:checked{background:#2867d9}
 body.vatra-section-page .ui-vatra-preferences-toggle-001:checked::before{transform:translateX(18px)}
 body.vatra-section-page .ui-vatra-preferences-toggle-001:focus-visible{outline:2px solid #2867d9;outline-offset:3px}
-body.vatra-section-page .ui-vatra-preferences-block-form-001{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+body.vatra-section-page .ui-vatra-preferences-block-form-001{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px;margin:0;padding:4px 0 18px}
+body.vatra-section-page .ui-vatra-preferences-block-form-001 .vatra-section-submit-001{min-height:46px}
+body.vatra-section-page .ui-vatra-preferences-block-list-001{border-top:1px solid #e7edf5}
+body.vatra-section-page .ui-vatra-preferences-block-list-001 .ui-vatra-preferences-block-row-001:first-child{border-top:0}
+body.vatra-section-page .ui-vatra-preferences-block-list-001 .vatra-section-empty-001{min-height:0;padding:18px 0;border:0;box-shadow:none}
+body.vatra-section-page .ui-vatra-preferences-block-empty-001{display:grid;justify-items:center;gap:10px;padding:26px 12px 15px;color:var(--soft);text-align:center}
+body.vatra-section-page .ui-vatra-preferences-block-empty-001 svg{width:34px;height:34px;color:#7890b0}
+body.vatra-section-page .vatra-preferences-block-empty-label-001{font:var(--section-body);margin:0}
+@media(max-width:480px){body.vatra-section-page .ui-vatra-preferences-block-form-001{grid-template-columns:minmax(0,1fr)}body.vatra-section-page .ui-vatra-preferences-block-form-001 .vatra-section-submit-001{width:100%}}
 body.vatra-section-page .ui-vatra-preferences-block-row-001{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 0;border-top:1px solid #e7edf5}
 body.vatra-section-page .ui-vatra-preferences-block-copy-001{display:grid;gap:3px;min-width:0}
 body.vatra-section-page .vatra-preferences-block-name-001{font:700 15px/1.4 Onest,system-ui,sans-serif;text-decoration:none;color:#324e7b;overflow-wrap:anywhere}
@@ -60,3 +68,4 @@ body.vatra-section-page[data-page="settings"] .ui-vatra-section-main-001{width:m
 body.vatra-section-page .vatra-preferences-id-badge-001{display:inline-flex;align-items:center;gap:3px;color:#647dab;font:700 12px/1.4 Onest,system-ui,sans-serif}
 body.vatra-section-page .vatra-preferences-id-logo-001{width:18px;height:18px;object-fit:contain}
 @media(max-width:600px){body.vatra-section-page[data-page="settings"] .ui-vatra-section-main-001{width:calc(100% - 18px);margin:15px auto 50px}}
+html:has(body.vatra-section-page:is([data-page="settings"],[data-page="vatra-id"])){scrollbar-gutter:stable;overflow-y:scroll}

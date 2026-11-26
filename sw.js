@@ -1,4 +1,4 @@
-const CACHE="vatra-offline-shell-v94";
+const CACHE="vatra-offline-shell-v95";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[

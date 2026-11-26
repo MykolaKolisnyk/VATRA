@@ -57,7 +57,7 @@ async function account(){
  submit(form,t("Зберегти зміни","Save changes"),async()=>{const a=first.value.trim(),b=last.value.trim(),name=a+" "+b;if(a.length<1||b.length<1||name.length>80){message(t("Заповніть ім’я та прізвище (до 80 символів разом).","Enter first and last name (up to 80 characters in total)."),true);return;}
  const {data,error}=await client.from("public_profiles").update({display_name:name}).eq("vatra_id",ownId).select("display_name").maybeSingle();if(error||data?.display_name!==name)throw error||Error("name not saved");display.textContent=name;const auth=await client.auth.updateUser({data:{first_name:a,last_name:b,full_name:name}});if(auth.error){message(t("Ім’я у профілі змінено, але не вдалося синхронізувати акаунт. Повторіть збереження.","Profile name changed, but account sync failed. Save again."),true);return;}user=auth.data.user||user;window.VATRA_AVATAR?.setHeader({client,email:user.email,name:a.slice(0,28),initials:(a[0]+b[0]).toLocaleUpperCase(),id:ownId});message(t("Зміни збережено.","Changes saved."));});
  };
- const open=()=>{const id=location.hash.slice(1);return show(["personal","security"].includes(id)?id:"personal");};
+ const open=()=>{const id=location.hash.slice(1);window.scrollTo(0,0);return show(["personal","security"].includes(id)?id:"personal");};
  window.addEventListener("hashchange",()=>void open());await open();
 }
 async function preferences(){
@@ -119,27 +119,25 @@ async function preferences(){
    });return;
   }
   if(id==="notifications"){
-   const c=settingsCard(t("Сповіщення на сайті","Site notifications"));c.append(make("p","vatra-preferences-description-001",t("Ці параметри визначають, які сповіщення видно в цьому браузері. Вони не видаляють повідомлення з акаунта.","These settings control which notifications appear in this browser. They do not delete account notifications.")));
    let hidden=[];try{const value=JSON.parse(localStorage.getItem(prefKey)||"[]");if(Array.isArray(value))hidden=value.filter(x=>typeof x==="string");}catch(_){}
-   panel.append(c);
    for(const [,heading,kinds] of notificationKinds){const c=settingsCard(heading);panel.append(c);
    for(const [key,label,description] of kinds){const control=make("input","ui-vatra-preferences-toggle-001");control.type="checkbox";control.setAttribute("role","switch");control.checked=!hidden.includes(key);row(c,label,description,control,key);
     control.addEventListener("change",()=>{const before=hidden;const next=control.checked?hidden.filter(x=>x!==key):[...new Set([...hidden,key])];try{localStorage.setItem(prefKey,JSON.stringify(next));hidden=next;window.dispatchEvent(new Event("vatra-notification-display-changed"));message(t("Зміни збережено.","Changes saved."));}catch(_){control.checked=!before.includes(key);message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}});}
    }return;
   }
   const c=settingsCard(t("Чорний список","Blocked members")),form=make("form","ui-vatra-preferences-block-form-001"),idInput=field(form,"blocked-id","VATRA ID","text",19,true);idInput.inputMode="numeric";idInput.pattern="[1-9][0-9]{0,18}";c.append(form);
-  const list=make("div","ui-vatra-preferences-block-list-001");c.append(list);panel.append(c);
+  const list=make("div","ui-vatra-preferences-block-list-001");list.setAttribute("aria-live","polite");c.append(list);panel.append(c);
   submit(form,t("Додати до чорного списку","Block member"),async()=>{if(ticket!==renderTicket)return;const value=idInput.value.trim();if(!valid(value)||value===ownId){message(t("Вкажіть VATRA ID іншого користувача.","Enter another member's VATRA ID."),true);return;}if(!await confirmRemove(t("Заблокувати користувача?","Block member?"),t("Спілкування з цим користувачем буде обмежено.","Interactions with this member will be restricted."),t("Заблокувати","Block")))return;const r=await client.from("member_blocks").insert({blocker_vatra_id:ownId,blocked_vatra_id:value});if(r.error)throw r.error;if(ticket===renderTicket){idInput.value="";await readList();}});
   let generation=0;
   async function readList(){const n=++generation;list.replaceChildren(empty(t("Завантаження…","Loading…")));const result=await client.from("member_blocks").select("blocked_vatra_id,created_at").eq("blocker_vatra_id",ownId).order("created_at",{ascending:false}).limit(500);if(ticket!==renderTicket||n!==generation)return;
    if(result.error){list.replaceChildren(empty(t("Не вдалося завантажити чорний список.","Could not load blocked members.")));return;}
-   const items=result.data||[];list.replaceChildren();if(!items.length){list.append(empty(t("Ваш чорний список порожній","Your blocked list is empty")));return;}
+   const items=result.data||[];list.replaceChildren();if(!items.length){const state=make("div","ui-vatra-preferences-block-empty-001"),symbol=sectionIcon("person");symbol.setAttribute("aria-hidden","true");state.append(symbol,make("p","vatra-preferences-block-empty-label-001",t("Ваш чорний список порожній","Your blocked list is empty")));list.append(state);return;}
    const names=await Promise.all(items.map(x=>nameOf(String(x.blocked_vatra_id)).catch(()=>t("Учасник VATRA","VATRA member"))));if(ticket!==renderTicket||n!==generation)return;
    for(const [i,item] of items.entries()){const id=String(item.blocked_vatra_id),line=make("div","ui-vatra-preferences-block-row-001"),info=make("div","ui-vatra-preferences-block-copy-001");info.append(link(names[i],"id"+id,"vatra-preferences-block-name-001"),make("span","vatra-preferences-description-001","VATRA ID "+id));const remove=btn(t("Розблокувати","Unblock"),"vatra-preferences-action-001",async()=>{if(remove.disabled||ticket!==renderTicket)return;remove.disabled=true;try{const r=await client.from("member_blocks").delete().eq("blocker_vatra_id",ownId).eq("blocked_vatra_id",id).select("blocked_vatra_id").maybeSingle();if(r.error||!r.data)throw Error("Not removed");if(ticket===renderTicket)await readList();}catch(_){if(ticket===renderTicket)message(t("Не вдалося розблокувати користувача.","Could not unblock member."),true);}finally{remove.disabled=false;}});line.append(info,remove);list.append(line);}
   }
   await readList();
  }
- const open=()=>{const id=location.hash.slice(1);return show(sections.some(([key])=>key===id)?id:"general").catch(()=>message(t("Не вдалося завантажити налаштування.","Could not load settings."),true));};
+ const open=()=>{const id=location.hash.slice(1);window.scrollTo(0,0);return show(sections.some(([key])=>key===id)?id:"general").catch(()=>message(t("Не вдалося завантажити налаштування.","Could not load settings."),true));};
  window.addEventListener("hashchange",()=>void open());await open();
 }
 if(location.pathname.endsWith("/settings")||new URLSearchParams(location.search).get("view")==="settings")await preferences();else await account();
