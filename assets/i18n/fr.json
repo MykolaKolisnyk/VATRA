@@ -4173,5 +4173,13 @@
   "Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.": "Session révoquée. L’accès prendra fin à l’expiration du jeton actuel.",
   "Не вдалося завершити сеанс.": "Impossible de fermer la session.",
   "Остання активність: ": "Dernière activité : ",
-  "Країна": "Pays"
+  "Країна": "Pays",
+  "Незахищене HTTP-з’єднання.": "Connexion HTTP non chiffrée.",
+  "Скорочена адреса приховує кінцевий сайт.": "Une URL raccourcie masque le site de destination.",
+  "Незвична адреса сервера або порт.": "Adresse de serveur ou port inhabituel.",
+  "Міжнародний домен або приховані символи в адресі.": "Domaine internationalisé ou caractères invisibles dans l’adresse.",
+  "Адреса містить облікові дані.": "L’adresse contient des identifiants.",
+  "Домен може імітувати відомий сервіс.": "Le domaine peut imiter un service connu.",
+  "Адреса може перенаправити на інший сайт.": "L’adresse peut rediriger vers un autre site.",
+  "Посилання може завантажити виконуваний файл.": "Le lien peut télécharger un fichier exécutable."
 }

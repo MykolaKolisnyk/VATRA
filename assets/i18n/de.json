@@ -4173,5 +4173,13 @@
   "Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.": "Sitzung beendet. Der Zugriff endet mit Ablauf des aktuellen Tokens.",
   "Не вдалося завершити сеанс.": "Sitzung konnte nicht beendet werden.",
   "Остання активність: ": "Letzte Aktivität: ",
-  "Країна": "Land"
+  "Країна": "Land",
+  "Незахищене HTTP-з’єднання.": "Unverschlüsselte HTTP-Verbindung.",
+  "Скорочена адреса приховує кінцевий сайт.": "Eine Kurz-URL verbirgt die Zielwebsite.",
+  "Незвична адреса сервера або порт.": "Ungewöhnliche Serveradresse oder ungewöhnlicher Port.",
+  "Міжнародний домен або приховані символи в адресі.": "Internationalisierte Domain oder verborgene Zeichen in der Adresse.",
+  "Адреса містить облікові дані.": "Die Adresse enthält Anmeldedaten.",
+  "Домен може імітувати відомий сервіс.": "Die Domain könnte einen bekannten Dienst imitieren.",
+  "Адреса може перенаправити на інший сайт.": "Die Adresse könnte auf eine andere Website weiterleiten.",
+  "Посилання може завантажити виконуваний файл.": "Der Link könnte eine ausführbare Datei herunterladen."
 }

@@ -8,3 +8,5 @@
 .vatra-external-link-back-001{background:#edf3ff;color:#2865d8}
 .vatra-external-link-continue-001{background:#f2f4f8;color:#334761}
 .vatra-external-post-link-001{color:var(--blue,#2865d8);overflow-wrap:anywhere;text-decoration:underline}
+.vatra-external-link-reasons-001{margin:12px 0 0;padding-inline-start:20px;color:var(--ink,#293951);font:450 13px/1.55 Onest,Inter,system-ui,sans-serif;overflow-wrap:anywhere}
+.vatra-external-link-reason-001+.vatra-external-link-reason-001{margin-top:4px}

@@ -4031,5 +4031,13 @@
   "Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.": "Session revoked. Access ends when the existing token expires.",
   "Не вдалося завершити сеанс.": "Could not revoke session.",
   "Остання активність: ": "Last activity: ",
-  "Країна": "Country"
+  "Країна": "Country",
+  "Незахищене HTTP-з’єднання.": "Unencrypted HTTP connection.",
+  "Скорочена адреса приховує кінцевий сайт.": "A shortened URL hides the final website.",
+  "Незвична адреса сервера або порт.": "Unusual server address or port.",
+  "Міжнародний домен або приховані символи в адресі.": "Internationalized domain or hidden characters in the address.",
+  "Адреса містить облікові дані.": "The address contains credentials.",
+  "Домен може імітувати відомий сервіс.": "The domain may imitate a familiar service.",
+  "Адреса може перенаправити на інший сайт.": "The address may redirect to another website.",
+  "Посилання може завантажити виконуваний файл.": "The link may download an executable file."
 }
