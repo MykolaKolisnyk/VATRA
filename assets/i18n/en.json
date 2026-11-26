@@ -1,4 +1,12 @@
 {
+  "Вказати адресу": "Set address",
+  "Додавання місця": "Add a place",
+  "Вулиця": "Street",
+  "Назва": "Name",
+  "Введіть назву вулиці": "Enter street name",
+  "Наприклад, Дім": "For example, Home",
+  "Адресу побачать лише користувачі, яким ви надали доступ.": "Only the audience you select can see your address.",
+  "Заповніть поле": "Fill in this field",
   "Редагувати обкладинку": "Edit cover",
   "Змінити зображення": "Change image",
   "Завантажити зображення": "Upload image",
