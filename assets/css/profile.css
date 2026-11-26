@@ -2427,9 +2427,15 @@ body.profile-page .vatra-profile-editor-save-001{box-shadow:none}
  body.profile-page .profile-editor-footer{margin-top:20px}
 }
 
-body.profile-page .profile-edit-workspace{max-width:none;gap:12px;padding-top:0;scroll-margin-top:79px}
+body.profile-page .profile-edit-workspace{max-width:none;gap:12px;padding-top:20px;scroll-margin-top:79px}
 body.profile-page .vatra-profile-editor-back-001{width:34px;height:34px;border-radius:8px}
 body.profile-page .profile-editor-layout{grid-template-columns:minmax(0,1fr) 255px;gap:var(--vatra-card-gap);align-items:start}
+@media(min-width:1161px){
+ body.profile-page.feed-page:not(.community-page) .feed-layout:has(.profile-edit-workspace:not([hidden])){width:min(calc(100% - 40px),1262px);max-width:1262px}
+ body.profile-page .profile-editor-layout{grid-template-columns:255px minmax(0,1fr) 255px}
+ body.profile-page .profile-editor-main{grid-column:2;grid-row:1}
+ body.profile-page .profile-editor-sidebar{grid-column:3;grid-row:1}
+}
 body.profile-page .profile-editor-main,body.profile-page .profile-editor-sidebar{}
 body.profile-page .profile-editor-main{padding:20px 22px 24px}
 body.profile-page .profile-editor-sidebar{padding:12px 8px}
