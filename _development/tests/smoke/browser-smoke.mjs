@@ -784,7 +784,7 @@ try{
      footerAligned:Math.abs(footerContent.left-rect.left)<=2&&Math.abs(footerContent.right-rect.right)<=2,
      authAnimation:getComputedStyle(document.querySelector(".form-box")).animationName,
      fieldGap:getComputedStyle(document.querySelector(".form-box .field-stack")).gap,
-     heroReady:(()=>{const hero=document.querySelector(".vatra-login-hero-image-001");const image=hero?.querySelector(".vatra-login-hero-layer-001.is-active");return !!hero&&hero.tagName==="DIV"&&!!image?.naturalWidth&&/login_hero-0[123]\.webp$/.test(image.currentSrc||image.src);})(),
+     heroReady:(()=>{const hero=document.querySelector(".vatra-login-hero-image-001");const image=hero?.querySelector(".vatra-login-hero-layer-001.is-active");return !!hero&&hero.tagName==="DIV"&&!!image?.naturalWidth&&/login_hero-0[123]\.webp$/.test(new URL(image.currentSrc||image.src,location.href).pathname);})(),
      obsoleteOrbits:document.querySelectorAll(".orbit-icon,.intro-symbol,.intro-circle,.intro-art").length,
      heroWidth:document.querySelector(".vatra-login-hero-image-001").getBoundingClientRect().width,
      heroBefore:getComputedStyle(brand,"::before").content,
