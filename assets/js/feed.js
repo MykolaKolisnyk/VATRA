@@ -676,7 +676,21 @@
   storyTrack.addEventListener("scroll",updateStoryArrow,{passive:true});
   window.addEventListener("resize",updateStoryArrow,{passive:true});
  }
- let storyPreviewObserver=null,storyLoadGeneration=0;
+ let storyPreviewObserver=null,storyLoadGeneration=0,storySequence=[],viewSequence=[],viewIndex=-1;
+ const storyLive=story=>!!story&&Date.parse(story.expires_at)>Date.now();
+ const openStoryAt=(index,step=1)=>{
+  while(index>=0&&index<viewSequence.length&&!storyLive(viewSequence[index]))index+=step;
+  if(index<0||index>=viewSequence.length)return;
+  const story=viewSequence[index],dialog=q("#feed-story-view"),text=q("#feed-story-view-body");viewIndex=index;
+  q("#feed-story-view-heading").textContent=memberName(String(story.author_vatra_id));
+  text.textContent=String(story.body||"").trim();text.hidden=!text.textContent;
+  dialog.dataset.theme=String(story.theme||0);
+  q("#feed-story-view-position").textContent=(index+1)+" / "+viewSequence.length;
+  q("#feed-story-view-prev").disabled=!viewSequence.slice(0,index).some(storyLive);
+  q("#feed-story-view-next").disabled=!viewSequence.slice(index+1).some(storyLive);
+  if(!dialog.open)dialog.showModal();
+  void window.VATRA_POST_MEDIA?.renderStory(client,story,q("#feed-story-view-media"));
+ };
  async function loadStories(){
   const holder=q("#feed-friend-stories");
   if(!holder||!vatraId)return;
@@ -696,17 +710,19 @@
    const {data,error}=await feedDeadline(query.limit(60));
    if(generation!==storyLoadGeneration)return;
    if(error)throw error;
-   const items=[],seen=new Set();
+   const items=[],seen=new Set(),groups=new Map();
    for(const story of data||[]){
     const id=String(story.author_vatra_id);
-    if((id!==vatraId&&!friends.has(id))||seen.has(id))continue;
-    items.push(story);seen.add(id);
+    if((id!==vatraId&&!friends.has(id))||!storyLive(story))continue;
+    if(!groups.has(id))groups.set(id,[]);groups.get(id).push(story);
+    if(seen.has(id))continue;items.push(story);seen.add(id);
    }
    items.sort((a,b)=>Number(String(b.author_vatra_id)===vatraId)-Number(String(a.author_vatra_id)===vatraId));
+   const sequence=items.flatMap(item=>groups.get(String(item.author_vatra_id)).slice().reverse());
    const authorIds=items.map(x=>x.author_vatra_id);
    await Promise.allSettled([feedDeadline(loadPublicNames(authorIds),4000),feedDeadline(loadAvatars(authorIds),4000)]);
    if(generation!==storyLoadGeneration)return;
-   holder.replaceChildren();
+   holder.replaceChildren();storySequence=sequence;
    const pendingPreviews=new Map();
    const observer=typeof IntersectionObserver==="function"?new IntersectionObserver(entries=>{
     if(generation!==storyLoadGeneration)return;
@@ -741,17 +757,12 @@
     if(body&&!story.media_kind)button.append(node("span","vatra-feed-story-live-body-001",body));
     button.append(node("span","vatra-feed-story-live-name-001",id===vatraId?t("Ваша історія","Your story"):memberName(id)));
     button.addEventListener("click",()=>{
-     q("#feed-story-view-heading").textContent=memberName(id);
-     const text=q("#feed-story-view-body");
-     text.textContent=body;text.hidden=!body;
-     q("#feed-story-view").dataset.theme=String(story.theme||0);
-     q("#feed-story-view").showModal();
-     void window.VATRA_POST_MEDIA?.renderStory(client,story,q("#feed-story-view-media"));
+     viewSequence=storySequence.filter(storyLive);const index=viewSequence.findIndex(item=>String(item.author_vatra_id)===id);if(index>=0)openStoryAt(index);
     });
    }
    if(observer&&!pendingPreviews.size){observer.disconnect();if(storyPreviewObserver===observer)storyPreviewObserver=null;}
   }catch(error){
-   if(generation===storyLoadGeneration){storyPreviewObserver?.disconnect();storyPreviewObserver=null;reportFeedFailure("stories",error);holder.replaceChildren();q(".feed-stories")?.classList.add("is-empty");}
+   if(generation===storyLoadGeneration){storyPreviewObserver?.disconnect();storyPreviewObserver=null;reportFeedFailure("stories",error);holder.replaceChildren();storySequence=[];q(".feed-stories")?.classList.add("is-empty");}
   }finally{if(generation===storyLoadGeneration){holder.setAttribute("aria-busy","false");requestAnimationFrame(updateStoryArrow);}}
  }
  function bindComposer(){
@@ -850,8 +861,11 @@
   storyTrigger.addEventListener("click",firstStoryClick);
   const storyViewer=q("#feed-story-view");
   q("#feed-story-view-close").addEventListener("click",()=>storyViewer.close());
+  q("#feed-story-view-prev").addEventListener("click",()=>openStoryAt(viewIndex-1,-1));
+  q("#feed-story-view-next").addEventListener("click",()=>openStoryAt(viewIndex+1));
+  storyViewer.addEventListener("keydown",event=>{if(event.target.closest("video,input,textarea,select,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();const step=event.key==="ArrowLeft"?-1:1;openStoryAt(viewIndex+step,step);}});
   storyViewer.addEventListener("close",()=>{
-   if(!storyViewer.open)window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));
+   if(!storyViewer.open){viewSequence=[];viewIndex=-1;window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));}
   });
 
  }

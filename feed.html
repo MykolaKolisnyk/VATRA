@@ -19,7 +19,7 @@
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css?rev=3e5499621ecb01982137d82dea2634afe690d376">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=050232ac92cee6a045f41057e931353fa918eb13">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=b4a4f7d3afcd00b8748bf3db8a3894cd8ed77242">
     <link rel="stylesheet" href="assets/css/onboarding.css">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -33,7 +33,7 @@
     <script defer src="assets/js/ads.js?rev=2f9839001dcc172c5eafe3e70e70ba185e2ffffa"></script>
     <script defer src="assets/js/onboarding.js"></script>
     <script defer src="assets/js/feature-loader.js?rev=0ed4c3925aa65800c9519033b55418fa340121b8"></script>
-    <script defer src="assets/js/feed.js?rev=a0005f1770f7737b1c410e7da5550f7c0e9c4a34"></script>
+    <script defer src="assets/js/feed.js?rev=bd9c01ac54aa329b31a5a51e3fb1bfe4879abc2c"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=540263904e4addfe42d3fdf415697c04b64e4a8c"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -225,12 +225,9 @@
       </dialog>
       <dialog id="feed-story-dialog" class="ui-vatra-story-editor-001" aria-labelledby="feed-story-title"></dialog>
       <dialog id="feed-story-view" class="feed-story-view ui-feed-story-view-001" aria-labelledby="feed-story-view-heading">
-        <h2 id="feed-story-view-heading" class="vatra-feed-story-view-heading-001">
-        </h2>
-        <div id="feed-story-view-media" class="feed-story-view-media ui-feed-story-view-media-001" hidden></div>
-        <p id="feed-story-view-body" class="vatra-feed-story-view-body-001">
-        </p>
-        <button id="feed-story-view-close" type="button" class="vatra-feed-story-view-close-001" data-social-uk="Закрити" data-social-en="Close">Закрити</button>
+        <div class="ui-vatra-story-view-header-001"><h2 id="feed-story-view-heading" class="vatra-feed-story-view-heading-001"></h2><button id="feed-story-view-close" class="vatra-feed-story-view-close-001" type="button" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close"><svg class="ui-feed-story-view-close-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-story-view-close-path-001" d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+         <div class="ui-vatra-story-view-stage-001"><div id="feed-story-view-media" class="feed-story-view-media ui-feed-story-view-media-001" hidden></div><p id="feed-story-view-body" class="vatra-feed-story-view-body-001"></p></div>
+         <div class="ui-vatra-story-view-navigation-001"><button id="feed-story-view-prev" class="vatra-story-view-nav-001 ui-feed-story-view-prev-001" type="button" aria-label="Попередня історія" data-shell-aria-uk="Попередня історія" data-shell-aria-en="Previous story"><svg class="ui-feed-story-view-prev-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-story-view-prev-path-001" d="m15 5-7 7 7 7"/></svg></button><span id="feed-story-view-position" class="vatra-story-view-position-001" aria-live="polite"></span><button id="feed-story-view-next" class="vatra-story-view-nav-001 ui-feed-story-view-next-001" type="button" aria-label="Наступна історія" data-shell-aria-uk="Наступна історія" data-shell-aria-en="Next story"><svg class="ui-feed-story-view-next-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-story-view-next-path-001" d="m9 5 7 7-7 7"/></svg></button></div>
       </dialog>
       <dialog id="feed-delete-dialog" class="feed-delete-dialog ui-feed-delete-dialog-001" aria-labelledby="feed-delete-title" aria-describedby="feed-delete-description">
         <h2 id="feed-delete-title" class="feed-delete-title vatra-feed-delete-title-001" data-i18n="n38">
