@@ -2113,62 +2113,7 @@ body.profile-page .vatra-profile-unblock-direct-001:focus-visible{outline:2px so
 body.profile-page .vatra-profile-unblock-direct-001:disabled{cursor:wait}
 
 
-body.profile-page .profile-confirm-dialog{
- box-sizing:border-box;width:min(450px,calc(100vw - 30px));max-width:450px;
- max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:28px;
- border:1px solid #e0e7f2;border-radius:22px;background:#fff;color:#30435f;
- font-family:"Onest",system-ui,sans-serif;
- box-shadow:0 24px 80px rgba(22,39,78,.2)
-}
-body.profile-page .profile-confirm-dialog:not([open]){display:none!important}
-body.profile-page .profile-confirm-dialog::backdrop{
- background:rgba(25,37,62,.43);
- backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)
-}
-body.profile-page .vatra-profile-confirm-heading-001{
- margin:0 0 10px;color:#253b5d;
- font:750 clamp(19px,2vw,23px)/1.25 "Onest",system-ui,sans-serif;
- letter-spacing:-.025em
-}
-body.profile-page .vatra-profile-confirm-description-001{
- margin:0;color:#687d9b;
- font:500 14px/1.7 "Onest",system-ui,sans-serif
-}
-body.profile-page .profile-confirm-actions{
- display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:25px
-}
-body.profile-page .profile-confirm-actions > button{
- display:grid;place-items:center;min-width:0;min-height:45px;padding:10px 12px;
- border-radius:999px;white-space:normal;text-align:center;
- font:700 13px/1.4 "Onest",system-ui,sans-serif;cursor:pointer;
- transition:background .18s ease,box-shadow .18s ease
-}
-body.profile-page .vatra-profile-confirm-cancel-001{
- border:1px solid #2865d8;background:#fff;color:#2865d8
-}
-body.profile-page .vatra-profile-confirm-cancel-001:hover{
- background:#eaf0f9;color:#385b8b
-}
-body.profile-page .vatra-profile-confirm-accept-001{
- border:1px solid transparent;background:var(--vatra-action-primary);color:#fff
-}
-body.profile-page .vatra-profile-confirm-accept-001:hover{background:var(--vatra-action-primary-hover)}
-body.profile-page .profile-confirm-dialog[data-tone="primary"] .vatra-profile-confirm-accept-001{
- background:var(--vatra-action-primary);color:#fff
-}
-body.profile-page .profile-confirm-dialog[data-tone="primary"] .vatra-profile-confirm-accept-001:hover{
- background:var(--vatra-action-primary-hover);
- box-shadow:0 5px 18px rgba(61,99,207,.23)
-}
-body.profile-page .profile-confirm-dialog :is(button):focus-visible{
- outline:3px solid #9bb8ec;outline-offset:2px
-}
-@media(max-width:450px){
- body.profile-page .profile-confirm-dialog{padding:20px 18px 18px}
- body.profile-page .profile-confirm-actions{gap:8px}
-}
 @media(prefers-reduced-motion:reduce){
- body.profile-page .profile-confirm-actions > button,
  body.profile-page .profile-safety-action{transition:none}
 }
 

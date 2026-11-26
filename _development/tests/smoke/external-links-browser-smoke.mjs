@@ -106,6 +106,54 @@ try{
     await Promise.all([page.waitForURL("https://example.org/page?sig=a%2Bb"),page.locator("#signed").click()]);
     assert.equal(external.at(-1),"https://example.org/page?sig=a%2Bb");
    }finally{await page.close();}
+   // All simple decisions must share one computed design, even inside the story editor.
+   const confirmationPage=await context.newPage();
+   try{
+    await confirmationPage.goto(base+"fixture");
+    await confirmationPage.emulateMedia({reducedMotion:"reduce"});
+    for(const file of ["assets/css/feed.css","assets/css/profile.css","assets/css/photo-albums.css","assets/css/story-editor.css","assets/css/core.css","assets/css/settings.css"])await confirmationPage.addStyleTag({content:await readFile(file,"utf8")});
+    const variants=[
+     ["feed-page profile-page","profile-confirm-dialog ui-profile-confirm-dialog-001","vatra-profile-confirm-heading-001","vatra-profile-confirm-description-001","profile-confirm-actions","vatra-profile-confirm-cancel-001","vatra-profile-confirm-accept-001","h2"],
+     ["feed-page","feed-delete-dialog ui-feed-delete-dialog-001","feed-delete-title","feed-delete-description","feed-delete-actions","feed-delete-cancel","feed-delete-confirm","h2"],
+     ["feed-page profile-page","ui-vatra-albums-confirm-001","vatra-albums-confirm-heading-001","vatra-albums-confirm-note-001","ui-vatra-albums-confirm-actions-001","vatra-albums-secondary-001","vatra-albums-danger-001","h3"],
+     ["feed-page","ui-vatra-story-discard-dialog-001","vatra-story-discard-title-001","vatra-story-discard-copy-001","ui-vatra-story-discard-actions-001","vatra-story-discard-keep-001","vatra-story-discard-confirm-001","h3"],
+     ["vatra-section-page","ui-vatra-section-confirm-001","vatra-section-dialog-title-001","vatra-section-form-note-001","ui-vatra-market-controls-001","vatra-section-confirm-cancel-001","vatra-section-confirm-delete-001","h2"]
+    ];
+    for(const width of [320,1440]){
+     await confirmationPage.setViewportSize({width,height:900});
+     let reference;
+     for(const variant of variants){
+      const result=await confirmationPage.evaluate(([bodyClass,dialogClass,headingClass,copyClass,actionsClass,cancelClass,acceptClass,tag])=>{
+       document.querySelectorAll("dialog").forEach(el=>el.remove());
+       document.body.className=bodyClass;
+       const d=document.createElement("dialog");d.className=dialogClass;
+       const h=document.createElement(tag);h.className=headingClass;h.textContent="Підтвердити дію?";
+       const p=document.createElement("p");p.className=copyClass;p.textContent="Цю дію неможливо скасувати.";
+       const actions=document.createElement("div");actions.className=actionsClass;
+       const b=document.createElement("button");b.className=cancelClass;b.textContent="Скасувати";
+       const a=document.createElement("button");a.className=acceptClass;a.textContent="Підтвердити";
+       actions.append(b,a);d.append(h,p,actions);
+       if(dialogClass==="ui-vatra-story-discard-dialog-001"){
+        const parent=document.createElement("dialog");parent.className="ui-vatra-story-editor-001";parent.append(d);document.body.append(parent);parent.showModal();
+       }else document.body.append(d);
+       d.showModal();
+       const read=(el,keys)=>Object.fromEntries(keys.map(key=>[key,getComputedStyle(el)[key]]));
+       const buttonKeys=["backgroundColor","color","borderRadius","borderTopWidth","fontSize","fontWeight","paddingTop","paddingLeft","minHeight","width"];
+       return {box:read(d,["width","paddingTop","paddingLeft","borderRadius","backgroundColor","borderTopColor","textAlign"]),
+        title:read(h,["color","fontSize","fontWeight","lineHeight","marginBottom"]),
+        copy:read(p,["color","fontSize","fontWeight","lineHeight","marginBottom"]),
+        actions:read(actions,["display","gap","gridTemplateColumns","marginTop"]),
+        cancel:read(b,buttonKeys),accept:read(a,buttonKeys),
+        fit:d.getBoundingClientRect().left>=0&&d.getBoundingClientRect().right<=innerWidth&&d.scrollWidth<=d.clientWidth+1};
+      },variant);
+      assert.equal(result.fit,true,engine+" confirmation fits: "+variant[1]);
+      if(!reference)reference=result;else assert.deepEqual(result,reference,engine+" confirmation design mismatch: "+variant[1]+" @ "+width);
+      await confirmationPage.keyboard.press("Escape");
+      assert.equal(await confirmationPage.locator("dialog."+variant[1].split(" ")[0]).evaluate(el=>el.open),false,engine+" Escape dismisses "+variant[1]);
+     }
+    }
+    console.log(engine+" shared simple confirmations: five variants, mobile and desktop");
+   }finally{await confirmationPage.close();}
    // Use real language picker and service error runtime, with no production requests.
    const modalPage=await context.newPage();
    try{

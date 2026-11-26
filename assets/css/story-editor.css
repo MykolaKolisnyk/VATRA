@@ -67,11 +67,5 @@ body.feed-page .ui-vatra-story-fonts-001{display:grid;grid-template-columns:repe
 body.feed-page .ui-vatra-story-fonts-001 button{font-size:14px;background:transparent}
 body.feed-page .vatra-story-filter-001{display:grid;gap:3px;align-content:start;text-align:center;padding:3px!important;background:transparent!important;font-size:11px!important;min-width:0}
 body.feed-page .ui-vatra-story-filter-preview-001{display:block;width:100%;aspect-ratio:4/3;border-radius:5px}
-body.feed-page .ui-vatra-story-discard-dialog-001{box-sizing:border-box;width:min(340px,calc(100vw - 36px));border:1px solid #48566d;border-radius:12px;padding:18px;background:#253147;color:#f1f5ff;font:500 13px/1.5 Onest,system-ui,sans-serif}
-body.feed-page .ui-vatra-story-discard-dialog-001::backdrop{background:#10182699}
-body.feed-page .vatra-story-discard-title-001{margin:0 0 8px;font-size:16px}
-body.feed-page .vatra-story-discard-copy-001{margin:0 0 16px;color:#c7d6ef}
-body.feed-page .ui-vatra-story-discard-actions-001{display:flex;justify-content:flex-end;gap:8px}
-body.feed-page .vatra-story-discard-confirm-001{background:var(--vatra-action-primary,#376de8)!important}
 @media(max-width:720px){body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"] .ui-vatra-story-tools-001{flex-wrap:wrap;overflow:visible}body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"] .ui-vatra-story-tools-001 button{flex:1 1 130px}body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]){grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){body.feed-page .ui-vatra-story-editor-001 button{transition:none}}

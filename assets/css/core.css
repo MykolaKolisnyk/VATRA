@@ -37,4 +37,3 @@ body.vatra-section-page .ui-vatra-market-controls-001{display:flex;flex-wrap:wra
 body.vatra-section-page .ui-vatra-market-controls-001 button{background:#edf3ff;color:#3766b6;border:0;border-radius:7px;padding:8px 10px;font:var(--section-caption);cursor:pointer}
 body.vatra-section-page .vatra-section-dialog-status-001{margin:0 20px 20px;padding:12px 14px;background:#edf3ff;border-radius:9px;color:#365d9c;font:var(--section-control)}
 body.vatra-section-page .vatra-section-dialog-status-001[data-kind="error"]{background:#fff0f1;color:#a43a4c}
-body.vatra-section-page .vatra-section-confirm-delete-001{background:#fff0f1!important;color:#a43a4c!important}

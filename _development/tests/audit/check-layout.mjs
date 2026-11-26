@@ -2050,7 +2050,8 @@ assert.ok(
  profileBehavior.includes('dialog.showModal();')&&
  profileBehavior.includes('window.VATRA_PROFILE_CONFIRM(blocked?{')&&
  !/\b(?:window\.)?confirm\s*\(/.test(profileBehavior.replace(/\/\*[\s\S]*?\*\//g,""))&&
- systemProfileCss.includes('body.profile-page .profile-confirm-dialog::backdrop{'),
+ css.includes('Shared simple confirmation layout')&&
+ !systemProfileCss.includes('body.profile-page .profile-confirm-dialog::backdrop{'),
  "All profile decisions use the accessible VATRA dialog, not native JS confirm windows");
 assert.ok(
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<

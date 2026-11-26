@@ -18,12 +18,17 @@ const card=(cls)=>make("section","ui-vatra-section-card-001 "+cls);
 const field=(form,key,label,type="text",max=100,required=false)=>{const wrap=make("div","ui-vatra-section-field-"+key),lab=make("label","vatra-section-label-"+key,label),el=make(type==="textarea"?"textarea":"input","ui-vatra-section-input-"+key);
 el.id="vatra-section-"+key;lab.htmlFor=el.id;if(type!=="textarea")el.type=type;el.maxLength=max;el.required=required;if(type==="textarea")el.rows=4;wrap.append(lab,el);form.append(wrap);return el;};
 const submit=(form,label,fn)=>{const b=make("button","vatra-section-submit-001",label);b.type="submit";form.append(b);form.addEventListener("submit",async e=>{e.preventDefault();if(b.disabled)return;b.disabled=true;message("");try{await fn();}catch(error){window.VATRA_SERVICE_NOTICE?.report(error,{session:true});message(t("Не вдалося зберегти. Спробуйте ще раз.","Could not save. Please retry."),true);}finally{b.disabled=false;}});return b;};
+let confirmationSerial=0;
 async function confirmRemove(heading=t("Видалити оголошення?","Delete listing?"),description=t("Цю дію неможливо скасувати.","This action cannot be undone."),accept=t("Видалити","Delete")){
- return new Promise(resolve=>{const d=make("dialog","ui-vatra-section-dialog-001 ui-vatra-section-confirm-001"),head=make("header","ui-vatra-section-dialog-head-001"),body=make("div","ui-vatra-section-dialog-form-001");
- head.append(make("h2","vatra-section-dialog-title-001",heading));
- body.append(make("p","vatra-section-form-note-001",description));
- const buttons=make("div","ui-vatra-market-controls-001");let accepted=false;
- buttons.append(btn(t("Скасувати","Cancel"),"vatra-section-confirm-cancel-001",()=>d.close()),btn(accept,"vatra-section-confirm-delete-001",()=>{accepted=true;d.close();}));body.append(buttons);const scroll=make("div","ui-vatra-section-dialog-scroll-001");scroll.append(body);d.append(head,scroll);document.body.append(d);d.addEventListener("close",()=>{d.remove();resolve(accepted);},{once:true});d.showModal();});
+ return new Promise(resolve=>{
+  const d=make("dialog","ui-vatra-section-confirm-001"),id="vatra-section-confirm-"+(++confirmationSerial);
+  const head=make("h2","vatra-section-dialog-title-001",heading),copy=make("p","vatra-section-form-note-001",description);
+  head.id=id+"-heading";copy.id=id+"-description";d.setAttribute("aria-labelledby",head.id);d.setAttribute("aria-describedby",copy.id);
+  const buttons=make("div","ui-vatra-market-controls-001");let accepted=false;
+  const cancel=btn(t("Скасувати","Cancel"),"vatra-section-confirm-cancel-001",()=>d.close());cancel.autofocus=true;
+  buttons.append(cancel,btn(accept,"vatra-section-confirm-delete-001",()=>{accepted=true;d.close();}));
+  d.append(head,copy,buttons);document.body.append(d);d.addEventListener("close",()=>{d.remove();resolve(accepted);},{once:true});d.showModal();
+ });
 }
 function tabs(items,onChange,cls="ui-vatra-section-tabs-001"){const bar=make("div",cls);bar.setAttribute("role","group");for(const [id,label] of items){const b=btn(label,"vatra-section-tab-"+id,()=>{for(const el of bar.children){el.classList.toggle("is-active",el===b);el.setAttribute("aria-pressed",String(el===b));}onChange(id);});b.dataset.tab=id;b.setAttribute("aria-pressed","false");bar.append(b);}bar.firstElementChild?.classList.add("is-active");bar.firstElementChild?.setAttribute("aria-pressed","true");return bar;}
 const dialog=(heading)=>{const d=make("dialog","ui-vatra-section-dialog-001"),head=make("header","ui-vatra-section-dialog-head-001");head.append(make("h2","vatra-section-dialog-title-001",heading),btn("×","vatra-section-dialog-close-001",()=>d.close()));const form=make("form","ui-vatra-section-dialog-form-001");const status=make("p","vatra-section-dialog-status-001");status.hidden=true;status.setAttribute("role","status");const scroll=make("div","ui-vatra-section-dialog-scroll-001");scroll.append(form,status);d.append(head,scroll);document.body.append(d);d.addEventListener("close",()=>message(""));d.addEventListener("click",e=>{if(e.target===d)d.close();});return {d,form};};

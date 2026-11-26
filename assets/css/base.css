@@ -865,3 +865,40 @@ dialog:modal,.language-dialog,.captcha-dialog{overscroll-behavior:contain}
 @media(prefers-reduced-motion:reduce){
  dialog:modal,dialog:modal::backdrop,.language-backdrop,.captcha-backdrop,.language-dialog,.language-dialog > :not([hidden]),.captcha-dialog{animation:none!important;transition:none!important}
 }
+
+/* Shared simple confirmation layout. All legacy dialog hooks use the same visual contract. */
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001){
+ box-sizing:border-box;width:min(450px,calc(100vw - 30px));max-width:450px;max-height:calc(100dvh - 32px);
+ overflow:auto;margin:auto;padding:28px;border:1px solid #e0e7f2;border-radius:22px;background:#fff;color:#30435f;
+ font-family:"Onest",system-ui,sans-serif;box-shadow:0 24px 80px rgba(22,39,78,.2);text-align:left;
+}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001)[open]{display:block}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001):not([open]){display:none!important}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.vatra-profile-confirm-heading-001,.feed-delete-title,.vatra-albums-confirm-heading-001,.vatra-story-discard-title-001,.vatra-section-dialog-title-001){
+ margin:0 0 10px;color:#253b5d;font:750 clamp(19px,2vw,23px)/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.025em;
+}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.vatra-profile-confirm-description-001,.feed-delete-description,.vatra-albums-confirm-note-001,.vatra-story-discard-copy-001,.vatra-section-form-note-001){
+ margin:0;color:#687d9b;font:500 14px/1.7 "Onest",system-ui,sans-serif;overflow-wrap:anywhere;
+}
+body dialog.ui-vatra-section-confirm-001 :is(.ui-vatra-section-dialog-head-001,.ui-vatra-section-dialog-scroll-001,.ui-vatra-section-dialog-form-001){display:contents}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.profile-confirm-actions,.feed-delete-actions,.ui-vatra-albums-confirm-actions-001,.ui-vatra-story-discard-actions-001,.ui-vatra-market-controls-001){
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:25px 0 0;padding:0;
+}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.profile-confirm-actions,.feed-delete-actions,.ui-vatra-albums-confirm-actions-001,.ui-vatra-story-discard-actions-001,.ui-vatra-market-controls-001)>button{
+ display:grid;place-items:center;width:100%;min-width:0;min-height:45px;height:auto;margin:0;padding:10px 12px;border-radius:999px;white-space:normal;text-align:center;
+ font:700 13px/1.4 "Onest",system-ui,sans-serif;cursor:pointer;transition:background .18s ease,box-shadow .18s ease;box-shadow:none;
+}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.profile-confirm-actions,.feed-delete-actions,.ui-vatra-albums-confirm-actions-001,.ui-vatra-story-discard-actions-001,.ui-vatra-market-controls-001)>button:first-child{
+ border:1px solid #2865d8!important;background:#fff!important;color:#2865d8!important;
+}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.profile-confirm-actions,.feed-delete-actions,.ui-vatra-albums-confirm-actions-001,.ui-vatra-story-discard-actions-001,.ui-vatra-market-controls-001)>button:first-child:hover{background:#eaf0f9!important;color:#385b8b!important}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.profile-confirm-actions,.feed-delete-actions,.ui-vatra-albums-confirm-actions-001,.ui-vatra-story-discard-actions-001,.ui-vatra-market-controls-001)>button:last-child{
+ border:1px solid transparent!important;background:var(--vatra-action-primary)!important;color:#fff!important;
+}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.profile-confirm-actions,.feed-delete-actions,.ui-vatra-albums-confirm-actions-001,.ui-vatra-story-discard-actions-001,.ui-vatra-market-controls-001)>button:last-child:hover{background:var(--vatra-action-primary-hover)!important}
+body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) button:focus-visible{outline:3px solid #9bb8ec;outline-offset:2px}
+@media(max-width:450px){
+ body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001){padding:20px 18px 18px}
+ body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) :is(.profile-confirm-actions,.feed-delete-actions,.ui-vatra-albums-confirm-actions-001,.ui-vatra-story-discard-actions-001,.ui-vatra-market-controls-001){gap:8px}
+}
+@media(prefers-reduced-motion:reduce){body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001) button{transition:none}}
