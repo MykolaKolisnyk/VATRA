@@ -135,6 +135,12 @@
   ["friends","Для друзів","Friends"],
   ["only_me","Лише для мене","Only me"]
  ];
+ const addressParts=value=>{
+  const text=String(value||"");
+  const parts=text.split("\n");
+  return parts.length===3?parts:[ "","",text ];
+ };
+ const addressText=value=>addressParts(value).filter(Boolean).join(", ");
  const make=(tag,cls,content)=>{
   const e=document.createElement(tag);
   if(cls)e.className=cls;
@@ -290,7 +296,7 @@
      link.href=href;link.target="_blank";link.rel="noopener noreferrer nofollow";
      content.append(link);
     }else content.textContent=data.value;
-   }else content.textContent=key==="country"?countryLabel(data.value):key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
+   }else content.textContent=key==="address"?addressText(data.value):key==="country"?countryLabel(data.value):key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
    if(!detailed&&(key==="city"||key==="hometown")&&visibleField("country")){
     const country=countryLabel(visibleField("country"));if(country)content.append(document.createTextNode(", "+country));
    }
@@ -695,7 +701,7 @@
    const row=make("div","profile-editor-field ui-profile-editor-field-"+key);
    row.dataset.long=kind==="long"?"true":"false";
    const lab=make("label","vatra-profile-editor-label-"+key,tr(uk,en));
-   const current=draft.get(key)||{value:"",visibility:"friends"};
+   const current=draft.get(key)||{value:"",visibility:key==="address"?"only_me":"friends"};
    const selectBox=make("select","ui-profile-editor-visibility-"+key);
    selectBox.id="profile-editor-visibility-"+key;
    selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+tr(uk,en));
@@ -705,7 +711,38 @@
    const control=make("div","ui-profile-editor-field-control-"+key);
    const inputId="profile-editor-"+key;
    let readValue;
-   if(key==="languages"){
+   if(key==="address"){
+    let value=current.value;
+    const trigger=make("button","vatra-profile-editor-address-open-001");trigger.id=inputId;trigger.type="button";trigger.setAttribute("aria-haspopup","dialog");trigger.setAttribute("aria-label",tr("Вказати адресу","Set address"));
+    const refresh=()=>{trigger.replaceChildren(make("span","vatra-profile-editor-address-value-001",addressText(value)||tr("Вказати адресу","Set address")),svg("edit"));trigger.classList.toggle("is-empty",!value);};
+    readValue=()=>value;refresh();control.append(trigger);
+    trigger.addEventListener("click",()=>{
+     closeEditorMenu();
+     const d=make("dialog","vatra-profile-editor-record-dialog ui-profile-editor-address-dialog-001");
+     d.id="profile-editor-address-dialog";d.setAttribute("aria-labelledby","profile-editor-address-title");
+     const form=make("form","ui-profile-editor-record-form-001"),head=make("header","ui-profile-editor-record-head-001"),title=make("h2","vatra-profile-editor-record-title-001",tr("Додавання місця","Add a place"));title.id="profile-editor-address-title";
+     const closeButton=make("button","vatra-profile-editor-record-close-001");closeButton.type="button";closeButton.setAttribute("aria-label",tr("Закрити","Close"));closeButton.append(svg("x"));head.append(title,closeButton);
+     const body=make("div","profile-editor-fields ui-profile-editor-record-fields-001"),foot=make("footer","ui-profile-editor-record-footer-001");
+     const [existingCity,existingStreet,existingName]=addressParts(value);
+     const addField=(key,uk,en,initial)=>{
+      const row=make("div","profile-editor-field ui-profile-editor-address-row-"+key),group=make("div","ui-profile-editor-field-label-group-001"),label=make("label","vatra-profile-editor-label-place-"+key,tr(uk,en));
+      const input=make("input","ui-profile-editor-input-place-"+key);input.id="profile-editor-place-"+key;input.type="text";input.maxLength=250;input.autocomplete="off";input.value=initial;label.htmlFor=input.id;group.append(label);row.append(group,input);body.append(row);return input;
+     };
+     const city=addField("city","Населений пункт","City, town or village",existingCity||draft.get("city")?.value||"");
+     const street=addField("street","Вулиця","Street",existingStreet),name=addField("name","Назва","Name",existingName);
+     city.placeholder=tr("Знайти або ввести населений пункт","Find or enter a settlement");enhanceCityInput(city);
+     street.placeholder=tr("Введіть назву вулиці","Enter street name");name.placeholder=tr("Наприклад, Дім","For example, Home");
+     body.append(make("p","vatra-profile-editor-address-help-001",tr("Адресу побачать лише користувачі, яким ви надали доступ.","Only the audience you select can see your address.")));
+     const cancel=make("button","vatra-profile-editor-record-cancel-001",tr("Скасувати","Cancel"));cancel.type="button";
+     const commit=make("button","vatra-profile-editor-record-save-001",tr("Зберегти","Save"));commit.type="submit";
+     const finish=()=>{closeEditorMenu();if(d.open)d.close();d.remove();trigger.focus({preventScroll:true});};
+     closeButton.addEventListener("click",finish);cancel.addEventListener("click",finish);d.addEventListener("cancel",event=>{event.preventDefault();finish();});d.addEventListener("click",event=>{if(event.target===d)finish();});
+     if(value){const remove=make("button","vatra-profile-editor-address-remove-001",tr("Видалити","Delete"));remove.type="button";remove.addEventListener("click",()=>{value="";refresh();update();finish();});foot.append(remove);}
+     form.addEventListener("submit",event=>{event.preventDefault();const parts=[city.value,street.value,name.value].map(v=>v.trim());if(!parts[0]||(!parts[1]&&!parts[2])){(parts[0]?street:city).setCustomValidity(tr("Заповніть поле","Fill in this field"));(parts[0]?street:city).reportValidity();return;}value=parts.join("\n");refresh();update();finish();});
+     for(const input of [city,street,name])input.addEventListener("input",()=>{city.setCustomValidity("");street.setCustomValidity("");});
+     foot.append(cancel,commit);form.append(head,body,foot);d.append(form);document.body.append(d);d.showModal();city.focus();
+    });
+   }else if(key==="languages"){
     const selectedLanguages=[...new Set(current.value.split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean))];
     const wrap=make("div","ui-profile-editor-language-box-001"),chips=make("div","ui-profile-editor-language-chips-001");
     const picker=make("select","ui-profile-editor-input-languages");picker.id=inputId+"-native";picker.hidden=true;picker.tabIndex=-1;picker.setAttribute("aria-hidden","true");
