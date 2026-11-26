@@ -881,6 +881,10 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   });
  }
  const pendingMedia=new Map();
+ function mediaConnectionConstrained(){
+  const connection=typeof navigator==="undefined"?null:navigator.connection;
+  return connection?.saveData===true||["slow-2g","2g","3g"].includes(connection?.effectiveType);
+ }
  let mediaIntersection=null,mediaMountObserver=null;
  let mediaScanQueued=false;
  function removeMediaTarget(slot){
@@ -909,13 +913,13 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    }
    if(entry.observed)continue;
    clearTimeout(entry.timer);
-   if(entry.priority<=2||typeof IntersectionObserver!=="function"){
+   if((entry.priority<=2&&!mediaConnectionConstrained())||typeof IntersectionObserver!=="function"){
     startMediaTarget(slot);continue;
    }
    if(!mediaIntersection)mediaIntersection=new IntersectionObserver(entries=>{
     for(const item of entries)
      if(item.isIntersecting||item.intersectionRatio>0)startMediaTarget(item.target);
-   },{rootMargin:"440px 0px",threshold:0});
+   },{rootMargin:mediaConnectionConstrained()?"0px":"440px 0px",threshold:0});
    entry.observed=true;mediaIntersection.observe(slot);
   }
  }
@@ -1015,7 +1019,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
        candidate.alt=tr("Фото публікації","Post photo");
        candidate.loading="eager";
        candidate.decoding="async";
-       if(priority===1&&index===0)candidate.fetchPriority="high";
+       if(priority===1&&index===0&&!mediaConnectionConstrained())candidate.fetchPriority="high";
        candidate.classList.add("is-gallery-pending");
        tile.prepend(candidate);
        try{await loadImageSource(candidate,src);}
@@ -1261,7 +1265,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
     image.className="feed-post-media-image ui-feed-post-media-image-001";
     image.alt=tr("Фото до публікації","Post photo");
     image.decoding="async";image.loading="eager";
-    if(priority<=2)image.fetchPriority="high";
+    if(priority<=2&&!mediaConnectionConstrained())image.fetchPriority="high";
     try{await loadImageSource(image,src);}
     catch(error){await forgetFailedSignedURL(client,"image",path,src);throw error;}
     if(!slot.isConnected)return;

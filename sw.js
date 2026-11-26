@@ -89,8 +89,9 @@ self.addEventListener("fetch",event=>{
   /\.(?:css|js|json|svg|ttf|woff2?)$/i.test(url.pathname);
  const reusablePublic=publicAsset(url.pathname)&&!url.search;
  const revision=url.searchParams.get("rev")||"";
- const fingerprinted=staticAsset&&/^[a-f0-9]{40}$/.test(revision)&&url.searchParams.size===1&&/\.(?:js|css)$/i.test(url.pathname);
- if(!staticAsset&&!reusablePublic&&!ASSETS.includes(url.pathname))return;
+ const versionedHero=/^assets\/illustrations\/login_hero-0[1-3]\.webp$/.test(url.pathname.slice(ROOT.length));
+ const fingerprinted=(staticAsset&&/\.(?:js|css)$/i.test(url.pathname)||versionedHero)&&/^[a-f0-9]{40}$/.test(revision)&&url.searchParams.size===1;
+ if(!fingerprinted&&!staticAsset&&!reusablePublic&&!ASSETS.includes(url.pathname))return;
  event.respondWith((async()=>{
   const cache=await caches.open(CACHE);
   if(fingerprinted){

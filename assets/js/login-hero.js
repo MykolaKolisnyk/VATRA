@@ -5,9 +5,9 @@
  const script=document.currentScript;
  if(!stage||!script?.src)return;
  const sources=[
-  "../illustrations/login_hero-01.webp",
-  "../illustrations/login_hero-02.webp",
-  "../illustrations/login_hero-03.webp"
+  "../illustrations/login_hero-01.webp?rev=820e2c7986072c953322ea4b846391412efb73b5",
+  "../illustrations/login_hero-02.webp?rev=74bc08046bdeaffecf5fefc916b199e01ac6bcbc",
+  "../illustrations/login_hero-03.webp?rev=4f90c3e4f3821186218f9d4ec4cae07ab45c00b3"
  ].map(path=>new URL(path,script.src).href);
  const INTERVAL=30_000,PRELOAD=25_000,FADE=950;
  const connection=window.navigator?.connection;

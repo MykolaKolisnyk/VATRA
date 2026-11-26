@@ -108,3 +108,18 @@ console.log("VATRA navigation preload and concurrent static requests: OK.");
  assert.equal(request("assets/private/user-photo.webp"),undefined);
 }
 console.log("VATRA all eight language packs, shared font/logo reuse and private-resource exclusion: OK.");
+
+{
+ const art="assets/illustrations/login_hero-01.webp?rev=";
+ body="versioned decorative illustration";
+ const path=art+hash(body),before=networkCalls,writes=cacheWrites;
+ assert.equal(await (await request(path)).text(),body);
+ assert.equal(networkCalls,before+1);assert.equal(cacheWrites,writes+1);
+ online=false;assert.equal(await (await request(path)).text(),body);
+ online=true;assert.equal(networkCalls,before+1,"Versioned hero needs no repeated download");
+ await request(art+"b".repeat(40));assert.equal(cacheWrites,writes+1,"Mismatched image bytes must not enter cache");
+ assert.equal(request("assets/private/user-photo.webp?rev="+hash(body)),undefined);
+ assert.equal(request("assets/illustrations/login_hero-01.webp"),undefined,"Unversioned hero uses ordinary browser HTTP caching");
+ assert.equal(request("assets/illustrations/login_hero-04.webp?rev="+hash(body)),undefined);
+}
+console.log("VATRA decorative artwork: verified version cache, offline reuse and strict public allowlist passed.");

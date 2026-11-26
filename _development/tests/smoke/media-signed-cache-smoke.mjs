@@ -370,6 +370,24 @@ console.log("VATRA media cleanup: deduplication, Storage errors, rejected reques
  assert.equal(timers.size,0);
  assert.equal(loaded.includes("abandoned"),false);
  assert.equal(mutations[1].disconnected,true);
+ env.navigator={connection:{effectiveType:"2g",saveData:false}};
+ const slow={id:"slow",isConnected:true},offscreen={id:"offscreen",isConnected:true};
+ const previousLoads=loaded.length;
+ watch(slow,1);watch(offscreen,3);microtasks.shift()();
+ const slowObserver=observers.at(-1);
+ assert.equal(slowObserver.options.rootMargin,"0px");
+ assert.equal(loaded.length,previousLoads,"Even the first photo waits for viewport on 2G");
+ slowObserver.callback([{target:slow,isIntersecting:true},{target:offscreen,isIntersecting:false}]);
+ assert.equal(loaded.at(-1),"slow");assert.equal(loaded.includes("offscreen"),false);
+ offscreen.isConnected=false;
+ mutations.at(-1).callback([{removedNodes:[offscreen]}]);
+ env.navigator.connection={effectiveType:"4g",saveData:true};
+ const saver={id:"saver",isConnected:true};
+ watch(saver,1);microtasks.shift()();
+ assert.equal(observers.at(-1).options.rootMargin,"0px");
+ assert.equal(loaded.includes("saver"),false,"Save-Data disables eager media");
+ saver.isConnected=false;
+ mutations.at(-1).callback([{removedNodes:[saver]}]);
  // Non-IntersectionObserver environments retain an eager fallback.
  env.IntersectionObserver=undefined;
  watch({id:"fallback",isConnected:true},3);microtasks.shift()();
