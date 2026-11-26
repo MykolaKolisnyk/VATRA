@@ -41,15 +41,24 @@
  function linkifyHashtags(paragraph){
   if(!paragraph||typeof paragraph.textContent!=="string")return;
   const original=paragraph.textContent;
-  if(!original.includes("#"))return;
-  const expression=/(^|[^\p{L}\p{N}_])#([\p{L}\p{N}_]{1,64})/gu;
+  const expression=/(https?:\/\/[^\s<>"']+)|(^|[^\p{L}\p{N}_])#([\p{L}\p{N}_]{1,64})/gu;
   const result=document.createDocumentFragment();
   const siteRoot=location.pathname.startsWith("/VATRA/")?"/VATRA/":"/";
   let offset=0,found=false,match;
   while((match=expression.exec(original))!==null){
-   const start=match.index+match[1].length;
+   if(match[1]){
+    const value=match[1].replace(/[.,!?;:]+$/u,"");
+    let url;try{url=new URL(value);}catch(_){continue;}
+    if(!["http:","https:"].includes(url.protocol))continue;
+    result.append(document.createTextNode(original.slice(offset,match.index)));
+    const link=document.createElement("a");link.className="vatra-external-post-link-001";
+    link.href=url.href;link.textContent=value;link.target="_blank";link.rel="noopener noreferrer nofollow ugc";
+    result.append(link);offset=match.index+value.length;found=true;continue;
+   }
+   const start=match.index+match[2].length;
+   if(start<offset)continue;
    result.append(document.createTextNode(original.slice(offset,start)));
-   const tag="#"+match[2];
+   const tag="#"+match[3];
    const link=document.createElement("a");
    link.className="vatra-feed-post-hashtag-001";
    link.href=siteRoot+"feed?q="+encodeURIComponent(tag);
@@ -64,9 +73,6 @@
    paragraph.replaceChildren(result);
   }
  }
-
-
-
 
  const GALLERY_LIMIT=12,VIDEO_LIMIT=4,TOTAL_LIMIT=160*1024*1024;
  function validateGallery(files){
