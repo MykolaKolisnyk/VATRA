@@ -457,11 +457,18 @@
    if(url===failedURL&&state.signedURLs.get(key)===entry)state.signedURLs.delete(key);
   }catch(_){}
  }
- async function renderStory(client,story,slot,preview=false,allowExpired=false){
+ function clearStory(slot){
   if(!slot)return;
   const request=String(Number(slot.dataset.storyRequest||"0")+1);
   slot.dataset.storyRequest=request;
+  const video=slot.querySelector?.("video");
+  if(video){video.pause();video.removeAttribute("src");video.load();}
   slot.replaceChildren();slot.hidden=true;
+  return request;
+ }
+ async function renderStory(client,story,slot,preview=false,allowExpired=false){
+  if(!slot)return;
+  const request=clearStory(slot);
   const {media_kind:kind,media_path:path,author_vatra_id:id}=story||{};
   if(!storyPathValid(path,kind,id))return;
   if(!allowExpired&&story.expires_at&&Date.parse(story.expires_at)<=Date.now())return;
@@ -1383,5 +1390,5 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
  window.addEventListener("resize",()=>{if(mediaDialog?.open){const image=mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)");if(image)fitPhotoViewer(mediaDialog,mediaDialogContent,image);}}, {passive:true});
- window.VATRA_POST_MEDIA={photoMatte,fitPhotoViewer,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.VATRA_POST_MEDIA={photoMatte,fitPhotoViewer,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,openPostPhoto,photoNavigation,photoMenuIcon,clearStory,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();
