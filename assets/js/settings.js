@@ -13,7 +13,7 @@ async function renderDevices(panel){
  const c=card("ui-vatra-id-devices-001"),head=make("div","ui-vatra-id-devices-head-001"),list=make("div","ui-vatra-id-device-list-001");
  head.append(make("h2","vatra-id-device-heading-001",t("Пристрої та сеанси","Devices and sessions")));
  const refresh=btn(t("Оновити","Refresh"),"vatra-id-device-refresh-001",()=>void load());
- head.append(refresh);c.append(head,make("p","vatra-id-device-note-001",t("Входи у ваш акаунт. Один пристрій може мати кілька сеансів.","Sign-ins to your account. A device may have multiple sessions.")),list);
+ head.append(refresh);c.append(head,list);
  const logout=btn(t("Завершити всі інші сеанси","Sign out all other sessions"),"vatra-id-device-revoke-001",async()=>{
   if(logout.disabled)return;logout.disabled=true;
   try{
@@ -27,7 +27,9 @@ async function renderDevices(panel){
  async function load(){
   if(refresh.disabled)return;refresh.disabled=true;refresh.setAttribute("aria-busy","true");list.setAttribute("aria-busy","true");
   try{
-   let {data,error}=await client.rpc("vatra_my_sessions_v2");
+   await window.VATRA_REGISTER_BROWSER_SESSION?.(client,ownId);
+   let {data,error}=await client.rpc("vatra_my_sessions_v3");
+   if(error?.code==="PGRST202"||error?.code==="42883")({data,error}=await client.rpc("vatra_my_sessions_v2"));
    if(error?.code==="PGRST202"||error?.code==="42883")({data,error}=await client.rpc("vatra_my_sessions"));
    if(error)throw error;if(!c.isConnected)return;
    list.replaceChildren();
@@ -38,7 +40,8 @@ async function renderDevices(panel){
     path.setAttribute("class","ui-vatra-id-device-path-"+index);path.setAttribute("d",/Android|iPhone|iPad/i.test(entry.browser_agent||"")?"M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 15h2":"M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm7 14v3m-4 0h8");
     icon.append(path);symbol.append(icon);
     const details=make("div","ui-vatra-id-device-details-001");details.append(make("strong","vatra-id-device-name-001",sessionDevice(entry.browser_agent)),make("span","vatra-id-device-time-001",t("Вхід: ","Signed in: ")+date(entry.signed_in_at)));
-    if(entry.refreshed_at)details.append(make("span","vatra-id-device-activity-001",t("Оновлення сеансу: ","Session refreshed: ")+date(entry.refreshed_at)));
+    const activity=entry.refreshed_at&&Date.parse(entry.refreshed_at)>Date.parse(entry.signed_in_at)?entry.refreshed_at:entry.signed_in_at;
+    details.append(make("span","vatra-id-device-activity-001",t("Остання активність: ","Last activity: ")+date(activity)));
     row.append(symbol,details);
     if(entry.current_session)row.append(make("span","vatra-id-device-current-001",t("Поточний","Current")));
     else if(typeof entry.session_id==="string"&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(entry.session_id)){
@@ -47,7 +50,7 @@ async function renderDevices(panel){
       try{
        if(!await confirmRemove(t("Завершити цей сеанс?","Sign out this session?"),t("На цьому пристрої потрібно буде увійти повторно.","You will need to sign in again on this device."),t("Завершити сеанс","Sign out session")))return;
        if(!c.isConnected)return;
-       const result=await client.rpc("vatra_revoke_session",{target_session:entry.session_id});
+       const result=Number.isInteger(entry.session_count)?await client.rpc("vatra_revoke_browser_sessions",{target_session:entry.session_id}):await client.rpc("vatra_revoke_session",{target_session:entry.session_id});
        if(result.error||result.data!==true)throw result.error||Error("Session was not revoked");
        if(c.isConnected){await load();message(t("Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.","Session revoked. Access ends when the existing token expires."));}
       }catch(_){if(c.isConnected)message(t("Не вдалося завершити сеанс.","Could not revoke session."),true);}

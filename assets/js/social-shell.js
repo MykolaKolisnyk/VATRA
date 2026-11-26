@@ -773,7 +773,7 @@
  }
  const shellScript=document.currentScript?.src;
  const boot=()=>{
-  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-account-guard]")){const s=document.createElement("script");s.className="ui-vatra-account-guard-script-001";s.src=new URL("account-guard.js?rev=4d050593dc092a4cb3b50af4929c55acfc795a4a",shellScript).href;s.dataset.vatraAccountGuard="true";document.head.append(s);}
+  if(shellScript&&document.querySelector(".feed-account-menu")&&!document.querySelector("script[data-vatra-account-guard]")){const s=document.createElement("script");s.className="ui-vatra-account-guard-script-001";s.src=new URL("account-guard.js?rev=829222950286a333189424d5fe6ec4ed1af6636e",shellScript).href;s.dataset.vatraAccountGuard="true";document.head.append(s);}
   showPendingShell();
   setUpAccountPanel();
   setupRouteMotion();
