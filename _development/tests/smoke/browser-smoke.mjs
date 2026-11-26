@@ -3091,7 +3091,8 @@ try{
    }),
    list:async(folder,options)=>({data:bucket==="avatars"&&folder==="654321/avatar"&&!new URLSearchParams(location.search).has("no-avatar-test")&&!options?.offset?[{name:"test-profile.webp"},{name:"previous-profile.webp"}]:[],error:null}),
    download:async path=>{
-    window.__vatraAvatarDownloadedPaths.push(path);
+    if(bucket==="covers")(window.__vatraCoverDownloadedPaths??=[]).push(path);
+    else if(bucket==="avatars")window.__vatraAvatarDownloadedPaths.push(path);
     const bytes=Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="),c=>c.charCodeAt(0));
     return {data:new Blob([bytes],{type:"image/png"}),error:null};
    },
@@ -5261,6 +5262,20 @@ try{
   await profilePage.locator("#profile-cover-edit-close").click();
   assert.equal(await profilePage.locator("#profile-cover-edit-dialog").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-cover-photo").getAttribute("src"),initialCover,"Cancel never changes the existing cover");
+  if(initialCover){
+   const originalPath=new URL(initialCover).pathname.split("/covers/")[1].replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
+   await profilePage.locator("#profile-cover-change").hover();
+   await profilePage.locator('#profile-owner-media-menu [data-action="crop"]').click();
+   await profilePage.locator("#profile-cover-edit-dialog").waitFor({state:"visible"});
+   assert.equal(await profilePage.evaluate(()=>window.__vatraCoverDownloadedPaths?.at(-1)),originalPath,
+    "Display area must reopen the original stored cover without a file picker");
+   assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-editor.js"]').count(),1,
+    "Re-cropping must reuse the existing lazy editor");
+   await profilePage.locator("#profile-cover-edit-close").click();
+   assert.equal(await profilePage.locator("#profile-cover-photo").getAttribute("src"),initialCover,
+    "Cancelling a new display area preserves the current cover");
+  }
+
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),true);
