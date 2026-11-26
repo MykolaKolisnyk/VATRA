@@ -126,7 +126,7 @@ create function public.vatra_account_lifecycle_renew(
  job_user uuid, worker_lease uuid
 ) returns timestamptz
 language plpgsql security definer set search_path=''
-as $
+as $$
 declare
  j private.vatra_account_deletion_jobs%rowtype;
  stamp timestamptz;
@@ -146,7 +146,7 @@ begin
  where q.user_id=job_user
  returning q.lease_until into stamp;
  return stamp;
-end $;
+end $$;
 revoke all on function public.vatra_account_lifecycle_renew(uuid,uuid)
  from public,anon,authenticated;
 grant execute on function public.vatra_account_lifecycle_renew(uuid,uuid) to service_role;
