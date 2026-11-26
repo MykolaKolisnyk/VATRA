@@ -75,6 +75,8 @@ jobs:
         run: node _development/tests/audit/i18n-coverage-audit.mjs
       - name: Verify staged account lifecycle gateway (no live accounts)
         run: node _development/tests/smoke/account-lifecycle-gateway-smoke.mjs
+      - name: Check bounded requests and parallel startup
+        run: node _development/tests/smoke/startup-performance-smoke.mjs
       - name: Check SEO and site layout
         run: |
           node _development/tests/audit/check-seo.mjs

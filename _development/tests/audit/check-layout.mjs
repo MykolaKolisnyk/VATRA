@@ -1637,7 +1637,8 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedScript.includes('else posts.append(batch);')&&
  feedScript.includes('const keepExisting=reset&&scope===lastFeedScope')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
- profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id,false,focusPost)')&&
+ profileScript.includes('const postsPromise=locked?Promise.resolve():pendingDeleteFlush.then(()=>loadPosts(client,targetId,ownId,user.id,false,focusPost))')&&
+ profileScript.includes('const pendingDeleteFlush=Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,ownId))')&&
  profileScript.includes('if(focusPost&&!locked)window.VATRA_PROFILE_CHOOSE_TAB?.("posts")')&&
  profileScript.includes('const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,gender:isMine?metadata.gender:null,blockAccess,prepared}))')&&
  profileScript.includes('void mediaPromise.catch(()=>{')&&

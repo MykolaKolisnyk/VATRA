@@ -28,6 +28,15 @@ let pageHooks={};
 function validateBirthday(){return pageHooks.validateBirthday?.()??null;}
 let navigatingAuth=false;
 const markAuthReady=()=>{if(!navigatingAuth)document.body.dataset.authReady="true";};
+async function authFetch(input,init={},timeoutMs=15000){
+ const controller=new AbortController();
+ const upstream=init.signal||(typeof Request==="function"&&input instanceof Request?input.signal:null);
+ const cancel=()=>controller.abort(upstream?.reason);
+ if(upstream?.aborted)cancel();else upstream?.addEventListener("abort",cancel,{once:true});
+ const timer=setTimeout(()=>controller.abort(),timeoutMs);
+ try{return await fetch(input,{...init,signal:controller.signal});}
+ finally{clearTimeout(timer);upstream?.removeEventListener("abort",cancel);}
+}
 async function sessionCheckWithTimeout(){
  let timer;
  try{
@@ -271,6 +280,7 @@ async function initialize(){
  }else{
   try{
    auth=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
+    global:{fetch:authFetch},
     auth:{autoRefreshToken:page!=="reset"&&page!=="forgot",
      persistSession:page!=="reset"&&page!=="forgot",
      detectSessionInUrl:page!=="forgot",flowType:"pkce"}

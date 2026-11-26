@@ -62,6 +62,13 @@ async function loadHeaderPhoto(client,id,email){
  }catch(_){}
 }
 async function start(init){
+ const initialAuth=Promise.resolve().then(async()=>{
+  if(!window.supabase?.createClient)return null;
+  const client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
+   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
+  });
+  const result=await client.auth.getUser();return {client,result};
+ }).then(value=>({value}),error=>({error}));
  await window.VATRA_LANGUAGE?.ready;
  for(const element of document.querySelectorAll("[data-community-uk]")){
   element.textContent=t(element.dataset.communityUk,element.dataset.communityEn);
@@ -111,10 +118,8 @@ async function start(init){
   return;
  }
  try{
-  const client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
-   auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
-  });
-  const {data,error}=await client.auth.getUser();
+  const startup=await initialAuth;if(startup.error||!startup.value)throw startup.error||Error("Auth unavailable");
+  const {client,result:{data,error}}=startup.value;
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
    const id=location.pathname.match(/\/club([1-9][0-9]{0,18})$/)?.[1]||new URLSearchParams(location.search).get("club_id");
    if(!data?.user?.id&&id&&document.querySelector("#club-heading")&&await window.VATRA_GUEST?.club(client,id))return;
