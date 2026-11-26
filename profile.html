@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=163dda687e778993477c96327b0d7d7085e48909">
     <link rel="stylesheet" href="assets/css/feed.css?rev=b4a4f7d3afcd00b8748bf3db8a3894cd8ed77242">
     <link rel="stylesheet" href="assets/css/profile.css?rev=6192d1adcf750e2c1f9f6a287461746111252c5b">
+    <link rel="stylesheet" href="assets/css/create-menu.css?rev=9726d422da326c8243fee98438f4919d254624e5">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js?rev=7ff79ee9e91749c58a922e046858e8a2b0dd5bf1"></script>
@@ -31,7 +32,8 @@
     <script defer src="assets/js/gift-catalog.js?rev=3a4f84bd30f882272cdaa8436e9b4258137d81ee"></script>
     <script defer src="assets/js/guest-view.js?rev=3396dd0c3de7deed25f770ef52c38ae00117a3c5"></script>
     <script defer src="assets/js/feature-loader.js?rev=0ed4c3925aa65800c9519033b55418fa340121b8"></script>
-    <script defer src="assets/js/profile.js?rev=c888b83e1b5798cc03f00081096231776ad7765c"></script>
+    <script defer src="assets/js/create-menu.js?rev=9293774eefa190cfded7c730b8e00eb8a80b7f40"></script>
+    <script defer src="assets/js/profile.js?rev=af4135194122574f27515020fc1b37a263df2832"></script>
     <script defer src="assets/js/network.js?rev=111422be73f779068c5c4e03ced3f45ddd8433fa"></script>
     <script defer src="assets/js/social-shell.js?rev=540263904e4addfe42d3fdf415697c04b64e4a8c"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -293,11 +295,15 @@
                     </div>
                   </div>
                 </header>
-                <div id="profile-quick-compose" class="profile-quick-compose ui-profile-quick-compose-001 vatra-quick-compose-001" hidden>
-                  <span id="profile-compose-avatar" class="profile-compose-avatar ui-profile-compose-avatar-001 vatra-quick-compose-avatar-001" data-vatra-avatar-state="default" aria-hidden="true"></span>
-                  <button type="button" id="profile-write-post" class="profile-compose-open vatra-profile-write-post-001 vatra-quick-compose-open-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
-                  <button type="button" id="profile-quick-media" class="profile-quick-media vatra-profile-quick-media-001 vatra-quick-compose-media-001" aria-label="Додати фото або відео" data-shell-aria-uk="Додати фото або відео" data-shell-aria-en="Add photo or video"><svg class="vatra-quick-compose-media-icon-001 ui-profile-quick-media-icon-001" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-profile-quick-media-frame-001" x="2.5" y="3.5" width="17.5" height="17" rx="3.4"/><circle class="ui-profile-quick-media-sun-001" cx="8.4" cy="9.3" r="1.6"/><path class="ui-profile-quick-media-land-001" d="m4.5 17 4.3-4.1 3.2 2.8 2.5-2.8"/><circle class="ui-profile-quick-media-video-badge-001" cx="18.5" cy="18.2" r="4.5" fill="#f3f6ff"/><path class="ui-profile-quick-media-play-001" d="m17.4 16.2 3 2-3 2Z" fill="currentColor" stroke="none"/></svg></button>
+                <div id="profile-quick-compose" class="profile-quick-compose ui-profile-quick-compose-001 vatra-quick-compose-001" hidden data-create-menu>
+              <button type="button" id="profile-create-menu" class="vatra-create-menu-trigger-001 ui-profile-create-toggle-001" data-create-toggle aria-expanded="false" aria-controls="profile-create-menu-panel"><svg class="ui-profile-create-plus-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-create-plus-path-001" d="M12 5v14M5 12h14"/></svg><span class="vatra-profile-create-menu-label-001" data-social-uk="Створити" data-social-en="Create">Створити</span><svg class="ui-profile-create-chevron-icon-001 ui-create-menu-chevron-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-create-chevron-path-001" d="m6 9 6 6 6-6"/></svg></button>
+              <div id="profile-create-menu-panel" class="ui-create-menu-panel-001" data-create-panel hidden>
+                <div class="ui-create-menu-items-001">
+                  <button type="button" id="profile-write-post" class="vatra-create-menu-item-001 ui-profile-create-post-001"><svg class="ui-profile-create-post-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-create-post-path-001" d="M6 3.5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2ZM8 8h8m-8 4h8m-8 4h5"/></svg><span class="vatra-profile-create-post-label-001" data-social-uk="Публікація" data-social-en="Post">Публікація</span></button>
+                  <button type="button" id="profile-create-menu-story" class="vatra-create-menu-item-001 ui-profile-create-story-action-001"><svg class="ui-profile-create-story-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-create-story-path-001" d="M7 3.5h10a3.5 3.5 0 0 1 3.5 3.5v10a3.5 3.5 0 0 1-3.5 3.5H7a3.5 3.5 0 0 1-3.5-3.5V7A3.5 3.5 0 0 1 7 3.5ZM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg><span class="vatra-profile-create-story-label-001" data-social-uk="Історія" data-social-en="Story">Історія</span></button>
                 </div>
+              </div>
+            </div>
                 <p id="profile-post-filter-status" class="vatra-profile-post-filter-status-001" aria-live="polite" hidden></p>
                 <div id="profile-posts" class="feed-posts ui-profile-posts-001" aria-live="polite" aria-busy="false">
                 </div>

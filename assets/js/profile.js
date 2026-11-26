@@ -1610,14 +1610,11 @@ function bindPostComposer(client,user,ownId){
    return false;
   }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
  };
- q("#profile-quick-media")?.addEventListener("click",()=>{
-  void openComposer();
-  q("#profile-compose-media")?.click();
- });
+ q("#profile-create-menu-story")?.addEventListener("click",()=>q("#profile-add-story")?.click());
  trigger.addEventListener("click",()=>void openComposer());
  cancel.addEventListener("click",()=>{if(!publishing)dialog.close();});
  dialog.addEventListener("cancel",event=>{if(publishing)event.preventDefault();});
- dialog.addEventListener("close",()=>{clearStatus();trigger.focus({preventScroll:true});});
+ dialog.addEventListener("close",()=>{clearStatus();q("#profile-create-menu")?.focus({preventScroll:true});});
  input.addEventListener("input",update);
  input.addEventListener("keydown",event=>{
   if((event.ctrlKey||event.metaKey)&&event.key==="Enter"&&!submit.disabled){
@@ -3860,13 +3857,6 @@ async function start(){
 
 
   const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia);
-  if(isMine)void mediaPromise.then(()=>{
-   const source=q("#profile-avatar"),preview=q("#profile-compose-avatar");
-   if(!source||!preview)return;
-   const image=source.classList.contains("has-photo")?source.style.backgroundImage:"";
-   preview.style.backgroundImage=image||"var(--vatra-default-avatar)";
-   preview.classList.toggle("has-photo",!!image);
-  }).catch(()=>{});
   const requestedAction=new URLSearchParams(location.search);
   const sharedPhoto=requestedAction.get("photo")==="avatar";
 

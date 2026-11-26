@@ -3801,8 +3801,15 @@ try{
   await feedProbe.keyboard.press("Escape");
   await feedProbe.evaluate(()=>{document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
   console.log("VATRA Feed photo navigation: single photo isolation, same-post gallery and keyboard bounds verified.");
-  assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
-   "Members can create a post from their Feed");
+  assert.equal(await feedProbe.locator("#feed-create-menu").isVisible(),true,
+   "Members can create from their Feed");
+  await feedProbe.locator("#feed-create-menu").hover();
+  await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
+  assert.equal(await feedProbe.locator("#feed-create-menu-story").isVisible(),true);
+  await feedProbe.keyboard.press("Escape");
+  assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),false);
+  await feedProbe.locator("#feed-create-menu").click();
+  await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_COMPOSER_UI),false,
    "Post composer should not load before opening it");
   await feedProbe.locator("#feed-compose-open").click();
@@ -5287,9 +5294,9 @@ try{
    "Only visitors see the Friends tab");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),true,
    "Owner edits profile media separately from the public status");
-  assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
-  assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
-   language==="en"?"Write a post":"Додати публікацію");
+  assert.equal(await profilePage.locator("#profile-create-menu").isVisible(),true);
+  assert.equal((await profilePage.locator("#profile-create-menu").innerText()).trim(),
+   language==="en"?"Create":"Створити");
   assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
   await profilePage.locator("#profile-edit-open").hover();
   // The cover action fades out in 160ms; wait for the settled non-hover state.
@@ -5377,8 +5384,8 @@ try{
    const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,identity=document.querySelector(".profile-identity"),er=edit.getBoundingClientRect(),ir=identity.getBoundingClientRect();return {inRow:row.classList.contains("profile-actions"),outsideTabs:!document.querySelector(".social-profile-tabs").contains(edit),rightGap:Math.abs(row.getBoundingClientRect().right-er.right),sameLine:Math.abs((er.top+er.bottom-ir.top-ir.bottom)/2)<=5,height:er.height,background:getComputedStyle(edit).backgroundColor};});
   assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=2&&editAlignment.background!=="rgba(0, 0, 0, 0)","Edit action uses the shared right-aligned action container");
   if((await profilePage.viewportSize()).width>970)assert.ok(editAlignment.sameLine&&Math.abs(editAlignment.height-46)<=1,"Desktop edit action aligns with the identity and shares visitor button height");
-  assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
-   "Inline post composer has a media action icon like Feed");
+  assert.equal(await profilePage.locator("#profile-create-menu svg").count(),2,
+   "Profile uses the same Create control as Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
   assert.equal((await profilePage.locator(".vatra-social-profile-posts-tab-label-001").textContent()).trim(),
    language==="en"?"Home":"Головна","First member tab uses Home, but the post panel remains Publications");
@@ -5648,8 +5655,9 @@ try{
    window.dispatchEvent(new Event("vatra:profile-media-changed"));
   });
   await profilePage.locator("#profile-tab-posts").click();
-  assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
+  assert.equal(await profilePage.locator("#profile-create-menu").isVisible(),true,
    "Only the signed-in member may open the real post creator on their profile");
+  await profilePage.locator("#profile-create-menu").click();
   await profilePage.locator("#profile-write-post").click();
   await profilePage.locator("#profile-compose-dialog").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),true);
@@ -5758,7 +5766,7 @@ try{
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape must also dismiss the friend's avatar and release modal scroll lock");
 
-  assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
+  assert.equal(await profilePage.locator("#profile-create-menu").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
   const visitorColumns=await profilePage.locator("#profile-posts-section").evaluate(section=>{
    const about=section.querySelector("#profile-about-card")?.getBoundingClientRect();

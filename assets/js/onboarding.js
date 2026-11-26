@@ -15,7 +15,7 @@ const steps=[
  {selector:".feed-account-toggle",title:"Твій профіль",detail:"У меню акаунта відкрий свою сторінку, щоб додати фото, обкладинку й інформацію про себе.",art:"vatryk_explanation.webp"},
  {selector:".feed-account-toggle",title:"Приватність",detail:"У профілі можна керувати видимістю сторінки та взаємодією з іншими.",art:"vatryk_explanation.webp"},
  {selector:"#feed-filter-options",title:"Фільтр стрічки",detail:"Обирай, які публікації переглядати: усі, від друзів чи зі спільнот.",art:"vatryk_explanation.webp"},
- {selector:"#feed-compose-open",title:"Створи перший допис",detail:"Додай текст, фото чи відео. Нічого не публікується без твого підтвердження.",art:"vatryk_explanation.webp"},
+ {selector:"#feed-create-menu",title:"Створи перший допис",detail:"Додай текст, фото чи відео. Нічого не публікується без твого підтвердження.",art:"vatryk_explanation.webp"},
  {selector:"#feed-create-story",title:"Твої історії",detail:"Поділися моментом у короткій історії. Історії зникають через 24 години.",art:"vatryk_success.webp"}
 ];
 const tasks=[
