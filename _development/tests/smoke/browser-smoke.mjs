@@ -5387,6 +5387,8 @@ try{
   await profilePage.locator("#profile-edit-open").click();
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),true,
    "Profile editing must open the VATRA information workspace");
+  const editorAlignment=await profilePage.evaluate(()=>{const main=document.querySelector(".profile-editor-main").getBoundingClientRect(),side=document.querySelector(".profile-editor-sidebar").getBoundingClientRect(),nav=document.querySelector(".social-top-nav").getBoundingClientRect();return {width:document.documentElement.clientWidth,mainCenter:(main.left+main.right)/2,navCenter:(nav.left+nav.right)/2,mainTop:main.top,sideTop:side.top,mainRight:main.right,sideLeft:side.left,sideRight:side.right};});
+  if(editorAlignment.width>=1161)assert.ok(Math.abs(editorAlignment.mainCenter-editorAlignment.navCenter)<=3&&Math.abs(editorAlignment.mainTop-editorAlignment.sideTop)<=2&&editorAlignment.sideLeft>editorAlignment.mainRight&&editorAlignment.sideRight<=editorAlignment.width,"Editor main card must center under the header, with a top-aligned right rail: "+JSON.stringify(editorAlignment));
   assert.equal(await profilePage.locator(".profile-editor-nav-link").count(),7,
    "The editor keeps seven profile sections");
   assert.equal(await profilePage.locator(".profile-editor-nav-link [class^='ui-vatra-profile-editor-nav-symbol-']").count(),7,
