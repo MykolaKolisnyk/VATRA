@@ -1610,11 +1610,10 @@ function bindPostComposer(client,user,ownId){
    return false;
   }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
  };
- q("#profile-create-menu-story")?.addEventListener("click",()=>q("#profile-add-story")?.click());
  trigger.addEventListener("click",()=>void openComposer());
  cancel.addEventListener("click",()=>{if(!publishing)dialog.close();});
  dialog.addEventListener("cancel",event=>{if(publishing)event.preventDefault();});
- dialog.addEventListener("close",()=>{clearStatus();q("#profile-create-menu")?.focus({preventScroll:true});});
+ dialog.addEventListener("close",()=>{clearStatus();trigger.focus({preventScroll:true});});
  input.addEventListener("input",update);
  input.addEventListener("keydown",event=>{
   if((event.ctrlKey||event.metaKey)&&event.key==="Enter"&&!submit.disabled){
