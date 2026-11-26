@@ -478,8 +478,8 @@ console.log("VATRA visible preview batching: cross-card request reduction, cache
   location:{origin:"https://example.test"},bucketFor:kind=>kind==="image"?"post-images":"videos",
   validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id||"")),
   tr:uk=>uk,document:{createElement:tag=>({tag,setAttribute(){}})}};
- runInNewContext(validation+source.slice(start,storyEnd)+"\nglobalThis.test={renderStory};",env);
- const {renderStory}=env.test;
+ runInNewContext(validation+source.slice(start,storyEnd)+"\nglobalThis.test={renderStory,clearStory};",env);
+ const {renderStory,clearStory}=env.test;
  const slot=()=>({dataset:{},isConnected:true,children:[],replaceChildren(...items){this.children=items;}});
  const story=n=>({author_vatra_id:"9",media_kind:"image",media_path:"9/stories/00000000-0000-0000-0000-"+String(n).padStart(12,"0")+".jpg"});
  const c=makeClient("story"),one=slot(),two=slot(),three=slot();
@@ -502,5 +502,25 @@ console.log("VATRA visible preview batching: cross-card request reduction, cache
  c.event("SIGNED_OUT");await pending;
  assert.equal(c.calls,1,"Signing cancelled before batch dispatch must not reach Storage");
  assert.equal(stale.children.length,0);
+ let paused=0,unloaded=0,removed=0;
+ const video={pause(){paused++;},removeAttribute(key){assert.equal(key,"src");removed++;},load(){unloaded++;}};
+ const closing=slot();closing.children=[video];closing.querySelector=key=>key==="video"?closing.children[0]:null;
+ const oldRequest=closing.dataset.storyRequest;
+ clearStory(closing);
+ assert.notEqual(closing.dataset.storyRequest,oldRequest);
+ assert.deepEqual([paused,removed,unloaded],[1,1,1]);
+ assert.equal(closing.hidden,true);assert.equal(closing.children.length,0);
+ let finish;
+ const deferred={storage:{from:()=>({createSignedUrl:()=>new Promise(resolve=>{finish=resolve;})})}};
+ const late=slot(),work=renderStory(deferred,story(7),late);
+ await Promise.resolve();
+ assert.equal(typeof finish,"function");
+ clearStory(late);
+ finish({data:{signedUrl:host+"/storage/v1/object/sign/post-images/"+story(7).media_path+"?token=late"},error:null});
+ await work;
+ assert.equal(late.children.length,0,"A closed story must not mount a late signed URL");
+ assert.equal(late.hidden,true);
+ await renderStory(deferred,story(7),late);
+ assert.equal(late.children.length,1,"Reopening works and reuses the signed URL");
 }
 console.log("VATRA story photo previews: shared signing, cache reuse, path validation and session isolation passed.");

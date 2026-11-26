@@ -851,8 +851,7 @@
   const storyViewer=q("#feed-story-view");
   q("#feed-story-view-close").addEventListener("click",()=>storyViewer.close());
   storyViewer.addEventListener("close",()=>{
-   const video=q("#feed-story-view-media video");
-   if(video)video.pause();
+   if(!storyViewer.open)window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));
   });
 
  }

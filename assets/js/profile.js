@@ -3172,8 +3172,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  q("#profile-story-viewer-close").addEventListener("click",()=>storyDialog.close());
  storyDialog.addEventListener("close",()=>{
-  const video=storyMedia?.querySelector("video");
-  if(video)video.pause();
+  if(!storyDialog.open)window.VATRA_POST_MEDIA?.clearStory(storyMedia);
  });
  mediaDialog.addEventListener("click",event=>{
   if(event.target===mediaDialog&&!avatarDeleteInProgress&&!uploading)mediaDialog.close();
