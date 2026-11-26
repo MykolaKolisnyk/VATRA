@@ -1612,7 +1612,8 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001 vatra-quick-compose-001"')&&
  feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001 vatra-quick-compose-001"')<
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')&&
- feedStyle.includes('grid-column:1/-1;grid-row:1;width:100%')&&
+ feedStyle.includes('grid-column:1;grid-row:1;width:100%')&&
+ feedStyle.includes('grid-column:2;grid-row:1/5;align-self:start')&&
  !feedScript.includes("vatra-feed-story-skeleton-001")&&
  memberProfileMarkup.includes('id="profile-compose-dialog"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
@@ -1624,7 +1625,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('grid-template-columns:minmax(170px,210px) minmax(0,1fr)!important')&&
  auth.includes('window.location.replace(url("feed"))'),
- "VATRA Feed must render Stories above the composer, right rail and personalized posts without fake story cards");
+ "VATRA Feed must align Stories and right rail above the composer and personalized posts without fake story cards");
 assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{display:none!important}')&&
  feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .feed-post-placeholder{')&&
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&

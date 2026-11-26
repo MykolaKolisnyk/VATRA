@@ -117,7 +117,7 @@
 
    const gapTop=Math.max(0,headerBox.bottom-menuBox.top);
    const gapRight=0;
-   const width=Math.min(344,document.documentElement.clientWidth);
+   const width=dropdown.getBoundingClientRect().width||Math.min(292,document.documentElement.clientWidth);
    const gapLeft=document.documentElement.clientWidth-width-menuBox.left;
    const height=Math.max(0,viewTop+viewHeight-menuBox.bottom-15);
    dropdown.style.setProperty("--vatra-account-dropdown-top",Math.round(gapTop)+"px");

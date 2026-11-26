@@ -19,7 +19,7 @@
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css?rev=3e5499621ecb01982137d82dea2634afe690d376">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=fa596960c0b948726ddbb478fbd6c21586108756">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=050232ac92cee6a045f41057e931353fa918eb13">
     <link rel="stylesheet" href="assets/css/onboarding.css">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -33,9 +33,9 @@
     <script defer src="assets/js/ads.js?rev=2f9839001dcc172c5eafe3e70e70ba185e2ffffa"></script>
     <script defer src="assets/js/onboarding.js"></script>
     <script defer src="assets/js/feature-loader.js?rev=0ed4c3925aa65800c9519033b55418fa340121b8"></script>
-    <script defer src="assets/js/feed.js?rev=ef1f2abec56d0654b2b7d0e7d727aaaa9a0ac499"></script>
+    <script defer src="assets/js/feed.js?rev=a0005f1770f7737b1c410e7da5550f7c0e9c4a34"></script>
     <script defer src="assets/js/network.js"></script>
-    <script defer src="assets/js/social-shell.js?rev=ba420a3b7752855a694b7f5b329b81b968707d52"></script>
+    <script defer src="assets/js/social-shell.js?rev=540263904e4addfe42d3fdf415697c04b64e4a8c"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
     <meta name="application-name" content="VATRA">
     <meta name="apple-mobile-web-app-title" content="VATRA">
@@ -166,10 +166,10 @@
             </section>
             <aside class="ui-feed-right-rail-001">
             <div class="feed-filter-row ui-feed-filter-row-001" role="group" aria-label="Фільтри стрічки" data-shell-aria-uk="Фільтри стрічки" data-shell-aria-en="Feed filters">
-              <h2 class="vatra-feed-filter-heading-001"><button id="feed-filter-toggle" type="button" class="vatra-feed-filter-toggle-001" aria-expanded="false" aria-controls="feed-filter-options" aria-label="Відкрити фільтр стрічки">
+              <h2 class="vatra-feed-filter-heading-001">
                 <svg class="ui-feed-filter-heading-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-filter-heading-lines-001" d="M4 7h16M6.5 12h11M9 17h6"/></svg><span class="vatra-feed-filter-heading-text-001" data-social-uk="Фільтр стрічки" data-social-en="Feed filter">Фільтр стрічки</span>
               </button></h2>
-              <div id="feed-filter-options" class="ui-feed-filter-options-001" hidden>
+              <div id="feed-filter-options" class="ui-feed-filter-options-001">
               <button type="button" class="feed-filter-button vatra-feed-filter-all-001" data-feed-filter="all" aria-pressed="true" data-shell-aria-uk="Уся стрічка" data-shell-aria-en="All posts"><svg class="ui-feed-filter-all-icon-001" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-filter-all-box-001" x="4" y="4" width="16" height="16" rx="4"/><path class="ui-feed-filter-all-lines-001" d="M8 9h8M8 12h8M8 15h5"/></svg><span class="vatra-feed-filter-all-label-001" data-social-uk="Уся стрічка" data-social-en="All posts">Уся стрічка</span></button>
      <button type="button" class="feed-filter-button vatra-feed-filter-friends-001" data-feed-filter="friends" aria-pressed="false" data-shell-aria-uk="Друзі" data-shell-aria-en="Friends"><svg class="ui-feed-filter-friends-icon-001" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-feed-filter-friends-head-001" cx="9" cy="8" r="3"/><path class="ui-feed-filter-friends-body-001" d="M3 20v-1c0-3 2.2-5 6-5s6 2 6 5v1M17 5.5a3 3 0 0 1 0 5.5M18 14c2 .7 3 2.1 3 5v1"/></svg><span class="vatra-feed-filter-friends-label-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</span></button>
      <button type="button" class="feed-filter-button vatra-feed-filter-communities-001" data-feed-filter="communities" aria-pressed="false" data-shell-aria-uk="Спільноти" data-shell-aria-en="Communities"><svg class="ui-feed-filter-communities-icon-001" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-feed-filter-communities-head-001" cx="12" cy="7" r="3"/><path class="ui-feed-filter-communities-body-001" d="M5.5 20v-2a6.5 6.5 0 0 1 13 0v2ZM4.5 7.5a2.5 2.5 0 0 0 0 5M19.5 7.5a2.5 2.5 0 0 1 0 5"/></svg><span class="vatra-feed-filter-communities-label-001" data-social-uk="Спільноти" data-social-en="Communities">Спільноти</span></button>
