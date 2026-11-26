@@ -720,9 +720,9 @@
    items.sort((a,b)=>Number(String(b.author_vatra_id)===vatraId)-Number(String(a.author_vatra_id)===vatraId));
    const sequence=items.flatMap(item=>groups.get(String(item.author_vatra_id)).slice().reverse());
    const authorIds=items.map(x=>x.author_vatra_id);
-   await Promise.allSettled([feedDeadline(loadPublicNames(authorIds),4000),feedDeadline(loadAvatars(authorIds),4000)]);
-   if(generation!==storyLoadGeneration)return;
+   const metadata=Promise.allSettled([feedDeadline(loadPublicNames(authorIds),4000),feedDeadline(loadAvatars(authorIds),4000)]);
    holder.replaceChildren();storySequence=sequence;
+   const renderedStories=[];
    const pendingPreviews=new Map();
    const observer=typeof IntersectionObserver==="function"?new IntersectionObserver(entries=>{
     if(generation!==storyLoadGeneration)return;
@@ -755,12 +755,26 @@
     }else holder.append(button);
     const body=String(story.body||"").trim();
     if(body&&!story.media_kind)button.append(node("span","vatra-feed-story-live-body-001",body));
-    button.append(node("span","vatra-feed-story-live-name-001",id===vatraId?t("Ваша історія","Your story"):memberName(id)));
+    const label=node("span","vatra-feed-story-live-name-001",id===vatraId?t("Ваша історія","Your story"):memberName(id));
+    button.append(label);renderedStories.push({id,button,storyAvatar,label});
     button.addEventListener("click",()=>{
      viewSequence=storySequence.filter(storyLive);const index=viewSequence.findIndex(item=>String(item.author_vatra_id)===id);if(index>=0)openStoryAt(index);
     });
    }
    if(observer&&!pendingPreviews.size){observer.disconnect();if(storyPreviewObserver===observer)storyPreviewObserver=null;}
+   void metadata.then(()=>{
+    if(generation!==storyLoadGeneration)return;
+    for(const {id,button,storyAvatar,label} of renderedStories){
+     if(!holder.contains(button))continue;
+     const name=memberName(id);
+     button.setAttribute("aria-label",name);
+     if(id!==vatraId)label.textContent=name;
+     if(!storyAvatar.classList?.contains("has-photo"))storyAvatar.textContent=initials(name);
+     applyAvatar(storyAvatar,id);
+    }
+    const current=viewSequence[viewIndex],dialog=q("#feed-story-view");
+    if(current&&dialog?.open)q("#feed-story-view-heading").textContent=memberName(String(current.author_vatra_id));
+   }).catch(error=>reportFeedFailure("story metadata",error));
   }catch(error){
    if(generation===storyLoadGeneration){storyPreviewObserver?.disconnect();storyPreviewObserver=null;reportFeedFailure("stories",error);holder.replaceChildren();storySequence=[];q(".feed-stories")?.classList.add("is-empty");}
   }finally{if(generation===storyLoadGeneration){holder.setAttribute("aria-busy","false");requestAnimationFrame(updateStoryArrow);}}
