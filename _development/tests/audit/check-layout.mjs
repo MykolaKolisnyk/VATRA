@@ -2833,7 +2833,7 @@ assert.ok(!settingsRuntime.includes('settingsCard(t("Сповіщення на �
  settingsRuntime.includes('list.setAttribute("aria-live","polite")')&&
  settingsStyle.includes('scrollbar-gutter:stable;overflow-y:scroll')&&
  settingsStyle.includes('grid-template-columns:minmax(0,1fr) auto;align-items:end')&&
- settingsStyle.includes('top:81px'),
+ settingsStyle.includes('top:79px'),
  "Settings must keep stable page alignment, compact blocked list and no redundant notification card");
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
