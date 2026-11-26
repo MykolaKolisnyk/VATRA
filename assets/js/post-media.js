@@ -1390,5 +1390,5 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
  window.addEventListener("resize",()=>{if(mediaDialog?.open){const image=mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)");if(image)fitPhotoViewer(mediaDialog,mediaDialogContent,image);}}, {passive:true});
- window.VATRA_POST_MEDIA={photoMatte,fitPhotoViewer,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,openPostPhoto,photoNavigation,photoMenuIcon,clearStory,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.VATRA_POST_MEDIA={photoMatte,fitPhotoViewer,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();
