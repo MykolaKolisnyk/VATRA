@@ -1436,6 +1436,20 @@ for(const [photoKey,postKey] of [["trash","delete"],["pin","pin"],["archive","ar
 const storyDeletePath=iconProfileMarkup.match(/class="ui-profile-story-delete-path-001" d="([^"]+)"/)?.[1];
 assert.equal(storyDeletePath,postActionSource.split('if(type==="delete")path("')[1]?.split('"')[0],
  "Story deletion must use the same vector as post deletion");
+const albumActionSource=await read("assets/js/photo-albums.js");
+const notificationIconSource=await read("assets/js/notifications.js");
+for(const [albumKey,postKey] of [["comments","comments"],["close","x"],["send","arrow"],["smile","smile"],["trash","delete"],["like","thumb"],["share","share"]]){
+ const postPath=postActionSource.split('if(type==="'+postKey+'")path("')[1]?.split('"')[0];
+ const albumPath=albumActionSource.split(albumKey+':"')[1]?.split('"')[0];
+ assert.ok(postPath&&albumPath,"Missing common album action "+albumKey);
+ assert.equal(albumPath,postPath,"Album and post action vectors must agree: "+albumKey);
+}
+for(const [event,postKey] of [['record.kind==="post_share"?','share'],['["post_comment","post_reply","avatar_comment","album_comment","comment_mention"].includes(record.kind)?','comments']]){
+ const postPath=postActionSource.split('if(type==="'+postKey+'")path("')[1]?.split('"')[0];
+ const noticePath=notificationIconSource.split(event)[1]?.trimStart().match(/^"([^"]+)"/)?.[1];
+ assert.ok(postPath&&noticePath,"Missing notification action "+postKey);
+ assert.equal(noticePath,postPath,"Notification and post action vectors must agree: "+postKey);
+}
 const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
  storyPreviewMarkup.includes('id="feed-friend-stories"')&&
