@@ -1219,7 +1219,7 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-status"')&&
  profileMarkup.includes('id="profile-last-seen"')&&
  !profileMarkup.includes('id="profile-online-dot"')&&
- profileMarkup.includes('id="profile-edit-dialog"')&&
+ !profileMarkup.includes('id="profile-edit-dialog"')&&
  profileMarkup.includes('id="profile-status-text"')&&
  profileMarkup.includes('ui-profile-add-friend-icon-001')&&
  profileMarkup.includes('class="feed-posts ui-profile-posts-001"')&&
@@ -1656,7 +1656,7 @@ assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a
 assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module has invalid JavaScript");
 assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  !memberProfileMarkup.includes('assets/js/profile-details.js') &&
- detailsModule.includes('profile-editor-page-visibility') &&
+ !detailsModule.includes('profile-editor-page-visibility') &&
  detailsModule.includes('from("profile_details")') &&
  detailsModule.includes('from("profile_preferences")') &&
  detailsModule.includes('window.VATRA_PROFILE_DETAILS={prepare,init,open:()=>openEditor()}') &&
@@ -1670,7 +1670,7 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('enhanceEditorSelect(change,"page")') &&
+ detailsModule.includes('labelGroup.append(lab,disclosure)') &&
  detailsModule.includes('if(!editable){event.preventDefault();open(true);return;}') &&
  detailsModule.includes('state.panel.scrollTop+=option.bottom-bounds.bottom') &&
  memberCss.includes('.vatra-editor-select>select[hidden]{display:none!important}') &&
@@ -2211,8 +2211,12 @@ assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  ["welcome","waiting","success","goodbye","explanation"].every(state=>
   onboardingJs.includes("vatryk_"+state+".webp")),
  "First-visit Vatryk onboarding must be localized, accessible, per-member and with a nonmodal first-steps panel");
-assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
- memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
+assert.ok(!memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
+ !memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
+ profileScript.includes('select("#profile-avatar-file")?.click()')&&
+ profileScript.includes('select("#profile-cover-file")?.click()')&&
+ !profileScript.includes('vatra-profile-editor-media-button-001')&&
+ !profileScript.includes('vatra-profile-details-edit-001')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
  memberProfileMarkup.includes('id="profile-cover-file"')&&
  profileScript.includes('from("profile_media")')&&
