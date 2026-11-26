@@ -983,6 +983,7 @@ async function pageBoot(){
    .select("vatra_id").eq("user_id",user.id).maybeSingle();
   if(accountError||!validId(account?.vatra_id))throw Error("Missing member ID");
   const id=String(account.vatra_id);
+  window.VATRA_PUBLIC_NAMES?.bindViewer?.(clientRef,user.id);
   for(const el of document.querySelectorAll("[data-social-uk]"))
    el.textContent=t(el.dataset.socialUk,el.dataset.socialEn);
   const displayName=String(user.user_metadata?.first_name||user.user_metadata?.full_name||"VATRA").trim();

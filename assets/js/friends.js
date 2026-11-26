@@ -219,6 +219,7 @@ async function boot(){
   const account=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   if(account.error||!validId(account.data?.vatra_id))throw Error("Missing member ID");
   ownId=String(account.data.vatra_id);
+  window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   const target=new URLSearchParams(location.search).get("member");
   targetId=validId(target)?target:ownId;
   me=targetId===ownId;

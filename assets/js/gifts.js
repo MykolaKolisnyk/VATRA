@@ -68,6 +68,7 @@ async function boot(){
   const account=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   if(account.error||!validId(account.data?.vatra_id))throw Error("Member ID unavailable");
   const id=String(account.data.vatra_id);
+  window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   const requested=new URLSearchParams(location.search).get("member");
   targetId=validId(requested)?String(requested):id;
   const name=String(user.user_metadata?.first_name||user.user_metadata?.full_name||"VATRA").trim();

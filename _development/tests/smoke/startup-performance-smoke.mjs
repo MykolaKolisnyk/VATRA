@@ -29,3 +29,13 @@ assert.ok(core.includes("sectionDeadline(client.auth.getUser())"));
 console.log("VATRA startup: bounded Auth requests, cancellation, parallel profile setup and community initialization passed.");
 
 assert.ok(core.indexOf("bindViewer?.(client,user.id)")>core.indexOf("ownId=String(accountResult.data.vatra_id)"),"Verified viewer must bind the existing tab cache before section initialization");
+
+for(const [file,accountAnchor,binding] of [
+ ["friends",'ownId=String(account.data.vatra_id);','bindViewer?.(client,user.id)'],
+ ["gifts",'const id=String(account.data.vatra_id);','bindViewer?.(client,user.id)'],
+ ["notifications",'const id=String(account.vatra_id);','bindViewer?.(clientRef,user.id)'],
+ ["community-core",'const ownId=account?.vatra_id==null?null:String(account.vatra_id);','bindViewer?.(client,user.id)']
+]){
+ const source=await readFile("assets/js/"+file+".js","utf8");
+ assert.ok(source.includes(accountAnchor)&&source.indexOf(binding)>source.indexOf(accountAnchor),file+" must bind cache after account lookup");
+}
