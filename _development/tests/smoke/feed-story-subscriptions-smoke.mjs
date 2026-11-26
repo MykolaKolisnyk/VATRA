@@ -6,7 +6,7 @@ import {runInNewContext} from "node:vm";
 const feed=await readFile("assets/js/feed.js","utf8");
 const subscriptionsStart=feed.indexOf(" async function loadSubscriptions(){");
 const subscriptionsEnd=feed.indexOf(" function card(",subscriptionsStart);
-const storiesStart=feed.indexOf(" let storyPreviewObserver=null,storyLoadGeneration=0;");
+const storiesStart=feed.indexOf(" let storyPreviewObserver=null,storyLoadGeneration=0");
 const storiesEnd=feed.indexOf(" function bindComposer(){",storiesStart);
 assert.ok(subscriptionsStart>=0&&subscriptionsEnd>subscriptionsStart&&
  storiesStart>subscriptionsEnd&&storiesEnd>storiesStart,
@@ -22,8 +22,9 @@ let now=Date.parse("2026-11-14T08:00:00Z");
 class FakeDate extends Date{static now(){return now;}}
 const owner="654321";
 function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false}={}){
- let finishFriends,friendCalls=0,storyCalls=0,storyFilters=[],rendererCalls=0;
+ let lastRendered,finishFriends,friendCalls=0,storyCalls=0,storyFilters=[],rendererCalls=0;
  const observers=[];
+ storyRows=storyRows.map(row=>({expires_at:new Date(now+86400000).toISOString(),...row}));
  class PreviewObserver{
   constructor(callback){this.callback=callback;this.targets=new Set();this.disconnected=false;observers.push(this);}
   observe(target){this.targets.add(target);}
@@ -82,23 +83,25 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false}={}){
  const node=(tag,cls,body)=>{
   const result={tag,cls,textContent:body||"",dataset:{},children:[],
    append(...parts){result.children.push(...parts);},
-   setAttribute(){},addEventListener(){}};
+   setAttribute(){},addEventListener(type,fn){result[type]=fn;}};
   return result;
  };
+ const dialog={open:false,dataset:{},showModal(){this.open=true;}};
+ const viewerNodes=new Map([["#feed-story-view",dialog],...["heading","body","position","prev","next","media"].map(key=>["#feed-story-view-"+key,{}])]);
  const context={
   Date:FakeDate,Map,Set,Promise,String,Number,IntersectionObserver:lazy?PreviewObserver:undefined,
   client:database,vatraId:owner,friends:new Set(),hiddenPostAuthors:new Set(),followedClubs:new Map(),
   subscriptionsLoadedAt:0,subscriptionsInflight:null,
   validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
-  q:key=>key==="#feed-friend-stories"?holder:key===".feed-stories"?style:null,
+  q:key=>key==="#feed-friend-stories"?holder:key===".feed-stories"?style:viewerNodes.get(key),
   requestAnimationFrame(fn){fn();},updateStoryArrow(){},setTimeout,clearTimeout,
   loadPublicNames:async()=>{},loadAvatars:async()=>{},
-  window:{VATRA_POST_MEDIA:{renderStory(){rendererCalls++;}}},
+  window:{VATRA_POST_MEDIA:{renderStory(_client,story){rendererCalls++;lastRendered=story;}}},
   memberName:id=>"Name "+id,initials:()=> "N",applyAvatar(){},
   node,t:(uk)=>uk
  };
- runInNewContext(source+"\nglobalThis.feedTest={loadStories,ensureSubscriptions};",context);
- return {context,holder,style,observers,
+ runInNewContext(source+"\nglobalThis.feedTest={loadStories,ensureSubscriptions,openStoryAt,get index(){return viewIndex;}};",context);
+ return {context,holder,style,observers,viewerNodes,get lastRendered(){return lastRendered;},
   get friendCalls(){return friendCalls;},
   get storyCalls(){return storyCalls;},
   get storyFilters(){return storyFilters;},
@@ -197,3 +200,29 @@ console.log("VATRA Feed stories: shared friendship singleflight, own stories wit
  assert.equal(fallback.rendererCalls,2,"Browsers without IntersectionObserver retain the original previews");
 }
 console.log("VATRA story previews: viewport-only loading, one-shot observation, stale callback isolation and compatibility fallback passed.");
+
+// Multiple stories per friend stay in one tile; viewer uses the loaded snapshot.
+{
+ const friend="789012",soon=new Date(now+1000).toISOString();
+ const v=makeViewer([friend],{storyRows:[
+  {author_vatra_id:friend,body:"Newest",theme:2},
+  {author_vatra_id:friend,body:"Middle",theme:1,expires_at:soon},
+  {author_vatra_id:friend,body:"Oldest",theme:0},
+  {author_vatra_id:friend,body:"Expired",theme:0,expires_at:new Date(now-1).toISOString()}
+ ]});
+ await v.context.feedTest.loadStories();
+ assert.equal(v.holder.children.length,1,"One preview tile per author");
+ v.holder.children[0].click();
+ assert.equal(v.lastRendered.body,"Oldest");
+ assert.equal(v.viewerNodes.get("#feed-story-view-prev").disabled,true);
+ assert.equal(v.viewerNodes.get("#feed-story-view-position").textContent,"1 / 3");
+ now+=1500;
+ v.context.feedTest.openStoryAt(v.context.feedTest.index+1);
+ assert.equal(v.lastRendered.body,"Newest","Skip a story expiring while the viewer is open");
+ assert.equal(v.viewerNodes.get("#feed-story-view-next").disabled,true);
+ v.context.feedTest.openStoryAt(v.context.feedTest.index-1,-1);
+ assert.equal(v.lastRendered.body,"Oldest");
+ assert.equal(v.storyCalls,1,"Story navigation must not read from the database again");
+ assert.equal(v.friendCalls,1);
+}
+console.log("VATRA story viewer: grouped author navigation, expiry and no additional reads passed.");
