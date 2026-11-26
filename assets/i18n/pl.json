@@ -4108,5 +4108,18 @@
   "Знаходьте товари й розміщуйте власні оголошення на маркетплейсі VATRA.": "Znajduj produkty i publikuj własne ogłoszenia na rynku VATRA.",
   "Переглядайте вподобання Ваших публікацій, коментарів і фото профілю, заявки в друзі та відповіді на них у VATRA.": "Sprawdzaj polubienia swoich postów, komentarzy i zdjęć profilowych, zaproszenia do znajomych oraz odpowiedzi na nie w VATRA.",
   "Керуйте налаштуваннями акаунта, конфіденційності та сповіщень у VATRA.": "Zarządzaj ustawieniami konta, prywatności i powiadomień w VATRA.",
-  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "Sprawdź informacje o swoim VATRA ID — unikalnym identyfikatorze konta."
+  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "Sprawdź informacje o swoim VATRA ID — unikalnym identyfikatorze konta.",
+  "Змінити": "Zmień",
+  "Не вдалося зберегти зміни.": "Nie udało się zapisać zmian.",
+  "Контактні дані": "Dane kontaktowe",
+  "Змінити електронну пошту": "Zmień adres e-mail",
+  "Нова електронна пошта": "Nowy adres e-mail",
+  "Підтвердьте зміну пошти за посиланнями з листів.": "Potwierdź zmianę adresu e-mail za pomocą linków w wiadomościach.",
+  "Вкажіть іншу електронну пошту.": "Podaj inny adres e-mail.",
+  "Перевірте електронну пошту для підтвердження зміни.": "Sprawdź pocztę, aby potwierdzić zmianę.",
+  "Безпека акаунта": "Bezpieczeństwo konta",
+  "Змінити пароль": "Zmień hasło",
+  "Поточний пароль": "Obecne hasło",
+  "Надіслати код": "Wyślij kod",
+  "Для зміни пароля потрібне підтвердження електронною поштою.": "Zmiana hasła wymaga potwierdzenia przez e-mail."
 }

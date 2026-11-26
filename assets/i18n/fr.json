@@ -4108,5 +4108,18 @@
   "Знаходьте товари й розміщуйте власні оголошення на маркетплейсі VATRA.": "Trouvez des produits et publiez vos propres annonces sur le marketplace de VATRA.",
   "Переглядайте вподобання Ваших публікацій, коментарів і фото профілю, заявки в друзі та відповіді на них у VATRA.": "Consultez les mentions J’aime sur vos publications, commentaires et photos de profil, les invitations d’amis et leurs réponses sur VATRA.",
   "Керуйте налаштуваннями акаунта, конфіденційності та сповіщень у VATRA.": "Gérez les paramètres du compte, de confidentialité et de notifications sur VATRA.",
-  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "Consultez les informations sur votre VATRA ID, l’identifiant unique de votre compte."
+  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "Consultez les informations sur votre VATRA ID, l’identifiant unique de votre compte.",
+  "Змінити": "Modifier",
+  "Не вдалося зберегти зміни.": "Impossible d’enregistrer les modifications.",
+  "Контактні дані": "Coordonnées",
+  "Змінити електронну пошту": "Modifier l’adresse e-mail",
+  "Нова електронна пошта": "Nouvelle adresse e-mail",
+  "Підтвердьте зміну пошти за посиланнями з листів.": "Confirmez la modification à l’aide des liens dans vos e-mails.",
+  "Вкажіть іншу електронну пошту.": "Saisissez une autre adresse e-mail.",
+  "Перевірте електронну пошту для підтвердження зміни.": "Consultez vos e-mails pour confirmer la modification.",
+  "Безпека акаунта": "Sécurité du compte",
+  "Змінити пароль": "Modifier le mot de passe",
+  "Поточний пароль": "Mot de passe actuel",
+  "Надіслати код": "Envoyer le code",
+  "Для зміни пароля потрібне підтвердження електронною поштою.": "Une vérification par e-mail est nécessaire pour modifier votre mot de passe."
 }
