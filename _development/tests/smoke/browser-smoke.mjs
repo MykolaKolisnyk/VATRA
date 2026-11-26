@@ -3337,6 +3337,9 @@ try{
    "The VATRA V symbol, not the full wordmark, belongs at the left edge");
   assert.equal(await feedProbe.locator(".feed-aside").count(),0,
    "The Feed must not contain the New Communities rail");
+  // The onboarding tour may scroll its spotlight into view. Establish the actual top-of-page state before checking the rail.
+  await feedProbe.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
+  await feedProbe.waitForFunction(()=>window.scrollY<=1&&document.querySelector(".vatra-scroll-rail")?.hidden);
   const shellPolish=await feedProbe.evaluate(()=>{
    const header=document.querySelector(".feed-header").getBoundingClientRect();
    const active=document.querySelector(".social-top-active");
