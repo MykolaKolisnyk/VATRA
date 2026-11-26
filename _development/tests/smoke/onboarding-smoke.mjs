@@ -73,8 +73,8 @@ for(const variant of expected){
  assert.ok(png.toString("ascii",0,4)==="RIFF"&&png.toString("ascii",8,12)==="WEBP"&&png.length>1000,p+" must be WebP");
  assert.ok(source.includes("vatryk_"+variant+".webp"),variant+" must be used by onboarding");
 }
-assert.ok(html.includes('src="assets/js/onboarding.js"'));
-assert.ok(html.includes('href="assets/css/onboarding.css"'));
+assert.ok(html.includes('src="assets/js/onboarding.js?rev='));
+assert.ok(html.includes('href="assets/css/onboarding.css?rev='));
 assert.ok(source.includes('launch.id="vatra-onboarding-replay"'));
 assert.ok(html.includes('id="vatra-first-steps"')&&source.includes('buildSteps();void checkTasks();')&&!source.includes('activate("tasks")'));
 assert.ok(!html.includes('id="vatra-onboarding-replay"'),
