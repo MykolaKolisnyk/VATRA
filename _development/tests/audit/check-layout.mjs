@@ -2777,6 +2777,16 @@ const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
 const settingsRuntime=await read("assets/js/settings.js");
+const individualSessionSQL=await read("_development/supabase/vatra-individual-session-revocation.sql");
+assert.ok(individualSessionSQL.includes("s.id=target_session and s.user_id=caller and s.id::text<>current_id")&&
+ individualSessionSQL.includes("c.user_id=caller and c.id::text=current_id")&&
+ individualSessionSQL.includes("target_session::text=current_id then return false")&&
+ individualSessionSQL.includes("revoke all on function public.vatra_revoke_session(uuid) from public,anon,authenticated")&&
+ individualSessionSQL.includes("security invoker set search_path=''")&&
+ settingsRuntime.includes('else if(typeof entry.session_id==="string"')&&
+ settingsRuntime.includes('client.rpc("vatra_revoke_session",{target_session:entry.session_id})')&&
+ settingsRuntime.includes('result.data!==true')&&settingsRuntime.includes('client.rpc("vatra_my_sessions")'),
+ "Individual session revocation must be owner-scoped, protect the current session and tolerate an older API");
 const settingsStyle=await read("assets/css/settings.css");
 assert.ok(settingsRuntime.includes('const attributes={password:value,current_password:current.value}')&&
  settingsRuntime.includes('client.auth.updateUser(attributes)')&&

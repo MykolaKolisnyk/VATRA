@@ -27,7 +27,9 @@ async function renderDevices(panel){
  async function load(){
   if(refresh.disabled)return;refresh.disabled=true;refresh.setAttribute("aria-busy","true");list.setAttribute("aria-busy","true");
   try{
-   const {data,error}=await client.rpc("vatra_my_sessions");if(error)throw error;if(!c.isConnected)return;
+   let {data,error}=await client.rpc("vatra_my_sessions_v2");
+   if(error?.code==="PGRST202"||error?.code==="42883")({data,error}=await client.rpc("vatra_my_sessions"));
+   if(error)throw error;if(!c.isConnected)return;
    list.replaceChildren();
    const date=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?new Intl.DateTimeFormat(locale==="en"?"en-GB":"uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(d):"—";};
    for(const [index,entry] of (data||[]).entries()){
@@ -37,7 +39,23 @@ async function renderDevices(panel){
     icon.append(path);symbol.append(icon);
     const details=make("div","ui-vatra-id-device-details-001");details.append(make("strong","vatra-id-device-name-001",sessionDevice(entry.browser_agent)),make("span","vatra-id-device-time-001",t("Вхід: ","Signed in: ")+date(entry.signed_in_at)));
     if(entry.refreshed_at)details.append(make("span","vatra-id-device-activity-001",t("Оновлення сеансу: ","Session refreshed: ")+date(entry.refreshed_at)));
-    row.append(symbol,details);if(entry.current_session)row.append(make("span","vatra-id-device-current-001",t("Поточний","Current")));list.append(row);
+    row.append(symbol,details);
+    if(entry.current_session)row.append(make("span","vatra-id-device-current-001",t("Поточний","Current")));
+    else if(typeof entry.session_id==="string"&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(entry.session_id)){
+     const revoke=btn(t("Завершити сеанс","Sign out session"),"vatra-id-device-single-revoke-001",async()=>{
+      if(revoke.disabled||!c.isConnected)return;revoke.disabled=true;
+      try{
+       if(!await confirmRemove(t("Завершити цей сеанс?","Sign out this session?"),t("На цьому пристрої потрібно буде увійти повторно.","You will need to sign in again on this device."),t("Завершити сеанс","Sign out session")))return;
+       if(!c.isConnected)return;
+       const result=await client.rpc("vatra_revoke_session",{target_session:entry.session_id});
+       if(result.error||result.data!==true)throw result.error||Error("Session was not revoked");
+       if(c.isConnected){await load();message(t("Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.","Session revoked. Access ends when the existing token expires."));}
+      }catch(_){if(c.isConnected)message(t("Не вдалося завершити сеанс.","Could not revoke session."),true);}
+      finally{revoke.disabled=false;}
+     });
+     revoke.setAttribute("aria-label",t("Завершити сеанс","Sign out session")+" · "+sessionDevice(entry.browser_agent));row.append(revoke);
+    }
+    list.append(row);
    }
    if(!data?.length)list.append(empty(t("Немає доступних відомостей про сеанси.","No session details available.")));
   }catch(_){if(c.isConnected)list.replaceChildren(empty(t("Не вдалося завантажити сеанси.","Could not load sessions.")));}

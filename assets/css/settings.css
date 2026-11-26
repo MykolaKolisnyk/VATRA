@@ -26,6 +26,8 @@ body.vatra-section-page .ui-vatra-id-device-details-001{display:flex;flex:1;flex
 body.vatra-section-page .vatra-id-device-name-001{font:var(--section-name);color:#293a52;overflow-wrap:anywhere}
 body.vatra-section-page :is(.vatra-id-device-time-001,.vatra-id-device-activity-001){font:var(--section-caption);color:var(--soft)}
 body.vatra-section-page .vatra-id-device-current-001{font:var(--section-caption);color:#2861d8;background:#edf3ff;padding:6px 9px;border-radius:7px}
+body.vatra-section-page .vatra-id-device-single-revoke-001{flex:none;max-width:100%;padding:8px 10px;border:0;border-radius:8px;background:#edf3ff;color:#2861d8;font:var(--section-caption);cursor:pointer}
+body.vatra-section-page .vatra-id-device-single-revoke-001:disabled{opacity:.55;cursor:default}
 body.vatra-section-page .vatra-id-device-revoke-001{margin-top:17px;padding:10px 14px;border:0;border-radius:9px;background:#edf3ff;color:#2861d8;font:var(--section-control);cursor:pointer}
 @media(max-width:420px){body.vatra-section-page .ui-vatra-id-device-row-001{flex-wrap:wrap}}
 body.vatra-section-page .vatra-id-menu-title-001{padding:5px 10px 13px;margin:0 0 6px;border-bottom:1px solid #edf1f7}
