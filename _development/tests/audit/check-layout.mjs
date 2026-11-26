@@ -1425,6 +1425,17 @@ assert.equal(sharedIconGeometry(await read("feed.html"),"ui-vatra-nav-messenger-
 assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-story-menu-icon-001"),
  sharedIconGeometry(iconProfileMarkup,"ui-profile-visitor-story-icon-001"),
  "Viewing a story must use the same vector in the avatar menu and visitor button");
+const postActionSource=await read("assets/js/post-interactions.js");
+const photoActionSource=await read("assets/js/post-media.js");
+for(const [photoKey,postKey] of [["trash","delete"],["pin","pin"],["archive","archive"],["share","share"]]){
+ const postPath=postActionSource.split('if(type==="'+postKey+'")path("')[1]?.split('"')[0];
+ const photoPath=photoActionSource.split(photoKey+':"')[1]?.split('"')[0];
+ assert.ok(postPath&&photoPath,"Missing shared action geometry "+postKey);
+ assert.equal(photoPath,postPath,"Photo and post action icons must agree: "+postKey);
+}
+const storyDeletePath=iconProfileMarkup.match(/class="ui-profile-story-delete-path-001" d="([^"]+)"/)?.[1];
+assert.equal(storyDeletePath,postActionSource.split('if(type==="delete")path("')[1]?.split('"')[0],
+ "Story deletion must use the same vector as post deletion");
 const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
  storyPreviewMarkup.includes('id="feed-friend-stories"')&&
