@@ -1686,7 +1686,9 @@ assert.ok(countryTest.citiesForCountry("PL").includes("Warszawa")&&!countryTest.
 assert.equal(countryTest.citiesForCountry("XX").length,0);
 assert.ok(countryTest.citiesForCountry("UA").includes("Невицьке")&&countryTest.citiesForCountry("UA").includes("Середнє")&&!countryTest.citiesForCountry("PL").includes("Невицьке"),"Settlement suggestions must include villages and townships in their own country");
 const profileLanguageSource=profileScript.slice(profileScript.indexOf(" const primaryLanguageNames="),profileScript.indexOf(" const countryCities="));
-const profileLanguages=new Function(profileLanguageSource+"return {languages,languageCodes};")();
+const profileLanguages=new Function(profileLanguageSource+"return {languages,languageCodes,fullLanguageName};")();
+assert.ok(profileLanguages.languages.every(name=>!(/^[a-z]{2}$/i.test(name))),"No bare language codes in the catalog");
+for(const code of profileLanguages.languageCodes)assert.ok(profileLanguages.fullLanguageName({of:key=>key},code).length>2,"Full fallback language name: "+code);
 assert.ok(profileLanguages.languages.length>=170&&profileLanguages.languages.includes("Українська")&&!profileLanguages.languageCodes.includes("ru")&&!profileLanguages.languages.includes("Русский"),"Profile language options must use the extended catalog without Russian");
 assert.ok(profileScript.includes('search.setAttribute("aria-autocomplete","list")')&&profileScript.includes("const localizedNames=new Intl.DisplayNames")&&profileScript.includes("const popular="),"Language picker must be searchable and prioritize VATRA languages");
 
@@ -1726,7 +1728,7 @@ assert.ok(
  detailsModule.includes('paragraph.hidden=!bio') &&
  detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
  !detailsModule.includes('vatra-profile-detail-audience-') &&
- detailsModule.includes('lab.htmlFor=inputId') &&
+ detailsModule.includes('lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId') &&
  !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-info{') &&
  memberCss.includes('grid-template-columns:minmax(0,38%) minmax(0,1fr)'),

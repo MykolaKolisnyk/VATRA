@@ -5563,6 +5563,7 @@ try{
   assert.equal(await privacy.getAttribute("aria-expanded"),"false","Only one dropdown stays open");
   await profilePage.keyboard.press("Escape");
   assert.ok(await profilePage.locator("#profile-editor-languages-native option").count()>=170,"Extended language catalog");
+  assert.ok(await profilePage.locator("#profile-editor-languages-native option").evaluateAll(options=>options.every(option=>!option.value||!(/^[a-z]{2}$/i.test(option.value)))),"Language labels must not fall back to codes");
   assert.equal(await profilePage.locator('#profile-editor-languages-native option[value="Русский"]').count(),0,"Russian must not be a new selectable language");
   const languageSearch=profilePage.locator("#profile-editor-languages");await languageSearch.fill("English");
   const languagePanel=profilePage.locator("#"+await languageSearch.getAttribute("aria-controls"));
@@ -5623,6 +5624,7 @@ try{
    assert.equal(await chooser.element().getAttribute("id"),inputId,"Media menu action opens the existing file picker");
   }
   await profilePage.locator(".vatra-profile-editor-back-001").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),false,"Saving must clear the dirty state");
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-about-heading").textContent()).trim(),
