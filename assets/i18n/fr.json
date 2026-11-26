@@ -4145,5 +4145,6 @@
   "На цьому пристрої потрібно буде увійти повторно.": "Vous devrez vous reconnecter sur cet appareil.",
   "Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.": "Session révoquée. L’accès prendra fin à l’expiration du jeton actuel.",
   "Не вдалося завершити сеанс.": "Impossible de fermer la session.",
-  "Остання активність: ": "Dernière activité : "
+  "Остання активність: ": "Dernière activité : ",
+  "Країна": "Pays"
 }
