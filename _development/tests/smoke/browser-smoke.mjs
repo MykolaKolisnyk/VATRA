@@ -4560,6 +4560,14 @@ try{
   assert.equal(await manageAccount.evaluate(link=>new URL(link.href).pathname),"/VATRA/vatra-id");
   assert.equal(await manageAccount.locator(".ui-vatra-account-id-symbol-001").count(),1);
   assert.equal((await manageAccount.locator(".vatra-account-id-label-001").textContent()).trim(),"ID");
+  const accountRowGeometry=await accountProfileGroup.evaluate(group=>{
+   const profile=group.querySelector(".feed-account-profile"),manage=group.querySelector(".vatra-account-manage-001");
+   const box=el=>el.getBoundingClientRect();
+   return {rowX:Math.abs(box(profile).left-box(manage).left),height:Math.abs(box(profile).height-box(manage).height),
+    iconX:Math.abs(box(profile.querySelector("svg")).left-box(manage.querySelector(".ui-vatra-account-id-brand-001")).left),
+    textX:Math.abs(box(profile.querySelector("span")).left-box(manage.querySelector(".vatra-account-manage-label-001")).left)};
+  });
+  assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account rows, icons and labels must be aligned: "+JSON.stringify(accountRowGeometry));
   assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
    "Support must precede Settings in the account menu");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
