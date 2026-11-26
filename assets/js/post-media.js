@@ -468,7 +468,10 @@
   slot.hidden=false;
   if(!preview)slot.textContent=tr("Завантаження медіа…","Loading media…");
   try{
-
+   if(preview&&kind==="image"){
+    if(!await preSignVisible(client,[{media_kind:kind,media_path:path}],300))throw Error("Session changed while signing media");
+    if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
+   }
    const src=await signed(client,kind,path,300);
    if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
    const element=document.createElement(kind==="image"?"img":"video");
