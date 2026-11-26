@@ -3711,7 +3711,10 @@ async function start(){
    .select("vatra_id").eq("user_id",user.id).maybeSingle());
   const ownId=String(account?.vatra_id??"");
   if(accountError||!validId(ownId))throw accountError||Error("Account unavailable");
-  await window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,ownId);
+  // Finish queued writes in parallel with profile access checks and header setup.
+  // The posts query below still waits for these writes to preserve ordering.
+  const pendingDeleteFlush=Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,ownId));
+  void pendingDeleteFlush.catch(()=>{});
   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   if(ownId){
    try{void Promise.resolve(window.VATRA_PRESENCE?.start(client,ownId,metadata.gender)).catch(()=>{});}catch(_){}
@@ -3893,7 +3896,7 @@ async function start(){
   if(!locked)setupProfilePresence(client,targetId,ownId,metadata.gender);
   const postParam=requestedAction.get("post"),focusPost=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(postParam||"")?postParam:null;
   if(focusPost&&!locked)window.VATRA_PROFILE_CHOOSE_TAB?.("posts");
-  const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id,false,focusPost);
+  const postsPromise=locked?Promise.resolve():pendingDeleteFlush.then(()=>loadPosts(client,targetId,ownId,user.id,false,focusPost)).catch(()=>{const list=q("#profile-posts");list?.querySelectorAll(".feed-post-placeholder").forEach(el=>el.remove());const note=q("#profile-posts-empty");if(note){note.textContent=t("Не вдалося завантажити публікації. Оновіть сторінку.","Could not load posts. Refresh the page.");note.hidden=false;}});
 
 
   finish();

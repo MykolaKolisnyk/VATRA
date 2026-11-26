@@ -73,6 +73,8 @@ jobs:
         run: node _development/tests/smoke/post-planning-smoke.mjs
       - name: Audit unpublished multilingual page catalogs
         run: node _development/tests/audit/i18n-coverage-audit.mjs
+      - name: Check bounded requests and parallel startup
+        run: node _development/tests/smoke/startup-performance-smoke.mjs
       - name: Check SEO and site layout
         run: |
           node _development/tests/audit/check-seo.mjs
