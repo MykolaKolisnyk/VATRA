@@ -21,9 +21,11 @@ const source=feed.slice(deadlineStart,deadlineEnd)+"\n"+
 let now=Date.parse("2026-11-14T08:00:00Z");
 class FakeDate extends Date{static now(){return now;}}
 const owner="654321";
-function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false}={}){
+function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetadata=false}={}){
  let lastRendered,finishFriends,friendCalls=0,storyCalls=0,storyFilters=[],rendererCalls=0;
  const observers=[];
+ let resolveMetadata,metadataReady=!slowMetadata;
+ const metadataGate=slowMetadata?new Promise(resolve=>{resolveMetadata=()=>{metadataReady=true;resolve();};}):Promise.resolve();
  storyRows=storyRows.map(row=>({expires_at:new Date(now+86400000).toISOString(),...row}));
  class PreviewObserver{
   constructor(callback){this.callback=callback;this.targets=new Set();this.disconnected=false;observers.push(this);}
@@ -95,9 +97,9 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false}={}){
   validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
   q:key=>key==="#feed-friend-stories"?holder:key===".feed-stories"?style:viewerNodes.get(key),
   requestAnimationFrame(fn){fn();},updateStoryArrow(){},setTimeout,clearTimeout,
-  loadPublicNames:async()=>{},loadAvatars:async()=>{},
+  loadPublicNames:()=>metadataGate,loadAvatars:()=>metadataGate,
   window:{VATRA_POST_MEDIA:{renderStory(_client,story){rendererCalls++;lastRendered=story;}}},
-  memberName:id=>"Name "+id,initials:()=> "N",applyAvatar(){},
+  memberName:id=>(metadataReady?"Name ":"VATRA ID ")+id,initials:()=> "N",applyAvatar(){},
   node,t:(uk)=>uk
  };
  runInNewContext(source+"\nglobalThis.feedTest={loadStories,ensureSubscriptions,openStoryAt,get index(){return viewIndex;}};",context);
@@ -106,7 +108,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false}={}){
   get storyCalls(){return storyCalls;},
   get storyFilters(){return storyFilters;},
   get rendererCalls(){return rendererCalls;},
-  release(){assert.ok(finishFriends,"The friend query should be pending");finishFriends();}
+  release(){assert.ok(finishFriends,"The friend query should be pending");finishFriends();},releaseMetadata(){resolveMetadata?.();}
  };
 }
 // The first Feed call and Stories start at the same time. Until friends
@@ -226,3 +228,21 @@ console.log("VATRA story previews: viewport-only loading, one-shot observation, 
  assert.equal(v.friendCalls,1);
 }
 console.log("VATRA story viewer: grouped author navigation, expiry and no additional reads passed.");
+
+{
+ const friend="789012";
+ const v=makeViewer([friend],{slowMetadata:true,storyRows:[{author_vatra_id:friend,body:"Story before author lookup",theme:1}]});
+ await v.context.feedTest.loadStories();
+ const tile=v.holder.children[0],label=tile.children.find(child=>child.cls==="vatra-feed-story-live-name-001");
+ assert.equal(v.holder.busy,"false","Stories are usable before optional author metadata finishes");
+ assert.equal(label.textContent,"VATRA ID "+friend);
+ tile.click();
+ assert.equal(v.lastRendered.body,"Story before author lookup");
+ v.releaseMetadata();
+ for(let i=0;i<12;i++)await Promise.resolve();
+ assert.equal(label.textContent,"Name "+friend,"Existing tile receives the resolved name without replacement");
+ assert.equal(v.viewerNodes.get("#feed-story-view-heading").textContent,"Name "+friend);
+ assert.strictEqual(v.holder.children[0],tile);
+ assert.equal(v.storyCalls,1);
+}
+console.log("VATRA story metadata: render before delayed names and avatars, refresh existing tile and open viewer passed.");
