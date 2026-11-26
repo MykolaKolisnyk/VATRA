@@ -161,6 +161,29 @@ try{
      }
     }
     console.log(engine+" shared simple confirmations: six variants, semantic colors, mobile and desktop");
+    await confirmationPage.evaluate(()=>{document.querySelectorAll("dialog").forEach(el=>el.remove());document.body.className="profile-page feed-page";});
+    const albumMenus=[
+     ["ui-vatra-album-tile-menu-001","ui-vatra-album-tile-menu-items-001"],
+     ["ui-vatra-album-photo-menu-001","ui-vatra-album-photo-menu-items-001"],
+     ["vatra-album-bulk-menu-001","vatra-album-bulk-menu-items-001"]
+    ];
+    for(const reducedMotion of ["no-preference","reduce"]){
+     await confirmationPage.emulateMedia({reducedMotion});
+     for(const [menuClass,panelClass] of albumMenus){
+      const animation=await confirmationPage.evaluate(([menuClass,panelClass])=>{
+       const menu=document.createElement("details"),summary=document.createElement("summary"),panel=document.createElement("div");
+       menu.className=menuClass;summary.textContent="Меню";panel.className=panelClass;panel.textContent="Дія";menu.append(summary,panel);document.body.append(menu);
+       const closed=getComputedStyle(panel).display;menu.open=true;
+       const style=getComputedStyle(panel),result={closed,open:style.display,animation:style.animationName,duration:style.animationDuration};menu.remove();return result;
+      },[menuClass,panelClass]);
+      assert.equal(animation.closed,"none",engine+" closed album menu");
+      assert.notEqual(animation.open,"none",engine+" open album menu");
+      assert.equal(animation.animation,reducedMotion==="reduce"?"none":"vatra-popup-enter",engine+" shared album menu motion");
+      if(reducedMotion==="no-preference")assert.equal(animation.duration,"0.18s");
+     }
+    }
+    console.log(engine+" album menus share standard opening animation and reduced motion");
+
    }finally{await confirmationPage.close();}
    // Use real language picker and service error runtime, with no production requests.
    const modalPage=await context.newPage();
