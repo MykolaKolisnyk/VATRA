@@ -16,13 +16,13 @@
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css?rev=3e5499621ecb01982137d82dea2634afe690d376">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=253aab0b6bc191bc71bb2adc0d87c53d3c134473">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=eeb16467963662f57d255aff269e6d2a16b2f028">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js?rev=7ff79ee9e91749c58a922e046858e8a2b0dd5bf1"></script>
   <script defer src="assets/js/public-name-cache.js?rev=a1e9451512774e5b666e753010e57fd2ba6a0332"></script>
     <script defer src="assets/js/verified.js?rev=ab686b7db8b3ad7b903dfb7eb65dcae4a4e27855"></script>
-    <script defer src="assets/js/notifications.js?rev=c9b170d144696d2e780b597f7b84b226c41f3543"></script>
+    <script defer src="assets/js/notifications.js?rev=49e2e731ef10493e3b90bf417fcd4808d09b7fe9"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=1c6c853709478a9b563e59cda003a1fb1d70e12a"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -116,26 +116,23 @@
           </div>
         </div>
       </header>
-      <main id="notifications-main" class="notifications-main ui-notifications-main-001" aria-labelledby="notifications-heading">
-        <div class="notifications-top ui-notifications-top-001">
-          <div class="notifications-title-wrap ui-notifications-title-wrap-001">
-            <h1 id="notifications-heading" class="vatra-notifications-heading-001" data-social-uk="Сповіщення" data-social-en="Notifications">
-              Сповіщення
-            </h1>
-          </div>
-
-        </div>
+      <main id="notifications-main" class="notifications-main ui-notifications-main-001" aria-label="Сповіщення" data-shell-aria-uk="Сповіщення" data-shell-aria-en="Notifications">
         <div class="notifications-toolbar ui-notifications-toolbar-001">
           <div id="notifications-filters" class="notifications-filters ui-notifications-filters-001" role="group" aria-label="Фільтр сповіщень">
             <button type="button" class="vatra-notifications-filter-all-001" data-notification-filter="all" aria-pressed="true" data-social-uk="Усі" data-social-en="All">Усі</button>
      <button type="button" class="vatra-notifications-filter-unread-001" data-notification-filter="unread" aria-pressed="false" data-social-uk="Нові" data-social-en="Unread">Нові</button>
      <button type="button" class="vatra-notifications-filter-read-001" data-notification-filter="read" aria-pressed="false" data-social-uk="Прочитані" data-social-en="Read">Прочитані</button>
           </div>
-          <label class="vatra-notifications-sort-label-001" for="notifications-sort" data-social-uk="Порядок" data-social-en="Order">Порядок</label>
-    <select id="notifications-sort" class="ui-notifications-sort-001" aria-label="Сортування сповіщень">
-     <option value="new" class="vatra-notifications-sort-new-001" data-social-uk="Найновіші" data-social-en="Newest">Найновіші</option>
-     <option value="old" class="vatra-notifications-sort-old-001" data-social-uk="Найстаріші" data-social-en="Oldest">Найстаріші</option>
-    </select>
+          <div class="ui-notifications-actions-001">
+            <details id="notifications-sort" class="ui-notifications-sort-001">
+              <summary class="vatra-notifications-sort-toggle-001" aria-label="Сортування сповіщень" data-shell-aria-uk="Сортування сповіщень" data-shell-aria-en="Sort notifications" data-vatra-tooltip-uk="Сортування" data-vatra-tooltip-en="Sort"><svg class="ui-notifications-sort-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-notifications-sort-icon-001-path" d="M8 5v14m-4-4 4 4 4-4m4-10v14m-4-10 4-4 4 4"/></svg></summary>
+              <div class="ui-notifications-sort-menu-001" role="group" aria-label="Сортування сповіщень" data-shell-aria-uk="Сортування сповіщень" data-shell-aria-en="Sort notifications">
+                <button type="button" class="vatra-notifications-sort-new-001" data-notification-sort="new" aria-pressed="true"><span class="vatra-notifications-sort-new-label-001" data-social-uk="Найновіші" data-social-en="Newest">Найновіші</span><svg class="ui-notifications-sort-check-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-notifications-sort-check-001-path" d="m5 12 4 4L19 6"/></svg></button>
+                <button type="button" class="vatra-notifications-sort-old-001" data-notification-sort="old" aria-pressed="false"><span class="vatra-notifications-sort-old-label-001" data-social-uk="Найстаріші" data-social-en="Oldest">Найстаріші</span><svg class="ui-notifications-sort-check-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-notifications-sort-check-001-path" d="m5 12 4 4L19 6"/></svg></button>
+              </div>
+            </details>
+            <a id="notifications-settings" class="vatra-notification-settings-001" href="settings#notifications" aria-label="Налаштування сповіщень" data-shell-aria-uk="Налаштування сповіщень" data-shell-aria-en="Notification settings" data-vatra-tooltip-uk="Налаштування сповіщень" data-vatra-tooltip-en="Notification settings"><svg class="ui-notifications-settings-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-notifications-settings-icon-001-path" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM19.2 12c0-.5-.05-1-.16-1.46l1.74-1.37-1.8-3.12-2.12.86a7.7 7.7 0 0 0-2.5-1.44L14 3h-4l-.36 2.47a7.7 7.7 0 0 0-2.5 1.44l-2.12-.86-1.8 3.12 1.74 1.37a7 7 0 0 0 0 2.92l-1.74 1.37 1.8 3.12 2.12-.86a7.7 7.7 0 0 0 2.5 1.44L10 21h4l.36-2.47a7.7 7.7 0 0 0 2.5-1.44l2.12.86 1.8-3.12-1.74-1.37c.11-.46.16-.96.16-1.46Z"/></svg></a>
+          </div>
         </div>
         <section class="notifications-content ui-notifications-content-001" aria-label="Список сповіщень">
           <div id="notifications-list" class="vatra-notification-list ui-notifications-list-001" aria-live="polite" aria-busy="true">

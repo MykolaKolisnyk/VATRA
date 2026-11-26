@@ -1183,7 +1183,11 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationMarkup.includes('id="notifications-more"')&&
  notificationMarkup.includes('data-notification-filter="unread"')&&
  notificationMarkup.includes('data-notification-filter="read"')&&
- notificationMarkup.includes('id="notifications-sort"')&&
+ notificationMarkup.includes('<details id="notifications-sort"')&&
+ notificationMarkup.includes('data-notification-sort="new"')&&notificationMarkup.includes('data-notification-sort="old"')&&
+ notificationMarkup.includes('id="notifications-settings"')&&notificationMarkup.includes('href="settings#notifications"')&&
+ !notificationMarkup.includes('<select id="notifications-sort"')&&!notificationMarkup.includes('id="notifications-heading"')&&
+ notificationScript.includes('sortMenu.open=false;trigger.focus')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
  notificationScript.includes('{page:0,size:5},panelLoad')&&
