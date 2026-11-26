@@ -59,6 +59,7 @@ try{
      assert.equal(external.length,before,"No navigation before consent");
      assert.match(await page.locator(selector).innerText(),/Підозріле посилання/);
      assert.match(await page.locator(selector).innerText(),/виконуваний файл/);
+     for(const sel of [".vatra-external-link-heading-001",".vatra-external-link-note-001",".vatra-external-link-domain-001",".vatra-external-link-reasons-001"])assert.equal(await page.locator(sel).evaluate(el=>getComputedStyle(el).textAlign),"center");
      const layout=await page.locator(selector).evaluate(el=>{
       const r=el.getBoundingClientRect();
       return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:innerWidth,height:innerHeight,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth};

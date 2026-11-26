@@ -813,3 +813,16 @@ button[aria-busy="true"]::before{content:"";position:absolute;z-index:10;inset:0
 @media(prefers-reduced-motion:reduce){button[aria-busy="true"]::before{animation-duration:1.5s}}
 
 @media(max-width:720px){:root{--vatra-card-gap:var(--vatra-space-3);--vatra-page-gap:var(--vatra-space-4);--vatra-card-padding:var(--vatra-space-4)}}
+
+/* Shared entrance motion for menus that are inserted, unhidden or promoted to the top layer.
+   Independent translate leaves anchored transforms (such as translateX(-50%)) intact. */
+@keyframes vatra-popup-enter{from{opacity:0;translate:0 -5px}to{opacity:1;translate:0 0}}
+@media(prefers-reduced-motion:no-preference){
+ :is(.ui-profile-owner-media-menu-001,.vatra-select-list,.ui-profile-friend-menu-001,.profile-archive-menu,.vatra-post-comment-attach-menu,.vatra-post-comment-emoji-panel,.ui-profile-photo-emoji-panel-001,.ui-business-category-popover-001,.ui-create-menu-panel-001):not([hidden]):not([popover]),
+ :is(.ui-profile-owner-media-menu-001,.profile-avatar-menu,.ui-profile-editor-dropdown-panel-001):popover-open,
+ :is(.feed-account-menu[open] .feed-account-dropdown,.vatra-post-owner-menu[open] .vatra-post-owner-panel,.ui-notifications-sort-001[open] .ui-notifications-sort-menu-001,.ui-profile-more-menu-001[open] .ui-profile-more-panel-001),
+ :is(.ui-vatra-external-link-dialog-001,.ui-profile-cover-edit-dialog-001,.ui-profile-avatar-crop-dialog-001,.ui-profile-avatar-finish-dialog-001)[open]{animation:vatra-popup-enter .18s cubic-bezier(.2,.7,.2,1) both}
+}
+@media(prefers-reduced-motion:reduce){
+ :is(.ui-profile-owner-media-menu-001,.vatra-select-list,.ui-profile-friend-menu-001,.profile-archive-menu,.vatra-post-comment-attach-menu,.vatra-post-comment-emoji-panel,.ui-profile-photo-emoji-panel-001,.ui-business-category-popover-001,.ui-create-menu-panel-001,.profile-avatar-menu,.ui-profile-editor-dropdown-panel-001,.feed-account-dropdown,.vatra-post-owner-panel,.ui-notifications-sort-menu-001,.ui-profile-more-panel-001,.ui-vatra-external-link-dialog-001,.ui-profile-cover-edit-dialog-001,.ui-profile-avatar-crop-dialog-001,.ui-profile-avatar-finish-dialog-001){animation:none!important;transition:none!important}
+}

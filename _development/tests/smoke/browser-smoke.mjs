@@ -122,6 +122,14 @@ try{
   });
   await accountDesign.addScriptTag({url:base+"assets/js/form-select.js"});
   await accountDesign.addScriptTag({url:base+"assets/js/settings.js"});
+  await accountDesign.addScriptTag({url:base+"assets/js/toast.js"});
+  await accountDesign.evaluate(()=>{window.__copiedId=null;Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async value=>{window.__copiedId=value;}}});});
+  await accountDesign.locator(".vatra-id-copy-001").click();
+  await accountDesign.locator(".vatra-toast-item--success").filter({hasText:"ID скопійовано."}).waitFor({state:"visible"});
+  assert.equal(await accountDesign.evaluate(()=>window.__copiedId),"12");
+  await accountDesign.evaluate(()=>{Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async()=>{throw Error("Denied");}}});});
+  await accountDesign.locator(".vatra-id-copy-001").click();
+  await accountDesign.locator(".vatra-toast-item--error").filter({hasText:"Не вдалося скопіювати ID."}).waitFor({state:"visible"});
   const birthday=accountDesign.locator(".ui-vatra-id-birth-field-001");
   await birthday.waitFor({state:"visible"});
   assert.equal(await birthday.locator(".vatra-select-trigger").count(),3);
@@ -4690,10 +4698,10 @@ try{
    const box=el=>el.getBoundingClientRect();
    return {rowX:Math.abs(box(profile).left-box(manage).left),height:Math.abs(box(profile).height-box(manage).height),
     textX:Math.abs(box(profile.querySelector("svg")).left-box(manage.querySelector(".vatra-account-manage-label-001")).left),
-    brandRight:Math.abs(box(manage).right-box(manage.querySelector(".ui-vatra-account-id-brand-001")).right-14),
+    brandGap:Math.abs(box(manage.querySelector(".ui-vatra-account-id-brand-001")).left-box(manage.querySelector(".vatra-account-manage-label-001")).right-8),
     brandOrder:Math.max(0,box(manage.querySelector(".vatra-account-manage-label-001")).right-box(manage.querySelector(".ui-vatra-account-id-brand-001")).left)};
   });
-  assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account management label must be left and VATRA ID brand right: "+JSON.stringify(accountRowGeometry));
+  assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account management label and VATRA ID brand must be adjacent: "+JSON.stringify(accountRowGeometry));
   assert.deepEqual(await manageAccount.locator(":scope > span").evaluateAll(nodes=>nodes.map(node=>node.className)),["vatra-account-manage-label-001","ui-vatra-account-id-brand-001"]);
   assert.equal(await manageAccount.locator(".ui-vatra-account-id-brand-001 > .vatra-account-id-label-001").count(),1);
   assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
