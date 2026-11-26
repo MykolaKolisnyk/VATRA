@@ -1183,7 +1183,11 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationMarkup.includes('id="notifications-more"')&&
  notificationMarkup.includes('data-notification-filter="unread"')&&
  notificationMarkup.includes('data-notification-filter="read"')&&
- notificationMarkup.includes('id="notifications-sort"')&&
+ notificationMarkup.includes('<details id="notifications-sort"')&&
+ notificationMarkup.includes('data-notification-sort="new"')&&notificationMarkup.includes('data-notification-sort="old"')&&
+ notificationMarkup.includes('id="notifications-settings"')&&notificationMarkup.includes('href="settings#notifications"')&&
+ !notificationMarkup.includes('<select id="notifications-sort"')&&!notificationMarkup.includes('id="notifications-heading"')&&
+ notificationScript.includes('sortMenu.open=false;trigger.focus')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
  notificationScript.includes('{page:0,size:5},panelLoad')&&
@@ -1219,7 +1223,7 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-status"')&&
  profileMarkup.includes('id="profile-last-seen"')&&
  !profileMarkup.includes('id="profile-online-dot"')&&
- profileMarkup.includes('id="profile-edit-dialog"')&&
+ !profileMarkup.includes('id="profile-edit-dialog"')&&
  profileMarkup.includes('id="profile-status-text"')&&
  profileMarkup.includes('ui-profile-add-friend-icon-001')&&
  profileMarkup.includes('class="feed-posts ui-profile-posts-001"')&&
@@ -1651,12 +1655,20 @@ assert.ok(
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
  "Profile must fetch only four friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
+const countrySource=profileScript.slice(profileScript.indexOf(" const countryCities="),profileScript.indexOf(" const choiceLabel="));
+const countryTest=new Function("window","document",countrySource+"return {countryCodes,citiesForCountry,countryLabel};")({VATRA_LANGUAGE:{locale:"uk"}},{documentElement:{lang:"uk"}});
+assert.deepEqual([...countryTest.countryCodes].sort(),["BG","DE","FR","GB","GE","IT","PL","UA"]);
+assert.ok(countryTest.citiesForCountry("UA").includes("Ужгород")&&!countryTest.citiesForCountry("PL").includes("Ужгород"));
+assert.ok(countryTest.citiesForCountry("PL").includes("Warszawa")&&!countryTest.citiesForCountry("UA").includes("Warszawa"));
+assert.equal(countryTest.citiesForCountry("XX").length,0);
+assert.ok(profileScript.includes('key==="country"?countryCodes.map')&&profileScript.includes('key!=="country"&&selectedValue')&&profileScript.includes('citiesForCountry(draft.get("country")?.value)'));
+
 assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
  "Exactly one page-level profile controller must be loaded");
 assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module has invalid JavaScript");
 assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  !memberProfileMarkup.includes('assets/js/profile-details.js') &&
- detailsModule.includes('profile-editor-page-visibility') &&
+ !detailsModule.includes('profile-editor-page-visibility') &&
  detailsModule.includes('from("profile_details")') &&
  detailsModule.includes('from("profile_preferences")') &&
  detailsModule.includes('window.VATRA_PROFILE_DETAILS={prepare,init,open:()=>openEditor()}') &&
@@ -1670,7 +1682,7 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('enhanceEditorSelect(change,"page")') &&
+ detailsModule.includes('labelGroup.append(lab,disclosure)') &&
  detailsModule.includes('if(!editable){event.preventDefault();open(true);return;}') &&
  detailsModule.includes('state.panel.scrollTop+=option.bottom-bounds.bottom') &&
  memberCss.includes('.vatra-editor-select>select[hidden]{display:none!important}') &&
@@ -2211,8 +2223,12 @@ assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  ["welcome","waiting","success","goodbye","explanation"].every(state=>
   onboardingJs.includes("vatryk_"+state+".webp")),
  "First-visit Vatryk onboarding must be localized, accessible, per-member and with a nonmodal first-steps panel");
-assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
- memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
+assert.ok(!memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
+ !memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
+ profileScript.includes('select("#profile-avatar-file")?.click()')&&
+ profileScript.includes('select("#profile-cover-file")?.click()')&&
+ !profileScript.includes('vatra-profile-editor-media-button-001')&&
+ !profileScript.includes('vatra-profile-details-edit-001')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
  memberProfileMarkup.includes('id="profile-cover-file"')&&
  profileScript.includes('from("profile_media")')&&

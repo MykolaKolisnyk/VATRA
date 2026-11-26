@@ -17,8 +17,8 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css?rev=3e5499621ecb01982137d82dea2634afe690d376">
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=163dda687e778993477c96327b0d7d7085e48909">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=253aab0b6bc191bc71bb2adc0d87c53d3c134473">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=d48f8c06080499472f2fd585415edcfe4be2667b">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=eeb16467963662f57d255aff269e6d2a16b2f028">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=7ea3e4981c5e416ec06fd927f9dbe947a986499c">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js?rev=7ff79ee9e91749c58a922e046858e8a2b0dd5bf1"></script>
@@ -27,11 +27,11 @@
     <script defer src="assets/js/verified.js?rev=ab686b7db8b3ad7b903dfb7eb65dcae4a4e27855"></script>
     <script defer src="assets/js/post-interactions.js?rev=ff02a083a01cf1206b992e6783b074af57e5e9ad"></script>
     <script defer src="assets/js/presence.js?rev=eac08d0779c9ed7056c915454229302600a6b759"></script>
-    <script defer src="assets/js/notifications.js?rev=c9b170d144696d2e780b597f7b84b226c41f3543"></script>
+    <script defer src="assets/js/notifications.js?rev=49e2e731ef10493e3b90bf417fcd4808d09b7fe9"></script>
     <script defer src="assets/js/gift-catalog.js?rev=3a4f84bd30f882272cdaa8436e9b4258137d81ee"></script>
     <script defer src="assets/js/guest-view.js?rev=3396dd0c3de7deed25f770ef52c38ae00117a3c5"></script>
     <script defer src="assets/js/feature-loader.js?rev=82a62d4fb356c35b87d9cd72cb49d50d73f49c39"></script>
-    <script defer src="assets/js/profile.js?rev=4e1f7c74b69b18df95a8dce01db6f08d76691d3f"></script>
+    <script defer src="assets/js/profile.js?rev=79d3396e2403f34b9e7019c6ce0fea4a626d6199"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js?rev=1c6c853709478a9b563e59cda003a1fb1d70e12a"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -406,26 +406,6 @@
             <div class="profile-edit-buttons ui-profile-status-buttons-001">
               <button id="profile-status-cancel" class="vatra-profile-status-cancel-001" type="button" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
       <button id="profile-status-save" class="vatra-profile-status-save-001" type="submit" data-social-uk="Зберегти" data-social-en="Save">Зберегти</button>
-            </div>
-          </form>
-        </dialog>
-        <dialog id="profile-edit-dialog" class="profile-edit-dialog ui-profile-edit-dialog-001" aria-labelledby="profile-edit-heading">
-          <form id="profile-edit-form" class="profile-edit-form ui-profile-edit-form-001">
-            <h2 id="profile-edit-heading" class="vatra-profile-edit-heading-001" data-social-uk="Редагувати профіль" data-social-en="Edit profile">
-              Редагувати профіль
-            </h2>
-            <p class="vatra-profile-edit-media-help-001" data-social-uk="Керуйте фотографією профілю та обкладинкою." data-social-en="Manage your profile photo and cover.">
-              Керуйте фотографією профілю та обкладинкою.
-            </p>
-            <div class="profile-edit-media-actions ui-profile-edit-media-actions-001">
-              <button type="button" id="profile-avatar-upload-button" class="profile-avatar-upload-button vatra-profile-avatar-upload-button-001" data-social-uk="Змінити фото" data-social-en="Edit photo" hidden>Змінити фото</button>
-      <button id="profile-cover-upload-button" class="profile-cover-upload-button vatra-profile-cover-upload-button-001" type="button" data-social-uk="Змінити обкладинку" data-social-en="Edit cover" hidden>Змінити обкладинку</button>
-            </div>
-            <p id="profile-edit-message" class="vatra-profile-edit-message-001" role="status" aria-live="polite" hidden>
-            </p>
-            <div class="profile-edit-buttons ui-profile-edit-buttons-001">
-              <button id="profile-edit-cancel" class="vatra-profile-edit-cancel-001" type="button" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
-      <button id="profile-edit-save" class="vatra-profile-edit-save-001" type="submit" data-social-uk="Зберегти" data-social-en="Save">Зберегти</button>
             </div>
           </form>
         </dialog>

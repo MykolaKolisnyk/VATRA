@@ -4560,6 +4560,14 @@ try{
   assert.equal(await manageAccount.evaluate(link=>new URL(link.href).pathname),"/VATRA/vatra-id");
   assert.equal(await manageAccount.locator(".ui-vatra-account-id-symbol-001").count(),1);
   assert.equal((await manageAccount.locator(".vatra-account-id-label-001").textContent()).trim(),"ID");
+  const accountRowGeometry=await accountProfileGroup.evaluate(group=>{
+   const profile=group.querySelector(".feed-account-profile"),manage=group.querySelector(".vatra-account-manage-001");
+   const box=el=>el.getBoundingClientRect();
+   return {rowX:Math.abs(box(profile).left-box(manage).left),height:Math.abs(box(profile).height-box(manage).height),
+    iconX:Math.abs(box(profile.querySelector("svg")).left-box(manage.querySelector(".ui-vatra-account-id-brand-001")).left),
+    textX:Math.abs(box(profile.querySelector("span")).left-box(manage.querySelector(".vatra-account-manage-label-001")).left)};
+  });
+  assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account rows, icons and labels must be aligned: "+JSON.stringify(accountRowGeometry));
   assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
    "Support must precede Settings in the account menu");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
@@ -5323,7 +5331,8 @@ try{
   await profilePage.locator("#profile-status").click();
   assert.equal(await profilePage.locator("#profile-status-dialog").evaluate(el=>el.open),true,
    "Clicking status opens a dedicated status editor");
-  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),false);
+  assert.equal(await profilePage.locator("#profile-edit-dialog").count(),0,"Legacy media dialog must be removed");
+  assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false,"Status editing must not open the profile workspace");
   await profilePage.locator("#profile-status-cancel").click();
   assert.equal(await profilePage.locator("#profile-about-more").isVisible(),false,
    "Do not show a More details action if no additional information exists");
@@ -5345,12 +5354,37 @@ try{
    assert.equal(await profilePage.locator("#"+id+"-native").inputValue(),value);
    assert.equal(await trigger.getAttribute("aria-expanded"),"false");
   };
+  const countryOptions=await profilePage.locator("#profile-editor-country-native").evaluate(el=>Array.from(el.options,option=>({value:option.value,label:option.textContent})));
+  assert.deepEqual(countryOptions.map(option=>option.value),["","UA","GB","PL","DE","FR","IT","BG","GE"],
+   "Country is a fixed list of exactly the eight VATRA interface countries");
+  assert.equal(await profilePage.locator("#profile-editor-country").evaluate(el=>el.tagName),"BUTTON",
+   "Country must be selected rather than typed");
+  const selectCountry=async code=>chooseProfileEditorOption("profile-editor-country",code,countryOptions.find(option=>option.value===code).label);
+  const checkCityOptions=async(id,expected,excluded)=>{
+   const input=profilePage.locator("#"+id);
+   await input.scrollIntoViewIfNeeded();
+   await input.click();
+   const panelId=await input.getAttribute("aria-controls");
+   assert.ok(panelId,"A country-specific city menu must open");
+   const panel=profilePage.locator("#"+panelId);
+   assert.equal(await panel.getByRole("option",{name:expected,exact:true}).count(),1);
+   assert.equal(await panel.getByRole("option",{name:excluded,exact:true}).count(),0);
+   await panel.getByRole("option",{name:expected,exact:true}).click();
+   assert.equal(await input.inputValue(),expected);
+  };
+  await selectCountry("PL");
+  await checkCityOptions("profile-editor-hometown","Warszawa","Київ");
+  await selectCountry("UA");
+  assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Warszawa",
+   "Changing country must not silently delete an existing hometown");
+  await checkCityOptions("profile-editor-hometown","Львів","Warszawa");
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
-  await chooseProfileEditorOption("profile-editor-page-visibility","friends",language==="en"?"Private · friends only":"Закрита · лише друзі");
+  assert.equal(await profilePage.locator("#profile-editor-page-visibility, #profile-editor-page-visibility-native").count(),0,
+   "Global profile visibility belongs exclusively in Settings");
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
-  await profilePage.locator("#profile-editor-city").fill("Київ");
+  await checkCityOptions("profile-editor-city","Київ","Warszawa");
   await profilePage.locator("#profile-editor-website").fill("https://example.org");
   await chooseProfileEditorOption("profile-editor-visibility-website","public",language==="en"?"Everyone":"Для всіх");
   await profilePage.locator('.profile-editor-nav-link[data-group="profile"]').click();
@@ -5362,10 +5396,12 @@ try{
   assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").count(),0,
    "Profile editor must not construct a legacy feedback node");
    await profilePage.locator(".vatra-toast-item--success.is-visible").last().waitFor({state:"visible"});
-  await profilePage.locator(".vatra-profile-editor-media-button-001").click();
-  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
-   "The media editor remains available from the new information editor");
-  await profilePage.locator("#profile-edit-cancel").click();
+  assert.equal(await profilePage.locator(".vatra-profile-editor-media-button-001, #profile-edit-dialog").count(),0,
+   "Redundant media action and dialog must not exist");
+  for(const [selector,inputId] of [[".vatra-profile-editor-avatar-change-001","profile-avatar-file"],[".vatra-profile-editor-cover-change-001","profile-cover-file"]]){
+   const [chooser]=await Promise.all([profilePage.waitForEvent("filechooser",{timeout:10000}),profilePage.locator(selector).click()]);
+   assert.equal(await chooser.element().getAttribute("id"),inputId,"Media action must directly open its existing file picker");
+  }
   await profilePage.locator(".vatra-profile-editor-back-001").click();
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true);
@@ -5387,6 +5423,10 @@ try{
   await profilePage.locator("#profile-about-more").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),true,
    "More details opens the full personal-information dialog");
+  assert.equal((await profilePage.locator(".vatra-profile-detail-value-country").textContent()).trim(),countryOptions.find(option=>option.value==="UA").label,
+   "The stored country is displayed using its localized name");
+  assert.equal(await profilePage.evaluate(()=>window.__profileDetailRows.find(row=>row.field_key==="country")?.field_value),"UA",
+   "Country must persist as an ISO code, not as translated text");
   assert.equal((await profilePage.locator(".vatra-profile-detail-value-hometown").textContent()).trim(),"Львів",
    "Both location fields belong in the full dialog");
   assert.equal((await profilePage.locator(".vatra-profile-detail-bio-001").textContent()).trim(),"Тестова інформація");
@@ -5394,6 +5434,8 @@ try{
    "Privacy visibility belongs only in the editor, never the read-only information dialog");
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog .vatra-profile-detail-icon").count(),0,
    "Detail sections use typography and labels rather than repetitive icons");
+  assert.equal(await profilePage.locator("#vatra-profile-details-dialog .vatra-profile-details-edit-001").count(),0,
+   "Read-only details must not include a duplicate edit button");
   await profilePage.locator(".vatra-profile-details-close-001").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),false);
   await profilePage.evaluate(()=>{

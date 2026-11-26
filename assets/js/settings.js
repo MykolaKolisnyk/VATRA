@@ -3,7 +3,6 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 window.VATRA_SECTION_CORE?.start(async ({root,locale,t,$,make,link,btn,valid,title,subtitle,action,content,notice,client,user,ownId,message,empty,card,field,submit,confirmRemove,tabs,dialog,nameOf,sectionIcon,sectionIconButton,discoveryIcons})=>{
 let renderTicket=0;
-// Release gate: never enable this before the authenticated lifecycle API, RLS and purge worker are deployed and verified.
 const ACCOUNT_LIFECYCLE_ENABLED=false;
 const recoveryDays=[0,7,30,90,180];
 const lifecycleDeadline=value=>{
@@ -199,7 +198,6 @@ async function account(){
  const renderPendingDeletion=status=>{
   if(status?.state!=="pending"||!lifecycleDeadline(status.restore_until))throw Error("Invalid deletion state");
   rail.hidden=true;layout.classList.add("is-deactivated");
-  // Only the server can assert this state and provide its exact recovery deadline.
   const header=document.querySelector(".feed-header");if(header)header.hidden=true;
   panel.replaceChildren();const c=card("ui-vatra-id-deactivated-001");
   const mark=idSymbol("ban");c.append(mark,make("h2","vatra-id-heading-001",t("Акаунт видалено","Account deleted")),make("p","vatra-section-form-note-001",t("Ви можете відновити свій акаунт до:","You can restore your account until:")));

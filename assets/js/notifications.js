@@ -939,10 +939,31 @@ function pageUI(){
    void pageLoad(false);
   });
  }
- pick("#notifications-sort")?.addEventListener("change",event=>{
-  sectionSort=event.target.value==="old"?"old":"new";
-  sectionPage=0;void pageLoad(false);
- });
+ const sortMenu=pick("#notifications-sort");
+ if(sortMenu){
+  const trigger=sortMenu.querySelector("summary");
+  for(const btn of sortMenu.querySelectorAll("[data-notification-sort]")){
+   btn.addEventListener("click",()=>{
+    const next=btn.dataset.notificationSort==="old"?"old":"new";
+    for(const other of sortMenu.querySelectorAll("[data-notification-sort]"))
+     other.setAttribute("aria-pressed",String(other===btn));
+    sortMenu.open=false;trigger.focus({preventScroll:true});
+    if(next===sectionSort)return;
+    sectionSort=next;sectionPage=0;void pageLoad(false);
+   });
+  }
+  document.addEventListener("pointerdown",event=>{
+   if(sortMenu.open&&!sortMenu.contains(event.target))sortMenu.open=false;
+  });
+  sortMenu.addEventListener("focusout",event=>{
+   if(sortMenu.open&&event.relatedTarget&&!sortMenu.contains(event.relatedTarget))sortMenu.open=false;
+  });
+  sortMenu.addEventListener("keydown",event=>{
+   if(event.key==="Escape"&&sortMenu.open){
+    event.preventDefault();event.stopPropagation();sortMenu.open=false;trigger.focus({preventScroll:true});
+   }
+  });
+ }
  pick("#notifications-more")?.addEventListener("click",()=>void pageLoad(true));
  void pageLoad(false);
 }
