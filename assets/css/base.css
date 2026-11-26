@@ -866,7 +866,6 @@ dialog:modal,.language-dialog,.captcha-dialog{overscroll-behavior:contain}
  dialog:modal,dialog:modal::backdrop,.language-backdrop,.captcha-backdrop,.language-dialog,.language-dialog > :not([hidden]),.captcha-dialog{animation:none!important;transition:none!important}
 }
 
-/* Shared simple confirmation layout. All legacy dialog hooks use the same visual contract. */
 body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001,.saved-remove-dialog){
  box-sizing:border-box;width:min(450px,calc(100vw - 30px));max-width:450px;max-height:calc(100dvh - 32px);
  overflow:auto;margin:auto;padding:28px;border:1px solid #e0e7f2;border-radius:22px;background:#fff;color:#30435f;

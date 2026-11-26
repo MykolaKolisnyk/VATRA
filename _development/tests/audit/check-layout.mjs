@@ -2050,7 +2050,9 @@ assert.ok(
  profileBehavior.includes('dialog.showModal();')&&
  profileBehavior.includes('window.VATRA_PROFILE_CONFIRM(blocked?{')&&
  !/\b(?:window\.)?confirm\s*\(/.test(profileBehavior.replace(/\/\*[\s\S]*?\*\//g,""))&&
- css.includes('Shared simple confirmation layout')&&
+ authBaseCss.includes('body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001,.saved-remove-dialog)')&&
+ authBaseCss.includes('background:var(--vatra-confirm-action)!important')&&
+ authBaseCss.includes('--vatra-confirm-action:var(--vatra-action-danger)')&&
  !systemProfileCss.includes('body.profile-page .profile-confirm-dialog::backdrop{'),
  "All profile decisions use the accessible VATRA dialog, not native JS confirm windows");
 assert.ok(
