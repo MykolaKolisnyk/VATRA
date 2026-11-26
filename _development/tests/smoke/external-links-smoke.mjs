@@ -1,0 +1,15 @@
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+import {runInNewContext} from "node:vm";
+const source=await readFile("assets/js/external-links.js","utf8");
+const window={},document={addEventListener(){}};
+runInNewContext(source,{window,document,URL});
+const inspect=url=>window.VATRA_EXTERNAL_LINKS.inspect(url,"https://vatra.example/feed");
+assert.equal(inspect("/profile"),null);assert.equal(inspect("mailto:help@example.org"),null);
+assert.equal(inspect("javascript:alert(1)"),null);
+const ordinary=inspect("https://example.org/path?a=1#part");assert.equal(ordinary.suspicious,false);assert.equal(ordinary.href,"https://example.org/path?a=1&utm_source=vatra#part");
+assert.equal(inspect("https://example.org/?utm_source=partner").href,"https://example.org/?utm_source=partner");
+assert.equal(inspect("https://example.org/?token=secret").href,"https://example.org/?token=secret");
+assert.equal(inspect("https://example.org/oauth/callback?code=test").href,"https://example.org/oauth/callback?code=test");
+for(const url of ["http://example.org","https://bit.ly/test","https://127.0.0.1","https://xn--e1afmkfd.xn--p1ai","https://example.org:8443","https://example.org@other.example"])assert.equal(inspect(url).suspicious,true,url);
+console.log("VATRA outbound link safety and source attribution passed.");

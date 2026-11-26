@@ -77,6 +77,8 @@ jobs:
         run: node _development/tests/smoke/account-lifecycle-gateway-smoke.mjs
       - name: Check bounded requests and parallel startup
         run: node _development/tests/smoke/startup-performance-smoke.mjs
+      - name: Check external link warnings and attribution
+        run: node _development/tests/smoke/external-links-smoke.mjs
       - name: Check SEO and site layout
         run: |
           node _development/tests/audit/check-seo.mjs
