@@ -202,9 +202,10 @@ for(const name of pages){
    name+".html: a visible element must have a page-specific style hook: "+match[0].slice(0,120));
  }
 }
-assert.ok(css.includes('@keyframes vatraLanguageBackdrop')&&
- css.includes('.language-dialog > :not([hidden]){animation:vatraAuthReveal')&&
- css.includes('.language-backdrop,.language-dialog > :not([hidden]){animation:none!important}')&&
+assert.ok(css.includes('@keyframes vatra-modal-backdrop-enter')&&
+ css.includes('.language-dialog > :not([hidden]){animation:vatraAuthReveal var(--vatra-modal-duration)')&&
+ css.includes('.language-dialog,.language-dialog > :not([hidden]),.captcha-dialog{animation:none!important;transition:none!important}')&&
+ !css.includes('@keyframes vatraLanguageBackdrop')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand{order:0;')&&
  css.includes('height:52px;border:0;border-radius:0;background:transparent')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header .back{order:1;'),

@@ -978,7 +978,7 @@ try{
  }));
  assert.ok(modalAnimations.dialog==="none"&&
   modalAnimations.content.includes("vatraAuthReveal")&&
-  modalAnimations.backdrop.includes("vatraLanguageBackdrop"),
+  modalAnimations.backdrop==="vatra-modal-backdrop-enter",
   "Language dialog shell must stay still and only its content may rise");
  assert.deepEqual(await page.locator(".language-option").evaluateAll(nodes=>
   nodes.map(node=>node.className.match(/vatra-language-choice-([a-z]+)/)?.[1])),

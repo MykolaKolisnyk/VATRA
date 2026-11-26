@@ -123,13 +123,9 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 .language-trigger .language-flag{width:24px;height:18px;flex:none;box-shadow:0 0 0 1px rgba(44,57,86,.13);border-radius:4px;overflow:hidden;shape-rendering:geometricPrecision}
 .language-chevron{display:block;width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;color:#627187;margin-left:1px;shape-rendering:geometricPrecision}
 .language-dialog-open{overflow:hidden}
-.language-backdrop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:rgba(15,24,44,.48);backdrop-filter:blur(3px);animation:vatraLanguageBackdrop .24s ease-out both}
+.language-backdrop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px}
 .language-backdrop[hidden],.language-option[hidden],.language-empty[hidden]{display:none!important}
 .language-dialog{width:min(100%,690px);max-height:min(84dvh,730px);min-height:0;display:flex;flex-direction:column;padding:25px;background:#fff;font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;border:1px solid #e4e9f4;border-radius:22px;box-shadow:0 25px 80px rgba(15,25,55,.23);color:var(--ink)}
-.language-dialog > :not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
-@keyframes vatraLanguageBackdrop{from{opacity:0}to{opacity:1}}
-@keyframes vatraLanguageDialog{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(prefers-reduced-motion:reduce){.language-backdrop,.language-dialog > :not([hidden]){animation:none!important}}
 .language-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .language-heading-row h2{font-size:24px;letter-spacing:-.04em;margin:0 0 4px;line-height:1.25}
 .language-heading-row p{margin:0 0 20px;color:var(--soft);font-size:13px}
@@ -861,11 +857,11 @@ dialog:modal,.language-dialog,.captcha-dialog{overscroll-behavior:contain}
  dialog:modal::backdrop,.language-backdrop:not([hidden]),.captcha-backdrop:not([hidden]){
   animation:vatra-modal-backdrop-enter var(--vatra-modal-duration) ease-out both;
  }
- dialog:modal:not([data-fullpage="true"]),.language-dialog,.captcha-dialog{
+ dialog:modal:not([data-fullpage="true"]),.captcha-dialog{
   animation:vatra-popup-enter var(--vatra-modal-duration) cubic-bezier(.2,.7,.2,1) both;
  }
- .language-dialog > :not([hidden]){animation:none}
+ .language-dialog > :not([hidden]){animation:vatraAuthReveal var(--vatra-modal-duration) cubic-bezier(.2,.7,.2,1) both}
 }
 @media(prefers-reduced-motion:reduce){
- dialog:modal,dialog:modal::backdrop,.language-backdrop,.captcha-backdrop,.language-dialog,.captcha-dialog{animation:none!important;transition:none!important}
+ dialog:modal,dialog:modal::backdrop,.language-backdrop,.captcha-backdrop,.language-dialog,.language-dialog > :not([hidden]),.captcha-dialog{animation:none!important;transition:none!important}
 }
