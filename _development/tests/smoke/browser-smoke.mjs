@@ -3091,7 +3091,8 @@ try{
    }),
    list:async(folder,options)=>({data:bucket==="avatars"&&folder==="654321/avatar"&&!new URLSearchParams(location.search).has("no-avatar-test")&&!options?.offset?[{name:"test-profile.webp"},{name:"previous-profile.webp"}]:[],error:null}),
    download:async path=>{
-    window.__vatraAvatarDownloadedPaths.push(path);
+    if(bucket==="covers")(window.__vatraCoverDownloadedPaths??=[]).push(path);
+    else if(bucket==="avatars")window.__vatraAvatarDownloadedPaths.push(path);
     const bytes=Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="),c=>c.charCodeAt(0));
     return {data:new Blob([bytes],{type:"image/png"}),error:null};
    },
@@ -5235,6 +5236,12 @@ try{
   await profilePage.locator("#profile-cover-image").hover();
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
   const initialCover=await profilePage.locator("#profile-cover-photo").getAttribute("src");
+  await profilePage.locator("#profile-cover-change").hover();
+  const coverActions=profilePage.locator("#profile-owner-media-menu");await coverActions.waitFor({state:"visible"});
+  assert.equal(await coverActions.locator('[data-action="upload"]').count(),1);
+  assert.equal(await coverActions.locator('[data-action="crop"]').count(),initialCover?1:0);
+  assert.equal(await coverActions.locator('[data-action="trash"]').count(),initialCover?1:0);
+  await profilePage.keyboard.press("Escape");await coverActions.waitFor({state:"hidden"});
   const coverFixture=await profilePage.evaluate(()=>{const c=document.createElement("canvas");c.width=960;c.height=640;const ctx=c.getContext("2d");ctx.fillStyle="#927fe4";ctx.fillRect(0,0,960,640);ctx.fillStyle="#fff";ctx.fillRect(0,240,960,160);return c.toDataURL("image/png").split(",")[1];});
   assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-editor.js"]').count(),0,
    "Opening a profile must not preload the cover crop editor");
@@ -5255,6 +5262,20 @@ try{
   await profilePage.locator("#profile-cover-edit-close").click();
   assert.equal(await profilePage.locator("#profile-cover-edit-dialog").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-cover-photo").getAttribute("src"),initialCover,"Cancel never changes the existing cover");
+  if(initialCover){
+   const originalPath=new URL(initialCover).pathname.split("/covers/")[1].replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
+   await profilePage.locator("#profile-cover-change").hover();
+   await profilePage.locator('#profile-owner-media-menu [data-action="crop"]').click();
+   await profilePage.locator("#profile-cover-edit-dialog").waitFor({state:"visible"});
+   assert.equal(await profilePage.evaluate(()=>window.__vatraCoverDownloadedPaths?.at(-1)),originalPath,
+    "Display area must reopen the original stored cover without a file picker");
+   assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-cover-editor.js"]').count(),1,
+    "Re-cropping must reuse the existing lazy editor");
+   await profilePage.locator("#profile-cover-edit-close").click();
+   assert.equal(await profilePage.locator("#profile-cover-photo").getAttribute("src"),initialCover,
+    "Cancelling a new display area preserves the current cover");
+  }
+
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-add-story").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),true);
@@ -5283,8 +5304,8 @@ try{
    "Story composer must open in the profile itself");
   await profilePage.locator("#profile-story-compose-cancel").click();
   assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),false);
-  assert.equal(await profilePage.locator("#profile-edit-open svg").count(),0,
-   "Owner's edit action is text-only");
+  assert.equal(await profilePage.locator("#profile-edit-open svg").count(),1,
+   "Owner's edit action uses a VATRA SVG icon");
   assert.equal(await profilePage.locator("#profile-status svg").count(),0,"Status has no pencil");
   const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,name=document.querySelector("#profile-heading"),er=edit.getBoundingClientRect(),nr=name.getBoundingClientRect();return {inRow:row.classList.contains("ui-profile-name-row-001")&&name.parentElement===row,outsideTabs:!document.querySelector(".social-profile-tabs").contains(edit),rightGap:Math.abs(row.getBoundingClientRect().right-er.right),sameLine:Math.abs((er.top+er.bottom-nr.top-nr.bottom)/2)<=5,background:getComputedStyle(edit).backgroundColor};});
   assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=2&&editAlignment.background!=="rgba(0, 0, 0, 0)","Edit action has a VATRA background and sits at the right edge beside the name");
@@ -5380,6 +5401,22 @@ try{
   await checkCityOptions("profile-editor-hometown","Невицьке","Warszawa");
   await checkCityOptions("profile-editor-hometown","Львів","Warszawa");
   assert.equal(await profilePage.locator(".ui-profile-editor-field-control-short_bio #profile-editor-visibility-short_bio").count(),1,"Visibility must be inside the same field box");
+  for(const key of ["short_bio","country","hometown","languages","relationship"]){
+   const geometry=await profilePage.locator(".ui-profile-editor-field-control-"+key).evaluate(box=>{
+    const privacy=box.querySelector(".vatra-editor-select[data-variant='compact']"),trigger=privacy?.querySelector("button");
+    const field=box.firstElementChild.getBoundingClientRect(),icon=trigger.getBoundingClientRect(),bounds=box.getBoundingClientRect();
+    return {right:Math.abs(bounds.right-icon.right),top:Math.abs(bounds.top-icon.top),overlap:field.right-icon.left,svg:trigger.querySelectorAll("svg").length,text:trigger.textContent.trim(),height:bounds.height,fieldHeight:field.height};
+   });
+   assert.ok(geometry.right<3&&geometry.top<3&&geometry.overlap<2&&geometry.svg===1&&!geometry.text&&geometry.height<=Math.max(44,geometry.fieldHeight)+3,
+    "Privacy icon must occupy the trailing edge without adding a row: "+key+" "+JSON.stringify(geometry));
+  }
+  const privacy=profilePage.locator("#profile-editor-visibility-short_bio");await privacy.click();
+  const privacyPanel=profilePage.locator("#"+await privacy.getAttribute("aria-controls"));
+  assert.equal(await privacyPanel.getByRole("option").count(),3,"Only supported privacy levels are offered");
+  assert.equal(await privacyPanel.locator('[aria-selected="true"] .ui-profile-editor-option-check-001').count(),1);
+  await profilePage.locator("#profile-editor-visibility-country").click();
+  assert.equal(await privacy.getAttribute("aria-expanded"),"false","Only one dropdown stays open");
+  await profilePage.keyboard.press("Escape");
   assert.ok(await profilePage.locator("#profile-editor-languages-native option").count()>=170,"Extended language catalog");
   assert.equal(await profilePage.locator('#profile-editor-languages-native option[value="Русский"]').count(),0,"Russian must not be a new selectable language");
   const languageSearch=profilePage.locator("#profile-editor-languages");await languageSearch.fill("English");
@@ -5388,6 +5425,7 @@ try{
   await languagePanel.getByRole("option").filter({hasText:"English"}).click();
   assert.equal(await profilePage.locator(".vatra-profile-editor-language-chip-001").filter({hasText:"English"}).count(),1);
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
+  assert.equal(await privacy.locator("svg.ui-vatra-profile-information-icon-lock").count(),1,"Privacy icon reflects the saved choice");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
   assert.equal(await profilePage.locator("#profile-editor-page-visibility, #profile-editor-page-visibility-native").count(),0,
@@ -5407,9 +5445,12 @@ try{
    await profilePage.locator(".vatra-toast-item--success.is-visible").last().waitFor({state:"visible"});
   assert.equal(await profilePage.locator(".vatra-profile-editor-media-button-001, #profile-edit-dialog").count(),0,
    "Redundant media action and dialog must not exist");
-  for(const [selector,inputId] of [[".vatra-profile-editor-avatar-change-001","profile-avatar-file"],[".vatra-profile-editor-cover-change-001","profile-cover-file"]]){
-   const [chooser]=await Promise.all([profilePage.waitForEvent("filechooser",{timeout:10000}),profilePage.locator(selector).click()]);
-   assert.equal(await chooser.element().getAttribute("id"),inputId,"Media action must directly open its existing file picker");
+  for(const [selector,inputId,action] of [[".vatra-profile-editor-avatar-change-001","profile-avatar-file","profile-avatar-change"],[".vatra-profile-editor-cover-change-001","profile-cover-file","upload"]]){
+   await profilePage.locator(selector).click();
+   const menu=profilePage.locator("#profile-owner-media-menu");await menu.waitFor({state:"visible"});
+   assert.ok(await menu.evaluate(el=>el.classList.contains("is-compact")),"Editor media menu is compact");
+   const [chooser]=await Promise.all([profilePage.waitForEvent("filechooser",{timeout:10000}),menu.locator('[data-action="'+action+'"]').click()]);
+   assert.equal(await chooser.element().getAttribute("id"),inputId,"Media menu action opens the existing file picker");
   }
   await profilePage.locator(".vatra-profile-editor-back-001").click();
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false);

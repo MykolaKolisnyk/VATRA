@@ -1699,7 +1699,10 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab);control.append(disclosure)') &&
+ detailsModule.includes('labelGroup.append(lab);control.append(selectBox)') &&
+ detailsModule.includes('if(variant==="compact")button.append(iconWrap);') &&
+ !detailsModule.includes('ui-profile-editor-disclosure-') &&
+ memberCss.includes('grid-template-columns:minmax(0,1fr) 44px;align-items:start') &&
  detailsModule.includes('if(!editable){event.preventDefault();open(true);return;}') &&
  detailsModule.includes('state.panel.scrollTop+=option.bottom-bounds.bottom') &&
  memberCss.includes('.vatra-editor-select>select[hidden]{display:none!important}') &&
@@ -2242,8 +2245,12 @@ assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  "First-visit Vatryk onboarding must be localized, accessible, per-member and with a nonmodal first-steps panel");
 assert.ok(!memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  !memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
- profileScript.includes('select("#profile-avatar-file")?.click()')&&
- profileScript.includes('select("#profile-cover-file")?.click()')&&
+ profileScript.includes('window.VATRA_PROFILE_MEDIA_MENU=Object.freeze')&&
+ profileScript.includes('bindMenu(avatarPreview,avatarButton,"avatar")')&&
+ profileScript.includes('bindMenu(coverButton,coverButton,"cover")')&&
+ profileScript.includes('storage.download(coverOriginal(path))')&&
+ profileScript.includes('.eq("cover_path",path).select("vatra_id,cover_path")')&&
+ profileScript.includes('remove([path,coverOriginal(path)])')&&
  !profileScript.includes('vatra-profile-editor-media-button-001')&&
  !profileScript.includes('vatra-profile-details-edit-001')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
@@ -2919,7 +2926,7 @@ const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(sticker
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileAvatarScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])])')&&
  profileScript.includes('storage.upload(undo.path,undo.thumbnail'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");
 
-assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&!profileMarkup.includes('ui-profile-edit-icon-001')&&profileMarkup.includes('class="ui-profile-name-row-001"')&&memberCss.includes('.ui-profile-name-row-001>.profile-edit-open')&&!memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs beside the name as a single styled text action");
+assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&profileMarkup.includes('ui-profile-edit-profile-icon-001')&&profileMarkup.includes('class="ui-profile-name-row-001"')&&memberCss.includes('.ui-profile-name-row-001>.profile-edit-open')&&!memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs beside the name as a single styled SVG action");
 
 assert.ok(memberProfileMarkup.includes('id="profile-cover-edit-dialog"')&&memberProfileMarkup.includes('id="profile-cover-preview-desktop"')&&memberProfileMarkup.includes('id="profile-cover-preview-mobile"')&&profileScript.includes('void startCoverEditor(fileCover.files[0])')&&profileCoverScript.includes('uploadImage(file,"cover",coverSourceFile)')&&!profileScript.includes('uploadImage(fileCover.files[0],"cover")'),"Cover selection requires crop and device preview before explicit saving");
 

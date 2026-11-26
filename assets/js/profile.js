@@ -468,7 +468,7 @@
    }))return;
    draft.clear();
    for(const [key,value] of saved)draft.set(key,{...value});
-   workspace.hidden=true;hero.hidden=false;panels.hidden=false;
+   window.VATRA_PROFILE_MEDIA_MENU?.close();workspace.hidden=true;hero.hidden=false;panels.hidden=false;
    scrollTo({top:0,behavior:"instant"});
   };
   back.addEventListener("click",close);
@@ -521,7 +521,7 @@
    const left=v?.offsetLeft||0,top=v?.offsetTop||0,width=v?.width||window.innerWidth,height=v?.height||window.innerHeight;
    if(rect.bottom<top||rect.top>top+height){closeEditorMenu();return;}
    const compact=state.wrapper.dataset.variant==="compact";
-   const w=Math.min(Math.max(rect.width,compact?190:0),width-16);
+   const w=Math.min(Math.max(rect.width,compact?220:0),width-16);
    const x=Math.max(left+8,Math.min(compact?rect.right-w:rect.left,left+width-w-8));
    const down=top+height-rect.bottom-9,up=rect.top-top-9;
 
@@ -640,7 +640,7 @@
    const caption=make("span","vatra-profile-editor-select-value-001");
    const iconWrap=make("span","ui-profile-editor-select-symbol-001");
    if(variant==="compact")button.append(iconWrap);
-   button.append(caption,menuArrow());
+   else button.append(caption,menuArrow());
    native.id=id+"-native";native.hidden=true;native.tabIndex=-1;native.setAttribute("aria-hidden","true");
    native.before(wrapper);wrapper.append(native,button);
    const sync=()=>{
@@ -648,10 +648,14 @@
     caption.textContent=option?.textContent||tr("Не вибрано","Not selected");
     button.classList.toggle("is-placeholder",!native.value);
     button.disabled=native.disabled;
-    if(variant==="compact")iconWrap.replaceChildren(svg(audienceIcon(native.value)));
+    if(variant==="compact"){
+     iconWrap.replaceChildren(svg(audienceIcon(native.value)));
+     const label=(native.getAttribute("aria-label")||tr("Видимість","Visibility"))+": "+caption.textContent;
+     button.setAttribute("aria-label",label);button.title=label;
+    }
    };
    const open=keyboard=>{
-    const items=Array.from(native.options).map(option=>({value:option.value,text:option.textContent,disabled:option.disabled,icon:variant==="compact"?audienceIcon(option.value):null}));
+    const items=Array.from(native.options).map(option=>({value:option.value,text:option.textContent,disabled:option.disabled,icon:null}));
     return openEditorMenu(button,wrapper,items,value=>{native.value=value;native.dispatchEvent(new Event("change",{bubbles:true}));sync();},native.value,keyboard);
    };
    native.addEventListener("change",sync);sync();
@@ -692,14 +696,12 @@
    row.dataset.long=kind==="long"?"true":"false";
    const lab=make("label","vatra-profile-editor-label-"+key,tr(uk,en));
    const current=draft.get(key)||{value:"",visibility:"friends"};
-   const disclosure=make("div","ui-profile-editor-disclosure-"+key);
    const selectBox=make("select","ui-profile-editor-visibility-"+key);
    selectBox.id="profile-editor-visibility-"+key;
    selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+tr(uk,en));
    for(const [value,labelUa,labelEn] of audiences)selectBox.append(opt(value,tr(labelUa,labelEn)));
    selectBox.value=current.visibility;
    if(!selectBox.value)selectBox.value="friends";
-   disclosure.append(selectBox);
    const control=make("div","ui-profile-editor-field-control-"+key);
    const inputId="profile-editor-"+key;
    let readValue;
@@ -763,7 +765,7 @@
      if(kind==="long")input.rows=3;
      else input.type=["mobile_phone","additional_phone"].includes(key)?"tel":"text";
      input.maxLength=1000;input.spellcheck=kind==="long";
-     input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):"";
+     input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):tr("Не вказано","Not specified");
      if(key==="city"||key==="hometown"){
       input.autocomplete="off";input.placeholder=tr("Знайти або ввести населений пункт","Find or enter a settlement");
      }
@@ -772,14 +774,14 @@
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
    }
-   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(disclosure);row.append(labelGroup,control);destination.append(row);
+   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
   const showGroup=id=>{
    const group=groups.find(x=>x.id===id);
    if(!group)return;
-   closeEditorMenu();selected=id;
+   closeEditorMenu();window.VATRA_PROFILE_MEDIA_MENU?.close();selected=id;
    groupTitle.textContent=lang(group.label);
    summary.textContent=id==="profile"?
     tr("Основне про вас","About you"):
@@ -794,8 +796,16 @@
     const identity=make("section","ui-profile-editor-identity-001");
     const coverPreview=make("div","ui-profile-editor-cover-preview-001");
     const avatarPreview=make("span","ui-profile-editor-avatar-preview-001");
-    const coverButton=make("button","vatra-profile-editor-cover-change-001",tr("Змінити обкладинку","Change cover"));coverButton.type="button";
-    const avatarButton=make("button","vatra-profile-editor-avatar-change-001",tr("Змінити фото","Change photo"));avatarButton.type="button";
+    const coverButton=make("button","vatra-profile-editor-cover-change-001");coverButton.type="button";coverButton.append(svg("edit"),make("span","vatra-profile-editor-cover-label-001",tr("Редагувати обкладинку","Edit cover")));
+    const avatarButton=make("button","vatra-profile-editor-avatar-change-001");avatarButton.type="button";avatarButton.append(svg("photo"));avatarButton.setAttribute("aria-label",tr("Дії з фото профілю","Profile photo actions"));
+    for(const button of [coverButton,avatarButton]){button.setAttribute("aria-haspopup","menu");button.setAttribute("aria-expanded","false");button.setAttribute("aria-controls","profile-owner-media-menu");}
+    const menu=(kind,button,keyboard=false)=>window.VATRA_PROFILE_MEDIA_MENU?.open(kind,button,keyboard);
+    const bindMenu=(surface,button,kind)=>{
+     surface.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")menu(kind,button);});
+     surface.addEventListener("pointerleave",()=>window.VATRA_PROFILE_MEDIA_MENU?.leave());
+     button.addEventListener("click",()=>menu(kind,button));
+     button.addEventListener("keydown",event=>{if(event.key==="ArrowDown"){event.preventDefault();menu(kind,button,true);}});
+    };
     const updatePreview=()=>{
      const profileCover=select("#profile-cover-image"),profileAvatar=select("#profile-avatar");
      coverPreview.style.backgroundImage=profileCover?.style.backgroundImage||"";
@@ -809,14 +819,13 @@
     for(const target of [select("#profile-cover-image"),select("#profile-cover-photo"),select("#profile-avatar")])if(target)observe.observe(target,{attributes:true,attributeFilter:["style","class","src","hidden"]});
     const sectionObserver=new MutationObserver(()=>{if(!identity.isConnected){observe.disconnect();sectionObserver.disconnect();}});
     sectionObserver.observe(fields,{childList:true});
-    coverButton.addEventListener("click",()=>{if(!select("#profile-cover-change")?.disabled)select("#profile-cover-file")?.click();});
-    avatarButton.addEventListener("click",()=>{if(!select("#profile-avatar-change")?.disabled)select("#profile-avatar-file")?.click();});
-    coverPreview.append(coverButton,avatarPreview);
+    bindMenu(coverButton,coverButton,"cover");bindMenu(avatarPreview,avatarButton,"avatar");
+    avatarPreview.append(avatarButton);coverPreview.append(coverButton,avatarPreview);
     const identityInfo=make("div","ui-profile-editor-identity-info-001");
     const nameLine=make("div","ui-profile-editor-identity-name-row-001");
     nameLine.append(make("strong","vatra-profile-editor-identity-name-001",select("#profile-heading")?.querySelector(".vatra-verified-name-text")?.textContent||select("#profile-heading")?.textContent.trim()||"VATRA"));
     const idLink=make("a","vatra-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id#personal",location.href).href;
-    nameLine.append(idLink);identityInfo.append(avatarButton,nameLine);
+    nameLine.append(idLink);identityInfo.append(nameLine);
     identity.append(coverPreview,identityInfo);fields.append(identity);
 
    }
@@ -3465,9 +3474,107 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  removePhoto.addEventListener("click",()=>void removeAvatarPath(saved?.avatar_path));
  galleryDelete.addEventListener("click",()=>void removeAvatarPath(gallery[galleryIndex]));
  changePhoto.addEventListener("click",()=>{closeAvatarMenu();fileAvatar.click();});
- coverChange.addEventListener("click",()=>fileCover.click());
+ coverChange.setAttribute("aria-haspopup","menu");coverChange.setAttribute("aria-controls","profile-owner-media-menu");coverChange.setAttribute("aria-expanded","false");
+ const ownerMenu=document.createElement("div");ownerMenu.id="profile-owner-media-menu";ownerMenu.className="ui-profile-owner-media-menu-001";ownerMenu.setAttribute("role","menu");ownerMenu.hidden=true;document.body.append(ownerMenu);
+ const ownerPopover=typeof ownerMenu.showPopover==="function";if(ownerPopover)ownerMenu.setAttribute("popover","manual");
+ let ownerAnchor=null,ownerKind=null,ownerTimer=null,coverSourceLoading=false;
+ const closeOwnerMenu=(focus=false)=>{
+  clearTimeout(ownerTimer);const anchor=ownerAnchor;ownerAnchor=null;ownerKind=null;
+  if(ownerPopover&&ownerMenu.matches(":popover-open"))ownerMenu.hidePopover();
+  ownerMenu.hidden=true;ownerMenu.replaceChildren();anchor?.setAttribute("aria-expanded","false");
+  if(focus&&anchor?.isConnected)anchor.focus({preventScroll:true});
+ };
+ const leaveOwnerMenu=()=>{clearTimeout(ownerTimer);ownerTimer=setTimeout(()=>{if(!ownerMenu.contains(document.activeElement)&&document.activeElement!==ownerAnchor)closeOwnerMenu();},220);};
+ const positionOwnerMenu=()=>{
+  if(!ownerAnchor?.isConnected||!ownerAnchor.getClientRects().length){closeOwnerMenu();return false;}
+  const a=ownerAnchor.getBoundingClientRect(),v=window.visualViewport,left=v?.offsetLeft||0,top=Math.max(v?.offsetTop||0,q(".feed-header")?.getBoundingClientRect().bottom||0),right=left+(v?.width||innerWidth),bottom=(v?.offsetTop||0)+(v?.height||innerHeight);
+  if(a.bottom<=top||a.top>=bottom){closeOwnerMenu();return false;}
+  const w=ownerMenu.offsetWidth,h=ownerMenu.scrollHeight+2,below=bottom-a.bottom-8,above=a.top-top-8,up=below<h&&above>below,room=Math.max(44,up?above:below);
+  ownerMenu.style.maxHeight=Math.floor(room)+"px";
+  ownerMenu.style.left=Math.round(Math.max(left+8,Math.min(ownerKind==="cover"?a.right-w:a.left,right-w-8)))+"px";
+  ownerMenu.style.top=Math.round(Math.max(top+4,up?a.top-5-Math.min(h,room):a.bottom+5))+"px";return true;
+ };
+ const mediaBusy=()=>uploading||coverSourceLoading||coverFeaturePending||avatarFeaturePending||coverEditor?.busy()||avatarEditor?.busy();
+ const iconPaths={upload:"M4 5h16v14H4zM8 10l3 3 2-2 5 5M12 2v6m-3-3 3-3 3 3",crop:"M6 3v15h15M3 6h15v15M6 18l12-12",trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"};
+ const ownerItem=(key,label,run,source=null)=>{
+  const item=document.createElement("button");item.type="button";item.className="vatra-profile-owner-media-action-001";item.dataset.action=key;item.setAttribute("role","menuitem");
+  if(key==="trash"||source?.classList.contains("profile-avatar-menu-delete"))item.classList.add("is-danger");
+  let symbol=source?.querySelector("svg")?.cloneNode(true);
+  if(!symbol){const ns="http://www.w3.org/2000/svg";symbol=document.createElementNS(ns,"svg");for(const [name,value] of Object.entries({viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))symbol.setAttribute(name,value);const path=document.createElementNS(ns,"path");path.setAttribute("d",iconPaths[key]);symbol.append(path);}
+  const text=document.createElement("span");text.textContent=label;item.append(symbol,text);item.disabled=!!source?.disabled;
+  item.addEventListener("click",()=>{closeOwnerMenu(true);if(!mediaBusy())run();});ownerMenu.append(item);
+ };
+ const openOwnerMenu=(kind,anchor,keyboard=false)=>{
+  if(!canEdit||mediaBusy()||!anchor?.isConnected||!anchor.getClientRects().length)return;
+  clearTimeout(ownerTimer);if(ownerAnchor===anchor&&!ownerMenu.hidden){if(keyboard)ownerMenu.querySelector("button:not(:disabled)")?.focus();return;}
+  closeOwnerMenu();closeAvatarMenu();ownerAnchor=anchor;ownerKind=kind;
+  if(kind==="cover"){
+   const hasCover=!!saved?.cover_path;
+   ownerItem("upload",hasCover?t("Змінити зображення","Change image"):t("Завантажити зображення","Upload image"),()=>fileCover.click());
+   if(hasCover){ownerItem("crop",t("Область відображення","Display area"),()=>void reopenCoverEditor());ownerItem("trash",t("Видалити","Delete"),()=>void removeCover());}
+  }else{
+   for(const source of avatarMenu.querySelectorAll("button:not([hidden])")){
+    const label=source.querySelector("span")?.textContent||source.getAttribute("aria-label")||source.textContent;
+    ownerItem(source.id,label,()=>source.click(),source);
+   }
+  }
+  if(!ownerMenu.childElementCount){closeOwnerMenu();return;}
+  ownerMenu.classList.toggle("is-compact",anchor!==coverChange);
+  ownerMenu.hidden=false;if(ownerPopover)ownerMenu.showPopover();
+  if(!positionOwnerMenu())return;anchor.setAttribute("aria-expanded","true");
+  if(keyboard)ownerMenu.querySelector("button:not(:disabled)")?.focus();
+ };
+ window.VATRA_PROFILE_MEDIA_MENU=Object.freeze({open:openOwnerMenu,leave:leaveOwnerMenu,close:closeOwnerMenu});
+ coverChange.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")openOwnerMenu("cover",coverChange);});
+ coverChange.addEventListener("pointerleave",leaveOwnerMenu);
+ coverChange.addEventListener("click",()=>openOwnerMenu("cover",coverChange));
+ coverChange.addEventListener("keydown",event=>{if(event.key==="ArrowDown"){event.preventDefault();openOwnerMenu("cover",coverChange,true);}});
+ ownerMenu.addEventListener("pointerenter",()=>clearTimeout(ownerTimer));ownerMenu.addEventListener("pointerleave",leaveOwnerMenu);
+ ownerMenu.addEventListener("keydown",event=>{
+  const buttons=[...ownerMenu.querySelectorAll("button:not(:disabled)")],index=buttons.indexOf(document.activeElement);
+  if(event.key==="Escape"){event.preventDefault();closeOwnerMenu(true);}
+  else if(["ArrowDown","ArrowUp","Home","End"].includes(event.key)&&buttons.length){event.preventDefault();const next=event.key==="Home"?0:event.key==="End"?buttons.length-1:(index+(event.key==="ArrowDown"?1:-1)+buttons.length)%buttons.length;buttons[next].focus();}
+ });
+ document.addEventListener("pointerdown",event=>{if(ownerAnchor&&!ownerMenu.contains(event.target)&&!ownerAnchor.contains(event.target))closeOwnerMenu();});
+ document.addEventListener("focusin",event=>{if(ownerAnchor&&!ownerMenu.contains(event.target)&&event.target!==ownerAnchor)closeOwnerMenu();});
+ document.addEventListener("keydown",event=>{if(event.key==="Escape"&&ownerAnchor)closeOwnerMenu(true);});
+ window.addEventListener("scroll",()=>{if(ownerAnchor)positionOwnerMenu();},{passive:true});
+ window.addEventListener("resize",()=>{if(ownerAnchor)positionOwnerMenu();},{passive:true});
+ const coverOwned=path=>typeof path==="string"&&path.startsWith(ownId+"/cover/")&&!/-original\./.test(path)&&/\.(jpe?g|png|webp)$/i.test(path);
+ const coverOriginal=path=>path.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
+ const reopenCoverEditor=async()=>{
+  const path=saved?.cover_path;if(!canEdit||mediaBusy()||!coverOwned(path))return;
+  coverSourceLoading=true;let file=null;
+  try{
+   const storage=client.storage.from("covers");let result=await storage.download(coverOriginal(path));
+   if(result.error){
+    if(!["404","400"].includes(String(result.error.status||result.error.statusCode||""))&&!/not found|does not exist|no such file/i.test(String(result.error.message||"")))throw result.error;
+    result=await storage.download(path);
+   }
+   if(result.error||!(result.data instanceof Blob))throw Error("Cover unavailable");
+   if(saved?.cover_path!==path)return;
+   const mime=fileTypes[result.data.type]?result.data.type:avatarType(path);
+   file=new File([result.data],"cover-source."+fileTypes[mime],{type:mime});
+  }catch(_){status(t("Не вдалося завантажити обкладинку для редагування.","Could not load the cover for editing."),true);}
+  finally{coverSourceLoading=false;}
+  if(file)await startCoverEditor(file);
+ };
+ const removeCover=async()=>{
+  const path=saved?.cover_path;if(!canEdit||mediaBusy()||!coverOwned(path))return;
+  if(!await window.VATRA_PROFILE_CONFIRM({title:t("Видалити обкладинку?","Delete cover?"),description:t("Поточне зображення обкладинки буде видалено.","The current cover image will be deleted."),action:t("Видалити","Delete")}))return;
+  if(mediaBusy()||saved?.cover_path!==path)return;
+  uploading=true;coverChange.disabled=true;let cleared=false;
+  try{
+   const result=await client.from("profile_media").update({cover_path:null,updated_at:new Date().toISOString()}).eq("vatra_id",ownId).eq("cover_path",path).select("vatra_id,cover_path").maybeSingle();
+   if(result.error||!result.data||result.data.cover_path!==null)throw Error("Cover removal not saved");
+   saved={...saved,cover_path:null};cleared=true;await display(saved);
+   const removed=await client.storage.from("covers").remove([path,coverOriginal(path)]);if(removed.error)throw removed.error;
+   status(t("Обкладинку видалено.","Cover deleted."));
+  }catch(_){status(cleared?t("Обкладинку прибрано з профілю, але не вдалося очистити файли.","Cover removed from the profile, but file cleanup failed."):t("Не вдалося видалити обкладинку.","Could not delete the cover."),true);}
+  finally{uploading=false;coverChange.disabled=false;}
+ };
  const startAvatarEditor=async file=>{
-  if(!file||avatarFeaturePending||uploading||coverFeaturePending||coverEditor?.busy()||coverDialog.open)return;
+  if(!file||avatarFeaturePending||uploading||coverSourceLoading||coverFeaturePending||coverEditor?.busy()||coverDialog.open)return;
   avatarFeaturePending=true;
   try{
    if(!avatarEditor){
@@ -3491,7 +3598,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 
 
  const startCoverEditor=async file=>{
-  if(!file||coverFeaturePending||avatarFeaturePending||avatarEditor?.busy())return;
+  if(!file||uploading||coverSourceLoading||coverFeaturePending||avatarFeaturePending||avatarEditor?.busy())return;
   coverFeaturePending=true;
   try{
    if(!coverEditor){
