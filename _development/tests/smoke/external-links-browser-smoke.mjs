@@ -111,13 +111,14 @@ try{
    try{
     await confirmationPage.goto(base+"fixture");
     await confirmationPage.emulateMedia({reducedMotion:"reduce"});
-    for(const file of ["assets/css/feed.css","assets/css/profile.css","assets/css/photo-albums.css","assets/css/story-editor.css","assets/css/core.css","assets/css/settings.css"])await confirmationPage.addStyleTag({content:await readFile(file,"utf8")});
+    for(const file of ["assets/css/feed.css","assets/css/profile.css","assets/css/photo-albums.css","assets/css/story-editor.css","assets/css/core.css","assets/css/settings.css","assets/css/sign-in.css"])await confirmationPage.addStyleTag({content:await readFile(file,"utf8")});
     const variants=[
      ["feed-page profile-page","profile-confirm-dialog ui-profile-confirm-dialog-001","vatra-profile-confirm-heading-001","vatra-profile-confirm-description-001","profile-confirm-actions","vatra-profile-confirm-cancel-001","vatra-profile-confirm-accept-001","h2"],
      ["feed-page","feed-delete-dialog ui-feed-delete-dialog-001","feed-delete-title","feed-delete-description","feed-delete-actions","feed-delete-cancel","feed-delete-confirm","h2"],
      ["feed-page profile-page","ui-vatra-albums-confirm-001","vatra-albums-confirm-heading-001","vatra-albums-confirm-note-001","ui-vatra-albums-confirm-actions-001","vatra-albums-secondary-001","vatra-albums-danger-001","h3"],
      ["feed-page","ui-vatra-story-discard-dialog-001","vatra-story-discard-title-001","vatra-story-discard-copy-001","ui-vatra-story-discard-actions-001","vatra-story-discard-keep-001","vatra-story-discard-confirm-001","h3"],
      ["vatra-section-page","ui-vatra-section-confirm-001","vatra-section-dialog-title-001","vatra-section-form-note-001","ui-vatra-market-controls-001","vatra-section-confirm-cancel-001","vatra-section-confirm-delete-001","h2"]
+     ,["site","saved-remove-dialog ui-home-saved-dialog-001","saved-remove-title","saved-remove-description","saved-remove-actions","action secondary","action primary","h2"]
     ];
     for(const width of [320,1440]){
      await confirmationPage.setViewportSize({width,height:900});
@@ -127,6 +128,7 @@ try{
        document.querySelectorAll("dialog").forEach(el=>el.remove());
        document.body.className=bodyClass;
        const d=document.createElement("dialog");d.className=dialogClass;
+       if(dialogClass.includes("profile-confirm-dialog")||dialogClass.includes("section-confirm"))d.dataset.tone="danger";
        const h=document.createElement(tag);h.className=headingClass;h.textContent="Підтвердити дію?";
        const p=document.createElement("p");p.className=copyClass;p.textContent="Цю дію неможливо скасувати.";
        const actions=document.createElement("div");actions.className=actionsClass;
@@ -138,8 +140,10 @@ try{
        }else document.body.append(d);
        d.showModal();
        const read=(el,keys)=>Object.fromEntries(keys.map(key=>[key,getComputedStyle(el)[key]]));
-       const buttonKeys=["backgroundColor","color","borderRadius","borderTopWidth","fontSize","fontWeight","paddingTop","paddingLeft","minHeight","width"];
-       return {box:read(d,["width","paddingTop","paddingLeft","borderRadius","backgroundColor","borderTopColor","textAlign"]),
+       const buttonKeys=["backgroundColor","backgroundImage","color","borderRadius","borderTopWidth","fontSize","fontWeight","paddingTop","paddingLeft","minHeight","width"];
+       const actualAction=read(a,["backgroundColor","backgroundImage"]);
+       d.dataset.tone="primary";
+       return {actualAction,box:read(d,["width","paddingTop","paddingLeft","borderRadius","backgroundColor","borderTopColor","textAlign"]),
         title:read(h,["color","fontSize","fontWeight","lineHeight","marginBottom"]),
         copy:read(p,["color","fontSize","fontWeight","lineHeight","marginBottom"]),
         actions:read(actions,["display","gap","gridTemplateColumns","marginTop"]),
@@ -147,12 +151,16 @@ try{
         fit:d.getBoundingClientRect().left>=0&&d.getBoundingClientRect().right<=innerWidth&&d.scrollWidth<=d.clientWidth+1};
       },variant);
       assert.equal(result.fit,true,engine+" confirmation fits: "+variant[1]);
-      if(!reference)reference=result;else assert.deepEqual(result,reference,engine+" confirmation design mismatch: "+variant[1]+" @ "+width);
+      const {actualAction,...layout}=result;
+      if(variant[1].includes("saved-remove-dialog"))assert.match(actualAction.backgroundImage,/linear-gradient/,engine+" local account removal stays primary");
+      else {assert.equal(actualAction.backgroundColor,"rgb(201, 54, 70)",engine+" destructive action is red: "+variant[1]);assert.equal(actualAction.backgroundImage,"none");}
+      assert.match(layout.accept.backgroundImage,/linear-gradient/,engine+" primary action is blue");
+      if(!reference)reference=layout;else assert.deepEqual(layout,reference,engine+" confirmation design mismatch: "+variant[1]+" @ "+width);
       await confirmationPage.keyboard.press("Escape");
       assert.equal(await confirmationPage.locator("dialog."+variant[1].split(" ")[0]).evaluate(el=>el.open),false,engine+" Escape dismisses "+variant[1]);
      }
     }
-    console.log(engine+" shared simple confirmations: five variants, mobile and desktop");
+    console.log(engine+" shared simple confirmations: six variants, semantic colors, mobile and desktop");
    }finally{await confirmationPage.close();}
    // Use real language picker and service error runtime, with no production requests.
    const modalPage=await context.newPage();

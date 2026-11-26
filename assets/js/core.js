@@ -19,9 +19,10 @@ const field=(form,key,label,type="text",max=100,required=false)=>{const wrap=mak
 el.id="vatra-section-"+key;lab.htmlFor=el.id;if(type!=="textarea")el.type=type;el.maxLength=max;el.required=required;if(type==="textarea")el.rows=4;wrap.append(lab,el);form.append(wrap);return el;};
 const submit=(form,label,fn)=>{const b=make("button","vatra-section-submit-001",label);b.type="submit";form.append(b);form.addEventListener("submit",async e=>{e.preventDefault();if(b.disabled)return;b.disabled=true;message("");try{await fn();}catch(error){window.VATRA_SERVICE_NOTICE?.report(error,{session:true});message(t("Не вдалося зберегти. Спробуйте ще раз.","Could not save. Please retry."),true);}finally{b.disabled=false;}});return b;};
 let confirmationSerial=0;
-async function confirmRemove(heading=t("Видалити оголошення?","Delete listing?"),description=t("Цю дію неможливо скасувати.","This action cannot be undone."),accept=t("Видалити","Delete")){
+async function confirmRemove(heading=t("Видалити оголошення?","Delete listing?"),description=t("Цю дію неможливо скасувати.","This action cannot be undone."),accept=t("Видалити","Delete"),tone="danger"){
  return new Promise(resolve=>{
   const d=make("dialog","ui-vatra-section-confirm-001"),id="vatra-section-confirm-"+(++confirmationSerial);
+  d.dataset.tone=tone==="primary"?"primary":"danger";
   const head=make("h2","vatra-section-dialog-title-001",heading),copy=make("p","vatra-section-form-note-001",description);
   head.id=id+"-heading";copy.id=id+"-description";d.setAttribute("aria-labelledby",head.id);d.setAttribute("aria-describedby",copy.id);
   const buttons=make("div","ui-vatra-market-controls-001");let accepted=false;

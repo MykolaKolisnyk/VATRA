@@ -117,10 +117,12 @@ assert.equal(classes.has("vatra-form-scroll-active"),false);
 const sectionJs=await readFile("assets/js/core.js","utf8");
 const sectionCss=await readFile("assets/css/core.css","utf8");
 assert.ok(lang.includes('".ui-vatra-section-dialog-scroll-001"')&&
- (sectionJs.match(/make\("div","ui-vatra-section-dialog-scroll-001"\)/g)||[]).length===2&&
+ (sectionJs.match(/make\("div","ui-vatra-section-dialog-scroll-001"\)/g)||[]).length===1&&
+ sectionJs.includes('const d=make("dialog","ui-vatra-section-confirm-001")')&&
+ sectionJs.includes("d.append(head,copy,buttons)")&&
  sectionCss.includes(".ui-vatra-section-dialog-001[open]{display:flex;flex-direction:column}")&&
  sectionCss.includes(".ui-vatra-section-dialog-scroll-001{min-height:0;flex:1 1 auto;overflow-y:auto;overflow-x:hidden"),
- "New VATRA dialogs must use an inset scrollable body and stationary header");
+ "Form dialogs must retain inset scrolling and stationary headers; simple confirmations must not add a form header");
 const dialogClasses=new Set();
 const dialogBody={matches:s=>s.includes(".ui-vatra-section-dialog-scroll-001"),
  scrollHeight:900,clientHeight:480,classList:{add:v=>dialogClasses.add(v),remove:v=>dialogClasses.delete(v)}};
