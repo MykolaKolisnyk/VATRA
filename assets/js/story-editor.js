@@ -13,7 +13,8 @@ const node=(tag,cls,value)=>{const el=document.createElement(tag);el.className=c
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const symbol=kind=>{const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");for(const [k,v] of Object.entries({viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))svg.setAttribute(k,v);const paths={text:"M4 19 10 5l6 14M6.5 13h7M18 12v7M16 14a2 2 0 0 1 4 0v5",stickers:"M14 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9ZM14 21v-5a2 2 0 0 1 2-2h5M8 9h.01M15 9h.01M8 13q3 3 6 0",brush:"m14 6 4-4 4 4-10 10-4-4ZM8 12c-4 0-4 4-4 6l-2 2c5 1 10-1 10-5",background:"M3 5h18v14H3zM3 16l6-6 5 5 3-3 4 4M15 8h.01",filters:"M9 10a5 5 0 1 0 6 0M12 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10M7 12a5 5 0 1 0 5 8M17 12a5 5 0 1 1-5 8",adjust:"M4 6h16M4 12h16M4 18h16M8 4v4M16 10v4M10 16v4",undo:"M9 5 4 10l5 5M4 10h10a5 5 0 0 1 0 10",redo:"m15 5 5 5-5 5m5-5H10a5 5 0 0 0 0 10",close:"m6 6 12 12M18 6 6 18",upload:"M12 16V4m-5 5 5-5 5 5M4 15v5h16v-5",left:"M4 6h16M4 10h10M4 14h16M4 18h10",center:"M4 6h16M7 10h10M4 14h16M7 18h10",right:"M4 6h16M10 10h10M4 14h16M10 18h10",back:"m15 5-7 7 7 7"};const p=document.createElementNS(ns,"path");p.setAttribute("d",paths[kind]||paths.background);svg.append(p);return svg;};
 
-const fresh=()=>({background:null,media:null,kind:null,texts:[],stickers:[],strokes:[],filter:0,intensity:100,adjust:{brightness:0,contrast:0,warmth:0,saturation:0,vignette:0},caption:""});
+const freshPhoto=()=>({fit:"cover",zoom:100,x:0,y:0});
+const fresh=()=>({background:null,media:null,kind:null,photo:freshPhoto(),texts:[],stickers:[],strokes:[],filter:0,intensity:100,adjust:{brightness:0,contrast:0,warmth:0,saturation:0,vignette:0},caption:""});
 function mount({dialog,trigger,client,id,prefix,onPublished}){
  if(!dialog||!trigger||!client||!(/^[1-9][0-9]{0,18}$/.test(String(id)))||dialog.dataset.storyEditor)return;
  dialog.dataset.storyEditor="true";
@@ -35,7 +36,8 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  const history=e("div","history"),undo=button("undo","",()=>restore(-1)),redo=button("redo","",()=>restore(1));undo.append(symbol("undo"));redo.append(symbol("redo"));undo.setAttribute("aria-label",tr("Скасувати дію","Undo"));redo.setAttribute("aria-label",tr("Повторити дію","Redo"));history.append(undo,redo);
  surface.append(canvas,video,empty,history);
  const mediaActions=e("div","media-actions"),replace=button("replace",tr("Вибрати файл","Choose file"),()=>file.click()),remove=button("remove",tr("Прибрати медіа","Remove media"),()=>{mutate(()=>{state.media=null;state.kind=null;state.caption="";});setPanel(active);},prefix+"-media-remove");
- mediaActions.append(file,replace,remove);stage.append(surface,mediaActions);
+ const frame=button("frame",tr("Область відображення","Display area"),()=>setPanel("media"));frame.setAttribute("aria-pressed","false");
+ mediaActions.append(file,replace,frame,remove);stage.append(surface,mediaActions);
  const sidebar=e("div","sidebar"),nav=e("nav","tools"),panel=e("section","panel");
  const toolDefs=[
   ["text","Текст","Text"],["stickers","Стікери","Stickers"],["brush","Пензель","Brush"],
@@ -62,6 +64,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  const requestClose=()=>{if(publishing)return;if(hasArt()||loading){if(!confirm.open)confirm.showModal();}else dialog.close();};
  const addAsset=(file,img,url)=>{const key=String(++assetSerial);assets.set(key,{file,img,url});return key;};
  const filterString=()=>{const f=filterValues[state.filter]||filterValues[0],s=state.intensity/100,a=state.adjust;return "brightness("+Math.max(.1,1+(f[0]-1)*s+a.brightness/100)+") contrast("+Math.max(.1,1+(f[1]-1)*s+a.contrast/100)+") saturate("+Math.max(0,1+(f[2]-1)*s+a.saturation/100)+") sepia("+Math.min(1,f[3]*s+Math.max(0,a.warmth)/180)+") hue-rotate("+Math.min(0,a.warmth)*.5+"deg)";};
+ const photoRect=art=>{const {fit,zoom,x,y}=state.photo,iw=art.naturalWidth,ih=art.naturalHeight;const scale=(fit==="contain"?Math.min(W/iw,H/ih):Math.max(W/iw,H/ih))*zoom/100,w=iw*scale,h=ih*scale,dx=Math.abs(W-w)/2,dy=Math.abs(H-h)/2;return {w,h,dx,dy,left:(W-w)/2+dx*x/100,top:(H-h)/2+dy*y/100};};
  const wrap=(ctx,value,max)=>{const lines=[];for(const paragraph of value.split("\n")){let line="";for(const word of paragraph.split(/\s+/)){const next=line?line+" "+word:word;if(ctx.measureText(next).width>max&&line){lines.push(line);line=word;}else line=next;while(ctx.measureText(line).width>max&&Array.from(line).length>1){const chars=Array.from(line);let part="";while(chars.length&&ctx.measureText(part+chars[0]).width<=max)part+=chars.shift();if(!part)break;lines.push(part);line=chars.join("");}}lines.push(line);}return lines.slice(0,24);};
  const textMetrics=(ctx,a)=>{ctx.font="700 "+a.size+"px "+JSON.stringify(a.font)+",Onest,sans-serif";const lines=wrap(ctx,a.text,a.width),lineHeight=a.size*1.22,w=Math.max(60,Math.min(a.width,Math.max(...lines.map(l=>ctx.measureText(l).width),0)+16)),h=Math.max(lineHeight,lines.length*lineHeight)+12;return {lines,lineHeight,w,h};};
  function draw(target,decorations=false){
@@ -70,7 +73,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   const fill=state.background||backgrounds[0];if(Array.isArray(fill)){const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,fill[0]);g.addColorStop(1,fill[1]);ctx.fillStyle=g;}else ctx.fillStyle=fill;
   ctx.fillRect(0,0,W,H);
   const art=assets.get(state.media)?.img;
-  if(art){const iw=art.naturalWidth,ih=art.naturalHeight,scale=Math.max(W/iw,H/ih);ctx.save();ctx.filter=filterString();ctx.drawImage(art,(W-iw*scale)/2,(H-ih*scale)/2,iw*scale,ih*scale);ctx.restore();}
+  if(art){const r=photoRect(art);ctx.save();ctx.filter=filterString();ctx.drawImage(art,r.left,r.top,r.w,r.h);ctx.restore();}
   else if(state.filter||Object.values(state.adjust).some(Boolean)){const base=document.createElement("canvas");base.width=W;base.height=H;const bx=base.getContext("2d");if(Array.isArray(fill)){const g=bx.createLinearGradient(0,0,W,H);g.addColorStop(0,fill[0]);g.addColorStop(1,fill[1]);bx.fillStyle=g;}else bx.fillStyle=fill;bx.fillRect(0,0,W,H);ctx.save();ctx.filter=filterString();ctx.drawImage(base,0,0);ctx.restore();}
   if(state.adjust.vignette){const g=ctx.createRadialGradient(W/2,H/2,H*.16,W/2,H/2,H*.64);g.addColorStop(0,"transparent");g.addColorStop(1,"rgba(0,0,0,"+(state.adjust.vignette/100)*.85+")");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
   for(const s of state.strokes){if(!s.points.length)continue;ctx.save();ctx.globalAlpha=s.opacity;ctx.strokeStyle=s.color;ctx.fillStyle=s.color;ctx.lineWidth=s.width;ctx.lineCap="round";ctx.lineJoin="round";ctx.beginPath();ctx.moveTo(s.points[0].x,s.points[0].y);for(const p of s.points.slice(1))ctx.lineTo(p.x,p.y);if(s.points.length===1){ctx.arc(s.points[0].x,s.points[0].y,s.width/2,0,Math.PI*2);ctx.fill();}else ctx.stroke();ctx.restore();}
@@ -89,7 +92,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   if(url&&video.getAttribute("src")!==url)video.src=url;
   if(!isVideo&&video.hasAttribute("src")){video.pause();video.removeAttribute("src");video.load();}
   if(art&&!isVideo)draw(canvas,true);
-  remove.hidden=!state.media;replace.hidden=!art;undo.disabled=!back.length||publishing||loading;redo.disabled=!forward.length||publishing||loading;
+  remove.hidden=!state.media;replace.hidden=!art;frame.hidden=state.kind!=="image";frame.disabled=publishing||loading;frame.setAttribute("aria-pressed",String(active==="media"));undo.disabled=!back.length||publishing||loading;redo.disabled=!forward.length||publishing||loading;
   save.disabled=!art||publishing||loading||stickerBusy;close.disabled=publishing;replace.disabled=remove.disabled=choose.disabled=pickBackground.disabled=publishing||loading;panel.inert=publishing||loading;
   for(const [key,b] of toolButtons){b.disabled=publishing||loading||(isVideo&&!["text","background"].includes(key));b.setAttribute("aria-pressed",String(key===active));}
   canvas.dataset.tool=active;
@@ -100,7 +103,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  const description=(uk,en)=>panel.append(node("p","vatra-story-panel-note-001",tr(uk,en)));
  function field(label,suffix,value,min,max,step,apply){
   const line=e("label",suffix+"-field"),name=node("span","vatra-story-"+suffix+"-label-001",label),display=node("output","vatra-story-"+suffix+"-value-001",String(value)),input=e("input",suffix+"-range");
-  input.type="range";input.min=min;input.max=max;input.step=step;input.value=value;
+  input.type="range";input.min=min;input.max=max;input.step=step;input.value=value;input.setAttribute("aria-label",label);
   let saved=false;const remember=()=>{if(!saved){checkpoint();saved=true;}};input.addEventListener("input",()=>{if(publishing||loading)return;remember();const v=Number(input.value);display.value=String(v);apply(v);render();});input.addEventListener("change",()=>{saved=false;});
   line.append(name,display,input);panel.append(line);return input;
  }
@@ -110,9 +113,17 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  function addText(){mutate(()=>{if(state.texts.length>=12)return;if(!hasArt())state.background=backgrounds[0];const a={id:"text-"+(++layerSerial),text:"",x:W/2,y:H/2,width:W*.8,size:48,font:"Onest",color:"#ffffff",align:"center",backing:false};state.texts.push(a);selected=a.id;});setPanel("text");panel.querySelector("textarea")?.focus();}
  function setPanel(key){
   if(publishing||loading)return;
+  if(key==="media"&&state.kind!=="image")key="overview";
   if(state.kind==="video"&&!["text","background","overview"].includes(key))key="text";
   active=key;sidebar.dataset.panel=key;panel.hidden=key==="overview";panel.replaceChildren();render();if(key==="overview")return;
-  if(key==="text"){
+  if(key==="media"){
+   heading("Область відображення","Display area");description("Переміщуйте фото на полотні або скористайтесь повзунками.","Drag the photo on the canvas or use the sliders.");
+   const modes=e("div","photo-modes");for(const [fit,uk,en] of [["cover","Заповнити","Fill"],["contain","Ціле фото","Fit photo"]]){const b=button("photo-"+fit,tr(uk,en),()=>{mutate(()=>{state.photo.fit=fit;state.photo.x=0;state.photo.y=0;});setPanel(key);});b.setAttribute("aria-pressed",String(state.photo.fit===fit));modes.append(b);}panel.append(modes);
+   field(tr("Масштаб (%)","Zoom (%)"),"photo-zoom",state.photo.zoom,100,300,1,v=>state.photo.zoom=v);
+   field(tr("Горизонталь","Horizontal"),"photo-x",state.photo.x,-100,100,1,v=>state.photo.x=v);
+   field(tr("Вертикаль","Vertical"),"photo-y",state.photo.y,-100,100,1,v=>state.photo.y=v);
+   panel.append(button("photo-reset",tr("Скинути","Reset"),()=>{mutate(()=>state.photo=freshPhoto());setPanel(key);}));
+  }else if(key==="text"){
    heading("Текст","Text");
    if(state.kind==="video"){
     description("Відео публікується без перекодування. Можна додати підпис; мальовані шари та фільтри доступні для фото.","Video is published without re-encoding. Add a caption; drawing layers and filters are available for photos.");
@@ -163,7 +174,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   if((!videoType&&!imageType)||!picked.size||picked.size>(videoType?52428800:6291456)){note(tr("Виберіть фото JPEG, PNG, WebP до 6 МБ або відео MP4, WebM до 50 МБ.","Choose JPEG, PNG, WebP up to 6 MB or MP4, WebM up to 50 MB."));file.value="";return;}
   const epoch=++request;stickerBusy=false;loading=true;note("");render();let url=URL.createObjectURL(picked),img=null;
   try{if(imageType){img=new Image();img.src=url;await img.decode();}if(epoch!==request||!dialog.open){URL.revokeObjectURL(url);return;}
-   checkpoint();state.media=addAsset(picked,img,url);url=null;state.kind=videoType?"video":"image";state.caption="";state.texts=[];state.stickers=[];state.strokes=[];state.filter=0;state.adjust=fresh().adjust;selected=null;active="overview";
+   checkpoint();state.media=addAsset(picked,img,url);url=null;state.kind=videoType?"video":"image";state.photo=freshPhoto();state.caption="";state.texts=[];state.stickers=[];state.strokes=[];state.filter=0;state.adjust=fresh().adjust;selected=null;active="overview";
   }catch(_){if(url)URL.revokeObjectURL(url);note(tr("Не вдалося відкрити файл.","Could not open the file."));}finally{if(epoch===request){loading=false;file.value="";render();setPanel(active);}}
  }
  file.addEventListener("change",()=>void loadFile(file.files?.[0]));
@@ -171,11 +182,12 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  const point=event=>{const r=canvas.getBoundingClientRect();return{x:clamp((event.clientX-r.left)*W/r.width,0,W),y:clamp((event.clientY-r.top)*H/r.height,0,H)};};
  canvas.addEventListener("pointerdown",event=>{
   if(publishing||loading||!event.isPrimary||event.button!==0)return;event.preventDefault();const p=point(event);
-  if(active==="brush"){if(state.strokes.length>=80)return;checkpoint();const stroke={color:brush.color,width:brush.width,opacity:brush.opacity,points:[p]};state.strokes.push(stroke);pointer={id:event.pointerId,stroke};}
+  if(active==="media"){const art=assets.get(state.media)?.img;if(!art)return;const r=photoRect(art);checkpoint();pointer={id:event.pointerId,photo:true,start:p,x:state.photo.x,y:state.photo.y,dx:r.dx,dy:r.dy};}
+  else if(active==="brush"){if(state.strokes.length>=80)return;checkpoint();const stroke={color:brush.color,width:brush.width,opacity:brush.opacity,points:[p]};state.strokes.push(stroke);pointer={id:event.pointerId,stroke};}
   else{const ctx=canvas.getContext("2d");let layer=null,type=null;for(const a of [...state.texts].reverse()){const m=textMetrics(ctx,a);if(Math.abs(p.x-a.x)<m.w/2+12&&Math.abs(p.y-a.y)<m.h/2+12){layer=a;type="text";break;}}if(!layer)for(const a of [...state.stickers].reverse()){const img=assets.get(a.asset)?.img,h=img?a.width*img.naturalHeight/img.naturalWidth:a.width;if(Math.abs(p.x-a.x)<a.width/2+12&&Math.abs(p.y-a.y)<h/2+12){layer=a;type="stickers";break;}}if(!layer){selected=null;setPanel(active);return;}selected=layer.id;checkpoint();pointer={id:event.pointerId,layer,dx:layer.x-p.x,dy:layer.y-p.y};setPanel(type);}
   canvas.setPointerCapture(event.pointerId);render();
  });
- canvas.addEventListener("pointermove",event=>{if(!pointer||pointer.id!==event.pointerId)return;const p=point(event);if(pointer.stroke){if(pointer.stroke.points.length<2000)pointer.stroke.points.push(p);}else{pointer.layer.x=clamp(p.x+pointer.dx,0,W);pointer.layer.y=clamp(p.y+pointer.dy,0,H);}render();});
+ canvas.addEventListener("pointermove",event=>{if(!pointer||pointer.id!==event.pointerId)return;const p=point(event);if(pointer.photo){for(const axis of ["x","y"]){const limit=axis==="x"?pointer.dx:pointer.dy;state.photo[axis]=limit>0?Math.round(clamp(pointer[axis]+(p[axis]-pointer.start[axis])*100/limit,-100,100)):0;const input=panel.querySelector(".ui-vatra-story-photo-"+axis+"-range-001"),output=panel.querySelector(".vatra-story-photo-"+axis+"-value-001");if(input)input.value=String(state.photo[axis]);if(output)output.value=String(state.photo[axis]);}}else if(pointer.stroke){if(pointer.stroke.points.length<2000)pointer.stroke.points.push(p);}else{pointer.layer.x=clamp(p.x+pointer.dx,0,W);pointer.layer.y=clamp(p.y+pointer.dy,0,H);}render();});
  for(const type of ["pointerup","pointercancel","lostpointercapture"])canvas.addEventListener(type,()=>{pointer=null;});
  form.addEventListener("submit",async event=>{
   event.preventDefault();if(save.disabled||publishing||!hasArt())return;publishing=true;note("");render();let uploaded=null,inserted=false;
