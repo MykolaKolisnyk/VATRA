@@ -676,12 +676,16 @@
   storyTrack.addEventListener("scroll",updateStoryArrow,{passive:true});
   window.addEventListener("resize",updateStoryArrow,{passive:true});
  }
+ let storyPreviewObserver=null,storyLoadGeneration=0;
  async function loadStories(){
   const holder=q("#feed-friend-stories");
   if(!holder||!vatraId)return;
+  const generation=++storyLoadGeneration;
+  storyPreviewObserver?.disconnect();storyPreviewObserver=null;
   holder.setAttribute("aria-busy","true");
   try{
    await feedDeadline(ensureSubscriptions());
+   if(generation!==storyLoadGeneration)return;
    const storyAuthors=[...new Set([vatraId,...friends])];
    let query=client.from("stories")
     .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
@@ -690,6 +694,7 @@
    if(storyAuthors.length<=100&&typeof query.in==="function")
     query=query.in("author_vatra_id",storyAuthors);
    const {data,error}=await feedDeadline(query.limit(60));
+   if(generation!==storyLoadGeneration)return;
    if(error)throw error;
    const items=[],seen=new Set();
    for(const story of data||[]){
@@ -700,7 +705,21 @@
    items.sort((a,b)=>Number(String(b.author_vatra_id)===vatraId)-Number(String(a.author_vatra_id)===vatraId));
    const authorIds=items.map(x=>x.author_vatra_id);
    await Promise.allSettled([feedDeadline(loadPublicNames(authorIds),4000),feedDeadline(loadAvatars(authorIds),4000)]);
+   if(generation!==storyLoadGeneration)return;
    holder.replaceChildren();
+   const pendingPreviews=new Map();
+   const observer=typeof IntersectionObserver==="function"?new IntersectionObserver(entries=>{
+    if(generation!==storyLoadGeneration)return;
+    for(const entry of entries){
+     if(!entry.isIntersecting)continue;
+     const preview=pendingPreviews.get(entry.target);
+     if(!preview)continue;
+     pendingPreviews.delete(entry.target);observer.unobserve(entry.target);
+     if(holder.contains(entry.target))void window.VATRA_POST_MEDIA?.renderStory(client,preview.story,preview.cover,true);
+    }
+    if(!pendingPreviews.size){observer.disconnect();if(storyPreviewObserver===observer)storyPreviewObserver=null;}
+   }):null;
+   storyPreviewObserver=observer;
    q(".feed-stories")?.classList.toggle("is-empty",items.length===0);
    for(const story of items){
     const id=String(story.author_vatra_id);
@@ -715,7 +734,8 @@
      const cover=node("span","feed-story-cover ui-feed-story-cover-001");
      button.append(cover);
      holder.append(button);
-     void window.VATRA_POST_MEDIA?.renderStory(client,story,cover,true);
+     if(observer){pendingPreviews.set(button,{story,cover});observer.observe(button);}
+     else void window.VATRA_POST_MEDIA?.renderStory(client,story,cover,true);
     }else holder.append(button);
     const body=String(story.body||"").trim();
     if(body&&!story.media_kind)button.append(node("span","vatra-feed-story-live-body-001",body));
@@ -729,8 +749,10 @@
      void window.VATRA_POST_MEDIA?.renderStory(client,story,q("#feed-story-view-media"));
     });
    }
-  }catch(error){reportFeedFailure("stories",error);holder.replaceChildren();q(".feed-stories")?.classList.add("is-empty");}
-  finally{holder.setAttribute("aria-busy","false");requestAnimationFrame(updateStoryArrow);}
+   if(observer&&!pendingPreviews.size){observer.disconnect();if(storyPreviewObserver===observer)storyPreviewObserver=null;}
+  }catch(error){
+   if(generation===storyLoadGeneration){storyPreviewObserver?.disconnect();storyPreviewObserver=null;reportFeedFailure("stories",error);holder.replaceChildren();q(".feed-stories")?.classList.add("is-empty");}
+  }finally{if(generation===storyLoadGeneration){holder.setAttribute("aria-busy","false");requestAnimationFrame(updateStoryArrow);}}
  }
  function bindComposer(){
   const dialog=q("#feed-compose-dialog"),form=q("#feed-compose-form");
