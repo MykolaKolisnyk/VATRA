@@ -118,3 +118,27 @@ for(const name of ["feed","profile","core","friends","gifts","notifications"]){
  assert.ok(auth,name+" must overlap server-verified authentication with language initialization");
 }
 console.log("VATRA startup: authentication and localization overlap across signed-in sections.");
+
+{
+ const store=()=>{const values=new Map();return {getItem:key=>values.get(key)||null,setItem:(key,value)=>values.set(key,value)};};
+ const browser="00000000-0000-4000-8000-000000000001",other="00000000-0000-4000-8000-000000000002";
+ const first="00000000-0000-4000-8000-000000000011",second="00000000-0000-4000-8000-000000000012";
+ const calls=[];let sessionId=first,generated=0;
+ const w={localStorage:store(),sessionStorage:store(),crypto:{randomUUID:()=>++generated===1?browser:other},atob};
+ const c={auth:{getSession:async()=>({data:{session:{access_token:"x."+btoa(JSON.stringify({session_id:sessionId}))+".x"}},error:null})},
+  rpc:async(name,args)=>{calls.push([name,args]);return {data:true,error:null};}};
+ new Function("window","document","URL",guard)(w,{currentScript:{src:"https://example.com/VATRA/assets/js/account-guard.js"},documentElement:{lang:"uk"}},URL);
+ await Promise.all([w.VATRA_REGISTER_BROWSER_SESSION(c,"1"),w.VATRA_REGISTER_BROWSER_SESSION(c,"1")]);
+ assert.equal(calls.length,1);
+ assert.deepEqual(calls[0],["vatra_register_browser_session",{expected_session:first,browser_key:browser}]);
+ await w.VATRA_REGISTER_BROWSER_SESSION(c,"1");assert.equal(calls.length,1);
+ sessionId=second;await w.VATRA_REGISTER_BROWSER_SESSION(c,"1");
+ assert.deepEqual(calls[1][1],{expected_session:second,browser_key:browser});
+ await w.VATRA_REGISTER_BROWSER_SESSION(c,"2");assert.equal(calls[2][1].browser_key,other);
+ const unavailable={...w,localStorage:{getItem(){throw Error("disabled");}}};
+ new Function("window","document","URL",guard)(unavailable,{currentScript:{src:"https://example.com/VATRA/assets/js/account-guard.js"},documentElement:{lang:"uk"}},URL);
+ assert.equal(await unavailable.VATRA_REGISTER_BROWSER_SESSION(c,"1"),false);assert.equal(calls.length,3);
+ const sql=await readFile("_development/supabase/vatra-browser-session-groups.sql","utf8");
+ for(const requirement of ["s.id=expected_session and s.user_id=caller","coalesce(auth.jwt()->>'session_id','')<>expected_session::text","on conflict(session_id) do nothing","s.user_id=(select auth.uid())","else 'session:'||s.id::text","s.user_id=caller and s.id::text<>current_id","b.session_id::text=current_id and b.browser_key=target_key","enable row level security","on delete cascade"])assert.ok(sql.includes(requirement),requirement);
+ console.log("VATRA browser sessions: repeat logins, account isolation, coalescing and safe storage fallback.");
+}
