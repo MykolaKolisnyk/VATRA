@@ -140,6 +140,7 @@ async function start(init){
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=account?.vatra_id==null?null:String(account.vatra_id);
   if(ownId){
+   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
    void window.VATRA_PRESENCE?.start(client,ownId,meta.gender);
    window.VATRA_NOTIFICATIONS?.start(client,ownId);
   }

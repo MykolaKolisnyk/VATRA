@@ -32,10 +32,14 @@ function counterpart(item){
 async function data(){
  let query=client.from("friendships").select("id,requester_id,recipient_id,status,created_at").or("requester_id.eq."+targetId+",recipient_id.eq."+targetId);
  if(!me)query=query.eq("status","accepted");
- const result=await query.order("created_at",{ascending:false}).limit(350);
+ const [result,own]=await Promise.all([
+  query.order("created_at",{ascending:false}).limit(350),
+  me?Promise.resolve(null):client.from("friendships").select("requester_id,recipient_id,status").or("requester_id.eq."+ownId+",recipient_id.eq."+ownId).limit(350)
+ ]);
  if(result.error)throw result.error;
+ if(own?.error)throw own.error;
  rows=result.data||[];
- if(!me){const own=await client.from("friendships").select("requester_id,recipient_id,status").or("requester_id.eq."+ownId+",recipient_id.eq."+ownId).limit(350);if(own.error)throw own.error;ownRelations=new Map((own.data||[]).map(x=>[String(String(x.requester_id)===ownId?x.recipient_id:x.requester_id),x.status]));}
+ if(own)ownRelations=new Map((own.data||[]).map(x=>[String(String(x.requester_id)===ownId?x.recipient_id:x.requester_id),x.status]));
  const ids=[...new Set(rows.map(counterpart).filter(validId))];
 
  const batches=[];
@@ -73,9 +77,11 @@ async function refreshPresence(){
  presenceBusy=true;
  try{
   const ids=[...new Set(rows.filter(item=>stateFor(item)==="accepted").map(counterpart).filter(validId))];
-  const next=new Map();
-  for(let i=0;i<ids.length;i+=100){
-   const {data,error}=await client.from("profile_presence").select("vatra_id,last_seen_at,form").in("vatra_id",ids.slice(i,i+100));
+  const next=new Map(),requests=[];
+  for(let i=0;i<ids.length;i+=100)
+   requests.push(client.from("profile_presence").select("vatra_id,last_seen_at,form").in("vatra_id",ids.slice(i,i+100)));
+  const results=await Promise.all(requests);
+  for(const {data,error} of results){
    if(error){presenceAvailable=false;return;}
    for(const entry of data||[])next.set(String(entry.vatra_id),entry);
   }
@@ -219,6 +225,7 @@ async function boot(){
   const account=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   if(account.error||!validId(account.data?.vatra_id))throw Error("Missing member ID");
   ownId=String(account.data.vatra_id);
+  window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);
   const target=new URLSearchParams(location.search).get("member");
   targetId=validId(target)?target:ownId;
   me=targetId===ownId;

@@ -10,6 +10,8 @@
   "../illustrations/login_hero-03.webp"
  ].map(path=>new URL(path,script.src).href);
  const INTERVAL=30_000,PRELOAD=25_000,FADE=950;
+ const connection=window.navigator?.connection;
+ const constrained=()=>connection?.saveData===true||["slow-2g","2g","3g"].includes(connection?.effectiveType);
  let current=-1,active=null,bag=[],pending=null,preloadTimer=null,swapTimer=null,epoch=0;
  function choose(){
   if(!bag.length)bag=sources.map((_,i)=>i).filter(i=>i!==current);
@@ -19,10 +21,10 @@
   return new Promise(resolve=>{
    const image=document.createElement("img");
    image.className="vatra-login-hero-layer-001 ui-vatra-login-hero-layer-00"+(index+1);
-   image.alt="";image.setAttribute("aria-hidden","true");image.draggable=false;image.decoding="async";
+   image.alt="";image.setAttribute("aria-hidden","true");image.draggable=false;image.decoding="async";image.fetchPriority="low";
    let done=false;
    const finish=value=>{if(done)return;done=true;clearTimeout(timeout);image.onload=image.onerror=null;resolve(value);};
-   const timeout=setTimeout(()=>finish(null),12_000);
+   const timeout=setTimeout(()=>{finish(null);image.removeAttribute?.("src");},12_000);
    image.onload=()=>{if(typeof image.decode==="function")image.decode().then(()=>finish({index,image}),()=>finish(null));else finish({index,image});};
    image.onerror=()=>finish(null);
    image.src=sources[index];
@@ -41,7 +43,7 @@
   ++epoch;clearTimeout(preloadTimer);clearTimeout(swapTimer);
   preloadTimer=swapTimer=null;
  }
- function eligible(){return !!active&&!document.hidden;}
+ function eligible(){return !!active&&!document.hidden&&!constrained();}
  function prepare(){return pending||(pending=load(choose()));}
  function schedule(){
   stop();
@@ -58,8 +60,9 @@
   },INTERVAL);
  }
  document.addEventListener("visibilitychange",schedule);
+ connection?.addEventListener?.("change",schedule);
  void (async()=>{
-  for(let attempt=0;attempt<sources.length;attempt++){
+  for(let attempt=0;attempt<(constrained()?1:sources.length);attempt++){
    const entry=await load(choose());
    if(entry){present(entry);schedule();return;}
   }

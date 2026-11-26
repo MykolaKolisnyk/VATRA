@@ -538,6 +538,7 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  const {runInNewContext}=await import("node:vm");
  let now=0,serial=0;
  const timers=new Map(),requests=[],layers=[],events=new Map(),motion={matches:false,addEventListener(_name,fn){this.change=fn;}};
+ const connection={saveData:false,effectiveType:"4g",addEventListener(_name,fn){this.change=fn;}};
  const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve();};
  const tick=async ms=>{
   const end=now+ms;
@@ -558,7 +559,7 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
    return img;
   }};
  const math=Object.create(Math);math.random=()=>.6;
- runInNewContext(loginHeroSource,{window:{matchMedia:()=>motion},document:doc,URL,Math:math,
+ runInNewContext(loginHeroSource,{window:{matchMedia:()=>motion,navigator:{connection}},document:doc,URL,Math:math,
   setTimeout(fn,delay){const id=++serial;timers.set(id,{at:now+delay,fn});return id;},clearTimeout:id=>timers.delete(id)});
  await flush();
  const selected=()=>layers.find(img=>img.classList.contains("is-active"))?.url;
@@ -577,6 +578,12 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  await tick(90_000);assert.equal(selected(),third,"Do not rotate in a hidden tab");
  doc.hidden=false;events.get("visibilitychange")();motion.matches=true;
  await tick(30_000);assert.notEqual(selected(),third,"Reduced motion must not stop rotation");
+ const before=requests.length;connection.effectiveType="2g";connection.change();
+ await tick(90_000);assert.equal(requests.length,before,"Slow connections do not download rotating decorative images");
+ connection.effectiveType="4g";connection.saveData=true;connection.change();
+ await tick(90_000);assert.equal(requests.length,before,"Data saver prevents decorative rotation");
+ connection.saveData=false;connection.change();await tick(30_000);
+ assert.equal(requests.length,before+1,"Rotation resumes when connection permits");
 }
 
 assert.ok(
