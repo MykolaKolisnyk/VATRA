@@ -71,11 +71,9 @@
    const brand=make("span","ui-vatra-account-id-brand-001");
    const symbol=make("img","ui-vatra-account-id-symbol-001");
    symbol.src=new URL("assets/logo/logo_symbol.svg",root).href;
-   symbol.alt="";brand.append(symbol);
+   symbol.alt="";brand.append(symbol,make("span","vatra-account-id-label-001","ID"));
    manage.href=new URL("vatra-id",root).href;
-   manage.append(brand,
-    make("span","vatra-account-manage-label-001",tr("Керування акаунтом","Manage account")),
-    make("small","vatra-account-id-label-001","ID"));
+   manage.append(make("span","vatra-account-manage-label-001",tr("Керування акаунтом","Manage account")),brand);
    const profile=dropdown.querySelector(".feed-account-profile");
    if(profile){
     const group=make("div","ui-vatra-account-profile-group-001");

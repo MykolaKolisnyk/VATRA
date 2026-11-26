@@ -4565,10 +4565,13 @@ try{
    const profile=group.querySelector(".feed-account-profile"),manage=group.querySelector(".vatra-account-manage-001");
    const box=el=>el.getBoundingClientRect();
    return {rowX:Math.abs(box(profile).left-box(manage).left),height:Math.abs(box(profile).height-box(manage).height),
-    iconX:Math.abs(box(profile.querySelector("svg")).left-box(manage.querySelector(".ui-vatra-account-id-brand-001")).left),
-    textX:Math.abs(box(profile.querySelector("span")).left-box(manage.querySelector(".vatra-account-manage-label-001")).left)};
+    textX:Math.abs(box(profile.querySelector("svg")).left-box(manage.querySelector(".vatra-account-manage-label-001")).left),
+    brandRight:Math.abs(box(manage).right-box(manage.querySelector(".ui-vatra-account-id-brand-001")).right-14),
+    brandOrder:Math.max(0,box(manage.querySelector(".vatra-account-manage-label-001")).right-box(manage.querySelector(".ui-vatra-account-id-brand-001")).left)};
   });
-  assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account rows, icons and labels must be aligned: "+JSON.stringify(accountRowGeometry));
+  assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account management label must be left and VATRA ID brand right: "+JSON.stringify(accountRowGeometry));
+  assert.deepEqual(await manageAccount.locator(":scope > span").evaluateAll(nodes=>nodes.map(node=>node.className)),["vatra-account-manage-label-001","ui-vatra-account-id-brand-001"]);
+  assert.equal(await manageAccount.locator(".ui-vatra-account-id-brand-001 > .vatra-account-id-label-001").count(),1);
   assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
    "Support must precede Settings in the account menu");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
@@ -5432,6 +5435,20 @@ try{
    "Global profile visibility belongs exclusively in Settings");
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
   await checkCityOptions("profile-editor-city","Київ","Warszawa");
+  await profilePage.locator("#profile-editor-address").click();
+  const addressDialog=profilePage.locator("#profile-editor-address-dialog");
+  await addressDialog.waitFor({state:"visible"});
+  assert.equal(await addressDialog.locator("#profile-editor-place-city").inputValue(),"Київ");
+  assert.equal(await profilePage.locator("#profile-editor-visibility-address-native").inputValue(),"only_me");
+  await addressDialog.locator("#profile-editor-place-street").fill("Тестова");
+  await addressDialog.locator("#profile-editor-place-name").fill("Дім");
+  await addressDialog.locator(".vatra-profile-editor-record-cancel-001").click();
+  await profilePage.locator("#profile-editor-address").click();
+  assert.equal(await addressDialog.locator("#profile-editor-place-street").inputValue(),"","Cancel leaves address unchanged");
+  await addressDialog.locator("#profile-editor-place-street").fill("Тестова");
+  await addressDialog.locator("#profile-editor-place-name").fill("Дім");
+  await addressDialog.locator(".vatra-profile-editor-record-save-001").click();
+  assert.equal(await profilePage.locator(".vatra-profile-editor-address-value-001").textContent(),"Київ, Тестова, Дім");
   await profilePage.locator("#profile-editor-website").fill("https://example.org");
   await chooseProfileEditorOption("profile-editor-visibility-website","public",language==="en"?"Everyone":"Для всіх");
   await profilePage.locator('.profile-editor-nav-link[data-group="profile"]').click();
