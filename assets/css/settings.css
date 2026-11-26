@@ -1,10 +1,10 @@
 body.vatra-section-page[data-page="vatra-id"] .ui-vatra-section-main-001{width:min(1120px,calc(100% - 32px));margin:20px auto 56px;min-width:0}
 body.vatra-section-page .ui-vatra-id-layout-001{display:grid;grid-template-columns:260px minmax(0,1fr);gap:var(--vatra-card-gap);align-items:start;max-width:940px;margin:0 auto}
 body.vatra-section-page[data-page="vatra-id"] .ui-vatra-section-heading-001{max-width:940px;margin-inline:auto}
-body.vatra-section-page .ui-vatra-id-sidebar-001{padding:12px;position:sticky;top:81px}
+body.vatra-section-page .ui-vatra-id-sidebar-001{padding:12px}
 body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001{flex-direction:column}
 body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001 button{min-height:44px}
-body.vatra-section-page .vatra-id-back-001{display:block;padding:15px 10px 5px;margin-top:9px;border-top:1px solid #edf1f7}
+body.vatra-section-page .vatra-id-back-001{display:flex;align-items:center;gap:12px;padding:12px 10px;color:#365d9f;font:650 14px/1.4 Onest,system-ui,sans-serif;text-decoration:none;border-radius:10px}
 body.vatra-section-page .ui-vatra-id-identity-001{display:flex;align-items:center;gap:16px;margin-bottom:23px}
 body.vatra-section-page .ui-vatra-id-avatar-001{width:76px;height:76px;flex:none;border-radius:50%;background:var(--vatra-default-avatar) center/cover no-repeat;background-color:#eaf0f8}
 body.vatra-section-page .vatra-id-heading-001{font:var(--section-heading);letter-spacing:-.025em;margin:0 0 4px}
@@ -30,7 +30,6 @@ body.vatra-section-page .vatra-id-device-single-revoke-001{flex:none;max-width:1
 body.vatra-section-page .vatra-id-device-single-revoke-001:disabled{opacity:.55;cursor:default}
 body.vatra-section-page .vatra-id-device-revoke-001{margin-top:17px;padding:10px 14px;border:0;border-radius:9px;background:#edf3ff;color:#2861d8;font:var(--section-control);cursor:pointer}
 @media(max-width:420px){body.vatra-section-page .ui-vatra-id-device-row-001{flex-wrap:wrap}}
-body.vatra-section-page .vatra-id-menu-title-001{padding:5px 10px 13px;margin:0 0 6px;border-bottom:1px solid #edf1f7}
 body.vatra-section-page .ui-vatra-id-content-001>.ui-vatra-section-card-001{padding:var(--vatra-card-padding)}
 
 
@@ -79,3 +78,44 @@ body.vatra-section-page .ui-vatra-id-credential-copy-001{display:grid;gap:5px;mi
 body.vatra-section-page .vatra-id-credential-label-001{font:var(--section-name)}
 body.vatra-section-page .vatra-id-credential-note-001{font:var(--section-caption);color:var(--soft);overflow-wrap:anywhere}
 body.vatra-section-page .ui-vatra-id-credential-row-001 .vatra-preferences-action-001{flex:none}
+
+body.vatra-section-page[data-page="vatra-id"] .ui-vatra-section-heading-001{display:none}
+body.vatra-section-page .ui-vatra-id-rail-001{display:grid;gap:8px;min-width:0;position:sticky;top:81px}
+body.vatra-section-page .ui-vatra-id-brand-001{display:flex;align-items:center;gap:7px;padding:10px 12px 14px;border-bottom:1px solid #edf1f7;margin-bottom:6px}
+body.vatra-section-page .ui-vatra-id-brand-logo-001{width:36px;height:36px;object-fit:contain}
+body.vatra-section-page .vatra-id-brand-label-001{font:750 27px/1 Onest,system-ui,sans-serif;color:#26384f}
+body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001 button{display:flex;align-items:center;gap:12px;text-align:left}
+body.vatra-section-page :is(.ui-vatra-id-sidebar-001,.vatra-id-back-001) svg{flex:none;width:24px;height:24px;color:#547cbe}
+body.vatra-section-page .ui-vatra-id-return-001{padding:8px 12px}
+body.vatra-section-page .vatra-id-back-001:hover{background:#edf3ff}
+body.vatra-section-page .ui-vatra-id-legal-001{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding:10px 0}
+body.vatra-section-page .vatra-id-legal-link-001{font:500 11px/1.5 Onest,system-ui,sans-serif;color:#71839c;text-decoration:none}
+body.vatra-section-page .vatra-id-legal-link-001:hover{text-decoration:underline}
+body.vatra-section-page .ui-vatra-id-number-row-001{display:flex;align-items:center;gap:5px}
+body.vatra-section-page :is(.vatra-id-copy-001,.vatra-id-identity-open-001){display:grid;place-items:center;border:0;background:transparent;color:#547cbe;border-radius:8px;padding:6px;cursor:pointer}
+body.vatra-section-page .vatra-id-copy-001 svg{width:16px;height:16px}
+body.vatra-section-page .vatra-id-identity-open-001{margin-left:auto}
+body.vatra-section-page .ui-vatra-id-identity-info-001{min-width:0;overflow-wrap:anywhere}
+body.vatra-section-page .ui-vatra-id-quick-001 .vatra-id-heading-001{margin-bottom:10px}
+body.vatra-section-page .vatra-id-action-row-001{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;text-align:left;border:0;border-radius:10px;background:transparent;color:#334761;padding:12px 8px;cursor:pointer}
+body.vatra-section-page .vatra-id-action-row-001:hover{background:#f2f6fd}
+body.vatra-section-page .ui-vatra-id-action-symbol-001{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:12px;color:#547cbe;background:#edf3ff}
+body.vatra-section-page .ui-vatra-id-action-symbol-001 svg{width:24px;height:24px}
+body.vatra-section-page .ui-vatra-id-action-copy-001{display:grid;gap:4px;flex:1;min-width:0}
+body.vatra-section-page .vatra-id-action-label-001{font:var(--section-name);overflow-wrap:anywhere}
+body.vatra-section-page .vatra-id-action-description-001{font:var(--section-caption);color:var(--soft);overflow-wrap:anywhere}
+body.vatra-section-page .vatra-id-action-row-001>svg{color:#8495ad;flex:none;width:20px;height:20px}
+body.vatra-section-page .vatra-id-action-row-001.is-danger .ui-vatra-id-action-symbol-001{color:#b64f63;background:#fff1f4}
+body.vatra-section-page .ui-vatra-id-credential-copy-001{flex:1}
+body.vatra-section-page .ui-vatra-id-protection-001{display:grid;justify-items:center;gap:10px;text-align:center}
+body.vatra-section-page .ui-vatra-id-protection-001 .ui-vatra-id-action-symbol-001{width:64px;height:64px;border-radius:18px}
+body.vatra-section-page .ui-vatra-id-protection-001 .ui-vatra-id-action-symbol-001 svg{width:38px;height:38px}
+body.vatra-section-page .ui-vatra-id-protection-001 p{margin:0}
+body.vatra-section-page .ui-vatra-id-delete-choices-001{display:grid;gap:8px;border:0;padding:0;margin:0}
+body.vatra-section-page .ui-vatra-id-delete-option-001{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #e3eaf4;border-radius:10px;cursor:pointer}
+body.vatra-section-page .ui-vatra-id-delete-radio-001{accent-color:#2864dc}
+body.vatra-section-page .vatra-id-lifecycle-unavailable-001{font:var(--section-caption);color:#a34458}
+body.vatra-section-page .ui-vatra-id-delete-controls-001{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+body.vatra-section-page .vatra-id-delete-confirm-001{padding:10px 14px;border:0;border-radius:9px;background:#b64f63;color:white;font:var(--section-control)}
+body.vatra-section-page .vatra-id-delete-confirm-001:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:600px){body.vatra-section-page .ui-vatra-id-rail-001{position:static;margin-bottom:12px}body.vatra-section-page .ui-vatra-id-sidebar-001{margin:0}body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001{flex-wrap:wrap}body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001 button{gap:6px}body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001 button svg{width:20px;height:20px}}
