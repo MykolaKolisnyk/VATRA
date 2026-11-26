@@ -3146,5 +3146,3 @@ body.profile-page .vatra-profile-editor-address-open-001 svg{width:17px;height:1
 body.profile-page .vatra-profile-editor-address-help-001{grid-column:1/-1;color:#71839c;font:450 12px/1.5 Onest,system-ui,sans-serif;margin:0}
 body.profile-page .vatra-profile-editor-address-remove-001{margin-inline-end:auto;border:0;background:transparent;color:#b34c61;font:600 13px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
 @media(max-width:540px){body.profile-page .vatra-profile-editor-address-open-001{font-size:16px}}
-
-@media(max-width:540px){body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{grid-template-columns:minmax(0,1fr);gap:6px}}
