@@ -2237,8 +2237,8 @@ assert.ok(ownerSecuritySQL.includes("drop table public.admin_audit restrict")&&o
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
 const onboardingCss=await read("assets/css/onboarding.css");
-assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
- feedMarkup.includes('href="assets/css/onboarding.css"')&&
+assert.ok(feedMarkup.includes('src="assets/js/onboarding.js?rev=')&&
+ feedMarkup.includes('href="assets/css/onboarding.css?rev=')&&
  onboardingJs.includes('launch.id="vatra-onboarding-replay"')&&
  feedMarkup.includes('id="vatra-first-steps"')&&
  onboardingJs.includes('buildSteps();void checkTasks();')&&
