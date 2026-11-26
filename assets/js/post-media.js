@@ -305,7 +305,7 @@
  function signedCacheFor(client){
   let state=signedURLCaches.get(client);
   if(state)return state;
-  state={signedURLs:new Map(),singlePending:new Map(),bulkPending:new Map(),version:0,active:0,queue:[],viewer:null,token:null};
+  state={signedURLs:new Map(),singlePending:new Map(),bulkPending:new Map(),previewBatches:new Map(),version:0,active:0,queue:[],viewer:null,token:null};
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
    client.auth.onAuthStateChange((event,session)=>{
@@ -317,6 +317,7 @@
     state.signedURLs.clear();
     state.singlePending.clear();
     state.bulkPending.clear();
+    state.previewBatches.clear();
     for(const queued of state.queue.splice(0))queued.cancel();
    });
   }
@@ -397,6 +398,29 @@
   }
   await Promise.allSettled([...waiting]);
   trimSignedCache(signedURLs);
+ }
+ function preSignVisible(client,items,ttl=3600){
+  const state=signedCacheFor(client),version=state.version;
+  let batch=state.previewBatches.get(ttl);
+  if(!batch){
+   batch={items:new Map(),promise:null};
+   state.previewBatches.set(ttl,batch);
+   batch.promise=Promise.resolve().then(async()=>{
+    if(state.previewBatches.get(ttl)===batch)state.previewBatches.delete(ttl);
+    if(state.version!==version)return false;
+    const missing=[...batch.items.values()].filter(item=>{
+     const key=ttl+":image:"+item.media_path;
+     return !cachedSignedURL(state.signedURLs,key)&&!state.singlePending.has(key)&&!state.bulkPending.has(key);
+    });
+    if(missing.length>1)await preSignGallery(client,missing,ttl);
+    return state.version===version;
+   });
+  }
+  for(const item of items||[]){
+   if(item?.media_kind==="image"&&typeof item.media_path==="string")
+    batch.items.set(item.media_path,item);
+  }
+  return batch.promise;
  }
  async function signed(client,kind,path,ttl=3600){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
@@ -959,7 +983,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    const imageTiles=activeTiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
     media_kind:"image",media_path:previewPath(item)||item.media_path
    }));
-   if(imageTiles.length>1)await preSignGallery(client,imageTiles);
+   if(!await preSignVisible(client,imageTiles)||!slot.isConnected)return;
    await Promise.allSettled(activeTiles.map(async({item,tile,index})=>{
     tile.classList.remove("is-gallery-unavailable");
     tile.querySelector(".vatra-gallery-unavailable-001")?.remove();
@@ -1219,6 +1243,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   async function load(){
    if(begun)return;begun=true;
    try{
+    if(!await preSignVisible(client,[{media_kind:"image",media_path:path}])||!slot.isConnected)return;
     const src=await signed(client,"image",path);
     if(!slot.isConnected)return;
 

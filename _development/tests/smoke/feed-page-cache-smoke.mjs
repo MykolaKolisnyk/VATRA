@@ -118,7 +118,7 @@ console.log("VATRA Feed cursor: repeated same-account SIGNED_IN preserves author
  }};
  const ctx={client,user:{id:"viewer"},vatraId:"10",friends:new Set(["10"]),hiddenPostAuthors:new Set(),followedClubs:new Map([["20","Club"]]),
   feedFilter:"all",searchTerm:"",locale:"uk-UA",PAGE_SIZE:12,Date:FakeDate,Map,WeakMap,Promise,String,JSON,Error,Number,Set,
-  feedDeadline:x=>x,sourceState:null,renderedIds:new Set(),lastFeedScope:null};
+  feedDeadline:x=>x,feedQueryDeadline:x=>x,sourceState:null,renderedIds:new Set(),lastFeedScope:null};
  const code=feed.slice(begin,finish);
  // sourceState and renderedIds are defined immediately before the cache slice.
  runInNewContext(code+"\nglobalThis.api={takePage,reset(){sourceState=makeSourceState();renderedIds=new Set();},invalidate:()=>invalidateFeedPages(client)};",ctx);

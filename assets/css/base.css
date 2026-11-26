@@ -748,12 +748,15 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 
 
 .ui-vatra-service-notice-001{
- box-sizing:border-box;display:grid;justify-items:center;align-content:center;
- width:min(540px,calc(100% - 32px));max-width:100%;min-height:290px;
- margin:28px auto;padding:30px 24px;border:1px solid #e0e7f2;
+ box-sizing:border-box;justify-items:center;align-content:center;
+ width:min(540px,calc(100% - 32px));max-width:calc(100% - 32px);max-height:calc(100dvh - 32px);min-height:0;
+ margin:auto;padding:30px 24px;border:1px solid #e0e7f2;overflow:auto;
  border-radius:18px;background:#fff;color:var(--ink,#293951);
  box-shadow:0 7px 28px rgba(31,49,76,.07);text-align:center
 }
+.ui-vatra-service-notice-001[open]{display:grid}
+.ui-vatra-service-notice-001::backdrop{background:rgba(15,23,42,.62)}
+html:has(.ui-vatra-service-notice-001[open]){overflow:hidden}
 .ui-vatra-service-notice-001:is([data-locked="true"],[data-fullpage="true"]){
  position:fixed;inset:0;z-index:2147483000;box-sizing:border-box;
  width:100%;height:100dvh;max-width:none;max-height:none;margin:0;
@@ -770,7 +773,7 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 .vatra-service-notice-action-001:disabled{opacity:.6;cursor:default}
 .vatra-service-notice-support-001{color:var(--blue,#2861d8);font:620 14px/1.4 Onest,Inter,system-ui,sans-serif;text-decoration:none;padding:6px}
 .vatra-service-notice-action-001:focus-visible,.vatra-service-notice-support-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:3px}
-@media(max-height:540px){.ui-vatra-service-notice-art-001{width:120px}.ui-vatra-service-notice-001{min-height:180px;padding:18px}}
+@media(max-height:540px){.ui-vatra-service-notice-art-001{width:120px}.ui-vatra-service-notice-001{min-height:0;padding:18px}}
 
 
 

@@ -213,7 +213,7 @@
    followedQuery=query.eq("member_vatra_id",viewerId).limit(500);
    followsAvailable=true;
   }catch(_){ }
-  const [connections,subscriptions]=await Promise.allSettled([connectionQuery,followedQuery]);
+  const [connections,subscriptions]=await Promise.allSettled([feedQueryDeadline(connectionQuery,7000),feedQueryDeadline(followedQuery,7000)]);
   const hasRows=result=>result.status==="fulfilled"&&!result.value?.error&&
    Array.isArray(result.value?.data);
   if(!connectionsAvailable||!followsAvailable||
@@ -228,9 +228,9 @@
   const nextHidden=new Set([...hiddenPostAuthors].filter(id=>nextFriends.has(id)));
   const authors=[...nextFriends].filter(id=>id!==viewerId);
   const [groups,preferences]=await Promise.allSettled([
-   Promise.resolve().then(()=>ids.length?client.from("communities").select("club_id,name").in("club_id",ids):{data:[],error:null}),
-   Promise.resolve().then(()=>authors.length?client.from("member_content_preferences").select("author_vatra_id")
-    .eq("viewer_vatra_id",viewerId).eq("hide_posts",true).in("author_vatra_id",authors).limit(500):{data:[],error:null})
+   Promise.resolve().then(()=>ids.length?feedQueryDeadline(client.from("communities").select("club_id,name").in("club_id",ids),7000):{data:[],error:null}),
+   Promise.resolve().then(()=>authors.length?feedQueryDeadline(client.from("member_content_preferences").select("author_vatra_id")
+    .eq("viewer_vatra_id",viewerId).eq("hide_posts",true).in("author_vatra_id",authors).limit(500),7000):{data:[],error:null})
   ]);
   if(!hasRows(groups)||viewerId!==vatraId)return false;
   for(const group of groups.value.data)nextClubs.set(String(group.club_id),group.name);
@@ -530,7 +530,7 @@
      query=query.in("club_id",clubIds);
     if(searchTerm&&typeof query.ilike==="function")
      query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\$&")+"%");
-    return feedDeadline(query.order("created_at",{ascending:false})
+    return feedQueryDeadline(query.order("created_at",{ascending:false})
      .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1));
    });
    if(error){if(isPerson)throw error;source.done=true;return;}
@@ -644,7 +644,8 @@
    if(version===feedRequestVersion){
     posts.querySelectorAll(".feed-post-placeholder").forEach(el=>el.remove());
     reportFeedFailure(stage,error);
-    const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>loadPosts(true)});
+    const retryFeed=()=>{invalidateFeedPages(client);subscriptionsLoadedAt=0;return loadPosts(true);};
+    const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:retryFeed});
     if(reset){
      visibleFeed=previousFeed||[];
      renderedIds=new Set(visibleFeed.map(item=>item.kind+":"+item.id));
@@ -654,7 +655,7 @@
      message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
       "Could not load your Feed. Please retry."));
      const retry=node("button","feed-more vatra-feed-more-001",t("Повторити","Retry"));
-     retry.type="button";retry.addEventListener("click",()=>{retry.remove();clearMessage();invalidateFeedPages(client);void loadPosts(true);});
+     retry.type="button";retry.addEventListener("click",()=>{retry.remove();clearMessage();void retryFeed();});
      posts.append(retry);
     }
    }
@@ -854,11 +855,18 @@
   try{await commit();}catch(_){failed();}
  }
 
- function feedDeadline(task,ms=15000){
+ function feedDeadline(task,ms=15000,controller=null){
   let timer;
   return Promise.race([Promise.resolve(task),new Promise((_,reject)=>{
-   timer=setTimeout(()=>reject(Object.assign(Error("Feed request timed out"),{status:503})),ms);
+   timer=setTimeout(()=>{
+    reject(Object.assign(Error("Feed request timed out"),{code:"VATRA_FEED_TIMEOUT"}));
+    controller?.abort();
+   },ms);
   })]).finally(()=>clearTimeout(timer));
+ }
+ function feedQueryDeadline(query,ms=15000){
+  const controller=typeof query?.abortSignal==="function"&&typeof AbortController==="function"?new AbortController():null;
+  return feedDeadline(controller?query.abortSignal(controller.signal):query,ms,controller);
  }
  async function init(){
   try{

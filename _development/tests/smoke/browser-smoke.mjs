@@ -4205,6 +4205,24 @@ try{
   await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
    document.querySelectorAll("#feed-posts .feed-post-card").length===1);
   console.log("VATRA filters: older in-flight pages cannot repaint a newer category");
+  // Service error must use the browser top layer, not replace the Feed.
+  const serviceNotice=feedProbe.locator("dialog.ui-vatra-service-notice-001");
+  for(const code of [500,503,429,403]){
+   await feedProbe.evaluate(code=>{
+    window.__vatraServiceRetry=0;
+    window.VATRA_SERVICE_NOTICE.show(String(code),{retry:()=>{window.__vatraServiceRetry++;}});
+   },code);
+   await serviceNotice.waitFor({state:"visible"});
+   const modal=await serviceNotice.evaluate(el=>({modal:el.matches(":modal"),body:el.parentElement===document.body,shade:getComputedStyle(el,"::backdrop").backgroundColor,rect:el.getBoundingClientRect().toJSON()}));
+   assert.ok(modal.modal&&modal.body&&modal.shade!=="rgba(0, 0, 0, 0)"&&modal.rect.width>0&&modal.rect.height>0,"Service notice must dim the page and open as a modal: "+code);
+   await feedProbe.keyboard.press("Escape");
+   assert.equal(await serviceNotice.count(),1,"Escape must not silently bypass the service notice");
+   await serviceNotice.locator(".vatra-service-notice-action-001").click();
+   await serviceNotice.waitFor({state:"detached"});
+   assert.equal(await feedProbe.evaluate(()=>window.__vatraServiceRetry),code===500||code===503?1:0);
+  }
+  assert.equal(await feedProbe.locator("#feed-posts .feed-post-card").count(),1,"Dismissal must preserve loaded posts");
+
   // A zero-row RLS denial must not be misreported as successful deletion.
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();

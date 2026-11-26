@@ -2200,8 +2200,11 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-footer"')&&
  memberCss.includes('.ui-profile-photo-footer-menu-001.is-open')&&
  (await read("assets/css/feed.css")).includes('body.feed-page .vatra-scroll-rail')&&
  scrollRailScript.includes('side.style.left=')&&
- !(await read("assets/js/network.js")).includes('.showModal()'),
- "Avatar photo viewer needs accessible footer, correct PNG/JPEG files and nonmodal Vatryk errors");
+ (await read("assets/js/network.js")).includes('make("dialog","ui-vatra-service-notice-001")')&&
+ (await read("assets/js/network.js")).includes('panel.setAttribute("aria-modal","true")')&&
+ (await read("assets/js/network.js")).includes('if(locked)panel.dataset.fullpage="true"')&&
+ (await read("assets/js/network.js")).includes('panel.showModal();return panel;'),
+ "Avatar photo viewer needs accessible footer, correct PNG/JPEG files and native modal Vatryk errors with full-page locked states");
 
 assert.ok(memberProfileMarkup.includes('id="profile-cover-viewer"')&&
  memberProfileMarkup.includes('id="profile-cover-viewer-image"')&&
