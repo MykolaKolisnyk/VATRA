@@ -521,7 +521,7 @@
    const left=v?.offsetLeft||0,top=v?.offsetTop||0,width=v?.width||window.innerWidth,height=v?.height||window.innerHeight;
    if(rect.bottom<top||rect.top>top+height){closeEditorMenu();return;}
    const compact=state.wrapper.dataset.variant==="compact";
-   const w=Math.min(Math.max(rect.width,compact?190:0),width-16);
+   const w=Math.min(Math.max(rect.width,compact?220:0),width-16);
    const x=Math.max(left+8,Math.min(compact?rect.right-w:rect.left,left+width-w-8));
    const down=top+height-rect.bottom-9,up=rect.top-top-9;
 
@@ -640,7 +640,7 @@
    const caption=make("span","vatra-profile-editor-select-value-001");
    const iconWrap=make("span","ui-profile-editor-select-symbol-001");
    if(variant==="compact")button.append(iconWrap);
-   button.append(caption,menuArrow());
+   else button.append(caption,menuArrow());
    native.id=id+"-native";native.hidden=true;native.tabIndex=-1;native.setAttribute("aria-hidden","true");
    native.before(wrapper);wrapper.append(native,button);
    const sync=()=>{
@@ -648,10 +648,14 @@
     caption.textContent=option?.textContent||tr("Не вибрано","Not selected");
     button.classList.toggle("is-placeholder",!native.value);
     button.disabled=native.disabled;
-    if(variant==="compact")iconWrap.replaceChildren(svg(audienceIcon(native.value)));
+    if(variant==="compact"){
+     iconWrap.replaceChildren(svg(audienceIcon(native.value)));
+     const label=(native.getAttribute("aria-label")||tr("Видимість","Visibility"))+": "+caption.textContent;
+     button.setAttribute("aria-label",label);button.title=label;
+    }
    };
    const open=keyboard=>{
-    const items=Array.from(native.options).map(option=>({value:option.value,text:option.textContent,disabled:option.disabled,icon:variant==="compact"?audienceIcon(option.value):null}));
+    const items=Array.from(native.options).map(option=>({value:option.value,text:option.textContent,disabled:option.disabled,icon:null}));
     return openEditorMenu(button,wrapper,items,value=>{native.value=value;native.dispatchEvent(new Event("change",{bubbles:true}));sync();},native.value,keyboard);
    };
    native.addEventListener("change",sync);sync();
@@ -692,14 +696,12 @@
    row.dataset.long=kind==="long"?"true":"false";
    const lab=make("label","vatra-profile-editor-label-"+key,tr(uk,en));
    const current=draft.get(key)||{value:"",visibility:"friends"};
-   const disclosure=make("div","ui-profile-editor-disclosure-"+key);
    const selectBox=make("select","ui-profile-editor-visibility-"+key);
    selectBox.id="profile-editor-visibility-"+key;
    selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+tr(uk,en));
    for(const [value,labelUa,labelEn] of audiences)selectBox.append(opt(value,tr(labelUa,labelEn)));
    selectBox.value=current.visibility;
    if(!selectBox.value)selectBox.value="friends";
-   disclosure.append(selectBox);
    const control=make("div","ui-profile-editor-field-control-"+key);
    const inputId="profile-editor-"+key;
    let readValue;
@@ -763,7 +765,7 @@
      if(kind==="long")input.rows=3;
      else input.type=["mobile_phone","additional_phone"].includes(key)?"tel":"text";
      input.maxLength=1000;input.spellcheck=kind==="long";
-     input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):"";
+     input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):tr("Не вказано","Not specified");
      if(key==="city"||key==="hometown"){
       input.autocomplete="off";input.placeholder=tr("Знайти або ввести населений пункт","Find or enter a settlement");
      }
@@ -772,7 +774,7 @@
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
    }
-   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(disclosure);row.append(labelGroup,control);destination.append(row);
+   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
