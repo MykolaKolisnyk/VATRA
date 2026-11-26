@@ -192,7 +192,7 @@ jobs:
           const db = new pg.Client({connectionString:"postgresql://vatra_test:test_password@localhost:5432/vatra_lifecycle_ci"});
           await db.connect();
           try {
-            for (const name of ["ci-fixture","staged","isolated-test"]) {
+            for (const name of ["ci-fixture","staged","isolated-test","access-ci-fixture","access-staged","access-isolated-test"]) {
               await db.query(await readFile("_development/supabase/vatra-account-lifecycle-"+name+".sql","utf8"));
               console.log("VATRA lifecycle: "+name+" passed");
             }
