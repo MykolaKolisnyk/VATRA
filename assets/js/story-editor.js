@@ -11,6 +11,8 @@ const filterValues=[[1,1,1,0],[1.06,1.1,1.24,.12],[1.16,.95,1.15,.1],[1.02,1.07,
 const translate=(uk,en)=>document.documentElement.lang==="en"?en:(window.VATRA_LANGUAGE?.translate?.(uk)||uk);
 const node=(tag,cls,value)=>{const el=document.createElement(tag);el.className=cls;if(value!==undefined)el.textContent=value;return el;};
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const symbol=kind=>{const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");for(const [k,v] of Object.entries({viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))svg.setAttribute(k,v);const paths={text:"M4 19 10 5l6 14M6.5 13h7M18 12v7M16 14a2 2 0 0 1 4 0v5",stickers:"M14 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9ZM14 21v-5a2 2 0 0 1 2-2h5M8 9h.01M15 9h.01M8 13q3 3 6 0",brush:"m14 6 4-4 4 4-10 10-4-4ZM8 12c-4 0-4 4-4 6l-2 2c5 1 10-1 10-5",background:"M3 5h18v14H3zM3 16l6-6 5 5 3-3 4 4M15 8h.01",filters:"M9 10a5 5 0 1 0 6 0M12 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10M7 12a5 5 0 1 0 5 8M17 12a5 5 0 1 1-5 8",adjust:"M4 6h16M4 12h16M4 18h16M8 4v4M16 10v4M10 16v4",undo:"M9 5 4 10l5 5M4 10h10a5 5 0 0 1 0 10",redo:"m15 5 5 5-5 5m5-5H10a5 5 0 0 0 0 10",close:"m6 6 12 12M18 6 6 18",upload:"M12 16V4m-5 5 5-5 5 5M4 15v5h16v-5",left:"M4 6h16M4 10h10M4 14h16M4 18h10",center:"M4 6h16M7 10h10M4 14h16M7 18h10",right:"M4 6h16M10 10h10M4 14h16M10 18h10",back:"m15 5-7 7 7 7"};const p=document.createElementNS(ns,"path");p.setAttribute("d",paths[kind]||paths.background);svg.append(p);return svg;};
+
 const fresh=()=>({background:null,media:null,kind:null,texts:[],stickers:[],strokes:[],filter:0,intensity:100,adjust:{brightness:0,contrast:0,warmth:0,saturation:0,vignette:0},caption:""});
 function mount({dialog,trigger,client,id,prefix,onPublished}){
  if(!dialog||!trigger||!client||!(/^[1-9][0-9]{0,18}$/.test(String(id)))||dialog.dataset.storyEditor)return;
@@ -20,43 +22,44 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  const button=(suffix,label,fn,ident)=>{const b=node("button","vatra-story-"+suffix+"-001",label);b.type="button";if(ident)b.id=ident;b.addEventListener("click",fn);return b;};
  const form=e("form","form");form.id=prefix+"-form";
  const header=e("header","header"),title=node("h2","vatra-story-title-001",tr("Нова історія","New story"));title.id=prefix+"-title";
- const close=button("close","×",()=>{if(!publishing)dialog.close();},prefix+"-cancel");close.setAttribute("aria-label",tr("Закрити","Close"));header.append(title,close);
+ const close=button("close","",()=>requestClose(),prefix+"-cancel");close.append(symbol("close"));close.setAttribute("aria-label",tr("Закрити","Close"));header.append(title,close);
  const work=e("div","workspace"),stage=e("div","stage"),surface=e("div","surface");surface.id=prefix+"-media-preview";
  const canvas=e("canvas","canvas");canvas.width=W;canvas.height=H;canvas.setAttribute("aria-label",tr("Попередній перегляд історії","Story preview"));canvas.setAttribute("role","img");canvas.hidden=true;
  const video=e("video","video");video.controls=true;video.playsInline=true;video.preload="metadata";video.hidden=true;
- const empty=e("div","empty"),uploadIcon=e("span","upload-icon","↑");uploadIcon.setAttribute("aria-hidden","true");
+ const empty=e("div","empty"),uploadIcon=e("span","upload-icon");uploadIcon.append(symbol("upload"));uploadIcon.setAttribute("aria-hidden","true");
  const dropCopy=node("p","vatra-story-drop-copy-001",tr("Перетягніть сюди фото або відео","Drag a photo or video here"));
  const file=e("input","file");file.id=prefix==="feed-story"?prefix+"-media":prefix+"-media-input";file.type="file";file.accept="image/jpeg,image/png,image/webp,video/mp4,video/webm";file.hidden=true;
  const choose=button("choose",tr("Вибрати файл","Choose file"),()=>file.click(),prefix+"-media-choose");
  const pickBackground=button("empty-background",tr("Вибрати фон","Choose background"),()=>setPanel("background"));
  empty.append(uploadIcon,dropCopy,choose,pickBackground);
- const history=e("div","history"),undo=button("undo","↶",()=>restore(-1)),redo=button("redo","↷",()=>restore(1));undo.setAttribute("aria-label",tr("Скасувати дію","Undo"));redo.setAttribute("aria-label",tr("Повторити дію","Redo"));history.append(undo,redo);
+ const history=e("div","history"),undo=button("undo","",()=>restore(-1)),redo=button("redo","",()=>restore(1));undo.append(symbol("undo"));redo.append(symbol("redo"));undo.setAttribute("aria-label",tr("Скасувати дію","Undo"));redo.setAttribute("aria-label",tr("Повторити дію","Redo"));history.append(undo,redo);
  surface.append(canvas,video,empty,history);
  const mediaActions=e("div","media-actions"),replace=button("replace",tr("Вибрати файл","Choose file"),()=>file.click()),remove=button("remove",tr("Прибрати медіа","Remove media"),()=>{mutate(()=>{state.media=null;state.kind=null;state.caption="";});setPanel(active);},prefix+"-media-remove");
  mediaActions.append(file,replace,remove);stage.append(surface,mediaActions);
  const sidebar=e("div","sidebar"),nav=e("nav","tools"),panel=e("section","panel");
  const toolDefs=[
-  ["text","Aa","Текст","Text"],["stickers","☺","Стікери","Stickers"],["brush","✎","Пензель","Brush"],
-  ["background","◉","Тло","Background"],["filters","◐","Фільтри","Filters"],["adjust","☷","Корекція кольору","Color correction"]
+  ["text","Текст","Text"],["stickers","Стікери","Stickers"],["brush","Пензель","Brush"],
+  ["background","Тло","Background"],["filters","Фільтри","Filters"],["adjust","Корекція кольору","Color correction"]
  ];
  const toolButtons=new Map();
- for(const [key,icon,uk,en] of toolDefs){const b=button("tool-"+key,"",()=>setPanel(key));const pict=node("span","ui-vatra-story-tool-icon-"+key+"-001",icon),label=node("span","vatra-story-tool-label-"+key+"-001",tr(uk,en));pict.setAttribute("aria-hidden","true");b.append(pict,label);b.setAttribute("aria-pressed","false");toolButtons.set(key,b);nav.append(b);}
+ for(const [key,uk,en] of toolDefs){const b=button("tool-"+key,"",()=>setPanel(key));const pict=node("span","ui-vatra-story-tool-icon-"+key+"-001"),label=node("span","vatra-story-tool-label-"+key+"-001",tr(uk,en));pict.append(symbol(key));pict.setAttribute("aria-hidden","true");b.setAttribute("aria-label",tr(uk,en));b.title=tr(uk,en);b.append(pict,label);b.setAttribute("aria-pressed","false");toolButtons.set(key,b);nav.append(b);}
  sidebar.append(nav,panel);work.append(stage,sidebar);
  const footer=e("footer","footer"),info=e("div","info");
  const audience=node("span","vatra-story-audience-001",tr("Для друзів","Friends only")),time=node("span","vatra-story-duration-001",tr("24 години","24 hours"));
  info.append(audience,time);
  const error=node("p","vatra-story-error-001");error.id=prefix+"-error";error.setAttribute("role","status");error.hidden=true;
  const save=button("publish",tr("Опублікувати","Publish"),()=>{},prefix+"-save");save.type="submit";save.disabled=true;
- footer.append(info,error,save);form.append(header,work,footer);dialog.replaceChildren(form);
- let state=fresh(),back=[],forward=[],assets=new Map(),assetSerial=0,layerSerial=0,active="text",selected=null,brush={color:"#ffffff",width:18,opacity:1},pointer=null,loading=false,publishing=false,request=0,stickerCatalog=null,packId=null,stickerBusy=false;
+ footer.append(info,error,save);form.append(header,work,footer);const confirm=e("dialog","discard-dialog");const confirmTitle=node("h3","vatra-story-discard-title-001",tr("Закрити редактор?","Close editor?"));confirmTitle.id=prefix+"-discard-title";confirm.setAttribute("aria-labelledby",confirmTitle.id);const confirmCopy=node("p","vatra-story-discard-copy-001",tr("Незбережені зміни буде втрачено.","Unsaved changes will be lost."));const confirmActions=e("div","discard-actions");const keep=button("discard-keep",tr("Продовжити","Continue editing"),()=>confirm.close());keep.autofocus=true;const discard=button("discard-confirm",tr("Закрити","Close"),()=>{confirm.close();dialog.close();});confirmActions.append(keep,discard);confirm.append(confirmTitle,confirmCopy,confirmActions);dialog.replaceChildren(form,confirm);
+ let state=fresh(),back=[],forward=[],assets=new Map(),assetSerial=0,layerSerial=0,active="overview",selected=null,brush={color:"#ffffff",width:18,opacity:1},pointer=null,loading=false,publishing=false,request=0,stickerCatalog=null,packId=null,stickerBusy=false;
  const clone=()=>JSON.parse(JSON.stringify(state));
  const note=value=>{error.textContent=value||"";error.hidden=!value;};
  const checkpoint=()=>{back.push(clone());if(back.length>25)back.shift();forward=[];};
  const changed=()=>{render();};
  const mutate=fn=>{if(publishing||loading)return;checkpoint();fn();changed();};
  const restore=dir=>{if(publishing||loading||pointer)return;const src=dir<0?back:forward,dst=dir<0?forward:back;if(!src.length)return;dst.push(clone());state=src.pop();selected=null;render();setPanel(active);};
- const reset=()=>{request++;loading=false;stickerBusy=false;pointer=null;state=fresh();selected=null;back=[];forward=[];for(const a of assets.values())if(a.url)URL.revokeObjectURL(a.url);assets.clear();file.value="";video.pause();video.removeAttribute("src");video.load();note("");active="text";render();setPanel("text");};
+ const reset=()=>{request++;loading=false;stickerBusy=false;pointer=null;state=fresh();selected=null;back=[];forward=[];for(const a of assets.values())if(a.url)URL.revokeObjectURL(a.url);assets.clear();file.value="";video.pause();video.removeAttribute("src");video.load();note("");active="overview";render();setPanel("overview");};
  const hasArt=()=>!!(state.media||state.background||state.texts.some(a=>a.text.trim())||state.stickers.length||state.strokes.length);
+ const requestClose=()=>{if(publishing)return;if(hasArt()||loading){if(!confirm.open)confirm.showModal();}else dialog.close();};
  const addAsset=(file,img,url)=>{const key=String(++assetSerial);assets.set(key,{file,img,url});return key;};
  const filterString=()=>{const f=filterValues[state.filter]||filterValues[0],s=state.intensity/100,a=state.adjust;return "brightness("+Math.max(.1,1+(f[0]-1)*s+a.brightness/100)+") contrast("+Math.max(.1,1+(f[1]-1)*s+a.contrast/100)+") saturate("+Math.max(0,1+(f[2]-1)*s+a.saturation/100)+") sepia("+Math.min(1,f[3]*s+Math.max(0,a.warmth)/180)+") hue-rotate("+Math.min(0,a.warmth)*.5+"deg)";};
  const wrap=(ctx,value,max)=>{const lines=[];for(const paragraph of value.split("\n")){let line="";for(const word of paragraph.split(/\s+/)){const next=line?line+" "+word:word;if(ctx.measureText(next).width>max&&line){lines.push(line);line=word;}else line=next;while(ctx.measureText(line).width>max&&Array.from(line).length>1){const chars=Array.from(line);let part="";while(chars.length&&ctx.measureText(part+chars[0]).width<=max)part+=chars.shift();if(!part)break;lines.push(part);line=chars.join("");}}lines.push(line);}return lines.slice(0,24);};
@@ -93,7 +96,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  }
  const currentText=()=>state.texts.find(a=>a.id===selected);
  const currentSticker=()=>state.stickers.find(a=>a.id===selected);
- const heading=(uk,en)=>panel.append(node("h3","vatra-story-panel-heading-001",tr(uk,en)));
+ const heading=(uk,en)=>{const row=e("div","panel-header"),goBack=button("panel-back","",()=>setPanel("overview"));goBack.append(symbol("back"));goBack.setAttribute("aria-label",tr("Усі інструменти","All tools"));row.append(goBack,node("h3","vatra-story-panel-heading-001",tr(uk,en)));panel.append(row);};
  const description=(uk,en)=>panel.append(node("p","vatra-story-panel-note-001",tr(uk,en)));
  function field(label,suffix,value,min,max,step,apply){
   const line=e("label",suffix+"-field"),name=node("span","vatra-story-"+suffix+"-label-001",label),display=node("output","vatra-story-"+suffix+"-value-001",String(value)),input=e("input",suffix+"-range");
@@ -107,8 +110,8 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  function addText(){mutate(()=>{if(state.texts.length>=12)return;if(!hasArt())state.background=backgrounds[0];const a={id:"text-"+(++layerSerial),text:"",x:W/2,y:H/2,width:W*.8,size:48,font:"Onest",color:"#ffffff",align:"center",backing:false};state.texts.push(a);selected=a.id;});setPanel("text");panel.querySelector("textarea")?.focus();}
  function setPanel(key){
   if(publishing||loading)return;
-  if(state.kind==="video"&&!["text","background"].includes(key))key="text";
-  active=key;panel.replaceChildren();render();
+  if(state.kind==="video"&&!["text","background","overview"].includes(key))key="text";
+  active=key;sidebar.dataset.panel=key;panel.hidden=key==="overview";panel.replaceChildren();render();if(key==="overview")return;
   if(key==="text"){
    heading("Текст","Text");
    if(state.kind==="video"){
@@ -121,7 +124,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
    let remembered=false;text.addEventListener("input",()=>{if(!remembered){checkpoint();remembered=true;}a.text=text.value;render();});text.addEventListener("change",()=>{remembered=false;});panel.append(text);
    const fontGrid=e("div","fonts");for(const [name,font] of fonts){const b=button("font",name,()=>{mutate(()=>a.font=font);setPanel(key);});b.style.fontFamily=font;b.setAttribute("aria-pressed",String(a.font===font));fontGrid.append(b);}panel.append(fontGrid);
    field(tr("Розмір тексту","Text size"),"text-size",a.size,20,96,1,v=>a.size=v);
-   const row=e("div","text-options");for(const align of ["left","center","right"]){const b=button("align-"+align,align==="left"?"≡←":align==="right"?"→≡":"≡",()=>{mutate(()=>a.align=align);setPanel(key);});b.setAttribute("aria-label",tr(align==="left"?"Ліворуч":align==="right"?"Праворуч":"По центру",align));b.setAttribute("aria-pressed",String(a.align===align));row.append(b);}
+   const row=e("div","text-options");for(const align of ["left","center","right"]){const b=button("align-"+align,"",()=>{mutate(()=>a.align=align);setPanel(key);});b.append(symbol(align));b.setAttribute("aria-label",tr(align==="left"?"Ліворуч":align==="right"?"Праворуч":"По центру",align));b.setAttribute("aria-pressed",String(a.align===align));row.append(b);}
    const backing=button("backing",tr("Тло тексту","Text background"),()=>{mutate(()=>a.backing=!a.backing);setPanel(key);});backing.setAttribute("aria-pressed",String(a.backing));row.append(backing);panel.append(row);
    colors("text",a.color,color=>{mutate(()=>a.color=color);setPanel(key);});panel.append(button("delete-text",tr("Видалити текст","Delete text"),()=>{mutate(()=>state.texts=state.texts.filter(x=>x.id!==a.id));selected=null;setPanel(key);}));
   }else if(key==="background"){
@@ -135,7 +138,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
    colors("brush",brush.color,color=>{brush.color=color;setPanel(key);});
   }else if(key==="filters"){
    heading("Фільтри","Filters");field(tr("Інтенсивність","Intensity"),"filter-intensity",state.intensity,0,100,1,v=>state.intensity=v);
-   const grid=e("div","filters");for(let i=0;i<filterNames.length;i++){const [uk,en]=filterNames[i],b=button("filter",tr(uk,en),()=>{mutate(()=>{if(!hasArt())state.background=backgrounds[0];state.filter=i;});setPanel(key);});b.setAttribute("aria-pressed",String(state.filter===i));grid.append(b);}panel.append(grid);
+   const grid=e("div","filters");for(let i=0;i<filterNames.length;i++){const [uk,en]=filterNames[i],b=button("filter","",()=>{mutate(()=>{if(!hasArt())state.background=backgrounds[0];state.filter=i;});setPanel(key);});const thumb=e("canvas","filter-preview");thumb.width=96;thumb.height=72;thumb.setAttribute("aria-hidden","true");const ctx=thumb.getContext("2d"),f=filterValues[i],fill=state.background||backgrounds[0],art=state.kind==="image"?assets.get(state.media)?.img:null;ctx.filter="brightness("+f[0]+") contrast("+f[1]+") saturate("+f[2]+") sepia("+f[3]+")";if(Array.isArray(fill)){const g=ctx.createLinearGradient(0,0,96,72);g.addColorStop(0,fill[0]);g.addColorStop(1,fill[1]);ctx.fillStyle=g;}else ctx.fillStyle=fill;ctx.fillRect(0,0,96,72);if(art){const scale=Math.max(96/art.naturalWidth,72/art.naturalHeight);ctx.drawImage(art,(96-art.naturalWidth*scale)/2,(72-art.naturalHeight*scale)/2,art.naturalWidth*scale,art.naturalHeight*scale);}b.append(thumb,node("span","vatra-story-filter-label-001",tr(uk,en)));b.setAttribute("aria-pressed",String(state.filter===i));grid.append(b);}panel.append(grid);
   }else if(key==="adjust"){
    heading("Корекція кольору","Color correction");
    for(const [k,uk,en,min,max] of [["brightness","Яскравість","Brightness",-75,75],["contrast","Контраст","Contrast",-75,75],["warmth","Теплота","Warmth",-100,100],["saturation","Насиченість","Saturation",-100,100],["vignette","Віньєтка","Vignette",0,100]])field(tr(uk,en),k,state.adjust[k],min,max,1,v=>{state.adjust[k]=v;if(!hasArt())state.background=backgrounds[0];});
@@ -160,7 +163,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   if((!videoType&&!imageType)||!picked.size||picked.size>(videoType?52428800:6291456)){note(tr("Виберіть фото JPEG, PNG, WebP до 6 МБ або відео MP4, WebM до 50 МБ.","Choose JPEG, PNG, WebP up to 6 MB or MP4, WebM up to 50 MB."));file.value="";return;}
   const epoch=++request;stickerBusy=false;loading=true;note("");render();let url=URL.createObjectURL(picked),img=null;
   try{if(imageType){img=new Image();img.src=url;await img.decode();}if(epoch!==request||!dialog.open){URL.revokeObjectURL(url);return;}
-   checkpoint();state.media=addAsset(picked,img,url);url=null;state.kind=videoType?"video":"image";state.caption="";state.texts=[];state.stickers=[];state.strokes=[];state.filter=0;state.adjust=fresh().adjust;selected=null;active="text";
+   checkpoint();state.media=addAsset(picked,img,url);url=null;state.kind=videoType?"video":"image";state.caption="";state.texts=[];state.stickers=[];state.strokes=[];state.filter=0;state.adjust=fresh().adjust;selected=null;active="overview";
   }catch(_){if(url)URL.revokeObjectURL(url);note(tr("Не вдалося відкрити файл.","Could not open the file."));}finally{if(epoch===request){loading=false;file.value="";render();setPanel(active);}}
  }
  file.addEventListener("change",()=>void loadFile(file.files?.[0]));
@@ -188,9 +191,9 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   if(inserted){dialog.close();reset();try{onPublished?.();}catch(_){}}
  });
  trigger.addEventListener("click",()=>{if(dialog.open)return;reset();dialog.showModal();});
- dialog.addEventListener("cancel",event=>{if(publishing)event.preventDefault();});
+ dialog.addEventListener("cancel",event=>{if(event.target!==dialog)return;event.preventDefault();requestClose();});
  dialog.addEventListener("close",()=>{if(!dialog.open&&!publishing)reset();});
- render();setPanel("text");
+ render();setPanel("overview");
 }
 window.VATRA_STORY_EDITOR=Object.freeze({mount});
 })();

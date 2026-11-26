@@ -4475,7 +4475,14 @@ try{
   const storyCanvas=feedProbe.locator("#feed-story-media-preview canvas");
   assert.ok(await storyCanvas.isVisible(),"Photo must be drawn into the real story canvas");
   assert.equal(await storyCanvas.evaluate(el=>el.width/el.height),540/960);
+  assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"overview");
+  assert.equal(await feedProbe.locator(".ui-vatra-story-tools-001 button svg").count(),6,"All story tools use SVG icons");
+  await feedProbe.locator("#feed-story-cancel").click();
+  await feedProbe.locator(".ui-vatra-story-discard-dialog-001").waitFor({state:"visible"});
+  await feedProbe.locator(".vatra-story-discard-keep-001").click();
+  assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true,"Cancel discard keeps the draft");
   await feedProbe.locator(".vatra-story-tool-filters-001").click();
+  assert.equal(await feedProbe.locator(".ui-vatra-story-filter-preview-001").count(),6,"Every filter has a local visual preview");
   await feedProbe.locator(".vatra-story-filter-001").nth(1).click();
   assert.equal(await feedProbe.locator(".vatra-story-filter-001").nth(1).getAttribute("aria-pressed"),"true");
   await feedProbe.locator(".vatra-story-undo-001").click();
@@ -5245,6 +5252,8 @@ try{
   assert.equal(await coverActions.locator('[data-action="crop"]').count(),initialCover?1:0);
   assert.equal(await coverActions.locator('[data-action="trash"]').count(),initialCover?1:0);
   await profilePage.locator("#profile-heading").hover();await coverActions.waitFor({state:"hidden"});
+  await profilePage.locator("#profile-cover-image").hover();
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
   await profilePage.locator("#profile-cover-change").hover();await coverActions.waitFor({state:"visible"});
   await profilePage.keyboard.press("Escape");await coverActions.waitFor({state:"hidden"});
   const coverFixture=await profilePage.evaluate(()=>{const c=document.createElement("canvas");c.width=960;c.height=640;const ctx=c.getContext("2d");ctx.fillStyle="#927fe4";ctx.fillRect(0,0,960,640);ctx.fillStyle="#fff";ctx.fillRect(0,240,960,160);return c.toDataURL("image/png").split(",")[1];});
