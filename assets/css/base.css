@@ -826,3 +826,39 @@ button[aria-busy="true"]::before{content:"";position:absolute;z-index:10;inset:0
 @media(prefers-reduced-motion:reduce){
  :is(.ui-profile-owner-media-menu-001,.vatra-select-list,.ui-profile-friend-menu-001,.profile-archive-menu,.vatra-post-comment-attach-menu,.vatra-post-comment-emoji-panel,.ui-profile-photo-emoji-panel-001,.ui-business-category-popover-001,.ui-create-menu-panel-001,.profile-avatar-menu,.ui-profile-editor-dropdown-panel-001,.feed-account-dropdown,.vatra-post-owner-panel,.ui-notifications-sort-menu-001,.ui-profile-more-panel-001,.ui-vatra-external-link-dialog-001,.ui-profile-cover-edit-dialog-001,.ui-profile-avatar-crop-dialog-001,.ui-profile-avatar-finish-dialog-001){animation:none!important;transition:none!important}
 }
+
+/* Shared VATRA modal surface: match the language picker across native dialogs and custom overlays.
+   Modal top layers remain independent of ordinary dropdowns and nonmodal popovers. */
+:root{--vatra-modal-dim:rgba(15,24,44,.48);--vatra-modal-blur:3px;--vatra-modal-duration:180ms}
+dialog:modal::backdrop,
+.language-backdrop:not([hidden]),
+.captcha-backdrop:not([hidden]){
+ background:var(--vatra-modal-dim)!important;
+ backdrop-filter:blur(var(--vatra-modal-blur))!important;
+ -webkit-backdrop-filter:blur(var(--vatra-modal-blur))!important;
+ overscroll-behavior:contain;
+}
+html:has(dialog:modal,.language-backdrop:not([hidden]),.captcha-backdrop:not([hidden])),
+html:has(dialog:modal,.language-backdrop:not([hidden]),.captcha-backdrop:not([hidden])) body{
+ overflow:hidden!important;
+ overscroll-behavior:none;
+}
+html:has(dialog:modal,.language-backdrop:not([hidden]),.captcha-backdrop:not([hidden])){
+ scroll-behavior:auto;
+}
+dialog:modal,.language-dialog,.captcha-dialog{overscroll-behavior:contain}
+.language-backdrop:not([hidden]),.captcha-backdrop:not([hidden]){touch-action:pan-y}
+.ui-vatra-service-notice-001:not([data-fullpage="true"]){max-height:calc(100dvh - 32px)}
+@media(prefers-reduced-motion:no-preference){
+ @keyframes vatra-modal-backdrop-enter{from{opacity:0}to{opacity:1}}
+ dialog:modal::backdrop,.language-backdrop:not([hidden]),.captcha-backdrop:not([hidden]){
+  animation:vatra-modal-backdrop-enter var(--vatra-modal-duration) ease-out both;
+ }
+ dialog:modal:not([data-fullpage="true"]),.language-dialog,.captcha-dialog{
+  animation:vatra-popup-enter var(--vatra-modal-duration) cubic-bezier(.2,.7,.2,1) both;
+ }
+ .language-dialog > :not([hidden]){animation:none}
+}
+@media(prefers-reduced-motion:reduce){
+ dialog:modal,dialog:modal::backdrop,.language-backdrop,.captcha-backdrop,.language-dialog,.captcha-dialog{animation:none!important;transition:none!important}
+}
