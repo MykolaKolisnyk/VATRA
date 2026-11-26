@@ -1,7 +1,7 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
+ const tr=(uk,en)=>{const locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang;return locale==="uk"?uk:locale==="en"?en:window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
  const select=selector=>document.querySelector(selector);
 
 
@@ -85,8 +85,33 @@
    ["inspiration","Надихають","Inspirations","long"]
   ]}
  ];
+ const relationshipForms=[
+  ["Неодружений","Незаміжня","Single","Без шлюбу"],
+  ["Заручений","Заручена","Engaged","Заручини"],
+  ["Одружений","Заміжня","Married","У шлюбі"],
+  ["Закоханий","Закохана","In love","Кохання"],
+  ["Розлучений","Розлучена","Divorced","Після розлучення"],
+  ["Вдівець","Вдова","Widowed","Втрата партнера"]
+ ];
+ const relationshipNeutral=[["Зустрічаюся","In a relationship"],["У цивільному шлюбі","In a domestic partnership"],["Усе складно","It's complicated"],["В активному пошуку","Looking for a relationship"]];
+ const relationshipChoices=gender=>{
+  const forms=index=>{const [male,female,en]=relationshipForms[index];return gender==="male"?[[male,en]]:gender==="female"?[[female,en]]:[[male,en+" (male)"],[female,en+" (female)"]];};
+  return [...forms(0),relationshipNeutral[0],...forms(1),...forms(2),relationshipNeutral[1],...forms(3),relationshipNeutral[2],relationshipNeutral[3],...forms(4),...forms(5)];
+ };
+ const relationshipValue=(value,gender)=>{
+  const pair=relationshipForms.find(([male,female])=>value===male||value===female||value===male+" / "+female.toLowerCase());
+  if(!pair)return value;
+  return gender==="male"?pair[0]:gender==="female"?pair[1]:value.includes(" / ")?pair[3]:value;
+ };
+ const relationshipLabel=(value,gender)=>{
+  const normalized=relationshipValue(value,gender);
+  const match=relationshipChoices(gender).find(pair=>pair[0]===normalized);
+  if(match)return tr(match[0],match[1]);
+  const neutral=relationshipForms.find(pair=>pair[3]===normalized);
+  return neutral?tr(neutral[3],neutral[2]):normalized;
+ };
  const choices={
-  relationship:[["Неодружений / незаміжня","Single"],["Зустрічаюся","In a relationship"],["Заручений / заручена","Engaged"],["Одружений / заміжня","Married"],["У цивільному шлюбі","In a domestic partnership"],["Закоханий / закохана","In love"],["Усе складно","It's complicated"],["В активному пошуку","Looking for a relationship"],["Розлучений / розлучена","Divorced"],["Вдівець / вдова","Widowed"]],
+
   political_views:[["Ліберальні","Liberal"],["Консервативні","Conservative"],["Соціал-демократичні","Social democratic"],["Соціалістичні","Socialist"],["Лібертаріанські","Libertarian"],["Центристські","Centrist"],["Національно-демократичні","National democratic"],["Помірковані","Moderate"],["Аполітичні","Apolitical"],["Інші","Other"]],
   worldview:[["Православ’я","Orthodox Christianity"],["Католицизм","Catholicism"],["Греко-католицизм","Greek Catholicism"],["Протестантизм","Protestantism"],["Іслам","Islam"],["Юдаїзм","Judaism"],["Буддизм","Buddhism"],["Індуїзм","Hinduism"],["Атеїзм","Atheism"],["Агностицизм","Agnosticism"],["Світський гуманізм","Secular humanism"],["Інший","Other"]],
   life_priorities:[["Родина та діти","Family and children"],["Здоров’я","Health"],["Кар’єра та фінанси","Career and finances"],["Саморозвиток","Personal development"],["Свобода та незалежність","Freedom and independence"],["Наука та знання","Science and knowledge"],["Творчість","Creativity"],["Дружба та стосунки","Friendship and relationships"],["Допомога людям","Helping others"],["Інше","Other"]],
@@ -170,7 +195,7 @@
    .select("field_key,field_value,visibility").eq("vatra_id",targetId):Promise.resolve(null);
   return Promise.all([preferenceQuery,friendshipQuery,ownerDetailsQuery]);
  }
- async function init({client,ownId,targetId,isMine,blockAccess=null,prepared=null}){
+ async function init({client,ownId,targetId,isMine,gender=null,blockAccess=null,prepared=null}){
   const card=select("#profile-about-card");
   const paragraph=select("#profile-about-text");
   const emptyInfo=select("#profile-about-empty");
@@ -187,6 +212,7 @@
    value:String(x.field_value||""),visibility:x.visibility||"friends"
   }]));
   const draft=new Map([...saved.entries()].map(([key,value])=>[key,{...value}]));
+  const profileGender=isMine?gender:null;
   const title=select("#profile-about-heading");
   if(title){
    title.textContent=tr("Про мене","About me");
@@ -226,10 +252,9 @@
   modal.setAttribute("aria-labelledby","vatra-profile-details-heading");
   const modalHeader=make("div","vatra-profile-details-header ui-vatra-profile-details-header-001");
   const modalTitles=make("div","ui-vatra-profile-details-titles-001");
-  const modalEyebrow=make("span","vatra-profile-details-eyebrow-001",tr("ПРО МЕНЕ · VATRA","ABOUT ME · VATRA"));
   const modalTitle=make("h2","vatra-profile-details-title-001",tr("Докладна інформація","Detailed information"));
   modalTitle.id="vatra-profile-details-heading";
-  modalTitles.append(modalEyebrow,modalTitle);
+  modalTitles.append(modalTitle);
   const closeModal=make("button","vatra-profile-details-close-001");
   closeModal.append(svg("x"));
   closeModal.type="button";
@@ -273,13 +298,12 @@
      link.href=href;link.target="_blank";link.rel="noopener noreferrer nofollow";
      content.append(link);
     }else content.textContent=data.value;
-   }else content.textContent=choiceLabel(key,data.value);
+   }else content.textContent=key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
    item.append(label,content);
    return item;
   };
   const renderDetails=()=>{
    modalContent.replaceChildren();
-   modalEyebrow.textContent=tr("ПРО МЕНЕ · VATRA","ABOUT ME · VATRA");
    modalTitle.textContent=tr("Докладна інформація","Detailed information");
    closeModal.setAttribute("aria-label",tr("Закрити докладну інформацію","Close detailed information"));
    const detailGroups=[
@@ -403,29 +427,16 @@
   const hero=select(".profile-hero"),panels=select(".profile-panels");
   const workspace=make("section","profile-edit-workspace ui-profile-edit-workspace-001");
   workspace.id="profile-edit-workspace";workspace.hidden=true;
-  const heading=make("header","profile-editor-header ui-profile-editor-header-001");
   const back=make("button","vatra-profile-editor-back-001");
-  back.type="button";back.append(svg("arrow"),make("span","vatra-profile-editor-back-label-001",tr("Мій профіль","My profile")));
-  const titles=make("div","ui-profile-editor-titles-001");
-  titles.append(
-   make("span","vatra-profile-editor-eyebrow-001",tr("ОСОБИСТИЙ ПРОСТІР  /  VATRA","YOUR SPACE  /  VATRA")),
-   make("h1","vatra-profile-editor-title-001",tr("Редагувати профіль","Edit your profile")),
-   make("p","vatra-profile-editor-subtitle-001",tr(
-    "Ваша історія — ваші правила. Заповнюйте профіль у власному ритмі й керуйте видимістю кожного поля.",
-    "Your story, your rules. Share what matters and control the audience of each detail.")));
-  const privacyPill=make("span","vatra-profile-editor-privacy-pill-001");
-  privacyPill.append(svg("lock"),make("span","vatra-profile-editor-privacy-pill-label-001",
-   tr("Приватність під контролем","Privacy in your hands")));
-  heading.append(back,titles,privacyPill);
+  back.type="button";back.append(svg("arrow"));back.setAttribute("aria-label",tr("Мій профіль","My profile"));
   const layout=make("div","profile-editor-layout ui-profile-editor-layout-001");
   const primary=make("section","profile-editor-main ui-profile-editor-main-001");
   const form=make("form","profile-editor-form ui-profile-editor-form-001");
   form.id="profile-editor-form";
   const titleRow=make("div","profile-editor-section-head ui-profile-editor-section-head-001");
   const groupTitleWrap=make("div","ui-profile-editor-section-title-wrap-001");
-  const chapter=make("span","vatra-profile-editor-chapter-001");
   const groupTitle=make("h2","vatra-profile-editor-section-title-001");
-  groupTitleWrap.append(chapter,groupTitle);
+  groupTitleWrap.append(back,groupTitle);
   const media=make("button","vatra-profile-editor-media-button-001");
   media.type="button";media.append(svg("photo"),make("span","vatra-profile-editor-media-button-text-001",tr("Фото й обкладинка","Photos and cover")));
   titleRow.append(groupTitleWrap,media);
@@ -467,7 +478,7 @@
    tr("Видимість ваших даних налаштовується окремо.",
     "Each piece of information has its own visibility.")));
   sidebar.append(menu,navFoot);layout.append(primary,sidebar);
-  workspace.append(heading,layout);main.append(workspace);
+  workspace.append(layout);main.append(workspace);
   let selected="profile",visibility=accountVisibility;
   const hasChanges=()=>[...draft.keys()].some(key=>
    (draft.get(key)?.value||"")!==(saved.get(key)?.value||"")||
@@ -746,13 +757,14 @@
     picker.addEventListener("change",()=>{if(picker.value&&readValue().length+picker.value.length+2<=1000){selectedLanguages.push(picker.value);render();update();}});
     render();wrap.append(chips,picker);control.append(wrap);pickerView=enhanceEditorSelect(picker);
    }else{
-    const menu=choices[key];
+    const menu=key==="relationship"?relationshipChoices(profileGender):choices[key];
+    const selectedValue=key==="relationship"?relationshipValue(current.value,profileGender):current.value;
     const input=make(menu?"select":kind==="long"?"textarea":"input","ui-profile-editor-input-"+key);
     input.id=inputId;input.setAttribute("aria-label",tr(uk,en));
     if(menu){
      input.append(opt("",tr("Не вибрано","Not selected")));
      for(const pair of menu)input.append(opt(pair[0],lang(pair)));
-     if(current.value&&!menu.some(pair=>pair[0]===current.value))input.append(opt(current.value,choiceLabel(key,current.value)));
+     if(selectedValue&&!menu.some(pair=>pair[0]===selectedValue))input.append(opt(selectedValue,key==="relationship"?relationshipLabel(selectedValue,profileGender):choiceLabel(key,selectedValue)));
     }else{
      if(kind==="long")input.rows=3;
      else input.type=["mobile_phone","additional_phone"].includes(key)?"tel":"text";
@@ -762,7 +774,7 @@
       input.autocomplete="off";
      }
     }
-    input.value=current.value;readValue=()=>input.value;
+    input.value=selectedValue;readValue=()=>input.value;
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
    }
@@ -775,7 +787,6 @@
    if(!group)return;
    closeEditorMenu();selected=id;
    groupTitle.textContent=lang(group.label);
-   chapter.textContent=String(groups.indexOf(group)+1).padStart(2,"0")+"  /  "+String(groups.length).padStart(2,"0");
    summary.textContent=id==="profile"?
     tr("Основне про вас і налаштування доступу до всієї сторінки.",
      "Basic details and visibility for your profile."):
@@ -3712,7 +3723,7 @@ async function start(){
    Promise.resolve().then(()=>client.from("profile_media")
     .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
     .catch(()=>({data:null,error:true}));
-  const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,blockAccess,prepared}));
+  const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,gender:isMine?metadata.gender:null,blockAccess,prepared}));
   const locked=access?.locked===true;
   const memberBlocked=blockAccess.blockedByMe||blockAccess.blockedByThem;
   if(!memberBlocked&&(publicName||isMine))void window.VATRA_VERIFIED?.attach(client,q("#profile-heading"),targetId);
