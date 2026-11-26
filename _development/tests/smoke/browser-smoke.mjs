@@ -5382,6 +5382,11 @@ try{
   assert.equal(await profilePage.locator(".ui-profile-editor-field-control-short_bio #profile-editor-visibility-short_bio").count(),1,"Visibility must be inside the same field box");
   assert.ok(await profilePage.locator("#profile-editor-languages-native option").count()>=170,"Extended language catalog");
   assert.equal(await profilePage.locator('#profile-editor-languages-native option[value="Русский"]').count(),0,"Russian must not be a new selectable language");
+  const languageSearch=profilePage.locator("#profile-editor-languages");await languageSearch.fill("English");
+  const languagePanel=profilePage.locator("#"+await languageSearch.getAttribute("aria-controls"));
+  assert.equal(await languagePanel.getByRole("option").filter({hasText:"English"}).count(),1,"Language search finds matching names");
+  await languagePanel.getByRole("option").filter({hasText:"English"}).click();
+  assert.equal(await profilePage.locator(".vatra-profile-editor-language-chip-001").filter({hasText:"English"}).count(),1);
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
@@ -5418,7 +5423,7 @@ try{
   assert.equal((await profilePage.locator("#profile-about-text").textContent()).trim(),"Тестова інформація");
   assert.equal(await profilePage.locator("#profile-about-text").evaluate(el=>getComputedStyle(el).textAlign),"start");
   assert.equal(await profilePage.locator("#profile-about-card .vatra-profile-information-label-short_bio").count(),0);
-  assert.equal((await profilePage.locator(".vatra-profile-information-value-city").textContent()).trim(),"Київ",
+  assert.equal((await profilePage.locator(".vatra-profile-information-value-city").textContent()).trim(),"Київ, "+countryOptions.find(option=>option.value==="UA").label,
    "Current city has priority over hometown");
   assert.equal(await profilePage.locator(".vatra-profile-information-value-hometown").count(),0,
    "Current city and hometown should not compete in the compact summary");

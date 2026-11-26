@@ -1665,6 +1665,7 @@ assert.ok(countryTest.citiesForCountry("UA").includes("Невицьке")&&count
 const profileLanguageSource=profileScript.slice(profileScript.indexOf(" const primaryLanguageNames="),profileScript.indexOf(" const countryCities="));
 const profileLanguages=new Function(profileLanguageSource+"return {languages,languageCodes};")();
 assert.ok(profileLanguages.languages.length>=170&&profileLanguages.languages.includes("Українська")&&!profileLanguages.languageCodes.includes("ru")&&!profileLanguages.languages.includes("Русский"),"Profile language options must use the extended catalog without Russian");
+assert.ok(profileScript.includes('search.setAttribute("aria-autocomplete","list")')&&profileScript.includes("const localizedNames=new Intl.DisplayNames")&&profileScript.includes("const popular="),"Language picker must be searchable and prioritize VATRA languages");
 
 assert.ok(profileScript.includes('key==="country"?countryCodes.map')&&profileScript.includes('key!=="country"&&selectedValue')&&profileScript.includes('citiesForCountry(draft.get("country")?.value)'));
 

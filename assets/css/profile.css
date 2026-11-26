@@ -1416,8 +1416,8 @@ body.profile-page .profile-info .vatra-profile-about-text-001{
 body.profile-page .profile-info .vatra-profile-about-text-001[hidden]{display:none!important}
 body.profile-page .profile-information-groups{margin-top:5px}
 body.profile-page .profile-information-item{
- display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);
- align-items:baseline;gap:11px;min-height:0;padding:9px 0
+ display:grid;grid-template-columns:minmax(0,40%) minmax(0,1fr);
+ align-items:start;gap:11px;min-height:0;padding:9px 0
 }
 body.profile-page .profile-information-item + .profile-information-item{border-top:1px solid #f0f3f8}
 body.profile-page .profile-information-item > [class^="vatra-profile-information-label-"]{
@@ -1431,8 +1431,8 @@ body.profile-page .vatra-profile-details-section-head{
  gap:0;padding-bottom:12px;border-bottom:1px solid #e8edf7
 }
 body.profile-page .vatra-profile-details-row{
- grid-template-columns:minmax(120px,36%) minmax(0,1fr);
- gap:14px;padding:10px 0;min-height:0;align-items:baseline
+ grid-template-columns:minmax(0,40%) minmax(0,1fr);
+ gap:14px;padding:10px 0;min-height:0;align-items:start
 }
 body.profile-page .vatra-profile-detail-bio-001{
  margin:0;padding:12px 0;white-space:pre-line;overflow-wrap:anywhere;
@@ -2553,7 +2553,7 @@ body.profile-page .vatra-profile-editor-record-cancel-001{color:#536b8d;backgrou
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-fields{gap:14px}
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{grid-template-columns:minmax(0,1fr);gap:6px}
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>.ui-profile-editor-field-label-group-001>[class^="vatra-profile-editor-label-"]{font:570 13px/1.5 "Onest",system-ui,sans-serif;color:#465974;padding-top:0}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-field-control-"]{gap:5px}
+
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) :is(input,textarea)[class^="ui-profile-editor-input-"]{
  min-height:42px;background:#f8fafd;border:1px solid #e0e7f1;border-radius:var(--vatra-card-radius);padding:10px 12px;
  color:#2b3b54;font:480 14px/1.45 "Onest",system-ui,sans-serif;outline:none
@@ -3130,8 +3130,12 @@ body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) 
 }
 body.profile-page .ui-profile-editor-language-box-001{padding:7px 10px 0}
 body.profile-page .ui-profile-editor-language-box-001 .vatra-editor-select{margin:0}
-body.profile-page .profile-information-item,
-body.profile-page .vatra-profile-details-row{grid-template-columns:minmax(0,40%) minmax(0,1fr);align-items:start}
+
 body.profile-page .profile-info .vatra-profile-about-text-001{padding-inline:0}
 body.profile-page :is(.profile-information-item,.vatra-profile-details-row)>span{min-width:0;overflow-wrap:anywhere}
 @media(max-width:540px){body.profile-page .vatra-profile-details-row{grid-template-columns:minmax(0,1fr);gap:4px}}
+
+body.profile-page .ui-profile-editor-language-box-001>select[hidden]{display:none!important}
+body.profile-page .ui-profile-editor-language-search-001>input{padding-inline-end:40px!important}
+body.profile-page .vatra-profile-editor-language-toggle-001{position:absolute;right:4px;top:3px;bottom:3px;display:grid;place-items:center;width:34px;padding:0;border:0;border-radius:7px;background:transparent;cursor:pointer;color:#8196b5}
+body.profile-page .vatra-profile-editor-language-toggle-001:hover{background:#eaf0fb}

@@ -228,7 +228,7 @@
    title.dataset.socialEn="About me";
   }
   const fieldsByKey=new Map(groups.flatMap(group=>group.fields).map(field=>[field[0],field]));
-  const featured=["country","city","hometown","relationship"];
+  const featured=["short_bio","country","city","hometown","relationship"];
   const fieldIcons={
    country:"globe",city:"map-pin",hometown:"map-pin",relationship:"heart",website:"link",
    short_bio:"file-text",about_me:"file-text",family:"users",languages:"globe",
@@ -307,6 +307,9 @@
      content.append(link);
     }else content.textContent=data.value;
    }else content.textContent=key==="country"?countryLabel(data.value):key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
+   if(!detailed&&(key==="city"||key==="hometown")&&visibleField("country")){
+    const country=countryLabel(visibleField("country"));if(country)content.append(document.createTextNode(", "+country));
+   }
    item.append(label,content);
    return item;
   };
@@ -369,7 +372,7 @@
    paragraph.hidden=!bio;
 
    const locationKey=visibleField("city")?"city":visibleField("hometown")?"hometown":null;
-   const selected=[locationKey,"relationship","website"].filter(key=>key&&visibleField(key));
+   const selected=[locationKey||"country","relationship","website"].filter(key=>key&&visibleField(key));
 
    for(const key of fallback){
     if(selected.length>=3)break;
@@ -380,7 +383,7 @@
    card.classList.toggle("is-empty",noDetails);
    if(emptyInfo)emptyInfo.hidden=!noDetails;
    const additional=[...fieldsByKey.keys()].filter(key=>
-    key!=="short_bio"&&visibleField(key)&&!selected.includes(key));
+    key!=="short_bio"&&visibleField(key)&&!selected.includes(key)&&!(key==="country"&&selected.includes(locationKey)));
    const hasLongPreview=selected.some(key=>visibleField(key).length>32);
    more.hidden=!additional.length&&!hasLongPreview;
   };
@@ -687,7 +690,7 @@
    input.setAttribute("aria-label",input.id.endsWith("hometown")?tr("Рідний населений пункт","Hometown or village"):tr("Населений пункт","City, town or village"));
    const open=(keyboard=false,all=false)=>{
     const query=all?"":input.value.trim().toLocaleLowerCase();
-    const items=citiesForCountry(draft.get("country")?.value).filter(city=>!query||city.toLocaleLowerCase().includes(query)).map(city=>({value:city,text:city}));
+    const items=citiesForCountry(draft.get("country")?.value).filter(city=>!query||city.toLocaleLowerCase().includes(query)).sort((a,b)=>a.localeCompare(b,window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk")).map(city=>({value:city,text:city}));
     return openEditorMenu(input,wrapper,items,value=>{input.value=value;input.dispatchEvent(new Event("input",{bubbles:true}));closeEditorMenu();},input.value,keyboard);
    };
    input.addEventListener("input",()=>open(false));
@@ -723,27 +726,51 @@
    let readValue;
    if(key==="languages"){
     const selectedLanguages=[...new Set(current.value.split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean))];
-    const wrap=make("div","ui-profile-editor-language-box-001");
-    const chips=make("div","ui-profile-editor-language-chips-001");
-    const picker=make("select","ui-profile-editor-input-languages");picker.id=inputId;
-    picker.setAttribute("aria-label",tr(uk,en));let pickerView=null;
+    const wrap=make("div","ui-profile-editor-language-box-001"),chips=make("div","ui-profile-editor-language-chips-001");
+    const picker=make("select","ui-profile-editor-input-languages");picker.id=inputId+"-native";picker.hidden=true;picker.tabIndex=-1;picker.setAttribute("aria-hidden","true");
+    const search=make("input","ui-profile-editor-input-language-search");search.type="search";search.id=inputId;search.autocomplete="off";search.maxLength=80;
+    search.placeholder=tr("Знайти мову","Find a language");search.setAttribute("aria-label",tr(uk,en));search.setAttribute("role","combobox");search.setAttribute("aria-expanded","false");search.setAttribute("aria-autocomplete","list");search.setAttribute("aria-haspopup","listbox");
+    const searchBox=make("div","vatra-editor-city ui-profile-editor-language-search-001");
+    const arrow=make("button","vatra-profile-editor-language-toggle-001");arrow.type="button";arrow.tabIndex=-1;arrow.append(menuArrow());arrow.setAttribute("aria-label",tr("Список мов","Language list"));searchBox.append(search,arrow);
+    const normalize=value=>value.normalize("NFD").replace(/\p{M}/gu,"").toLocaleLowerCase();
+    const locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+    const localizedNames=new Intl.DisplayNames([locale],{type:"language"});
+    const aliases=new Map(languageCodes.map(code=>[primaryLanguageNames[code]||standardLanguageNames.of(code),[localizedNames.of(code),standardLanguageNames.of(code),code]]));
+    const popular=["Українська","English","Polski","Deutsch","Français","Italiano","Български","ქართული"];
+    const collator=new Intl.Collator(locale,{sensitivity:"base"});
+    const sorted=[...popular,...languages.filter(value=>!popular.includes(value)).sort((a,b)=>collator.compare(aliases.get(a)?.[0]||a,aliases.get(b)?.[0]||b))];
     const render=()=>{
      chips.replaceChildren();picker.replaceChildren(opt("",tr("Додати мову","Add a language")));
      for(const value of selectedLanguages){
       const chip=make("button","vatra-profile-editor-language-chip-001");chip.type="button";
       chip.append(make("span","vatra-profile-editor-language-chip-label-001",value),svg("x"));
       chip.setAttribute("aria-label",tr("Видалити мову: ","Remove language: ")+value);
-      chip.addEventListener("click",()=>{selectedLanguages.splice(selectedLanguages.indexOf(value),1);render();update();pickerView?.focus();});
+      chip.addEventListener("click",()=>{selectedLanguages.splice(selectedLanguages.indexOf(value),1);render();update();search.focus();});
       chips.append(chip);
      }
      chips.hidden=!selectedLanguages.length;
-     for(const value of languages)if(!selectedLanguages.includes(value))picker.append(opt(value,value));
-     picker.value="";pickerView?.sync();
+     for(const value of sorted)if(!selectedLanguages.includes(value))picker.append(opt(value,value));
     };
     readValue=()=>selectedLanguages.join(", ");
     const update=()=>draft.set(key,{value:readValue(),visibility:selectBox.value});
-    picker.addEventListener("change",()=>{if(picker.value&&readValue().length+picker.value.length+2<=1000){selectedLanguages.push(picker.value);render();update();}});
-    render();wrap.append(chips,picker);control.append(wrap);pickerView=enhanceEditorSelect(picker);
+    const open=(keyboard=false)=>{
+     const q=normalize(search.value.trim());
+     const available=sorted.filter(value=>!selectedLanguages.includes(value)&&(!q||[value,...(aliases.get(value)||[])].some(name=>normalize(name).includes(q))));
+     const items=available.map(value=>{const local=aliases.get(value)?.[0];return {value,text:local&&normalize(local)!==normalize(value)?local+" · "+value:value};});
+     const state=openEditorMenu(search,searchBox,items,value=>{
+      if(readValue().length+value.length+2<=1000){selectedLanguages.push(value);search.value="";render();update();}
+      search.focus({preventScroll:true});
+     },"",keyboard);
+     if(!items.length&&editorMenu===state)state.panel.firstElementChild.textContent=tr("Мову не знайдено","No matching language");
+     return state;
+    };
+    search.addEventListener("input",()=>open());
+    search.addEventListener("click",()=>{if(editorMenu?.anchor!==search)open();});
+    search.addEventListener("keydown",event=>dropdownKeys(search,open,event,true));
+    search.addEventListener("blur",event=>{if(editorMenu?.anchor===search&&!searchBox.contains(event.relatedTarget)&&!editorMenu.panel.contains(event.relatedTarget))closeEditorMenu();});
+    arrow.addEventListener("pointerdown",event=>event.preventDefault());
+    arrow.addEventListener("click",()=>{search.focus({preventScroll:true});if(editorMenu?.anchor===search)closeEditorMenu();else open();});
+    render();wrap.append(chips,picker,searchBox);control.append(wrap);
    }else{
     const menu=key==="country"?countryCodes.map(code=>[code,countryLabel(code)]):key==="relationship"?relationshipChoices(profileGender):choices[key];
     const selectedValue=key==="relationship"?relationshipValue(current.value,profileGender):current.value;
@@ -759,7 +786,7 @@
      input.maxLength=1000;input.spellcheck=kind==="long";
      input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):"";
      if(key==="city"||key==="hometown"){
-      input.autocomplete="off";
+      input.autocomplete="off";input.placeholder=tr("Знайти або ввести населений пункт","Find or enter a settlement");
      }
     }
     input.value=key==="country"&&!countryCodes.includes(selectedValue)?"":selectedValue;readValue=()=>input.value;
