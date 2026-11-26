@@ -27,3 +27,5 @@ assert.equal(await sectionDeadline(Promise.resolve("ok"),100),"ok");
 await assert.rejects(sectionDeadline(new Promise(()=>{}),5),{code:"VATRA_FEED_TIMEOUT"});
 assert.ok(core.includes("sectionDeadline(client.auth.getUser())"));
 console.log("VATRA startup: bounded Auth requests, cancellation, parallel profile setup and community initialization passed.");
+
+assert.ok(core.indexOf("bindViewer?.(client,user.id)")>core.indexOf("ownId=String(accountResult.data.vatra_id)"),"Verified viewer must bind the existing tab cache before section initialization");

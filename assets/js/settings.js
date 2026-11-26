@@ -3,6 +3,37 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 window.VATRA_SECTION_CORE?.start(async ({root,locale,t,$,make,link,btn,valid,title,subtitle,action,content,notice,client,user,ownId,message,empty,card,field,submit,confirmRemove,tabs,dialog,nameOf,sectionIcon,sectionIconButton,discoveryIcons})=>{
 let renderTicket=0;
+const ACCOUNT_LIFECYCLE_ENABLED=false;
+const recoveryDays=[0,7,30,90,180];
+const lifecycleDeadline=value=>{
+ const date=new Date(value);if(typeof value!=="string"||!Number.isFinite(date.getTime()))return "";
+ return new Intl.DateTimeFormat(locale,{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit",hourCycle:"h23",timeZoneName:"short"}).format(date);
+};
+const idPaths={
+ shield:"M12 3 20 6v6c0 5-4 8-8 9-4-1-8-4-8-9V6l8-3Zm-4 9 3 3 5-6",
+ mail:"M3 6h18v12H3zM3 7l9 6 9-6",
+ back:"M19 12H5m7-7-7 7 7 7",
+ next:"m9 6 6 6-6 6",
+ copy:"M8 8h12v12H8zM16 8V4H4v12h4",
+ clock:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Zm0-15v5l3 2",
+ devices:"M3 4h14v12H3zM10 16v4m-4 0h8m5-9h3v10h-5v-5",
+ ban:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM5 5l14 14",
+ restore:"M3 10a9 9 0 1 1 2 8M3 4v6h6",
+ calendar:"M4 6h16v15H4zM4 10h16M8 3v5m8-5v5"
+};
+function idIcon(key){
+ if(!idPaths[key])return sectionIcon(key);
+ const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
+ for(const [k,v] of Object.entries({class:"ui-vatra-id-icon-"+key,viewBox:"0 0 24 24",width:"24",height:"24",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))svg.setAttribute(k,v);
+ path.setAttribute("class","ui-vatra-id-icon-path-"+key);path.setAttribute("d",idPaths[key]);svg.append(path);return svg;
+}
+const idSymbol=key=>{const el=make("span","ui-vatra-id-action-symbol-001");el.append(idIcon(key));return el;};
+function idAction(label,description,key,handler){
+ const b=btn("","vatra-id-action-row-001",handler),copy=make("span","ui-vatra-id-action-copy-001");
+ copy.append(make("strong","vatra-id-action-label-001",label));if(description)copy.append(make("span","vatra-id-action-description-001",description));
+ b.append(idSymbol(key),copy,idIcon("next"));return b;
+}
+
 function sessionDevice(agent){
  const a=String(agent||"");
  const browser=/OPR\/|Opera/i.test(a)?"Opera":/Edg(?:A|iOS)?\//i.test(a)?"Edge":/Firefox\/|FxiOS\//i.test(a)?"Firefox":/Chrome\/|CriOS\//i.test(a)?"Chrome":/Safari\//i.test(a)?"Safari":t("Браузер або застосунок","Browser or app");
@@ -66,14 +97,14 @@ async function renderDevices(panel){
  }
  await load();
 }
-function accountCredentials(panel,ticket){
+function accountCredentials(panel,ticket,section){
  const security=card("ui-vatra-id-security-001"),contact=card("ui-vatra-id-contact-001");
  const row=(host,key,heading,description,handler)=>{
   const line=make("div","ui-vatra-id-credential-row-001"),copy=make("div","ui-vatra-id-credential-copy-001");
   copy.append(make("strong","vatra-id-credential-label-001",heading),make("span","vatra-id-credential-note-001",description));
   const button=btn(t("Змінити","Change"),"vatra-preferences-action-001",handler);
   button.setAttribute("aria-label",heading+" · "+t("Змінити","Change"));button.dataset.credential=key;
-  line.append(copy,button);host.append(line);return copy.lastElementChild;
+  line.append(idSymbol(key==="email"?"mail":"key"),copy,button);host.append(line);return copy.lastElementChild;
  };
  const openForm=heading=>{const {d,form}=dialog(heading);d.addEventListener("close",()=>{form.reset();d.remove();},{once:true});return {d,form};};
  const closeSuccess=(d,copy)=>{if(!d.open)return;d.addEventListener("close",()=>{if(ticket===renderTicket)message(copy);},{once:true});d.close();};
@@ -83,7 +114,7 @@ function accountCredentials(panel,ticket){
   error?.code==="invalid_credentials"||error?.code==="invalid_current_password"?t("Неправильна електронна пошта або пароль.","Incorrect email address or password."):
   t("Не вдалося зберегти зміни.","Could not save changes.");
  contact.append(make("h2","vatra-id-heading-001",t("Контактні дані","Contact details")));
- let emailNote=row(contact,"email",t("Електронна пошта","Email"),user.email||"",()=>{
+ let emailNote=row(contact,"email",t("Основна пошта","Primary email"),user.email||"",()=>{
   const {d,form}=openForm(t("Змінити електронну пошту","Change email"));
   const email=field(form,"new-email",t("Нова електронна пошта","New email"),"email",254,true);email.autocomplete="email";
   form.append(make("p","vatra-section-form-note-001",t("Підтвердьте зміну пошти за посиланнями з листів.","Confirm the email change using the links in your emails.")));
@@ -121,21 +152,134 @@ function accountCredentials(panel,ticket){
   });d.showModal();
  });
  security.append(link(t("Забули пароль?","Forgot password?"),"forgot","vatra-id-password-001"));
- panel.append(contact,security);
+ panel.append(section==="personal"?contact:security);
 }
 async function account(){
  title.textContent="VATRA ID";subtitle.textContent="";
- const layout=make("div","ui-vatra-id-layout-001"),side=card("ui-vatra-id-sidebar-001"),panel=make("div","ui-vatra-id-content-001");
- const nav=tabs([["personal",t("Мої дані","My data")],["security",t("Безпека","Security")]],id=>{if(location.hash.slice(1)===id)void show(id);else location.hash=id;});side.append(make("h2","vatra-id-menu-title-001","VATRA ID"),nav,link(t("Повернутися до VATRA","Return to VATRA"),"id"+ownId,"vatra-id-back-001"));layout.append(side,panel);content.append(layout);
- const show=async(id)=>{const ticket=++renderTicket;panel.replaceChildren();message("");for(const b of nav.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
- if(id==="security"){accountCredentials(panel,ticket);await renderDevices(panel);return;}
- const c=card("ui-vatra-id-personal-001"),identity=make("div","ui-vatra-id-identity-001"),avatar=make("span","ui-vatra-id-avatar-001");window.VATRA_AVATAR?.fallback(avatar,"default");const info=make("div","ui-vatra-id-identity-info-001"),display=make("h2","vatra-id-heading-001",await nameOf(ownId));if(ticket!==renderTicket)return;info.append(display,make("span","vatra-id-number-001","VATRA ID "+ownId));identity.append(avatar,info);c.append(identity);
- void client.from("profile_media").select("avatar_path").eq("vatra_id",ownId).maybeSingle().then(({data,error})=>{if(!error&&data?.avatar_path&&data.avatar_path.startsWith(ownId+"/avatar/")&&avatar.isConnected){const url=client.storage.from("avatars").getPublicUrl(data.avatar_path).data?.publicUrl;if(url){avatar.style.backgroundImage="url("+JSON.stringify(url)+")";avatar.classList.add("has-photo");}}}).catch(()=>{});
- const form=make("form","ui-vatra-id-personal-form-001"),first=field(form,"first-name",t("Ім’я","First name"),"text",40,true),last=field(form,"last-name",t("Прізвище","Last name"),"text",40,true);first.value=user.user_metadata?.first_name||display.textContent.split(" ")[0]||"";last.value=user.user_metadata?.last_name||display.textContent.split(" ").slice(1).join(" ");const note=make("p","vatra-section-form-note-001",t("VATRA ID залишається незмінним. Ім’я та прізвище відображатимуться у профілі.","Your VATRA ID remains unchanged. Your name is displayed on your profile."));form.append(note);c.append(form);panel.append(c);
- submit(form,t("Зберегти зміни","Save changes"),async()=>{const a=first.value.trim(),b=last.value.trim(),name=a+" "+b;if(a.length<1||b.length<1||name.length>80){message(t("Заповніть ім’я та прізвище (до 80 символів разом).","Enter first and last name (up to 80 characters in total)."),true);return;}
- const {data,error}=await client.from("public_profiles").update({display_name:name}).eq("vatra_id",ownId).select("display_name").maybeSingle();if(error||data?.display_name!==name)throw error||Error("name not saved");display.textContent=name;const auth=await client.auth.updateUser({data:{first_name:a,last_name:b,full_name:name}});if(auth.error){message(t("Ім’я у профілі змінено, але не вдалося синхронізувати акаунт. Повторіть збереження.","Profile name changed, but account sync failed. Save again."),true);return;}user=auth.data.user||user;window.VATRA_AVATAR?.setHeader({client,email:user.email,name:a.slice(0,28),initials:(a[0]+b[0]).toLocaleUpperCase(),id:ownId});message(t("Зміни збережено.","Changes saved."));});
+ const layout=make("div","ui-vatra-id-layout-001"),rail=make("aside","ui-vatra-id-rail-001"),side=card("ui-vatra-id-sidebar-001"),panel=make("div","ui-vatra-id-content-001");
+ const brand=make("div","ui-vatra-id-brand-001"),logo=make("img","ui-vatra-id-brand-logo-001");logo.src=new URL("assets/logo/logo_symbol.svg",root).href;logo.alt="VATRA";brand.append(logo,make("span","vatra-id-brand-label-001","ID"));
+ const sections=[["home",t("Головна","Home")],["personal",t("Мої дані","My data")],["security",t("Безпека","Security")]];
+ let pendingAction=null;
+ const go=(id,quick=null)=>{pendingAction=quick;if(location.hash.slice(1)===id)void show(id);else location.hash=id;};
+ const openQuick=(ticket,section)=>{if(ticket!==renderTicket||!pendingAction)return;const target=pendingAction;
+  if((section==="security"&&["password","devices"].includes(target))||(section==="personal"&&target==="email")){
+   pendingAction=null;
+   if(target==="devices"){const node=panel.querySelector(".ui-vatra-id-devices-001");node?.scrollIntoView({block:"start"});node?.querySelector("button")?.focus({preventScroll:true});}
+   else panel.querySelector('[data-credential="'+target+'"]')?.click();
+  }
  };
- const open=()=>{const id=location.hash.slice(1);window.scrollTo(0,0);return show(["personal","security"].includes(id)?id:"personal");};
+ const nav=tabs(sections,go);
+ for(const b of nav.children){const key={home:"house",personal:"person",security:"shield"}[b.dataset.tab];const label=make("span","vatra-id-nav-label-001",b.textContent);b.replaceChildren(idIcon(key),label);}
+ side.append(brand,nav);
+ const back=link("","feed","vatra-id-back-001");back.append(idIcon("back"),make("span","vatra-id-back-label-001",t("Повернутися у VATRA","Return to VATRA")));
+ const returnCard=card("ui-vatra-id-return-001");returnCard.append(back);
+ const legal=make("nav","ui-vatra-id-legal-001");legal.setAttribute("aria-label",t("Документи та допомога","Documents and help"));legal.append(link(t("Конфіденційність","Privacy"),"privacy","vatra-id-legal-link-001"),link(t("Умови","Terms"),"terms","vatra-id-legal-link-001"),link(t("Допомога","Help"),"mailto:vatra.support@gmail.com","vatra-id-legal-link-001"));
+ rail.append(side,returnCard,legal);layout.append(rail,panel);content.append(layout);
+ const identityCard=async(ticket,home=false)=>{
+  const c=card("ui-vatra-id-personal-001"),identity=make("div","ui-vatra-id-identity-001"),avatar=make("span","ui-vatra-id-avatar-001");window.VATRA_AVATAR?.fallback(avatar,"default");
+  const info=make("div","ui-vatra-id-identity-info-001"),display=make("h2","vatra-id-heading-001",await nameOf(ownId));if(ticket!==renderTicket)return null;
+  const number=make("div","ui-vatra-id-number-row-001"),copy=btn("","vatra-id-copy-001",async()=>{try{await navigator.clipboard.writeText(ownId);message(t("ID скопійовано.","ID copied."));}catch(_){message(t("Не вдалося скопіювати ID.","Could not copy ID."),true);}});
+  copy.append(idIcon("copy"));copy.setAttribute("aria-label",t("Копіювати ID","Copy ID"));number.append(make("span","vatra-id-number-001","ID: "+ownId),copy);
+  info.append(display,number);identity.append(avatar,info);
+  if(home){const edit=btn("","vatra-id-identity-open-001",()=>go("personal"));edit.append(idIcon("next"));edit.setAttribute("aria-label",t("Мої дані","My data"));identity.append(edit);}
+  c.append(identity);
+ void client.from("profile_media").select("avatar_path").eq("vatra_id",ownId).maybeSingle().then(({data,error})=>{if(!error&&data?.avatar_path&&data.avatar_path.startsWith(ownId+"/avatar/")&&avatar.isConnected){const url=client.storage.from("avatars").getPublicUrl(data.avatar_path).data?.publicUrl;if(url){avatar.style.backgroundImage="url("+JSON.stringify(url)+")";avatar.classList.add("has-photo");}}}).catch(()=>{});
+
+  return {c,display};
+ };
+ let lifecycle=null;
+ const lifecycleCall=async(action,extra={})=>{
+  if(!ACCOUNT_LIFECYCLE_ENABLED)throw Error("Lifecycle release gate closed");
+  const {data,error}=await client.functions.invoke("account-lifecycle",{body:{action,...extra}});
+  if(error||data?.ok!==true)throw Error("Lifecycle request failed");
+  return data;
+ };
+ const signOutLifecycle=async()=>{await client.auth.signOut({scope:"local"});window.VATRA_AVATAR?.clearHeader();location.replace(root.href);};
+ const renderPendingDeletion=status=>{
+  if(status?.state!=="pending"||!lifecycleDeadline(status.restore_until))throw Error("Invalid deletion state");
+  rail.hidden=true;layout.classList.add("is-deactivated");
+  const header=document.querySelector(".feed-header");if(header)header.hidden=true;
+  panel.replaceChildren();const c=card("ui-vatra-id-deactivated-001");
+  const mark=idSymbol("ban");c.append(mark,make("h2","vatra-id-heading-001",t("Акаунт видалено","Account deleted")),make("p","vatra-section-form-note-001",t("Ви можете відновити свій акаунт до:","You can restore your account until:")));
+  const deadline=make("time","vatra-id-restore-until-001",lifecycleDeadline(status.restore_until));deadline.dateTime=status.restore_until;c.append(deadline);
+  c.append(make("p","vatra-section-form-note-001",t("Після цієї дати дані будуть остаточно видалені без можливості відновлення.","After this date, the data will be permanently deleted and cannot be recovered.")));
+  const restore=btn(t("Відновити акаунт","Restore account"),"vatra-section-submit-001",()=>{
+   const {d,form}=dialog(t("Відновлення акаунту","Restore account"));d.addEventListener("close",()=>{form.reset();d.remove();},{once:true});
+   form.append(make("p","vatra-section-form-note-001",t("Підтвердьте відновлення, щоб знову користуватися VATRA.","Confirm recovery to use VATRA again.")));
+   const password=field(form,"restore-password",t("Поточний пароль","Current password"),"password",128,true);password.autocomplete="current-password";
+   submit(form,t("Відновити акаунт","Restore account"),async()=>{
+    try{const result=await lifecycleCall("restore",{password:password.value});password.value="";if(result.state!=="active")throw Error("Restore not confirmed");d.close();location.replace(new URL("feed",root).href);}
+    catch(_){password.value="";message(t("Відновлення не підтверджено. Перевірте пароль і термін відновлення.","Recovery was not confirmed. Check your password and recovery deadline."),true);}
+   });form.append(btn(t("Скасувати","Cancel"),"vatra-preferences-action-001",()=>d.close()));d.showModal();
+  });
+  restore.disabled=Date.parse(status.restore_until)<=Date.now();
+  c.append(restore,btn(t("Вийти","Sign out"),"vatra-preferences-action-001",()=>void signOutLifecycle()));panel.append(c);
+ };
+ const deletion=()=>{
+  const c=card("ui-vatra-id-deletion-001");c.append(make("h2","vatra-id-heading-001",t("Дії з акаунтом","Account actions")));
+  const remove=idAction(t("Видалення акаунту VATRA ID","Delete VATRA ID account"),t("Назавжди або з періодом для відновлення.","Permanently or with a recovery period."),"trash",()=>{
+   const {d,form}=dialog(t("Видалення акаунту","Delete account"));d.addEventListener("close",()=>{form.reset();d.remove();},{once:true});
+   form.append(make("p","vatra-section-form-note-001",t("Оберіть, коли акаунт і його дані мають бути остаточно видалені.","Choose when your account and its data will be permanently deleted.")));
+   const choices=make("fieldset","ui-vatra-id-delete-choices-001"),legend=make("legend","vatra-id-delete-legend-001",t("Термін відновлення","Recovery period"));choices.append(legend);
+   for(const [days,label] of [[0,t("Видалити назавжди зараз","Delete permanently now")],[7,t("7 днів","7 days")],[30,t("30 днів","30 days")],[90,t("90 днів","90 days")],[180,t("180 днів","180 days")]]){
+    const row=make("label","ui-vatra-id-delete-option-001"),radio=make("input","ui-vatra-id-delete-radio-001");radio.type="radio";radio.name="recovery-days";radio.value=String(days);radio.checked=days===30;row.append(radio,make("span","vatra-id-delete-option-label-001",label));choices.append(row);
+   }
+   const explain=make("p","vatra-section-form-note-001",t("Після завершення вибраного терміну відновлення буде неможливим.","After the selected period, recovery will no longer be possible."));
+   form.append(choices,explain);
+   const ready=ACCOUNT_LIFECYCLE_ENABLED&&lifecycle?.ready===true&&lifecycle.state==="active";
+   if(!ready){
+    form.append(make("p","vatra-id-lifecycle-unavailable-001",t("Видалення поки недоступне: серверне очищення даних ще перевіряється.","Deletion is not yet available: server-side data cleanup is still being verified.")));
+    const confirm=btn(t("Видалити акаунт","Delete account"),"vatra-id-delete-confirm-001",()=>{});confirm.disabled=true;form.append(confirm);
+   }else{
+    const password=field(form,"delete-password",t("Поточний пароль","Current password"),"password",128,true);password.autocomplete="current-password";
+    const acknowledge=make("label","ui-vatra-id-delete-option-001"),check=make("input","ui-vatra-id-delete-radio-001");check.type="checkbox";check.required=true;acknowledge.append(check,make("span","vatra-id-delete-option-label-001",t("Розумію, що остаточне видалення незворотне.","I understand that permanent deletion is irreversible.")));form.append(acknowledge);
+    submit(form,t("Видалити акаунт","Delete account"),async()=>{
+     const days=Number(choices.querySelector("input:checked")?.value);if(!recoveryDays.includes(days)||!check.checked)return;
+     try{const result=await lifecycleCall("request_deletion",{recovery_days:days,password:password.value});password.value="";
+      if(days===0&&result.state==="purging"){d.close();await signOutLifecycle();return;}
+      if(days>0&&result.state==="pending"&&lifecycleDeadline(result.restore_until)){d.close();lifecycle=result;renderPendingDeletion(result);return;}
+      throw Error("Unconfirmed deletion request");
+     }catch(_){password.value="";message(t("Запит на видалення не підтверджено. Спробуйте ще раз.","Deletion request was not confirmed. Please retry."),true);}
+    });
+   }
+   const controls=make("div","ui-vatra-id-delete-controls-001"),cancel=btn(t("Скасувати","Cancel"),"vatra-preferences-action-001",()=>d.close());controls.append(cancel);form.append(controls);d.showModal();
+  });remove.classList.add("is-danger");c.append(remove);panel.append(c);
+ };
+ const show=async(id)=>{
+  const ticket=++renderTicket;panel.replaceChildren();message("");for(const b of nav.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
+  if(id==="security"){
+   const c=card("ui-vatra-id-protection-001");c.append(idSymbol("shield"),make("h2","vatra-id-heading-001",t("Безпека акаунту","Account security")),make("p","vatra-section-form-note-001",t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password.")));panel.append(c);
+   accountCredentials(panel,ticket,"security");if(pendingAction==="password")openQuick(ticket,id);await renderDevices(panel);openQuick(ticket,id);return;
+  }
+  const data=await identityCard(ticket,id==="home");if(!data||ticket!==renderTicket)return;const {c,display}=data;panel.append(c);
+  if(id==="home"){
+   const quick=card("ui-vatra-id-quick-001");quick.append(make("h2","vatra-id-heading-001",t("Швидкі дії","Quick actions")));
+   quick.append(idAction(t("Мої дані","My data"),t("Ім’я, прізвище, стать і дата народження","Name, gender and date of birth"),"person",()=>go("personal")),idAction(t("Пароль","Password"),t("Змінити пароль","Change password"),"key",()=>go("security","password")),idAction(t("Основна пошта","Primary email"),user.email||"","mail",()=>go("personal","email")),idAction(t("Пристрої та сеанси","Devices and sessions"),t("Керування активними входами","Manage active sign-ins"),"devices",()=>go("security","devices")));panel.append(quick);
+   const protection=card("ui-vatra-id-protection-summary-001");protection.append(idAction(t("Безпека","Security"),t("Перевірте захист акаунту","Review account protection"),"shield",()=>go("security")));panel.append(protection);await renderDevices(panel);return;
+  }
+  const form=make("form","ui-vatra-id-personal-form-001"),first=field(form,"first-name",t("Ім’я","First name"),"text",40,true),last=field(form,"last-name",t("Прізвище","Last name"),"text",40,true);
+  first.value=user.user_metadata?.first_name||display.textContent.split(" ")[0]||"";last.value=user.user_metadata?.last_name||display.textContent.split(" ").slice(1).join(" ");
+  const gender=make("select","ui-vatra-section-input-gender"),genderWrap=make("div","ui-vatra-section-field-gender"),genderLabel=make("label","vatra-section-label-gender",t("Стать","Gender"));gender.id="vatra-section-gender";genderLabel.htmlFor=gender.id;
+  for(const [value,label] of [["",t("Не вказувати","Not specified")],["female",t("Жіноча","Female")],["male",t("Чоловіча","Male")],["other",t("Користувацька","Custom")]])gender.add(new Option(label,value));
+  gender.value=["female","male","other"].includes(user.user_metadata?.gender)?user.user_metadata.gender:"";genderWrap.append(genderLabel,gender);form.append(genderWrap);
+  const birth=field(form,"birthdate",t("Дата народження","Date of birth"),"date",10,true);birth.min="1900-01-01";const now=new Date();const cutoff=new Date(now.getFullYear()-13,now.getMonth(),now.getDate());birth.max=[cutoff.getFullYear(),String(cutoff.getMonth()+1).padStart(2,"0"),String(cutoff.getDate()).padStart(2,"0")].join("-");birth.value=user.user_metadata?.birthdate||"";
+  form.append(make("p","vatra-section-form-note-001",t("VATRA ID залишається незмінним. Ім’я та прізвище відображатимуться у профілі.","Your ID remains unchanged. Your name is displayed on your profile.")));c.append(form);
+  submit(form,t("Зберегти зміни","Save changes"),async()=>{
+   const a=first.value.trim(),b=last.value.trim(),name=a+" "+b;
+   if(!a||!b||name.length>80||!/^\d{4}-\d{2}-\d{2}$/.test(birth.value)||birth.value<birth.min||birth.value>birth.max){message(t("Перевірте ім’я, прізвище та дату народження. VATRA доступна від 13 років.","Check your name and date of birth. VATRA is available from age 13."),true);return;}
+   const value=new Date(birth.value+"T00:00:00Z");if(!Number.isFinite(value.getTime())||value.toISOString().slice(0,10)!==birth.value){message(t("Вкажіть правильну дату народження.","Enter a valid date of birth."),true);return;}
+   const {data,error}=await client.from("public_profiles").update({display_name:name}).eq("vatra_id",ownId).select("display_name").maybeSingle();if(error||data?.display_name!==name)throw error||Error("name not saved");display.textContent=name;
+   const auth=await client.auth.updateUser({data:{first_name:a,last_name:b,full_name:name,gender:gender.value||null,birthdate:birth.value}});if(auth.error){message(t("Ім’я у профілі змінено, але не вдалося синхронізувати акаунт. Повторіть збереження.","Profile name changed, but account sync failed. Save again."),true);return;}
+   user=auth.data.user||user;window.VATRA_AVATAR?.setHeader({client,email:user.email,name:a.slice(0,28),initials:(a[0]+b[0]).toLocaleUpperCase(),id:ownId});message(t("Зміни збережено.","Changes saved."));
+  });
+  accountCredentials(panel,ticket,"personal");deletion();openQuick(ticket,id);
+ };
+ if(ACCOUNT_LIFECYCLE_ENABLED){
+  try{lifecycle=await lifecycleCall("status");}catch(_){panel.append(empty(t("Не вдалося перевірити стан акаунту. Оновіть сторінку.","Could not verify account state. Refresh the page.")));return;}
+  if(lifecycle.state==="pending"){renderPendingDeletion(lifecycle);return;}
+  if(lifecycle.state!=="active"){await signOutLifecycle();return;}
+ }
+ const open=()=>{if(lifecycle?.state==="pending")return;const id=location.hash.slice(1);window.scrollTo(0,0);return show(sections.some(([key])=>key===id)?id:"home");};
  window.addEventListener("hashchange",()=>void open());await open();
 }
 async function preferences(){

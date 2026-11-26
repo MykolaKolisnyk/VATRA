@@ -2833,6 +2833,21 @@ assert.ok(individualSessionSQL.includes("s.id=target_session and s.user_id=calle
  settingsRuntime.includes('result.data!==true')&&settingsRuntime.includes('client.rpc("vatra_my_sessions")'),
  "Individual session revocation must be owner-scoped, protect the current session and tolerate an older API");
 const settingsStyle=await read("assets/css/settings.css");
+assert.ok(settingsRuntime.includes('["home",t("Головна","Home")]')&&
+ settingsRuntime.includes('logo_symbol.svg')&&settingsRuntime.includes('vatra-id-brand-label-001')&&
+ settingsRuntime.includes('idIcon("back")')&&settingsRuntime.includes('ui-vatra-id-return-001')&&
+ settingsRuntime.includes('go("security","password")')&&settingsRuntime.includes('go("personal","email")')&&
+ settingsRuntime.includes('go("security","devices")')&&
+ settingsRuntime.includes('gender:gender.value||null,birthdate:birth.value')&&
+ settingsRuntime.includes('accountCredentials(panel,ticket,"personal")')&&
+ settingsRuntime.includes('ACCOUNT_LIFECYCLE_ENABLED=false')&&
+ settingsRuntime.includes('recoveryDays=[0,7,30,90,180]')&&
+ settingsRuntime.includes('const renderPendingDeletion=status=>')&&
+ settingsRuntime.includes('deadline.dateTime=status.restore_until')&&
+ settingsRuntime.includes('if(!ACCOUNT_LIFECYCLE_ENABLED)throw Error')&&
+ settingsStyle.includes('ui-vatra-id-deactivated-001'),
+ "VATRA ID must have SVG dashboard navigation, editable personal data and a gated recovery UI with a server-authoritative deadline");
+
 assert.ok(settingsRuntime.includes('const attributes={password:value,current_password:current.value}')&&
  settingsRuntime.includes('client.auth.updateUser(attributes)')&&
  settingsRuntime.includes('client.auth.reauthenticate()')&&
