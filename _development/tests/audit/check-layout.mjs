@@ -1129,6 +1129,17 @@ assert.ok(reactionsVerifiedDelete.every(part=>reactionsSource.includes(part))&&
  "Post likes, comment likes and bookmarks must verify affected DELETE rows");
 
 const profileExtraScript=await read("assets/js/profile.js");
+const relationshipSource=profileExtraScript.slice(profileExtraScript.indexOf(" const relationshipForms="),profileExtraScript.indexOf(" const choices={"));
+const relationshipTest=new Function('const tr=(uk,en)=>uk;'+relationshipSource+'return {relationshipChoices,relationshipLabel};')();
+assert.ok(relationshipTest.relationshipChoices("male").some(pair=>pair[0]==="Одружений"));
+assert.ok(!relationshipTest.relationshipChoices("male").some(pair=>pair[0]==="Заміжня"));
+assert.ok(relationshipTest.relationshipChoices("female").some(pair=>pair[0]==="Заміжня"));
+assert.ok(!relationshipTest.relationshipChoices("female").some(pair=>pair[0]==="Одружений"));
+for(const gender of [null,"custom"])assert.ok(["Одружений","Заміжня"].every(value=>relationshipTest.relationshipChoices(gender).some(pair=>pair[0]===value)));
+assert.equal(relationshipTest.relationshipLabel("Одружений",null),"Одружений");
+assert.equal(relationshipTest.relationshipLabel("Заміжня",null),"Заміжня");
+assert.ok(profileExtraScript.includes("gender:isMine?metadata.gender:null")&&profileExtraScript.includes("groupTitleWrap.append(back,groupTitle)")&&!profileExtraScript.includes('make("header","profile-editor-header')&&!profileExtraScript.includes("ПРО МЕНЕ · VATRA"));
+
 const scrollRailScript=await read("assets/js/scroll-rail.js");
 const dynamicPostClasses=await read("assets/js/post-interactions.js");
 const dynamicShellClasses=await read("assets/js/social-shell.js");
@@ -1623,7 +1634,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id,false,focusPost)')&&
  profileScript.includes('if(focusPost&&!locked)window.VATRA_PROFILE_CHOOSE_TAB?.("posts")')&&
- profileScript.includes('const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,blockAccess,prepared}))')&&
+ profileScript.includes('const access=await profileDeadline(window.VATRA_PROFILE_DETAILS.init({client,ownId,targetId,isMine,gender:isMine?metadata.gender:null,blockAccess,prepared}))')&&
  profileScript.includes('void mediaPromise.catch(()=>{')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
