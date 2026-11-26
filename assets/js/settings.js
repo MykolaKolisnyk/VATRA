@@ -45,12 +45,68 @@ async function renderDevices(panel){
  }
  await load();
 }
+function accountCredentials(panel,ticket){
+ const security=card("ui-vatra-id-security-001"),contact=card("ui-vatra-id-contact-001");
+ const row=(host,key,heading,description,handler)=>{
+  const line=make("div","ui-vatra-id-credential-row-001"),copy=make("div","ui-vatra-id-credential-copy-001");
+  copy.append(make("strong","vatra-id-credential-label-001",heading),make("span","vatra-id-credential-note-001",description));
+  const button=btn(t("Змінити","Change"),"vatra-preferences-action-001",handler);
+  button.setAttribute("aria-label",heading+" · "+t("Змінити","Change"));button.dataset.credential=key;
+  line.append(copy,button);host.append(line);return copy.lastElementChild;
+ };
+ const openForm=heading=>{const {d,form}=dialog(heading);d.addEventListener("close",()=>{form.reset();d.remove();},{once:true});return {d,form};};
+ const failure=(error)=>error?.code==="weak_password"?t("Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.","The password does not meet the server's security requirements. Check the rules below the password field."):
+  error?.code==="same_password"?t("Виберіть новий пароль, який відрізняється від попереднього.","Choose a new password that differs from the previous one."):
+  error?.code==="reauthentication_not_valid"?t("Неправильний або прострочений код. Перевірте лист або запросіть новий.","Incorrect or expired code. Check your email or request another one."):
+  error?.code==="invalid_credentials"||error?.code==="invalid_current_password"?t("Неправильна електронна пошта або пароль.","Incorrect email address or password."):
+  t("Не вдалося зберегти зміни.","Could not save changes.");
+ contact.append(make("h2","vatra-id-heading-001",t("Контактні дані","Contact details")));
+ let emailNote=row(contact,"email",t("Електронна пошта","Email"),user.email||"",()=>{
+  const {d,form}=openForm(t("Змінити електронну пошту","Change email"));
+  const email=field(form,"new-email",t("Нова електронна пошта","New email"),"email",254,true);email.autocomplete="email";
+  form.append(make("p","vatra-section-form-note-001",t("Підтвердьте зміну пошти за посиланнями з листів.","Confirm the email change using the links in your emails.")));
+  submit(form,t("Зберегти зміни","Save changes"),async()=>{
+   const value=email.value.trim();if(value.toLowerCase()===(user.email||"").toLowerCase()){message(t("Вкажіть іншу електронну пошту.","Enter a different email address."),true);return;}
+   const {data,error}=await client.auth.updateUser({email:value},{emailRedirectTo:new URL("verify",root).href});
+   if(error){message(failure(error),true);return;}
+   if(data?.user?.id===user.id){user=data.user;if(emailNote.isConnected)emailNote.textContent=user.email||"";}
+   if(d.open)d.close();if(ticket===renderTicket)message(t("Перевірте електронну пошту для підтвердження зміни.","Check your email to confirm the change."));
+  });d.showModal();
+ });
+ security.append(make("h2","vatra-id-heading-001",t("Безпека акаунта","Account security")));
+ row(security,"password",t("Пароль","Password"),t("Для безпеки не використовуйте пароль з інших сервісів.","For your security, avoid reusing passwords from other services."),()=>{
+  const {d,form}=openForm(t("Змінити пароль","Change password"));
+  const current=field(form,"current-password",t("Поточний пароль","Current password"),"password",128,true),next=field(form,"new-password",t("Новий пароль","New password"),"password",128,true),repeat=field(form,"repeat-password",t("Повторіть пароль","Confirm password"),"password",128,true);
+  current.autocomplete="current-password";next.autocomplete=repeat.autocomplete="new-password";next.minLength=repeat.minLength=12;
+  form.append(make("p","vatra-section-form-note-001",t("Від 12 символів: мала й велика латинські літери, цифра та спеціальний символ. Не повторюйте пароль з інших сайтів.","At least 12 characters: uppercase and lowercase Latin letters, a digit and a symbol. Do not reuse passwords.")));
+  const nonce=field(form,"password-nonce",t("Введіть код підтвердження з листа.","Enter the verification code from your email."),"text",10,false);nonce.inputMode="numeric";nonce.autocomplete="one-time-code";nonce.pattern="[0-9]{6,10}";nonce.parentElement.hidden=true;
+  const sendCode=btn(t("Надіслати код","Send code"),"vatra-preferences-action-001",async()=>{
+   if(sendCode.disabled)return;sendCode.disabled=true;try{const {error}=await client.auth.reauthenticate();if(error){message(failure(error),true);return;}if(d.open)message(t("Введіть код підтвердження з листа.","Enter the verification code from your email."));}finally{sendCode.disabled=false;}
+  });sendCode.hidden=true;form.append(sendCode);
+  submit(form,t("Зберегти пароль","Save password"),async()=>{
+   const value=next.value;
+   if(value!==repeat.value){message(t("Паролі не збігаються.","Passwords do not match."),true);return;}
+   if(value===current.value){message(t("Виберіть новий пароль, який відрізняється від попереднього.","Choose a new password that differs from the previous one."),true);return;}
+   if(value.length<12||value.length>128||!/[a-z]/.test(value)||!/[A-Z]/.test(value)||!/[0-9]/.test(value)||!/[!@#$%^&*()_+\-=\[\]{};'\\:"|<>?,.\/\x60~]/.test(value)){
+    message(t("Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.","The password does not meet the server's security requirements. Check the rules below the password field."),true);return;
+   }
+   const attributes={password:value,current_password:current.value};if(!nonce.parentElement.hidden)attributes.nonce=nonce.value.trim();
+   const {data,error}=await client.auth.updateUser(attributes);
+   if(error?.code==="reauthentication_needed"){nonce.parentElement.hidden=false;nonce.required=true;sendCode.hidden=false;message(t("Для зміни пароля потрібне підтвердження електронною поштою.","Email verification is required to change your password."));nonce.focus();return;}
+   if(error){message(failure(error),true);return;}
+   if(data?.user?.id===user.id)user=data.user;
+   form.reset();if(d.open)d.close();if(ticket===renderTicket)message(t("Зміни збережено.","Changes saved."));
+  });d.showModal();
+ });
+ security.append(link(t("Забули пароль?","Forgot password?"),"forgot","vatra-id-password-001"));
+ panel.append(contact,security);
+}
 async function account(){
  title.textContent="VATRA ID";subtitle.textContent="";
  const layout=make("div","ui-vatra-id-layout-001"),side=card("ui-vatra-id-sidebar-001"),panel=make("div","ui-vatra-id-content-001");
  const nav=tabs([["personal",t("Мої дані","My data")],["security",t("Безпека","Security")]],id=>{if(location.hash.slice(1)===id)void show(id);else location.hash=id;});side.append(make("h2","vatra-id-menu-title-001","VATRA ID"),nav,link(t("Повернутися до VATRA","Return to VATRA"),"id"+ownId,"vatra-id-back-001"));layout.append(side,panel);content.append(layout);
  const show=async(id)=>{const ticket=++renderTicket;panel.replaceChildren();message("");for(const b of nav.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
- if(id==="security"){const c=card("ui-vatra-id-security-001");c.append(make("h2","vatra-id-heading-001",t("Безпека акаунта","Account security")),make("p","vatra-id-email-001",user.email||""),make("p","vatra-id-email-status-001",user.email_confirmed_at?t("Електронну пошту підтверджено","Email confirmed"):t("Пошта не підтверджена","Email not confirmed")),link(t("Відновлення пароля","Password recovery"),"forgot","vatra-id-password-001"));panel.append(c);await renderDevices(panel);return;}
+ if(id==="security"){accountCredentials(panel,ticket);await renderDevices(panel);return;}
  const c=card("ui-vatra-id-personal-001"),identity=make("div","ui-vatra-id-identity-001"),avatar=make("span","ui-vatra-id-avatar-001");window.VATRA_AVATAR?.fallback(avatar,"default");const info=make("div","ui-vatra-id-identity-info-001"),display=make("h2","vatra-id-heading-001",await nameOf(ownId));if(ticket!==renderTicket)return;info.append(display,make("span","vatra-id-number-001","VATRA ID "+ownId));identity.append(avatar,info);c.append(identity);
  void client.from("profile_media").select("avatar_path").eq("vatra_id",ownId).maybeSingle().then(({data,error})=>{if(!error&&data?.avatar_path&&data.avatar_path.startsWith(ownId+"/avatar/")&&avatar.isConnected){const url=client.storage.from("avatars").getPublicUrl(data.avatar_path).data?.publicUrl;if(url){avatar.style.backgroundImage="url("+JSON.stringify(url)+")";avatar.classList.add("has-photo");}}}).catch(()=>{});
  const form=make("form","ui-vatra-id-personal-form-001"),first=field(form,"first-name",t("Ім’я","First name"),"text",40,true),last=field(form,"last-name",t("Прізвище","Last name"),"text",40,true);first.value=user.user_metadata?.first_name||display.textContent.split(" ")[0]||"";last.value=user.user_metadata?.last_name||display.textContent.split(" ").slice(1).join(" ");const note=make("p","vatra-section-form-note-001",t("VATRA ID залишається незмінним. Ім’я та прізвище відображатимуться у профілі.","Your VATRA ID remains unchanged. Your name is displayed on your profile."));form.append(note);c.append(form);panel.append(c);

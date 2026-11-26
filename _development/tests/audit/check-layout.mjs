@@ -2767,6 +2767,14 @@ const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
 const settingsRuntime=await read("assets/js/settings.js");
 const settingsStyle=await read("assets/css/settings.css");
+assert.ok(settingsRuntime.includes('const attributes={password:value,current_password:current.value}')&&
+ settingsRuntime.includes('client.auth.updateUser(attributes)')&&
+ settingsRuntime.includes('client.auth.reauthenticate()')&&
+ settingsRuntime.includes('attributes.nonce=nonce.value.trim()')&&
+ settingsRuntime.includes('client.auth.updateUser({email:value},{emailRedirectTo:new URL("verify",root).href})')&&
+ !settingsRuntime.includes('signInWithPassword(')&&
+ settingsRuntime.includes('form.reset();d.remove()'),
+ "VATRA ID credentials must use Auth password validation, optional nonce, email confirmation, and no new login session");
 assert.ok(!settingsRuntime.includes('settingsCard(t("Сповіщення на сайті"')&&
  settingsRuntime.includes('for(const [,heading,kinds] of notificationKinds)')&&
  settingsRuntime.includes('ui-vatra-preferences-block-empty-001')&&

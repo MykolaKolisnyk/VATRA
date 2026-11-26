@@ -69,3 +69,11 @@ body.vatra-section-page .vatra-preferences-id-badge-001{display:inline-flex;alig
 body.vatra-section-page .vatra-preferences-id-logo-001{width:18px;height:18px;object-fit:contain}
 @media(max-width:600px){body.vatra-section-page[data-page="settings"] .ui-vatra-section-main-001{width:calc(100% - 18px);margin:15px auto 50px}}
 html:has(body.vatra-section-page:is([data-page="settings"],[data-page="vatra-id"])){scrollbar-gutter:stable;overflow-y:scroll}
+
+body.vatra-section-page .ui-vatra-id-content-001{display:grid;gap:var(--vatra-card-gap);min-width:0}
+body.vatra-section-page .ui-vatra-id-content-001 .ui-vatra-id-devices-001{margin-top:0}
+body.vatra-section-page .ui-vatra-id-credential-row-001{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;border-top:1px solid #e7edf5}
+body.vatra-section-page .ui-vatra-id-credential-copy-001{display:grid;gap:5px;min-width:0}
+body.vatra-section-page .vatra-id-credential-label-001{font:var(--section-name)}
+body.vatra-section-page .vatra-id-credential-note-001{font:var(--section-caption);color:var(--soft);overflow-wrap:anywhere}
+body.vatra-section-page .ui-vatra-id-credential-row-001 .vatra-preferences-action-001{flex:none}
