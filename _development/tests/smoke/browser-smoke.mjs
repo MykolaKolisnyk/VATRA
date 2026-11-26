@@ -5377,7 +5377,11 @@ try{
   await selectCountry("UA");
   assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Warszawa",
    "Changing country must not silently delete an existing hometown");
+  await checkCityOptions("profile-editor-hometown","Невицьке","Warszawa");
   await checkCityOptions("profile-editor-hometown","Львів","Warszawa");
+  assert.equal(await profilePage.locator(".ui-profile-editor-field-control-short_bio #profile-editor-visibility-short_bio").count(),1,"Visibility must be inside the same field box");
+  assert.ok(await profilePage.locator("#profile-editor-languages-native option").count()>=170,"Extended language catalog");
+  assert.equal(await profilePage.locator('#profile-editor-languages-native option[value="Русский"]').count(),0,"Russian must not be a new selectable language");
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
@@ -5412,7 +5416,7 @@ try{
   assert.equal(await profilePage.locator("#profile-about-card .vatra-profile-summary-icon").count(),0,
    "Read-only About facts should not use decorative icon tiles");
   assert.equal((await profilePage.locator("#profile-about-text").textContent()).trim(),"Тестова інформація");
-  assert.equal(await profilePage.locator("#profile-about-text").evaluate(el=>getComputedStyle(el).textAlign),"center");
+  assert.equal(await profilePage.locator("#profile-about-text").evaluate(el=>getComputedStyle(el).textAlign),"start");
   assert.equal(await profilePage.locator("#profile-about-card .vatra-profile-information-label-short_bio").count(),0);
   assert.equal((await profilePage.locator(".vatra-profile-information-value-city").textContent()).trim(),"Київ",
    "Current city has priority over hometown");

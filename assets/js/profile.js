@@ -42,12 +42,12 @@
    ["short_bio","Коротка інформація","Short bio","long"],
    ["relationship","Сімейний стан","Relationship status"],
    ["country","Країна","Country"],
-   ["hometown","Рідне місто","Hometown"],
+   ["hometown","Рідний населений пункт","Hometown or village"],
    ["languages","Знання мов","Languages"],
    ["family","Родина","Family","long"]
   ]},
   {id:"contacts",label:["Контакти","Contacts"],icon:"at-sign",fields:[
-   ["city","Місто","City"],["address","Адреса","Address"],
+   ["city","Населений пункт","City, town or village"],["address","Адреса","Address"],
    ["mobile_phone","Мобільний телефон","Mobile phone"],
    ["additional_phone","Додатковий телефон","Additional phone"],
    ["website","Особистий сайт","Personal website"]
@@ -120,8 +120,11 @@
   attitude_to_smoking:[["Різко негативне","Strongly negative"],["Негативне","Negative"],["Компромісне","Compromising"],["Нейтральне","Neutral"],["Позитивне","Positive"]],
   attitude_to_alcohol:[["Різко негативне","Strongly negative"],["Негативне","Negative"],["Компромісне","Compromising"],["Нейтральне","Neutral"],["Позитивне","Positive"]]
  };
- const languages=["Українська","English","Polski","Deutsch","Français","Italiano","Español","Português","Čeština","Slovenčina","Magyar","Română","Български","ქართული","Lietuvių","Latviešu","Eesti","Nederlands","Svenska","Norsk","Dansk","Suomi","Ελληνικά","Türkçe","Русский","Беларуская","العربية","עברית","中文","日本語","한국어","हिन्दी"];
- const countryCities={"UA":["Київ","Харків","Одеса","Львів","Дніпро","Запоріжжя","Ужгород","Мукачево","Івано-Франківськ","Тернопіль","Чернівці","Луцьк","Рівне","Хмельницький","Вінниця","Житомир","Черкаси","Чернігів","Суми","Полтава","Кропивницький","Миколаїв","Херсон","Донецьк","Луганськ","Сімферополь","Севастополь","Кривий Ріг","Кременчук","Біла Церква","Кам’янець-Подільський","Берегове","Хуст","Тячів","Рахів"],"GB":["London","Birmingham","Manchester","Liverpool","Leeds","Sheffield","Bristol","Newcastle upon Tyne","Nottingham","Leicester","Southampton","Portsmouth","Oxford","Cambridge","York","Brighton","Reading","Coventry","Glasgow","Edinburgh","Aberdeen","Dundee","Cardiff","Swansea","Belfast","Derry"],"PL":["Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Szczecin","Lublin","Bydgoszcz","Białystok","Katowice","Gdynia","Częstochowa","Radom","Rzeszów","Toruń","Kielce","Olsztyn","Gliwice","Opole","Zielona Góra","Przemyśl"],"DE":["Berlin","Hamburg","München","Köln","Frankfurt am Main","Stuttgart","Düsseldorf","Leipzig","Dortmund","Essen","Bremen","Dresden","Hannover","Nürnberg","Duisburg","Bochum","Bonn","Münster","Karlsruhe","Mannheim","Freiburg im Breisgau","Aachen","Potsdam"],"FR":["Paris","Marseille","Lyon","Toulouse","Nice","Nantes","Montpellier","Strasbourg","Bordeaux","Lille","Rennes","Reims","Toulon","Grenoble","Dijon","Angers","Le Havre","Clermont-Ferrand","Rouen","Tours","Avignon","Metz","Nancy"],"IT":["Roma","Milano","Napoli","Torino","Palermo","Genova","Bologna","Firenze","Bari","Catania","Venezia","Verona","Messina","Padova","Trieste","Brescia","Parma","Modena","Perugia","Livorno","Cagliari","Salerno","Pisa"],"BG":["София","Пловдив","Варна","Бургас","Русе","Стара Загора","Плевен","Сливен","Добрич","Шумен","Перник","Хасково","Ямбол","Пазарджик","Благоевград","Велико Търново","Враца","Габрово","Видин","Кърджали","Кюстендил","Смолян"],"GE":["თბილისი","ბათუმი","ქუთაისი","რუსთავი","გორი","ზუგდიდი","ფოთი","ხაშური","სამტრედია","სენაკი","ზესტაფონი","მარნეული","თელავი","ახალციხე","ქობულეთი","ოზურგეთი","ბორჯომი","მცხეთა"]};
+ const primaryLanguageNames={uk:"Українська",en:"English",pl:"Polski",de:"Deutsch",fr:"Français",it:"Italiano",es:"Español",pt:"Português",cs:"Čeština",sk:"Slovenčina",hu:"Magyar",ro:"Română",bg:"Български",ka:"ქართული",lt:"Lietuvių",lv:"Latviešu",et:"Eesti",nl:"Nederlands",sv:"Svenska",no:"Norsk",da:"Dansk",fi:"Suomi",el:"Ελληνικά",tr:"Türkçe",be:"Беларуская",ar:"العربية",he:"עברית",zh:"中文",ja:"日本語",ko:"한국어",hi:"हिन्दी"};
+ const languageCodes="aa ab ae af ak am an ar as av ay az ba be bg bh bi bm bn bo br bs ca ce ch co cr cs cu cv cy da de dv dz ee el en eo es et eu fa ff fi fj fo fr fy ga gd gl gn gu gv ha he hi ho hr ht hu hy hz ia id ie ig ii ik io is it iu ja jv ka kg ki kj kk kl km kn ko kr ks ku kv kw ky la lb lg li ln lo lt lu lv mg mh mi mk ml mn mr ms mt my na nb nd ne ng nl nn no nr nv ny oc oj om or os pa pi pl ps pt qu rm rn ro rw sa sc sd se sg si sk sl sm sn so sq sr ss st su sv sw ta te tg th ti tk tl tn to tr ts tt tw ty ug uk ur uz ve vi vo wa wo xh yi yo za zh zu".split(" ");
+ const standardLanguageNames=new Intl.DisplayNames(["en"],{type:"language"});
+ const languages=[...new Set([...Object.values(primaryLanguageNames),...languageCodes.filter(code=>!Object.hasOwn(primaryLanguageNames,code)).map(code=>standardLanguageNames.of(code)).sort((a,b)=>a.localeCompare(b,"en"))])];
+ const countryCities={"UA":["Київ","Харків","Одеса","Львів","Дніпро","Запоріжжя","Ужгород","Мукачево","Івано-Франківськ","Тернопіль","Чернівці","Луцьк","Рівне","Хмельницький","Вінниця","Житомир","Черкаси","Чернігів","Суми","Полтава","Кропивницький","Миколаїв","Херсон","Донецьк","Луганськ","Сімферополь","Севастополь","Кривий Ріг","Кременчук","Біла Церква","Кам’янець-Подільський","Берегове","Хуст","Тячів","Рахів","Великий Березний","Перечин","Середнє","Солотвино","Вилок","Буштино","Кольчино","Чинадійово","Воловець","Міжгір’я","Ясіня","Тересва","Королево","Дубове","Невицьке","Кам’яниця","Оноківці","Баранинці","Сторожниця","Минай","Сюрте","Розівка","Великі Лази","Лінці","Холмок","Довге","Косонь","Шаян","Пилипець","Синевир","Колочава","Верховина","Ворохта","Криворівня","Славсько","Східниця","Брюховичі","Рудне","Затока","Коблеве","Бородянка","Гостомель","Коцюбинське","Макарів","Калинівка","Петропавлівська Борщагівка","Софіївська Борщагівка","Чабани","Хотів","Глеваха","Козин","Велика Димерка","Диканька","Опішня","Решетилівка","Седнів","Любеч","Мала Данилівка","Пісочин","Солоницівка","Бабаї"],"GB":["London","Birmingham","Manchester","Liverpool","Leeds","Sheffield","Bristol","Newcastle upon Tyne","Nottingham","Leicester","Southampton","Portsmouth","Oxford","Cambridge","York","Brighton","Reading","Coventry","Glasgow","Edinburgh","Aberdeen","Dundee","Cardiff","Swansea","Belfast","Derry","Ambleside","Grasmere","Hawkshead","Bourton-on-the-Water","Bibury","Castle Combe","Lacock","Portree","Kyle of Lochalsh","Betws-y-Coed","Beddgelert","Bushmills","Hillsborough"],"PL":["Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Szczecin","Lublin","Bydgoszcz","Białystok","Katowice","Gdynia","Częstochowa","Radom","Rzeszów","Toruń","Kielce","Olsztyn","Gliwice","Opole","Zielona Góra","Przemyśl","Białowieża","Zawoja","Chochołów","Poronin","Kościelisko","Sromowce Niżne","Kluszkowce","Łącko","Krynica Morska","Mielno","Ustronie Morskie","Jastarnia"],"DE":["Berlin","Hamburg","München","Köln","Frankfurt am Main","Stuttgart","Düsseldorf","Leipzig","Dortmund","Essen","Bremen","Dresden","Hannover","Nürnberg","Duisburg","Bochum","Bonn","Münster","Karlsruhe","Mannheim","Freiburg im Breisgau","Aachen","Potsdam","Oberammergau","Schwangau","Ramsau bei Berchtesgaden","Garmisch-Partenkirchen","Hinterzarten","Triberg","Bacharach","Rüdesheim am Rhein","Worpswede","Ahrenshoop","Prerow","Sankt Peter-Ording"],"FR":["Paris","Marseille","Lyon","Toulouse","Nice","Nantes","Montpellier","Strasbourg","Bordeaux","Lille","Rennes","Reims","Toulon","Grenoble","Dijon","Angers","Le Havre","Clermont-Ferrand","Rouen","Tours","Avignon","Metz","Nancy","Gordes","Roussillon","Ménerbes","Lourmarin","Èze","Saint-Paul-de-Vence","Conques","Rocamadour","Saint-Cirq-Lapopie","Eguisheim","Riquewihr","Kaysersberg"],"IT":["Roma","Milano","Napoli","Torino","Palermo","Genova","Bologna","Firenze","Bari","Catania","Venezia","Verona","Messina","Padova","Trieste","Brescia","Parma","Modena","Perugia","Livorno","Cagliari","Salerno","Pisa","Alberobello","Locorotondo","Ostuni","Pienza","Montepulciano","San Gimignano","Vernazza","Manarola","Riomaggiore","Corniglia","Monterosso al Mare","Positano"],"BG":["София","Пловдив","Варна","Бургас","Русе","Стара Загора","Плевен","Сливен","Добрич","Шумен","Перник","Хасково","Ямбол","Пазарджик","Благоевград","Велико Търново","Враца","Габрово","Видин","Кърджали","Кюстендил","Смолян","Арбанаси","Широка лъка","Ковачевица","Лещен","Боженци","Жеравна","Копривщица","Рибарица","Чифлик","Орешак","Баня","Синеморец"],"GE":["თბილისი","ბათუმი","ქუთაისი","რუსთავი","გორი","ზუგდიდი","ფოთი","ხაშური","სამტრედია","სენაკი","ზესტაფონი","მარნეული","თელავი","ახალციხე","ქობულეთი","ოზურგეთი","ბორჯომი","მცხეთა","სტეფანწმინდა","გუდაური","ბაკურიანი","მესტია","უშგული","ომალო","შატილი","სიღნაღი","თიანეთი","აბასთუმანი","ბახმარო","ურეკი"]};
  const countryCodes=Object.keys(countryCities);
  const countryLabel=code=>{if(!countryCodes.includes(code))return "";try{return new Intl.DisplayNames([window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk"],{type:"region"}).of(code)||code;}catch(_){return code;}};
  const citiesForCountry=code=>countryCodes.includes(code)?countryCities[code]:[];
@@ -225,7 +228,7 @@
    title.dataset.socialEn="About me";
   }
   const fieldsByKey=new Map(groups.flatMap(group=>group.fields).map(field=>[field[0],field]));
-  const featured=["country","city","hometown","relationship","website"];
+  const featured=["country","city","hometown","relationship"];
   const fieldIcons={
    country:"globe",city:"map-pin",hometown:"map-pin",relationship:"heart",website:"link",
    short_bio:"file-text",about_me:"file-text",family:"users",languages:"globe",
@@ -678,10 +681,10 @@
   const enhanceCityInput=input=>{
    const wrapper=make("div","vatra-editor-city ui-profile-editor-city-"+input.id);
    const arrow=make("button","vatra-profile-editor-city-toggle-001");arrow.type="button";arrow.tabIndex=-1;
-   arrow.setAttribute("aria-label",tr("Список міст","City suggestions"));arrow.append(menuArrow());
+   arrow.setAttribute("aria-label",tr("Список населених пунктів","Settlement suggestions"));arrow.append(menuArrow());
    input.before(wrapper);wrapper.append(input,arrow);
    input.setAttribute("role","combobox");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-expanded","false");input.setAttribute("aria-haspopup","listbox");
-   input.setAttribute("aria-label",input.id.endsWith("hometown")?tr("Рідне місто","Hometown"):tr("Місто","City"));
+   input.setAttribute("aria-label",input.id.endsWith("hometown")?tr("Рідний населений пункт","Hometown or village"):tr("Населений пункт","City, town or village"));
    const open=(keyboard=false,all=false)=>{
     const query=all?"":input.value.trim().toLocaleLowerCase();
     const items=citiesForCountry(draft.get("country")?.value).filter(city=>!query||city.toLocaleLowerCase().includes(query)).map(city=>({value:city,text:city}));
@@ -763,7 +766,7 @@
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
    }
-   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab,disclosure);row.append(labelGroup,control);destination.append(row);
+   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(disclosure);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
@@ -806,7 +809,7 @@
     const identityInfo=make("div","ui-profile-editor-identity-info-001");
     const nameLine=make("div","ui-profile-editor-identity-name-row-001");
     nameLine.append(make("strong","vatra-profile-editor-identity-name-001",select("#profile-heading")?.querySelector(".vatra-verified-name-text")?.textContent||select("#profile-heading")?.textContent.trim()||"VATRA"));
-    const idLink=make("a","vatra-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id",location.href).href;
+    const idLink=make("a","vatra-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id#personal",location.href).href;
     nameLine.append(idLink);identityInfo.append(avatarButton,nameLine);
     identity.append(coverPreview,identityInfo);fields.append(identity);
 

@@ -1661,6 +1661,11 @@ assert.deepEqual([...countryTest.countryCodes].sort(),["BG","DE","FR","GB","GE",
 assert.ok(countryTest.citiesForCountry("UA").includes("Ужгород")&&!countryTest.citiesForCountry("PL").includes("Ужгород"));
 assert.ok(countryTest.citiesForCountry("PL").includes("Warszawa")&&!countryTest.citiesForCountry("UA").includes("Warszawa"));
 assert.equal(countryTest.citiesForCountry("XX").length,0);
+assert.ok(countryTest.citiesForCountry("UA").includes("Невицьке")&&countryTest.citiesForCountry("UA").includes("Середнє")&&!countryTest.citiesForCountry("PL").includes("Невицьке"),"Settlement suggestions must include villages and townships in their own country");
+const profileLanguageSource=profileScript.slice(profileScript.indexOf(" const primaryLanguageNames="),profileScript.indexOf(" const countryCities="));
+const profileLanguages=new Function(profileLanguageSource+"return {languages,languageCodes};")();
+assert.ok(profileLanguages.languages.length>=170&&profileLanguages.languages.includes("Українська")&&!profileLanguages.languageCodes.includes("ru")&&!profileLanguages.languages.includes("Русский"),"Profile language options must use the extended catalog without Russian");
+
 assert.ok(profileScript.includes('key==="country"?countryCodes.map')&&profileScript.includes('key!=="country"&&selectedValue')&&profileScript.includes('citiesForCountry(draft.get("country")?.value)'));
 
 assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
@@ -1682,7 +1687,7 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab,disclosure)') &&
+ detailsModule.includes('labelGroup.append(lab);control.append(disclosure)') &&
  detailsModule.includes('if(!editable){event.preventDefault();open(true);return;}') &&
  detailsModule.includes('state.panel.scrollTop+=option.bottom-bounds.bottom') &&
  memberCss.includes('.vatra-editor-select>select[hidden]{display:none!important}') &&
