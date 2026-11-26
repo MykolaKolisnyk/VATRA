@@ -3880,6 +3880,8 @@ try{
   await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_COMPOSER_UI),false,
    "Post composer should not load before opening it");
+  const createMenuPlacement=await feedProbe.locator("#feed-create-menu-panel").evaluate(el=>{const r=el.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,headerBottom:header.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight,topLayer:typeof el.showPopover!=="function"||el.matches(":popover-open")};});
+  assert.ok(createMenuPlacement.topLayer&&createMenuPlacement.top>=createMenuPlacement.headerBottom&&createMenuPlacement.bottom<=createMenuPlacement.viewportHeight&&createMenuPlacement.left>=0&&createMenuPlacement.right<=createMenuPlacement.viewportWidth,"Create menu must remain reachable below the sticky header: "+JSON.stringify(createMenuPlacement));
   await feedProbe.locator("#feed-compose-open").click();
   await feedProbe.locator("#feed-compose-dialog").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
