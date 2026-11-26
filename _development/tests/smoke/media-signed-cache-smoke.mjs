@@ -469,3 +469,38 @@ console.log("VATRA media: bounded bulk requests, cache pressure and queued sessi
  assert.equal(await queued,false);assert.equal(c.bulkCalls,1,"Old viewer's queued previews must not reach Storage");
 }
 console.log("VATRA visible preview batching: cross-card request reduction, cache hits and session cancellation verified.");
+
+{
+ const validation=source.slice(source.indexOf(" const storyPathValid="),source.indexOf(" function linkifyHashtags("));
+ const storyEnd=source.indexOf(" function collapsibleBody(",end);
+ assert.ok(validation.includes("new RegExp")&&storyEnd>end);
+ const env={Map,WeakMap,Set,Date,URL,Promise,Number,setTimeout,clearTimeout,
+  location:{origin:"https://example.test"},bucketFor:kind=>kind==="image"?"post-images":"videos",
+  validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id||"")),
+  tr:uk=>uk,document:{createElement:tag=>({tag,setAttribute(){}})}};
+ runInNewContext(validation+source.slice(start,storyEnd)+"\nglobalThis.test={renderStory};",env);
+ const {renderStory}=env.test;
+ const slot=()=>({dataset:{},isConnected:true,children:[],replaceChildren(...items){this.children=items;}});
+ const story=n=>({author_vatra_id:"9",media_kind:"image",media_path:"9/stories/00000000-0000-0000-0000-"+String(n).padStart(12,"0")+".jpg"});
+ const c=makeClient("story"),one=slot(),two=slot(),three=slot();
+ await Promise.all([renderStory(c.client,story(1),one,true),renderStory(c.client,story(2),two,true),renderStory(c.client,story(3),three,true)]);
+ assert.equal(c.bulkCalls,1,"Three visible photo stories share one Storage signing request");
+ assert.equal(c.calls,0);
+ assert.match(one.children[0].src,/story-bulk-1$/);
+ assert.match(two.children[0].src,/story-bulk-1$/);
+ assert.match(three.children[0].src,/story-bulk-1$/);
+ const opened=slot();
+ await renderStory(c.client,story(1),opened);
+ assert.equal(c.calls,0,"Opening an already signed story reuses its URL");
+ assert.equal(opened.children[0].src,one.children[0].src);
+ await renderStory(c.client,story(4),slot(),true);
+ assert.equal(c.calls,1,"A single missing story uses one individual request");
+ const invalid=slot();
+ await renderStory(c.client,{...story(5),media_path:"9/posts/invalid.jpg"},invalid,true);
+ assert.equal(c.calls,1);assert.equal(invalid.hidden,true);
+ const stale=slot(),pending=renderStory(c.client,story(6),stale,true);
+ c.event("SIGNED_OUT");await pending;
+ assert.equal(c.calls,1,"Signing cancelled before batch dispatch must not reach Storage");
+ assert.equal(stale.children.length,0);
+}
+console.log("VATRA story photo previews: shared signing, cache reuse, path validation and session isolation passed.");
