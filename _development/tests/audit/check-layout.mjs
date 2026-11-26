@@ -1655,12 +1655,29 @@ assert.ok(
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
  "Profile must fetch only four friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
+const summarySource=profileScript.slice(profileScript.indexOf(" const canViewProfileField="),profileScript.indexOf(" function prepare({client,ownId,targetId,isMine})"));
+const {canViewProfileField,profileSummaryKeys}=new Function(summarySource+"return {canViewProfileField,profileSummaryKeys};")();
+for(const [visibility,owner,friend,expected] of [["public",false,false,true],["friends",false,false,false],["friends",false,true,true],["only_me",false,true,false],["only_me",true,false,true],["unknown",false,true,false]])
+ assert.equal(canViewProfileField({visibility},owner,friend),expected,"Profile field visibility must be respected");
+const visibleSummary=keys=>profileSummaryKeys(key=>keys.includes(key));
+assert.deepEqual(visibleSummary(["country","city","hometown","relationship","website","mobile_phone"]),["city","relationship","website"]);
+assert.deepEqual(visibleSummary(["country","hometown","address"]),["hometown"]);
+assert.deepEqual(visibleSummary(["country","mobile_phone"]),["country"]);
+assert.deepEqual(visibleSummary(["address","mobile_phone","languages"]),[]);
+assert.ok(profileScript.includes(".filter(row=>canViewProfileField(row,isMine,isFriend))"),"Read-only views must filter individual privacy before combining country and settlement");
+
 const countrySource=profileScript.slice(profileScript.indexOf(" const countryCities="),profileScript.indexOf(" const choiceLabel="));
 const countryTest=new Function("window","document",countrySource+"return {countryCodes,citiesForCountry,countryLabel};")({VATRA_LANGUAGE:{locale:"uk"}},{documentElement:{lang:"uk"}});
 assert.deepEqual([...countryTest.countryCodes].sort(),["BG","DE","FR","GB","GE","IT","PL","UA"]);
 assert.ok(countryTest.citiesForCountry("UA").includes("Ужгород")&&!countryTest.citiesForCountry("PL").includes("Ужгород"));
 assert.ok(countryTest.citiesForCountry("PL").includes("Warszawa")&&!countryTest.citiesForCountry("UA").includes("Warszawa"));
 assert.equal(countryTest.citiesForCountry("XX").length,0);
+assert.ok(countryTest.citiesForCountry("UA").includes("Невицьке")&&countryTest.citiesForCountry("UA").includes("Середнє")&&!countryTest.citiesForCountry("PL").includes("Невицьке"),"Settlement suggestions must include villages and townships in their own country");
+const profileLanguageSource=profileScript.slice(profileScript.indexOf(" const primaryLanguageNames="),profileScript.indexOf(" const countryCities="));
+const profileLanguages=new Function(profileLanguageSource+"return {languages,languageCodes};")();
+assert.ok(profileLanguages.languages.length>=170&&profileLanguages.languages.includes("Українська")&&!profileLanguages.languageCodes.includes("ru")&&!profileLanguages.languages.includes("Русский"),"Profile language options must use the extended catalog without Russian");
+assert.ok(profileScript.includes('search.setAttribute("aria-autocomplete","list")')&&profileScript.includes("const localizedNames=new Intl.DisplayNames")&&profileScript.includes("const popular="),"Language picker must be searchable and prioritize VATRA languages");
+
 assert.ok(profileScript.includes('key==="country"?countryCodes.map')&&profileScript.includes('key!=="country"&&selectedValue')&&profileScript.includes('citiesForCountry(draft.get("country")?.value)'));
 
 assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
@@ -1682,7 +1699,7 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab,disclosure)') &&
+ detailsModule.includes('labelGroup.append(lab);control.append(disclosure)') &&
  detailsModule.includes('if(!editable){event.preventDefault();open(true);return;}') &&
  detailsModule.includes('state.panel.scrollTop+=option.bottom-bounds.bottom') &&
  memberCss.includes('.vatra-editor-select>select[hidden]{display:none!important}') &&
@@ -1698,7 +1715,7 @@ assert.ok(
  !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-info{') &&
  memberCss.includes('grid-template-columns:minmax(0,38%) minmax(0,1fr)'),
- "Profile About preview has a centered optional bio, compact facts, and no read-only icon tiles");
+ "Profile About preview has an optional bio, compact facts, and no read-only icon tiles");
 assert.ok(
  memberProfileMarkup.includes('id="profile-post-filter-button"') &&
  memberProfileMarkup.includes('id="profile-post-filter-year"') &&
