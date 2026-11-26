@@ -2766,6 +2766,15 @@ const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
 const settingsRuntime=await read("assets/js/settings.js");
+const settingsStyle=await read("assets/css/settings.css");
+assert.ok(!settingsRuntime.includes('settingsCard(t("Сповіщення на сайті"')&&
+ settingsRuntime.includes('for(const [,heading,kinds] of notificationKinds)')&&
+ settingsRuntime.includes('ui-vatra-preferences-block-empty-001')&&
+ settingsRuntime.includes('list.setAttribute("aria-live","polite")')&&
+ settingsStyle.includes('scrollbar-gutter:stable;overflow-y:scroll')&&
+ settingsStyle.includes('grid-template-columns:minmax(0,1fr) auto;align-items:end')&&
+ settingsStyle.includes('top:81px'),
+ "Settings must keep stable page alignment, compact blocked list and no redundant notification card");
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
