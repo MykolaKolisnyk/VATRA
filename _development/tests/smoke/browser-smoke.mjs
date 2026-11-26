@@ -5323,7 +5323,8 @@ try{
   await profilePage.locator("#profile-status").click();
   assert.equal(await profilePage.locator("#profile-status-dialog").evaluate(el=>el.open),true,
    "Clicking status opens a dedicated status editor");
-  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),false);
+  assert.equal(await profilePage.locator("#profile-edit-dialog").count(),0,"Legacy media dialog must be removed");
+  assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false,"Status editing must not open the profile workspace");
   await profilePage.locator("#profile-status-cancel").click();
   assert.equal(await profilePage.locator("#profile-about-more").isVisible(),false,
    "Do not show a More details action if no additional information exists");
@@ -5348,7 +5349,8 @@ try{
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
-  await chooseProfileEditorOption("profile-editor-page-visibility","friends",language==="en"?"Private · friends only":"Закрита · лише друзі");
+  assert.equal(await profilePage.locator("#profile-editor-page-visibility, #profile-editor-page-visibility-native").count(),0,
+   "Global profile visibility belongs exclusively in Settings");
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
   await profilePage.locator("#profile-editor-city").fill("Київ");
   await profilePage.locator("#profile-editor-website").fill("https://example.org");
@@ -5362,10 +5364,12 @@ try{
   assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").count(),0,
    "Profile editor must not construct a legacy feedback node");
    await profilePage.locator(".vatra-toast-item--success.is-visible").last().waitFor({state:"visible"});
-  await profilePage.locator(".vatra-profile-editor-media-button-001").click();
-  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
-   "The media editor remains available from the new information editor");
-  await profilePage.locator("#profile-edit-cancel").click();
+  assert.equal(await profilePage.locator(".vatra-profile-editor-media-button-001, #profile-edit-dialog").count(),0,
+   "Redundant media action and dialog must not exist");
+  for(const [selector,inputId] of [[".vatra-profile-editor-avatar-change-001","profile-avatar-file"],[".vatra-profile-editor-cover-change-001","profile-cover-file"]]){
+   const [chooser]=await Promise.all([profilePage.waitForEvent("filechooser",{timeout:10000}),profilePage.locator(selector).click()]);
+   assert.equal(await chooser.element().getAttribute("id"),inputId,"Media action must directly open its existing file picker");
+  }
   await profilePage.locator(".vatra-profile-editor-back-001").click();
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true);
@@ -5394,6 +5398,8 @@ try{
    "Privacy visibility belongs only in the editor, never the read-only information dialog");
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog .vatra-profile-detail-icon").count(),0,
    "Detail sections use typography and labels rather than repetitive icons");
+  assert.equal(await profilePage.locator("#vatra-profile-details-dialog .vatra-profile-details-edit-001").count(),0,
+   "Read-only details must not include a duplicate edit button");
   await profilePage.locator(".vatra-profile-details-close-001").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),false);
   await profilePage.evaluate(()=>{
