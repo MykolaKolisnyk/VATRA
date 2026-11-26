@@ -9,7 +9,8 @@ const createAccountCss=await read("assets/css/create-account.css");
 const recoveryCss=await read("assets/css/recovery.css");
 const verifyCss=await read("assets/css/verify.css");
 const notFoundCss=await read("assets/css/not-found.css");
-const css=[authBaseCss,signInCss,createAccountCss,recoveryCss,verifyCss,notFoundCss].join("\n");
+const sharedSelectCss=await read("assets/css/form-select.css");
+const css=[authBaseCss,signInCss,createAccountCss,sharedSelectCss,recoveryCss,verifyCss,notFoundCss].join("\n");
 const legalCss=await read("assets/css/legal.css");
 const authShared=await read("assets/js/auth-core.js");
 const authSignIn=await read("assets/js/sign-in.js");
@@ -2515,7 +2516,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","external-links.css","feed.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2983,3 +2984,5 @@ assert.ok(memberProfileMarkup.includes('maxlength="80" placeholder="Напиші
 assert.ok(memberProfileMarkup.includes('id="profile-photo-emoji-toggle"')&&memberProfileMarkup.includes('id="profile-photo-comment-cancel"')&&profileScript.includes("setRangeText(emoji"),"Photo comments include functional emoji and cancel actions");
 
 assert.ok(profileBehavior.includes("cachedFriends.slice(0,4)")&&profileBehavior.includes('q("#profile-gifts-dialog")')&&profileBehavior.includes('if(!compact)item.append(title,sub)'),"Profile uses four friends and image-only gifts with history dialog");
+
+assert.ok(settingsRuntime.includes("VATRA_FORM_SELECT.fillBirthdays(day,month,year)")&&settingsRuntime.includes("VATRA_FORM_SELECT.wireSelects([...dateParts,gender])")&&!settingsRuntime.includes('field(form,"birthdate"'),"VATRA ID must reuse the registration date and gender component");

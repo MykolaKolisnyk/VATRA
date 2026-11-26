@@ -28,7 +28,7 @@ body.vatra-section-page .vatra-id-device-heading-001{font:var(--section-heading)
 body.vatra-section-page .vatra-id-device-note-001{font:var(--section-body);color:var(--soft);margin:7px 0 15px}
 body.vatra-section-page .vatra-id-device-refresh-001{color:#2861d8;background:#edf3ff;border:0;border-radius:8px;padding:8px 12px;font:var(--section-caption);cursor:pointer}
 body.vatra-section-page .ui-vatra-id-device-row-001{display:flex;align-items:center;gap:12px;min-width:0;padding:15px 0;border-bottom:1px solid #edf1f7}
-body.vatra-section-page .ui-vatra-id-device-symbol-001{display:grid;place-items:center;flex:none;width:47px;height:47px;border-radius:13px;background:#edf3ff;color:#3974d8}
+body.vatra-section-page .ui-vatra-id-device-symbol-001{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:12px;background:#edf3ff;color:#547cbe}
 body.vatra-section-page .ui-vatra-id-device-details-001{display:flex;flex:1;flex-direction:column;min-width:0;gap:4px}
 body.vatra-section-page .vatra-id-device-name-001{font:var(--section-name);color:#293a52;overflow-wrap:anywhere}
 body.vatra-section-page :is(.vatra-id-device-time-001,.vatra-id-device-activity-001){font:var(--section-caption);color:var(--soft)}
@@ -45,11 +45,11 @@ body.vatra-section-page .ui-vatra-preferences-nav-001{position:sticky;top:81px;p
 body.vatra-section-page .ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001{flex-direction:column}
 body.vatra-section-page .vatra-preferences-id-link-001{display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;color:#3563b3;font:650 14px/1.4 Onest,system-ui,sans-serif;padding:12px 10px}
 body.vatra-section-page .ui-vatra-preferences-card-001{padding:var(--vatra-card-padding);min-width:0}
-body.vatra-section-page .vatra-preferences-heading-001{font:750 19px/1.4 Onest,system-ui,sans-serif;letter-spacing:-.02em;margin:0 0 12px;color:#2c3850}
+body.vatra-section-page .vatra-preferences-heading-001{font:var(--section-heading);letter-spacing:-.02em;margin:0 0 12px;color:#2c3850}
 body.vatra-section-page .ui-vatra-preferences-row-001{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;padding:19px 0;border-top:1px solid #e7edf5}
 body.vatra-section-page .ui-vatra-preferences-row-copy-001{display:grid;gap:5px}
-body.vatra-section-page .vatra-preferences-label-001{font:650 15px/1.45 Onest,system-ui,sans-serif;color:#334761}
-body.vatra-section-page .vatra-preferences-description-001{font:500 13px/1.5 Onest,system-ui,sans-serif;color:#71839c;margin:0;overflow-wrap:anywhere}
+body.vatra-section-page .vatra-preferences-label-001{font:var(--section-name);color:#334761}
+body.vatra-section-page .vatra-preferences-description-001{font:var(--section-caption);color:#71839c;margin:0;overflow-wrap:anywhere}
 body.vatra-section-page .ui-vatra-preferences-select-001{min-height:40px;max-width:100%;padding:7px 10px;border:1px solid #dfe6f4;border-radius:var(--vatra-control-radius);background:#f7f9fc;color:#365d9f;font:600 14px/1.4 Onest,system-ui,sans-serif}
 body.vatra-section-page .vatra-preferences-action-001{display:inline-flex;align-items:center;justify-content:center;min-height:38px;border:0;border-radius:var(--vatra-control-radius);background:#edf3ff;color:#275fca;padding:8px 13px;cursor:pointer;font:650 13px/1.4 Onest,system-ui,sans-serif;text-decoration:none}
 body.vatra-section-page .ui-vatra-preferences-toggle-001{appearance:none;width:42px;height:24px;border:0;border-radius:20px;background:#b7c4d8;position:relative;cursor:pointer;margin:0}
@@ -88,8 +88,8 @@ body.vatra-section-page .ui-vatra-id-rail-001{display:grid;gap:8px;min-width:0;p
 body.vatra-section-page .ui-vatra-id-brand-001{display:flex;align-items:center;gap:7px;padding:10px 12px 14px;border-bottom:1px solid #edf1f7;margin-bottom:6px}
 body.vatra-section-page .ui-vatra-id-brand-logo-001{width:26px;height:26px;object-fit:contain}
 body.vatra-section-page .vatra-id-brand-label-001{font:750 22px/1 Onest,system-ui,sans-serif;color:#26384f}
-body.vatra-section-page .ui-vatra-id-sidebar-001 .ui-vatra-section-tabs-001 button{display:flex;align-items:center;gap:12px;text-align:left}
-body.vatra-section-page :is(.ui-vatra-id-sidebar-001,.vatra-id-back-001) svg{flex:none;width:24px;height:24px;color:#547cbe}
+body.vatra-section-page :is(.ui-vatra-id-sidebar-001,.ui-vatra-preferences-nav-001) .ui-vatra-section-tabs-001 button{display:flex;align-items:center;gap:10px;min-height:44px;text-align:left}
+body.vatra-section-page :is(.ui-vatra-id-sidebar-001,.ui-vatra-preferences-nav-001,.vatra-id-back-001) svg{flex:none;width:20px;height:20px;color:currentColor}
 body.vatra-section-page .ui-vatra-id-return-001{padding:8px 12px}
 body.vatra-section-page .vatra-id-back-001:hover{background:#edf3ff}
 body.vatra-section-page .ui-vatra-id-legal-001{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding:10px 0}
@@ -104,7 +104,7 @@ body.vatra-section-page .ui-vatra-id-quick-001 .vatra-id-heading-001{margin-bott
 body.vatra-section-page .vatra-id-action-row-001{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;text-align:left;border:0;border-radius:10px;background:transparent;color:#334761;padding:12px 8px;cursor:pointer}
 body.vatra-section-page .vatra-id-action-row-001:hover{background:#f2f6fd}
 body.vatra-section-page .ui-vatra-id-action-symbol-001{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:12px;color:#547cbe;background:#edf3ff}
-body.vatra-section-page .ui-vatra-id-action-symbol-001 svg{width:24px;height:24px}
+body.vatra-section-page .ui-vatra-id-action-symbol-001 svg{width:20px;height:20px}
 body.vatra-section-page .ui-vatra-id-action-copy-001{display:grid;gap:4px;flex:1;min-width:0}
 body.vatra-section-page .vatra-id-action-label-001{font:var(--section-name);overflow-wrap:anywhere}
 body.vatra-section-page .vatra-id-action-description-001{font:var(--section-caption);color:var(--soft);overflow-wrap:anywhere}
@@ -132,3 +132,11 @@ body.vatra-section-page .ui-vatra-id-deactivated-001 .ui-vatra-id-action-symbol-
 body.vatra-section-page .ui-vatra-id-deactivated-001 p{margin:0}
 body.vatra-section-page .vatra-id-restore-until-001{font:700 16px/1.5 Onest,system-ui,sans-serif;color:#334761}
 body.vatra-section-page .ui-vatra-id-devices-001{scroll-margin-top:90px}
+
+body.vatra-section-page .ui-vatra-preferences-id-copy-001{display:flex;align-items:center;gap:10px;min-width:0}
+body.vatra-section-page .ui-vatra-id-device-symbol-001 svg{width:20px;height:20px}
+body.vatra-section-page .ui-vatra-id-birth-field-001{display:grid;gap:6px;min-width:0;grid-column:1/-1}
+body.vatra-section-page .ui-vatra-section-field-gender{grid-column:1/-1}
+body.vatra-section-page .ui-vatra-id-personal-form-001 [class^="vatra-section-label-"]{font:700 13px/1.4 Onest,Inter,system-ui,sans-serif;color:#48576d}
+body.vatra-section-page .ui-vatra-id-personal-form-001 [class^="ui-vatra-section-input-"].control{height:51px;padding:12px 15px;font:500 15px/1.2 Onest,Inter,system-ui,sans-serif}
+body.vatra-section-page .ui-vatra-id-personal-form-001 .vatra-select-trigger{height:51px}

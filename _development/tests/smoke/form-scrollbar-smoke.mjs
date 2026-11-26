@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 const [base,lang,signup,feed,profile]=await Promise.all([
- "assets/css/base.css","assets/js/lang.js","assets/css/create-account.css",
+ "assets/css/base.css","assets/js/lang.js","assets/css/form-select.css",
  "assets/css/feed.css","assets/css/profile.css"
 ].map(path=>readFile(path,"utf8")));
 assert.ok(base.includes(".language-scroll-track.is-visible")&&
@@ -37,7 +37,7 @@ assert.ok(signup.includes(".vatra-select-scroll-area")&&
  signup.includes(".vatra-select-scroll-rail.is-visible")&&
  signup.includes("background:#454b54"),
  "Date lists must hide browser arrows and use an inset, fadeable graphite VATRA rail");
-const registerJs=await readFile("assets/js/create-account.js","utf8");
+const registerJs=await readFile("assets/js/form-select.js","utf8");
 assert.ok(registerJs.includes('rail.className="vatra-select-scroll-rail ui-select-rail-"+select.id')&&
  registerJs.includes('scrollArea.addEventListener("scroll"')&&
  registerJs.includes('rail.addEventListener("pointerdown"')&&
