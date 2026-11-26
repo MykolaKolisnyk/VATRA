@@ -4003,5 +4003,6 @@
   "На цьому пристрої потрібно буде увійти повторно.": "You will need to sign in again on this device.",
   "Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.": "Session revoked. Access ends when the existing token expires.",
   "Не вдалося завершити сеанс.": "Could not revoke session.",
-  "Остання активність: ": "Last activity: "
+  "Остання активність: ": "Last activity: ",
+  "Країна": "Country"
 }
