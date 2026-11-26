@@ -1,6 +1,8 @@
 {
   "Створити публікацію": "Utwórz post",
   "Публікація": "Post",
+  "Підозріле посилання": "Podejrzany link",
+  "Ви залишаєте VATRA. Адреса має підозрілі ознаки. Перевірте домен перед переходом.": "Opuszczasz VATRA. Ten adres ma podejrzane cechy. Sprawdź domenę przed przejściem.",
   "Вказати адресу": "Podaj adres",
   "Додавання місця": "Dodaj miejsce",
   "Вулиця": "Ulica",
@@ -4173,5 +4175,13 @@
   "Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.": "Sesja zakończona. Dostęp wygaśnie wraz z ważnością bieżącego tokena.",
   "Не вдалося завершити сеанс.": "Nie udało się zakończyć sesji.",
   "Остання активність: ": "Ostatnia aktywność: ",
-  "Країна": "Kraj"
+  "Країна": "Kraj",
+  "Незахищене HTTP-з’єднання.": "Nieszyfrowane połączenie HTTP.",
+  "Скорочена адреса приховує кінцевий сайт.": "Skrócony adres ukrywa witrynę docelową.",
+  "Незвична адреса сервера або порт.": "Nietypowy adres serwera lub port.",
+  "Міжнародний домен або приховані символи в адресі.": "Domena międzynarodowa lub ukryte znaki w adresie.",
+  "Адреса містить облікові дані.": "Adres zawiera dane uwierzytelniające.",
+  "Домен може імітувати відомий сервіс.": "Domena może naśladować znaną usługę.",
+  "Адреса може перенаправити на інший сайт.": "Adres może przekierować do innej witryny.",
+  "Посилання може завантажити виконуваний файл.": "Link może pobrać plik wykonywalny."
 }
