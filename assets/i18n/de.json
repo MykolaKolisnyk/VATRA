@@ -4144,5 +4144,6 @@
   "Завершити цей сеанс?": "Diese Sitzung beenden?",
   "На цьому пристрої потрібно буде увійти повторно.": "Auf diesem Gerät ist eine erneute Anmeldung erforderlich.",
   "Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.": "Sitzung beendet. Der Zugriff endet mit Ablauf des aktuellen Tokens.",
-  "Не вдалося завершити сеанс.": "Sitzung konnte nicht beendet werden."
+  "Не вдалося завершити сеанс.": "Sitzung konnte nicht beendet werden.",
+  "Остання активність: ": "Letzte Aktivität: "
 }
