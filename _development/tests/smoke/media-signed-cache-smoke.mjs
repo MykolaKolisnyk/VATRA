@@ -23,15 +23,16 @@ runInNewContext(source.slice(start,end)+
 const {signed,preSignGallery,preSignVisible}=context.mediaCacheTest;
 const host="https://cxrcycxrlkufozomsxcs.supabase.co";
 const path="7/comments/example.png";
-function makeClient(owner){
+function makeClient(owner,allowedBuckets=["post-images"]){
  let calls=0,bulkCalls=0,authHandler=null;
  const client={
   auth:{onAuthStateChange(handler){authHandler=handler;
    return {data:{subscription:{unsubscribe(){}}}};}},
   storage:{from:bucket=>{
-   assert.equal(bucket,"post-images");
+   assert.ok(allowedBuckets.includes(bucket),"Unexpected Storage bucket: "+bucket);
    return {
     async createSignedUrl(item,ttl){
+     if(allowedBuckets.includes("videos"))assert.equal(bucket,/\.(mp4|webm)$/.test(item)?"videos":"post-images");
      calls++;
      assert.ok([300,301,3600].includes(ttl));
      return {data:{signedUrl:host+"/storage/v1/object/sign/"+
@@ -542,20 +543,24 @@ console.log("VATRA visible preview batching: cross-card request reduction, cache
  await renderStory(deferred,story(7),late);
  assert.equal(late.children.length,1,"Reopening works and reuses the signed URL");
  const videoStory={...story(8),media_kind:"video",media_path:story(8).media_path.replace(".jpg",".mp4")};
- const vc=makeClient("video-story"),preview=slot();
+ const vc=makeClient("video-story",["post-images","videos"]),preview=slot();
  env.navigator={connection:{effectiveType:"2g",saveData:false}};
  await renderStory(vc.client,videoStory,preview,true);
  assert.equal(vc.calls,0,"Constrained video story preview must not request a signed URL");
  assert.equal(preview.hidden,true);
- await renderStory(vc.client,videoStory,slot());
+ const explicit=slot();await renderStory(vc.client,videoStory,explicit);
  assert.equal(vc.calls,1,"Opening a story explicitly must still sign its video");
+ assert.equal(explicit.children[0]?.tag,"video");
+ assert.equal(explicit.children[0]?.controls,true);
  env.navigator.connection={effectiveType:"4g",saveData:true};
  await renderStory(vc.client,{...videoStory,media_path:videoStory.media_path.replace("000008","000009")},slot(),true);
  assert.equal(vc.calls,1,"Data saver must prevent speculative video metadata");
  env.navigator.connection.saveData=false;
  const normal=slot();await renderStory(vc.client,videoStory,normal,true);
  assert.equal(normal.children[0].tag,"video","Normal network retains video previews");
- await renderStory(vc.client,{...story(10)},slot(),true);
- assert.equal(vc.calls,2,"Photo preview continues to sign normally");
+ env.navigator.connection.saveData=true;
+ const photo=slot();await renderStory(vc.client,story(10),photo,true);
+ assert.equal(vc.calls,2,"Constrained networks must still load photo previews");
+ assert.equal(photo.children[0]?.tag,"img");
 }
 console.log("VATRA story photo previews: shared signing, cache reuse, path validation and session isolation passed.");
