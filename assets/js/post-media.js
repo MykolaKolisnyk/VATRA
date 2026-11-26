@@ -478,6 +478,7 @@
   const {media_kind:kind,media_path:path,author_vatra_id:id}=story||{};
   if(!storyPathValid(path,kind,id))return;
   if(!allowExpired&&story.expires_at&&Date.parse(story.expires_at)<=Date.now())return;
+  if(preview&&kind==="video"&&mediaConnectionConstrained())return;
   slot.hidden=false;
   if(!preview)slot.textContent=tr("Завантаження медіа…","Loading media…");
   try{
