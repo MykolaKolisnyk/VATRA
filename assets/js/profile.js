@@ -3711,8 +3711,6 @@ async function start(){
    .select("vatra_id").eq("user_id",user.id).maybeSingle());
   const ownId=String(account?.vatra_id??"");
   if(accountError||!validId(ownId))throw accountError||Error("Account unavailable");
-  // Finish queued writes in parallel with profile access checks and header setup.
-  // The posts query below still waits for these writes to preserve ordering.
   const pendingDeleteFlush=Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.flushPendingPostDeletes(client,ownId));
   void pendingDeleteFlush.catch(()=>{});
   window.VATRA_PUBLIC_NAMES?.bindViewer?.(client,user.id);

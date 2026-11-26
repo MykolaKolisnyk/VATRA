@@ -28,7 +28,6 @@ let pageHooks={};
 function validateBirthday(){return pageHooks.validateBirthday?.()??null;}
 let navigatingAuth=false;
 const markAuthReady=()=>{if(!navigatingAuth)document.body.dataset.authReady="true";};
-// Bound the actual Auth HTTP request, not merely the spinner. Preserve SDK cancellation.
 async function authFetch(input,init={},timeoutMs=15000){
  const controller=new AbortController();
  const upstream=init.signal||(typeof Request==="function"&&input instanceof Request?input.signal:null);
