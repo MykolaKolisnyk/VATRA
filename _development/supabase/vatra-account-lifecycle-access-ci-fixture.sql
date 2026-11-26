@@ -6,7 +6,7 @@ create function auth.uid() returns uuid language sql stable set search_path='' a
 $$;
 -- Match the current live moderation predicate, including expired blocks.
 create function vatra_security_private.allowed() returns boolean language sql stable security definer set search_path='' as $$
- select not exists(select 1 from public.accounts a join public.account_states s on s.vatra_id=a.vatra_id where a.user_id=auth.uid() and (s.state='deleted' or (s.state='blocked' and (s.blocked_until is null or s.blocked_until>now())))
+ select not exists(select 1 from public.accounts a join public.account_states s on s.vatra_id=a.vatra_id where a.user_id=auth.uid() and (s.state='deleted' or (s.state='blocked' and (s.blocked_until is null or s.blocked_until>now()))))
 $$;
 revoke all on function vatra_security_private.allowed() from public,anon;
 grant usage on schema auth,vatra_security_private,storage to authenticated;
