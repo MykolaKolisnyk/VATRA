@@ -5401,6 +5401,22 @@ try{
   await checkCityOptions("profile-editor-hometown","Невицьке","Warszawa");
   await checkCityOptions("profile-editor-hometown","Львів","Warszawa");
   assert.equal(await profilePage.locator(".ui-profile-editor-field-control-short_bio #profile-editor-visibility-short_bio").count(),1,"Visibility must be inside the same field box");
+  for(const key of ["short_bio","country","hometown","languages","relationship"]){
+   const geometry=await profilePage.locator(".ui-profile-editor-field-control-"+key).evaluate(box=>{
+    const privacy=box.querySelector(".vatra-editor-select[data-variant='compact']"),trigger=privacy?.querySelector("button");
+    const field=box.firstElementChild.getBoundingClientRect(),icon=trigger.getBoundingClientRect(),bounds=box.getBoundingClientRect();
+    return {right:Math.abs(bounds.right-icon.right),top:Math.abs(bounds.top-icon.top),overlap:field.right-icon.left,svg:trigger.querySelectorAll("svg").length,text:trigger.textContent.trim(),height:bounds.height,fieldHeight:field.height};
+   });
+   assert.ok(geometry.right<3&&geometry.top<3&&geometry.overlap<2&&geometry.svg===1&&!geometry.text&&geometry.height<=Math.max(44,geometry.fieldHeight)+3,
+    "Privacy icon must occupy the trailing edge without adding a row: "+key+" "+JSON.stringify(geometry));
+  }
+  const privacy=profilePage.locator("#profile-editor-visibility-short_bio");await privacy.click();
+  const privacyPanel=profilePage.locator("#"+await privacy.getAttribute("aria-controls"));
+  assert.equal(await privacyPanel.getByRole("option").count(),3,"Only supported privacy levels are offered");
+  assert.equal(await privacyPanel.locator('[aria-selected="true"] .ui-profile-editor-option-check-001').count(),1);
+  await profilePage.locator("#profile-editor-visibility-country").click();
+  assert.equal(await privacy.getAttribute("aria-expanded"),"false","Only one dropdown stays open");
+  await profilePage.keyboard.press("Escape");
   assert.ok(await profilePage.locator("#profile-editor-languages-native option").count()>=170,"Extended language catalog");
   assert.equal(await profilePage.locator('#profile-editor-languages-native option[value="Русский"]').count(),0,"Russian must not be a new selectable language");
   const languageSearch=profilePage.locator("#profile-editor-languages");await languageSearch.fill("English");
@@ -5409,6 +5425,7 @@ try{
   await languagePanel.getByRole("option").filter({hasText:"English"}).click();
   assert.equal(await profilePage.locator(".vatra-profile-editor-language-chip-001").filter({hasText:"English"}).count(),1);
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
+  assert.equal(await privacy.locator("svg.ui-vatra-profile-information-icon-lock").count(),1,"Privacy icon reflects the saved choice");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
   assert.equal(await profilePage.locator("#profile-editor-page-visibility, #profile-editor-page-visibility-native").count(),0,

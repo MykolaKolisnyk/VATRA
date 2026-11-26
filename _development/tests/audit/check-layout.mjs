@@ -1699,7 +1699,10 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab);control.append(disclosure)') &&
+ detailsModule.includes('labelGroup.append(lab);control.append(selectBox)') &&
+ detailsModule.includes('if(variant==="compact")button.append(iconWrap);') &&
+ !detailsModule.includes('ui-profile-editor-disclosure-') &&
+ memberCss.includes('grid-template-columns:minmax(0,1fr) 44px;align-items:start') &&
  detailsModule.includes('if(!editable){event.preventDefault();open(true);return;}') &&
  detailsModule.includes('state.panel.scrollTop+=option.bottom-bounds.bottom') &&
  memberCss.includes('.vatra-editor-select>select[hidden]{display:none!important}') &&
