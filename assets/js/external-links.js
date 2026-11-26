@@ -63,11 +63,15 @@ function inspect(raw,base,displayed){
 }
 const tr=(uk,en)=>{const locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";return locale==="uk"?uk:locale==="en"?en:window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
 const reasonText={"http":["Незахищене HTTP-з’єднання.","Unencrypted HTTP connection."],"short":["Скорочена адреса приховує кінцевий сайт.","A shortened URL hides the final website."],"host":["Незвична адреса сервера або порт.","Unusual server address or port."],"idn":["Міжнародний домен або приховані символи в адресі.","Internationalized domain or hidden characters in the address."],"credentials":["Адреса містить облікові дані.","The address contains credentials."],"brand":["Домен може імітувати відомий сервіс.","The domain may imitate a familiar service."],"redirect":["Адреса може перенаправити на інший сайт.","The address may redirect to another website."],"executable":["Посилання може завантажити виконуваний файл.","The link may download an executable file."]};
+const scriptUrl=document.currentScript?.src;
 let active=null;
 function warn(result,newTab,anchor){
  active?.close();
  const dialog=document.createElement("dialog");active=dialog;dialog.className="ui-vatra-external-link-dialog-001";
  const make=(tag,cls,text)=>{const el=document.createElement(tag);el.className=cls;if(text!==undefined)el.textContent=text;return el;};
+ const mascot=make("img","vatra-external-link-mascot-001");mascot.alt="";mascot.decoding="async";
+ mascot.addEventListener("error",()=>mascot.remove(),{once:true});
+ mascot.src=new URL("../vatryk/vatryk_suspicious-link.webp?rev=46d5687d8337684fda353921b4678998ed8c5c0d",scriptUrl||new URL("assets/js/external-links.js",location.href)).href;
  const heading=make("h2","vatra-external-link-heading-001",tr("Підозріле посилання","Suspicious link"));heading.id="vatra-external-link-heading";
  dialog.setAttribute("aria-labelledby",heading.id);
  const note=make("p","vatra-external-link-note-001",tr("Ви залишаєте VATRA. Адреса має підозрілі ознаки. Перевірте домен перед переходом.","You are leaving VATRA. This address has suspicious characteristics. Check the domain before continuing."));
@@ -81,7 +85,7 @@ function warn(result,newTab,anchor){
  next.addEventListener("click",()=>{dialog.close();if(newTab)window.open(result.href,"_blank","noopener,noreferrer");else location.assign(result.href);});
  dialog.addEventListener("close",()=>{dialog.remove();if(active===dialog)active=null;anchor.focus?.({preventScroll:true});},{once:true});
  dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
- actions.append(back,next);dialog.append(heading,note,host,reasons,actions);document.body.append(dialog);dialog.showModal();
+ actions.append(back,next);dialog.append(mascot,heading,note,host,reasons,actions);document.body.append(dialog);dialog.showModal();
 }
 function handle(event){
  if(event.defaultPrevented||event.button===2||event.type==="auxclick"&&event.button!==1)return;

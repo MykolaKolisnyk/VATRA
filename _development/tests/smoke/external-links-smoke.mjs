@@ -42,3 +42,19 @@ for(const locale of ["uk","en","pl","de","fr","it","ka","bg"]){
  for(const key of ["Незахищене HTTP-з’єднання.","Скорочена адреса приховує кінцевий сайт.","Незвична адреса сервера або порт.","Міжнародний домен або приховані символи в адресі.","Адреса містить облікові дані.","Домен може імітувати відомий сервіс.","Адреса може перенаправити на інший сайт.","Посилання може завантажити виконуваний файл."])assert.ok(typeof catalog[key]==="string"&&catalog[key].trim(),locale+" "+key);
 }
 console.log("VATRA outbound link heuristics, attribution preservation and eight localized warning reasons passed.");
+
+const artwork=await readFile("assets/vatryk/vatryk_suspicious-link.webp");
+assert.equal(artwork.subarray(0,4).toString(),"RIFF");assert.equal(artwork.subarray(8,12).toString(),"WEBP");
+const listeners=new Map(),created=[];
+function element(tag){return {tag,children:[],listeners:{},setAttribute(){},append(...children){this.children.push(...children);},addEventListener(type,fn){this.listeners[type]=fn;},remove(){this.removed=true;},showModal(){this.open=true;},close(){this.open=false;this.listeners.close?.();}};}
+const doc={currentScript:{src:"https://vatra.example/VATRA/assets/js/external-links.js"},documentElement:{lang:"uk"},body:element("body"),addEventListener(type,fn){listeners.set(type,fn);},createElement(tag){const node=element(tag);created.push(node);return node;}};
+runInNewContext(source,{window:{},document:doc,URL,location:{href:"https://vatra.example/VATRA/feed"}});
+assert.equal(created.length,0,"Do not preload decorative artwork");
+const anchor={getAttribute:()=>"https://bit.ly/example",hasAttribute:()=>false,classList:{contains:()=>false}};
+let prevented=false;
+listeners.get("click")({type:"click",button:0,target:{closest:()=>anchor},preventDefault(){prevented=true;},stopImmediatePropagation(){}});
+assert.ok(prevented);
+const dialog=doc.body.children[0],img=dialog.children[0];
+assert.ok(dialog.open);assert.equal(img.tag,"img");assert.equal(img.alt,"");assert.equal(img.src,"https://vatra.example/VATRA/assets/vatryk/vatryk_suspicious-link.webp?rev=46d5687d8337684fda353921b4678998ed8c5c0d");
+img.listeners.error();assert.ok(img.removed);assert.ok(dialog.open,"Failed artwork must not disable warning");
+console.log("VATRA warning artwork loads on demand and degrades safely.");
