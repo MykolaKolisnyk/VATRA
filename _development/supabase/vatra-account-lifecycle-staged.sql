@@ -36,6 +36,7 @@ declare
 begin
  if caller is null or caller_session is null or not exists(
   select 1 from auth.sessions s where s.id=caller_session and s.user_id=caller
+   and (s.not_after is null or s.not_after>clock_timestamp())
  ) then raise exception 'Invalid session' using errcode='42501'; end if;
  if operation is null or operation not in ('status','request_deletion','restore') then
   raise exception 'Invalid operation' using errcode='22023';
@@ -45,6 +46,10 @@ begin
  if not found then raise exception 'Account unavailable' using errcode='42501'; end if;
  select * into j from private.vatra_account_deletion_jobs q where q.user_id=caller for update;
  stamp:=clock_timestamp();
+ if not exists(select 1 from auth.sessions s where s.id=caller_session and s.user_id=caller
+  and (s.not_after is null or s.not_after>stamp)) then
+  raise exception 'Invalid session' using errcode='42501';
+ end if;
 
  if operation='status' then
   if j.user_id is null then
@@ -65,7 +70,7 @@ begin
    raise exception 'Account restricted' using errcode='42501';
   end if;
   insert into private.vatra_account_deletion_jobs(user_id,vatra_id,requested_at,restore_until,state)
-  values(caller,member,stamp,stamp+make_interval(days=>recovery_days),
+  values(caller,member,stamp,stamp+make_interval(hours=>24*recovery_days),
     case when recovery_days=0 then 'purging' else 'pending' end)
   returning * into j;
   return jsonb_build_object('ok',true,'ready',false,'state',j.state,'restore_until',j.restore_until);
@@ -113,5 +118,37 @@ begin
 end $$;
 revoke all on function public.vatra_account_lifecycle_claim(integer) from public,anon,authenticated;
 grant execute on function public.vatra_account_lifecycle_claim(integer) to service_role;
+
+-- A worker must verify/renew its own unexpired lease before each bounded
+-- cleanup step. Stale workers cannot renew a lease reclaimed by another.
+-- This does not authorize unfenced external Storage operations.
+create function public.vatra_account_lifecycle_renew(
+ job_user uuid, worker_lease uuid
+) returns timestamptz
+language plpgsql security definer set search_path=''
+as $
+declare
+ j private.vatra_account_deletion_jobs%rowtype;
+ stamp timestamptz;
+begin
+ if job_user is null or worker_lease is null then
+  raise exception 'Invalid lease' using errcode='22023';
+ end if;
+ select * into j from private.vatra_account_deletion_jobs q
+ where q.user_id=job_user for update;
+ stamp:=clock_timestamp();
+ if j.user_id is null or j.state<>'purging' or
+    j.lease_id is distinct from worker_lease or j.lease_until is null or j.lease_until<=stamp then
+  raise exception 'Lease expired or replaced' using errcode='55000';
+ end if;
+ update private.vatra_account_deletion_jobs q
+ set lease_until=stamp+interval '10 minutes'
+ where q.user_id=job_user
+ returning q.lease_until into stamp;
+ return stamp;
+end $;
+revoke all on function public.vatra_account_lifecycle_renew(uuid,uuid)
+ from public,anon,authenticated;
+grant execute on function public.vatra_account_lifecycle_renew(uuid,uuid) to service_role;
 
 commit;
