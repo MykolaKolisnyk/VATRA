@@ -1655,6 +1655,17 @@ assert.ok(
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
  "Profile must fetch only four friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
+const summarySource=profileScript.slice(profileScript.indexOf(" const canViewProfileField="),profileScript.indexOf(" function prepare({client,ownId,targetId,isMine})"));
+const {canViewProfileField,profileSummaryKeys}=new Function(summarySource+"return {canViewProfileField,profileSummaryKeys};")();
+for(const [visibility,owner,friend,expected] of [["public",false,false,true],["friends",false,false,false],["friends",false,true,true],["only_me",false,true,false],["only_me",true,false,true],["unknown",false,true,false]])
+ assert.equal(canViewProfileField({visibility},owner,friend),expected,"Profile field visibility must be respected");
+const visibleSummary=keys=>profileSummaryKeys(key=>keys.includes(key));
+assert.deepEqual(visibleSummary(["country","city","hometown","relationship","website","mobile_phone"]),["city","relationship","website"]);
+assert.deepEqual(visibleSummary(["country","hometown","address"]),["hometown"]);
+assert.deepEqual(visibleSummary(["country","mobile_phone"]),["country"]);
+assert.deepEqual(visibleSummary(["address","mobile_phone","languages"]),[]);
+assert.ok(profileScript.includes(".filter(row=>canViewProfileField(row,isMine,isFriend))"),"Read-only views must filter individual privacy before combining country and settlement");
+
 const countrySource=profileScript.slice(profileScript.indexOf(" const countryCities="),profileScript.indexOf(" const choiceLabel="));
 const countryTest=new Function("window","document",countrySource+"return {countryCodes,citiesForCountry,countryLabel};")({VATRA_LANGUAGE:{locale:"uk"}},{documentElement:{lang:"uk"}});
 assert.deepEqual([...countryTest.countryCodes].sort(),["BG","DE","FR","GB","GE","IT","PL","UA"]);
@@ -1704,7 +1715,7 @@ assert.ok(
  !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-info{') &&
  memberCss.includes('grid-template-columns:minmax(0,38%) minmax(0,1fr)'),
- "Profile About preview has a centered optional bio, compact facts, and no read-only icon tiles");
+ "Profile About preview has an optional bio, compact facts, and no read-only icon tiles");
 assert.ok(
  memberProfileMarkup.includes('id="profile-post-filter-button"') &&
  memberProfileMarkup.includes('id="profile-post-filter-year"') &&

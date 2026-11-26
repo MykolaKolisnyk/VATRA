@@ -187,6 +187,11 @@
   line.setAttribute("d",paths[kind]||paths.user);element.append(line);return element;
  };
  let openEditor=()=>{};
+ const canViewProfileField=(row,isMine,isFriend)=>isMine||row.visibility==="public"||(row.visibility==="friends"&&isFriend);
+ const profileSummaryKeys=visible=>{
+  const location=visible("city")?"city":visible("hometown")?"hometown":"country";
+  return [location,"relationship","website"].filter(key=>visible(key));
+ };
  function prepare({client,ownId,targetId,isMine}){
 
 
@@ -215,7 +220,7 @@
   const locked=!isMine&&(blocked||(accountVisibility==="friends"&&!isFriend));
   const result=locked?{data:[],error:null}:isMine?ownerDetails:await client.from("profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId);
-  const rows=result.error?[]:result.data||[];
+  const rows=result.error?[]:(result.data||[]).filter(row=>canViewProfileField(row,isMine,isFriend));
   const saved=new Map(rows.map(x=>[x.field_key,{
    value:String(x.field_value||""),visibility:x.visibility||"friends"
   }]));
@@ -229,27 +234,6 @@
   }
   const fieldsByKey=new Map(groups.flatMap(group=>group.fields).map(field=>[field[0],field]));
   const featured=["short_bio","country","city","hometown","relationship"];
-  const fieldIcons={
-   country:"globe",city:"map-pin",hometown:"map-pin",relationship:"heart",website:"link",
-   short_bio:"file-text",about_me:"file-text",family:"users",languages:"globe",
-   address:"map-pin",mobile_phone:"phone",additional_phone:"phone",
-   school:"graduation-cap",university:"graduation-cap",education_extra:"book-open",
-   workplace:"briefcase-business",job_title:"briefcase-business",career_extra:"briefcase-business",
-   activities:"sparkles",hobbies:"heart",favorite_music:"music",
-   favorite_movies:"film",favorite_tv:"film",favorite_books:"book-open",
-   favorite_games:"gamepad-2",favorite_quotes:"quote",military_service:"shield",
-   political_views:"compass",worldview:"compass",life_priorities:"compass",
-   important_in_people:"users",attitude_to_smoking:"compass",attitude_to_alcohol:"compass",
-   inspiration:"sparkles"
-  };
-  const fallback=[
-   "activities","hobbies","languages","school","university",
-   "workplace","job_title","family","about_me","favorite_music","favorite_movies",
-   "favorite_books","favorite_games","inspiration","worldview","life_priorities",
-   "important_in_people","education_extra","career_extra","favorite_tv",
-   "favorite_quotes","military_service","political_views","attitude_to_smoking",
-   "attitude_to_alcohol","address","mobile_phone","additional_phone"
-  ];
   const sections=make("div","profile-information-groups ui-profile-information-groups-001");
   const more=make("button","vatra-profile-about-more-001",tr("Докладніше","More details"));
   more.type="button";more.id="profile-about-more";
@@ -371,14 +355,9 @@
    paragraph.textContent=bio;
    paragraph.hidden=!bio;
 
-   const locationKey=visibleField("city")?"city":visibleField("hometown")?"hometown":null;
-   const selected=[locationKey||"country","relationship","website"].filter(key=>key&&visibleField(key));
-
-   for(const key of fallback){
-    if(selected.length>=3)break;
-    if(visibleField(key)&&!selected.includes(key))selected.push(key);
-   }
-   for(const key of selected.slice(0,3))sections.append(itemFor(key,false));
+   const selected=profileSummaryKeys(visibleField);
+   const locationKey=selected.find(key=>key==="city"||key==="hometown");
+   for(const key of selected)sections.append(itemFor(key,false));
    const noDetails=!bio&&!selected.length;
    card.classList.toggle("is-empty",noDetails);
    if(emptyInfo)emptyInfo.hidden=!noDetails;
