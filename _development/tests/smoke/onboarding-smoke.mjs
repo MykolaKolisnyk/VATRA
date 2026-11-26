@@ -129,7 +129,7 @@ console.log("VATRA onboarding: five original mascots, i18n, session isolation, r
 
  // A synchronously failing PostgREST builder must not leave progress stuck,
  // and one failed milestone must not hide other successful milestones.
-const startCheck=source.indexOf("async function checkTasks("),endCheck=source.indexOf("async function syncCompleted",startCheck);
+const startCheck=source.indexOf("const MILESTONE_TAB_KEY="),endCheck=source.indexOf("async function syncCompleted",startCheck);
 assert.ok(startCheck>=0&&endCheck>startCheck);
 let failed=true,calls=0;
 const mock={
@@ -141,9 +141,10 @@ const mock={
    limit:async()=>({data:table==="feed_posts"?[{id:"post"}]:[],error:null})};
  }
 };
-const taskContext={mock,milestoneSnapshot,Date,Promise};
+const tabBacking=new Map(),sessionStorage={getItem:key=>tabBacking.get(key)||null,setItem:(key,value)=>tabBacking.set(key,value),removeItem:key=>tabBacking.delete(key)};
+const taskContext={mock,milestoneSnapshot,Date,Promise,sessionStorage};
 runInNewContext(`
-let session={client:mock,id:"17"},stepsCard={},checking=null,results=null,checkedAt=0;
+let session={client:mock,id:"17",authUserId:"viewer-a"},stepsCard={},checking=null,results=null,checkedAt=0;
 const tasks=Array(5).fill(null);
 let refreshDisabled=false;
 const renderTasks=()=>{refreshDisabled=!!checking;};
@@ -167,3 +168,17 @@ assert.equal(calls,8,"Recent milestone results must be reused");
 const old=t.checkTasks(true);t.clear();await old;
 assert.equal(calls,8,"Queued milestone work must not start after sign-out");
 console.log("VATRA milestones: synchronous failure recovery, partial results, retry, shared request and stale-session guard passed.");
+
+{
+ const {readMilestoneTab,writeMilestoneTab}=context.window.VATRA_ONBOARDING_STATE;
+ const viewer={id:"17",authUserId:"viewer-a"},other={id:"17",authUserId:"viewer-b"},values=[true,false,true,false,false];
+ writeMilestoneTab(sessionStorage,viewer,values,1000);
+ assert.deepEqual(Array.from(readMilestoneTab(sessionStorage,viewer,15000).results),values);
+ assert.equal(readMilestoneTab(sessionStorage,viewer,16000),null,"Cross-page progress expires after 15 seconds");
+ writeMilestoneTab(sessionStorage,viewer,values,1000);
+ assert.equal(readMilestoneTab(sessionStorage,other,1001),null,"Different account must not reuse progress");
+ assert.equal(tabBacking.size,0);
+ writeMilestoneTab(sessionStorage,viewer,[true,null,true,false,false],1000);
+ assert.equal(tabBacking.size,0,"Partial errors must not persist across pages");
+}
+console.log("VATRA onboarding: short viewer-scoped tab cache, expiry and partial failure exclusion passed.");

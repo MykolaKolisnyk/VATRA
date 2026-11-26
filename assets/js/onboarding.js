@@ -73,6 +73,7 @@ let positionedIndex=-1;
 let checkedAt=0,checking=null,results=null;
 const home=()=>new URL("./",location.href);
 function stop(){
+ if(session)try{sessionStorage.removeItem(MILESTONE_TAB_KEY);}catch(_){}
  document.querySelector("#vatra-onboarding-replay")?.remove();
  session?.controller?.abort();
  if(raf){cancelAnimationFrame(raf);raf=0;}
@@ -331,10 +332,32 @@ function renderTasks(){
  }
  stepsArt.style.backgroundImage="url("+JSON.stringify(ART+(results?.every(value=>value===true)?"vatryk_success.webp":"vatryk_waiting.webp"))+")";
 }
+const MILESTONE_TAB_KEY="vatra:onboarding:milestones:v1",MILESTONE_TAB_TTL=15_000;
+function readMilestoneTab(store,current,now=Date.now()){
+ try{
+  const value=JSON.parse(store.getItem(MILESTONE_TAB_KEY)||"null");
+  if(!value)return null;
+  if(!current?.authUserId||value.viewer!==current.authUserId||value.member!==current.id||
+   !Number.isFinite(value.at)||value.at>now||now-value.at>=MILESTONE_TAB_TTL||
+   !Array.isArray(value.results)||value.results.length!==tasks.length||!value.results.every(x=>typeof x==="boolean")){
+   store.removeItem(MILESTONE_TAB_KEY);return null;
+  }
+  return {at:value.at,results:value.results.slice()};
+ }catch(_){return null;}
+}
+function writeMilestoneTab(store,current,values,now=Date.now()){
+ try{
+  if(!current?.authUserId||!Array.isArray(values)||values.length!==tasks.length||!values.every(x=>typeof x==="boolean")){
+   store.removeItem(MILESTONE_TAB_KEY);return;
+  }
+  store.setItem(MILESTONE_TAB_KEY,JSON.stringify({viewer:current.authUserId,member:current.id,at:now,results:values}));
+ }catch(_){}
+}
 async function checkTasks(force=false){
  if(!session||!stepsCard||!session.client)return;
  if(checking)return checking;
  if(!force&&results&&Date.now()-checkedAt<60000){renderTasks();return;}
+ if(!force&&!results){const cached=readMilestoneTab(sessionStorage,session);if(cached){results=cached.results;checkedAt=cached.at;renderTasks();return;}}
  const client=session.client,id=session.id,epoch=session;
  checking=Promise.resolve().then(async()=>{
   if(epoch!==session)return;
@@ -350,10 +373,12 @@ async function checkTasks(force=false){
    if(epoch!==session)return;
    results=milestoneSnapshot(response);
    checkedAt=Date.now();
+   writeMilestoneTab(sessionStorage,epoch,results,checkedAt);
   }catch(_){
    if(epoch===session){
     results=Array(tasks.length).fill(null);
     checkedAt=Date.now();
+    writeMilestoneTab(sessionStorage,epoch,results,checkedAt);
    }
   }
  }).finally(()=>{if(epoch===session){checking=null;renderTasks();}});
@@ -406,5 +431,5 @@ function openTasks(scroll=true){
  void checkTasks();
 }
 window.VATRA_ONBOARDING={start,stop,replay,openTasks};
-window.VATRA_ONBOARDING_STATE={recentSignup,storedKey,readState,saveState,shouldSaveSkip,milestoneSnapshot};
+window.VATRA_ONBOARDING_STATE={recentSignup,storedKey,readState,saveState,shouldSaveSkip,milestoneSnapshot,readMilestoneTab,writeMilestoneTab};
 })();
