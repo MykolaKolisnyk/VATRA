@@ -2643,10 +2643,6 @@ body.profile-page .profile-media-viewer[open]{
 }
 body.profile-page .profile-media-viewer::backdrop{background:rgba(12,16,24,.92)}
 
-@keyframes vatra-cover-backdrop-in{
- from{opacity:0}
- to{opacity:1}
-}
 body.profile-page .ui-profile-cover-viewer-001{
  box-sizing:border-box;position:fixed;inset:0;
  display:grid;place-items:center;width:100vw;height:100dvh;
@@ -2656,10 +2652,6 @@ body.profile-page .ui-profile-cover-viewer-001{
  font-family:"Onest",system-ui,sans-serif
 }
 body.profile-page .ui-profile-cover-viewer-001:not([open]){display:none!important}
-body.profile-page .ui-profile-cover-viewer-001::backdrop{
- background:rgba(9,14,24,.9);
- animation:vatra-cover-backdrop-in .3s ease-out both
-}
 body.profile-page .vatra-profile-cover-viewer-close-001{
  position:fixed;z-index:7;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));
  display:grid;place-items:center;width:44px;height:44px;padding:0;
@@ -2702,9 +2694,6 @@ body.profile-page .vatra-profile-cover-viewer-original-001:hover{background:#344
 body.profile-page .vatra-profile-cover-viewer-original-001[hidden]{display:none!important}
 @media(max-width:600px){
  body.profile-page .ui-profile-cover-viewer-stage-001{width:calc(100vw - 24px);border-radius:9px}
-}
-@media(prefers-reduced-motion:reduce){
- body.profile-page .ui-profile-cover-viewer-001::backdrop{animation:none}
 }
 
 body.profile-page .profile-media-viewer-stage{

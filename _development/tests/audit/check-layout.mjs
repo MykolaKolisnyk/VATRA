@@ -2401,7 +2401,9 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  profileScript.includes('if(kind!=="avatar"||!canViewPhoto)return;')&&
  !memberCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
  css.includes(".profile-photo-comments")&&
- memberCss.includes('body.profile-page .ui-profile-cover-viewer-001::backdrop')&&
+ !memberCss.includes('body.profile-page .ui-profile-cover-viewer-001::backdrop')&&
+ authBaseCss.includes('dialog:modal::backdrop,')&&
+ authBaseCss.includes('background:var(--vatra-modal-dim)!important')&&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-posts-section{'),
  "Original avatar viewer needs real likes/comments/share and matching Feed posts; cover viewer does not");
 assert.ok(["feed.html","profile.html","communities.html","club.html"].every(Boolean)&&

@@ -5081,6 +5081,8 @@ try{
    return {
     modalWidth:modal.getBoundingClientRect().width,
     backdrop:getComputedStyle(modal,"::backdrop").backgroundColor,
+     backdropBlur:getComputedStyle(modal,"::backdrop").backdropFilter,
+     modalAnimation:getComputedStyle(modal).animationName,
     dialogBackground:getComputedStyle(modal).backgroundColor,
     stageVisibility:getComputedStyle(stage).visibility,
     aspect:rect.width/rect.height,
@@ -5100,8 +5102,10 @@ try{
   assert.ok(Math.abs(coverLayout.aspect-2000/580)<.02&&
    coverLayout.centeredX<=3&&coverLayout.centeredY<=3&&coverLayout.width<=1122,
    "Expanded cover must keep its 2000:580 ratio and remain centered: "+JSON.stringify(coverLayout));
-  assert.equal(coverLayout.backdrop,"rgba(9, 14, 24, 0.9)",
-   "Only the backdrop should darken the page, without animating the profile itself");
+  assert.equal(coverLayout.backdrop,"rgba(15, 24, 44, 0.48)",
+   "Cover viewer must share the standard VATRA modal dimming");
+  assert.equal(coverLayout.backdropBlur,"blur(3px)","Cover viewer must share the standard VATRA modal blur");
+  assert.equal(coverLayout.modalAnimation,"none","The fullscreen cover shell must stay fixed; only the photo and backdrop may animate");
   assert.equal(coverLayout.dialogBackground,"rgba(0, 0, 0, 0)",
    "The dialog must not paint a second translucent layer over the background");
   assert.equal(coverLayout.stageVisibility,"visible",
