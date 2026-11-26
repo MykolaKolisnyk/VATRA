@@ -23,22 +23,22 @@
   el.setAttribute("class",cls);el.setAttribute("viewBox","0 0 24 24");
   el.setAttribute("width","22");el.setAttribute("height","22");
   el.setAttribute("fill","none");el.setAttribute("stroke","currentColor");
-  el.setAttribute("stroke-width","1.7");el.setAttribute("stroke-linecap","round");
+  el.setAttribute("stroke-width","1.85");el.setAttribute("stroke-linecap","round");
   el.setAttribute("stroke-linejoin","round");el.setAttribute("aria-hidden","true");
   const paths={
    albums:"M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 11h18",
    image:"M4 4h16v16H4zM7 16l4-5 3 3 2-2 3 4M8.5 8.5h.01",
    plus:"M12 5v14M5 12h14",back:"m15 18-6-6 6-6",
-   close:"M5 5l14 14M19 5 5 19",
-   comments:"M20 11a8 8 0 0 1-8 8 8 8 0 0 1-4-1l-5 2 2-5a8 8 0 1 1 15-4z",
+   close:"M5 5 19 19M19 5 5 19",
+   comments:"M20.5 11.3c0 4.8-3.9 8.6-8.6 8.6-1.4 0-2.9-.3-4.2-1L3 20l1.6-4.5a8.5 8.5 0 1 1 15.9-4.2Z",
    heart:"M20.8 4.8a5.4 5.4 0 0 0-7.7 0L12 6l-1.1-1.2a5.4 5.4 0 0 0-7.7 7.6L12 21l8.8-8.6a5.4 5.4 0 0 0 0-7.6Z",
    like:"M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z",
    share:"M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z",
-   send:"M5 12h14m-6-6 6 6-6 6",
-   smile:"M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM8 14a4 4 0 0 0 8 0M9 9h.01M15 9h.01",
+   send:"M4 12h15m-6-6 6 6-6 6",
+   smile:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM8 14c2.2 3 5.8 3 8 0M9 10h.01M15 10h.01",
    upload:"M12 16V3m-5 5 5-5 5 5M4 17v4h16v-4",
    settings:"M4 7h16M7 7v4M4 17h16M17 13v4",
-   trash:"M4 7h16M10 11v7m4-7v7M6 7l1 14h10l1-14M9 7V4h6v3",
+   trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7",
    shield:"M12 2l8 4v6c0 5-3.3 8-8 10-4.7-2-8-5-8-10V6z"
   };
   for(const d of [paths[type]||paths.image]){

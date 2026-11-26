@@ -29,7 +29,7 @@ const icon=(key,path)=>{
  svg.setAttribute("viewBox","0 0 24 24");
  svg.setAttribute("width","19");svg.setAttribute("height","19");
  svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");
- svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");
+ svg.setAttribute("stroke-width","1.85");svg.setAttribute("stroke-linecap","round");
  svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
  const line=document.createElementNS(ns,"path");
  line.setAttribute("class","ui-notification-path-"+key);line.setAttribute("d",path);
@@ -481,6 +481,12 @@ function createRow(record,name,index,onChange,photoUrl,accountState=null,form=nu
   "M12 11.8a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2ZM3.5 20v-1.2a7.1 7.1 0 0 1 11.1-5.7M18 14v7m-3.5-3.5h7":
   record.kind.endsWith("_like")?
   "M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z":
+  record.kind==="post_share"?
+  "M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z":
+  ["post_comment","post_reply","avatar_comment","album_comment","comment_mention"].includes(record.kind)?
+  "M20.5 11.3c0 4.8-3.9 8.6-8.6 8.6-1.4 0-2.9-.3-4.2-1L3 20l1.6-4.5a8.5 8.5 0 1 1 15.9-4.2Z":
+  record.kind==="member_story"?
+  "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm-2 5 6 4-6 4V8Z":
   "M4 5h16v13H9l-5 3V5ZM8 10h8M8 14h5";
  badgeIcon.append(icon("event-"+index,path));
  const avatar=make("a","vatra-notification-avatar ui-vatra-notification-avatar-"+index);
