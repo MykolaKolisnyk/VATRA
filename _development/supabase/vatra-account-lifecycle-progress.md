@@ -19,3 +19,5 @@ https://supabase.com/docs/guides/storage/buckets/fundamentals
 https://supabase.com/docs/guides/storage/management/delete-objects
 
 Added a separate PostgreSQL 17 CI database with a minimal schema fixture and tests for recovery periods, invalid/expired sessions, cross-account isolation, moderation, duplicate requests, expiry, immediate requests and leases. Fixed invalid dollar quoting in the renewal function. This is not full Supabase integration, no production migrations or data changes; CI outcome must be verified.
+
+A staged status-only Edge gateway is now in `functions/account-lifecycle/`. It validates the bearer with Auth, derives user and session IDs from the verified token, calls the service-only status RPC, and rejects mutations regardless of client input. The frontend remains disabled and the gateway has not been deployed. The pure handler smoke test mocks Auth/RPC, so real Supabase integration, fresh password/MFA, full deactivation and cleanup remain release blockers.
