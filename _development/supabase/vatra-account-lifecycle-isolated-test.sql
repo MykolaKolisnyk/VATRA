@@ -57,4 +57,57 @@ begin
   raise exception 'Reclaimed lease could not be renewed';
  end if;
 end $$;
+
+-- Exercise valid transitions against the minimal schema contract in CI.
+do $
+declare u uuid:=gen_random_uuid(); other_user uuid:=gen_random_uuid(); sid uuid:=gen_random_uuid(); other_sid uuid:=gen_random_uuid(); result jsonb; days integer; deadline timestamptz;
+begin
+ insert into public.accounts(user_id,vatra_id) values(u,1001),(other_user,1002);
+ insert into auth.sessions(id,user_id,not_after) values(sid,u,clock_timestamp()+interval '1 hour'),(other_sid,other_user,null);
+ if public.vatra_account_lifecycle_transition(u,sid,'status')->>'state' is distinct from 'active' then raise exception 'Initial status not active'; end if;
+ begin
+  perform public.vatra_account_lifecycle_transition(u,other_sid,'status');
+  raise exception 'Cross-account session accepted';
+ exception when insufficient_privilege then null; end;
+ begin
+  perform public.vatra_account_lifecycle_transition(u,sid,'request_deletion',1);
+  raise exception 'Invalid duration accepted';
+ exception when invalid_parameter_value then null; end;
+ foreach days in array array[7,30,90,180] loop
+  result:=public.vatra_account_lifecycle_transition(u,sid,'request_deletion',days);
+  if result->>'state' is distinct from 'pending' or result->>'ready' is distinct from 'false' then raise exception 'Wrong pending state'; end if;
+  select restore_until into deadline from private.vatra_account_deletion_jobs where user_id=u;
+  if not exists(select 1 from private.vatra_account_deletion_jobs where user_id=u and restore_until-requested_at=make_interval(hours=>days*24)) then raise exception 'Wrong deadline'; end if;
+  begin
+   perform public.vatra_account_lifecycle_transition(u,sid,'request_deletion',days);
+   raise exception 'Duplicate deletion accepted';
+  exception when sqlstate '55000' then null; end;
+  if public.vatra_account_lifecycle_transition(other_user,other_sid,'status')->>'state' is distinct from 'active' then raise exception 'Other account affected'; end if;
+  if public.vatra_account_lifecycle_transition(u,sid,'restore')->>'state' is distinct from 'active' then raise exception 'Restore failed'; end if;
+ end loop;
+ insert into public.account_states(vatra_id,state) values(1001,'blocked');
+ begin
+  perform public.vatra_account_lifecycle_transition(u,sid,'request_deletion',7);
+  raise exception 'Blocked account accepted';
+ exception when insufficient_privilege then null; end;
+ delete from public.account_states where vatra_id=1001;
+ perform public.vatra_account_lifecycle_transition(u,sid,'request_deletion',7);
+ update private.vatra_account_deletion_jobs set requested_at=clock_timestamp()-interval '8 days',restore_until=clock_timestamp()-interval '1 day' where user_id=u;
+ begin
+  perform public.vatra_account_lifecycle_transition(u,sid,'restore');
+  raise exception 'Expired restore accepted';
+ exception when sqlstate '55000' then null; end;
+ if public.vatra_account_lifecycle_transition(u,sid,'status')->>'state' is distinct from 'purging' then raise exception 'Expired status incorrect'; end if;
+ delete from private.vatra_account_deletion_jobs where user_id=u;
+ if public.vatra_account_lifecycle_transition(u,sid,'request_deletion',0)->>'state' is distinct from 'purging' then raise exception 'Immediate request incorrect'; end if;
+ begin
+  perform public.vatra_account_lifecycle_transition(u,sid,'restore');
+  raise exception 'Immediate request restored';
+ exception when sqlstate '55000' then null; end;
+ update auth.sessions set not_after=clock_timestamp()-interval '1 second' where id=sid;
+ begin
+  perform public.vatra_account_lifecycle_transition(u,sid,'status');
+  raise exception 'Expired session accepted';
+ exception when insufficient_privilege then null; end;
+end $;
 rollback;

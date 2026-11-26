@@ -17,3 +17,5 @@ References:
 https://supabase.com/docs/guides/auth/managing-user-data
 https://supabase.com/docs/guides/storage/buckets/fundamentals
 https://supabase.com/docs/guides/storage/management/delete-objects
+
+Added a separate PostgreSQL 17 CI database with a minimal schema fixture and tests for recovery periods, invalid/expired sessions, cross-account isolation, moderation, duplicate requests, expiry, immediate requests and leases. Fixed invalid dollar quoting in the renewal function. This is not full Supabase integration, no production migrations or data changes; CI outcome must be verified.
