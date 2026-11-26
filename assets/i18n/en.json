@@ -3966,5 +3966,18 @@
   "Знаходьте товари й розміщуйте власні оголошення на маркетплейсі VATRA.": "Find products and publish your own listings on the VATRA marketplace.",
   "Переглядайте вподобання Ваших публікацій, коментарів і фото профілю, заявки в друзі та відповіді на них у VATRA.": "See likes on your posts, comments and profile photos, friend requests and their responses on VATRA.",
   "Керуйте налаштуваннями акаунта, конфіденційності та сповіщень у VATRA.": "Manage account, privacy and notification settings on VATRA.",
-  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "View information about your VATRA ID, your unique account identifier."
+  "Переглядайте інформацію про свій VATRA ID — унікальний ідентифікатор акаунта.": "View information about your VATRA ID, your unique account identifier.",
+  "Змінити": "Change",
+  "Не вдалося зберегти зміни.": "Could not save changes.",
+  "Контактні дані": "Contact details",
+  "Змінити електронну пошту": "Change email",
+  "Нова електронна пошта": "New email",
+  "Підтвердьте зміну пошти за посиланнями з листів.": "Confirm the email change using the links in your emails.",
+  "Вкажіть іншу електронну пошту.": "Enter a different email address.",
+  "Перевірте електронну пошту для підтвердження зміни.": "Check your email to confirm the change.",
+  "Безпека акаунта": "Account security",
+  "Змінити пароль": "Change password",
+  "Поточний пароль": "Current password",
+  "Надіслати код": "Send code",
+  "Для зміни пароля потрібне підтвердження електронною поштою.": "Email verification is required to change your password."
 }

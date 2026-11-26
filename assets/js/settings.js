@@ -55,6 +55,7 @@ function accountCredentials(panel,ticket){
   line.append(copy,button);host.append(line);return copy.lastElementChild;
  };
  const openForm=heading=>{const {d,form}=dialog(heading);d.addEventListener("close",()=>{form.reset();d.remove();},{once:true});return {d,form};};
+ const closeSuccess=(d,copy)=>{if(!d.open)return;d.addEventListener("close",()=>{if(ticket===renderTicket)message(copy);},{once:true});d.close();};
  const failure=(error)=>error?.code==="weak_password"?t("Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.","The password does not meet the server's security requirements. Check the rules below the password field."):
   error?.code==="same_password"?t("Виберіть новий пароль, який відрізняється від попереднього.","Choose a new password that differs from the previous one."):
   error?.code==="reauthentication_not_valid"?t("Неправильний або прострочений код. Перевірте лист або запросіть новий.","Incorrect or expired code. Check your email or request another one."):
@@ -70,7 +71,7 @@ function accountCredentials(panel,ticket){
    const {data,error}=await client.auth.updateUser({email:value},{emailRedirectTo:new URL("verify",root).href});
    if(error){message(failure(error),true);return;}
    if(data?.user?.id===user.id){user=data.user;if(emailNote.isConnected)emailNote.textContent=user.email||"";}
-   if(d.open)d.close();if(ticket===renderTicket)message(t("Перевірте електронну пошту для підтвердження зміни.","Check your email to confirm the change."));
+   closeSuccess(d,t("Перевірте електронну пошту для підтвердження зміни.","Check your email to confirm the change."));
   });d.showModal();
  });
  security.append(make("h2","vatra-id-heading-001",t("Безпека акаунта","Account security")));
@@ -81,7 +82,7 @@ function accountCredentials(panel,ticket){
   form.append(make("p","vatra-section-form-note-001",t("Від 12 символів: мала й велика латинські літери, цифра та спеціальний символ. Не повторюйте пароль з інших сайтів.","At least 12 characters: uppercase and lowercase Latin letters, a digit and a symbol. Do not reuse passwords.")));
   const nonce=field(form,"password-nonce",t("Введіть код підтвердження з листа.","Enter the verification code from your email."),"text",10,false);nonce.inputMode="numeric";nonce.autocomplete="one-time-code";nonce.pattern="[0-9]{6,10}";nonce.parentElement.hidden=true;
   const sendCode=btn(t("Надіслати код","Send code"),"vatra-preferences-action-001",async()=>{
-   if(sendCode.disabled)return;sendCode.disabled=true;try{const {error}=await client.auth.reauthenticate();if(error){message(failure(error),true);return;}if(d.open)message(t("Введіть код підтвердження з листа.","Enter the verification code from your email."));}finally{sendCode.disabled=false;}
+   if(sendCode.disabled)return;sendCode.disabled=true;try{const {error}=await client.auth.reauthenticate();if(error){message(failure(error),true);return;}if(d.open)message(t("Введіть код підтвердження з листа.","Enter the verification code from your email."));}catch(error){if(d.open)message(failure(error),true);}finally{sendCode.disabled=false;}
   });sendCode.hidden=true;form.append(sendCode);
   submit(form,t("Зберегти пароль","Save password"),async()=>{
    const value=next.value;
@@ -95,7 +96,7 @@ function accountCredentials(panel,ticket){
    if(error?.code==="reauthentication_needed"){nonce.parentElement.hidden=false;nonce.required=true;sendCode.hidden=false;message(t("Для зміни пароля потрібне підтвердження електронною поштою.","Email verification is required to change your password."));nonce.focus();return;}
    if(error){message(failure(error),true);return;}
    if(data?.user?.id===user.id)user=data.user;
-   form.reset();if(d.open)d.close();if(ticket===renderTicket)message(t("Зміни збережено.","Changes saved."));
+   form.reset();closeSuccess(d,t("Зміни збережено.","Changes saved."));
   });d.showModal();
  });
  security.append(link(t("Забули пароль?","Forgot password?"),"forgot","vatra-id-password-001"));
