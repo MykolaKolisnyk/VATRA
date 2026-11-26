@@ -3413,7 +3413,7 @@ try{
    });
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.storyLeft-geometry.composerLeft)<3&&
-    Math.abs(geometry.storyWidth-geometry.mainWidth)<3&&
+    Math.abs(geometry.storyWidth-geometry.composerWidth)<3&&
     Math.abs(geometry.postWidth-geometry.composerWidth)<3&&
     geometry.storyBottom<=geometry.composerTop+1&&
     geometry.storyCardWidth>=95&&geometry.storyCardWidth<=120&&
@@ -5468,7 +5468,7 @@ try{
    await profilePage.locator(selector).click();
    const menu=profilePage.locator("#profile-owner-media-menu");await menu.waitFor({state:"visible"});
    assert.ok(await menu.evaluate(el=>el.classList.contains("is-compact")),"Editor media menu is compact");
-   if(action==="profile-avatar-change")assert.equal(await menu.locator('[data-action="profile-add-story"]').count(),0,"Editor avatar menu has only photo actions");
+   if(action==="profile-avatar-change")assert.ok((await menu.locator("[data-action]").evaluateAll(nodes=>nodes.map(el=>el.dataset.action))).every(key=>["profile-avatar-change","profile-avatar-remove"].includes(key)),"Editor avatar menu has only photo actions");
    const [chooser]=await Promise.all([profilePage.waitForEvent("filechooser",{timeout:10000}),menu.locator('[data-action="'+action+'"]').click()]);
    assert.equal(await chooser.element().getAttribute("id"),inputId,"Media menu action opens the existing file picker");
   }
