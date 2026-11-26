@@ -9,7 +9,8 @@ const createAccountCss=await read("assets/css/create-account.css");
 const recoveryCss=await read("assets/css/recovery.css");
 const verifyCss=await read("assets/css/verify.css");
 const notFoundCss=await read("assets/css/not-found.css");
-const css=[authBaseCss,signInCss,createAccountCss,recoveryCss,verifyCss,notFoundCss].join("\n");
+const sharedSelectCss=await read("assets/css/form-select.css");
+const css=[authBaseCss,signInCss,createAccountCss,sharedSelectCss,recoveryCss,verifyCss,notFoundCss].join("\n");
 const legalCss=await read("assets/css/legal.css");
 const authShared=await read("assets/js/auth-core.js");
 const authSignIn=await read("assets/js/sign-in.js");
@@ -2983,3 +2984,5 @@ assert.ok(memberProfileMarkup.includes('maxlength="80" placeholder="Напиші
 assert.ok(memberProfileMarkup.includes('id="profile-photo-emoji-toggle"')&&memberProfileMarkup.includes('id="profile-photo-comment-cancel"')&&profileScript.includes("setRangeText(emoji"),"Photo comments include functional emoji and cancel actions");
 
 assert.ok(profileBehavior.includes("cachedFriends.slice(0,4)")&&profileBehavior.includes('q("#profile-gifts-dialog")')&&profileBehavior.includes('if(!compact)item.append(title,sub)'),"Profile uses four friends and image-only gifts with history dialog");
+
+assert.ok(settingsRuntime.includes("VATRA_FORM_SELECT.fillBirthdays(day,month,year)")&&settingsRuntime.includes("VATRA_FORM_SELECT.wireSelects([...dateParts,gender])")&&!settingsRuntime.includes('field(form,"birthdate"'),"VATRA ID must reuse the registration date and gender component");
