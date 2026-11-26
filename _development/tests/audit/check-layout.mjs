@@ -1655,6 +1655,8 @@ assert.ok(
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
  "Profile must fetch only four friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
+assert.ok(detailsModule.includes('d.id="profile-editor-address-dialog"')&&detailsModule.includes('enhanceCityInput(city)')&&detailsModule.includes('key==="address"?"only_me":"friends"')&&detailsModule.includes('key==="address"?addressText(data.value)')&&detailsModule.includes('value=parts.join("\\n");refresh();update();finish();'),"Address must use a separate dialog and preserve field privacy");
+
 const summarySource=profileScript.slice(profileScript.indexOf(" const canViewProfileField="),profileScript.indexOf(" function prepare({client,ownId,targetId,isMine})"));
 const {canViewProfileField,profileSummaryKeys}=new Function(summarySource+"return {canViewProfileField,profileSummaryKeys};")();
 for(const [visibility,owner,friend,expected] of [["public",false,false,true],["friends",false,false,false],["friends",false,true,true],["only_me",false,true,false],["only_me",true,false,true],["unknown",false,true,false]])

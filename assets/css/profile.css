@@ -2529,7 +2529,6 @@ body.profile-page .vatra-profile-editor-record-cancel-001{color:#536b8d;backgrou
 }
 @media(max-width:540px){
  body.profile-page .profile-editor-main{padding:16px 13px 20px}
- body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{}
  body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>.ui-profile-editor-field-label-group-001>[class^="vatra-profile-editor-label-"]{padding:0}
  body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-input-"]{font-size:16px}
  body.profile-page .ui-profile-editor-record-fields-001{padding:16px}
@@ -2539,8 +2538,8 @@ body.profile-page .vatra-profile-editor-record-cancel-001{color:#536b8d;backgrou
 }
 
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-fields{gap:14px}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{grid-template-columns:minmax(0,1fr);gap:6px}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>.ui-profile-editor-field-label-group-001>[class^="vatra-profile-editor-label-"]{font:570 13px/1.5 "Onest",system-ui,sans-serif;color:#465974;padding-top:0}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{grid-template-columns:minmax(0,32%) minmax(0,1fr);gap:16px}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>.ui-profile-editor-field-label-group-001>[class^="vatra-profile-editor-label-"]{font:570 13px/1.5 "Onest",system-ui,sans-serif;color:#465974;padding-top:12px}
 
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) :is(input,textarea)[class^="ui-profile-editor-input-"]{
  min-height:42px;background:#f8fafd;border:1px solid #e0e7f1;border-radius:var(--vatra-card-radius);padding:10px 12px;
@@ -3137,3 +3136,13 @@ body.profile-page .vatra-profile-owner-media-action-001:hover,body.profile-page 
 body.profile-page .vatra-profile-owner-media-action-001.is-danger,body.profile-page .vatra-profile-owner-media-action-001.is-danger svg{color:#b34c61}
 body.profile-page .vatra-profile-owner-media-action-001.is-danger:hover,body.profile-page .vatra-profile-owner-media-action-001.is-danger:focus-visible{background:#fff0f2}
 body.profile-page .vatra-profile-owner-media-action-001:disabled{opacity:.5;cursor:not-allowed}
+
+body.profile-page .vatra-profile-editor-address-open-001{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:44px;padding:10px 12px;border:0;border-radius:11px 0 0 11px;background:transparent;color:#34465f;font:500 14px/1.45 Onest,system-ui,sans-serif;text-align:start;cursor:pointer}
+body.profile-page .vatra-profile-editor-address-open-001.is-empty{color:#3265cb}
+body.profile-page .vatra-profile-editor-address-open-001:hover{background:#edf3ff}
+body.profile-page .vatra-profile-editor-address-open-001:focus-visible{outline:2px solid #80a4ee;outline-offset:-2px}
+body.profile-page .vatra-profile-editor-address-value-001{min-width:0;overflow-wrap:anywhere}
+body.profile-page .vatra-profile-editor-address-open-001 svg{width:17px;height:17px;flex:none;color:#8196b5}
+body.profile-page .vatra-profile-editor-address-help-001{grid-column:1/-1;color:#71839c;font:450 12px/1.5 Onest,system-ui,sans-serif;margin:0}
+body.profile-page .vatra-profile-editor-address-remove-001{margin-inline-end:auto;border:0;background:transparent;color:#b34c61;font:600 13px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
+@media(max-width:540px){body.profile-page .vatra-profile-editor-address-open-001{font-size:16px}}

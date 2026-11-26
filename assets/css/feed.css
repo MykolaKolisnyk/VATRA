@@ -2935,15 +2935,14 @@ body.feed-page .ui-vatra-account-profile-group-001 > .vatra-account-manage-001{
 }
 body.feed-page .ui-vatra-account-profile-group-001 > .vatra-account-manage-001:hover{background:#eff4ff}
 body.feed-page .ui-vatra-account-profile-group-001 > .vatra-account-manage-001 > .ui-vatra-account-id-brand-001{
- display:grid;place-items:center;flex:0 0 21px;width:21px;height:21px;min-width:21px
+ display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;flex:none
 }
-body.feed-page .ui-vatra-account-id-symbol-001{display:block;width:21px;height:21px;object-fit:contain}
+body.feed-page .ui-vatra-account-id-symbol-001{display:block;width:25px;height:25px;object-fit:contain}
 body.feed-page .ui-vatra-account-profile-group-001 > .vatra-account-manage-001 > .vatra-account-manage-label-001{
  min-width:0;flex:1;font:700 15px/1.4 Onest,system-ui,sans-serif
 }
-body.feed-page .ui-vatra-account-profile-group-001 > .vatra-account-manage-001 > .vatra-account-id-label-001{
- flex:none;font:700 10px/1.3 Onest,system-ui,sans-serif;
- color:#647dab;background:#f0f4fd;padding:3px 5px;border-radius:5px
+body.feed-page .ui-vatra-account-id-brand-001 > .vatra-account-id-label-001{
+ flex:none;font:750 17px/1 Onest,system-ui,sans-serif;color:inherit
 }
 
 @supports (transition-behavior:allow-discrete){
