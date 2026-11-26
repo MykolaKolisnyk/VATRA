@@ -4475,7 +4475,14 @@ try{
   const storyCanvas=feedProbe.locator("#feed-story-media-preview canvas");
   assert.ok(await storyCanvas.isVisible(),"Photo must be drawn into the real story canvas");
   assert.equal(await storyCanvas.evaluate(el=>el.width/el.height),540/960);
+  assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"overview");
+  assert.equal(await feedProbe.locator(".ui-vatra-story-tools-001 button svg").count(),6,"All story tools use SVG icons");
+  await feedProbe.locator("#feed-story-cancel").click();
+  await feedProbe.locator(".ui-vatra-story-discard-dialog-001").waitFor({state:"visible"});
+  await feedProbe.locator(".vatra-story-discard-keep-001").click();
+  assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true,"Cancel discard keeps the draft");
   await feedProbe.locator(".vatra-story-tool-filters-001").click();
+  assert.equal(await feedProbe.locator(".ui-vatra-story-filter-preview-001").count(),6,"Every filter has a local visual preview");
   await feedProbe.locator(".vatra-story-filter-001").nth(1).click();
   assert.equal(await feedProbe.locator(".vatra-story-filter-001").nth(1).getAttribute("aria-pressed"),"true");
   await feedProbe.locator(".vatra-story-undo-001").click();
