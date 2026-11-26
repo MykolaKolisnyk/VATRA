@@ -1413,6 +1413,18 @@ for(const page of ["feed","profile","communities","club","notifications","friend
  assert.equal(buttons.length,1,page+": preserve one Messenger header icon");
  assert.ok(buttons[0][0].includes('data-vatra-coming-soon="messenger"')&&!buttons[0][0].includes("href="),page+": Messenger remains a non-navigating placeholder");
 }
+const iconProfileMarkup=await read("profile.html");
+function sharedIconGeometry(markup,cls){
+ const icons=[...markup.matchAll(/<svg\b[^>]*>[\s\S]*?<\/svg>/g)].map(match=>match[0]).filter(svg=>svg.startsWith('<svg class="'+cls+'" '));
+ assert.equal(icons.length,1,"Expected exactly one icon "+cls);
+ return icons[0].replace(/\s(?:class|width|height)="[^"]*"/g,"").replace(/\s+/g," ").trim();
+}
+assert.equal(sharedIconGeometry(await read("feed.html"),"ui-vatra-nav-messenger-001"),
+ sharedIconGeometry(iconProfileMarkup,"ui-profile-messenger-icon-001"),
+ "Messenger navigation and profile contact must share the same vector geometry");
+assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-story-menu-icon-001"),
+ sharedIconGeometry(iconProfileMarkup,"ui-profile-visitor-story-icon-001"),
+ "Viewing a story must use the same vector in the avatar menu and visitor button");
 const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
  storyPreviewMarkup.includes('id="feed-friend-stories"')&&
