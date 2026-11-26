@@ -41,6 +41,7 @@
   {id:"profile",label:["Профіль","Profile"],icon:"user-round",fields:[
    ["short_bio","Коротка інформація","Short bio","long"],
    ["relationship","Сімейний стан","Relationship status"],
+   ["country","Країна","Country"],
    ["hometown","Рідне місто","Hometown"],
    ["languages","Знання мов","Languages"],
    ["family","Родина","Family","long"]
@@ -120,7 +121,11 @@
   attitude_to_alcohol:[["Різко негативне","Strongly negative"],["Негативне","Negative"],["Компромісне","Compromising"],["Нейтральне","Neutral"],["Позитивне","Positive"]]
  };
  const languages=["Українська","English","Polski","Deutsch","Français","Italiano","Español","Português","Čeština","Slovenčina","Magyar","Română","Български","ქართული","Lietuvių","Latviešu","Eesti","Nederlands","Svenska","Norsk","Dansk","Suomi","Ελληνικά","Türkçe","Русский","Беларуская","العربية","עברית","中文","日本語","한국어","हिन्दी"];
- const cities=["Київ","Харків","Одеса","Львів","Дніпро","Запоріжжя","Ужгород","Мукачево","Івано-Франківськ","Тернопіль","Чернівці","Луцьк","Рівне","Хмельницький","Вінниця","Житомир","Черкаси","Чернігів","Суми","Полтава","Кропивницький","Миколаїв","Херсон","Донецьк","Луганськ","Сімферополь","Севастополь","Кривий Ріг","Кременчук","Біла Церква","Кам’янець-Подільський","Берегове","Хуст","Тячів","Рахів","Свалява","Варшава","Краків","Прага","Берлін","Відень","Братислава","Будапешт","Лондон","Париж"];
+ const countryCities={"UA":["Київ","Харків","Одеса","Львів","Дніпро","Запоріжжя","Ужгород","Мукачево","Івано-Франківськ","Тернопіль","Чернівці","Луцьк","Рівне","Хмельницький","Вінниця","Житомир","Черкаси","Чернігів","Суми","Полтава","Кропивницький","Миколаїв","Херсон","Донецьк","Луганськ","Сімферополь","Севастополь","Кривий Ріг","Кременчук","Біла Церква","Кам’янець-Подільський","Берегове","Хуст","Тячів","Рахів"],"GB":["London","Birmingham","Manchester","Liverpool","Leeds","Sheffield","Bristol","Newcastle upon Tyne","Nottingham","Leicester","Southampton","Portsmouth","Oxford","Cambridge","York","Brighton","Reading","Coventry","Glasgow","Edinburgh","Aberdeen","Dundee","Cardiff","Swansea","Belfast","Derry"],"PL":["Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Szczecin","Lublin","Bydgoszcz","Białystok","Katowice","Gdynia","Częstochowa","Radom","Rzeszów","Toruń","Kielce","Olsztyn","Gliwice","Opole","Zielona Góra","Przemyśl"],"DE":["Berlin","Hamburg","München","Köln","Frankfurt am Main","Stuttgart","Düsseldorf","Leipzig","Dortmund","Essen","Bremen","Dresden","Hannover","Nürnberg","Duisburg","Bochum","Bonn","Münster","Karlsruhe","Mannheim","Freiburg im Breisgau","Aachen","Potsdam"],"FR":["Paris","Marseille","Lyon","Toulouse","Nice","Nantes","Montpellier","Strasbourg","Bordeaux","Lille","Rennes","Reims","Toulon","Grenoble","Dijon","Angers","Le Havre","Clermont-Ferrand","Rouen","Tours","Avignon","Metz","Nancy"],"IT":["Roma","Milano","Napoli","Torino","Palermo","Genova","Bologna","Firenze","Bari","Catania","Venezia","Verona","Messina","Padova","Trieste","Brescia","Parma","Modena","Perugia","Livorno","Cagliari","Salerno","Pisa"],"BG":["София","Пловдив","Варна","Бургас","Русе","Стара Загора","Плевен","Сливен","Добрич","Шумен","Перник","Хасково","Ямбол","Пазарджик","Благоевград","Велико Търново","Враца","Габрово","Видин","Кърджали","Кюстендил","Смолян"],"GE":["თბილისი","ბათუმი","ქუთაისი","რუსთავი","გორი","ზუგდიდი","ფოთი","ხაშური","სამტრედია","სენაკი","ზესტაფონი","მარნეული","თელავი","ახალციხე","ქობულეთი","ოზურგეთი","ბორჯომი","მცხეთა"]};
+ const countryCodes=Object.keys(countryCities);
+ const countryLabel=code=>{if(!countryCodes.includes(code))return "";try{return new Intl.DisplayNames([window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk"],{type:"region"}).of(code)||code;}catch(_){return code;}};
+ const citiesForCountry=code=>countryCodes.includes(code)?countryCities[code]:[];
+
  const choiceLabel=(key,value)=>{const match=choices[key]?.find(pair=>pair.includes(value));return match?tr(match[0],match[1]):value;};
  const audiences=[
   ["public","Для всіх","Everyone"],
@@ -220,9 +225,9 @@
    title.dataset.socialEn="About me";
   }
   const fieldsByKey=new Map(groups.flatMap(group=>group.fields).map(field=>[field[0],field]));
-  const featured=["city","hometown","relationship","website"];
+  const featured=["country","city","hometown","relationship","website"];
   const fieldIcons={
-   city:"map-pin",hometown:"map-pin",relationship:"heart",website:"link",
+   country:"globe",city:"map-pin",hometown:"map-pin",relationship:"heart",website:"link",
    short_bio:"file-text",about_me:"file-text",family:"users",languages:"globe",
    address:"map-pin",mobile_phone:"phone",additional_phone:"phone",
    school:"graduation-cap",university:"graduation-cap",education_extra:"book-open",
@@ -298,7 +303,7 @@
      link.href=href;link.target="_blank";link.rel="noopener noreferrer nofollow";
      content.append(link);
     }else content.textContent=data.value;
-   }else content.textContent=key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
+   }else content.textContent=key==="country"?countryLabel(data.value):key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
    item.append(label,content);
    return item;
   };
@@ -679,7 +684,7 @@
    input.setAttribute("aria-label",input.id.endsWith("hometown")?tr("Рідне місто","Hometown"):tr("Місто","City"));
    const open=(keyboard=false,all=false)=>{
     const query=all?"":input.value.trim().toLocaleLowerCase();
-    const items=cities.filter(city=>!query||city.toLocaleLowerCase().includes(query)).map(city=>({value:city,text:city}));
+    const items=citiesForCountry(draft.get("country")?.value).filter(city=>!query||city.toLocaleLowerCase().includes(query)).map(city=>({value:city,text:city}));
     return openEditorMenu(input,wrapper,items,value=>{input.value=value;input.dispatchEvent(new Event("input",{bubbles:true}));closeEditorMenu();},input.value,keyboard);
    };
    input.addEventListener("input",()=>open(false));
@@ -737,14 +742,14 @@
     picker.addEventListener("change",()=>{if(picker.value&&readValue().length+picker.value.length+2<=1000){selectedLanguages.push(picker.value);render();update();}});
     render();wrap.append(chips,picker);control.append(wrap);pickerView=enhanceEditorSelect(picker);
    }else{
-    const menu=key==="relationship"?relationshipChoices(profileGender):choices[key];
+    const menu=key==="country"?countryCodes.map(code=>[code,countryLabel(code)]):key==="relationship"?relationshipChoices(profileGender):choices[key];
     const selectedValue=key==="relationship"?relationshipValue(current.value,profileGender):current.value;
     const input=make(menu?"select":kind==="long"?"textarea":"input","ui-profile-editor-input-"+key);
     input.id=inputId;input.setAttribute("aria-label",tr(uk,en));
     if(menu){
      input.append(opt("",tr("Не вибрано","Not selected")));
-     for(const pair of menu)input.append(opt(pair[0],lang(pair)));
-     if(selectedValue&&!menu.some(pair=>pair[0]===selectedValue))input.append(opt(selectedValue,key==="relationship"?relationshipLabel(selectedValue,profileGender):choiceLabel(key,selectedValue)));
+     for(const pair of menu)input.append(opt(pair[0],key==="country"?pair[1]:lang(pair)));
+     if(key!=="country"&&selectedValue&&!menu.some(pair=>pair[0]===selectedValue))input.append(opt(selectedValue,key==="relationship"?relationshipLabel(selectedValue,profileGender):choiceLabel(key,selectedValue)));
     }else{
      if(kind==="long")input.rows=3;
      else input.type=["mobile_phone","additional_phone"].includes(key)?"tel":"text";
@@ -754,7 +759,7 @@
       input.autocomplete="off";
      }
     }
-    input.value=selectedValue;readValue=()=>input.value;
+    input.value=key==="country"&&!countryCodes.includes(selectedValue)?"":selectedValue;readValue=()=>input.value;
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
    }
