@@ -59,7 +59,7 @@ begin
 end $$;
 
 -- Exercise valid transitions against the minimal schema contract in CI.
-do $
+do $$
 declare u uuid:=gen_random_uuid(); other_user uuid:=gen_random_uuid(); sid uuid:=gen_random_uuid(); other_sid uuid:=gen_random_uuid(); result jsonb; days integer; deadline timestamptz;
 begin
  insert into public.accounts(user_id,vatra_id) values(u,1001),(other_user,1002);
@@ -109,5 +109,5 @@ begin
   perform public.vatra_account_lifecycle_transition(u,sid,'status');
   raise exception 'Expired session accepted';
  exception when insufficient_privilege then null; end;
-end $;
+end $$;
 rollback;
