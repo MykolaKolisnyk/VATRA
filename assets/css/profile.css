@@ -1003,10 +1003,6 @@ body.profile-page .vatra-profile-details-header{
 body.profile-page .ui-vatra-profile-details-titles-001{
  display:flex;flex-direction:column;gap:5px;min-width:0
 }
-body.profile-page .vatra-profile-details-title-001{
- margin:0;font:810 clamp(21px,3.3vw,26px)/1.25 "Onest",system-ui,sans-serif;
- letter-spacing:-.047em
-}
 body.profile-page .vatra-profile-details-close-001{
  display:grid;place-items:center;flex:none;width:38px;height:38px;
  padding:0;border:1px solid #e1e8f5;border-radius:12px;background:#fff;
@@ -1019,7 +1015,7 @@ body.profile-page .vatra-profile-details-content{
 }
 body.profile-page .vatra-profile-details-section{
  display:flex;flex-direction:column;gap:0;
- border-bottom:1px solid #e9eef7;min-width:0
+ min-width:0
 }
 
 body.profile-page [class^="vatra-profile-details-section-title-"]{letter-spacing:-.025em
@@ -1071,7 +1067,7 @@ body.profile-page .vatra-profile-details-header{
  min-height:64px;padding:14px 22px;
  border-bottom:1px solid #e1e8f3;background:#fff
 }
-body.profile-page .vatra-profile-details-title-001{color:#2c3850;font:700 19px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.02em}
+body.profile-page .vatra-profile-details-title-001{margin:0;color:#2c3850;font:700 19px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.02em}
 body.profile-page .vatra-profile-details-content{
  gap:0;padding:0 22px 16px;background:#fff;scrollbar-gutter:stable
 }
@@ -1324,7 +1320,7 @@ body.profile-page .vatra-profile-locked-description-001{color:#71829b;font:480 1
  body.profile-page .vatra-profile-details-content{padding:0 19px 19px}
  body.profile-page .vatra-profile-details-row{grid-template-columns:minmax(0,1fr);gap:4px;padding:11px 0}
  body.profile-page [class^="vatra-profile-detail-audience-"]{justify-self:start}
- body.profile-page .vatra-profile-details-title-001{font-size:20px}}
+ body.profile-page .vatra-profile-details-title-001{font-size:18px}}
 @media(prefers-reduced-motion:reduce){
  body.profile-page .profile-edit-workspace{animation:none}
  body.profile-page .vatra-profile-about-more-001,
