@@ -2797,7 +2797,7 @@ assert.ok(settingsRuntime.includes('["home",t("Головна","Home")]')&&
  settingsRuntime.includes('accountCredentials(panel,ticket,"personal")')&&
  settingsRuntime.includes('ACCOUNT_LIFECYCLE_ENABLED=false')&&
  settingsRuntime.includes('recoveryDays=[0,7,30,90,180]')&&
- settingsRuntime.includes('renderPendingDeletion(status')&&
+ settingsRuntime.includes('const renderPendingDeletion=status=>')&&
  settingsRuntime.includes('deadline.dateTime=status.restore_until')&&
  settingsRuntime.includes('if(!ACCOUNT_LIFECYCLE_ENABLED)throw Error')&&
  settingsStyle.includes('ui-vatra-id-deactivated-001'),
