@@ -91,6 +91,66 @@ try{
   console.log("VATRA weak network browser: 400 ms latency, 400 kbit/s download, no offscreen signing and visible photo recovery passed.");
  }finally{await weakMediaPage.close();}
 
+ // Real settings runtime with an isolated account fixture; no production writes.
+ const accountDesign=await context.newPage();
+ try{
+  await accountDesign.setViewportSize({width:1440,height:900});
+  await accountDesign.route("**/VATRA/design-probe",route=>route.fulfill({contentType:"text/html",body:
+   '<!doctype html><html lang="uk"><head>'+
+   ["base","feed","core","form-select","settings"].map(name=>'<link rel="stylesheet" href="'+base+'assets/css/'+name+'.css">').join("")+
+   '</head><body class="vatra-section-page" data-page="vatra-id"><main class="ui-vatra-section-main-001"><h1 id="design-title"></h1><p id="design-subtitle"></p><div id="design-content"></div></main></body></html>'}));
+  await accountDesign.goto(base+"design-probe#personal");
+  await accountDesign.evaluate(()=>{
+   window.__designWrites=[];window.__designMessage="";
+   const make=(tag,cls,text)=>{const element=document.createElement(tag);element.className=cls;if(text!==undefined)element.textContent=text;return element;};
+   const btn=(label,cls,fn)=>{const b=make("button",cls,label);b.type="button";b.onclick=fn;return b;};
+   const card=cls=>make("section","ui-vatra-section-card-001 "+cls);
+   const field=(form,key,label,type,max,required)=>{
+    const wrap=make("div","ui-vatra-section-field-"+key),caption=make("label","vatra-section-label-"+key,label),input=make("input","ui-vatra-section-input-"+key);
+    input.type=type;input.id="vatra-section-"+key;input.maxLength=max;input.required=required;caption.htmlFor=input.id;wrap.append(caption,input);form.append(wrap);return input;
+   };
+   const sectionIcon=()=>{const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");return svg;};
+   const link=(label,href,cls)=>{const a=make("a",cls,label);a.href=href;return a;};
+   const user={id:"fixture",email:"fixture@example.test",user_metadata:{first_name:"Тест",last_name:"VATRA",birthdate:"2000-05-12",gender:"male"}};
+   const client={from(table){let change;return {select(){return this;},eq(){return this;},update(value){change=value;window.__designWrites.push(table);return this;},maybeSingle:async()=>({data:change||{},error:null})};},
+    auth:{updateUser:async value=>{window.__designWrites.push(value.data);return {data:{user:{...user,user_metadata:value.data}},error:null};}}};
+   window.VATRA_LANGUAGE={locale:"uk"};
+   window.VATRA_SECTION_CORE={start:fn=>fn({root:new URL("./",location.href),locale:"uk",t:uk=>uk,$:s=>document.querySelector(s),make,btn,card,field,link,sectionIcon,
+    client,user,ownId:"12",nameOf:async()=>"Тест VATRA",title:document.querySelector("#design-title"),subtitle:document.querySelector("#design-subtitle"),content:document.querySelector("#design-content"),
+    message:value=>{window.__designMessage=value;},tabs:(items,go)=>{const bar=make("div","ui-vatra-section-tabs-001");for(const [id,label] of items){const b=btn(label,"vatra-section-tab-"+id,()=>go(id));b.dataset.tab=id;bar.append(b);}return bar;},
+    submit:(form,label,fn)=>{const b=btn(label,"vatra-section-submit-001",()=>void fn());form.append(b);}})};
+  });
+  await accountDesign.addScriptTag({url:base+"assets/js/form-select.js"});
+  await accountDesign.addScriptTag({url:base+"assets/js/settings.js"});
+  const birthday=accountDesign.locator(".ui-vatra-id-birth-field-001");
+  await birthday.waitFor({state:"visible"});
+  assert.equal(await birthday.locator(".vatra-select-trigger").count(),3);
+  assert.equal(await accountDesign.locator("#id-birth-day").inputValue(),"12");
+  assert.equal(await accountDesign.locator("#id-birth-month").inputValue(),"05");
+  assert.equal(await accountDesign.locator("#id-birth-year").inputValue(),"2000");
+  assert.equal(await accountDesign.locator("input[type=date]").count(),0);
+  const dateStyle=await birthday.locator(".vatra-select-trigger").first().evaluate(el=>{const s=getComputedStyle(el);return {height:s.height,radius:s.borderRadius,font:s.fontSize,family:s.fontFamily};});
+  assert.equal(dateStyle.height,"51px");assert.equal(dateStyle.radius,"13px");assert.equal(dateStyle.font,"15px");assert.ok(dateStyle.family.includes("Onest"));
+  await accountDesign.locator(".vatra-select-trigger-id-birth-day").click();
+  await accountDesign.locator(".ui-select-options-id-birth-day [data-value='15']").click();
+  assert.equal(await accountDesign.locator("#id-birth-day").inputValue(),"15");
+  assert.equal(await accountDesign.locator(".vatra-select-trigger-id-birth-day").getAttribute("aria-expanded"),"false");
+  await accountDesign.locator(".vatra-select-trigger-id-birth-month").click();
+  await accountDesign.keyboard.press("Escape");
+  assert.equal(await accountDesign.locator(".vatra-select-trigger-id-birth-month").getAttribute("aria-expanded"),"false");
+  await accountDesign.locator(".ui-vatra-id-personal-form-001 .vatra-section-submit-001").click();
+  await accountDesign.waitForFunction(()=>window.__designWrites.length===2);
+  assert.equal(await accountDesign.evaluate(()=>window.__designWrites[1].birthdate),"2000-05-15");
+  await accountDesign.setViewportSize({width:390,height:844});
+  assert.ok(await accountDesign.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),"Birthday controls must fit a narrow phone");
+  await accountDesign.evaluate(()=>{history.replaceState(null,"",location.pathname+"?view=settings#general");document.querySelector("#design-content").replaceChildren();document.body.dataset.page="settings";});
+  await accountDesign.addScriptTag({url:base+"assets/js/settings.js"});
+  await accountDesign.locator(".ui-vatra-preferences-nav-001").waitFor({state:"visible"});
+  assert.equal(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").count(),4);
+  assert.deepEqual(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).width)),["20px","20px","20px","20px"]);
+  console.log("VATRA account design: shared birthday controls, ISO date save, dropdown dismissal, mobile fit and settings icon size passed.");
+ }finally{await accountDesign.close();}
+
  // Collapsible posts must place the toggle after the final text/hashtag,
  // never as a separate block. Feed and Profile must calculate the same font.
  const bodyTextProbe=await context.newPage();

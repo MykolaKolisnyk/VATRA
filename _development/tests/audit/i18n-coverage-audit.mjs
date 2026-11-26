@@ -417,9 +417,17 @@ for(const key of verificationKeys){
 }
 assert.ok(verifyRuntime.includes('replace("{name}",name)'),
  "Localized named greeting must interpolate the displayed name");
+const formSelectRuntime=await readFile("assets/js/form-select.js","utf8");
+const signupHtml=await readFile("create-account.html","utf8");
+const idRuntime=await readFile("assets/js/settings.js","utf8");
 assert.ok(signupRuntime.includes('preferred_locale:window.VATRA_LANGUAGE?.locale||"uk"')&&
- signupRuntime.includes('new Intl.DateTimeFormat(dateLocales[locale]||"uk-UA"'),
- "Signup locale metadata and date names should follow active language preference");
+ signupRuntime.includes('VATRA_FORM_SELECT.fillBirthdays(')&&
+ formSelectRuntime.includes('const locale=window.VATRA_LANGUAGE?.locale||"uk"')&&
+ formSelectRuntime.includes('new Intl.DateTimeFormat(dateLocales[locale]||"uk-UA"')&&
+ signupHtml.includes('assets/js/form-select.js')&&
+ idRuntime.includes('VATRA_FORM_SELECT')&&
+ ["uk-UA","en-US","pl-PL","de-DE","fr-FR","it-IT","ka-GE","bg-BG"].every(locale=>formSelectRuntime.includes(locale)),
+ "Signup and VATRA ID must share locale-aware date names while signup retains preferred locale metadata");
 
 const authRuntimeSource=await readFile("assets/js/auth-core.js","utf8");
 const pendingPasswordLocaleKeys=[
