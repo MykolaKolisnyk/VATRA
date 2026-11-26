@@ -2262,17 +2262,43 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   });
   if(morePanel&&removeFriend)removeFriend.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;void changeFriendship();});
   let relation=null,busy=false,friendMenuCloseTimer=null;
+  const friendPopover=typeof friendMenu.showPopover==="function"&&typeof friendMenu.hidePopover==="function";
+  if(friendPopover)friendMenu.setAttribute("popover","manual");
+  const positionFriendMenu=()=>{
+   if(friendMenu.hidden||!friendPopover)return;
+   const anchor=friendButton.getBoundingClientRect(),viewport=window.visualViewport;
+   const left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=top+(viewport?.height||innerHeight);
+   const headerBottom=Math.max(top,q(".feed-header")?.getBoundingClientRect().bottom||0);
+   if(anchor.bottom<=headerBottom||anchor.top>=bottom){friendMenuOpen(false);return;}
+   const width=friendMenu.offsetWidth,height=friendMenu.offsetHeight;
+   const x=Math.max(left+8,Math.min(anchor.left,right-width-8));
+   const preferred=anchor.bottom+5,above=anchor.top-height-5;
+   const y=preferred+height<=bottom-8?preferred:above>=headerBottom+8?above:Math.max(headerBottom+8,Math.min(preferred,bottom-height-8));
+   friendMenu.style.setProperty("--friend-menu-left",Math.round(x)+"px");
+   friendMenu.style.setProperty("--friend-menu-top",Math.round(y)+"px");
+  };
   const friendMenuOpen=state=>{
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=null;
    const available=["outgoing","friends"].includes(friendButton.dataset.friendState);
-   friendMenu.hidden=!(state&&available);
+   if(state&&available&&!friendAction.hidden){
+    friendMenu.hidden=false;
+    if(friendPopover&&!friendMenu.matches(":popover-open"))friendMenu.showPopover();
+    positionFriendMenu();
+   }else{
+    if(friendPopover&&friendMenu.matches(":popover-open"))friendMenu.hidePopover();
+    friendMenu.hidden=true;
+   }
    friendButton.setAttribute("aria-expanded",String(!friendMenu.hidden));
   };
+  window.addEventListener("scroll",positionFriendMenu,{passive:true});
+  window.addEventListener("resize",positionFriendMenu,{passive:true});
+  window.visualViewport?.addEventListener("resize",positionFriendMenu,{passive:true});
+  window.visualViewport?.addEventListener("scroll",positionFriendMenu,{passive:true});
   const scheduleFriendMenuClose=()=>{
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=setTimeout(()=>{
-    if(!friendAction.matches(":hover"))friendMenuOpen(false);
+    if(!friendAction.matches(":hover")&&!friendMenu.matches(":hover")&&!friendMenu.contains(document.activeElement))friendMenuOpen(false);
    },340);
   };
   friendButton.setAttribute("aria-haspopup","menu");
@@ -2280,6 +2306,8 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   friendAction.addEventListener("mouseenter",()=>friendMenuOpen(true));
   friendAction.addEventListener("mouseleave",scheduleFriendMenuClose);
   friendMenu.addEventListener("mouseenter",()=>friendMenuOpen(true));
+  friendMenu.addEventListener("mouseleave",scheduleFriendMenuClose);
+  friendButton.addEventListener("keydown",event=>{if(event.key==="ArrowDown"&&friendButton.dataset.friendState==="outgoing"){event.preventDefault();friendMenuOpen(true);if(!friendMenu.hidden)friendMenuAction.focus();}});
   friendAction.addEventListener("focusout",event=>{
    if(!friendAction.contains(event.relatedTarget))scheduleFriendMenuClose();
   });

@@ -5881,6 +5881,8 @@ try{
   await profilePage.locator("#profile-friend-button").hover();
   await profilePage.locator("#profile-friend-menu-action").waitFor({state:"visible"});
   await profilePage.locator("#profile-friend-menu-action").hover();
+  const friendMenuPlacement=await profilePage.locator("#profile-friend-menu").evaluate(el=>{const r=el.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,headerBottom:header.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight,topLayer:typeof el.showPopover!=="function"||el.matches(":popover-open")};});
+  assert.ok(friendMenuPlacement.topLayer&&friendMenuPlacement.top>=friendMenuPlacement.headerBottom&&friendMenuPlacement.bottom<=friendMenuPlacement.viewportHeight&&friendMenuPlacement.left>=0&&friendMenuPlacement.right<=friendMenuPlacement.viewportWidth,"Friend menu must remain above the page content and inside the usable viewport: "+JSON.stringify(friendMenuPlacement));
   await profilePage.waitForTimeout(430);
   assert.equal(await profilePage.locator("#profile-friend-menu-action").isVisible(),true,
    "Request cancellation must remain reachable while moving from button into submenu");

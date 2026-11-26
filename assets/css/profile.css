@@ -2840,7 +2840,9 @@ body.profile-page .ui-profile-more-panel-001{
  padding:7px;box-sizing:border-box;border:1px solid #dce5f2;border-radius:13px;
  background:#fff;box-shadow:0 16px 44px rgba(27,48,87,.16);color:#334966
 }
-body.profile-page .ui-profile-friend-menu-001{left:0;right:auto;min-width:230px}
+body.profile-page .ui-profile-friend-menu-001{left:0;right:auto;min-width:min(230px,calc(100vw - 16px));max-width:calc(100vw - 16px)}
+body.profile-page .ui-profile-friend-menu-001[popover]{position:fixed;inset:auto;left:var(--friend-menu-left,0px);top:var(--friend-menu-top,0px);margin:0;max-height:calc(100dvh - 24px);overflow:auto}
+body.profile-page .ui-profile-friend-action-001>.profile-friend-button{scroll-margin-top:112px}
 body.profile-page .vatra-profile-friend-menu-action-001,
 body.profile-page .vatra-profile-more-item-001{
  display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;
