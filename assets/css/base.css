@@ -857,7 +857,7 @@ dialog:modal,.language-dialog,.captcha-dialog{overscroll-behavior:contain}
  dialog:modal::backdrop,.language-backdrop:not([hidden]),.captcha-backdrop:not([hidden]){
   animation:vatra-modal-backdrop-enter var(--vatra-modal-duration) ease-out both;
  }
- dialog:modal:not([data-fullpage="true"]),.captcha-dialog{
+ dialog:modal:not([data-fullpage="true"],.vatra-post-media-viewer,.profile-media-viewer,.ui-profile-cover-viewer-001),.captcha-dialog{
   animation:vatra-popup-enter var(--vatra-modal-duration) cubic-bezier(.2,.7,.2,1) both;
  }
  .language-dialog > :not([hidden]){animation:vatraAuthReveal var(--vatra-modal-duration) cubic-bezier(.2,.7,.2,1) both}
