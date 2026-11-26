@@ -73,6 +73,8 @@ jobs:
         run: node _development/tests/smoke/post-planning-smoke.mjs
       - name: Audit unpublished multilingual page catalogs
         run: node _development/tests/audit/i18n-coverage-audit.mjs
+      - name: Verify staged account lifecycle gateway (no live accounts)
+        run: node _development/tests/smoke/account-lifecycle-gateway-smoke.mjs
       - name: Check SEO and site layout
         run: |
           node _development/tests/audit/check-seo.mjs
@@ -177,6 +179,25 @@ jobs:
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
         run: node _development/tests/smoke/member-content-subscriptions-rls-smoke.mjs
+      - name: Verify staged lifecycle transitions in a separate disposable database
+        env:
+          DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/postgres
+        run: |
+          node --input-type=module <<'NODE'
+          import pg from "pg";
+          import { readFile } from "node:fs/promises";
+          const admin = new pg.Client({connectionString:process.env.DATABASE_URL});
+          await admin.connect();
+          try { await admin.query("CREATE DATABASE vatra_lifecycle_ci"); } finally { await admin.end(); }
+          const db = new pg.Client({connectionString:"postgresql://vatra_test:test_password@localhost:5432/vatra_lifecycle_ci"});
+          await db.connect();
+          try {
+            for (const name of ["ci-fixture","staged","isolated-test","access-ci-fixture","access-staged","access-isolated-test"]) {
+              await db.query(await readFile("_development/supabase/vatra-account-lifecycle-"+name+".sql","utf8"));
+              console.log("VATRA lifecycle: "+name+" passed");
+            }
+          } finally { await db.end(); }
+          NODE
       - name: Verify poll RLS and scheduled publishing on disposable PostgreSQL
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
