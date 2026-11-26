@@ -93,7 +93,7 @@ assert.deepEqual(Array.from(route),[
  ".ui-social-top-communities-001",".ui-social-top-clips-001",
  ".ui-social-top-marketplace-001",
  ".ui-feed-notifications-button-001",".ui-feed-music-button-001",
- ".feed-account-toggle",".feed-account-toggle","#feed-filter-toggle",
+ ".feed-account-toggle",".feed-account-toggle","#feed-filter-options",
  "#feed-compose-open","#feed-create-story"
 ],"All sections must be introduced in real header order, then Feed controls");
 for(const selector of new Set(route)){
