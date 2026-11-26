@@ -54,6 +54,43 @@ try{
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
 
+ // Simulate a constrained mobile network using the real media runtime and mock Storage only.
+ const weakMediaPage=await context.newPage();
+ try{
+  await weakMediaPage.setViewportSize({width:390,height:700});
+  await weakMediaPage.setContent('<!doctype html><html lang="uk"><body style="margin:0">'+
+   '<main style="padding-top:2200px"><article id="weak-first" style="height:250px"></article>'+
+   '<div style="height:2400px"></div><article id="weak-second" style="height:250px"></article></main></body></html>');
+  await weakMediaPage.addScriptTag({url:base+"assets/js/post-media.js"});
+  const cdp=await context.newCDPSession(weakMediaPage);
+  await cdp.send("Network.enable");
+  await cdp.send("Network.emulateNetworkConditions",{offline:false,latency:400,downloadThroughput:50000,uploadThroughput:25000,connectionType:"cellular3g"});
+  await weakMediaPage.evaluate(async()=>{
+   Object.defineProperty(navigator,"connection",{configurable:true,value:{effectiveType:"3g",saveData:true}});
+   window.__weakMediaSigned=[];
+   const client={storage:{from:()=>({async createSignedUrl(path){
+    window.__weakMediaSigned.push(path);
+    return {data:{signedUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/sign/example"},error:null};
+   }})}};
+   for(const [id,index] of [["weak-first",1],["weak-second",2]]){
+    const host=document.getElementById(id);
+    await window.VATRA_POST_MEDIA.mount(client,{author_vatra_id:"12",media_kind:"image",
+     media_path:"12/posts/00000000-0000-4000-8000-00000000000"+index+".jpg"},host);
+    host.querySelector(".feed-post-media").style.height="200px";
+   }
+  });
+  await weakMediaPage.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))));
+  assert.deepEqual(await weakMediaPage.evaluate(()=>window.__weakMediaSigned),[],"Constrained connection must not sign offscreen photos");
+  await weakMediaPage.locator("#weak-first").scrollIntoViewIfNeeded();
+  await weakMediaPage.waitForFunction(()=>document.querySelector("#weak-first .feed-post-media")?.classList.contains("is-ready-media"),null,{timeout:15000});
+  assert.deepEqual(await weakMediaPage.evaluate(()=>window.__weakMediaSigned),["12/posts/00000000-0000-4000-8000-000000000001.jpg"],"Only visible first photo may request a signed URL");
+  await weakMediaPage.locator("#weak-second").scrollIntoViewIfNeeded();
+  await weakMediaPage.waitForFunction(()=>document.querySelector("#weak-second .feed-post-media")?.classList.contains("is-ready-media"),null,{timeout:15000});
+  assert.deepEqual(await weakMediaPage.evaluate(()=>window.__weakMediaSigned),["12/posts/00000000-0000-4000-8000-000000000001.jpg","12/posts/00000000-0000-4000-8000-000000000002.jpg"]);
+  await cdp.detach();
+  console.log("VATRA weak network browser: 400 ms latency, 400 kbit/s download, no offscreen signing and visible photo recovery passed.");
+ }finally{await weakMediaPage.close();}
+
  // Collapsible posts must place the toggle after the final text/hashtag,
  // never as a separate block. Feed and Profile must calculate the same font.
  const bodyTextProbe=await context.newPage();
