@@ -1,56 +1,77 @@
 
-body.feed-page .ui-vatra-story-editor-001{box-sizing:border-box;width:min(990px,calc(100vw - 28px));max-height:calc(100dvh - 28px);padding:0;margin:auto;border:1px solid #394861;border-radius:21px;background:#253147;color:#f1f5ff;box-shadow:0 24px 80px #101b35a6;font:500 14px/1.45 Onest,system-ui,sans-serif;overflow:auto}
+body.feed-page .ui-vatra-story-editor-001{box-sizing:border-box;width:min(790px,calc(100vw - 28px));max-height:calc(100dvh - 28px);padding:0;margin:auto;border:1px solid #394861;border-radius:14px;background:#202a3a;color:#f1f5ff;box-shadow:0 24px 80px #101b35a6;font:500 14px/1.45 Onest,system-ui,sans-serif;overflow:auto}
 body.feed-page .ui-vatra-story-editor-001:not([open]){display:none}
 body.feed-page .ui-vatra-story-editor-001::backdrop{background:rgba(17,29,51,.62);backdrop-filter:blur(4px)}
 body.feed-page .ui-vatra-story-editor-001 [hidden]{display:none!important}
 body.feed-page .ui-vatra-story-form-001{display:flex;flex-direction:column;gap:0;margin:0}
-body.feed-page .ui-vatra-story-header-001{display:flex;align-items:center;justify-content:space-between;padding:15px 20px 10px}
-body.feed-page .vatra-story-title-001{margin:0;font:700 22px/1.3 Onest,system-ui,sans-serif;color:#f7f9ff}
-body.feed-page .ui-vatra-story-editor-001 button{box-sizing:border-box;border:0;border-radius:10px;background:#3a4962;color:#f0f5ff;min-height:36px;padding:8px 11px;cursor:pointer;font:600 13px/1.4 Onest,system-ui,sans-serif;transition:background .16s,color .16s}
+body.feed-page .ui-vatra-story-header-001{display:flex;align-items:center;justify-content:space-between;padding:12px 15px 7px}
+body.feed-page .vatra-story-title-001{margin:0;font:650 16px/1.3 Onest,system-ui,sans-serif;color:#f7f9ff}
+body.feed-page .ui-vatra-story-editor-001 button{box-sizing:border-box;border:0;border-radius:7px;background:#344157;color:#f0f5ff;min-height:36px;padding:8px 11px;cursor:pointer;font:550 13px/1.4 Onest,system-ui,sans-serif;transition:background .16s,color .16s}
 body.feed-page .ui-vatra-story-editor-001 button:hover:not(:disabled){background:#4b5e7d}
 body.feed-page .ui-vatra-story-editor-001 button:disabled{opacity:.47;cursor:default}
 body.feed-page .ui-vatra-story-editor-001 button:focus-visible,body.feed-page .ui-vatra-story-editor-001 input:focus-visible,body.feed-page .ui-vatra-story-editor-001 textarea:focus-visible{outline:2px solid #9fbaff;outline-offset:3px}
 body.feed-page .ui-vatra-story-editor-001 button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px #9cb8ff;background:#425b91}
-body.feed-page .vatra-story-close-001{width:36px;height:36px;padding:0!important;font-size:23px!important}
-body.feed-page .ui-vatra-story-workspace-001{display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,1fr);gap:13px;padding:10px 16px 15px;min-width:0}
+body.feed-page .vatra-story-close-001{width:36px;height:36px;padding:0!important;display:grid;place-items:center}
+body.feed-page .ui-vatra-story-workspace-001{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.93fr);gap:12px;padding:8px 14px 10px;min-width:0}
 body.feed-page .ui-vatra-story-stage-001{display:flex;flex-direction:column;min-width:0;align-items:center;gap:10px}
-body.feed-page .ui-vatra-story-surface-001{width:min(100%,calc((100dvh - 200px)*.5625));min-width:min(100%,220px);aspect-ratio:9/16;position:relative;isolation:isolate;overflow:hidden;border-radius:14px;background:#344158;box-shadow:0 4px 18px #0b152a30}
+body.feed-page .ui-vatra-story-surface-001{width:min(100%,calc((100dvh - 170px)*.5625));min-width:min(100%,220px);aspect-ratio:9/16;position:relative;isolation:isolate;overflow:hidden;border-radius:9px;background:#344158;box-shadow:0 4px 18px #0b152a30}
 body.feed-page .ui-vatra-story-surface-001[data-drag="true"]{outline:3px solid #a3c0ff;outline-offset:2px}
 body.feed-page :is(.ui-vatra-story-canvas-001,.ui-vatra-story-video-001){display:block;width:100%;height:100%;object-fit:contain}
 body.feed-page .ui-vatra-story-canvas-001{touch-action:none;cursor:move}
 body.feed-page .ui-vatra-story-canvas-001[data-tool="brush"]{cursor:crosshair}
-body.feed-page .ui-vatra-story-empty-001{position:absolute;inset:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:13px;border:1px dashed #8594af;border-radius:12px;text-align:center}
-body.feed-page .ui-vatra-story-upload-icon-001{display:grid;place-items:center;width:58px;height:58px;border:2px dashed #bdcbe3;border-radius:17px;font-size:34px;line-height:1}
+body.feed-page .ui-vatra-story-canvas-001[data-tool="media"]{cursor:grab}
+body.feed-page .ui-vatra-story-canvas-001[data-tool="media"]:active{cursor:grabbing}
+body.feed-page .ui-vatra-story-empty-001{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;border:0;border-radius:9px;text-align:center}
+body.feed-page .ui-vatra-story-upload-icon-001{display:grid;place-items:center;width:40px;height:40px;border:1px dashed #bdcbe3;border-radius:9px;line-height:1}
 body.feed-page .vatra-story-drop-copy-001{margin:4px 0;color:#e0e8f8}
 body.feed-page .vatra-story-choose-001{background:#e7edfa!important;color:#293c5a!important}
 body.feed-page .vatra-story-empty-background-001{background:transparent!important;color:#b8d0ff!important}
 body.feed-page .ui-vatra-story-history-001{position:absolute;z-index:1;top:10px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
 body.feed-page .ui-vatra-story-history-001 button{background:#1e2a42bd;font-size:20px;min-width:38px;padding:3px 8px}
 body.feed-page .ui-vatra-story-media-actions-001{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;width:100%}
-body.feed-page .ui-vatra-story-sidebar-001{display:grid;grid-template-columns:104px minmax(0,1fr);gap:10px;min-width:0;max-height:calc(100dvh - 160px)}
-body.feed-page .ui-vatra-story-tools-001{display:flex;flex-direction:column;gap:5px;padding:0 7px 0 0;border-right:1px solid #53627d;overflow:auto}
-body.feed-page .ui-vatra-story-tools-001 button{background:transparent;border-radius:9px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;min-height:49px;font-size:11px;text-align:center}
+body.feed-page .ui-vatra-story-sidebar-001{display:grid;grid-template-columns:42px minmax(0,1fr);gap:9px;min-width:0;max-height:calc(100dvh - 160px)}
+body.feed-page .ui-vatra-story-tools-001{display:flex;flex-direction:column;gap:3px;padding:0 4px 0 0;border-right:1px solid #48566d;overflow:auto}
+body.feed-page .ui-vatra-story-tools-001 button{background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:9px;padding:7px 4px;min-height:36px;font-size:13px;text-align:left}
 body.feed-page .ui-vatra-story-tools-001 button[aria-pressed="true"]{background:#41577d;box-shadow:none}
-body.feed-page .ui-vatra-story-tools-001 button span:first-child{font-size:20px;line-height:1.1;color:#c8d9fc}
-body.feed-page .ui-vatra-story-panel-001{min-width:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;padding:3px 6px 10px}
-body.feed-page .vatra-story-panel-heading-001{margin:0 0 4px;font:700 20px/1.25 Onest,system-ui,sans-serif;color:#f2f6ff}
+body.feed-page .ui-vatra-story-tools-001 button span:first-child{display:grid;place-items:center;flex:none;width:19px;height:19px;color:#c8d9fc}
+body.feed-page .ui-vatra-story-panel-001{min-width:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:0 4px 8px}
+body.feed-page .vatra-story-panel-heading-001{margin:0;font:650 15px/1.3 Onest,system-ui,sans-serif;color:#f2f6ff}
 body.feed-page :is(.vatra-story-panel-note-001,.vatra-story-stickers-loading-001){margin:0;color:#aebed9;font:500 12px/1.55 Onest,system-ui,sans-serif}
 body.feed-page :is(.ui-vatra-story-text-001,.ui-vatra-story-caption-001){box-sizing:border-box;width:100%;min-height:84px;padding:12px;border:1px solid #576a88;border-radius:10px;background:#1e2a3e;color:#f5f8ff;font:550 15px/1.4 Onest,system-ui,sans-serif;resize:none}
 body.feed-page :is(.ui-vatra-story-fonts-001,.ui-vatra-story-text-options-001,.ui-vatra-story-sticker-packs-001){display:flex;flex-wrap:wrap;gap:6px}
-body.feed-page :is(.ui-vatra-story-text-colors-001,.ui-vatra-story-brush-colors-001,.ui-vatra-story-background-colors-001,.ui-vatra-story-backgrounds-001){display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
-body.feed-page :is(.ui-vatra-story-text-colors-001,.ui-vatra-story-brush-colors-001,.ui-vatra-story-background-colors-001,.ui-vatra-story-backgrounds-001) button{aspect-ratio:1;padding:0;min-height:0;border:1px solid #ffffff35;border-radius:8px}
+body.feed-page :is(.ui-vatra-story-text-colors-001,.ui-vatra-story-brush-colors-001,.ui-vatra-story-background-colors-001,.ui-vatra-story-backgrounds-001){display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+body.feed-page :is(.ui-vatra-story-text-colors-001,.ui-vatra-story-brush-colors-001,.ui-vatra-story-background-colors-001,.ui-vatra-story-backgrounds-001) button{aspect-ratio:1;padding:0;min-height:0;border:1px solid #ffffff35;border-radius:5px}
 body.feed-page :is(.ui-vatra-story-text-colors-001,.ui-vatra-story-brush-colors-001,.ui-vatra-story-background-colors-001,.ui-vatra-story-backgrounds-001) button[aria-pressed="true"]{box-shadow:0 0 0 2px #253147,0 0 0 4px #b5caff}
+body.feed-page .ui-vatra-story-photo-modes-001{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 body.feed-page .ui-vatra-story-panel-001 label{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;color:#d0ddf3;font-size:13px}
 body.feed-page .ui-vatra-story-panel-001 input[type="range"]{grid-column:1/-1;width:100%;margin:0;accent-color:#9cb9ff}
 body.feed-page .ui-vatra-story-panel-001 output{color:#aabde0;font-variant-numeric:tabular-nums}
-body.feed-page .ui-vatra-story-filters-001{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+body.feed-page .ui-vatra-story-filters-001{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 body.feed-page .ui-vatra-story-stickers-001{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;min-width:0}
 body.feed-page .vatra-story-sticker-001{display:grid;place-items:center;aspect-ratio:1;padding:5px!important;min-width:0;overflow:hidden}
 body.feed-page .vatra-story-sticker-001 .ui-vatra-sticker-art-001{display:block;width:100%;height:100%;background-repeat:no-repeat}
-body.feed-page .ui-vatra-story-footer-001{border-top:1px solid #485873;display:flex;flex-wrap:wrap;align-items:center;gap:13px;padding:12px 17px 16px}
+body.feed-page .ui-vatra-story-footer-001{border-top:1px solid #39465b;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px 12px}
 body.feed-page .ui-vatra-story-info-001{display:flex;flex-wrap:wrap;gap:8px;flex:1;color:#c7d6ef;font-size:12px}
-body.feed-page :is(.vatra-story-audience-001,.vatra-story-duration-001){background:#35455f;padding:5px 9px;border-radius:8px}
+body.feed-page :is(.vatra-story-audience-001,.vatra-story-duration-001){background:transparent;padding:4px 7px;border-radius:5px}
 body.feed-page .vatra-story-error-001{flex:1 1 100%;order:2;margin:0;color:#ffb9c4;font-size:13px}
 body.feed-page .vatra-story-publish-001{min-width:min(100%,230px);min-height:42px!important;background:var(--vatra-action-primary,#376de8)!important;color:#fff!important;font-size:14px!important}
-@media(max-width:720px){body.feed-page .ui-vatra-story-workspace-001{grid-template-columns:1fr;padding:8px 12px;gap:12px}body.feed-page .ui-vatra-story-surface-001{width:min(100%,260px,calc((100dvh - 180px)*.5625));min-width:min(100%,160px)}body.feed-page .ui-vatra-story-sidebar-001{grid-template-columns:1fr;max-height:none}body.feed-page .ui-vatra-story-tools-001{flex-direction:row;border-right:0;border-bottom:1px solid #53627d;padding:0 0 7px;overflow-x:auto}body.feed-page .ui-vatra-story-tools-001 button{flex:0 0 75px}body.feed-page .ui-vatra-story-panel-001{overflow:visible}body.feed-page .ui-vatra-story-footer-001{position:sticky;bottom:0;background:#253147}body.feed-page .vatra-story-publish-001{min-width:130px;flex:1}}
+@media(max-width:720px){body.feed-page .ui-vatra-story-workspace-001{grid-template-columns:1fr;padding:8px 12px;gap:12px}body.feed-page .ui-vatra-story-surface-001{width:min(100%,260px,calc((100dvh - 180px)*.5625));min-width:min(100%,160px)}body.feed-page .ui-vatra-story-sidebar-001{grid-template-columns:1fr;max-height:none}body.feed-page .ui-vatra-story-tools-001{flex-direction:row;border-right:0;border-bottom:1px solid #53627d;padding:0 0 7px;overflow-x:auto}body.feed-page .ui-vatra-story-tools-001 button{flex:0 0 38px}body.feed-page .ui-vatra-story-panel-001{overflow:visible}body.feed-page .ui-vatra-story-footer-001{position:sticky;bottom:0;background:#253147}body.feed-page .vatra-story-publish-001{min-width:130px;flex:1}}
+body.feed-page .ui-vatra-story-editor-001 svg{width:19px;height:19px;display:block;flex:none}
+body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"]{grid-template-columns:minmax(0,1fr)}
+body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"] .ui-vatra-story-tools-001{border:0;padding:0;overflow:visible}
+body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"] .ui-vatra-story-tools-001 button{justify-content:flex-start;padding:8px 10px}
+body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]) .ui-vatra-story-tools-001 button span:last-child{display:none}
+body.feed-page .ui-vatra-story-panel-header-001{display:flex;align-items:center;gap:8px}
+body.feed-page .vatra-story-panel-back-001{display:grid;place-items:center;min-width:32px;padding:4px;background:transparent!important}
+body.feed-page .ui-vatra-story-fonts-001{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+body.feed-page .ui-vatra-story-fonts-001 button{font-size:14px;background:transparent}
+body.feed-page .vatra-story-filter-001{display:grid;gap:3px;align-content:start;text-align:center;padding:3px!important;background:transparent!important;font-size:11px!important;min-width:0}
+body.feed-page .ui-vatra-story-filter-preview-001{display:block;width:100%;aspect-ratio:4/3;border-radius:5px}
+body.feed-page .ui-vatra-story-discard-dialog-001{box-sizing:border-box;width:min(340px,calc(100vw - 36px));border:1px solid #48566d;border-radius:12px;padding:18px;background:#253147;color:#f1f5ff;font:500 13px/1.5 Onest,system-ui,sans-serif}
+body.feed-page .ui-vatra-story-discard-dialog-001::backdrop{background:#10182699}
+body.feed-page .vatra-story-discard-title-001{margin:0 0 8px;font-size:16px}
+body.feed-page .vatra-story-discard-copy-001{margin:0 0 16px;color:#c7d6ef}
+body.feed-page .ui-vatra-story-discard-actions-001{display:flex;justify-content:flex-end;gap:8px}
+body.feed-page .vatra-story-discard-confirm-001{background:var(--vatra-action-primary,#376de8)!important}
+@media(max-width:720px){body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"] .ui-vatra-story-tools-001{flex-wrap:wrap;overflow:visible}body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"] .ui-vatra-story-tools-001 button{flex:1 1 130px}body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]){grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){body.feed-page .ui-vatra-story-editor-001 button{transition:none}}

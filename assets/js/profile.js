@@ -840,7 +840,7 @@
     const bindMenu=(surface,button,kind)=>{
      surface.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")menu(kind,button);});
      surface.addEventListener("pointerleave",()=>window.VATRA_PROFILE_MEDIA_MENU?.leave());
-     button.addEventListener("click",()=>menu(kind,button));
+     button.addEventListener("click",event=>menu(kind,button,event.detail===0));
      button.addEventListener("keydown",event=>{if(event.key==="ArrowDown"){event.preventDefault();menu(kind,button,true);}});
     };
     const updatePreview=()=>{
@@ -3514,25 +3514,26 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  coverChange.setAttribute("aria-haspopup","menu");coverChange.setAttribute("aria-controls","profile-owner-media-menu");coverChange.setAttribute("aria-expanded","false");
  const ownerMenu=document.createElement("div");ownerMenu.id="profile-owner-media-menu";ownerMenu.className="ui-profile-owner-media-menu-001";ownerMenu.setAttribute("role","menu");ownerMenu.hidden=true;document.body.append(ownerMenu);
  const ownerPopover=typeof ownerMenu.showPopover==="function";if(ownerPopover)ownerMenu.setAttribute("popover","manual");
- let ownerAnchor=null,ownerKind=null,ownerTimer=null,coverSourceLoading=false;
+ let ownerAnchor=null,ownerKind=null,ownerTimer=null,coverSourceLoading=false,ownerKeyboard=false;
  const closeOwnerMenu=(focus=false)=>{
-  clearTimeout(ownerTimer);const anchor=ownerAnchor;ownerAnchor=null;ownerKind=null;
+  clearTimeout(ownerTimer);const anchor=ownerAnchor;ownerAnchor=null;ownerKind=null;ownerKeyboard=false;
   if(ownerPopover&&ownerMenu.matches(":popover-open"))ownerMenu.hidePopover();
   ownerMenu.hidden=true;ownerMenu.replaceChildren();anchor?.setAttribute("aria-expanded","false");
   if(focus&&anchor?.isConnected)anchor.focus({preventScroll:true});
  };
- const leaveOwnerMenu=()=>{clearTimeout(ownerTimer);ownerTimer=setTimeout(()=>{if(!ownerMenu.contains(document.activeElement)&&document.activeElement!==ownerAnchor)closeOwnerMenu();},220);};
+ const leaveOwnerMenu=()=>{clearTimeout(ownerTimer);ownerTimer=setTimeout(()=>{if(!ownerAnchor||ownerAnchor.matches(":hover")||ownerMenu.matches(":hover"))return;if(ownerKeyboard&&(ownerMenu.contains(document.activeElement)||document.activeElement===ownerAnchor))return;closeOwnerMenu();},180);};
  const positionOwnerMenu=()=>{
   if(!ownerAnchor?.isConnected||!ownerAnchor.getClientRects().length){closeOwnerMenu();return false;}
   const a=ownerAnchor.getBoundingClientRect(),v=window.visualViewport,left=v?.offsetLeft||0,top=Math.max(v?.offsetTop||0,q(".feed-header")?.getBoundingClientRect().bottom||0),right=left+(v?.width||innerWidth),bottom=(v?.offsetTop||0)+(v?.height||innerHeight);
   if(a.bottom<=top||a.top>=bottom){closeOwnerMenu();return false;}
-  const w=ownerMenu.offsetWidth,h=ownerMenu.scrollHeight+2,below=bottom-a.bottom-8,above=a.top-top-8,up=below<h&&above>below,room=Math.max(44,up?above:below);
+  ownerMenu.style.width=ownerKind==="cover"?Math.min(Math.max(a.width,210),right-left-16)+"px":"";
+   const w=ownerMenu.offsetWidth,h=ownerMenu.scrollHeight+2,below=bottom-a.bottom-8,above=a.top-top-8,up=below<h&&above>below,room=Math.max(44,up?above:below);
   ownerMenu.style.maxHeight=Math.floor(room)+"px";
   ownerMenu.style.left=Math.round(Math.max(left+8,Math.min(ownerKind==="cover"?a.right-w:a.left,right-w-8)))+"px";
   ownerMenu.style.top=Math.round(Math.max(top+4,up?a.top-5-Math.min(h,room):a.bottom+5))+"px";return true;
  };
  const mediaBusy=()=>uploading||coverSourceLoading||coverFeaturePending||avatarFeaturePending||coverEditor?.busy()||avatarEditor?.busy();
- const iconPaths={upload:"M4 5h16v14H4zM8 10l3 3 2-2 5 5M12 2v6m-3-3 3-3 3 3",crop:"M6 3v15h15M3 6h15v15M6 18l12-12",trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"};
+ const iconPaths={upload:"M4 7v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M8 11l4-4 4 4M12 3v12",crop:"M6 3v15h15M3 6h15v15",trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"};
  const ownerItem=(key,label,run,source=null)=>{
   const item=document.createElement("button");item.type="button";item.className="vatra-profile-owner-media-action-001";item.dataset.action=key;item.setAttribute("role","menuitem");
   if(key==="trash"||source?.classList.contains("profile-avatar-menu-delete"))item.classList.add("is-danger");
@@ -3543,14 +3544,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  const openOwnerMenu=(kind,anchor,keyboard=false)=>{
   if(!canEdit||mediaBusy()||!anchor?.isConnected||!anchor.getClientRects().length)return;
-  clearTimeout(ownerTimer);if(ownerAnchor===anchor&&!ownerMenu.hidden){if(keyboard)ownerMenu.querySelector("button:not(:disabled)")?.focus();return;}
-  closeOwnerMenu();closeAvatarMenu();ownerAnchor=anchor;ownerKind=kind;
+  clearTimeout(ownerTimer);if(ownerAnchor===anchor&&!ownerMenu.hidden){if(keyboard){ownerKeyboard=true;ownerMenu.querySelector("button:not(:disabled)")?.focus();}return;}
+  closeOwnerMenu();closeAvatarMenu();ownerAnchor=anchor;ownerKind=kind;ownerKeyboard=keyboard;
   if(kind==="cover"){
    const hasCover=!!saved?.cover_path;
    ownerItem("upload",hasCover?t("Змінити зображення","Change image"):t("Завантажити зображення","Upload image"),()=>fileCover.click());
    if(hasCover){ownerItem("crop",t("Область відображення","Display area"),()=>void reopenCoverEditor());ownerItem("trash",t("Видалити","Delete"),()=>void removeCover());}
   }else{
    for(const source of avatarMenu.querySelectorAll("button:not([hidden])")){
+     if(anchor.classList.contains("vatra-profile-editor-avatar-change-001")&&!["profile-avatar-change","profile-avatar-remove"].includes(source.id))continue;
     const label=source.querySelector("span")?.textContent||source.getAttribute("aria-label")||source.textContent;
     ownerItem(source.id,label,()=>source.click(),source);
    }
@@ -3564,7 +3566,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  window.VATRA_PROFILE_MEDIA_MENU=Object.freeze({open:openOwnerMenu,leave:leaveOwnerMenu,close:closeOwnerMenu});
  coverChange.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")openOwnerMenu("cover",coverChange);});
  coverChange.addEventListener("pointerleave",leaveOwnerMenu);
- coverChange.addEventListener("click",()=>openOwnerMenu("cover",coverChange));
+ coverChange.addEventListener("click",event=>openOwnerMenu("cover",coverChange,event.detail===0));
  coverChange.addEventListener("keydown",event=>{if(event.key==="ArrowDown"){event.preventDefault();openOwnerMenu("cover",coverChange,true);}});
  ownerMenu.addEventListener("pointerenter",()=>clearTimeout(ownerTimer));ownerMenu.addEventListener("pointerleave",leaveOwnerMenu);
  ownerMenu.addEventListener("keydown",event=>{
