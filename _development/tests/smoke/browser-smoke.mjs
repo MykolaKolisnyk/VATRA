@@ -5538,12 +5538,13 @@ try{
    assert.equal(await input.inputValue(),expected);
   };
   await selectCountry("PL");
-  await checkCityOptions("profile-editor-hometown","Warszawa","Київ");
+  await profilePage.locator("#profile-editor-hometown").fill("Львів, Україна");
+  assert.equal(await profilePage.locator("#profile-editor-hometown").getAttribute("aria-haspopup"),null,"Hometown is independent of residence and accepts arbitrary places");
+  await checkCityOptions("profile-editor-city","Warszawa","Київ");
   await selectCountry("UA");
-  assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Warszawa",
-   "Changing country must not silently delete an existing hometown");
-  await checkCityOptions("profile-editor-hometown","Невицьке","Warszawa");
-  await checkCityOptions("profile-editor-hometown","Львів","Warszawa");
+  assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Львів, Україна","Changing residence country must not alter hometown");
+  await checkCityOptions("profile-editor-city","Невицьке","Warszawa");
+  await checkCityOptions("profile-editor-city","Київ","Warszawa");
   assert.equal(await profilePage.locator(".ui-profile-editor-field-control-short_bio #profile-editor-visibility-short_bio").count(),1,"Visibility must be inside the same field box");
   for(const key of ["short_bio","country","hometown","languages","relationship"]){
    const geometry=await profilePage.locator(".ui-profile-editor-field-control-"+key).evaluate(box=>{
@@ -5574,8 +5575,14 @@ try{
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
   assert.equal(await profilePage.locator("#profile-editor-page-visibility, #profile-editor-page-visibility-native").count(),0,
    "Global profile visibility belongs exclusively in Settings");
+  await profilePage.locator('.profile-editor-nav-link[data-group="personal"]').click();
+  for(const [key,values] of [["life_priorities",["Родина та діти","Здоров’я"]],["important_in_people",["Доброта та чесність","Вірність та надійність"]]]){
+   const group=profilePage.locator("#profile-editor-"+key);
+   for(const value of values)await group.locator('input[type="checkbox"]').filter({}).evaluateAll((nodes,v)=>{const check=nodes.find(el=>el.value===v);if(!check)throw Error("Missing option "+v);if(!check.checked)check.click();},value);
+   assert.equal(await group.locator("input:checked").count(),2);
+  }
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
-  await checkCityOptions("profile-editor-city","Київ","Warszawa");
+  assert.equal(await profilePage.locator("#profile-editor-city").count(),0,"Residence city belongs with residence country, not contacts");
   await profilePage.locator("#profile-editor-address").click();
   const addressDialog=profilePage.locator("#profile-editor-address-dialog");
   await addressDialog.waitFor({state:"visible"});
@@ -5598,6 +5605,10 @@ try{
   await profilePage.locator(".vatra-profile-editor-save-001").click();
   await profilePage.waitForFunction(()=>[...document.querySelectorAll(".vatra-toast-item--success.is-visible")].some(el=>/Зміни збережено|Changes saved/.test(el.textContent)));
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація");
+  for(const [key,values] of [["life_priorities",["Родина та діти","Здоров’я"]],["important_in_people",["Доброта та чесність","Вірність та надійність"]]]){
+   const stored=await profilePage.evaluate(key=>window.__profileDetailRows.find(row=>row.field_key===key)?.field_value,key);
+   assert.deepEqual(stored?.split(", "),values,"Multiple values are saved in the existing field format");
+  }
   assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").count(),0,
    "Profile editor must not construct a legacy feedback node");
    await profilePage.locator(".vatra-toast-item--success.is-visible").last().waitFor({state:"visible"});

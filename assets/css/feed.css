@@ -3545,7 +3545,6 @@ body.feed-page .ui-vatra-account-profile-group-001 .feed-account-profile svg{wid
 body.feed-page .ui-vatra-account-profile-group-001>a:focus-visible{outline:2px solid #9dbaf2;outline-offset:-2px}
 .vatra-search-empty-001 .ui-vatra-search-empty-icon-001{display:block;width:52px;height:52px;padding:12px;box-sizing:border-box;background:#edf3ff;color:#547bc5;border-radius:16px;stroke-width:1.65}
 
-/* Pending post deletion is a reversible placeholder, not a live post with a browser-default button. */
 body.feed-page .vatra-post-delete-pending-001> :not(.vatra-post-deleted-line-001){display:none!important}
 body.feed-page .vatra-post-deleted-line-001{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;padding:16px 8px;min-height:66px;text-align:center}
 body.feed-page .vatra-post-deleted-label-001{color:#65758a;font:550 14px/1.5 Onest,system-ui,sans-serif}

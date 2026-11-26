@@ -41,13 +41,14 @@
   {id:"profile",label:["Профіль","Profile"],icon:"user-round",fields:[
    ["short_bio","Коротка інформація","Short bio","long"],
    ["relationship","Сімейний стан","Relationship status"],
-   ["country","Країна","Country"],
-   ["hometown","Рідний населений пункт","Hometown or village"],
+   ["country","Країна проживання","Country of residence"],
+   ["city","Місто або село проживання","Current city or village"],
+   ["hometown","Рідне місто або село","Hometown or village"],
    ["languages","Знання мов","Languages"],
    ["family","Родина","Family","long"]
   ]},
   {id:"contacts",label:["Контакти","Contacts"],icon:"at-sign",fields:[
-   ["city","Населений пункт","City, town or village"],["address","Адреса","Address"],
+   ["address","Адреса","Address"],
    ["mobile_phone","Мобільний телефон","Mobile phone"],
    ["additional_phone","Додатковий телефон","Additional phone"],
    ["website","Особистий сайт","Personal website"]
@@ -129,7 +130,12 @@
  const countryLabel=code=>{if(!countryCodes.includes(code))return "";try{return new Intl.DisplayNames([window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk"],{type:"region"}).of(code)||code;}catch(_){return code;}};
  const citiesForCountry=code=>countryCodes.includes(code)?countryCities[code]:[];
 
- const choiceLabel=(key,value)=>{const match=choices[key]?.find(pair=>pair.includes(value));return match?tr(match[0],match[1]):value;};
+ const multiChoiceKeys=new Set(["life_priorities","important_in_people"]);
+ const splitChoices=value=>[...new Set(String(value||"").split(/[,;\n]+/).map(part=>part.trim()).filter(Boolean))];
+ const choiceLabel=(key,value)=>{
+  const label=part=>{const match=choices[key]?.find(pair=>pair.includes(part));return match?tr(match[0],match[1]):part;};
+  return multiChoiceKeys.has(key)?splitChoices(value).map(label).join(", "):label(value);
+ };
  const audiences=[
   ["public","Для всіх","Everyone"],
   ["friends","Для друзів","Friends"],
@@ -297,7 +303,7 @@
      content.append(link);
     }else content.textContent=data.value;
    }else content.textContent=key==="address"?addressText(data.value):key==="country"?countryLabel(data.value):key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
-   if(!detailed&&(key==="city"||key==="hometown")&&visibleField("country")){
+   if(!detailed&&key==="city"&&visibleField("country")){
     const country=countryLabel(visibleField("country"));if(country)content.append(document.createTextNode(", "+country));
    }
    item.append(label,content);
@@ -368,7 +374,7 @@
    card.classList.toggle("is-empty",noDetails);
    if(emptyInfo)emptyInfo.hidden=!noDetails;
    const additional=[...fieldsByKey.keys()].filter(key=>
-    key!=="short_bio"&&visibleField(key)&&!selected.includes(key)&&!(key==="country"&&selected.includes(locationKey)));
+    key!=="short_bio"&&visibleField(key)&&!selected.includes(key)&&!(key==="country"&&locationKey==="city"));
    const hasLongPreview=selected.some(key=>visibleField(key).length>32);
    more.hidden=!additional.length&&!hasLongPreview;
   };
@@ -676,7 +682,7 @@
    arrow.setAttribute("aria-label",tr("Список населених пунктів","Settlement suggestions"));arrow.append(menuArrow());
    input.before(wrapper);wrapper.append(input,arrow);
    input.setAttribute("role","combobox");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-expanded","false");input.setAttribute("aria-haspopup","listbox");
-   input.setAttribute("aria-label",input.id.endsWith("hometown")?tr("Рідний населений пункт","Hometown or village"):tr("Населений пункт","City, town or village"));
+   if(!input.hasAttribute("aria-label"))input.setAttribute("aria-label",tr("Місто або село проживання","Current city or village"));
    const open=(keyboard=false,all=false)=>{
     const query=all?"":input.value.trim().toLocaleLowerCase();
     const items=citiesForCountry(draft.get("country")?.value).filter(city=>!query||city.toLocaleLowerCase().includes(query)).sort((a,b)=>a.localeCompare(b,window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk")).map(city=>({value:city,text:city}));
@@ -742,6 +748,23 @@
      for(const input of [city,street,name])input.addEventListener("input",()=>{city.setCustomValidity("");street.setCustomValidity("");});
      foot.append(cancel,commit);form.append(head,body,foot);d.append(form);document.body.append(d);d.showModal();city.focus();
     });
+   }else if(multiChoiceKeys.has(key)){
+    const selected=new Set(splitChoices(current.value).map(value=>choices[key].find(pair=>pair.includes(value))?.[0]||value));
+    const list=make("div","ui-profile-editor-multi-choice-001");list.id=inputId;list.setAttribute("role","group");list.setAttribute("aria-label",tr(uk,en));
+    lab.id=inputId+"-label";list.setAttribute("aria-labelledby",lab.id);
+    const options=[...choices[key],...[...selected].filter(value=>!choices[key].some(pair=>pair[0]===value)).map(value=>[value,value])];
+    readValue=()=>[...selected].join(", ");
+    for(const [index,pair] of options.entries()){
+     const option=make("label","vatra-profile-editor-multi-option-001");
+     const check=make("input","ui-profile-editor-multi-check-001");check.type="checkbox";check.id=inputId+"-"+index;check.value=pair[0];check.checked=selected.has(pair[0]);
+     option.append(check,make("span","vatra-profile-editor-multi-label-001",lang(pair)));
+     check.addEventListener("change",()=>{
+      if(check.checked)selected.add(pair[0]);else selected.delete(pair[0]);
+      if(readValue().length>1000){selected.delete(pair[0]);check.checked=false;}
+      update();
+     });list.append(option);
+    }
+    control.append(list);
    }else if(key==="languages"){
     const selectedLanguages=[...new Set(current.value.split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean))];
     const wrap=make("div","ui-profile-editor-language-box-001"),chips=make("div","ui-profile-editor-language-chips-001");
@@ -804,14 +827,14 @@
      input.maxLength=1000;input.spellcheck=kind==="long";
      input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):tr("Не вказано","Not specified");
      if(key==="city"||key==="hometown"){
-      input.autocomplete="off";input.placeholder=tr("Знайти або ввести населений пункт","Find or enter a settlement");
+      input.autocomplete="off";input.placeholder=key==="hometown"?tr("Місто або село, країна (за бажанням)","City or village, country (optional)"):tr("Знайти або ввести населений пункт","Find or enter a settlement");
      }
     }
     input.value=key==="country"&&!countryCodes.includes(selectedValue)?"":selectedValue;readValue=()=>input.value;
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
-    if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
+    if(menu)enhanceEditorSelect(input);else if(key==="city")enhanceCityInput(input);
    }
-   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
+   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };

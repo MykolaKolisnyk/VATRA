@@ -1,4 +1,8 @@
 {
+  "Країна проживання": "Wohnsitzland",
+  "Місто або село проживання": "Aktueller Wohnort",
+  "Рідне місто або село": "Heimatort",
+  "Місто або село, країна (за бажанням)": "Stadt oder Dorf, Land (optional)",
   "ID скопійовано.": "ID kopiert.",
   "Не вдалося скопіювати ID.": "ID konnte nicht kopiert werden.",
   "Копіювати ID": "ID kopieren",

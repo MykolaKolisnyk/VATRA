@@ -3115,3 +3115,9 @@ body.profile-page .vatra-profile-editor-address-open-001 svg{width:17px;height:1
 body.profile-page .vatra-profile-editor-address-help-001{grid-column:1/-1;color:#71839c;font:450 12px/1.5 Onest,system-ui,sans-serif;margin:0}
 body.profile-page .vatra-profile-editor-address-remove-001{margin-inline-end:auto;border:0;background:transparent;color:#b34c61;font:600 13px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
 @media(max-width:540px){body.profile-page .vatra-profile-editor-address-open-001{font-size:16px}}
+
+body.profile-page .ui-profile-editor-multi-choice-001{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));align-content:start;gap:6px;padding:8px 0 8px 8px;min-width:0}
+body.profile-page .vatra-profile-editor-multi-option-001{display:flex;align-items:center;gap:8px;min-height:40px;padding:8px 10px;border:1px solid #e0e7f2;border-radius:9px;background:#fff;color:#354865;font:500 13px/1.45 Onest,system-ui,sans-serif;cursor:pointer;overflow-wrap:anywhere}
+body.profile-page .vatra-profile-editor-multi-option-001:has(input:checked){border-color:#adc5f5;background:#edf3ff;color:#2865d8}
+body.profile-page .vatra-profile-editor-multi-option-001:focus-within{outline:2px solid #8eb0f5;outline-offset:1px}
+body.profile-page .ui-profile-editor-multi-check-001{appearance:auto;accent-color:#2865d8;width:16px;height:16px;flex:none;margin:0}
