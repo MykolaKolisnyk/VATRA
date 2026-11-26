@@ -201,7 +201,7 @@
   const emptyInfo=select("#profile-about-empty");
   const [preference,friendship,ownerDetails]=await (prepared||prepare({client,ownId,targetId,isMine}));
 
-  let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
+  const accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
   const isFriend=!friendship.error&&!!friendship.data?.length;
   const blocked=!isMine&&(blockAccess?.blockedByThem||blockAccess?.blockedByMe);
   const locked=!isMine&&(blocked||(accountVisibility==="friends"&&!isFriend));
@@ -324,13 +324,6 @@
     for(const key of keys){section.append(itemFor(key,true));count++;}
     modalContent.append(section);
    }
-   if(count&&isMine){
-    const footer=make("div","vatra-profile-details-footer ui-vatra-profile-details-footer-001");
-    const edit=make("button","vatra-profile-details-edit-001",tr("Редагувати інформацію","Edit information"));
-    edit.type="button";edit.append(svg("edit"));
-    edit.addEventListener("click",()=>{modal.close();openEditor();});
-    footer.append(edit);modalContent.append(footer);
-   }
    if(!count){
     const empty=make("div","vatra-profile-details-empty ui-vatra-profile-details-empty-001");
     empty.append(svg("user"),make("p","vatra-profile-details-empty-label-001",
@@ -338,12 +331,6 @@
       "No details yet. Add what you would like to share."):
       tr("Користувач ще не додав доступної вам інформації.",
        "This member has not shared any information with you.")));
-    if(isMine){
-     const edit=make("button","vatra-profile-details-edit-001",tr("Редагувати профіль","Edit profile"));
-     edit.type="button";
-     edit.addEventListener("click",()=>{modal.close();openEditor();});
-     empty.append(edit);
-    }
     modalContent.append(empty);
    }
   };
@@ -437,9 +424,7 @@
   const groupTitleWrap=make("div","ui-profile-editor-section-title-wrap-001");
   const groupTitle=make("h2","vatra-profile-editor-section-title-001");
   groupTitleWrap.append(back,groupTitle);
-  const media=make("button","vatra-profile-editor-media-button-001");
-  media.type="button";media.append(svg("photo"),make("span","vatra-profile-editor-media-button-text-001",tr("Фото й обкладинка","Photos and cover")));
-  titleRow.append(groupTitleWrap,media);
+  titleRow.append(groupTitleWrap);
   const summary=make("p","vatra-profile-editor-section-description-001");
   const separator=make("div","profile-editor-label-row ui-profile-editor-label-row-001");
   separator.append(
@@ -479,11 +464,10 @@
     "Each piece of information has its own visibility.")));
   sidebar.append(menu,navFoot);layout.append(primary,sidebar);
   workspace.append(layout);main.append(workspace);
-  let selected="profile",visibility=accountVisibility;
+  let selected="profile";
   const hasChanges=()=>[...draft.keys()].some(key=>
    (draft.get(key)?.value||"")!==(saved.get(key)?.value||"")||
-   (draft.get(key)?.visibility||"friends")!==(saved.get(key)?.visibility||"friends"))||
-   visibility!==accountVisibility;
+   (draft.get(key)?.visibility||"friends")!==(saved.get(key)?.visibility||"friends"));
   const close=async()=>{
    closeEditorMenu();
    if(hasChanges()&&!await window.VATRA_PROFILE_CONFIRM({
@@ -494,13 +478,10 @@
    }))return;
    draft.clear();
    for(const [key,value] of saved)draft.set(key,{...value});
-   visibility=accountVisibility;
    workspace.hidden=true;hero.hidden=false;panels.hidden=false;
    scrollTo({top:0,behavior:"instant"});
   };
   back.addEventListener("click",close);
-  const mediaDialog=select("#profile-edit-dialog");
-  media.addEventListener("click",()=>mediaDialog?.showModal());
   const note=msg=>{if(msg)window.VATRA_TOAST?.error(msg);};
   const recordDialog=make("dialog","vatra-profile-editor-record-dialog ui-profile-editor-record-dialog-001");
   recordDialog.setAttribute("aria-labelledby","profile-editor-record-title");
@@ -722,7 +703,6 @@
    const lab=make("label","vatra-profile-editor-label-"+key,tr(uk,en));
    const current=draft.get(key)||{value:"",visibility:"friends"};
    const disclosure=make("div","ui-profile-editor-disclosure-"+key);
-   disclosure.append(make("span","vatra-profile-editor-disclosure-label-"+key,tr("Хто бачить","Visible to")));
    const selectBox=make("select","ui-profile-editor-visibility-"+key);
    selectBox.id="profile-editor-visibility-"+key;
    selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+tr(uk,en));
@@ -778,7 +758,7 @@
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
    }
-   lab.htmlFor=inputId;control.append(disclosure);row.append(lab,control);destination.append(row);
+   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab,disclosure);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
@@ -788,11 +768,9 @@
    closeEditorMenu();selected=id;
    groupTitle.textContent=lang(group.label);
    summary.textContent=id==="profile"?
-    tr("Основне про вас і налаштування доступу до всієї сторінки.",
-     "Basic details and visibility for your profile."):
+    tr("Основне про вас","About you"):
     tr("Для кожного поля доступні три рівні приватності.",
      "Each field supports three visibility levels.");
-   media.hidden=id!=="profile";
    for(const [name,btn] of navButtons){
     const active=name===id;
     btn.classList.toggle("is-active",active);btn.setAttribute("aria-current",active?"page":"false");
@@ -817,8 +795,8 @@
     for(const target of [select("#profile-cover-image"),select("#profile-cover-photo"),select("#profile-avatar")])if(target)observe.observe(target,{attributes:true,attributeFilter:["style","class","src","hidden"]});
     const sectionObserver=new MutationObserver(()=>{if(!identity.isConnected){observe.disconnect();sectionObserver.disconnect();}});
     sectionObserver.observe(fields,{childList:true});
-    coverButton.addEventListener("click",()=>{mediaDialog?.showModal();select("#profile-cover-upload-button")?.focus();});
-    avatarButton.addEventListener("click",()=>{mediaDialog?.showModal();select("#profile-avatar-upload-button")?.focus();});
+    coverButton.addEventListener("click",()=>{if(!select("#profile-cover-change")?.disabled)select("#profile-cover-file")?.click();});
+    avatarButton.addEventListener("click",()=>{if(!select("#profile-avatar-change")?.disabled)select("#profile-avatar-file")?.click();});
     coverPreview.append(coverButton,avatarPreview);
     const identityInfo=make("div","ui-profile-editor-identity-info-001");
     const nameLine=make("div","ui-profile-editor-identity-name-row-001");
@@ -826,22 +804,7 @@
     const idLink=make("a","vatra-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id",location.href).href;
     nameLine.append(idLink);identityInfo.append(avatarButton,nameLine);
     identity.append(coverPreview,identityInfo);fields.append(identity);
-    const privacy=make("div","profile-editor-privacy ui-profile-editor-privacy-001");
-    const privacySymbol=make("div","ui-profile-editor-privacy-symbol-001");
-    privacySymbol.append(svg("lock"));
-    const copy=make("div","ui-profile-editor-privacy-copy-001");
-    copy.append(make("strong","vatra-profile-editor-privacy-heading-001",
-     tr("Хто може бачити мою сторінку","Who can view my profile")),
-     make("small","vatra-profile-editor-privacy-help-001",
-      tr("Закриту сторінку та її публікації бачитимуть тільки підтверджені друзі.",
-       "Only confirmed friends can view a private page and its posts.")));
-    const change=make("select","ui-profile-editor-page-visibility-001");
-    change.id="profile-editor-page-visibility";
-    change.setAttribute("aria-label",tr("Видимість сторінки","Page visibility"));
-    change.append(opt("public",tr("Відкрита сторінка","Public profile")),
-     opt("friends",tr("Закрита · лише друзі","Private · friends only")));
-    change.value=visibility;change.addEventListener("change",()=>{visibility=change.value;});
-    privacy.append(privacySymbol,copy,change);fields.append(privacy);enhanceEditorSelect(change,"page");
+
    }
    if(["education","career","military"].includes(id)){
     const info=make("div","ui-profile-editor-records-001");
@@ -896,14 +859,6 @@
       .delete().eq("vatra_id",ownId).in("field_key",deletions);
      if(result.error)throw result.error;
     }
-    if(visibility!==accountVisibility){
-     const result=await client.from("profile_preferences")
-      .upsert({vatra_id:ownId,profile_visibility:visibility,
-       updated_at:new Date().toISOString()},{onConflict:"vatra_id"})
-      .select("profile_visibility").maybeSingle();
-     if(result.error||result.data?.profile_visibility!==visibility)
-      throw result.error||new Error("Profile preference not saved");
-    }
     for(const record of records){
      if(record.field_value)saved.set(record.field_key,{
       value:record.field_value,visibility:record.visibility});
@@ -912,7 +867,6 @@
       value:record.field_value,visibility:record.visibility});
     }
 
-    accountVisibility=visibility;
     renderInfo();
     window.VATRA_TOAST?.success(tr("Зміни збережено.","Changes saved."));
    }catch(_){
@@ -2398,14 +2352,9 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
   }catch(_){note.textContent=t("Статус не збережено. Спробуйте ще раз.","Could not save status. Retry.");note.hidden=false;}
   finally{save.disabled=false;}
  });
- const edit=q("#profile-edit-open"),mediaDialog=q("#profile-edit-dialog");
+ const edit=q("#profile-edit-open");
  edit.hidden=false;
- edit.addEventListener("click",()=>{
-  if(window.VATRA_PROFILE_DETAILS?.open)window.VATRA_PROFILE_DETAILS.open();
-  else mediaDialog.showModal();
- });
- q("#profile-edit-cancel").addEventListener("click",()=>mediaDialog.close());
- q("#profile-edit-form").addEventListener("submit",event=>{event.preventDefault();mediaDialog.close();});
+ edit.addEventListener("click",()=>window.VATRA_PROFILE_DETAILS?.open());
 }
 function setupProfilePresence(client,targetId,ownId,signupGender){
  const caption=q("#profile-last-seen");
@@ -2454,7 +2403,6 @@ function createAvatarGalleryLoader(read,now=Date.now){
 }
 async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false,preloadedMedia=null){
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),systemCover=q("#profile-cover-system"),avatar=q("#profile-avatar");
- const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
  const avatarWrap=q("#profile-avatar-wrap"),avatarTrigger=q("#profile-avatar-trigger");
  const avatarMenu=q("#profile-avatar-menu"),storyButton=q("#profile-avatar-story");
@@ -3303,7 +3251,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const raw=sessionStorage.getItem("vatra-profile-photo-toast");
   if(raw){const savedToast=JSON.parse(raw);if(savedToast.account===ownId){sessionStorage.removeItem("vatra-profile-photo-toast");status(savedToast.text);}}
  }catch(_){}
- buttonAvatar.hidden=false;buttonCover.hidden=false;
  const fileTypes={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
  async function uploadImage(file,kind,originalFile=null){
   if(uploading)return false;
@@ -3312,7 +3259,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    status(t("Оберіть JPEG, PNG або WebP до 30 МБ.","Choose a JPEG, PNG or WebP under 30 MB."),true);return false;
   }
   uploading=true;if(kind==="avatar")avatarGalleryLoader.invalidate();
-  buttonAvatar.disabled=true;buttonCover.disabled=true;coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
+  coverChange.disabled=true;changePhoto.disabled=true;removePhoto.disabled=true;
   status(t("Завантажуємо зображення…","Uploading image…"));
   const filename=typeof crypto!=="undefined"&&typeof crypto.randomUUID==="function"?
    crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),
@@ -3365,7 +3312,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     "Could not upload the image. Please retry."),true);return false;}
   finally{
    uploading=false;if(kind==="avatar")avatarGalleryLoader.invalidate();
-   buttonAvatar.disabled=false;buttonCover.disabled=false;coverChange.disabled=false;changePhoto.disabled=false;removePhoto.disabled=false;
+   coverChange.disabled=false;changePhoto.disabled=false;removePhoto.disabled=false;
    fileAvatar.value="";fileCover.value="";
   }
  }
@@ -3503,8 +3450,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  removePhoto.addEventListener("click",()=>void removeAvatarPath(saved?.avatar_path));
  galleryDelete.addEventListener("click",()=>void removeAvatarPath(gallery[galleryIndex]));
- buttonAvatar.addEventListener("click",()=>fileAvatar.click());changePhoto.addEventListener("click",()=>{closeAvatarMenu();fileAvatar.click();});
- buttonCover.addEventListener("click",()=>fileCover.click());coverChange.addEventListener("click",()=>fileCover.click());
+ changePhoto.addEventListener("click",()=>{closeAvatarMenu();fileAvatar.click();});
+ coverChange.addEventListener("click",()=>fileCover.click());
  const startAvatarEditor=async file=>{
   if(!file||avatarFeaturePending||uploading||coverFeaturePending||coverEditor?.busy()||coverDialog.open)return;
   avatarFeaturePending=true;
