@@ -563,7 +563,7 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
   setTimeout(fn,delay){const id=++serial;timers.set(id,{at:now+delay,fn});return id;},clearTimeout:id=>timers.delete(id)});
  await flush();
  const selected=()=>layers.find(img=>img.classList.contains("is-active"))?.url;
- assert.ok(selected().endsWith("login_hero-02.webp"),"The first illustration must use the random draw");
+ assert.ok(new URL(selected()).pathname.endsWith("login_hero-02.webp"),"The first illustration must use the random draw");
  assert.equal(requests.length,1,"Only the selected image is loaded at startup");
  const first=selected();
  await tick(24_999);assert.equal(requests.length,1);
