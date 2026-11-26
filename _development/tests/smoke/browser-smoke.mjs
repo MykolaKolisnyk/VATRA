@@ -4855,6 +4855,7 @@ try{
   await profilePage.locator("#profile-archive-photos-section .vatra-album-archive-pane-001").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-archive-toggle").evaluate(el=>el.classList.contains("social-profile-tab-active")),true);
+   assert.ok(await profilePage.locator("#profile-archive-toggle").evaluate(el=>Math.abs(el.getBoundingClientRect().bottom-el.closest(".social-profile-tabs").getBoundingClientRect().bottom)<2),"Archive active underline must align with the tab row bottom");
   await profilePage.locator("#profile-tab-photos").click();
   assert.equal(await profilePage.locator("#profile-archive-photos-section").isVisible(),false);
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
@@ -5310,9 +5311,9 @@ try{
   assert.equal(await profilePage.locator("#profile-edit-open svg").count(),1,
    "Owner's edit action uses a VATRA SVG icon");
   assert.equal(await profilePage.locator("#profile-status svg").count(),0,"Status has no pencil");
-  const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,name=document.querySelector("#profile-heading"),er=edit.getBoundingClientRect(),nr=name.getBoundingClientRect();return {inRow:row.classList.contains("ui-profile-name-row-001")&&name.parentElement===row,outsideTabs:!document.querySelector(".social-profile-tabs").contains(edit),rightGap:Math.abs(row.getBoundingClientRect().right-er.right),sameLine:Math.abs((er.top+er.bottom-nr.top-nr.bottom)/2)<=5,background:getComputedStyle(edit).backgroundColor};});
-  assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=2&&editAlignment.background!=="rgba(0, 0, 0, 0)","Edit action has a VATRA background and sits at the right edge beside the name");
-  if((await profilePage.viewportSize()).width>970)assert.ok(editAlignment.sameLine,"Desktop edit action aligns with the name");
+   const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,identity=document.querySelector(".profile-identity"),er=edit.getBoundingClientRect(),ir=identity.getBoundingClientRect();return {inRow:row.classList.contains("profile-actions"),outsideTabs:!document.querySelector(".social-profile-tabs").contains(edit),rightGap:Math.abs(row.getBoundingClientRect().right-er.right),sameLine:Math.abs((er.top+er.bottom-ir.top-ir.bottom)/2)<=5,height:er.height,background:getComputedStyle(edit).backgroundColor};});
+  assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=2&&editAlignment.background!=="rgba(0, 0, 0, 0)","Edit action uses the shared right-aligned action container");
+  if((await profilePage.viewportSize()).width>970)assert.ok(editAlignment.sameLine&&Math.abs(editAlignment.height-46)<=1,"Desktop edit action aligns with the identity and shares visitor button height");
   assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
    "Inline post composer has a media action icon like Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
@@ -5408,9 +5409,9 @@ try{
    const geometry=await profilePage.locator(".ui-profile-editor-field-control-"+key).evaluate(box=>{
     const privacy=box.querySelector(".vatra-editor-select[data-variant='compact']"),trigger=privacy?.querySelector("button");
     const field=box.firstElementChild.getBoundingClientRect(),icon=trigger.getBoundingClientRect(),bounds=box.getBoundingClientRect();
-    return {right:Math.abs(bounds.right-icon.right),top:Math.abs(bounds.top-icon.top),overlap:field.right-icon.left,svg:trigger.querySelectorAll("svg").length,text:trigger.textContent.trim(),height:bounds.height,fieldHeight:field.height};
+    return {right:Math.abs(bounds.right-icon.right),top:Math.abs(bounds.top-icon.top),overlap:field.right-icon.left,svg:trigger.querySelectorAll("svg").length,text:trigger.textContent.trim(),iconSize:trigger.querySelector("svg").getBoundingClientRect().width,height:bounds.height,fieldHeight:field.height};
    });
-   assert.ok(geometry.right<3&&geometry.top<3&&geometry.overlap<2&&geometry.svg===1&&!geometry.text&&geometry.height<=Math.max(44,geometry.fieldHeight)+3,
+   assert.ok(geometry.right>=3&&geometry.right<=6&&geometry.top>=3&&geometry.top<=6&&geometry.overlap<2&&geometry.svg===1&&geometry.iconSize<=18&&!geometry.text&&geometry.height<=Math.max(44,geometry.fieldHeight)+3,
     "Privacy icon must occupy the trailing edge without adding a row: "+key+" "+JSON.stringify(geometry));
   }
   const privacy=profilePage.locator("#profile-editor-visibility-short_bio");await privacy.click();
