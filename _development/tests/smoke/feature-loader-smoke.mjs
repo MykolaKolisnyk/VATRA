@@ -90,7 +90,7 @@ assert.ok(profile.includes('VATRA_FEATURES.load("story")')&&
  profile.includes('const trigger=q("#profile-write-post")')&&
  profile.includes('trigger.addEventListener("click",()=>void openComposer())')&&
  feed.includes('q("#feed-compose-open").addEventListener("click",()=>void open())')&&
- feed.includes('q("#feed-create-menu-story")?.addEventListener("click",()=>q("#feed-create-story")?.click())')&&
+ feed.includes('const storyTrigger=q("#feed-create-menu-story")')&&
  feedHtml.includes('data-create-menu')&&profileHtml.includes('data-create-direct')&&
  !profileHtml.includes('data-create-menu')&&
  !feedHtml.includes('id="feed-quick-media"')&&!profileHtml.includes('id="profile-quick-media"')&&
