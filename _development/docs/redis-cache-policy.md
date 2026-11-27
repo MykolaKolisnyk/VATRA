@@ -13,7 +13,7 @@ VATRA's Redis caches contain only minimal public data:
   existing Edge Function accepts a strictly validated POST with numeric
   `club_id`. Missing clubs are never cached. Redis failures fall back to
   the same public PostgREST query.
-- **Public profile identities and verification badges**: `vatra:public:profile-name:v2:<vatra_id>`,
+- **Public profile identities and verification badges**: `vatra:public:profile-name:<vatra_id>`,
   only `vatra_id`, `display_name` and `verified` (no email, phone,
   private status, avatar, preferences, roles, session, permissions or private
   data), TTL 120 seconds. The Edge Function verifies the user JWT and queries
