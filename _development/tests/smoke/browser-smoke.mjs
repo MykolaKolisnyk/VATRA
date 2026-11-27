@@ -3902,6 +3902,11 @@ try{
   await feedProbe.locator("#feed-create-menu").hover();
   await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-create-menu-story").isVisible(),true);
+  await feedProbe.locator("#feed-create-menu").evaluate(el=>{el.closest("[data-create-menu]").style.display="none";});
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-create-menu-panel").hidden&&document.querySelector("#feed-create-menu").getAttribute("aria-expanded")==="false");
+  await feedProbe.locator("#feed-create-menu").evaluate(el=>{el.closest("[data-create-menu]").style.removeProperty("display");});
+  await feedProbe.locator("#feed-create-menu").click();
+  await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),false);
   await feedProbe.locator("#feed-create-menu").click();

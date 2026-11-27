@@ -2282,11 +2282,14 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    finally{preferencesBusy=false;paintPreferences();}
   });
   if(morePanel&&removeFriend)removeFriend.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;void changeFriendship();});
-  let relation=null,busy=false,friendMenuCloseTimer=null;
+  let relation=null,busy=false,friendMenuCloseTimer=null,friendMenuKeyboard=false;
+  const friendMenuObserver=new MutationObserver(()=>{if(!friendMenu.hidden&&(!friendButton.isConnected||!friendButton.getClientRects().length||friendButton.disabled))friendMenuOpen(false);});
   const friendPopover=typeof friendMenu.showPopover==="function"&&typeof friendMenu.hidePopover==="function";
   if(friendPopover)friendMenu.setAttribute("popover","manual");
   const positionFriendMenu=()=>{
-   if(friendMenu.hidden||!friendPopover)return;
+   if(friendMenu.hidden)return;
+   if(!friendButton.isConnected||!friendButton.getClientRects().length||friendButton.disabled){friendMenuOpen(false);return;}
+   if(!friendPopover)return;
    const anchor=friendButton.getBoundingClientRect(),viewport=window.visualViewport;
    const left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=top+(viewport?.height||innerHeight);
    const headerBottom=Math.max(top,q(".feed-header")?.getBoundingClientRect().bottom||0);
@@ -2302,11 +2305,13 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=null;
    const available=["outgoing","friends"].includes(friendButton.dataset.friendState);
-   if(state&&available&&!friendAction.hidden){
+   if(state&&available&&!friendAction.hidden&&friendButton.getClientRects().length&&!friendButton.disabled){
     friendMenu.hidden=false;
     if(friendPopover&&!friendMenu.matches(":popover-open"))friendMenu.showPopover();
     positionFriendMenu();
+    if(!friendMenu.hidden){for(let node=friendButton;node;node=node.parentElement)friendMenuObserver.observe(node,{attributes:true,attributeFilter:["hidden","class","style","disabled","open"]});}
    }else{
+    friendMenuObserver.disconnect();
     if(friendPopover&&friendMenu.matches(":popover-open"))friendMenu.hidePopover();
     friendMenu.hidden=true;
    }
@@ -2319,12 +2324,16 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   const scheduleFriendMenuClose=()=>{
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=setTimeout(()=>{
-    if(!friendAction.matches(":hover")&&!friendMenu.matches(":hover")&&!friendMenu.contains(document.activeElement))friendMenuOpen(false);
+    if(!friendAction.matches(":hover")&&!friendMenu.matches(":hover")&&!(friendMenuKeyboard&&friendMenu.contains(document.activeElement)))friendMenuOpen(false);
    },340);
   };
   friendButton.setAttribute("aria-haspopup","menu");
   friendButton.setAttribute("aria-controls","profile-friend-menu");
-  friendAction.addEventListener("mouseenter",()=>friendMenuOpen(true));
+  friendAction.addEventListener("mouseenter",()=>{friendMenuKeyboard=false;friendMenuOpen(true);});
+  friendAction.addEventListener("pointerdown",()=>{friendMenuKeyboard=false;});
+  friendAction.addEventListener("keydown",()=>{friendMenuKeyboard=true;});
+  window.addEventListener("pagehide",()=>friendMenuOpen(false));
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)friendMenuOpen(false);});
   friendAction.addEventListener("mouseleave",scheduleFriendMenuClose);
   friendMenu.addEventListener("mouseenter",()=>friendMenuOpen(true));
   friendMenu.addEventListener("mouseleave",scheduleFriendMenuClose);
