@@ -1,4 +1,6 @@
 {
+  "Зменшити анімацію фотографій": "Reduce photo animations",
+  "Вимикає анімовані переходи фотографій і відкриття обкладинки в цьому браузері. Системні налаштування зменшення руху завжди враховуються.": "Disables animated photo transitions and cover opening in this browser. The system reduced-motion preference is always respected.",
   "Мультимедіа": "Media",
   "Автоматично відтворювати відео у переглядачі": "Autoplay videos in the viewer",
   "Діє у цьому браузері після відкриття відео на весь екран. Вимкнення не заважає запускати відео вручну.": "Applies in this browser when opening a video fullscreen. Turning this off does not prevent manual playback.",

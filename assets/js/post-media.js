@@ -585,9 +585,13 @@
   const previous=photoSlides.get(stage);
   if(previous){previous.cancel();photoSlides.delete(stage);}
  }
+ function photoMotionReduced(){
+  if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return true;
+  try{return localStorage.getItem("vatra:photo-motion")==="reduce";}catch(_){return false;}
+ }
  function beginPhotoSlide(stage,image,direction){
   clearPhotoSlide(stage);
-  if(!direction||!image?.naturalWidth||!image.complete||window.matchMedia?.("(prefers-reduced-motion: reduce)").matches||typeof image.animate!=="function")return ()=>{};
+  if(!direction||!image?.naturalWidth||!image.complete||photoMotionReduced()||typeof image.animate!=="function")return ()=>{};
   const ghost=document.createElement("img");
   ghost.className="vatra-photo-slide-outgoing-001";ghost.alt="";ghost.setAttribute("aria-hidden","true");
   ghost.src=image.currentSrc||image.src;

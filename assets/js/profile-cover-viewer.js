@@ -1,5 +1,9 @@
 (()=>{
 "use strict";
+ function photoMotionReduced(){
+  if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return true;
+  try{return localStorage.getItem("vatra:photo-motion")==="reduce";}catch(_){return false;}
+ }
 if(window.VATRA_HOST_ALLOWED===false)return;
 function mount({q,t,coverPhoto,getCoverUrl,getSavedCoverPath,getPublicPath,allowed,closeAvatarMenu}){
  const coverViewerDialog=q("#profile-cover-viewer"),coverStage=q("#profile-cover-viewer-stage");
@@ -54,7 +58,7 @@ function mount({q,t,coverPhoto,getCoverUrl,getSavedCoverPath,getPublicPath,allow
   flight.style.width=origin.width+"px";flight.style.height=origin.height+"px";
   coverViewerDialog.append(flight);coverFlight=flight;
   const arrivedAtCenter=()=>{if(ticket!==coverEpoch||!coverViewerDialog.open)return;arrived=true;finish();};
-  if(matchMedia("(prefers-reduced-motion: reduce)").matches||typeof flight.animate!=="function"){
+  if(photoMotionReduced()||typeof flight.animate!=="function"){
    flight.style.left=destination.left+"px";flight.style.top=destination.top+"px";
    flight.style.width=destination.width+"px";flight.style.height=destination.height+"px";
    arrivedAtCenter();

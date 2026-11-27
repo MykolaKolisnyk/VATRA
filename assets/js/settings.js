@@ -352,6 +352,12 @@ async function preferences(){
    let enabled=true;try{enabled=localStorage.getItem(mediaKey)!=="off";}catch(_){}
    autoplay.checked=enabled;row(media,t("Автоматично відтворювати відео у переглядачі","Autoplay videos in the viewer"),t("Діє у цьому браузері після відкриття відео на весь екран. Вимкнення не заважає запускати відео вручну.","Applies in this browser when opening a video fullscreen. Turning this off does not prevent manual playback."),autoplay,"viewer-video-autoplay");
    autoplay.addEventListener("change",()=>{try{localStorage.setItem(mediaKey,autoplay.checked?"on":"off");enabled=autoplay.checked;message(t("Зміни збережено.","Changes saved."));}catch(_){autoplay.checked=enabled;message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}});
+   const reduce=make("input","ui-vatra-preferences-toggle-001"),motionKey="vatra:photo-motion";
+   reduce.type="checkbox";reduce.setAttribute("role","switch");
+   let reduced=false;try{reduced=localStorage.getItem(motionKey)==="reduce";}catch(_){}
+   reduce.checked=reduced;
+   row(media,t("Зменшити анімацію фотографій","Reduce photo animations"),t("Вимикає анімовані переходи фотографій і відкриття обкладинки в цьому браузері. Системні налаштування зменшення руху завжди враховуються.","Disables animated photo transitions and cover opening in this browser. The system reduced-motion preference is always respected."),reduce,"photo-motion");
+   reduce.addEventListener("change",()=>{try{localStorage.setItem(motionKey,reduce.checked?"reduce":"system");reduced=reduce.checked;message(t("Зміни збережено.","Changes saved."));}catch(_){reduce.checked=reduced;message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}});
    panel.append(media);return;
   }
   if(id==="privacy"){

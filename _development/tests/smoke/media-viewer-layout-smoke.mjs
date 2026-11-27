@@ -272,3 +272,23 @@ assert.ok(postMedia.includes('authorName.split(/\\s+/)[0]')&&postMedia.includes(
 }
 
 assert.ok(postMedia.includes("finish(image);"),"Ready photos and controls must not wait for asynchronous matte detection");
+
+// Real browser preference, including OS priority and unavailable storage.
+for(const source of [postMedia,await read("assets/js/profile-cover-viewer.js")]){
+ const helper=source.match(/function photoMotionReduced\(\)\{[\s\S]*?catch\(_\)\{return false;\}\s*\}/)?.[0];
+ assert.ok(helper,"Missing actual photo motion preference reader");
+ const run=(value,system=false,broken=false)=>runInNewContext(helper+";photoMotionReduced()",{
+  window:{matchMedia:()=>({matches:system})},
+  localStorage:{getItem:key=>{assert.equal(key,"vatra:photo-motion");if(broken)throw Error("storage denied");return value;}}
+ });
+ assert.equal(run(null),false);
+ assert.equal(run("reduce"),true);
+ assert.equal(run("system"),false);
+ assert.equal(run("system",true),true);
+ assert.equal(run(null,true,true),true);
+ assert.equal(run(null,false,true),false);
+ assert.ok(source.includes("if(photoMotionReduced()||")||source.includes("||photoMotionReduced()||"),"Preference must gate the actual animation");
+}
+const settingsSource=await read("assets/js/settings.js");
+assert.ok(settingsSource.includes('localStorage.setItem(motionKey,reduce.checked?"reduce":"system")')&&settingsSource.includes('motionKey="vatra:photo-motion"'));
+console.log("VATRA browser photo motion preference checks passed.");
