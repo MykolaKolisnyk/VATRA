@@ -283,9 +283,10 @@ function appendAudience(container,level,isGroup=false){
   const field=(tag,cls,suffix,label)=>{const el=make(tag,cls,label);el.id="edit-compose-"+suffix;return el;};
   dialog.id="edit-compose-dialog";dialog.setAttribute("aria-labelledby","edit-compose-title");form.id="edit-compose-form";
   const heading=field("h2","vatra-post-edit-heading-001","title",tr("Редагувати публікацію","Edit post"));
-  const input=field("textarea","ui-vatra-post-edit-text-001","text");input.value=post.body||"";input.maxLength=2000;input.setAttribute("aria-label",tr("Текст публікації","Post text"));
-  const counter=field("span","vatra-post-edit-counter-001","counter",Array.from(input.value).length+" / 2000");
-  input.addEventListener("input",()=>{counter.textContent=Array.from(input.value).length+" / 2000";});
+  const input=field("textarea","ui-vatra-post-edit-text-001","text");input.value=post.body||"";input.maxLength=post.is_clip?2000:post.shared_post_id?5000:20000;input.setAttribute("aria-label",tr("Текст публікації","Post text"));
+  const counter=field("span","vatra-post-edit-counter-001","counter");
+  const updateCounter=()=>{counter.textContent=input.value.length+" / "+input.maxLength;counter.hidden=input.value.length<input.maxLength*0.9;};
+  input.addEventListener("input",updateCounter);updateCounter();
   const audience=make("label","vatra-compose-visibility ui-vatra-post-edit-visibility-001");audience.htmlFor="edit-compose-visibility";
   audience.append(make("span","vatra-visibility-label-001",tr("Хто може бачити","Who can see this")));
   const visibility=field("select","ui-vatra-visibility-select-001","visibility");
@@ -319,6 +320,7 @@ function appendAudience(container,level,isGroup=false){
   dialog.addEventListener("close",()=>{paintTicket++;release();dialog.remove();},{once:true});
   form.onsubmit=async event=>{
    event.preventDefault();if(busy)return;const body=input.value.trim();
+   if(body.length>input.maxLength){setError(tr("Текст надто довгий.","Text is too long."));return;}
    if(!body&&!entries.length&&!post.poll&&!post.shared_post_id){setError(tr("Додайте текст, фото або відео.","Add text, photos or videos."));return;}
    setBusy(true);setError("");let uploaded=[],saved=false,writeStarted=false,definiteFailure=false;
    try{
@@ -844,7 +846,7 @@ function appendAudience(container,level,isGroup=false){
   more.type="button";more.hidden=true;
   const form=make("form","vatra-post-comment-form ui-vatra-post-comment-form-001 vatra-media-form-unified-001");
   const input=make("textarea","ui-vatra-post-comment-input-001");
-  input.name="vatra_post_comment";input.maxLength=1000;input.rows=1;
+  input.name="vatra_post_comment";input.maxLength=2000;input.rows=1;
   input.placeholder=tr("Коментувати…","Write a comment…");
   input.setAttribute("aria-label",tr("Ваш коментар","Your comment"));
   const ownPortrait=make("span","vatra-post-comment-composer-avatar ui-vatra-post-comment-composer-avatar-001");
@@ -1119,7 +1121,7 @@ function appendAudience(container,level,isGroup=false){
      if(card.classList.contains("is-deleted-pending")||content.querySelector(".vatra-comment-edit-form-001"))return;
      const form=make("form","vatra-comment-edit-form-001");
      const textarea=make("textarea","vatra-comment-edit-input-001");
-     textarea.value=String(item.body||"");textarea.rows=3;textarea.maxLength=1000;textarea.required=true;
+     textarea.value=String(item.body||"");textarea.rows=3;textarea.maxLength=2000;textarea.required=true;
      const controls=make("div","vatra-comment-edit-actions-001");
      const cancel=make("button","vatra-comment-edit-cancel-001",tr("Скасувати","Cancel"));
      cancel.type="button";
@@ -1131,7 +1133,7 @@ function appendAudience(container,level,isGroup=false){
      form.addEventListener("submit",async event=>{
       event.preventDefault();
       const value=textarea.value.trim();
-      if(!value||value.length>1000||save.disabled)return;
+      if(!value||value.length>2000||save.disabled)return;
       if(value===String(item.body||"").trim()){restore();return;}
       save.disabled=true;cancel.disabled=true;
       try{
@@ -1507,7 +1509,7 @@ function appendAudience(container,level,isGroup=false){
   async function publishComment(){
    hideMenus();
    const body=input.value.trim(),file=chosenFile;
-   if(commentsLocked||submitting||cropping||(!body&&!file)||body.length>1000||!validId(ownId))return;
+   if(commentsLocked||submitting||cropping||(!body&&!file)||body.length>2000||!validId(ownId))return;
    submitting=true;updateSend();let uploaded=null,committed=false;
    try{
     const payload={post_kind:kind,post_id:post.id,
@@ -1616,7 +1618,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   shareAudienceLabel.append(shareAudienceText,shareAudience);
   const shareCaption=make("textarea","ui-vatra-post-share-caption-001");
   shareCaption.name="vatra_share_caption";
-  shareCaption.rows=3;shareCaption.maxLength=1800;
+  shareCaption.rows=3;shareCaption.maxLength=5000;
   shareCaption.placeholder=tr("Розкажіть щось про цю публікацію…","Say something about this post…");
   shareCaption.setAttribute("aria-label",tr("Ваш коментар до поширення","Your share caption"));
   const original=make("div","vatra-post-share-original ui-vatra-post-share-original-001");
@@ -1670,6 +1672,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    repost.disabled=true;showShareError("");
    try{
     const caption=shareCaption.value.trim();
+    if(caption.length>shareCaption.maxLength){showShareError(tr("Текст надто довгий.","Text is too long."));repost.disabled=false;return;}
     const body=caption||tr("Поширена публікація","Shared a post");
     const result=await client.from("feed_posts").insert({
      author_id:userId,author_vatra_id:ownId,

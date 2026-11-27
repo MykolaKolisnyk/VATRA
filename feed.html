@@ -28,14 +28,14 @@
   <script defer src="assets/js/public-name-cache.js?rev=a1e9451512774e5b666e753010e57fd2ba6a0332"></script>
     <script defer src="assets/js/post-media.js?rev=069c675555e96075b8835001bb749db9e34dfb8b"></script>
     <script defer src="assets/js/verified.js?rev=ab686b7db8b3ad7b903dfb7eb65dcae4a4e27855"></script>
-    <script defer src="assets/js/post-interactions.js?rev=968ed66b23b3d09edf61e415cf3d16bf9953a449"></script>
+    <script defer src="assets/js/post-interactions.js?rev=5190e7b15d6ab28ed36304be08b849c08b805ff5"></script>
     <script defer src="assets/js/presence.js?rev=eac08d0779c9ed7056c915454229302600a6b759"></script>
     <script defer src="assets/js/notifications.js?rev=21ea83883a1aa0aff4423bcbdbc69dcd36c8012a"></script>
     <script defer src="assets/js/ads.js?rev=2f9839001dcc172c5eafe3e70e70ba185e2ffffa"></script>
     <script defer src="assets/js/onboarding.js?rev=54843d80261b35f0f4cd361d67d7940ab96e9a68"></script>
-    <script defer src="assets/js/feature-loader.js?rev=6bfc7b818c48b09280e09b130ab7e5aca09a3c85"></script>
+    <script defer src="assets/js/feature-loader.js?rev=c7b49da7457f42516c3707bc0bf0e6152ed8c76a"></script>
     <script defer src="assets/js/create-menu.js?rev=cfd685083a94121555fa514ea867d25f70425e1f"></script>
-    <script defer src="assets/js/feed.js?rev=f6e31eac28c3c246f8647da8dc4d7088e949b459"></script>
+    <script defer src="assets/js/feed.js?rev=afd9034ed475b36c8d06c21d826ada92c6b909c5"></script>
     <script defer src="assets/js/network.js?rev=111422be73f779068c5c4e03ced3f45ddd8433fa"></script>
     <script defer src="assets/js/social-shell.js?rev=fdfdd0aa3f2f56116eddaa34f7264e065fb4dfff"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -212,7 +212,7 @@
           </h2>
           <label class="vatra-compose-visibility ui-feed-compose-visibility-001" for="feed-compose-visibility"><svg class="ui-vatra-visibility-picker-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-vatra-visibility-globe-circle-001" cx="12" cy="12" r="9"/><path class="ui-vatra-visibility-globe-lines-001" d="M3 12h18M12 3c-3.3 3.4-3.3 14.6 0 18M12 3c3.3 3.4 3.3 14.6 0 18"/></svg><span class="vatra-visibility-label-001" data-social-uk="Хто може бачити" data-social-en="Who can see this">Хто може бачити</span><select id="feed-compose-visibility" class="ui-vatra-visibility-select-001"><option class="vatra-visibility-option-public-001" value="public" data-social-uk="Публічно" data-social-en="Public">Публічно</option><option class="vatra-visibility-option-friends-001" value="friends" data-social-uk="Друзі" data-social-en="Friends">Друзі</option><option class="vatra-visibility-option-only_me-001" value="only_me" data-social-uk="Лише я" data-social-en="Only me">Лише я</option></select></label>
     <label for="feed-compose-text" class="vatra-feed-compose-label-001" data-social-uk="Текст публікації" data-social-en="Post text">Текст публікації</label>
-    <textarea id="feed-compose-text" class="ui-feed-compose-text-001" maxlength="2000" rows="6" data-shell-placeholder-uk="Чим хочете поділитися?" data-shell-placeholder-en="What's on your mind?" placeholder="Чим хочете поділитися?"></textarea>
+    <textarea id="feed-compose-text" class="ui-feed-compose-text-001" maxlength="20000" rows="6" data-shell-placeholder-uk="Чим хочете поділитися?" data-shell-placeholder-en="What's on your mind?" placeholder="Чим хочете поділитися?"></textarea>
           <div class="vatra-compose-media-controls ui-feed-compose-media-controls-001">
             <button id="feed-compose-media-choose" class="vatra-feed-compose-media-choose-001" type="button"><svg class="ui-feed-compose-media-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-compose-media-icon-shape-1-001" x="3" y="4" width="18" height="16" rx="3"/><circle class="ui-feed-compose-media-icon-shape-2-001" cx="8.2" cy="9" r="1.5"/><path class="ui-feed-compose-media-icon-shape-3-001" d="m5 17 5-5 3.3 3 3.2-4L20 15"/></svg><span class="vatra-feed-compose-media-label-001" data-social-uk="Фото / відео" data-social-en="Photo / video" data-community-uk="Фото / відео" data-community-en="Photo / video">Фото / відео</span></button>
       <button id="feed-compose-media-remove" class="vatra-feed-compose-media-remove-001" type="button" hidden data-social-uk="Прибрати файл" data-social-en="Remove file" data-community-uk="Прибрати файл" data-community-en="Remove file">Прибрати файл</button>
@@ -223,7 +223,7 @@
           <p id="feed-compose-error" class="vatra-feed-compose-error-001" role="status" hidden>
           </p>
           <div class="feed-compose-actions ui-feed-compose-actions-001">
-            <span id="feed-compose-counter" class="vatra-feed-compose-counter-001">0 / 2000</span>
+            <span id="feed-compose-counter" class="vatra-feed-compose-counter-001" hidden>0 / 20000</span>
      <button id="feed-compose-cancel" type="button" class="vatra-feed-compose-cancel-001" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
      <button id="feed-compose-save" type="submit" class="vatra-feed-compose-save-001" data-social-uk="Опублікувати" data-social-en="Publish">Опублікувати</button>
           </div>

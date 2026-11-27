@@ -13,7 +13,7 @@
   const translated=window.VATRA_LANGUAGE?.translate?.(uk);
   return typeof translated==="string"&&translated!==uk?translated:(english?en:uk);
  };
- const PAGE_SIZE=12,POST_LIMIT=2000;
+ const PAGE_SIZE=12,POST_LIMIT=20000;
  const localizeSocial=()=>{
   for(const element of document.querySelectorAll("[data-social-uk]"))
    element.textContent=t(element.dataset.socialUk,element.dataset.socialEn);
@@ -808,14 +808,15 @@
   q("#feed-compose-open").addEventListener("click",()=>void open());
   q("#feed-create-menu-story")?.addEventListener("click",()=>q("#feed-create-story")?.click());
   q("#feed-compose-cancel").addEventListener("click",()=>dialog.close());
-  text.addEventListener("input",()=>{counter.textContent=Array.from(text.value).length+" / 2000";});
+  const updateCounter=()=>{counter.textContent=text.value.length+" / "+POST_LIMIT;counter.hidden=text.value.length<POST_LIMIT*0.9;};
+  text.addEventListener("input",updateCounter);updateCounter();
   form.addEventListener("submit",async event=>{
    event.preventDefault();
    if(submit.disabled||!validId(vatraId))return;
    const body=text.value.trim(),files=picker?.getFiles()||[];
    const poll=composerUI?.getPoll?.()||null;
    const publishAt=composerUI?.getScheduledAt?.()||null;
-   if((!body&&!files.length&&!poll)||Array.from(body).length>POST_LIMIT||
+   if((!body&&!files.length&&!poll)||body.length>POST_LIMIT||
      composerUI?.hasInvalidPoll?.()||composerUI?.hasInvalidSchedule?.()){
     showError(t("Перевірте текст, опитування та дату публікації.",
      "Check the text, poll and scheduled date."));return;
@@ -840,7 +841,7 @@
    }
    submit.disabled=false;
    invalidateFeedPages(client);
-   dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();composerUI?.reset();
+   dialog.close();text.value="";updateCounter();picker?.reset();composerUI?.reset();
    message(publishAt?
     t("Публікацію заплановано. Вона з’явиться автоматично у вибраний час.",
       "Post scheduled. It will publish automatically at the selected time."):

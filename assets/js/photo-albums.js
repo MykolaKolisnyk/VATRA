@@ -448,7 +448,7 @@
   const commentsList=make("div","ui-vatra-album-comments-list-001 vatra-media-comments-unified-001");
   const commentsForm=make("form","ui-vatra-album-comments-form-001 vatra-media-form-unified-001");
   const commentsInput=make("textarea","ui-vatra-album-comments-input-001");
-  commentsInput.maxLength=1000;commentsInput.rows=1;commentsInput.required=true;
+  commentsInput.maxLength=2000;commentsInput.rows=1;commentsInput.required=true;
   commentsInput.placeholder=t("Ваш коментар…","Write a comment…");
   const commentsSend=button("vatra-albums-primary-001 vatra-media-send-unified-001","");
   commentsSend.type="submit";commentsSend.disabled=true;
@@ -465,7 +465,7 @@
   for(const symbol of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏"]){
    const item=button("vatra-album-comments-emoji-option-001",symbol,()=>{
     const start=commentsInput.selectionStart??commentsInput.value.length,end=commentsInput.selectionEnd??start;
-    if(commentsInput.value.length-(end-start)+symbol.length>1000)return;
+    if(commentsInput.value.length-(end-start)+symbol.length>2000)return;
     commentsInput.setRangeText(symbol,start,end,"end");
     commentsInput.dispatchEvent(new Event("input"));commentsInput.focus();emojiPanel.hidden=true;
     commentsEmoji.setAttribute("aria-expanded","false");
@@ -624,7 +624,7 @@
   }
   commentsForm.addEventListener("submit",async e=>{
    e.preventDefault();if(!commentAlbum||!validId(ownId)||!validUUID(userId)||commentsSend.disabled)return;
-   const body=commentsInput.value.trim();if(!body||body.length>1000)return;
+   const body=commentsInput.value.trim();if(!body||body.length>2000)return;
    const album=commentAlbum,photo=commentPhoto;
    const pending=make("article","ui-vatra-album-comment-001");
    pending.append(make("p","vatra-album-comment-body-001",body),

@@ -3956,6 +3956,12 @@ try{
   await feedProbe.locator("#feed-compose-media-remove").click();
   assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isDisabled(),true,
    "Removing the only attachment must lock Next in Feed");
+  assert.equal(await feedProbe.locator("#feed-compose-text").getAttribute("maxlength"),"20000");
+  await feedProbe.locator("#feed-compose-text").fill("x".repeat(17999));
+  assert.equal(await feedProbe.locator("#feed-compose-counter").isVisible(),false);
+  await feedProbe.locator("#feed-compose-text").fill("x".repeat(18000));
+  assert.equal(await feedProbe.locator("#feed-compose-counter").textContent(),"18000 / 20000");
+  assert.equal(await feedProbe.locator("#feed-compose-counter").isVisible(),true);
   await feedProbe.locator("#feed-compose-text").fill("VATRA Feed publishing smoke test");
   await feedProbe.locator(".vatra-post-composer-next-001").click();
   await feedProbe.locator("#feed-compose-save").click();
@@ -5782,6 +5788,9 @@ try{
    "Media-only Profile post must reach visibility settings");
   await profilePage.locator(".vatra-post-composer-back-001").click();
   await profilePage.locator("#profile-compose-media-remove").click();
+  assert.equal(await profilePage.locator("#profile-compose-text").getAttribute("maxlength"),"20000");
+  await profilePage.locator("#profile-compose-text").fill("x".repeat(18000));
+  assert.equal(await profilePage.locator("#profile-compose-counter").isVisible(),true);
   await profilePage.locator("#profile-compose-text").fill(injectionText);
   await profilePage.locator(".vatra-post-composer-next-001").click();
   await profilePage.locator("#profile-compose-submit").click();

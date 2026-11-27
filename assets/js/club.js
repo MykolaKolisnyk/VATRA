@@ -144,9 +144,9 @@ async function setupClubSocial(client,clubId,ownId,userId){
   event.preventDefault();
   const body=input.value.trim(),files=picker?.getFiles()||[],save=$("#club-compose-save");
   if(!isFollowing||save.disabled)return;
-  if((!body&&!files.length)||Array.from(body).length>2000){
-   show(status,t("Додайте текст, фото або відео (до 2000 символів).",
-    "Add text, a photo or a video (up to 2000 characters)."));return;
+  if((!body&&!files.length)||body.length>20000){
+   show(status,t("Додайте текст, фото або відео (до 20000 символів).",
+    "Add text, a photo or a video (up to 20000 characters)."));return;
   }
   save.disabled=true;status.hidden=true;
   let uploaded=null;

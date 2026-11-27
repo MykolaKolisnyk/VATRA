@@ -1626,9 +1626,9 @@ function bindPostComposer(client,user,ownId){
  if(!trigger||!dialog||!form||!input||!submit||!validId(ownId))return;
  let publishing=false,picker=null,composerUI=null,composerLoading=null;
  const update=()=>{
-  const length=Array.from(input.value).length;
-  counter.textContent=length+" / 2000";
-  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length&&!composerUI?.getPoll?.())||length>2000||!!composerUI?.hasInvalidPoll?.()||!!composerUI?.hasInvalidSchedule?.();
+  const length=input.value.length;
+  counter.textContent=length+" / 20000";counter.hidden=length<18000;
+  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length&&!composerUI?.getPoll?.())||length>20000||!!composerUI?.hasInvalidPoll?.()||!!composerUI?.hasInvalidSchedule?.();
  };
  const clearStatus=()=>{status.textContent="";status.hidden=true;};
  picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
@@ -1674,7 +1674,7 @@ function bindPostComposer(client,user,ownId){
   const body=input.value.trim(),files=picker?.getFiles()||[];
   const poll=composerUI?.getPoll?.()||null;
   const publishAt=composerUI?.getScheduledAt?.()||null;
-  if((!body&&!files.length&&!poll)||Array.from(body).length>2000||
+  if((!body&&!files.length&&!poll)||body.length>20000||
    composerUI?.hasInvalidPoll?.()||composerUI?.hasInvalidSchedule?.()){
    status.textContent=t("Перевірте текст, опитування та дату публікації.",
     "Check the text, poll and scheduled date.");
@@ -3032,7 +3032,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  commentForm.addEventListener("submit",async event=>{
   event.preventDefault();
   const path=photoPath(),body=commentInput.value.trim();
-  if(commentBusy||!path||!body||Array.from(body).length>1000||!validId(ownId))return;
+  if(commentBusy||!path||!body||body.length>2000||!validId(ownId))return;
   commentBusy=true;commentSend.disabled=true;feedback("");
   try{
    const {error}=await client.from("avatar_comments").insert({
@@ -3071,7 +3071,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  commentInput.addEventListener("focus",expandComposer);commentInput.addEventListener("input",()=>{commentSend.disabled=commentBusy||!commentInput.value.trim();});
  cancelComment.addEventListener("click",()=>{resetPhotoComposer();cancelComment.blur();});
  emojiToggle.addEventListener("click",()=>{expandComposer();setEmojiOpen(emojiPanel.hidden);});
- for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>1000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
+ for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>2000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
  mediaDialog.addEventListener("click",e=>{if(!emojiPanel.hidden&&!emojiPanel.contains(e.target)&&!emojiToggle.contains(e.target))setEmojiOpen(false);});
  mediaDialog.addEventListener("close",resetPhotoComposer);
  const readAvatarGallery=async()=>{
