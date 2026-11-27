@@ -694,7 +694,7 @@
   void window.VATRA_POST_MEDIA?.renderStory(client,story,q("#feed-story-view-media"));
  };
  async function loadStories(){
-  const holder=q("#feed-friend-stories");
+  const holder=q("#feed-friend-stories"),storyRail=q(".feed-stories");
   if(!holder||!vatraId)return;
   const generation=++storyLoadGeneration;
   storyPreviewObserver?.disconnect();storyPreviewObserver=null;
