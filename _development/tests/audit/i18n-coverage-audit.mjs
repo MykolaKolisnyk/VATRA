@@ -53,7 +53,15 @@ const criticalStart=dynamicKeys.indexOf("Зачекайте…");
 const criticalEnd=dynamicKeys.indexOf("Зміна email до підтвердження створить інший акаунт. Початковий непідтверджений акаунт не зміниться.");
 assert.ok(criticalStart>=0&&criticalEnd>criticalStart,"Missing dynamic status anchors in reference dictionary");
 const criticalMessages=dynamicKeys.slice(criticalStart,criticalEnd+1);
-assert.equal(criticalMessages.length,74,"Unexpected change in high-priority auth/status message set");
+// The retired "Учасник VATRA" alias was removed in favor of the shared user label.
+assert.equal(criticalMessages.length,73,"Unexpected change in high-priority auth/status message set");
+assert.ok(!Object.hasOwn(en,"Учасник VATRA")&&en["Користувач VATRA"]==="VATRA user",
+ "Account fallback must use the canonical VATRA user label");
+for(const code of codes){
+ const dictionary=await read(code);
+ assert.ok(!Object.hasOwn(dictionary,"Учасник VATRA")&&typeof dictionary["Користувач VATRA"]==="string"&&dictionary["Користувач VATRA"].trim(),
+  code+": canonical user label must replace the retired member alias");
+}
 // All first-visit Vatryk tour steps, controls, hints and milestone states
 // should be translated together, without partial Ukrainian tutorial content.
 const tourStart=dynamicKeys.indexOf("Твоя стрічка");
