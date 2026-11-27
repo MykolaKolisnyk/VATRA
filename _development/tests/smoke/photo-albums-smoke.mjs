@@ -193,12 +193,11 @@ assert.ok(
  script.includes('photoCaptionEditor.paint(state.currentPhoto?.caption,isMine)')&&
  script.includes('client.from("album_photos").update({caption}).eq("id",row.id).eq("owner_vatra_id",ownId)')&&
  script.includes('photoCaptionEditor.reset()')&&
- profile.includes('VATRA_POST_MEDIA.mediaDescription({kind:"avatar-photo"')&&
- profile.includes('avatarCaption.paint(data?.caption,canEdit)')&&
- profile.includes('upsert({owner_vatra_id:ownId,avatar_path:path,caption}')&&
- profile.includes('avatarCaption.reset()')&&
+ !profile.includes('VATRA_POST_MEDIA.mediaDescription({kind:"avatar-photo"')&&
+ !profile.includes("loadAvatarDescription")&&
+ !profile.includes('from("avatar_photo_descriptions").upsert')&&
  profile.includes("VATRA_USE_PHOTO_AS_AVATAR"),
- "Single-post, album and avatar descriptions must share the editor, preserve source identity, owner-scoped writes and avatar selection"
+ "Only single-post and ordinary album photos may have descriptions; preserve owner-scoped writes and avatar selection"
 );
 
 const feedCss=await readFile("assets/css/feed.css","utf8");
@@ -229,7 +228,7 @@ assert.ok(
 );
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");
 
-assert.ok(profile.includes('from("avatar_photo_descriptions")')&&profile.includes("loadAvatarDescription(path)"),"Avatar descriptions must be keyed by source image");
+assert.ok(!profile.includes('from("avatar_photo_descriptions").select')&&!profile.includes('from("avatar_photo_descriptions").upsert'),"Avatar viewer must not read or edit descriptions");
 assert.ok(script.includes("selectedPhotos=new Map()")&&script.includes("selectPhoto(photo)")&&script.includes("bulkDelete"),"Album multi-selection must manage actual photo rows");
 
 const photoActions=await readFile("_development/supabase/migrations/20261124065500_avatar_photo_descriptions.sql","utf8");
@@ -306,3 +305,35 @@ console.log("VATRA profile gallery: retry routing, quick tab reuse and mutation 
  assert.ok(login.includes("margin-block-start:clamp(7px,1.2vh,16px)"));
 }
 console.log("VATRA profile: deep-linked photos, selection marks, contact actions and responsive login copy verified.");
+
+// Hidden images must retain a layout box so IntersectionObserver can reveal them.
+for(const selector of ["ui-vatra-albums-cover-image-001","ui-vatra-album-photo-image-001"]){
+ const rule=css.match(new RegExp(selector+"\\:not\\(\\[src\\]\\)[^{}]*\\{([^}]+)\\}"))?.[1];
+ assert.ok(rule&&rule.includes("visibility:hidden")&&!rule.includes("display:none"),selector+" must intersect before receiving a URL");
+}
+assert.ok(css.includes(".vatra-album-photo-loading-001{position:absolute")&&script.includes('photoLoadController?.abort()')&&script.includes('photoLoadError(row,album)'));
+{
+ const source=script.slice(script.indexOf("  function discardSignature("),script.indexOf("  async function revealImage("));
+ const signed=new Map(),urls=["https://example.test/expired","https://example.test/fresh"];let calls=0;
+ const env={signed,signatureGeneration:0,signedUrl:async path=>{const url=urls[calls++];signed.set(path,{url});return url;},setTimeout,clearTimeout};
+ runInNewContext(source+";globalThis.load=loadAlbumImage;",env);
+ const events=new Map(),image={complete:false,naturalWidth:0,addEventListener(k,fn){events.set(k,fn);},removeEventListener(k){events.delete(k);},set src(url){queueMicrotask(()=>{if(url.endsWith("fresh")){this.naturalWidth=10;events.get("load")?.();}else events.get("error")?.();});}};
+ assert.equal(await env.load(image,"owner/albums/photo.jpg",()=>true),true);assert.equal(calls,2);assert.equal(signed.get("owner/albums/photo.jpg").url,urls[1]);
+}
+console.log("VATRA album preview visibility, expired signature recovery and viewer overlay checked.");
+
+// Photo actions must have an accessible name, never a visible Like label.
+assert.ok(script.includes('button("vatra-album-viewer-like-001","",')&&script.includes('photoLike.setAttribute("aria-label",photoLiked?')&&script.includes('photoLike.append(photoLikeNumber)'));
+assert.ok(script.includes('icon.setAttribute("width","46");icon.setAttribute("height","46")'));
+assert.ok(css.includes('.ui-vatra-album-comments-dialog-001 .vatra-media-empty-icon-unified-001{display:block;flex:none;width:46px;height:46px')&&css.includes('.ui-vatra-album-comments-dialog-001 .vatra-media-empty-unified-001{display:flex;flex-direction:column;align-items:center;justify-content:center'));
+console.log("VATRA album viewer: icon-only like and standalone empty comments sizing verified.");
+
+{
+ const albumList=script.slice(script.indexOf("  function renderAlbumPane(){"),script.indexOf("  async function loadAlbumPage("));
+ assert.ok(!albumList.includes("const virtual=")&&!albumList.includes("VATRA_OPEN_PROFILE_AVATAR")&&!albumList.includes("state.avatarList"),"Profile photos must not be listed as an album");
+ assert.ok(albumList.includes('const visibleAlbums=state.albums.filter(album=>!album.is_personal)')&&albumList.includes('album.cover_path?{media_path:album.cover_path}:null'),"Only real albums use their own summary cover");
+ assert.ok(script.includes("imageObserver.observe(image.parentElement)")&&script.includes('entry.target.querySelector("img[data-path]")'),"Observe the laid-out tile instead of the not-yet-loaded image");
+ assert.ok(photoActions.includes("p.album_id=a.id and p.archived_at is null\n  order by p.created_at desc,p.id desc limit 1) as cover_path"),"The latest active photo from the same album must be its cover regardless of pin order");
+ assert.ok(script.includes("async function refreshPhotoLists(){\n   endSelection();await loadAlbums();"),"Media mutations must refresh album summaries");
+}
+console.log("VATRA albums: no virtual avatar album, latest active album cover and stable lazy target verified.");

@@ -3004,6 +3004,7 @@ try{
  // The gallery smoke fixture uses /sign/example as a fictional image URL.
  // Unlike the main context, the gallery runs in feedContext; intercept it here
  // so HeadlessChrome never creates HTTP 400 / NoSuchBucket production logs.
+ await feedContext.route("**/storage/v1/object/sign/album-photos/**",route=>route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
  await feedContext.route("**/storage/v1/object/sign/example",route=>route.fulfill({
   status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng
  }));
@@ -3109,6 +3110,8 @@ try{
     }})}:
     table==="verified_accounts"?
     {select:()=>({in:async(_key,ids)=>({data:ids.filter(id=>String(id)==="654321").map(vatra_id=>({vatra_id})),error:null})})}:
+    table==="photo_album_summaries"?
+    {select:()=>({eq(_field,id){this.owner=String(id);return this;},order(){return this;},async limit(){return {data:[{id:"11111111-1111-4111-8111-111111111111",title:"Album fixture",description:"",visibility:"public",comments_mode:"all",show_in_photos:false,created_at:"2026-11-20T00:00:00Z",photo_count:2,cover_path:this.owner+"/albums/11111111-1111-4111-8111-111111111111/latest.jpg",is_personal:false}],error:null};}})}:
     table==="profile_media"?
     {select:()=>({
       eq:(_field,id)=>({maybeSingle:async()=>({
@@ -5120,8 +5123,10 @@ try{
   assert.equal(await profilePage.locator(".vatra-albums-tab-001").count(),2,"Photos must only contain Photos and Albums tabs");
   await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
   await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
-  assert.ok((await profilePage.locator(".vatra-albums-card-title-001").first().textContent()).trim().length>0,
-   "The profile photo collection must appear as a built-in album");
+  assert.equal(await profilePage.locator(".vatra-albums-card-001").count(),1,"Only the real album must appear, not the avatar collection");
+  assert.equal(await profilePage.locator(".vatra-albums-card-title-001").first().textContent(),"Album fixture");
+  await profilePage.locator(".ui-vatra-albums-cover-image-001").scrollIntoViewIfNeeded();
+  await profilePage.waitForFunction(()=>{const img=document.querySelector(".ui-vatra-albums-cover-image-001");return img?.complete&&img.naturalWidth>0&&img.src.includes("/albums/11111111-1111-4111-8111-111111111111/latest.jpg");},null,{timeout:12000});
   const albumCreate=profilePage.locator(".ui-vatra-albums-controls-001 .vatra-albums-primary-001");
   assert.equal(await albumCreate.isVisible(),true,"Only profile owners can create photo albums");
   await albumCreate.click();
@@ -5160,6 +5165,7 @@ try{
   // Both the owner's and a friend's legacy square source must open as the
   // same 2000:580 banner; the shared avatar viewer is never activated.
   assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),true);
+  await profilePage.locator("#profile-cover-view").evaluate(el=>el.scrollIntoView({block:"center",inline:"nearest",behavior:"instant"}));
   const profileBeforeCover=await profilePage.evaluate(()=>({
    cover:document.querySelector("#profile-cover-photo").getBoundingClientRect().toJSON(),
    avatar:document.querySelector("#profile-avatar-wrap").getBoundingClientRect().toJSON(),
@@ -5219,7 +5225,7 @@ try{
     source:image.currentSrc||image.src,profileCover:cover.currentSrc||cover.src,
     fit:getComputedStyle(image).objectFit,
     avatarX:avatar.x,avatarY:avatar.y,nameX:name.x,nameY:name.y,
-    originalHidden:document.querySelector("#profile-cover-viewer-original").hidden
+    originalAbsent:!document.querySelector("#profile-cover-viewer-original")
    };
   });
   assert.equal(coverLayout.source,coverLayout.profileCover,
@@ -5237,13 +5243,13 @@ try{
    "Expanded cover must use the same solid VATRA graphite background as other photos");
   assert.equal(coverLayout.stageVisibility,"visible",
    "The final photo must appear fully opaque after its decode completes");
-  assert.equal(coverLayout.originalHidden,true,
-   "A legacy cover without an original must not expose a broken image link");
+  assert.equal(coverLayout.originalAbsent,true,
+   "Cover viewer must not expose an original link");
   assert.ok(Math.abs(coverLayout.avatarX-profileBeforeCover.avatar.x)<2&&
    Math.abs(coverLayout.avatarY-profileBeforeCover.avatar.y)<2&&
    Math.abs(coverLayout.nameX-profileBeforeCover.name.x)<2&&
    Math.abs(coverLayout.nameY-profileBeforeCover.name.y)<2,
-   "Avatar and profile heading must not jump when opening the cover");
+   "Avatar and profile heading must not jump when opening the cover: "+JSON.stringify({before:profileBeforeCover,after:{avatarX:coverLayout.avatarX,avatarY:coverLayout.avatarY,nameX:coverLayout.nameX,nameY:coverLayout.nameY}}));
   await profilePage.locator("#profile-cover-viewer-close").click();
   assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),false);
   const storyAvatar=profilePage.locator("#profile-avatar-wrap");
@@ -5429,9 +5435,11 @@ try{
    "Restore must return to the same gallery photo after the profile refresh completes");
 
   assert.equal(await profilePage.locator("#profile-avatar-engagement").isVisible(),true,"Historical avatars retain their own engagement panel");
+  assert.equal(await profilePage.locator("#profile-media-viewer .vatra-media-description-001").count(),0,"Historical avatars have no description editor");
   assert.equal(await profilePage.locator("#profile-media-viewer-heading").isVisible(),false,"Avatar gallery has no redundant heading");
   await profilePage.keyboard.press("ArrowLeft");
   assert.ok(/\/avatars\/654321\/avatar\/test-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
+  assert.equal(await profilePage.locator("#profile-media-viewer .vatra-media-description-001").count(),0,"Current avatar has no description editor");
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape should close the fullscreen avatar viewer");

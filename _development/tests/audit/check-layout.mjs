@@ -3033,3 +3033,5 @@ for(const page of (await readdir(".")).filter(p=>p.endsWith(".html"))){
 }
 
 assert.ok((await read("assets/css/feed.css")).includes(".profile-posts-section .feed-post-card.vatra-post-delete-pending-001{box-sizing:border-box;padding:0;min-height:66px}")&&(await read("assets/css/feed.css")).includes("padding:10px 12px;min-height:64px;text-align:center"),"Deleted post notice must match the compact 64px composer control");
+
+assert.ok(!memberProfileMarkup.includes('id="profile-cover-viewer-original"')&&!profileCoverViewerScript.includes("coverOriginal")&&!memberCss.includes("vatra-profile-cover-viewer-original-001"),"Cover viewer must not include an original link or unused styles");
