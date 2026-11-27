@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <script src="assets/js/host.js"></script>
 
-    <script src="assets/js/lang.js?rev=019c4ecefff61c7e3aa865699b60d356a927a87a"></script>
+    <script src="assets/js/lang.js?rev=73b5e1d15f05b38bcb1726a5e58238242ff7c742"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#f7f9fe">
     <meta name="robots" content="noindex,follow">
@@ -18,31 +18,33 @@
     <link rel="icon" type="image/svg+xml" href="assets/logo/logo_app-icon.svg">
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
-    <link rel="stylesheet" href="assets/css/base.css?rev=3e5499621ecb01982137d82dea2634afe690d376">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=b4a4f7d3afcd00b8748bf3db8a3894cd8ed77242">
+    <link rel="stylesheet" href="assets/css/base.css?rev=c7640c4c37cc4b10940a6cb5ce34b7b76dd05f96">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=fe7518188f6132f3a93b153c17aaa4f3e85cd4af">
+    <link rel="stylesheet" href="assets/css/create-menu.css?rev=0adeaaf0f8cfea70222b13e3343c47ab0e16eda9">
     <link rel="stylesheet" href="assets/css/onboarding.css?rev=ef59ff61d74fe57f7cc8d73407a12a8dfce32fec">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js?rev=7ff79ee9e91749c58a922e046858e8a2b0dd5bf1"></script>
   <script defer src="assets/js/public-name-cache.js?rev=a1e9451512774e5b666e753010e57fd2ba6a0332"></script>
-    <script defer src="assets/js/post-media.js?rev=1c2f21ff6d4342f06f0e3108bd7d2790b8adac5b"></script>
+    <script defer src="assets/js/post-media.js?rev=c44b943ad87db0478f3fd7d2d74a87c16e9d8291"></script>
     <script defer src="assets/js/verified.js?rev=ab686b7db8b3ad7b903dfb7eb65dcae4a4e27855"></script>
     <script defer src="assets/js/post-interactions.js?rev=ff02a083a01cf1206b992e6783b074af57e5e9ad"></script>
     <script defer src="assets/js/presence.js?rev=eac08d0779c9ed7056c915454229302600a6b759"></script>
     <script defer src="assets/js/notifications.js?rev=054eabd1396e8a6c635e044eefb8206b3c57f66a"></script>
     <script defer src="assets/js/ads.js?rev=2f9839001dcc172c5eafe3e70e70ba185e2ffffa"></script>
-    <script defer src="assets/js/onboarding.js?rev=08f627bd41974557d4487e134d9e1bc79cae9463"></script>
-    <script defer src="assets/js/feature-loader.js?rev=0ed4c3925aa65800c9519033b55418fa340121b8"></script>
-    <script defer src="assets/js/feed.js?rev=451ccfbf0b0f54c92fd870675346215b6105b0aa"></script>
+    <script defer src="assets/js/onboarding.js?rev=54843d80261b35f0f4cd361d67d7940ab96e9a68"></script>
+    <script defer src="assets/js/feature-loader.js?rev=11a502a282f7fc00a14657c11ce95f5073031c62"></script>
+    <script defer src="assets/js/create-menu.js?rev=cfd685083a94121555fa514ea867d25f70425e1f"></script>
+    <script defer src="assets/js/feed.js?rev=95937b5a602e55eb380dcca0c4e401b73c9f4d9e"></script>
     <script defer src="assets/js/network.js?rev=111422be73f779068c5c4e03ced3f45ddd8433fa"></script>
     <script defer src="assets/js/social-shell.js?rev=540263904e4addfe42d3fdf415697c04b64e4a8c"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
     <meta name="application-name" content="VATRA">
     <meta name="apple-mobile-web-app-title" content="VATRA">
     <link rel="manifest" href="site.webmanifest">
-    <link rel="stylesheet" href="assets/css/external-links.css?rev=13fc0acbac21a810bca7ec699b02b4eda9871c3a">
+      <link rel="stylesheet" href="assets/css/external-links.css?rev=0025eae8505a2610148455bd746be09b72ca08e3">
     <script defer src="assets/js/external-links.js?rev=7e4779c106fd6c47c3a41d5a9ce79f96027719dd"></script>
-  </head>
+    </head>
   <body class="feed-page ui-feed-body-001" data-page="feed">
     <div id="feed-loading" class="vatra-auth-loading ui-feed-loading-001" role="status" aria-live="polite" aria-label="Завантаження VATRA">
       <div class="vatra-route-skeleton ui-vatra-route-skeleton-001" aria-hidden="true">
@@ -159,12 +161,14 @@
       <svg class="ui-feed-stories-next-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-stories-next-path-001" d="m9 5 7 7-7 7"/></svg>
      </button>
             </section>
-            <section class="feed-quick-compose ui-feed-quick-compose-001 vatra-quick-compose-001" aria-label="Новий допис">
-              <span id="feed-composer-avatar" class="feed-avatar feed-composer-avatar vatra-feed-composer-avatar-001 vatra-quick-compose-avatar-001" aria-hidden="true">V</span>
-     <button type="button" id="feed-compose-open" class="feed-compose-open vatra-feed-compose-open-001 vatra-quick-compose-open-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
-         <button id="feed-quick-media" class="feed-quick-media vatra-feed-quick-media-001 vatra-quick-compose-media-001" type="button" aria-label="Додати фото або відео" data-shell-aria-uk="Додати фото або відео" data-shell-aria-en="Add photo or video">
- <svg class="vatra-quick-compose-media-icon-001 ui-feed-quick-media-icon-001" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-quick-media-frame-001" x="2.5" y="3.5" width="17.5" height="17" rx="3.4"/><circle class="ui-feed-quick-media-sun-001" cx="8.4" cy="9.3" r="1.6"/><path class="ui-feed-quick-media-land-001" d="m4.5 17 4.3-4.1 3.2 2.8 2.5-2.8"/><circle class="ui-feed-quick-media-video-badge-001" cx="18.5" cy="18.2" r="4.5" fill="#f3f6ff"/><path class="ui-feed-quick-media-play-001" d="m17.4 16.2 3 2-3 2Z" fill="currentColor" stroke="none"/></svg>
-</button>
+            <section class="feed-quick-compose ui-feed-quick-compose-001 vatra-quick-compose-001" aria-label="Новий допис" data-create-menu>
+              <button type="button" id="feed-create-menu" class="vatra-create-menu-trigger-001 ui-feed-create-toggle-001" data-create-toggle aria-expanded="false" aria-controls="feed-create-menu-panel"><svg class="ui-feed-create-plus-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-create-plus-path-001" d="M12 5v14M5 12h14"/></svg><span class="vatra-feed-create-menu-label-001" data-social-uk="Створити" data-social-en="Create">Створити</span><svg class="ui-feed-create-chevron-icon-001 ui-create-menu-chevron-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-create-chevron-path-001" d="m6 9 6 6 6-6"/></svg></button>
+              <div id="feed-create-menu-panel" class="ui-create-menu-panel-001" data-create-panel hidden>
+                <div class="ui-create-menu-items-001">
+                  <button type="button" id="feed-compose-open" class="vatra-create-menu-item-001 ui-feed-create-post-001"><svg class="ui-feed-create-post-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-create-post-path-001" d="M6 3.5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2ZM8 8h8m-8 4h8m-8 4h5"/></svg><span class="vatra-feed-create-post-label-001" data-social-uk="Публікація" data-social-en="Post">Публікація</span></button>
+                  <button type="button" id="feed-create-menu-story" class="vatra-create-menu-item-001 ui-feed-create-story-action-001"><svg class="ui-feed-create-story-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-create-story-path-001" d="M7 3.5h10a3.5 3.5 0 0 1 3.5 3.5v10a3.5 3.5 0 0 1-3.5 3.5H7a3.5 3.5 0 0 1-3.5-3.5V7A3.5 3.5 0 0 1 7 3.5ZM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/></svg><span class="vatra-feed-create-story-label-001" data-social-uk="Історія" data-social-en="Story">Історія</span></button>
+                </div>
+              </div>
             </section>
             <aside class="ui-feed-right-rail-001">
             <div class="feed-filter-row ui-feed-filter-row-001" role="group" aria-label="Фільтри стрічки" data-shell-aria-uk="Фільтри стрічки" data-shell-aria-en="Feed filters">

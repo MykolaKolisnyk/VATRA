@@ -122,6 +122,14 @@ try{
   });
   await accountDesign.addScriptTag({url:base+"assets/js/form-select.js"});
   await accountDesign.addScriptTag({url:base+"assets/js/settings.js"});
+  await accountDesign.addScriptTag({url:base+"assets/js/toast.js"});
+  await accountDesign.evaluate(()=>{window.__copiedId=null;Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async value=>{window.__copiedId=value;}}});});
+  await accountDesign.locator(".vatra-id-copy-001").click();
+  await accountDesign.locator(".vatra-toast-item--success").filter({hasText:"ID скопійовано."}).waitFor({state:"visible"});
+  assert.equal(await accountDesign.evaluate(()=>window.__copiedId),"12");
+  await accountDesign.evaluate(()=>{Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async()=>{throw Error("Denied");}}});});
+  await accountDesign.locator(".vatra-id-copy-001").click();
+  await accountDesign.locator(".vatra-toast-item--error").filter({hasText:"Не вдалося скопіювати ID."}).waitFor({state:"visible"});
   const birthday=accountDesign.locator(".ui-vatra-id-birth-field-001");
   await birthday.waitFor({state:"visible"});
   assert.equal(await birthday.locator(".vatra-select-trigger").count(),3);
@@ -970,7 +978,7 @@ try{
  }));
  assert.ok(modalAnimations.dialog==="none"&&
   modalAnimations.content.includes("vatraAuthReveal")&&
-  modalAnimations.backdrop.includes("vatraLanguageBackdrop"),
+  modalAnimations.backdrop==="vatra-modal-backdrop-enter",
   "Language dialog shell must stay still and only its content may rise");
  assert.deepEqual(await page.locator(".language-option").evaluateAll(nodes=>
   nodes.map(node=>node.className.match(/vatra-language-choice-([a-z]+)/)?.[1])),
@@ -3861,10 +3869,19 @@ try{
   await feedProbe.keyboard.press("Escape");
   await feedProbe.evaluate(()=>{document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
   console.log("VATRA Feed photo navigation: single photo isolation, same-post gallery and keyboard bounds verified.");
-  assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
-   "Members can create a post from their Feed");
+  assert.equal(await feedProbe.locator("#feed-create-menu").isVisible(),true,
+   "Members can create from their Feed");
+  await feedProbe.locator("#feed-create-menu").hover();
+  await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
+  assert.equal(await feedProbe.locator("#feed-create-menu-story").isVisible(),true);
+  await feedProbe.keyboard.press("Escape");
+  assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),false);
+  await feedProbe.locator("#feed-create-menu").click();
+  await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_COMPOSER_UI),false,
    "Post composer should not load before opening it");
+  const createMenuPlacement=await feedProbe.locator("#feed-create-menu-panel").evaluate(el=>{const r=el.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,headerBottom:header.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight,topLayer:typeof el.showPopover!=="function"||el.matches(":popover-open")};});
+  assert.ok(createMenuPlacement.topLayer&&createMenuPlacement.top>=createMenuPlacement.headerBottom&&createMenuPlacement.bottom<=createMenuPlacement.viewportHeight&&createMenuPlacement.left>=0&&createMenuPlacement.right<=createMenuPlacement.viewportWidth,"Create menu must remain reachable below the sticky header: "+JSON.stringify(createMenuPlacement));
   await feedProbe.locator("#feed-compose-open").click();
   await feedProbe.locator("#feed-compose-dialog").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
@@ -4683,10 +4700,10 @@ try{
    const box=el=>el.getBoundingClientRect();
    return {rowX:Math.abs(box(profile).left-box(manage).left),height:Math.abs(box(profile).height-box(manage).height),
     textX:Math.abs(box(profile.querySelector("svg")).left-box(manage.querySelector(".vatra-account-manage-label-001")).left),
-    brandRight:Math.abs(box(manage).right-box(manage.querySelector(".ui-vatra-account-id-brand-001")).right-14),
+    brandGap:Math.abs(box(manage.querySelector(".ui-vatra-account-id-brand-001")).left-box(manage.querySelector(".vatra-account-manage-label-001")).right-8),
     brandOrder:Math.max(0,box(manage.querySelector(".vatra-account-manage-label-001")).right-box(manage.querySelector(".ui-vatra-account-id-brand-001")).left)};
   });
-  assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account management label must be left and VATRA ID brand right: "+JSON.stringify(accountRowGeometry));
+  assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account management label and VATRA ID brand must be adjacent: "+JSON.stringify(accountRowGeometry));
   assert.deepEqual(await manageAccount.locator(":scope > span").evaluateAll(nodes=>nodes.map(node=>node.className)),["vatra-account-manage-label-001","ui-vatra-account-id-brand-001"]);
   assert.equal(await manageAccount.locator(".ui-vatra-account-id-brand-001 > .vatra-account-id-label-001").count(),1);
   assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
@@ -5066,6 +5083,8 @@ try{
    return {
     modalWidth:modal.getBoundingClientRect().width,
     backdrop:getComputedStyle(modal,"::backdrop").backgroundColor,
+     backdropBlur:getComputedStyle(modal,"::backdrop").backdropFilter,
+     modalAnimation:getComputedStyle(modal).animationName,
     dialogBackground:getComputedStyle(modal).backgroundColor,
     stageVisibility:getComputedStyle(stage).visibility,
     aspect:rect.width/rect.height,
@@ -5085,8 +5104,10 @@ try{
   assert.ok(Math.abs(coverLayout.aspect-2000/580)<.02&&
    coverLayout.centeredX<=3&&coverLayout.centeredY<=3&&coverLayout.width<=1122,
    "Expanded cover must keep its 2000:580 ratio and remain centered: "+JSON.stringify(coverLayout));
-  assert.equal(coverLayout.backdrop,"rgba(9, 14, 24, 0.9)",
-   "Only the backdrop should darken the page, without animating the profile itself");
+  assert.equal(coverLayout.backdrop,"rgba(15, 24, 44, 0.48)",
+   "Cover viewer must share the standard VATRA modal dimming");
+  assert.equal(coverLayout.backdropBlur,"blur(3px)","Cover viewer must share the standard VATRA modal blur");
+  assert.equal(coverLayout.modalAnimation,"none","The fullscreen cover shell must stay fixed; only the photo and backdrop may animate");
   assert.equal(coverLayout.dialogBackground,"rgba(0, 0, 0, 0)",
    "The dialog must not paint a second translucent layer over the background");
   assert.equal(coverLayout.stageVisibility,"visible",
@@ -5349,7 +5370,7 @@ try{
    "Owner edits profile media separately from the public status");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
-   language==="en"?"Write a post":"Додати публікацію");
+   language==="en"?"Create a post":"Створити публікацію");
   assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
   await profilePage.locator("#profile-edit-open").hover();
   // The cover action fades out in 160ms; wait for the settled non-hover state.
@@ -5437,8 +5458,8 @@ try{
    const editAlignment=await profilePage.evaluate(()=>{const edit=document.querySelector("#profile-edit-open"),row=edit.parentElement,identity=document.querySelector(".profile-identity"),er=edit.getBoundingClientRect(),ir=identity.getBoundingClientRect();return {inRow:row.classList.contains("profile-actions"),outsideTabs:!document.querySelector(".social-profile-tabs").contains(edit),rightGap:Math.abs(row.getBoundingClientRect().right-er.right),sameLine:Math.abs((er.top+er.bottom-ir.top-ir.bottom)/2)<=5,height:er.height,background:getComputedStyle(edit).backgroundColor};});
   assert.ok(editAlignment.inRow&&editAlignment.outsideTabs&&editAlignment.rightGap<=2&&editAlignment.background!=="rgba(0, 0, 0, 0)","Edit action uses the shared right-aligned action container");
   if((await profilePage.viewportSize()).width>970)assert.ok(editAlignment.sameLine&&Math.abs(editAlignment.height-46)<=1,"Desktop edit action aligns with the identity and shares visitor button height");
-  assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
-   "Inline post composer has a media action icon like Feed");
+  assert.equal(await profilePage.locator("#profile-write-post svg").count(),1,
+   "Profile has a direct create-post action");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
   assert.equal((await profilePage.locator(".vatra-social-profile-posts-tab-label-001").textContent()).trim(),
    language==="en"?"Home":"Головна","First member tab uses Home, but the post panel remains Publications");
@@ -5523,12 +5544,13 @@ try{
    assert.equal(await input.inputValue(),expected);
   };
   await selectCountry("PL");
-  await checkCityOptions("profile-editor-hometown","Warszawa","Київ");
+  await profilePage.locator("#profile-editor-hometown").fill("Львів, Україна");
+  assert.equal(await profilePage.locator("#profile-editor-hometown").getAttribute("aria-haspopup"),null,"Hometown is independent of residence and accepts arbitrary places");
+  await checkCityOptions("profile-editor-city","Warszawa","Київ");
   await selectCountry("UA");
-  assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Warszawa",
-   "Changing country must not silently delete an existing hometown");
-  await checkCityOptions("profile-editor-hometown","Невицьке","Warszawa");
-  await checkCityOptions("profile-editor-hometown","Львів","Warszawa");
+  assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Львів, Україна","Changing residence country must not alter hometown");
+  await checkCityOptions("profile-editor-city","Невицьке","Warszawa");
+  await checkCityOptions("profile-editor-city","Київ","Warszawa");
   assert.equal(await profilePage.locator(".ui-profile-editor-field-control-short_bio #profile-editor-visibility-short_bio").count(),1,"Visibility must be inside the same field box");
   for(const key of ["short_bio","country","hometown","languages","relationship"]){
    const geometry=await profilePage.locator(".ui-profile-editor-field-control-"+key).evaluate(box=>{
@@ -5547,9 +5569,13 @@ try{
   assert.equal(await privacy.getAttribute("aria-expanded"),"false","Only one dropdown stays open");
   await profilePage.keyboard.press("Escape");
   assert.ok(await profilePage.locator("#profile-editor-languages-native option").count()>=170,"Extended language catalog");
+  assert.ok(await profilePage.locator("#profile-editor-languages-native option").evaluateAll(options=>options.every(option=>!option.value||!(/^[a-z]{2}$/i.test(option.value)))),"Language labels must not fall back to codes");
   assert.equal(await profilePage.locator('#profile-editor-languages-native option[value="Русский"]').count(),0,"Russian must not be a new selectable language");
   const languageSearch=profilePage.locator("#profile-editor-languages");await languageSearch.fill("English");
-  const languagePanel=profilePage.locator("#"+await languageSearch.getAttribute("aria-controls"));
+  const languagePanelId=await languageSearch.getAttribute("aria-controls");
+  assert.ok(languagePanelId&&await languageSearch.getAttribute("aria-expanded")==="true","Language search must open its results even when focus moves the viewport");
+  const languagePanel=profilePage.locator("#"+languagePanelId);
+  await languagePanel.getByRole("option").filter({hasText:"English"}).waitFor({state:"visible"});
   assert.equal(await languagePanel.getByRole("option").filter({hasText:"English"}).count(),1,"Language search finds matching names");
   await languagePanel.getByRole("option").filter({hasText:"English"}).click();
   assert.equal(await profilePage.locator(".vatra-profile-editor-language-chip-001").filter({hasText:"English"}).count(),1);
@@ -5559,8 +5585,14 @@ try{
   await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
   assert.equal(await profilePage.locator("#profile-editor-page-visibility, #profile-editor-page-visibility-native").count(),0,
    "Global profile visibility belongs exclusively in Settings");
+  await profilePage.locator('.profile-editor-nav-link[data-group="personal"]').click();
+  for(const [key,values] of [["life_priorities",["Родина та діти","Здоров’я"]],["important_in_people",["Доброта та чесність","Вірність та надійність"]]]){
+   const group=profilePage.locator("#profile-editor-"+key);
+   for(const value of values)await group.locator('input[type="checkbox"]').filter({}).evaluateAll((nodes,v)=>{const check=nodes.find(el=>el.value===v);if(!check)throw Error("Missing option "+v);if(!check.checked)check.click();},value);
+   assert.equal(await group.locator("input:checked").count(),2);
+  }
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
-  await checkCityOptions("profile-editor-city","Київ","Warszawa");
+  assert.equal(await profilePage.locator("#profile-editor-city").count(),0,"Residence city belongs with residence country, not contacts");
   await profilePage.locator("#profile-editor-address").click();
   const addressDialog=profilePage.locator("#profile-editor-address-dialog");
   await addressDialog.waitFor({state:"visible"});
@@ -5583,6 +5615,10 @@ try{
   await profilePage.locator(".vatra-profile-editor-save-001").click();
   await profilePage.waitForFunction(()=>[...document.querySelectorAll(".vatra-toast-item--success.is-visible")].some(el=>/Зміни збережено|Changes saved/.test(el.textContent)));
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація");
+  for(const [key,values] of [["life_priorities",["Родина та діти","Здоров’я"]],["important_in_people",["Доброта та чесність","Вірність та надійність"]]]){
+   const stored=await profilePage.evaluate(key=>window.__profileDetailRows.find(row=>row.field_key===key)?.field_value,key);
+   assert.deepEqual(stored?.split(", "),values,"Multiple values are saved in the existing field format");
+  }
   assert.equal(await profilePage.locator(".vatra-profile-editor-feedback-001").count(),0,
    "Profile editor must not construct a legacy feedback node");
    await profilePage.locator(".vatra-toast-item--success.is-visible").last().waitFor({state:"visible"});
@@ -5597,6 +5633,7 @@ try{
    assert.equal(await chooser.element().getAttribute("id"),inputId,"Media menu action opens the existing file picker");
   }
   await profilePage.locator(".vatra-profile-editor-back-001").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),false,"Saving must clear the dirty state");
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-about-heading").textContent()).trim(),
@@ -5849,6 +5886,8 @@ try{
   await profilePage.locator("#profile-friend-button").hover();
   await profilePage.locator("#profile-friend-menu-action").waitFor({state:"visible"});
   await profilePage.locator("#profile-friend-menu-action").hover();
+  const friendMenuPlacement=await profilePage.locator("#profile-friend-menu").evaluate(el=>{const r=el.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,headerBottom:header.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight,topLayer:typeof el.showPopover!=="function"||el.matches(":popover-open")};});
+  assert.ok(friendMenuPlacement.topLayer&&friendMenuPlacement.top>=friendMenuPlacement.headerBottom&&friendMenuPlacement.bottom<=friendMenuPlacement.viewportHeight&&friendMenuPlacement.left>=0&&friendMenuPlacement.right<=friendMenuPlacement.viewportWidth,"Friend menu must remain above the page content and inside the usable viewport: "+JSON.stringify(friendMenuPlacement));
   await profilePage.waitForTimeout(430);
   assert.equal(await profilePage.locator("#profile-friend-menu-action").isVisible(),true,
    "Request cancellation must remain reachable while moving from button into submenu");

@@ -171,7 +171,6 @@
     window.VATRA_AVATAR?.fromPath(client,user?.email,vatraId,mine?.avatar_path||null);
    }
    applyAvatar(q("#feed-header-avatar"),vatraId);
-   applyAvatar(q("#feed-composer-avatar"),vatraId);
    applyAvatar(q("#feed-story-create-avatar"),vatraId);
   }catch(_){ }
  }
@@ -791,7 +790,6 @@
    clear:"#feed-compose-media-remove",preview:"#feed-compose-media-preview",
    onError:showError,onChange:()=>composerUI?.sync()
   });
-  q("#feed-composer-avatar").textContent=initials(displayName);
   const open=async()=>{
    if(dialog.open)return true;
    if(!composerLoading){
@@ -811,10 +809,7 @@
    }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
   };
   q("#feed-compose-open").addEventListener("click",()=>void open());
-  q("#feed-quick-media")?.addEventListener("click",()=>{
-   void open();
-   q("#feed-compose-media")?.click();
-  });
+  q("#feed-create-menu-story")?.addEventListener("click",()=>q("#feed-create-story")?.click());
   q("#feed-compose-cancel").addEventListener("click",()=>dialog.close());
   text.addEventListener("input",()=>{counter.textContent=Array.from(text.value).length+" / 2000";});
   form.addEventListener("submit",async event=>{

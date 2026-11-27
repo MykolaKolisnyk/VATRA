@@ -42,16 +42,6 @@ body.feed-page{min-height:100dvh;}
 .feed-more{align-self:center;min-height:42px;padding:9px 22px;border:1px solid #ccd9ee;border-radius:999px;background:#fff;color:#3365c7;font-weight:720;font-size:13px}
 .feed-more:hover{background:#f2f6ff}
 .feed-gate-retry{min-height:40px;padding:9px 17px;border:1px solid #c3d3f6;border-radius:999px;background:#fff;color:#2b63c8;font-size:13px;font-weight:750}
-.feed-delete-dialog{width:min(100% - 32px,430px);max-height:calc(100dvh - 30px);padding:27px;border:1px solid #dde5f6;border-radius:var(--vatra-dialog-radius);background:#fff;color:#2c3850;box-shadow:0 22px 75px rgba(35,51,93,.2);font-family:"Onest",Inter,system-ui,sans-serif}
-.feed-delete-dialog::backdrop{background:rgba(24,34,65,.51);backdrop-filter:blur(3px)}
-.feed-delete-title{margin:0 0 10px;font-size:22px;font-weight:780}
-.feed-delete-description{margin:0 0 23px;color:#71819c;font-size:14px;line-height:1.6}
-.feed-delete-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.feed-delete-cancel,.feed-delete-confirm{min-height:46px;padding:10px;border-radius:999px;font-size:14px;font-weight:750}
-.feed-delete-cancel{border:1px solid #bacaf1;background:#fff;color:#2962d4}
-.feed-delete-cancel:hover{background:#f0f5ff}
-.feed-delete-confirm{border:0;background:#2d67de;color:#fff}
-.feed-delete-confirm:hover{background:#205ac8}
 @media(max-width:1200px){
  .feed-layout{grid-template-columns:225px minmax(0,720px);gap:20px}
 }
@@ -2904,7 +2894,7 @@ body.feed-page .vatra-picker-loading-001,body.feed-page .vatra-picker-retry-001{
 
 
 body.feed-page .ui-vatra-account-profile-group-001 > .vatra-account-manage-001{
- display:flex;align-items:center;justify-content:flex-start;gap:14px;
+ display:flex;align-items:center;justify-content:flex-start;gap:8px;
  box-sizing:border-box;width:100%;margin:0;padding:10px 14px;min-height:47px;color:#334761;border:0;border-radius:10px;
  background:transparent;text-decoration:none
 }
@@ -2914,7 +2904,7 @@ body.feed-page .ui-vatra-account-profile-group-001 > .vatra-account-manage-001 >
 }
 body.feed-page .ui-vatra-account-id-symbol-001{display:block;width:19px;height:19px;object-fit:contain}
 body.feed-page .ui-vatra-account-profile-group-001 > .vatra-account-manage-001 > .vatra-account-manage-label-001{
- min-width:0;flex:1;font:600 13px/1.4 Onest,system-ui,sans-serif
+ min-width:0;flex:0 1 auto;font:600 13px/1.4 Onest,system-ui,sans-serif
 }
 body.feed-page .ui-vatra-account-id-brand-001 > .vatra-account-id-label-001{
  flex:none;font:700 13px/1 Onest,system-ui,sans-serif;color:inherit
@@ -3544,3 +3534,13 @@ body.feed-page .ui-vatra-account-profile-group-001 .feed-account-profile{display
 body.feed-page .ui-vatra-account-profile-group-001 .feed-account-profile svg{width:21px;height:21px;flex:0 0 21px;color:#637da3}
 body.feed-page .ui-vatra-account-profile-group-001>a:focus-visible{outline:2px solid #9dbaf2;outline-offset:-2px}
 .vatra-search-empty-001 .ui-vatra-search-empty-icon-001{display:block;width:52px;height:52px;padding:12px;box-sizing:border-box;background:#edf3ff;color:#547bc5;border-radius:16px;stroke-width:1.65}
+
+body.feed-page .vatra-post-delete-pending-001> :not(.vatra-post-deleted-line-001){display:none!important}
+body.feed-page .vatra-post-deleted-line-001{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;padding:16px 8px;min-height:66px;text-align:center}
+body.feed-page .vatra-post-deleted-label-001{color:#65758a;font:550 14px/1.5 Onest,system-ui,sans-serif}
+body.feed-page .vatra-post-undo-001{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 15px;border:0;border-radius:9px;background:#edf3ff;color:#2865d8;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;transition:background-color .18s ease,color .18s ease}
+body.feed-page .vatra-post-undo-001:hover:not(:disabled),body.feed-page .vatra-post-undo-001:focus-visible{background:#dce8ff;color:#2054b8}
+body.feed-page .vatra-post-undo-001:focus-visible{outline:2px solid #8eb0f5;outline-offset:2px}
+body.feed-page .vatra-post-undo-001:disabled{opacity:.55;cursor:wait}
+@media(prefers-reduced-motion:no-preference){.vatra-post-deleted-line-001{animation:vatra-popup-enter .18s ease-out both}}
+@media(prefers-reduced-motion:reduce){body.feed-page .vatra-post-undo-001{transition:none}}

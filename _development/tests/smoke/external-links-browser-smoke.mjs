@@ -5,15 +5,22 @@ import {chromium,firefox,webkit} from "playwright";
 
 const root="/VATRA/",assets=new Map([
  ["assets/js/external-links.js","text/javascript; charset=utf-8"],
+ ["assets/js/network.js","text/javascript; charset=utf-8"],
+ ["assets/js/lang.js","text/javascript; charset=utf-8"],
+ ["assets/js/toast.js","text/javascript; charset=utf-8"],
+ ["assets/i18n/uk.json","application/json"],
+ ["assets/vatryk/vatryk_503.webp","image/webp"],
  ["assets/css/external-links.css","text/css; charset=utf-8"],
  ["assets/css/base.css","text/css; charset=utf-8"],
  ["assets/vatryk/vatryk_suspicious-link.webp","image/webp"]
 ]);
 const markup='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/external-links.css"><script defer src="assets/js/external-links.js"></script></head><body><main><a id="suspect" href="https://example.org/setup.exe">Suspect</a> <a id="ordinary" href="https://example.org/page?q=a%20b">Ordinary</a> <a id="signed" href="https://example.org/page?sig=a%2Bb">Signed</a></main></body></html>';
+const modalMarkup='<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="assets/css/base.css"><script defer src="assets/js/lang.js"></script><script defer src="assets/js/network.js"></script></head><body><main style="height:3000px"><button data-language-trigger type="button" style="position:fixed;top:10px;left:10px">Language</button></main></body></html>';
 const server=createServer(async(req,res)=>{
  try{
   const path=new URL(req.url,"http://localhost").pathname;
   if(path===root+"fixture"){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"}).end(markup);return;}
+  if(path===root+"modal-fixture"){res.writeHead(200,{"Content-Type":"text/html; charset=utf-8"}).end(modalMarkup);return;}
   const relative=path.slice(root.length);
   if(!path.startsWith(root)||!assets.has(relative)){res.writeHead(404).end();return;}
   res.writeHead(200,{"Content-Type":assets.get(relative)}).end(await readFile(relative));
@@ -59,6 +66,7 @@ try{
      assert.equal(external.length,before,"No navigation before consent");
      assert.match(await page.locator(selector).innerText(),/Підозріле посилання/);
      assert.match(await page.locator(selector).innerText(),/виконуваний файл/);
+     for(const sel of [".vatra-external-link-heading-001",".vatra-external-link-note-001",".vatra-external-link-domain-001",".vatra-external-link-reasons-001"])assert.equal(await page.locator(sel).evaluate(el=>getComputedStyle(el).textAlign),"center");
      const layout=await page.locator(selector).evaluate(el=>{
       const r=el.getBoundingClientRect();
       return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:innerWidth,height:innerHeight,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth};
@@ -98,6 +106,132 @@ try{
     await Promise.all([page.waitForURL("https://example.org/page?sig=a%2Bb"),page.locator("#signed").click()]);
     assert.equal(external.at(-1),"https://example.org/page?sig=a%2Bb");
    }finally{await page.close();}
+   // All simple decisions must share one computed design, even inside the story editor.
+   const confirmationPage=await context.newPage();
+   try{
+    await confirmationPage.goto(base+"fixture");
+    await confirmationPage.emulateMedia({reducedMotion:"reduce"});
+    for(const file of ["assets/css/feed.css","assets/css/profile.css","assets/css/photo-albums.css","assets/css/story-editor.css","assets/css/core.css","assets/css/settings.css","assets/css/sign-in.css"])await confirmationPage.addStyleTag({content:await readFile(file,"utf8")});
+    const variants=[
+     ["feed-page profile-page","profile-confirm-dialog ui-profile-confirm-dialog-001","vatra-profile-confirm-heading-001","vatra-profile-confirm-description-001","profile-confirm-actions","vatra-profile-confirm-cancel-001","vatra-profile-confirm-accept-001","h2"],
+     ["feed-page","feed-delete-dialog ui-feed-delete-dialog-001","feed-delete-title","feed-delete-description","feed-delete-actions","feed-delete-cancel","feed-delete-confirm","h2"],
+     ["feed-page profile-page","ui-vatra-albums-confirm-001","vatra-albums-confirm-heading-001","vatra-albums-confirm-note-001","ui-vatra-albums-confirm-actions-001","vatra-albums-secondary-001","vatra-albums-danger-001","h3"],
+     ["feed-page","ui-vatra-story-discard-dialog-001","vatra-story-discard-title-001","vatra-story-discard-copy-001","ui-vatra-story-discard-actions-001","vatra-story-discard-keep-001","vatra-story-discard-confirm-001","h3"],
+     ["vatra-section-page","ui-vatra-section-confirm-001","vatra-section-dialog-title-001","vatra-section-form-note-001","ui-vatra-market-controls-001","vatra-section-confirm-cancel-001","vatra-section-confirm-delete-001","h2"]
+     ,["site","saved-remove-dialog ui-home-saved-dialog-001","saved-remove-title","saved-remove-description","saved-remove-actions","action secondary","action primary","h2"]
+    ];
+    for(const width of [320,1440]){
+     await confirmationPage.setViewportSize({width,height:900});
+     let reference;
+     for(const variant of variants){
+      const result=await confirmationPage.evaluate(([bodyClass,dialogClass,headingClass,copyClass,actionsClass,cancelClass,acceptClass,tag])=>{
+       document.querySelectorAll("dialog").forEach(el=>el.remove());
+       document.body.className=bodyClass;
+       const d=document.createElement("dialog");d.className=dialogClass;
+       if(dialogClass.includes("profile-confirm-dialog")||dialogClass.includes("section-confirm"))d.dataset.tone="danger";
+       const h=document.createElement(tag);h.className=headingClass;h.textContent="Підтвердити дію?";
+       const p=document.createElement("p");p.className=copyClass;p.textContent="Цю дію неможливо скасувати.";
+       const actions=document.createElement("div");actions.className=actionsClass;
+       const b=document.createElement("button");b.className=cancelClass;b.textContent="Скасувати";
+       const a=document.createElement("button");a.className=acceptClass;a.textContent="Підтвердити";
+       actions.append(b,a);d.append(h,p,actions);
+       if(dialogClass==="ui-vatra-story-discard-dialog-001"){
+        const parent=document.createElement("dialog");parent.className="ui-vatra-story-editor-001";parent.append(d);document.body.append(parent);parent.showModal();
+       }else document.body.append(d);
+       d.showModal();
+       const read=(el,keys)=>Object.fromEntries(keys.map(key=>[key,getComputedStyle(el)[key]]));
+       const buttonKeys=["backgroundColor","backgroundImage","color","borderRadius","borderTopWidth","fontSize","fontWeight","paddingTop","paddingLeft","minHeight","width"];
+       const actualAction=read(a,["backgroundColor","backgroundImage"]);
+       d.dataset.tone="primary";
+       return {actualAction,box:read(d,["width","paddingTop","paddingLeft","borderRadius","backgroundColor","borderTopColor","textAlign"]),
+        title:read(h,["color","fontSize","fontWeight","lineHeight","marginBottom"]),
+        copy:read(p,["color","fontSize","fontWeight","lineHeight","marginBottom"]),
+        actions:read(actions,["display","gap","gridTemplateColumns","marginTop"]),
+        cancel:read(b,buttonKeys),accept:read(a,buttonKeys),
+        fit:d.getBoundingClientRect().left>=0&&d.getBoundingClientRect().right<=innerWidth&&d.scrollWidth<=d.clientWidth+1};
+      },variant);
+      assert.equal(result.fit,true,engine+" confirmation fits: "+variant[1]);
+      const {actualAction,...layout}=result;
+      if(variant[1].includes("saved-remove-dialog"))assert.match(actualAction.backgroundImage,/linear-gradient/,engine+" local account removal stays primary");
+      else {assert.equal(actualAction.backgroundColor,"rgb(201, 54, 70)",engine+" destructive action is red: "+variant[1]);assert.equal(actualAction.backgroundImage,"none");}
+      assert.match(layout.accept.backgroundImage,/linear-gradient/,engine+" primary action is blue");
+      if(!reference)reference=layout;else assert.deepEqual(layout,reference,engine+" confirmation design mismatch: "+variant[1]+" @ "+width);
+      await confirmationPage.keyboard.press("Escape");
+      assert.equal(await confirmationPage.locator("dialog."+variant[1].split(" ")[0]).evaluate(el=>el.open),false,engine+" Escape dismisses "+variant[1]);
+     }
+    }
+    console.log(engine+" shared simple confirmations: six variants, semantic colors, mobile and desktop");
+    await confirmationPage.evaluate(()=>{document.querySelectorAll("dialog").forEach(el=>el.remove());document.body.className="profile-page feed-page";});
+    const albumMenus=[
+     ["ui-vatra-album-tile-menu-001","ui-vatra-album-tile-menu-items-001"],
+     ["ui-vatra-album-photo-menu-001","ui-vatra-album-photo-menu-items-001"],
+     ["vatra-album-bulk-menu-001","vatra-album-bulk-menu-items-001"]
+    ];
+    for(const reducedMotion of ["no-preference","reduce"]){
+     await confirmationPage.emulateMedia({reducedMotion});
+     for(const [menuClass,panelClass] of albumMenus){
+      const animation=await confirmationPage.evaluate(([menuClass,panelClass])=>{
+       const menu=document.createElement("details"),summary=document.createElement("summary"),panel=document.createElement("div");
+       menu.className=menuClass;summary.textContent="Меню";panel.className=panelClass;panel.textContent="Дія";menu.append(summary,panel);document.body.append(menu);
+       const closed=getComputedStyle(panel).display;menu.open=true;
+       const style=getComputedStyle(panel),result={closed,open:style.display,animation:style.animationName,duration:style.animationDuration};menu.remove();return result;
+      },[menuClass,panelClass]);
+      assert.equal(animation.closed,"none",engine+" closed album menu");
+      assert.notEqual(animation.open,"none",engine+" open album menu");
+      assert.equal(animation.animation,reducedMotion==="reduce"?"none":"vatra-popup-enter",engine+" shared album menu motion");
+      if(reducedMotion==="no-preference")assert.equal(animation.duration,"0.18s");
+     }
+    }
+    console.log(engine+" album menus share standard opening animation and reduced motion");
+
+   }finally{await confirmationPage.close();}
+   // Use real language picker and service error runtime, with no production requests.
+   const modalPage=await context.newPage();
+   try{
+    await modalPage.setViewportSize({width:390,height:844});
+    await modalPage.emulateMedia({reducedMotion:"reduce"});
+    await modalPage.addInitScript(()=>{localStorage.setItem("vatra-language","uk");});
+    await modalPage.goto(base+"modal-fixture");
+    await modalPage.waitForFunction(()=>!!window.VATRA_SERVICE_NOTICE&&!!window.VATRA_LANGUAGE?.openPicker);
+    await modalPage.evaluate(()=>{document.documentElement.style.scrollBehavior="auto";window.scrollTo(0,600);});
+    await modalPage.waitForFunction(()=>scrollY===600);
+    const assertLocked=async(sel,pseudo=null)=>{
+     const style=await modalPage.locator(sel).evaluate((el,pseudo)=>{
+      const cs=getComputedStyle(el,pseudo);
+      return {color:cs.backgroundColor,blur:cs.backdropFilter||cs.webkitBackdropFilter,root:getComputedStyle(document.documentElement).overflowY,body:getComputedStyle(document.body).overflowY,y:scrollY};
+     },pseudo);
+     assert.equal(style.color,"rgba(15, 24, 44, 0.48)",engine+" shared dim");
+     assert.equal(style.blur,"blur(3px)",engine+" shared blur");
+     assert.equal(style.root,"hidden");assert.equal(style.body,"hidden");
+     assert.equal(style.y,600,"Opening modal must not jump the page");
+     await modalPage.mouse.move(4,4);await modalPage.mouse.wheel(0,650);
+     await modalPage.waitForTimeout(250);
+     assert.equal(await modalPage.evaluate(()=>scrollY),600,engine+" background scroll must stay locked");
+    };
+    await modalPage.evaluate(()=>window.VATRA_LANGUAGE.openPicker());
+    await modalPage.locator(".language-backdrop").waitFor({state:"visible"});
+    await assertLocked(".language-backdrop");
+    await modalPage.keyboard.press("Escape");
+    await modalPage.locator(".language-backdrop").waitFor({state:"hidden"});
+    await modalPage.evaluate(()=>window.VATRA_SERVICE_NOTICE.show("503"));
+    const service=".ui-vatra-service-notice-001";
+    await modalPage.locator(service).waitFor({state:"visible"});
+    await modalPage.waitForFunction(()=>{const img=document.querySelector(".ui-vatra-service-notice-art-001");return img?.complete&&img.naturalWidth>0;});
+    await assertLocked(service,"::backdrop");
+    assert.equal(await modalPage.locator(service).evaluate(el=>getComputedStyle(el).textAlign),"center");
+    await modalPage.screenshot({path:"audit-screenshots/"+engine+"-503-modal.png"});
+    // Stacked dialogs must not release the underlying scroll lock early.
+    await modalPage.evaluate(()=>{const d=document.createElement("dialog");d.id="stacked-modal-test";d.textContent="Fixture";document.body.append(d);d.showModal();});
+    await assertLocked("#stacked-modal-test","::backdrop");
+    await modalPage.evaluate(()=>{const d=document.querySelector("#stacked-modal-test");d.close();d.remove();});
+    await assertLocked(service,"::backdrop");
+    await modalPage.locator(".vatra-service-notice-action-001").click();
+    await modalPage.locator(service).waitFor({state:"detached"});
+    assert.equal(await modalPage.evaluate(()=>getComputedStyle(document.documentElement).overflowY==="hidden"),false);
+    await modalPage.mouse.wheel(0,400);
+    await modalPage.waitForFunction(()=>scrollY>600);
+    console.log("VATRA "+engine+": language and 503 use identical modal dim/blur; background scroll stays locked across nested dialogs and unlocks after dismissal.");
+   }finally{await modalPage.close();}
    await context.close();
    console.log("VATRA "+engine+": warning UI, lazy artwork, mobile geometry, keyboard dismissal, consent and mocked navigation passed.");
   }finally{await browser.close();}

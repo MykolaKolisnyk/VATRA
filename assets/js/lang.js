@@ -605,7 +605,7 @@
   ".vatra-notification-panel",".vatra-post-share-dialog",".vatra-post-comment-emoji-scroll",
   ".profile-compose-dialog",".profile-photo-comments",
   ".vatra-profile-details-content",".profile-report-content",
-  ".profile-confirm-dialog",
+  ".profile-confirm-dialog",".ui-profile-editor-dropdown-panel-001",
   ".vatra-post-composer-edit",".vatra-post-composer-settings",
   ".vatra-post-composer-drafts-panel",".feed-story-view",
   ".profile-story-viewer",".vatra-gift-viewer",".vatra-discovery-sidebar",".ui-vatra-market-sidebar-scroll-001",".ui-vatra-market-editor-scroll-001",".ui-vatra-market-detail-info-001",".ui-vatra-market-editor-preview-001",".ui-vatra-section-dialog-scroll-001",

@@ -202,9 +202,10 @@ for(const name of pages){
    name+".html: a visible element must have a page-specific style hook: "+match[0].slice(0,120));
  }
 }
-assert.ok(css.includes('@keyframes vatraLanguageBackdrop')&&
- css.includes('.language-dialog > :not([hidden]){animation:vatraAuthReveal')&&
- css.includes('.language-backdrop,.language-dialog > :not([hidden]){animation:none!important}')&&
+assert.ok(css.includes('@keyframes vatra-modal-backdrop-enter')&&
+ css.includes('.language-dialog > :not([hidden]){animation:vatraAuthReveal var(--vatra-modal-duration)')&&
+ css.includes('.language-dialog,.language-dialog > :not([hidden]),.captcha-dialog{animation:none!important;transition:none!important}')&&
+ !css.includes('@keyframes vatraLanguageBackdrop')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand{order:0;')&&
  css.includes('height:52px;border:0;border-radius:0;background:transparent')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header .back{order:1;'),
@@ -1305,7 +1306,7 @@ const memberCss=await read("assets/css/profile.css");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
  'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"',
- 'href="assets/css/profile.css"','href="assets/css/external-links.css"'
+ 'href="assets/css/profile.css"','href="assets/css/create-menu.css"','href="assets/css/external-links.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
  (await Promise.all(["feed.html","communities.html","club.html","notifications.html"].map(p=>read(p))))
@@ -1686,7 +1687,9 @@ assert.ok(countryTest.citiesForCountry("PL").includes("Warszawa")&&!countryTest.
 assert.equal(countryTest.citiesForCountry("XX").length,0);
 assert.ok(countryTest.citiesForCountry("UA").includes("Невицьке")&&countryTest.citiesForCountry("UA").includes("Середнє")&&!countryTest.citiesForCountry("PL").includes("Невицьке"),"Settlement suggestions must include villages and townships in their own country");
 const profileLanguageSource=profileScript.slice(profileScript.indexOf(" const primaryLanguageNames="),profileScript.indexOf(" const countryCities="));
-const profileLanguages=new Function(profileLanguageSource+"return {languages,languageCodes};")();
+const profileLanguages=new Function(profileLanguageSource+"return {languages,languageCodes,fullLanguageName};")();
+assert.ok(profileLanguages.languages.every(name=>!(/^[a-z]{2}$/i.test(name))),"No bare language codes in the catalog");
+for(const code of profileLanguages.languageCodes)assert.ok(profileLanguages.fullLanguageName({of:key=>key},code).length>2,"Full fallback language name: "+code);
 assert.ok(profileLanguages.languages.length>=170&&profileLanguages.languages.includes("Українська")&&!profileLanguages.languageCodes.includes("ru")&&!profileLanguages.languages.includes("Русский"),"Profile language options must use the extended catalog without Russian");
 assert.ok(profileScript.includes('search.setAttribute("aria-autocomplete","list")')&&profileScript.includes("const localizedNames=new Intl.DisplayNames")&&profileScript.includes("const popular="),"Language picker must be searchable and prioritize VATRA languages");
 
@@ -1726,7 +1729,7 @@ assert.ok(
  detailsModule.includes('paragraph.hidden=!bio') &&
  detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
  !detailsModule.includes('vatra-profile-detail-audience-') &&
- detailsModule.includes('lab.htmlFor=inputId') &&
+ detailsModule.includes('lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId') &&
  !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-info{') &&
  memberCss.includes('grid-template-columns:minmax(0,38%) minmax(0,1fr)'),
@@ -2047,7 +2050,10 @@ assert.ok(
  profileBehavior.includes('dialog.showModal();')&&
  profileBehavior.includes('window.VATRA_PROFILE_CONFIRM(blocked?{')&&
  !/\b(?:window\.)?confirm\s*\(/.test(profileBehavior.replace(/\/\*[\s\S]*?\*\//g,""))&&
- systemProfileCss.includes('body.profile-page .profile-confirm-dialog::backdrop{'),
+ authBaseCss.includes('body dialog:is(.profile-confirm-dialog,.feed-delete-dialog,.ui-vatra-albums-confirm-001,.ui-vatra-story-discard-dialog-001,.ui-vatra-section-confirm-001,.saved-remove-dialog)')&&
+ authBaseCss.includes('background:var(--vatra-confirm-action)!important')&&
+ authBaseCss.includes('--vatra-confirm-action:var(--vatra-action-danger)')&&
+ !systemProfileCss.includes('body.profile-page .profile-confirm-dialog::backdrop{'),
  "All profile decisions use the accessible VATRA dialog, not native JS confirm windows");
 assert.ok(
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<
@@ -2395,7 +2401,9 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  profileScript.includes('if(kind!=="avatar"||!canViewPhoto)return;')&&
  !memberCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
  css.includes(".profile-photo-comments")&&
- memberCss.includes('body.profile-page .ui-profile-cover-viewer-001::backdrop')&&
+ !memberCss.includes('body.profile-page .ui-profile-cover-viewer-001::backdrop')&&
+ authBaseCss.includes('dialog:modal::backdrop,')&&
+ authBaseCss.includes('background:var(--vatra-modal-dim)!important')&&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-posts-section{'),
  "Original avatar viewer needs real likes/comments/share and matching Feed posts; cover viewer does not");
 assert.ok(["feed.html","profile.html","communities.html","club.html"].every(Boolean)&&
@@ -2516,7 +2524,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","create-menu.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");

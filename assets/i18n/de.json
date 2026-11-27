@@ -1,4 +1,13 @@
 {
+  "Країна проживання": "Wohnsitzland",
+  "Місто або село проживання": "Aktueller Wohnort",
+  "Рідне місто або село": "Heimatort",
+  "Місто або село, країна (за бажанням)": "Stadt oder Dorf, Land (optional)",
+  "ID скопійовано.": "ID kopiert.",
+  "Не вдалося скопіювати ID.": "ID konnte nicht kopiert werden.",
+  "Копіювати ID": "ID kopieren",
+  "Створити публікацію": "Beitrag erstellen",
+  "Публікація": "Beitrag",
   "Підозріле посилання": "Verdächtiger Link",
   "Ви залишаєте VATRA. Адреса має підозрілі ознаки. Перевірте домен перед переходом.": "Du verlässt VATRA. Diese Adresse weist verdächtige Merkmale auf. Prüfe die Domain, bevor du fortfährst.",
   "Вказати адресу": "Adresse angeben",

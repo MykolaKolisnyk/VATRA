@@ -87,9 +87,15 @@ assert.ok(profile.includes('VATRA_FEATURES.load("story")')&&
  feed.includes('VATRA_FEATURES.load("story")')&&
  profile.includes('VATRA_FEATURES.load("composer")')&&
  feed.includes('VATRA_FEATURES.load("composer")')&&
- profile.includes('q("#profile-compose-media")?.click()')&&
- feed.includes('q("#feed-compose-media")?.click()'),
- "Both authenticated routes must load story and composer only on demand, while quick-media file pickers retain user activation");
+ profile.includes('const trigger=q("#profile-write-post")')&&
+ profile.includes('trigger.addEventListener("click",()=>void openComposer())')&&
+ feed.includes('q("#feed-compose-open").addEventListener("click",()=>void open())')&&
+ feed.includes('q("#feed-create-menu-story")?.addEventListener("click",()=>q("#feed-create-story")?.click())')&&
+ feedHtml.includes('data-create-menu')&&profileHtml.includes('data-create-direct')&&
+ !profileHtml.includes('data-create-menu')&&
+ !feedHtml.includes('id="feed-quick-media"')&&!profileHtml.includes('id="profile-quick-media"')&&
+ profile.includes('choose:"#profile-compose-media-choose"')&&feed.includes('choose:"#feed-compose-media-choose"'),
+ "Both authenticated routes must defer story and composer loading; Feed offers both actions, profile opens the composer directly, and editor media pickers remain wired");
 function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGalleryScript=false,failFirstAvatarScript=false){
  const window={},requests=[];let rejectOnce=failFirstStyle,rejectGallery=failFirstGalleryScript,rejectAvatar=failFirstAvatarScript;
  const document={

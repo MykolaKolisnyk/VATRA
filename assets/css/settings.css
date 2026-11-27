@@ -97,7 +97,14 @@ body.vatra-section-page .vatra-id-legal-link-001{font:500 11px/1.5 Onest,system-
 body.vatra-section-page .vatra-id-legal-link-001:hover{text-decoration:underline}
 body.vatra-section-page .ui-vatra-id-number-row-001{display:flex;align-items:center;gap:5px}
 body.vatra-section-page :is(.vatra-id-copy-001,.vatra-id-identity-open-001){display:grid;place-items:center;border:0;background:transparent;color:#547cbe;border-radius:8px;padding:6px;cursor:pointer}
-body.vatra-section-page .vatra-id-copy-001 svg{width:16px;height:16px}
+body.vatra-section-page .vatra-id-copy-001{width:36px;height:36px;padding:7px;flex:none;transition:background-color .18s ease,color .18s ease}
+body.vatra-section-page .vatra-id-copy-001 svg{width:22px;height:22px}
+body.vatra-section-page .vatra-id-copy-001:hover,body.vatra-section-page .vatra-id-copy-001:focus-visible{background:#eaf1ff;color:#2865d8}
+body.vatra-section-page .vatra-id-copy-001:focus-visible{outline:2px solid #8eb0f5;outline-offset:2px}
+body.vatra-section-page .vatra-id-copy-001:active{background:#dce8ff}
+body.vatra-section-page .vatra-id-copy-001:disabled{cursor:wait}
+@media(pointer:coarse){body.vatra-section-page .vatra-id-copy-001{width:44px;height:44px}}
+@media(prefers-reduced-motion:reduce){body.vatra-section-page .vatra-id-copy-001{transition:none}}
 body.vatra-section-page .vatra-id-identity-open-001{margin-left:auto}
 body.vatra-section-page .ui-vatra-id-identity-info-001{min-width:0;overflow-wrap:anywhere}
 body.vatra-section-page .ui-vatra-id-quick-001 .vatra-id-heading-001{margin-bottom:10px}

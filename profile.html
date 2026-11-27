@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <script src="assets/js/host.js"></script>
 
-    <script src="assets/js/lang.js?rev=019c4ecefff61c7e3aa865699b60d356a927a87a"></script>
+    <script src="assets/js/lang.js?rev=73b5e1d15f05b38bcb1726a5e58238242ff7c742"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#f7f9fe">
     <meta name="robots" content="noindex,follow">
@@ -15,32 +15,33 @@
     <link rel="icon" type="image/svg+xml" href="assets/logo/logo_app-icon.svg">
     <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
-    <link rel="stylesheet" href="assets/css/base.css?rev=3e5499621ecb01982137d82dea2634afe690d376">
+    <link rel="stylesheet" href="assets/css/base.css?rev=c7640c4c37cc4b10940a6cb5ce34b7b76dd05f96">
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=163dda687e778993477c96327b0d7d7085e48909">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=b4a4f7d3afcd00b8748bf3db8a3894cd8ed77242">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=6192d1adcf750e2c1f9f6a287461746111252c5b">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=fe7518188f6132f3a93b153c17aaa4f3e85cd4af">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=974e3bada4068350938edd325afd868b64ea3e08">
+    <link rel="stylesheet" href="assets/css/create-menu.css?rev=0adeaaf0f8cfea70222b13e3343c47ab0e16eda9">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
     <script defer src="assets/js/avatar.js?rev=7ff79ee9e91749c58a922e046858e8a2b0dd5bf1"></script>
   <script defer src="assets/js/public-name-cache.js?rev=a1e9451512774e5b666e753010e57fd2ba6a0332"></script>
-    <script defer src="assets/js/post-media.js?rev=1c2f21ff6d4342f06f0e3108bd7d2790b8adac5b"></script>
+    <script defer src="assets/js/post-media.js?rev=c44b943ad87db0478f3fd7d2d74a87c16e9d8291"></script>
     <script defer src="assets/js/verified.js?rev=ab686b7db8b3ad7b903dfb7eb65dcae4a4e27855"></script>
     <script defer src="assets/js/post-interactions.js?rev=ff02a083a01cf1206b992e6783b074af57e5e9ad"></script>
     <script defer src="assets/js/presence.js?rev=eac08d0779c9ed7056c915454229302600a6b759"></script>
     <script defer src="assets/js/notifications.js?rev=054eabd1396e8a6c635e044eefb8206b3c57f66a"></script>
     <script defer src="assets/js/gift-catalog.js?rev=3a4f84bd30f882272cdaa8436e9b4258137d81ee"></script>
     <script defer src="assets/js/guest-view.js?rev=3396dd0c3de7deed25f770ef52c38ae00117a3c5"></script>
-    <script defer src="assets/js/feature-loader.js?rev=0ed4c3925aa65800c9519033b55418fa340121b8"></script>
-    <script defer src="assets/js/profile.js?rev=c888b83e1b5798cc03f00081096231776ad7765c"></script>
+    <script defer src="assets/js/feature-loader.js?rev=11a502a282f7fc00a14657c11ce95f5073031c62"></script>
+    <script defer src="assets/js/profile.js?rev=b9858e5e8d7ae52859c0340a50685d2d29e58de5"></script>
     <script defer src="assets/js/network.js?rev=111422be73f779068c5c4e03ced3f45ddd8433fa"></script>
     <script defer src="assets/js/social-shell.js?rev=540263904e4addfe42d3fdf415697c04b64e4a8c"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
     <meta name="application-name" content="VATRA">
     <meta name="apple-mobile-web-app-title" content="VATRA">
     <link rel="manifest" href="site.webmanifest">
-    <link rel="stylesheet" href="assets/css/external-links.css?rev=13fc0acbac21a810bca7ec699b02b4eda9871c3a">
+      <link rel="stylesheet" href="assets/css/external-links.css?rev=0025eae8505a2610148455bd746be09b72ca08e3">
     <script defer src="assets/js/external-links.js?rev=7e4779c106fd6c47c3a41d5a9ce79f96027719dd"></script>
-  </head>
+    </head>
   <body class="feed-page profile-page ui-profile-body-001" data-page="profile">
     <div id="profile-loading" class="vatra-auth-loading ui-feed-loading-001" role="status" aria-live="polite" aria-label="Завантаження VATRA">
       <div class="vatra-route-skeleton ui-vatra-route-skeleton-001" aria-hidden="true">
@@ -295,10 +296,8 @@
                     </div>
                   </div>
                 </header>
-                <div id="profile-quick-compose" class="profile-quick-compose ui-profile-quick-compose-001 vatra-quick-compose-001" hidden>
-                  <span id="profile-compose-avatar" class="profile-compose-avatar ui-profile-compose-avatar-001 vatra-quick-compose-avatar-001" data-vatra-avatar-state="default" aria-hidden="true"></span>
-                  <button type="button" id="profile-write-post" class="profile-compose-open vatra-profile-write-post-001 vatra-quick-compose-open-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
-                  <button type="button" id="profile-quick-media" class="profile-quick-media vatra-profile-quick-media-001 vatra-quick-compose-media-001" aria-label="Додати фото або відео" data-shell-aria-uk="Додати фото або відео" data-shell-aria-en="Add photo or video"><svg class="vatra-quick-compose-media-icon-001 ui-profile-quick-media-icon-001" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-profile-quick-media-frame-001" x="2.5" y="3.5" width="17.5" height="17" rx="3.4"/><circle class="ui-profile-quick-media-sun-001" cx="8.4" cy="9.3" r="1.6"/><path class="ui-profile-quick-media-land-001" d="m4.5 17 4.3-4.1 3.2 2.8 2.5-2.8"/><circle class="ui-profile-quick-media-video-badge-001" cx="18.5" cy="18.2" r="4.5" fill="#f3f6ff"/><path class="ui-profile-quick-media-play-001" d="m17.4 16.2 3 2-3 2Z" fill="currentColor" stroke="none"/></svg></button>
+                <div id="profile-quick-compose" class="profile-quick-compose ui-profile-quick-compose-001 vatra-quick-compose-001" hidden data-create-direct>
+                  <button type="button" id="profile-write-post" class="vatra-create-menu-trigger-001 ui-profile-create-post-001"><svg class="ui-profile-create-plus-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-create-plus-path-001" d="M12 5v14M5 12h14"/></svg><span class="vatra-profile-create-post-label-001" data-social-uk="Створити публікацію" data-social-en="Create a post">Створити публікацію</span></button>
                 </div>
                 <p id="profile-post-filter-status" class="vatra-profile-post-filter-status-001" aria-live="polite" hidden></p>
                 <div id="profile-posts" class="feed-posts ui-profile-posts-001" aria-live="polite" aria-busy="false">
@@ -370,12 +369,6 @@
           </div>
         </main>
         <dialog id="profile-confirm-dialog" class="profile-confirm-dialog ui-profile-confirm-dialog-001" aria-labelledby="profile-confirm-heading" aria-describedby="profile-confirm-description">
-          <div class="profile-confirm-header ui-profile-confirm-header-001">
-            <span class="profile-confirm-symbol ui-profile-confirm-symbol-001" aria-hidden="true">
-              <svg class="ui-profile-confirm-symbol-icon-001" viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle class="ui-profile-confirm-symbol-ring-001" cx="12" cy="12" r="9"/><path class="ui-profile-confirm-symbol-mark-001" d="M12 7.5V13"/><circle class="ui-profile-confirm-symbol-dot-001" cx="12" cy="17" r=".8" fill="currentColor" stroke="none"/></svg>
-            </span>
-            <button id="profile-confirm-close" type="button" class="vatra-profile-confirm-close-001" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close"><svg class="ui-profile-confirm-close-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-confirm-close-path-001" d="M6 6l12 12M18 6 6 18"/></svg></button>
-          </div>
           <h2 id="profile-confirm-heading" class="vatra-profile-confirm-heading-001"></h2>
           <p id="profile-confirm-description" class="vatra-profile-confirm-description-001"></p>
           <div class="profile-confirm-actions ui-profile-confirm-actions-001">

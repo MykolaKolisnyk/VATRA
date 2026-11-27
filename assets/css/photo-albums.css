@@ -110,12 +110,12 @@ body.profile-page .ui-vatra-album-photos-empty-001{
  min-height:270px;padding:30px;border-radius:15px;background:#f8faff
 }
 body.profile-page .ui-vatra-albums-empty-image-001{width:56px;height:56px;stroke:#9caed0}
-body.profile-page :is(.ui-vatra-albums-dialog-001,.ui-vatra-albums-confirm-001,.ui-vatra-album-comments-dialog-001){
+body.profile-page :is(.ui-vatra-albums-dialog-001,.ui-vatra-album-comments-dialog-001){
  box-sizing:border-box;max-width:calc(100vw - 24px);
  border:1px solid #dfe8f5;border-radius:18px;background:#fff;color:#304661;
  box-shadow:0 24px 80px #13294b39;font-family:Onest,system-ui,sans-serif
 }
-body.profile-page :is(.ui-vatra-albums-dialog-001,.ui-vatra-albums-confirm-001,.ui-vatra-album-comments-dialog-001)::backdrop{background:#101b2cb0}
+body.profile-page :is(.ui-vatra-albums-dialog-001,.ui-vatra-album-comments-dialog-001)::backdrop{background:#101b2cb0}
 body.profile-page .ui-vatra-albums-dialog-001{width:min(570px,calc(100vw - 24px));padding:0;max-height:calc(100dvh - 24px);overflow:auto}
 body.profile-page .ui-vatra-albums-form-001{display:grid;gap:15px;padding:0 22px 20px}
 body.profile-page .ui-vatra-albums-dialog-header-001{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 0;border-bottom:1px solid #edf0f6}
@@ -141,10 +141,6 @@ body.profile-page .vatra-albums-privacy-hint-001{margin:0;color:#91a1b6;font-siz
 body.profile-page .vatra-albums-form-error-001{margin:0;color:#c24158;font-size:12px}
 body.profile-page .vatra-albums-form-error-001[hidden]{display:none}
 body.profile-page .ui-vatra-albums-dialog-actions-001{display:flex;justify-content:flex-end;gap:9px;padding-top:12px;border-top:1px solid #edf0f6}
-body.profile-page .ui-vatra-albums-confirm-001{width:min(410px,calc(100vw - 24px));padding:23px}
-body.profile-page .vatra-albums-confirm-heading-001{margin:0 0 9px;font:750 19px Onest,system-ui,sans-serif}
-body.profile-page .vatra-albums-confirm-note-001{color:#70839b;font-size:13px;line-height:1.55}
-body.profile-page .ui-vatra-albums-confirm-actions-001{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
 body.profile-page .ui-vatra-album-viewer-001{
  position:fixed;inset:0;box-sizing:border-box;max-width:none;max-height:none;
  width:100vw;height:100dvh;margin:0;padding:0;overflow:hidden;

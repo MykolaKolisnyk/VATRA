@@ -11,8 +11,7 @@
   const detail=select("#profile-confirm-description");
   const accept=select("#profile-confirm-accept");
   const cancel=select("#profile-confirm-cancel");
-  const close=select("#profile-confirm-close");
-  if(!dialog||!heading||!detail||!accept||!cancel||!close||dialog.open)
+  if(!dialog||!heading||!detail||!accept||!cancel||dialog.open)
    return Promise.resolve(false);
   heading.textContent=String(title||"");
   detail.textContent=String(description||"");
@@ -28,7 +27,6 @@
    };
    accept.addEventListener("click",()=>finish(true),{signal:events.signal});
    cancel.addEventListener("click",()=>finish(false),{signal:events.signal});
-   close.addEventListener("click",()=>finish(false),{signal:events.signal});
    dialog.addEventListener("close",()=>finish(false),{signal:events.signal});
    dialog.addEventListener("click",event=>{
     if(event.target===dialog)finish(false);
@@ -41,13 +39,14 @@
   {id:"profile",label:["Профіль","Profile"],icon:"user-round",fields:[
    ["short_bio","Коротка інформація","Short bio","long"],
    ["relationship","Сімейний стан","Relationship status"],
-   ["country","Країна","Country"],
-   ["hometown","Рідний населений пункт","Hometown or village"],
+   ["country","Країна проживання","Country of residence"],
+   ["city","Місто або село проживання","Current city or village"],
+   ["hometown","Рідне місто або село","Hometown or village"],
    ["languages","Знання мов","Languages"],
    ["family","Родина","Family","long"]
   ]},
   {id:"contacts",label:["Контакти","Contacts"],icon:"at-sign",fields:[
-   ["city","Населений пункт","City, town or village"],["address","Адреса","Address"],
+   ["address","Адреса","Address"],
    ["mobile_phone","Мобільний телефон","Mobile phone"],
    ["additional_phone","Додатковий телефон","Additional phone"],
    ["website","Особистий сайт","Personal website"]
@@ -122,14 +121,22 @@
  };
  const primaryLanguageNames={uk:"Українська",en:"English",pl:"Polski",de:"Deutsch",fr:"Français",it:"Italiano",es:"Español",pt:"Português",cs:"Čeština",sk:"Slovenčina",hu:"Magyar",ro:"Română",bg:"Български",ka:"ქართული",lt:"Lietuvių",lv:"Latviešu",et:"Eesti",nl:"Nederlands",sv:"Svenska",no:"Norsk",da:"Dansk",fi:"Suomi",el:"Ελληνικά",tr:"Türkçe",be:"Беларуская",ar:"العربية",he:"עברית",zh:"中文",ja:"日本語",ko:"한국어",hi:"हिन्दी"};
  const languageCodes="aa ab ae af ak am an ar as av ay az ba be bg bh bi bm bn bo br bs ca ce ch co cr cs cu cv cy da de dv dz ee el en eo es et eu fa ff fi fj fo fr fy ga gd gl gn gu gv ha he hi ho hr ht hu hy hz ia id ie ig ii ik io is it iu ja jv ka kg ki kj kk kl km kn ko kr ks ku kv kw ky la lb lg li ln lo lt lu lv mg mh mi mk ml mn mr ms mt my na nb nd ne ng nl nn no nr nv ny oc oj om or os pa pi pl ps pt qu rm rn ro rw sa sc sd se sg si sk sl sm sn so sq sr ss st su sv sw ta te tg th ti tk tl tn to tr ts tt tw ty ug uk ur uz ve vi vo wa wo xh yi yo za zh zu".split(" ");
+ const languageFallbackNames={"aa":"Afar","ab":"Abkhazian","ae":"Avestan","af":"Afrikaans","ak":"Akan","am":"Amharic","an":"Aragonese","ar":"Arabic","as":"Assamese","av":"Avaric","ay":"Aymara","az":"Azerbaijani","ba":"Bashkir","be":"Belarusian","bg":"Bulgarian","bh":"Bihari","bi":"Bislama","bm":"Bambara","bn":"Bengali","bo":"Tibetan","br":"Breton","bs":"Bosnian","ca":"Catalan","ce":"Chechen","ch":"Chamorro","co":"Corsican","cr":"Cree","cs":"Czech","cu":"Church Slavic","cv":"Chuvash","cy":"Welsh","da":"Danish","de":"German","dv":"Dhivehi","dz":"Dzongkha","ee":"Ewe","el":"Greek","en":"English","eo":"Esperanto","es":"Spanish","et":"Estonian","eu":"Basque","fa":"Persian","ff":"Fulah","fi":"Finnish","fj":"Fijian","fo":"Faroese","fr":"French","fy":"Western Frisian","ga":"Irish","gd":"Scottish Gaelic","gl":"Galician","gn":"Guarani","gu":"Gujarati","gv":"Manx","ha":"Hausa","he":"Hebrew","hi":"Hindi","ho":"Hiri Motu","hr":"Croatian","ht":"Haitian Creole","hu":"Hungarian","hy":"Armenian","hz":"Herero","ia":"Interlingua","id":"Indonesian","ie":"Interlingue","ig":"Igbo","ii":"Sichuan Yi","ik":"Inupiaq","io":"Ido","is":"Icelandic","it":"Italian","iu":"Inuktitut","ja":"Japanese","jv":"Javanese","ka":"Georgian","kg":"Kongo","ki":"Kikuyu","kj":"Kuanyama","kk":"Kazakh","kl":"Kalaallisut","km":"Khmer","kn":"Kannada","ko":"Korean","kr":"Kanuri","ks":"Kashmiri","ku":"Kurdish","kv":"Komi","kw":"Cornish","ky":"Kyrgyz","la":"Latin","lb":"Luxembourgish","lg":"Ganda","li":"Limburgish","ln":"Lingala","lo":"Lao","lt":"Lithuanian","lu":"Luba-Katanga","lv":"Latvian","mg":"Malagasy","mh":"Marshallese","mi":"Maori","mk":"Macedonian","ml":"Malayalam","mn":"Mongolian","mr":"Marathi","ms":"Malay","mt":"Maltese","my":"Burmese","na":"Nauru","nb":"Norwegian Bokmål","nd":"North Ndebele","ne":"Nepali","ng":"Ndonga","nl":"Dutch","nn":"Norwegian Nynorsk","no":"Norwegian","nr":"South Ndebele","nv":"Navajo","ny":"Nyanja","oc":"Occitan","oj":"Ojibwa","om":"Oromo","or":"Odia","os":"Ossetian","pa":"Punjabi","pi":"Pali","pl":"Polish","ps":"Pashto","pt":"Portuguese","qu":"Quechua","rm":"Romansh","rn":"Rundi","ro":"Romanian","rw":"Kinyarwanda","sa":"Sanskrit","sc":"Sardinian","sd":"Sindhi","se":"Northern Sami","sg":"Sango","si":"Sinhala","sk":"Slovak","sl":"Slovenian","sm":"Samoan","sn":"Shona","so":"Somali","sq":"Albanian","sr":"Serbian","ss":"Swati","st":"Southern Sotho","su":"Sundanese","sv":"Swedish","sw":"Swahili","ta":"Tamil","te":"Telugu","tg":"Tajik","th":"Thai","ti":"Tigrinya","tk":"Turkmen","tl":"Tagalog","tn":"Tswana","to":"Tongan","tr":"Turkish","ts":"Tsonga","tt":"Tatar","tw":"Twi","ty":"Tahitian","ug":"Uyghur","uk":"Ukrainian","ur":"Urdu","uz":"Uzbek","ve":"Venda","vi":"Vietnamese","vo":"Volapük","wa":"Walloon","wo":"Wolof","xh":"Xhosa","yi":"Yiddish","yo":"Yoruba","za":"Zhuang","zh":"Chinese","zu":"Zulu"};
  const standardLanguageNames=new Intl.DisplayNames(["en"],{type:"language"});
- const languages=[...new Set([...Object.values(primaryLanguageNames),...languageCodes.filter(code=>!Object.hasOwn(primaryLanguageNames,code)).map(code=>standardLanguageNames.of(code)).sort((a,b)=>a.localeCompare(b,"en"))])];
+ const fullLanguageName=(names,code)=>{let value;try{value=names.of(code);}catch(_){}return value&&value.toLowerCase()!==code?value:languageFallbackNames[code]||"";};
+ const languageValue=code=>primaryLanguageNames[code]||fullLanguageName(standardLanguageNames,code);
+ const languages=[...new Set([...Object.values(primaryLanguageNames),...languageCodes.filter(code=>!Object.hasOwn(primaryLanguageNames,code)).map(languageValue).filter(Boolean).sort((a,b)=>a.localeCompare(b,"en"))])];
  const countryCities={"UA":["Київ","Харків","Одеса","Львів","Дніпро","Запоріжжя","Ужгород","Мукачево","Івано-Франківськ","Тернопіль","Чернівці","Луцьк","Рівне","Хмельницький","Вінниця","Житомир","Черкаси","Чернігів","Суми","Полтава","Кропивницький","Миколаїв","Херсон","Донецьк","Луганськ","Сімферополь","Севастополь","Кривий Ріг","Кременчук","Біла Церква","Кам’янець-Подільський","Берегове","Хуст","Тячів","Рахів","Великий Березний","Перечин","Середнє","Солотвино","Вилок","Буштино","Кольчино","Чинадійово","Воловець","Міжгір’я","Ясіня","Тересва","Королево","Дубове","Невицьке","Кам’яниця","Оноківці","Баранинці","Сторожниця","Минай","Сюрте","Розівка","Великі Лази","Лінці","Холмок","Довге","Косонь","Шаян","Пилипець","Синевир","Колочава","Верховина","Ворохта","Криворівня","Славсько","Східниця","Брюховичі","Рудне","Затока","Коблеве","Бородянка","Гостомель","Коцюбинське","Макарів","Калинівка","Петропавлівська Борщагівка","Софіївська Борщагівка","Чабани","Хотів","Глеваха","Козин","Велика Димерка","Диканька","Опішня","Решетилівка","Седнів","Любеч","Мала Данилівка","Пісочин","Солоницівка","Бабаї"],"GB":["London","Birmingham","Manchester","Liverpool","Leeds","Sheffield","Bristol","Newcastle upon Tyne","Nottingham","Leicester","Southampton","Portsmouth","Oxford","Cambridge","York","Brighton","Reading","Coventry","Glasgow","Edinburgh","Aberdeen","Dundee","Cardiff","Swansea","Belfast","Derry","Ambleside","Grasmere","Hawkshead","Bourton-on-the-Water","Bibury","Castle Combe","Lacock","Portree","Kyle of Lochalsh","Betws-y-Coed","Beddgelert","Bushmills","Hillsborough"],"PL":["Warszawa","Kraków","Łódź","Wrocław","Poznań","Gdańsk","Szczecin","Lublin","Bydgoszcz","Białystok","Katowice","Gdynia","Częstochowa","Radom","Rzeszów","Toruń","Kielce","Olsztyn","Gliwice","Opole","Zielona Góra","Przemyśl","Białowieża","Zawoja","Chochołów","Poronin","Kościelisko","Sromowce Niżne","Kluszkowce","Łącko","Krynica Morska","Mielno","Ustronie Morskie","Jastarnia"],"DE":["Berlin","Hamburg","München","Köln","Frankfurt am Main","Stuttgart","Düsseldorf","Leipzig","Dortmund","Essen","Bremen","Dresden","Hannover","Nürnberg","Duisburg","Bochum","Bonn","Münster","Karlsruhe","Mannheim","Freiburg im Breisgau","Aachen","Potsdam","Oberammergau","Schwangau","Ramsau bei Berchtesgaden","Garmisch-Partenkirchen","Hinterzarten","Triberg","Bacharach","Rüdesheim am Rhein","Worpswede","Ahrenshoop","Prerow","Sankt Peter-Ording"],"FR":["Paris","Marseille","Lyon","Toulouse","Nice","Nantes","Montpellier","Strasbourg","Bordeaux","Lille","Rennes","Reims","Toulon","Grenoble","Dijon","Angers","Le Havre","Clermont-Ferrand","Rouen","Tours","Avignon","Metz","Nancy","Gordes","Roussillon","Ménerbes","Lourmarin","Èze","Saint-Paul-de-Vence","Conques","Rocamadour","Saint-Cirq-Lapopie","Eguisheim","Riquewihr","Kaysersberg"],"IT":["Roma","Milano","Napoli","Torino","Palermo","Genova","Bologna","Firenze","Bari","Catania","Venezia","Verona","Messina","Padova","Trieste","Brescia","Parma","Modena","Perugia","Livorno","Cagliari","Salerno","Pisa","Alberobello","Locorotondo","Ostuni","Pienza","Montepulciano","San Gimignano","Vernazza","Manarola","Riomaggiore","Corniglia","Monterosso al Mare","Positano"],"BG":["София","Пловдив","Варна","Бургас","Русе","Стара Загора","Плевен","Сливен","Добрич","Шумен","Перник","Хасково","Ямбол","Пазарджик","Благоевград","Велико Търново","Враца","Габрово","Видин","Кърджали","Кюстендил","Смолян","Арбанаси","Широка лъка","Ковачевица","Лещен","Боженци","Жеравна","Копривщица","Рибарица","Чифлик","Орешак","Баня","Синеморец"],"GE":["თბილისი","ბათუმი","ქუთაისი","რუსთავი","გორი","ზუგდიდი","ფოთი","ხაშური","სამტრედია","სენაკი","ზესტაფონი","მარნეული","თელავი","ახალციხე","ქობულეთი","ოზურგეთი","ბორჯომი","მცხეთა","სტეფანწმინდა","გუდაური","ბაკურიანი","მესტია","უშგული","ომალო","შატილი","სიღნაღი","თიანეთი","აბასთუმანი","ბახმარო","ურეკი"]};
  const countryCodes=Object.keys(countryCities);
  const countryLabel=code=>{if(!countryCodes.includes(code))return "";try{return new Intl.DisplayNames([window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk"],{type:"region"}).of(code)||code;}catch(_){return code;}};
  const citiesForCountry=code=>countryCodes.includes(code)?countryCities[code]:[];
 
- const choiceLabel=(key,value)=>{const match=choices[key]?.find(pair=>pair.includes(value));return match?tr(match[0],match[1]):value;};
+ const multiChoiceKeys=new Set(["life_priorities","important_in_people"]);
+ const splitChoices=value=>[...new Set(String(value||"").split(/[,;\n]+/).map(part=>part.trim()).filter(Boolean))];
+ const choiceLabel=(key,value)=>{
+  const label=part=>{const match=choices[key]?.find(pair=>pair.includes(part));return match?tr(match[0],match[1]):part;};
+  return multiChoiceKeys.has(key)?splitChoices(value).map(label).join(", "):label(value);
+ };
  const audiences=[
   ["public","Для всіх","Everyone"],
   ["friends","Для друзів","Friends"],
@@ -297,7 +304,7 @@
      content.append(link);
     }else content.textContent=data.value;
    }else content.textContent=key==="address"?addressText(data.value):key==="country"?countryLabel(data.value):key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
-   if(!detailed&&(key==="city"||key==="hometown")&&visibleField("country")){
+   if(!detailed&&key==="city"&&visibleField("country")){
     const country=countryLabel(visibleField("country"));if(country)content.append(document.createTextNode(", "+country));
    }
    item.append(label,content);
@@ -368,7 +375,7 @@
    card.classList.toggle("is-empty",noDetails);
    if(emptyInfo)emptyInfo.hidden=!noDetails;
    const additional=[...fieldsByKey.keys()].filter(key=>
-    key!=="short_bio"&&visibleField(key)&&!selected.includes(key)&&!(key==="country"&&selected.includes(locationKey)));
+    key!=="short_bio"&&visibleField(key)&&!selected.includes(key)&&!(key==="country"&&locationKey==="city"));
    const hasLongPreview=selected.some(key=>visibleField(key).length>32);
    more.hidden=!additional.length&&!hasLongPreview;
   };
@@ -461,11 +468,15 @@
   sidebar.append(menu,navFoot);layout.append(primary,sidebar);
   workspace.append(layout);main.append(workspace);
   let selected="profile";
-  const hasChanges=()=>[...draft.keys()].some(key=>
-   (draft.get(key)?.value||"")!==(saved.get(key)?.value||"")||
-   (draft.get(key)?.visibility||"friends")!==(saved.get(key)?.visibility||"friends"));
+  const normalizedField=item=>({value:String(item?.value||"").trim(),visibility:item?.visibility||"friends"});
+  const changedField=(next,previous)=>{
+   const a=normalizedField(next),b=normalizedField(previous);
+   return a.value!==b.value||Boolean(a.value&&a.visibility!==b.visibility);
+  };
+  const hasChanges=()=>groups.some(group=>group.fields.some(([key])=>changedField(draft.get(key),saved.get(key))));
   const close=async()=>{
    closeEditorMenu();
+   if(save.disabled)return;
    if(hasChanges()&&!await window.VATRA_PROFILE_CONFIRM({
     title:tr("Вийти без збереження?","Leave without saving?"),
     description:tr("Незбережені зміни у вашому профілі буде втрачено.",
@@ -520,16 +531,24 @@
    if(typeof state.panel.hidePopover==="function")try{state.panel.hidePopover();}catch(_){}
    state.panel.remove();
   };
+  const editorViewport=anchor=>{
+   const v=window.visualViewport,left=v?.offsetLeft||0,top=v?.offsetTop||0,width=v?.width||window.innerWidth,height=v?.height||window.innerHeight;
+   const header=anchor.closest("dialog[open]")?top:Math.max(top,document.querySelector(".feed-header")?.getBoundingClientRect().bottom||0);
+   return {left,top:header,width,bottom:top+height};
+  };
+  const revealEditorAnchor=(anchor,wrapper)=>{
+   const rect=wrapper.getBoundingClientRect(),view=editorViewport(anchor);
+   if(rect.top<view.top+8||rect.bottom>view.bottom-8)wrapper.scrollIntoView({block:"center",inline:"nearest",behavior:"instant"});
+  };
   const positionEditorMenu=()=>{
    const state=editorMenu;if(!state)return;
    if(!state.anchor.isConnected||!state.anchor.getClientRects().length){closeEditorMenu();return;}
-   const rect=state.wrapper.getBoundingClientRect(),v=window.visualViewport;
-   const left=v?.offsetLeft||0,top=v?.offsetTop||0,width=v?.width||window.innerWidth,height=v?.height||window.innerHeight;
-   if(rect.bottom<top||rect.top>top+height){closeEditorMenu();return;}
+   const rect=state.wrapper.getBoundingClientRect(),{left,top,width,bottom}=editorViewport(state.anchor);
+   if(rect.bottom<=top||rect.top>=bottom){closeEditorMenu();return;}
    const compact=state.wrapper.dataset.variant==="compact";
    const w=Math.min(Math.max(rect.width,compact?220:0),width-16);
    const x=Math.max(left+8,Math.min(compact?rect.right-w:rect.left,left+width-w-8));
-   const down=top+height-rect.bottom-9,up=rect.top-top-9;
+   const down=bottom-rect.bottom-9,up=rect.top-top-9;
 
    state.panel.style.width=Math.round(w)+"px";
    const desired=Math.min(300,state.panel.scrollHeight+2);
@@ -559,6 +578,7 @@
   };
   const openEditorMenu=(anchor,wrapper,items,choose,selectedValue,keyboard=false)=>{
    closeEditorMenu();
+   revealEditorAnchor(anchor,wrapper);
    const panel=make("div","ui-profile-editor-dropdown-panel-001");
    panel.id="vatra-editor-options-"+(++editorMenuSerial);panel.setAttribute("role","listbox");
    panel.setAttribute("aria-label",anchor.getAttribute("aria-label")||tr("Варіанти","Options"));
@@ -676,7 +696,7 @@
    arrow.setAttribute("aria-label",tr("Список населених пунктів","Settlement suggestions"));arrow.append(menuArrow());
    input.before(wrapper);wrapper.append(input,arrow);
    input.setAttribute("role","combobox");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-expanded","false");input.setAttribute("aria-haspopup","listbox");
-   input.setAttribute("aria-label",input.id.endsWith("hometown")?tr("Рідний населений пункт","Hometown or village"):tr("Населений пункт","City, town or village"));
+   if(!input.hasAttribute("aria-label"))input.setAttribute("aria-label",tr("Місто або село проживання","Current city or village"));
    const open=(keyboard=false,all=false)=>{
     const query=all?"":input.value.trim().toLocaleLowerCase();
     const items=citiesForCountry(draft.get("country")?.value).filter(city=>!query||city.toLocaleLowerCase().includes(query)).sort((a,b)=>a.localeCompare(b,window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk")).map(city=>({value:city,text:city}));
@@ -742,8 +762,25 @@
      for(const input of [city,street,name])input.addEventListener("input",()=>{city.setCustomValidity("");street.setCustomValidity("");});
      foot.append(cancel,commit);form.append(head,body,foot);d.append(form);document.body.append(d);d.showModal();city.focus();
     });
+   }else if(multiChoiceKeys.has(key)){
+    const selected=new Set(splitChoices(current.value).map(value=>choices[key].find(pair=>pair.includes(value))?.[0]||value));
+    const list=make("div","ui-profile-editor-multi-choice-001");list.id=inputId;list.setAttribute("role","group");list.setAttribute("aria-label",tr(uk,en));
+    lab.id=inputId+"-label";list.setAttribute("aria-labelledby",lab.id);
+    const options=[...choices[key],...[...selected].filter(value=>!choices[key].some(pair=>pair[0]===value)).map(value=>[value,value])];
+    readValue=()=>[...selected].join(", ");
+    for(const [index,pair] of options.entries()){
+     const option=make("label","vatra-profile-editor-multi-option-001");
+     const check=make("input","ui-profile-editor-multi-check-001");check.type="checkbox";check.id=inputId+"-"+index;check.value=pair[0];check.checked=selected.has(pair[0]);
+     option.append(check,make("span","vatra-profile-editor-multi-label-001",lang(pair)));
+     check.addEventListener("change",()=>{
+      if(check.checked)selected.add(pair[0]);else selected.delete(pair[0]);
+      if(readValue().length>1000){selected.delete(pair[0]);check.checked=false;}
+      update();
+     });list.append(option);
+    }
+    control.append(list);
    }else if(key==="languages"){
-    const selectedLanguages=[...new Set(current.value.split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean))];
+    const selectedLanguages=[...new Set(current.value.split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean).map(value=>languageCodes.includes(value.toLowerCase())?languageValue(value.toLowerCase())||value:value))];
     const wrap=make("div","ui-profile-editor-language-box-001"),chips=make("div","ui-profile-editor-language-chips-001");
     const picker=make("select","ui-profile-editor-input-languages");picker.id=inputId+"-native";picker.hidden=true;picker.tabIndex=-1;picker.setAttribute("aria-hidden","true");
     const search=make("input","ui-profile-editor-input-language-search");search.type="search";search.id=inputId;search.autocomplete="off";search.maxLength=80;
@@ -753,7 +790,7 @@
     const normalize=value=>value.normalize("NFD").replace(/\p{M}/gu,"").toLocaleLowerCase();
     const locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
     const localizedNames=new Intl.DisplayNames([locale],{type:"language"});
-    const aliases=new Map(languageCodes.map(code=>[primaryLanguageNames[code]||standardLanguageNames.of(code),[localizedNames.of(code),standardLanguageNames.of(code),code]]));
+    const aliases=new Map(languageCodes.map(code=>[languageValue(code),[fullLanguageName(localizedNames,code),fullLanguageName(standardLanguageNames,code),code]]));
     const popular=["Українська","English","Polski","Deutsch","Français","Italiano","Български","ქართული"];
     const collator=new Intl.Collator(locale,{sensitivity:"base"});
     const sorted=[...popular,...languages.filter(value=>!popular.includes(value)).sort((a,b)=>collator.compare(aliases.get(a)?.[0]||a,aliases.get(b)?.[0]||b))];
@@ -804,14 +841,14 @@
      input.maxLength=1000;input.spellcheck=kind==="long";
      input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):tr("Не вказано","Not specified");
      if(key==="city"||key==="hometown"){
-      input.autocomplete="off";input.placeholder=tr("Знайти або ввести населений пункт","Find or enter a settlement");
+      input.autocomplete="off";input.placeholder=key==="hometown"?tr("Місто або село, країна (за бажанням)","City or village, country (optional)"):tr("Знайти або ввести населений пункт","Find or enter a settlement");
      }
     }
     input.value=key==="country"&&!countryCodes.includes(selectedValue)?"":selectedValue;readValue=()=>input.value;
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
-    if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
+    if(menu)enhanceEditorSelect(input);else if(key==="city")enhanceCityInput(input);
    }
-   lab.htmlFor=inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
+   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
@@ -901,9 +938,7 @@
     return {vatra_id:ownId,field_key:key,field_value:item.value.trim(),
      visibility:item.visibility,updated_at:new Date().toISOString()};
    }).filter(record=>{
-    const previous=saved.get(record.field_key)||{value:"",visibility:"friends"};
-    return record.field_value!==previous.value||
-     (record.field_value&&record.visibility!==previous.visibility);
+    return changedField({value:record.field_value,visibility:record.visibility},saved.get(record.field_key));
    });
    try{
     const additions=records.filter(x=>x.field_value);
@@ -1610,10 +1645,6 @@ function bindPostComposer(client,user,ownId){
    return false;
   }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
  };
- q("#profile-quick-media")?.addEventListener("click",()=>{
-  void openComposer();
-  q("#profile-compose-media")?.click();
- });
  trigger.addEventListener("click",()=>void openComposer());
  cancel.addEventListener("click",()=>{if(!publishing)dialog.close();});
  dialog.addEventListener("cancel",event=>{if(publishing)event.preventDefault();});
@@ -2240,17 +2271,43 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   });
   if(morePanel&&removeFriend)removeFriend.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;void changeFriendship();});
   let relation=null,busy=false,friendMenuCloseTimer=null;
+  const friendPopover=typeof friendMenu.showPopover==="function"&&typeof friendMenu.hidePopover==="function";
+  if(friendPopover)friendMenu.setAttribute("popover","manual");
+  const positionFriendMenu=()=>{
+   if(friendMenu.hidden||!friendPopover)return;
+   const anchor=friendButton.getBoundingClientRect(),viewport=window.visualViewport;
+   const left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=top+(viewport?.height||innerHeight);
+   const headerBottom=Math.max(top,q(".feed-header")?.getBoundingClientRect().bottom||0);
+   if(anchor.bottom<=headerBottom||anchor.top>=bottom){friendMenuOpen(false);return;}
+   const width=friendMenu.offsetWidth,height=friendMenu.offsetHeight;
+   const x=Math.max(left+8,Math.min(anchor.left,right-width-8));
+   const preferred=anchor.bottom+5,above=anchor.top-height-5;
+   const y=preferred+height<=bottom-8?preferred:above>=headerBottom+8?above:Math.max(headerBottom+8,Math.min(preferred,bottom-height-8));
+   friendMenu.style.setProperty("--friend-menu-left",Math.round(x)+"px");
+   friendMenu.style.setProperty("--friend-menu-top",Math.round(y)+"px");
+  };
   const friendMenuOpen=state=>{
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=null;
    const available=["outgoing","friends"].includes(friendButton.dataset.friendState);
-   friendMenu.hidden=!(state&&available);
+   if(state&&available&&!friendAction.hidden){
+    friendMenu.hidden=false;
+    if(friendPopover&&!friendMenu.matches(":popover-open"))friendMenu.showPopover();
+    positionFriendMenu();
+   }else{
+    if(friendPopover&&friendMenu.matches(":popover-open"))friendMenu.hidePopover();
+    friendMenu.hidden=true;
+   }
    friendButton.setAttribute("aria-expanded",String(!friendMenu.hidden));
   };
+  window.addEventListener("scroll",positionFriendMenu,{passive:true});
+  window.addEventListener("resize",positionFriendMenu,{passive:true});
+  window.visualViewport?.addEventListener("resize",positionFriendMenu,{passive:true});
+  window.visualViewport?.addEventListener("scroll",positionFriendMenu,{passive:true});
   const scheduleFriendMenuClose=()=>{
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=setTimeout(()=>{
-    if(!friendAction.matches(":hover"))friendMenuOpen(false);
+    if(!friendAction.matches(":hover")&&!friendMenu.matches(":hover")&&!friendMenu.contains(document.activeElement))friendMenuOpen(false);
    },340);
   };
   friendButton.setAttribute("aria-haspopup","menu");
@@ -2258,6 +2315,8 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   friendAction.addEventListener("mouseenter",()=>friendMenuOpen(true));
   friendAction.addEventListener("mouseleave",scheduleFriendMenuClose);
   friendMenu.addEventListener("mouseenter",()=>friendMenuOpen(true));
+  friendMenu.addEventListener("mouseleave",scheduleFriendMenuClose);
+  friendButton.addEventListener("keydown",event=>{if(event.key==="ArrowDown"&&friendButton.dataset.friendState==="outgoing"){event.preventDefault();friendMenuOpen(true);if(!friendMenu.hidden)friendMenuAction.focus();}});
   friendAction.addEventListener("focusout",event=>{
    if(!friendAction.contains(event.relatedTarget))scheduleFriendMenuClose();
   });
@@ -3860,13 +3919,6 @@ async function start(){
 
 
   const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia);
-  if(isMine)void mediaPromise.then(()=>{
-   const source=q("#profile-avatar"),preview=q("#profile-compose-avatar");
-   if(!source||!preview)return;
-   const image=source.classList.contains("has-photo")?source.style.backgroundImage:"";
-   preview.style.backgroundImage=image||"var(--vatra-default-avatar)";
-   preview.classList.toggle("has-photo",!!image);
-  }).catch(()=>{});
   const requestedAction=new URLSearchParams(location.search);
   const sharedPhoto=requestedAction.get("photo")==="avatar";
 

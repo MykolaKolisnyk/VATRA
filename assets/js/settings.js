@@ -16,7 +16,7 @@ const idPaths={
  mail:"M3 6h18v12H3zM3 7l9 6 9-6",
  back:"M19 12H5m7-7-7 7 7 7",
  next:"m9 6 6 6-6 6",
- copy:"M8 8h12v12H8zM16 8V4H4v12h4",
+ copy:"M9 8h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2ZM15 5V4a1 1 0 0 0-1-1H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2",
  clock:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Zm0-15v5l3 2",
  devices:"M3 4h14v12H3zM10 16v4m-4 0h8m5-9h3v10h-5v-5",
  ban:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM5 5l14 14",
@@ -180,8 +180,17 @@ async function account(){
  const identityCard=async(ticket,home=false)=>{
   const c=card("ui-vatra-id-personal-001"),identity=make("div","ui-vatra-id-identity-001"),avatar=make("span","ui-vatra-id-avatar-001");window.VATRA_AVATAR?.fallback(avatar,"default");
   const info=make("div","ui-vatra-id-identity-info-001"),display=make("h2","vatra-id-heading-001",await nameOf(ownId));if(ticket!==renderTicket)return null;
-  const number=make("div","ui-vatra-id-number-row-001"),copy=btn("","vatra-id-copy-001",async()=>{try{await navigator.clipboard.writeText(ownId);message(t("ID скопійовано.","ID copied."));}catch(_){message(t("Не вдалося скопіювати ID.","Could not copy ID."),true);}});
-  copy.append(idIcon("copy"));copy.setAttribute("aria-label",t("Копіювати ID","Copy ID"));number.append(make("span","vatra-id-number-001","ID: "+ownId),copy);
+  const copyFeedback=(text,kind)=>{
+   if(window.VATRA_TOAST?.show)window.VATRA_TOAST.show(text,kind,{duration:kind==="success"?2500:4800,group:"vatra-id-copy"});
+   else{(window.VATRA_PENDING_TOASTS??=[]).push([text,kind,{duration:kind==="success"?2500:4800,group:"vatra-id-copy"}]);message(text,kind==="error");}
+  };
+  const number=make("div","ui-vatra-id-number-row-001"),copy=btn("","vatra-id-copy-001",async()=>{
+   if(copy.disabled)return;copy.disabled=true;
+   try{await navigator.clipboard.writeText(String(ownId));copyFeedback(t("ID скопійовано.","ID copied."),"success");}
+   catch(_){copyFeedback(t("Не вдалося скопіювати ID.","Could not copy ID."),"error");}
+   finally{copy.disabled=false;}
+  });
+  copy.append(idIcon("copy"));copy.setAttribute("aria-label",t("Копіювати ID","Copy ID"));copy.title=t("Копіювати ID","Copy ID");number.append(make("span","vatra-id-number-001","ID: "+ownId),copy);
   info.append(display,number);identity.append(avatar,info);
   if(home){const edit=btn("","vatra-id-identity-open-001",()=>go("personal"));edit.append(idIcon("next"));edit.setAttribute("aria-label",t("Мої дані","My data"));identity.append(edit);}
   c.append(identity);
