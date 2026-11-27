@@ -221,17 +221,27 @@ try{
    const feedStyle=measure();
    document.body.classList.add("profile-page");
    const profileStyle=measure();
+   document.body.classList.remove("profile-page");document.body.classList.add("community-page");
+   const communityStyle=measure();
+   document.body.classList.remove("community-page");
+   const caption=window.VATRA_POST_MEDIA.mediaDescription({kind:"test-font",limit:2000,onSave:async value=>value});
+   caption.paint(original,false);document.body.append(caption.root);
+   const viewerStyle=["fontFamily","fontSize","fontWeight","lineHeight","letterSpacing","color"].map(key=>getComputedStyle(caption.root.querySelector(".vatra-media-description-copy-001"))[key]);
+   caption.root.remove();
    button.click();
    const expanded=paragraph.textContent===original+" Показати менше"&&
     !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&button.getAttribute("aria-expanded")==="true"&&!!button.querySelector("svg");
    button.click();const recollapsed=paragraph.textContent.endsWith("… Показати більше")&&button.getAttribute("aria-expanded")==="false";
-   return {collapsed,collapsedChecks,expanded,recollapsed,feedStyle,profileStyle};
+   return {collapsed,collapsedChecks,expanded,recollapsed,feedStyle,profileStyle,communityStyle,viewerStyle};
   });
   assert.ok(result.collapsed&&result.expanded&&result.recollapsed,
    "Read-more must appear inline, expand, collapse and preserve hashtags: "+JSON.stringify(result));
   assert.deepEqual(result.feedStyle,result.profileStyle,
    "Feed and Profile post body typography must match: "+JSON.stringify(result));
-  console.log("VATRA post text: inline reversible expansion and matching Feed/Profile fonts passed.");
+  assert.deepEqual(result.feedStyle,result.communityStyle,"Community typography must match Feed");
+  assert.deepEqual(result.feedStyle.slice(0,6),result.viewerStyle,"Photo caption typography must match Feed");
+  assert.equal(result.feedStyle[1],"14.5px","Canonical post font size");
+  console.log("VATRA post text: identical Feed, Profile, Community and photo caption typography passed.");
  }finally{await bodyTextProbe.close();}
 
  // All three production viewer types must share exact sidebar measurements.

@@ -34,7 +34,7 @@ body.feed-page{min-height:100dvh;}
 .feed-post-date{color:#8d98ab;font-size:12px}
 .feed-post-delete{border:1px solid #e2e8f2;border-radius:999px;padding:7px 12px;background:#fff;color:#66768f;font-size:12px;font-weight:680;transition:background .18s,color .18s}
 .feed-post-delete:hover{background:#fff1f4;color:#aa3f51}
-.feed-post-body{margin:16px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15.5px;font-weight:445;line-height:1.68;color:#394864}
+.feed-post-body{margin:10px 0 1px;white-space:pre-wrap;overflow-wrap:anywhere;font:480 14.5px/1.65 "Onest",system-ui,sans-serif;letter-spacing:.001em;color:#394964}
 .feed-empty{padding:37px 22px;text-align:center}
 .feed-empty-icon{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 13px;border-radius:20px;background:#f0f1ff;color:#6c61d9;font-size:37px}
 .feed-empty-title{margin:0 0 6px;font-size:18px;font-weight:750;color:#34425c}
@@ -102,7 +102,6 @@ body.feed-page:not(.community-page){--social-ink:#29374e;--social-soft:#75839c;-
 .feed-page:not(.community-page) .feed-post-card{padding:var(--vatra-card-padding)}
 .feed-page:not(.community-page) .feed-post-avatar{width:43px;height:43px}
 .feed-page:not(.community-page) .feed-post-header{gap:12px}
-.feed-page:not(.community-page) .feed-post-body{margin:17px 0 4px;color:#3e4a60;font-size:14px;line-height:1.75}
 .feed-page:not(.community-page) .feed-post-date{font-size:11px}
 .feed-page:not(.community-page) .feed-post-name{font-size:13px}
 .feed-page:not(.community-page) .feed-post-delete{border:0;background:#f4f6fa;color:#8a96a9}
@@ -185,7 +184,6 @@ body.feed-page .feed-post-card{
  transition:transform .2s,border-color .2s,box-shadow .2s
 }
 body.feed-page .feed-post-card:hover{transform:translateY(-1px);border-color:#d6e3f6;box-shadow:0 9px 25px rgba(33,56,95,.07)}
-body.feed-page .feed-post-body{overflow-wrap:anywhere;line-height:1.65}
 body.feed-page:not(.community-page) .feed-submit{
  min-height:40px;border-radius:10px;background:var(--vatra-action-primary);
  box-shadow:none;transition:transform .18s,box-shadow .18s
@@ -1166,9 +1164,6 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-post-card{
 body.feed-page:not(.community-page):not(.profile-page) .feed-post-name{
  color:#34445f;font:760 15px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.012em
 }
-body.feed-page:not(.community-page):not(.profile-page) .feed-post-body{
- color:#394964;font:480 15.5px/1.7 "Onest",system-ui,sans-serif;letter-spacing:.001em
-}
 body.feed-page .vatra-feed-stories-heading{font:760 clamp(18px,1.8vw,21px)/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.032em;color:#2C3850;text-rendering:optimizeLegibility}
 body.feed-page .feed-stories-heading{padding:0 2px}
 body.feed-page .feed-stories-track{
@@ -1292,9 +1287,6 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-post-card{
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-post-card:hover{
  transform:none;box-shadow:0 5px 15px rgba(35,55,95,.055)
-}
-body.feed-page:not(.profile-page):not(.community-page) .feed-post-body{
- margin:10px 0 1px;line-height:1.55;font-size:14px
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-post-card .feed-post-avatar{
  width:39px;height:39px
@@ -1927,7 +1919,6 @@ body.feed-page .vatra-global-search-avatar:not(.has-photo){
 body.feed-page{font-family:"Onest",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 body.feed-page .feed-post-name,body.feed-page .feed-post-profile-link{font:760 14px/1.38 "Onest",system-ui,sans-serif;letter-spacing:-.017em;color:#30415f}
 body.feed-page .feed-post-date{font:510 11.5px/1.5 "Onest",system-ui,sans-serif;color:#8596b0}
-body.feed-page .feed-post-body{font:470 14.5px/1.65 "Onest",system-ui,sans-serif;letter-spacing:.001em;color:#435470}
 body.feed-page .vatra-notification-link{font:660 13px/1.48 "Onest",system-ui,sans-serif}
 body.feed-page .vatra-notification-time{font:500 11px/1.45 "Onest",system-ui,sans-serif}
 body.feed-page .vatra-search-panel .vatra-search-panel-heading-001{font:780 17px/1.3 "Onest",system-ui,sans-serif;letter-spacing:-.027em}
@@ -2672,7 +2663,6 @@ body.feed-page .vatra-post-owner-panel .vatra-post-owner-delete-001:hover{
 
 body.feed-page:not(.community-page) .feed-post-card{overflow:visible}
 body.feed-page .feed-post-card > .feed-post-header{min-height:43px}
-body.feed-page .feed-post-card > .feed-post-body{margin-top:13px}
 body.feed-page .feed-post-card .vatra-post-action-row{margin-top:0}
 body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-top:5px}
 
