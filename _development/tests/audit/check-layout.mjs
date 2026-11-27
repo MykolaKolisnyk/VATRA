@@ -1991,7 +1991,8 @@ assert.ok(
  feedScript.includes('String(data?.id)!==String(toDelete.id)')&&
  feedScript.includes('if(insertError)throw insertError;')&&
  feedScript.includes('if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}')&&
- storyEditorRuntime.includes('if(insertError)throw insertError;inserted=true;')&&
+ storyEditorRuntime.includes('if(insertError){const failure=Error("Story insert failed");')&&
+ storyEditorRuntime.includes('throw failure;}inserted=true;')&&
  storyEditorRuntime.includes('if(uploaded&&!inserted)')&&
  storyEditorRuntime.indexOf('if(inserted){dialog.close();reset();try{onPublished?.();}')>storyEditorRuntime.indexOf('if(uploaded&&!inserted)')&&
  interactionsScript.includes("committed=true;")&&
