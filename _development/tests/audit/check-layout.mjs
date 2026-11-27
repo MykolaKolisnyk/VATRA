@@ -2129,10 +2129,10 @@ assert.ok(
  plainCoverSvg?.startsWith("<svg")&&plainCoverSvg.includes('viewBox="0 0 1600 480"')&&
  ["deleted","blocked","not-found"].every(state=>
   systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.webp")')&&
-  systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
+  systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-neutral-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
-assert.ok(plainCoverSvg.includes('fill="#ccd2da"')&&!/Gradient|<path/.test(plainCoverSvg)&&
+assert.ok(plainCoverSvg.includes("<linearGradient")&&plainCoverSvg.includes('fill="url(#base)"')&&readEmbeddedSvg(systemAvatarCss,"vatra-neutral-cover")?.includes('fill="#ccd2da"')&&
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
  systemProfileCss.includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
  (await read("assets/css/guest-view.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&

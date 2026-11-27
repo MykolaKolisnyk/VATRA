@@ -880,12 +880,12 @@
     const coverButton=make("button","vatra-profile-editor-cover-change-001");coverButton.type="button";coverButton.append(svg("edit"),make("span","vatra-profile-editor-cover-label-001",tr("Редагувати обкладинку","Edit cover")));
     const avatarButton=make("button","vatra-profile-editor-avatar-change-001");avatarButton.type="button";avatarButton.append(svg("photo"));avatarButton.setAttribute("aria-label",tr("Дії з фото профілю","Profile photo actions"));
     for(const button of [coverButton,avatarButton]){button.setAttribute("aria-haspopup","menu");button.setAttribute("aria-expanded","false");button.setAttribute("aria-controls","profile-owner-media-menu");}
-    const menu=(kind,button,keyboard=false)=>window.VATRA_PROFILE_MEDIA_MENU?.open(kind,button,keyboard);
+    const menu=(kind,button,keyboard=false,surface=button)=>window.VATRA_PROFILE_MEDIA_MENU?.open(kind,button,keyboard,surface);
     const bindMenu=(surface,button,kind)=>{
-     surface.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")menu(kind,button);});
-     surface.addEventListener("pointerleave",()=>window.VATRA_PROFILE_MEDIA_MENU?.leave());
-     button.addEventListener("click",event=>menu(kind,button,event.detail===0));
-     button.addEventListener("keydown",event=>{if(event.key==="ArrowDown"){event.preventDefault();menu(kind,button,true);}});
+     surface.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")menu(kind,button,false,surface);});
+     surface.addEventListener("pointerleave",event=>window.VATRA_PROFILE_MEDIA_MENU?.leave(event));
+     button.addEventListener("click",event=>menu(kind,button,event.detail===0,surface));
+     button.addEventListener("keydown",event=>{if(event.key==="ArrowDown"){event.preventDefault();menu(kind,button,true,surface);}});
     };
     const updatePreview=()=>{
      const profileCover=select("#profile-cover-image"),profileAvatar=select("#profile-avatar");
@@ -3596,14 +3596,23 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  coverChange.setAttribute("aria-haspopup","menu");coverChange.setAttribute("aria-controls","profile-owner-media-menu");coverChange.setAttribute("aria-expanded","false");
  const ownerMenu=document.createElement("div");ownerMenu.id="profile-owner-media-menu";ownerMenu.className="ui-profile-owner-media-menu-001";ownerMenu.setAttribute("role","menu");ownerMenu.hidden=true;document.body.append(ownerMenu);
  const ownerPopover=typeof ownerMenu.showPopover==="function";if(ownerPopover)ownerMenu.setAttribute("popover","manual");
- let ownerAnchor=null,ownerKind=null,ownerTimer=null,coverSourceLoading=false,ownerKeyboard=false;
+ let ownerAnchor=null,ownerSurface=null,ownerKind=null,ownerTimer=null,coverSourceLoading=false,ownerKeyboard=false,ownerPointerInside=false;
+ const clearOwnerTimer=()=>{clearTimeout(ownerTimer);ownerTimer=null;};
  const closeOwnerMenu=(focus=false)=>{
-  clearTimeout(ownerTimer);const anchor=ownerAnchor;ownerAnchor=null;ownerKind=null;ownerKeyboard=false;
+  clearOwnerTimer();const anchor=ownerAnchor;ownerAnchor=null;ownerSurface=null;ownerKind=null;ownerKeyboard=false;ownerPointerInside=false;
   if(ownerPopover&&ownerMenu.matches(":popover-open"))ownerMenu.hidePopover();
   ownerMenu.hidden=true;ownerMenu.replaceChildren();anchor?.setAttribute("aria-expanded","false");
   if(focus&&anchor?.isConnected)anchor.focus({preventScroll:true});
  };
- const leaveOwnerMenu=()=>{clearTimeout(ownerTimer);ownerTimer=setTimeout(()=>{if(!ownerAnchor||ownerAnchor.matches(":hover")||ownerMenu.matches(":hover"))return;if(ownerKeyboard&&(ownerMenu.contains(document.activeElement)||document.activeElement===ownerAnchor))return;closeOwnerMenu();},180);};
+ const isOwnerTarget=target=>target instanceof Node&&(ownerSurface?.contains(target)||ownerAnchor?.contains(target)||ownerMenu.contains(target));
+ const enterOwnerMenu=()=>{ownerPointerInside=true;clearOwnerTimer();};
+ const leaveOwnerMenu=event=>{
+  if(!ownerAnchor||event?.pointerType&&event.pointerType!=="mouse")return;
+  if(isOwnerTarget(event?.relatedTarget)){enterOwnerMenu();return;}
+  ownerPointerInside=false;
+  if(ownerKeyboard)return;
+  if(ownerTimer===null)ownerTimer=setTimeout(()=>{ownerTimer=null;if(ownerAnchor&&!ownerPointerInside&&!ownerKeyboard)closeOwnerMenu();},180);
+ };
  const positionOwnerMenu=()=>{
   if(!ownerAnchor?.isConnected||!ownerAnchor.getClientRects().length){closeOwnerMenu();return false;}
   const a=ownerAnchor.getBoundingClientRect(),v=window.visualViewport,left=v?.offsetLeft||0,top=Math.max(v?.offsetTop||0,q(".feed-header")?.getBoundingClientRect().bottom||0),right=left+(v?.width||innerWidth),bottom=(v?.offsetTop||0)+(v?.height||innerHeight);
@@ -3615,19 +3624,21 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   ownerMenu.style.top=Math.round(Math.max(top+4,up?a.top-5-Math.min(h,room):a.bottom+5))+"px";return true;
  };
  const mediaBusy=()=>uploading||coverSourceLoading||coverFeaturePending||avatarFeaturePending||coverEditor?.busy()||avatarEditor?.busy();
- const iconPaths={upload:"M4 7v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7M8 11l4-4 4 4M12 3v12",crop:"M6 3v15h15M3 6h15v15",trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"};
+ const iconPaths={upload:"M12 16V3m-5 5 5-5 5 5M4 17v4h16v-4",crop:"M6 3v13a2 2 0 0 0 2 2h13M3 6h13a2 2 0 0 1 2 2v13",trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"};
  const ownerItem=(key,label,run,source=null)=>{
-  const item=document.createElement("button");item.type="button";item.className="vatra-profile-owner-media-action-001";item.dataset.action=key;item.setAttribute("role","menuitem");
+  const item=document.createElement("button");item.type="button";item.className="vatra-profile-owner-media-action-001 vatra-profile-owner-media-action-"+key+"-001";item.dataset.action=key;item.setAttribute("role","menuitem");
   if(key==="trash"||source?.classList.contains("profile-avatar-menu-delete"))item.classList.add("is-danger");
   let symbol=source?.querySelector("svg")?.cloneNode(true);
   if(!symbol){const ns="http://www.w3.org/2000/svg";symbol=document.createElementNS(ns,"svg");for(const [name,value] of Object.entries({viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))symbol.setAttribute(name,value);const path=document.createElementNS(ns,"path");path.setAttribute("d",iconPaths[key]);symbol.append(path);}
-  const text=document.createElement("span");text.textContent=label;item.append(symbol,text);item.disabled=!!source?.disabled;
+  symbol.removeAttribute("id");symbol.setAttribute("class","ui-profile-owner-media-icon-001 ui-profile-owner-media-icon-"+key+"-001");
+  for(const [index,node] of [...symbol.querySelectorAll("*")].entries()){node.removeAttribute("id");node.setAttribute("class","ui-profile-owner-media-vector-"+key+"-"+String(index+1).padStart(3,"0"));}
+  const text=document.createElement("span");text.className="vatra-profile-owner-media-label-001 vatra-profile-owner-media-label-"+key+"-001";text.textContent=label;item.append(symbol,text);item.disabled=!!source?.disabled;
   item.addEventListener("click",()=>{closeOwnerMenu(true);if(!mediaBusy())run();});ownerMenu.append(item);
  };
- const openOwnerMenu=(kind,anchor,keyboard=false)=>{
+ const openOwnerMenu=(kind,anchor,keyboard=false,surface=anchor)=>{
   if(!canEdit||mediaBusy()||!anchor?.isConnected||!anchor.getClientRects().length)return;
-  clearTimeout(ownerTimer);if(ownerAnchor===anchor&&!ownerMenu.hidden){if(keyboard){ownerKeyboard=true;ownerMenu.querySelector("button:not(:disabled)")?.focus();}return;}
-  closeOwnerMenu();closeAvatarMenu();ownerAnchor=anchor;ownerKind=kind;ownerKeyboard=keyboard;
+  clearOwnerTimer();if(ownerAnchor===anchor&&!ownerMenu.hidden){if(keyboard){ownerKeyboard=true;ownerMenu.querySelector("button:not(:disabled)")?.focus();}else{ownerKeyboard=false;enterOwnerMenu();}return;}
+  closeOwnerMenu();closeAvatarMenu();ownerAnchor=anchor;ownerSurface=surface;ownerKind=kind;ownerKeyboard=keyboard;ownerPointerInside=!keyboard;
   if(kind==="cover"){
    const hasCover=!!saved?.cover_path;
    ownerItem("upload",hasCover?t("Змінити зображення","Change image"):t("Завантажити зображення","Upload image"),()=>fileCover.click());
@@ -3650,13 +3661,16 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  coverChange.addEventListener("pointerleave",leaveOwnerMenu);
  coverChange.addEventListener("click",event=>openOwnerMenu("cover",coverChange,event.detail===0));
  coverChange.addEventListener("keydown",event=>{if(event.key==="ArrowDown"){event.preventDefault();openOwnerMenu("cover",coverChange,true);}});
- ownerMenu.addEventListener("pointerenter",()=>clearTimeout(ownerTimer));ownerMenu.addEventListener("pointerleave",leaveOwnerMenu);
+ ownerMenu.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")enterOwnerMenu();});ownerMenu.addEventListener("pointerleave",leaveOwnerMenu);
+ document.addEventListener("pointermove",event=>{if(!ownerAnchor||event.pointerType!=="mouse")return;ownerKeyboard=false;if(isOwnerTarget(event.target))enterOwnerMenu();else leaveOwnerMenu(event);},{passive:true,capture:true});
+ document.addEventListener("pointerout",event=>{if(ownerAnchor&&event.pointerType==="mouse"&&!event.relatedTarget){ownerKeyboard=false;closeOwnerMenu();}},{passive:true,capture:true});
+ window.addEventListener("blur",()=>{if(ownerAnchor)closeOwnerMenu();});
  ownerMenu.addEventListener("keydown",event=>{
   const buttons=[...ownerMenu.querySelectorAll("button:not(:disabled)")],index=buttons.indexOf(document.activeElement);
   if(event.key==="Escape"){event.preventDefault();closeOwnerMenu(true);}
   else if(["ArrowDown","ArrowUp","Home","End"].includes(event.key)&&buttons.length){event.preventDefault();const next=event.key==="Home"?0:event.key==="End"?buttons.length-1:(index+(event.key==="ArrowDown"?1:-1)+buttons.length)%buttons.length;buttons[next].focus();}
  });
- document.addEventListener("pointerdown",event=>{if(ownerAnchor&&!ownerMenu.contains(event.target)&&!ownerAnchor.contains(event.target))closeOwnerMenu();});
+ document.addEventListener("pointerdown",event=>{if(ownerAnchor&&!isOwnerTarget(event.target))closeOwnerMenu();});
  document.addEventListener("focusin",event=>{if(ownerAnchor&&!ownerMenu.contains(event.target)&&event.target!==ownerAnchor)closeOwnerMenu();});
  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&ownerAnchor)closeOwnerMenu(true);});
  window.addEventListener("scroll",()=>{if(ownerAnchor)positionOwnerMenu();},{passive:true});

@@ -426,7 +426,8 @@ try{
   coverContrast.reduce((sum,sample)=>sum+sample.distance,0)/3>=35,
   "Default profile cover must remain perceptibly distinct from page background: "+
    JSON.stringify(coverContrast));
- console.log("VATRA neutral cover: rendered neutral gray contrast against page background OK");
+ assert.ok(new Set(coverContrast.map(sample=>sample.rgb.join(","))).size===3,"Default cover must render a real gradient, not a flat color");
+ console.log("VATRA default cover: branded gradient and contrast OK");
 
 
  // Verify the rendered spacing, not only a CSS string: empty list wrappers
@@ -5364,6 +5365,8 @@ try{
    await profilePage.locator("#profile-cover-photo").evaluate(el=>el.src));
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),false);
+  await profilePage.locator("#profile-cover-image").hover();
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
   await profilePage.locator("#profile-cover-change").hover();
   await profilePage.locator("#profile-owner-media-menu [data-action=trash]").click();
   await profilePage.locator("#profile-confirm-dialog").waitFor({state:"visible"});
@@ -5457,7 +5460,12 @@ try{
   assert.equal(await coverActions.locator('[data-action="upload"]').count(),1);
   assert.equal(await coverActions.locator('[data-action="crop"]').count(),initialCover?1:0);
   assert.equal(await coverActions.locator('[data-action="trash"]').count(),initialCover?1:0);
-  await profilePage.locator("#profile-heading").hover();await coverActions.waitFor({state:"hidden"});
+  await coverActions.locator('[data-action="upload"]').hover();
+  assert.equal(await coverActions.isVisible(),true,"Moving from the trigger into the menu must keep it open");
+  const menuIcons=await coverActions.locator("button").evaluateAll(buttons=>buttons.map(button=>({action:button.dataset.action,unique:button.classList.contains("vatra-profile-owner-media-action-"+button.dataset.action+"-001"),icon:button.querySelector("svg")?.getAttribute("class"),label:button.querySelector("span")?.className,stroke:getComputedStyle(button.querySelector("svg")).strokeWidth,width:button.querySelector("svg").getBoundingClientRect().width})));
+  for(const icon of menuIcons)assert.ok(icon.unique&&icon.icon.includes("ui-profile-owner-media-icon-"+icon.action+"-001")&&icon.label.includes("vatra-profile-owner-media-label-"+icon.action+"-001")&&icon.stroke==="1.8px"&&Math.abs(icon.width-18)<=1,"Each menu action owns its SVG, text class and geometry: "+JSON.stringify(icon));
+  await profilePage.locator("#profile-heading").hover();await coverActions.waitFor({state:"hidden",timeout:1500});
+  assert.equal(await profilePage.locator("#profile-cover-change").getAttribute("aria-expanded"),"false");
   await profilePage.locator("#profile-cover-image").hover();
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
   await profilePage.locator("#profile-cover-change").hover();await coverActions.waitFor({state:"visible"});
@@ -6210,8 +6218,9 @@ try{
    assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".webp")&&
     neutralArt.actualAvatar!==neutralArt.sharedAvatar,
     "Deleted and blocked members must use their own Vatryk WebP");
-   assert.equal(neutralArt.actualCover,neutralArt.sharedCover,
-    "Deleted and blocked members use the same neutral SVG cover as ordinary accounts");
+   assert.notEqual(neutralArt.actualCover,neutralArt.sharedCover,
+    "Unavailable members retain neutral cover, distinct from ordinary branded gradient");
+   assert.ok(decodeURIComponent(neutralArt.actualCover).includes('fill="#ccd2da"'));
    const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
     background:getComputedStyle(el,"::before").backgroundColor,
     image:getComputedStyle(el,"::before").backgroundImage,
