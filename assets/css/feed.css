@@ -1088,7 +1088,7 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-main{
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{display:contents!important}
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
  grid-column:1;grid-row:2;width:100%;min-width:0;margin:0;
- align-self:start;min-height:72px
+ align-self:start
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
  grid-column:1;grid-row:1;width:100%;min-width:0;margin:0;align-self:start

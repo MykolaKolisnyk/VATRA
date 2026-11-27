@@ -3871,6 +3871,8 @@ try{
   console.log("VATRA Feed photo navigation: single photo isolation, same-post gallery and keyboard bounds verified.");
   assert.equal(await feedProbe.locator("#feed-create-menu").isVisible(),true,
    "Members can create from their Feed");
+  const feedCreateGeometry=await feedProbe.locator("#feed-create-menu").evaluate(button=>{const card=button.closest(".vatra-quick-compose-001"),a=card.getBoundingClientRect(),b=button.getBoundingClientRect(),style=getComputedStyle(card);return {card:a.height,button:b.height,top:b.top-a.top,bottom:a.bottom-b.bottom,borders:parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth)};});
+  assert.ok(Math.abs(feedCreateGeometry.card-feedCreateGeometry.button-feedCreateGeometry.borders)<=1&&Math.abs(feedCreateGeometry.top-feedCreateGeometry.bottom)<=1&&Math.abs(feedCreateGeometry.button-51)<=1,"Create card must match the shared compact height with no empty vertical space: "+JSON.stringify(feedCreateGeometry));
   await feedProbe.locator("#feed-create-menu").hover();
   await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-create-menu-story").isVisible(),true);
@@ -5369,6 +5371,8 @@ try{
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),true,
    "Owner edits profile media separately from the public status");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
+  const profileCreateGeometry=await profilePage.locator("#profile-write-post").evaluate(button=>{const card=button.closest(".vatra-quick-compose-001"),a=card.getBoundingClientRect(),b=button.getBoundingClientRect(),style=getComputedStyle(card);return {card:a.height,button:b.height,top:b.top-a.top,bottom:a.bottom-b.bottom,borders:parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth)};});
+  assert.ok(Math.abs(profileCreateGeometry.card-profileCreateGeometry.button-profileCreateGeometry.borders)<=1&&Math.abs(profileCreateGeometry.top-profileCreateGeometry.bottom)<=1&&Math.abs(profileCreateGeometry.button-51)<=1,"Create card must match the shared compact height with no empty vertical space: "+JSON.stringify(profileCreateGeometry));
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
    language==="en"?"Create a post":"Створити публікацію");
   assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
