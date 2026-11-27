@@ -1,4 +1,9 @@
 {
+  "Мультимедіа": "Media",
+  "Автоматично відтворювати відео у переглядачі": "Autoplay videos in the viewer",
+  "Діє у цьому браузері після відкриття відео на весь екран. Вимкнення не заважає запускати відео вручну.": "Applies in this browser when opening a video fullscreen. Turning this off does not prevent manual playback.",
+  "Ці налаштування визначають показ сповіщень у цьому браузері та не вимикають їх на інших пристроях.": "These settings control notification display in this browser and do not disable notifications on other devices.",
+  "Керування акаунтом": "Manage account",
   "Країна проживання": "Country of residence",
   "Місто або село проживання": "Current city or village",
   "Рідне місто або село": "Hometown or village",

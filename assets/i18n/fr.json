@@ -1,4 +1,9 @@
 {
+  "Мультимедіа": "Multimédia",
+  "Автоматично відтворювати відео у переглядачі": "Lire automatiquement les vidéos dans la visionneuse",
+  "Діє у цьому браузері після відкриття відео на весь екран. Вимкнення не заважає запускати відео вручну.": "S’applique dans ce navigateur à l’ouverture d’une vidéo en plein écran. La lecture manuelle reste possible.",
+  "Ці налаштування визначають показ сповіщень у цьому браузері та не вимикають їх на інших пристроях.": "Ces paramètres contrôlent l’affichage des notifications dans ce navigateur sans les désactiver sur les autres appareils.",
+  "Керування акаунтом": "Gérer le compte",
   "Країна проживання": "Pays de résidence",
   "Місто або село проживання": "Ville ou village de résidence",
   "Рідне місто або село": "Ville ou village d’origine",

@@ -3013,3 +3013,7 @@ assert.ok(settingsRuntime.includes("VATRA_FORM_SELECT.fillBirthdays(day,month,ye
 assert.ok(!/sticker|стікер/i.test(storyEditorRuntime)&&!/sticker/i.test(storyEditorStyles),"Retired sticker tools must not remain in stories");
 
 assert.ok(storyEditorRuntime.includes('audience.value="friends"')&&storyEditorRuntime.includes('visibility=audience.value==="public"?"public":"friends"')&&storyEditorRuntime.includes("theme:0,visibility,media_kind"),"Story audience is explicit, defaults to friends and persists on insert");
+
+// Social settings own their media controls; account actions remain in VATRA ID.
+assert.ok(settingsRuntime.includes('document.body.dataset.page==="settings"')&&settingsRuntime.includes('vatra-id#home')&&!settingsRuntime.includes('const accountCard=settingsCard("VATRA ID")'));
+assert.ok(settingsRuntime.includes('localStorage.setItem(mediaKey,autoplay.checked?"on":"off")')&&(await read("assets/js/post-media.js")).includes('localStorage.getItem("vatra:viewer-video-autoplay")!=="off"'));

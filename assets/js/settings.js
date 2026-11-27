@@ -312,7 +312,7 @@ async function preferences(){
  const sections=[["general",t("Загальні","General")],["privacy",t("Приватність","Privacy")],["notifications",t("Сповіщення","Notifications")],["blocked",t("Чорний список","Blocked members")]];
  const menu=tabs(sections,id=>{if(location.hash==="#"+id)void show(id);else location.hash=id;});
  for(const b of menu.children){const key={general:"sliders",privacy:"shield",notifications:"bell",blocked:"ban"}[b.dataset.tab];const label=make("span","vatra-preferences-nav-label-001",b.textContent);b.replaceChildren(idIcon(key),label);}
- const security=link("","vatra-id#security","vatra-preferences-id-link-001");const securityCopy=make("span","ui-vatra-preferences-id-copy-001");securityCopy.append(idIcon("shield"),make("span","vatra-preferences-security-label-001",t("Безпека","Security")));security.append(securityCopy);
+ const security=link("","vatra-id#home","vatra-preferences-id-link-001");const securityCopy=make("span","ui-vatra-preferences-id-copy-001");securityCopy.append(idIcon("shield"),make("span","vatra-preferences-security-label-001",t("Керування акаунтом","Manage account")));security.append(securityCopy);
  const brand=make("span","vatra-preferences-id-badge-001");const logo=make("img","vatra-preferences-id-logo-001");logo.src="assets/logo/logo_symbol.svg";logo.alt="";brand.append(logo,document.createTextNode("ID"));security.append(brand);side.append(menu,security);layout.append(panel,side);content.append(layout);
  const prefKey="vatra:notification-display:"+ownId;
  const notificationKinds=[
@@ -345,7 +345,14 @@ async function preferences(){
   if(id==="general"){
    const c=settingsCard(t("Загальні","General")),language=btn(t("Змінити","Change"),"vatra-preferences-action-001",()=>window.VATRA_LANGUAGE?.openPicker?.());
    row(c,t("Мова","Language"),new Intl.DisplayNames([locale],{type:"language"}).of(locale),language);
-   panel.append(c);const accountCard=settingsCard("VATRA ID");row(accountCard,t("Особисті дані","Personal data"),t("Керування іменем та акаунтом.","Manage your name and account."),link(t("Відкрити","Open"),"vatra-id#personal","vatra-preferences-action-001"));row(accountCard,t("Безпека акаунта","Account security"),t("Пароль, електронна пошта, пристрої та сеанси.","Password, email, devices and sessions."),link(t("Відкрити","Open"),"vatra-id#security","vatra-preferences-action-001"));panel.append(accountCard);return;
+   panel.append(c);
+   const media=settingsCard(t("Мультимедіа","Media")),autoplay=make("input","ui-vatra-preferences-toggle-001");
+   const mediaKey="vatra:viewer-video-autoplay";
+   autoplay.type="checkbox";autoplay.setAttribute("role","switch");
+   let enabled=true;try{enabled=localStorage.getItem(mediaKey)!=="off";}catch(_){}
+   autoplay.checked=enabled;row(media,t("Автоматично відтворювати відео у переглядачі","Autoplay videos in the viewer"),t("Діє у цьому браузері після відкриття відео на весь екран. Вимкнення не заважає запускати відео вручну.","Applies in this browser when opening a video fullscreen. Turning this off does not prevent manual playback."),autoplay,"viewer-video-autoplay");
+   autoplay.addEventListener("change",()=>{try{localStorage.setItem(mediaKey,autoplay.checked?"on":"off");enabled=autoplay.checked;message(t("Зміни збережено.","Changes saved."));}catch(_){autoplay.checked=enabled;message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}});
+   panel.append(media);return;
   }
   if(id==="privacy"){
    const profile=settingsCard(t("Моя сторінка","My profile")),activity=settingsCard(t("Активність","Activity"));
@@ -366,6 +373,7 @@ async function preferences(){
    });return;
   }
   if(id==="notifications"){
+   panel.append(make("p","vatra-preferences-description-001",t("Ці налаштування визначають показ сповіщень у цьому браузері та не вимикають їх на інших пристроях.","These settings control notification display in this browser and do not disable notifications on other devices.")));
    let hidden=[];try{const value=JSON.parse(localStorage.getItem(prefKey)||"[]");if(Array.isArray(value))hidden=value.filter(x=>typeof x==="string");}catch(_){}
    for(const [,heading,kinds] of notificationKinds){const c=settingsCard(heading);panel.append(c);
    for(const [key,label,description] of kinds){const control=make("input","ui-vatra-preferences-toggle-001");control.type="checkbox";control.setAttribute("role","switch");control.checked=!hidden.includes(key);row(c,label,description,control,key);
@@ -476,6 +484,6 @@ async function preferences(){
  const open=()=>{const id=location.hash.slice(1);window.scrollTo(0,0);return show(sections.some(([key])=>key===id)?id:"general").catch(()=>message(t("Не вдалося завантажити налаштування.","Could not load settings."),true));};
  window.addEventListener("hashchange",()=>void open());await open();
 }
-if(location.pathname.endsWith("/settings")||new URLSearchParams(location.search).get("view")==="settings")await preferences();else await account();
+if(document.body.dataset.page==="settings"||location.pathname.endsWith("/settings")||new URLSearchParams(location.search).get("view")==="settings")await preferences();else await account();
 });
 })();

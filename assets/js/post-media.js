@@ -734,7 +734,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   }
   const element=document.createElement(kind==="video"?"video":"img");
   element.className=kind==="video"?"ui-vatra-post-expanded-video-001":"ui-vatra-post-expanded-image-001";
-  if(kind==="video"){element.controls=true;element.autoplay=true;element.playsInline=true;}
+  if(kind==="video"){element.controls=true;let autoplay=true;try{autoplay=localStorage.getItem("vatra:viewer-video-autoplay")!=="off";}catch(_){}element.autoplay=autoplay;element.playsInline=true;}
   else element.alt=tr("Фото публікації","Post photo");
   const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),kind==="image"?direction:0);
   const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
