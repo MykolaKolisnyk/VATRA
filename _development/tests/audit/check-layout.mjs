@@ -1714,7 +1714,7 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab);control.append(selectBox)') &&
+ detailsModule.includes('labelGroup.append(lab);if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox)') &&
  detailsModule.includes('if(variant==="compact")button.append(iconWrap);') &&
  !detailsModule.includes('ui-profile-editor-disclosure-') &&
  memberCss.includes('grid-template-columns:minmax(0,1fr) 44px;align-items:start') &&
@@ -1725,7 +1725,8 @@ assert.ok(
  "VATRA editor dropdowns must keep native values synchronized, field privacy selectable, keyboard navigation accessible and option scrolling contained");
 assert.ok(
  !detailsModule.includes('item.append(badge,label,content)') &&
- detailsModule.includes('paragraph.textContent=bio') &&
+ detailsModule.includes('paragraph.textContent=bio.length>bioLimit?') &&
+ detailsModule.includes('bioLimit=profileFieldLimit("short_bio","long")') &&
  detailsModule.includes('paragraph.hidden=!bio') &&
  detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
  !detailsModule.includes('vatra-profile-detail-audience-') &&
@@ -2987,7 +2988,8 @@ assert.ok(settingsRuntime.includes('from("profile_preferences")')&&settingsRunti
 const galleryMigration=await read("_development/supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
 assert.ok(galleryMigration.includes("storage.objects")&&galleryMigration.includes("auth.uid()")&&galleryMigration.includes("profile_visibility"),"Only existing gallery images with permitted viewers accept interactions");
 
-assert.ok(memberProfileMarkup.includes('maxlength="80" placeholder="Напишіть статус"')&&profileScript.includes('Array.from(next).length>80'),"Profile status uses a compact 80-character limit");
+assert.ok(memberProfileMarkup.includes('maxlength="50" placeholder="Напишіть статус"')&&profileScript.includes('const PROFILE_STATUS_LIMIT=50;')&&profileScript.includes('next.length>PROFILE_STATUS_LIMIT'),"Profile status uses a compact 50-character limit");
+assert.ok(profileScript.includes('short_bio:101')&&profileScript.includes('profile-short-bio-counter'),"Short bio retains its 101-character limit and counter");
 assert.ok(memberProfileMarkup.includes('id="profile-photo-emoji-toggle"')&&memberProfileMarkup.includes('id="profile-photo-comment-cancel"')&&profileScript.includes("setRangeText(emoji"),"Photo comments include functional emoji and cancel actions");
 
 assert.ok(profileBehavior.includes("cachedFriends.slice(0,4)")&&profileBehavior.includes('q("#profile-gifts-dialog")')&&profileBehavior.includes('if(!compact)item.append(title,sub)'),"Profile uses four friends and image-only gifts with history dialog");
