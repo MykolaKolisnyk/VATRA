@@ -400,12 +400,14 @@
   const photoBottom=make("footer","ui-vatra-post-media-footer-001 ui-vatra-album-viewer-bottom-001");
   const photoCaption=make("span","vatra-album-viewer-caption-001");
   let photoLikeTicket=0,photoLiked=false,photoLikeCount=0,photoLikeBusy=false;
-  const photoLike=addIcon(button("vatra-album-viewer-like-001",t("Подобається","Like"),()=>void togglePhotoLike()),"like");
+  const photoLike=addIcon(button("vatra-album-viewer-like-001","",()=>void togglePhotoLike()),"like");
+  photoLike.setAttribute("aria-label",t("Подобається","Like"));
   photoLike.setAttribute("aria-pressed","false");
   const photoLikeNumber=make("span","vatra-album-viewer-like-number-001","");
   photoLike.append(photoLikeNumber);
   function paintPhotoLike(){
    photoLike.setAttribute("aria-pressed",String(photoLiked));
+   photoLike.setAttribute("aria-label",photoLiked?t("Прибрати вподобання","Unlike"):t("Подобається","Like"));
    photoLike.classList.toggle("is-liked",photoLiked);
    photoLikeNumber.textContent=String(photoLikeCount);
   }
@@ -610,7 +612,7 @@
     const empty=make("div","vatra-media-empty-unified-001");
     const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
     icon.setAttribute("class","vatra-media-empty-icon-unified-001");
-    icon.setAttribute("viewBox","0 0 48 48");icon.setAttribute("fill","none");
+    icon.setAttribute("viewBox","0 0 48 48");icon.setAttribute("width","46");icon.setAttribute("height","46");icon.setAttribute("fill","none");
     icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","2.6");
     icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");
     icon.setAttribute("aria-hidden","true");

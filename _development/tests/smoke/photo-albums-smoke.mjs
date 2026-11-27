@@ -322,3 +322,9 @@ assert.ok(css.includes(".vatra-album-photo-loading-001{position:absolute")&&scri
  assert.equal(await env.load(image,"owner/albums/photo.jpg",()=>true),true);assert.equal(calls,2);assert.equal(signed.get("owner/albums/photo.jpg").url,urls[1]);
 }
 console.log("VATRA album preview visibility, expired signature recovery and viewer overlay checked.");
+
+// Photo actions must have an accessible name, never a visible Like label.
+assert.ok(script.includes('button("vatra-album-viewer-like-001","",')&&script.includes('photoLike.setAttribute("aria-label",photoLiked?')&&script.includes('photoLike.append(photoLikeNumber)'));
+assert.ok(script.includes('icon.setAttribute("width","46");icon.setAttribute("height","46")'));
+assert.ok(css.includes('.ui-vatra-album-comments-dialog-001 .vatra-media-empty-icon-unified-001{display:block;flex:none;width:46px;height:46px')&&css.includes('.ui-vatra-album-comments-dialog-001 .vatra-media-empty-unified-001{display:flex;flex-direction:column;align-items:center;justify-content:center'));
+console.log("VATRA album viewer: icon-only like and standalone empty comments sizing verified.");
