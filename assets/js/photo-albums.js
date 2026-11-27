@@ -836,7 +836,7 @@
     const item=decoratePhotoAction(button(danger?"vatra-album-photo-menu-danger-001":"vatra-album-photo-menu-item-001",label,fn),kind);
     item.addEventListener("click",()=>{photoMore.open=false;});
     return item;
-   });
+   }).filter((_,index)=>!album.is_personal||index!==1);
   }
   function comparePhotos(a,b){
    const pinnedA=a.pinned_at?Date.parse(a.pinned_at):0;
@@ -893,7 +893,7 @@
    void window.VATRA_VERIFIED?.attach?.(client,photoAuthorName,targetId);
    if(!photoDialog.open)photoDialog.showModal();void loadPhotoLikes(row);void openComments(album,row);
    photoContent.querySelectorAll(".vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-post-gallery-counter-001").forEach(el=>el.remove());
-   const currentItems=()=>state.tab==="archive"?archivedRows:state.tab==="albums"?state.photos:state.previews;
+   const currentItems=()=>[...(state.tab==="archive"?archivedRows:state.tab==="albums"?state.photos:state.previews)].sort(comparePhotos);
    const hasMore=()=>state.tab==="archive"?archiveHasMore:state.tab==="albums"?state.photoHasMore:state.featuredHasMore;
    const index=currentItems().findIndex(item=>item.id===row.id);
    let stepping=false;

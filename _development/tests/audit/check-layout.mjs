@@ -1199,7 +1199,7 @@ assert.ok(notificationScript.includes("Math.min(440,innerHeight-top-12)")&&
  notificationScript.includes("vatra-notice-preview-text-001")&&
  noticeCSS.includes(".ui-vatra-notification-panel-list-001{flex:1 1 auto;min-height:0;overflow:auto")&&
  noticeCSS.includes(".vatra-notification-panel .vatra-notification-all-001{flex:none")&&
- noticeCSS.includes("#notifications-list .vatra-notice-preview-thumb-001{width:72px;height:72px}"),
+ noticeCSS.includes("#notifications-list .vatra-notice-preview-thumb-001{width:56px;height:56px}"),
  "Notifications must have compact shared rows and a separately scrollable three-item dropdown");
 const normalizedSocialHeader=html=>{
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];

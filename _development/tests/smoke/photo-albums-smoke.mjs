@@ -119,6 +119,9 @@ assert.ok(
  script.includes("is_personal:true")&&
  script.includes("const visibleAlbums=state.albums.filter(album=>!album.is_personal)")&&
  script.includes("state.albums.find(a=>a.id===state.selected&&!a.is_personal)")&&
+ script.includes("async function addExistingPhotos(album)")&&
+ script.includes("ranks[album.visibility]<=ranks[a.visibility]")&&
+ script.includes('caption:row.caption||""')&&
  script.includes('photo_id:photo?.id||null')&&
  script.includes('client.from("album_photo_likes")')&&
  script.includes('commentsList.prepend(pending)')&&

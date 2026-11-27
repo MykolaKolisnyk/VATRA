@@ -18,14 +18,14 @@ assert.ok(base.includes("@property --vatra-form-scroll-alpha")&&
  base.includes("scrollbar-color:rgb(64 70 79 / var(--vatra-form-scroll-alpha)) transparent"),
  "Native form scrollbars must retain dark fade animation");
 assert.ok(base.includes("@supports selector(::-webkit-scrollbar)")&&
- base.includes("scrollbar-width:thin!important")&&
- !base.includes("scrollbar-width:auto!important")&&
+ base.includes("scrollbar-width:auto!important")&&
+ base.includes("scrollbar-color:auto!important")&&
  base.includes("::-webkit-scrollbar-button")&&
  base.includes("display:none!important;width:0!important;height:0!important"),
  "Chromium/Opera form lists must suppress native top/bottom arrow buttons");
 for(const scope of [".captcha-dialog",".vatra-select-scroll-area",".vatra-tour-scroll-area-001",
  ".vatra-search-history",".profile-photo-comments",".profile-compose-dialog",
- ".vatra-post-composer-edit",".vatra-notification-panel",".ui-vatra-section-dialog-scroll-001",
+ ".vatra-post-composer-edit",".vatra-notification-panel",".ui-vatra-notification-panel-list-001",".ui-vatra-albums-dialog-001",".ui-vatra-section-dialog-scroll-001",
  ".ui-vatra-clips-social-001 .vatra-post-comment-list","textarea"])
  assert.ok(base.includes(scope),"Missing shared scrollbar scope: "+scope);
 assert.ok(signup.includes(".vatra-select-scroll-area")&&
