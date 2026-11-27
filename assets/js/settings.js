@@ -372,14 +372,103 @@ async function preferences(){
     control.addEventListener("change",()=>{const before=hidden;const next=control.checked?hidden.filter(x=>x!==key):[...new Set([...hidden,key])];try{localStorage.setItem(prefKey,JSON.stringify(next));hidden=next;window.dispatchEvent(new Event("vatra-notification-display-changed"));message(t("Зміни збережено.","Changes saved."));}catch(_){control.checked=!before.includes(key);message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}});}
    }return;
   }
-  const c=settingsCard(t("Чорний список","Blocked members")),form=make("form","ui-vatra-preferences-block-form-001"),idInput=field(form,"blocked-id","VATRA ID","text",19,true);idInput.inputMode="numeric";idInput.pattern="[1-9][0-9]{0,18}";c.append(form);
+  const c=settingsCard(t("Чорний список","Blocked members"));
+  const heading=c.querySelector("h2"),add=btn(t("Додати до чорного списку","Block member"),"vatra-section-submit-001",()=>void openBlockPicker());
+  const header=make("div","ui-vatra-block-header-001");heading.replaceWith(header);header.append(heading,add);
   const list=make("div","ui-vatra-preferences-block-list-001");list.setAttribute("aria-live","polite");c.append(list);panel.append(c);
-  submit(form,t("Додати до чорного списку","Block member"),async()=>{if(ticket!==renderTicket)return;const value=idInput.value.trim();if(!valid(value)||value===ownId){message(t("Вкажіть VATRA ID іншого користувача.","Enter another member's VATRA ID."),true);return;}if(!await confirmRemove(t("Заблокувати користувача?","Block member?"),t("Спілкування з цим користувачем буде обмежено.","Interactions with this member will be restricted."),t("Заблокувати","Block")))return;const r=await client.from("member_blocks").insert({blocker_vatra_id:ownId,blocked_vatra_id:value});if(r.error)throw r.error;if(ticket===renderTicket){idInput.value="";await readList();}});
+  let pickerOpen=false;
+  async function openBlockPicker(){
+   if(pickerOpen||ticket!==renderTicket)return;
+   pickerOpen=true;
+   const {d,form}=dialog(t("Додати до чорного списку","Block member"));
+   d.classList.add("ui-vatra-block-picker-001");
+   const query=field(form,"block-profile",t("Посилання на профіль або VATRA ID","Profile link or VATRA ID"),"text",300,false);
+   query.placeholder="https://mykolakolisnyk.github.io/VATRA/id1";
+   query.autocomplete="off";
+   const find=make("button","vatra-section-submit-001",t("Пошук у VATRA","Search VATRA"));find.type="submit";form.append(find);
+   const results=make("div","ui-vatra-block-picker-results-001");results.setAttribute("aria-live","polite");form.append(results);
+   let epoch=0,closed=false,writing=false;
+   const active=n=>!closed&&d.open&&ticket===renderTicket&&n===epoch;
+   function profileId(value){
+    if(valid(value))return value;
+    if(/^id[1-9][0-9]{0,18}$/.test(value))return value.slice(2);
+    try{
+     const u=new URL(value);
+     const local=u.origin===location.origin,canonical=u.protocol==="https:"&&u.hostname==="mykolakolisnyk.github.io"&&!u.port;
+     const m=/^\/(?:VATRA\/)?id([1-9][0-9]{0,18})\/?$/i.exec(u.pathname);
+     if((local||canonical)&&!u.username&&!u.password&&m)return m[1];
+    }catch(_){}
+    return null;
+   }
+   async function showProfiles(ids,n){
+    if(!active(n))return;
+    const clean=[...new Set(ids.map(String))].filter(id=>valid(id)&&id!==String(ownId));
+    const blocked=await client.from("member_blocks").select("blocked_vatra_id").eq("blocker_vatra_id",ownId);
+    if(blocked.error)throw blocked.error;
+    const excluded=new Set((blocked.data||[]).map(x=>String(x.blocked_vatra_id)));
+    const targets=clean.filter(id=>!excluded.has(id));
+    const batches=[];for(let i=0;i<targets.length;i+=100)batches.push(targets.slice(i,i+100));
+    const pages=await Promise.all(batches.map(batch=>client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",batch)));
+    if(pages.some(page=>page.error))throw Error("Profile lookup failed");
+    if(!active(n))return;
+    const profiles=new Map(pages.flatMap(page=>page.data||[]).map(row=>[String(row.vatra_id),row]));
+    const avatars=new Map(),states=new Map();
+    const optional=await Promise.allSettled(batches.map(async batch=>{
+     const [media,flags]=await Promise.all([window.VATRA_AVATAR?.paths?.(client,batch),window.VATRA_AVATAR?.states?.(client,batch)]);
+     for(const row of media?.data||[])if(typeof row.avatar_path==="string")avatars.set(String(row.vatra_id),row.avatar_path);
+     for(const [id,flag] of flags||[])states.set(String(id),flag);
+    }));
+    if(!active(n))return;
+
+    results.replaceChildren();
+    for(const id of targets){
+     const member=profiles.get(id);if(!member)continue;
+     const name=String(member.display_name||"").trim()||t("Користувач VATRA","VATRA user");
+     const row=make("div","ui-vatra-preferences-block-row-001");
+     const avatar=make("span","vatra-block-picker-avatar-001");avatar.setAttribute("aria-hidden","true");avatar.dataset.vatraAvatarState=states.get(id)||"default";
+     const path=avatars.get(id);if(!states.has(id)&&typeof path==="string"&&path.startsWith(id+"/avatar/"))try{const url=new URL(client.storage.from("avatars").getPublicUrl(path).data.publicUrl);if(url.protocol==="https:"&&url.hostname==="cxrcycxrlkufozomsxcs.supabase.co"){const img=make("img","vatra-block-picker-photo-001");img.alt="";img.loading="lazy";img.addEventListener("error",()=>{img.remove();avatar.classList.remove("has-photo");},{once:true});img.src=url.href;avatar.classList.add("has-photo");avatar.append(img);}}catch(_){}
+     const copy=make("div","ui-vatra-preferences-block-copy-001");copy.append(link(name,"id"+id,"vatra-preferences-block-name-001"),make("span","vatra-preferences-description-001","VATRA ID "+id));
+     const block=btn(t("Заблокувати","Block"),"vatra-preferences-action-001",async()=>{
+      if(writing||!active(n))return;writing=true;block.disabled=true;
+      try{
+       if(!await confirmRemove(t("Заблокувати користувача?","Block member?"),name,t("Заблокувати","Block")))return;
+       if(!active(n))return;
+       const r=await client.from("member_blocks").insert({blocker_vatra_id:ownId,blocked_vatra_id:id});
+       if(r.error)throw r.error;
+       d.close();if(ticket===renderTicket)await readList();
+      }catch(_){message(t("Не вдалося зберегти. Спробуйте ще раз.","Could not save. Please retry."),true);}
+      finally{writing=false;block.disabled=false;}
+     });
+     row.append(avatar,copy,block);results.append(row);
+    }
+    if(!results.children.length)results.append(empty(t("Користувача не знайдено","User not found")));
+   }
+   async function showFriends(){
+    const n=++epoch;results.replaceChildren(empty(t("Завантаження друзів…","Loading friends…")));
+    try{
+     const rows=[];for(let offset=0;;offset+=100){
+      const r=await client.from("friendships").select("requester_id,recipient_id").eq("status","accepted").or("requester_id.eq."+ownId+",recipient_id.eq."+ownId).order("created_at",{ascending:false}).range(offset,offset+99);
+      if(r.error)throw r.error;if(!active(n))return;rows.push(...(r.data||[]));if((r.data||[]).length<100)break;
+     }
+     await showProfiles(rows.map(row=>String(row.requester_id)===String(ownId)?row.recipient_id:row.requester_id),n);
+    }catch(_){if(active(n))results.replaceChildren(empty(t("Друзі тимчасово недоступні.","Friends are temporarily unavailable.")));}
+   }
+   form.addEventListener("submit",async event=>{
+    event.preventDefault();if(writing)return;const value=query.value.trim();
+    if(!value){void showFriends();return;}const n=++epoch,id=profileId(value);
+    if(!id||id===String(ownId)){results.replaceChildren(empty(t("Користувача не знайдено","User not found")));return;}
+    results.replaceChildren(empty(t("Завантаження…","Loading…")));
+    try{await showProfiles([id],n);}catch(_){if(active(n))results.replaceChildren(empty(t("Пошук недоступний.","Search unavailable.")));}
+   });
+   query.addEventListener("input",()=>{if(!query.value.trim()&&!writing)void showFriends();});
+   d.addEventListener("close",()=>{closed=true;epoch++;pickerOpen=false;d.remove();},{once:true});
+   d.showModal();query.focus();void showFriends();
+  }
   let generation=0;
   async function readList(){const n=++generation;list.replaceChildren(empty(t("Завантаження…","Loading…")));const result=await client.from("member_blocks").select("blocked_vatra_id,created_at").eq("blocker_vatra_id",ownId).order("created_at",{ascending:false}).limit(500);if(ticket!==renderTicket||n!==generation)return;
    if(result.error){list.replaceChildren(empty(t("Не вдалося завантажити чорний список.","Could not load blocked members.")));return;}
    const items=result.data||[];list.replaceChildren();if(!items.length){const state=make("div","ui-vatra-preferences-block-empty-001"),symbol=sectionIcon("person");symbol.setAttribute("aria-hidden","true");state.append(symbol,make("p","vatra-preferences-block-empty-label-001",t("Ваш чорний список порожній","Your blocked list is empty")));list.append(state);return;}
-   const names=await Promise.all(items.map(x=>nameOf(String(x.blocked_vatra_id)).catch(()=>t("Учасник VATRA","VATRA member"))));if(ticket!==renderTicket||n!==generation)return;
+   const names=await Promise.all(items.map(x=>nameOf(String(x.blocked_vatra_id)).catch(()=>t("Користувач VATRA","VATRA user"))));if(ticket!==renderTicket||n!==generation)return;
    for(const [i,item] of items.entries()){const id=String(item.blocked_vatra_id),line=make("div","ui-vatra-preferences-block-row-001"),info=make("div","ui-vatra-preferences-block-copy-001");info.append(link(names[i],"id"+id,"vatra-preferences-block-name-001"),make("span","vatra-preferences-description-001","VATRA ID "+id));const remove=btn(t("Розблокувати","Unblock"),"vatra-preferences-action-001",async()=>{if(remove.disabled||ticket!==renderTicket)return;remove.disabled=true;try{const r=await client.from("member_blocks").delete().eq("blocker_vatra_id",ownId).eq("blocked_vatra_id",id).select("blocked_vatra_id").maybeSingle();if(r.error||!r.data)throw Error("Not removed");if(ticket===renderTicket)await readList();}catch(_){if(ticket===renderTicket)message(t("Не вдалося розблокувати користувача.","Could not unblock member."),true);}finally{remove.disabled=false;}});line.append(info,remove);list.append(line);}
   }
   await readList();

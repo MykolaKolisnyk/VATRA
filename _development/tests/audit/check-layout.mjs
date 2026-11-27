@@ -294,19 +294,7 @@ assert.ok(lang.includes('function initLanguagePicker()')&&lang.includes('trigger
  "Language dropdown must initialize reliably even if script is loaded late");
 assert.ok(lang.includes('document.querySelectorAll("[data-i18n]")'),"DOM translation bindings missing");
 assert.ok(lang.includes('location.reload()'),"Language selection must reuse the same page URL");
-assert.ok(lang.includes('search.id = "vatra-language-search"')&&
- lang.includes('search.name = "vatra-language-search"'),
- "Language search input requires ID and name to support browser autofill");
-assert.ok(lang.includes('search.placeholder = " ";')&&
- lang.includes('searchHint.textContent = words.search;')&&
- lang.includes('searchShell.append(search,searchHint,clearSearch)')&&
- css.includes('.language-search-shell .vatra-floating-hint{'),
- "Language search must share one floating hint with auth inputs");
-assert.ok(lang.includes('clearSearch.className="language-search-clear vatra-language-clear-button"')&&
- lang.includes('search.dispatchEvent(new Event("input",{bubbles:true}))')&&
- css.includes(".language-search-clear{position:absolute;top:50%;right:11px;")&&
- css.includes(".language-search::-webkit-search-cancel-button,"),
- "Language search must use a centered SVG clear button, not the browser X");
+assert.ok(!lang.includes('vatra-language-search')&&!css.includes('.language-search-field')&&lang.includes('dialog.append(headingRow, scrollShell)'),"Eight-language picker has no unnecessary search");
 const excludedLocales=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
 assert.ok(!/\["(?:ru|be|sk|hu|sr|zh)"/.test(excludedLocales),
  "Unavailable and intentionally excluded locale entries must not appear in VATRA");
@@ -960,7 +948,7 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
  en.__pages.index.nodes.n128.text["0"]==="Create account"&&
  uk.__pages["create-account"].nodes.n59.text["0"]==="Створити акаунт",
  "Create account must be the unified account creation action");
-assert.ok(css.includes('.field.is-invalid .control{border-color:#e49aa7'),
+assert.ok(css.includes('.control[aria-invalid="true"]{border-color:#e49aa7'),
  "Invalid field visual feedback must remain visible");
 assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
@@ -1714,7 +1702,7 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab);control.append(selectBox)') &&
+ detailsModule.includes('labelGroup.append(lab);if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox)') &&
  detailsModule.includes('if(variant==="compact")button.append(iconWrap);') &&
  !detailsModule.includes('ui-profile-editor-disclosure-') &&
  memberCss.includes('grid-template-columns:minmax(0,1fr) 44px;align-items:start') &&
@@ -1725,7 +1713,8 @@ assert.ok(
  "VATRA editor dropdowns must keep native values synchronized, field privacy selectable, keyboard navigation accessible and option scrolling contained");
 assert.ok(
  !detailsModule.includes('item.append(badge,label,content)') &&
- detailsModule.includes('paragraph.textContent=bio') &&
+ detailsModule.includes('paragraph.textContent=bio.length>bioLimit?') &&
+ detailsModule.includes('bioLimit=profileFieldLimit("short_bio","long")') &&
  detailsModule.includes('paragraph.hidden=!bio') &&
  detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
  !detailsModule.includes('vatra-profile-detail-audience-') &&
@@ -2109,21 +2098,21 @@ function readEmbeddedSvg(css,name){
  return match?decodeURIComponent(match[1]):null;
 }
 const plainAvatarSvg=readEmbeddedSvg(systemAvatarCss,"vatra-default-avatar");
-const plainCoverSvg=readEmbeddedSvg(systemProfileCss,"vatra-default-cover");
+const plainCoverSvg=readEmbeddedSvg(systemAvatarCss,"vatra-default-cover");
 assert.ok(
  plainAvatarSvg?.startsWith("<svg")&&plainAvatarSvg.includes('viewBox="0 0 256 256"')&&
  plainCoverSvg?.startsWith("<svg")&&plainCoverSvg.includes('viewBox="0 0 1600 480"')&&
  ["deleted","blocked","not-found"].every(state=>
   systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.webp")')&&
-  systemProfileCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
+  systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
-assert.ok(plainCoverSvg.includes('stop-color="#9db8d7"')&&
- plainCoverSvg.includes('stop-color="#b3c9e2"')&&
- plainCoverSvg.includes('stop-color="#ddc9dd"')&&
- plainCoverSvg.includes('fill="#5f88b2" opacity=".18"')&&
+assert.ok(plainCoverSvg.includes('fill="#ccd2da"')&&!/Gradient|<path/.test(plainCoverSvg)&&
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
- systemProfileCss.includes('background:linear-gradient(105deg,#9db8d7')&&
+ systemProfileCss.includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
+ (await read("assets/css/guest-view.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
+ (await read("assets/css/communities.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
+ systemAvatarCss.includes('[data-vatra-avatar-state="default"]:not(.has-photo){background-image:var(--vatra-default-avatar)')&&
  systemProfileCss.includes('.profile-cover.has-photo{'),
  "SVG cover must remain distinct from the page background without affecting uploads");
 assert.ok(!plainAvatarSvg.includes("<clipPath")&&
@@ -2193,7 +2182,8 @@ assert.ok(
  "VATRA comments must have persisted one-level replies, real signed media, emoji and compact inline layout");
 
 assert.ok(
- postInteractionFields.includes('sort.name="vatra_post_comments_sort"') &&
+ !postInteractionFields.includes('sort.name="vatra_post_comments_sort"') &&
+ postInteractionFields.includes('const commentSort="newest"') &&
  postInteractionFields.includes('input.name="vatra_post_comment"') &&
  postInteractionFields.includes('shareAudience.name="vatra_share_visibility"') &&
  postInteractionFields.includes('shareCaption.name="vatra_share_caption"') &&
@@ -2337,8 +2327,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('overflow:hidden;padding:0')&&
  !systemFeedCss.includes("data-photo-sized")&&
  systemFeedCss.includes("width:100vw;height:100dvh;")&&
- systemFeedCss.includes('[data-photo-matte="dark"]')&&
- systemFeedCss.includes('[data-photo-matte="white"]')&&
+ !systemFeedCss.includes("data-photo-matte")&&
+ systemFeedCss.includes("background:#111419;--vatra-photo-arrow-color:#fff")&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and viewers always fill the viewport");
 
@@ -2814,21 +2804,19 @@ assert.ok(siteSearchSQL.includes("security invoker")&&
  "Server search must keep RLS, public posts, approved listings and authenticated access");
 await import("../smoke/live-search-cache-smoke.mjs");
 
-/* Stories share the Feed's social graph; wait for the friendship snapshot,
-   include the viewer's own stories, and filter other authors against friends. */
+/* Stories use server RLS, with a shared friendship snapshot for the client-side guard. */
 const feedStoryOptimization=await read("assets/js/feed.js");
 assert.ok(
  feedStoryOptimization.includes("let subscriptionsLoadedAt=0,subscriptionsInflight=null")&&
  feedStoryOptimization.includes("function ensureSubscriptions()")&&
  feedStoryOptimization.includes("if(subscriptionsInflight)return subscriptionsInflight;")&&
  feedStoryOptimization.includes("await feedDeadline(ensureSubscriptions());")&&
- feedStoryOptimization.includes('const storyAuthors=[...new Set([vatraId,...friends])];')&&
- feedStoryOptimization.includes('if(storyAuthors.length<=100&&typeof query.in==="function")')&&
- feedStoryOptimization.includes('query=query.in("author_vatra_id",storyAuthors)')&&
- feedStoryOptimization.includes('if((id!==vatraId&&!friends.has(id))||!storyLive(story))continue;')&&
+ feedStoryOptimization.includes('.select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path,visibility")')&&
+ !feedStoryOptimization.includes('query=query.in("author_vatra_id",storyAuthors)')&&
+ feedStoryOptimization.includes('if(!storyLive(story)||(id!==vatraId&&!friends.has(id)&&story.visibility!=="public"))continue;')&&
  feedStoryOptimization.includes('if(seen.has(id))continue;items.push(story);seen.add(id);')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
- "Feed and friend stories must share their RLS-scoped subscription snapshot");
+ "Feed stories must include public stories and respect the shared friendship snapshot");
 await import("../smoke/feed-story-subscriptions-smoke.mjs");
 
 await import("../smoke/section-loading-smoke.mjs");
@@ -2942,7 +2930,7 @@ assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&modera
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
 
 const publicFriendSQL=await read("_development/supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
-const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
+const emojiCatalog=await read("assets/js/comment-picker.js");assert.ok(emojiCatalog.includes("export const emojiGroups=")&&!emojiCatalog.includes("stickerFile")&&!interactionsScript.includes("chooseSticker(")&&interactionsScript.includes("import(pickerURL)"),"Comments offer only the lazy-loaded emoji catalog");
 
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileAvatarScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])])')&&
  profileScript.includes('storage.upload(undo.path,undo.thumbnail'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");
@@ -2988,9 +2976,14 @@ assert.ok(settingsRuntime.includes('from("profile_preferences")')&&settingsRunti
 const galleryMigration=await read("_development/supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
 assert.ok(galleryMigration.includes("storage.objects")&&galleryMigration.includes("auth.uid()")&&galleryMigration.includes("profile_visibility"),"Only existing gallery images with permitted viewers accept interactions");
 
-assert.ok(memberProfileMarkup.includes('maxlength="80" placeholder="Напишіть статус"')&&profileScript.includes('Array.from(next).length>80'),"Profile status uses a compact 80-character limit");
+assert.ok(memberProfileMarkup.includes('maxlength="50" placeholder="Напишіть статус"')&&profileScript.includes('const PROFILE_STATUS_LIMIT=50;')&&profileScript.includes('next.length>PROFILE_STATUS_LIMIT'),"Profile status uses a compact 50-character limit");
+assert.ok(profileScript.includes('short_bio:101')&&profileScript.includes('profile-short-bio-counter'),"Short bio retains its 101-character limit and counter");
 assert.ok(memberProfileMarkup.includes('id="profile-photo-emoji-toggle"')&&memberProfileMarkup.includes('id="profile-photo-comment-cancel"')&&profileScript.includes("setRangeText(emoji"),"Photo comments include functional emoji and cancel actions");
 
 assert.ok(profileBehavior.includes("cachedFriends.slice(0,4)")&&profileBehavior.includes('q("#profile-gifts-dialog")')&&profileBehavior.includes('if(!compact)item.append(title,sub)'),"Profile uses four friends and image-only gifts with history dialog");
 
 assert.ok(settingsRuntime.includes("VATRA_FORM_SELECT.fillBirthdays(day,month,year)")&&settingsRuntime.includes("VATRA_FORM_SELECT.wireSelects([...dateParts,gender])")&&!settingsRuntime.includes('field(form,"birthdate"'),"VATRA ID must reuse the registration date and gender component");
+
+assert.ok(!/sticker|стікер/i.test(storyEditorRuntime)&&!/sticker/i.test(storyEditorStyles),"Retired sticker tools must not remain in stories");
+
+assert.ok(storyEditorRuntime.includes('audience.value="friends"')&&storyEditorRuntime.includes('visibility=audience.value==="public"?"public":"friends"')&&storyEditorRuntime.includes("theme:0,visibility,media_kind"),"Story audience is explicit, defaults to friends and persists on insert");

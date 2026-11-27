@@ -425,6 +425,7 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
  const notice=make("p","vatra-post-composer-notice-001");notice.hidden=true;
  const showNotice=value=>{notice.textContent=value;notice.hidden=!value;};
  function sync(){
+  if(counter){counter.textContent=textarea.value.length+" / "+textarea.maxLength;counter.hidden=textarea.value.length<textarea.maxLength*0.9;}
   const hasMedia=!!(typeof getFile==="function"&&getFile());
   const hasContent=!!textarea.value.trim()||hasMedia||existingContent;
   next.disabled=!(hasContent||getPoll())||(pollEnabled&&!getPoll());
@@ -502,9 +503,10 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
  draftSave.addEventListener("click",()=>{
   const body=textarea.value.trim();
   if(!body&&!getPoll()){showNotice(t("Напишіть текст для збереження чернетки.","Write some text to save as a draft."));return;}
+  if(body.length>textarea.maxLength){showNotice(t("Текст надто довгий.","Text is too long."));return;}
   const drafts=read(),now=Date.now(),id=selectedId||String(now);
   const others=drafts.filter(x=>x.id!==id);
-  const worked=persist([{id,body:body.slice(0,2000),visibility:select?.value||"public",poll:getPoll(),scheduled_at:getScheduledAt(),at:now},...others]);
+  const worked=persist([{id,body,visibility:select?.value||"public",poll:getPoll(),scheduled_at:getScheduledAt(),at:now},...others]);
   if(worked){selectedId=id;showNotice(picker?.files?.length?
    t("Текст збережено. Доданий файл потрібно вибрати знову при публікації.",
     "Text saved. You must reselect your file when publishing."):

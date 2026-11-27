@@ -3221,7 +3221,6 @@
   "Не вдалося завантажити перевірку безпеки. Перевірте інтернет.": "Nie udało się wczytać kontroli bezpieczeństwa. Sprawdź internet.",
   "Перевірку безпеки скасовано.": "Weryfikacja bezpieczeństwa została anulowana.",
   "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Nie udało się ukończyć weryfikacji bezpieczeństwa. Spróbuj ponownie lub sprawdź połączenie.",
-  "Учасник VATRA": "Użytkownik VATRA",
   "Видалити мою публікацію": "Usuń moją publikację",
   "Не вдалося завантажити публікації. Перевірте підключення й спробуйте ще раз.": "Nie udało się wczytać publikacji. Sprawdź połączenie i spróbuj ponownie.",
   "Публікація має містити від 1 до 2000 символів.": "Publikacja musi mieć od 1 do 2000 znaków.",
@@ -3449,7 +3448,7 @@
   "{name}: вподобайка коментаря під фото": "Komentarz pod Twoim zdjęciem otrzymał polubienie od {name}",
   "{name}: нова подія": "Nowa aktywność od {name}",
   "Сповіщення: {count} непрочитаних": "Powiadomienia: {count} nieprzeczytanych",
-  "Учасник VATRA ID {id}": "Użytkownik VATRA ID {id}",
+  "Користувач VATRA ID {id}": "Użytkownik VATRA ID {id}",
   "Сторінка {page}": "Strona {page}",
   "Видалити сповіщення": "Usuń powiadomienie",
   "Акаунт видалено": "Konto usunięte",
@@ -3520,7 +3519,7 @@
   "Не вдалося завантажити публікації.": "Nie udało się wczytać postów społeczności.",
   "Не вдалося перевірити підписку.": "Nie udało się sprawdzić obserwowania.",
   "Не вдалося змінити підписку.": "Nie udało się zmienić obserwowania.",
-  "Додайте текст, фото або відео (до 2000 символів).": "Dodaj tekst, zdjęcie lub film (do 2000 znaków).",
+  "Додайте текст, фото або відео (до 20000 символів).": "Dodaj tekst, zdjęcie lub film (do 20000 znaków).",
   "Не вдалося опублікувати допис.": "Nie udało się opublikować posta.",
   "Спільноту не знайдено": "Nie znaleziono społeczności",
   "Ця спільнота не існує або її видалено.": "Ta społeczność nie istnieje lub została usunięta.",
@@ -4190,5 +4189,11 @@
   "Адреса містить облікові дані.": "Adres zawiera dane uwierzytelniające.",
   "Домен може імітувати відомий сервіс.": "Domena może naśladować znaną usługę.",
   "Адреса може перенаправити на інший сайт.": "Adres może przekierować do innej witryny.",
-  "Посилання може завантажити виконуваний файл.": "Link może pobrać plik wykonywalny."
+  "Посилання може завантажити виконуваний файл.": "Link może pobrać plik wykonywalny.",
+  "Додати до чорного списку": "Dodaj do czarnej listy",
+  "Посилання на профіль або VATRA ID": "Link do profilu lub VATRA ID"
+,
+  "Комп’ютер": "Komputer",
+  "Мобільний пристрій": "Urządzenie mobilne",
+  "Планшет": "Tablet"
 }

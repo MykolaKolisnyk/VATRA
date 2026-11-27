@@ -13,7 +13,7 @@
   const translated=window.VATRA_LANGUAGE?.translate?.(uk);
   return typeof translated==="string"&&translated!==uk?translated:(english?en:uk);
  };
- const PAGE_SIZE=12,POST_LIMIT=2000;
+ const PAGE_SIZE=12,POST_LIMIT=20000;
  const localizeSocial=()=>{
   for(const element of document.querySelectorAll("[data-social-uk]"))
    element.textContent=t(element.dataset.socialUk,element.dataset.socialEn);
@@ -179,7 +179,7 @@
   if(state==="deleted")return t("Акаунт видалено","Account deleted");
   if(state==="blocked")return t("Акаунт заблоковано","Account blocked");
   return publicNames.get(String(id))||
-   (String(id)===vatraId?displayName:t("Учасник VATRA","VATRA member"));
+   (String(id)===vatraId?displayName:t("Користувач VATRA","VATRA user"));
  };
  async function loadPublicNames(ids){
   const needed=[...new Set(ids.map(String).filter(validId))].filter(id=>!publicNames.has(id));
@@ -389,7 +389,7 @@
    const avatar=node("span","vatra-global-search-avatar ui-vatra-global-search-avatar-001");
    applyAvatar(avatar,id);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-info-001");
-   const resultName=node("strong","vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member"));
+   const resultName=node("strong","vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Користувач VATRA","VATRA user"));
    info.append(resultName);
    if(!avatarStates.get(id))void window.VATRA_VERIFIED?.attach(client,resultName,id);
    info.append(node("small","vatra-global-search-description-001","VATRA ID "+id+(person.status_text?" · "+person.status_text.slice(0,100):"")));
@@ -699,20 +699,17 @@
   try{
    await feedDeadline(ensureSubscriptions());
    if(generation!==storyLoadGeneration)return;
-   const storyAuthors=[...new Set([vatraId,...friends])];
-   let query=client.from("stories")
-    .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
+   const query=client.from("stories")
+    .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path,visibility")
     .gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false});
-   if(storyAuthors.length<=100&&typeof query.in==="function")
-    query=query.in("author_vatra_id",storyAuthors);
    const {data,error}=await feedDeadline(query.limit(60));
    if(generation!==storyLoadGeneration)return;
    if(error)throw error;
    const items=[],seen=new Set(),groups=new Map();
    for(const story of data||[]){
     const id=String(story.author_vatra_id);
-    if((id!==vatraId&&!friends.has(id))||!storyLive(story))continue;
+    if(!storyLive(story)||(id!==vatraId&&!friends.has(id)&&story.visibility!=="public"))continue;
     if(!groups.has(id))groups.set(id,[]);groups.get(id).push(story);
     if(seen.has(id))continue;items.push(story);seen.add(id);
    }
@@ -811,14 +808,15 @@
   q("#feed-compose-open").addEventListener("click",()=>void open());
   q("#feed-create-menu-story")?.addEventListener("click",()=>q("#feed-create-story")?.click());
   q("#feed-compose-cancel").addEventListener("click",()=>dialog.close());
-  text.addEventListener("input",()=>{counter.textContent=Array.from(text.value).length+" / 2000";});
+  const updateCounter=()=>{counter.textContent=text.value.length+" / "+POST_LIMIT;counter.hidden=text.value.length<POST_LIMIT*0.9;};
+  text.addEventListener("input",updateCounter);updateCounter();
   form.addEventListener("submit",async event=>{
    event.preventDefault();
    if(submit.disabled||!validId(vatraId))return;
    const body=text.value.trim(),files=picker?.getFiles()||[];
    const poll=composerUI?.getPoll?.()||null;
    const publishAt=composerUI?.getScheduledAt?.()||null;
-   if((!body&&!files.length&&!poll)||Array.from(body).length>POST_LIMIT||
+   if((!body&&!files.length&&!poll)||body.length>POST_LIMIT||
      composerUI?.hasInvalidPoll?.()||composerUI?.hasInvalidSchedule?.()){
     showError(t("Перевірте текст, опитування та дату публікації.",
      "Check the text, poll and scheduled date."));return;
@@ -843,7 +841,7 @@
    }
    submit.disabled=false;
    invalidateFeedPages(client);
-   dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();composerUI?.reset();
+   dialog.close();text.value="";updateCounter();picker?.reset();composerUI?.reset();
    message(publishAt?
     t("Публікацію заплановано. Вона з’явиться автоматично у вибраний час.",
       "Post scheduled. It will publish automatically at the selected time."):

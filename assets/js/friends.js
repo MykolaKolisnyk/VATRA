@@ -79,14 +79,14 @@ async function refreshPresence(){
   const ids=[...new Set(rows.filter(item=>stateFor(item)==="accepted").map(counterpart).filter(validId))];
   const next=new Map(),requests=[];
   for(let i=0;i<ids.length;i+=100)
-   requests.push(client.from("profile_presence").select("vatra_id,last_seen_at,form").in("vatra_id",ids.slice(i,i+100)));
+   requests.push(client.from("profile_presence").select("vatra_id,last_seen_at,form,device_type").in("vatra_id",ids.slice(i,i+100)));
   const results=await Promise.all(requests);
   for(const {data,error} of results){
-   if(error){presenceAvailable=false;return;}
+   if(error){presence=new Map();presenceAvailable=false;return;}
    for(const entry of data||[])next.set(String(entry.vatra_id),entry);
   }
   presence=next;presenceAvailable=true;
- }catch(_){presenceAvailable=false;}finally{presenceBusy=false;}
+ }catch(_){presence=new Map();presenceAvailable=false;}finally{presenceBusy=false;}
 }
 function online(id){return !accountStates.has(id)&&Boolean(window.VATRA_PRESENCE?.format(presence.get(id)).online);}
 function actionButton(label,cls,callback){
@@ -129,7 +129,7 @@ function person(item,index){
  const id=counterpart(item),state=accountStates.get(id);
  const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
   state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-  names.get(id)||t("Учасник VATRA","VATRA member");
+  names.get(id)||t("Користувач VATRA","VATRA user");
  const article=make("article","vatra-friends-person ui-vatra-friends-person-"+index);
  const avatar=make("a","vatra-friends-portrait vatra-friends-portrait-"+index);
  avatar.href=new URL("id"+id,root).href;avatar.setAttribute("aria-label",name);
@@ -152,6 +152,7 @@ function person(item,index){
   stateFor(item)==="accepted"?(online(id)?t("Онлайн","Online"):(window.VATRA_PRESENCE?.format(presence.get(id),language()==="en").text||t("Друг у VATRA","VATRA friend"))):
   stateFor(item)==="incoming"?t("Хоче додатися до друзів","Wants to add you"):
   t("Запит надіслано","Request sent"));
+ if(!state&&presenceAvailable&&stateFor(item)==="accepted"&&window.VATRA_PRESENCE?.format(presence.get(id)).date)window.VATRA_PRESENCE.appendDevice(secondary,presence.get(id)?.device_type,language()==="en");
  details.append(profile,secondary);
  const actions=make("div","vatra-friends-person-actions ui-vatra-friends-person-actions-"+index);
  if(me&&stateFor(item)==="incoming"){
@@ -248,7 +249,7 @@ async function boot(){
   if(!me){
    for(const el of document.querySelectorAll("[data-friends-tab]"))el.hidden=["incoming","outgoing"].includes(el.dataset.friendsTab);
    const identity=await (window.VATRA_PUBLIC_NAMES?.get?.(client,[targetId])||client.from("public_profiles").select("vatra_id,display_name").eq("vatra_id",targetId));
-   targetName=identity.data?.[0]?.display_name||t("Учасник VATRA","VATRA member");
+   targetName=identity.data?.[0]?.display_name||t("Користувач VATRA","VATRA user");
    const heading=q("#friends-heading");heading.removeAttribute("data-social-uk");heading.removeAttribute("data-social-en");heading.textContent=t("Друзі: ","Friends: ")+targetName;
    const back=make("a","vatra-friends-owner-link-001",t("До профілю","Back to profile"));back.href=new URL("id"+targetId,root).href;heading.after(back);
   }

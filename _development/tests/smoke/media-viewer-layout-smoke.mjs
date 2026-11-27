@@ -24,8 +24,9 @@ assert.ok(
  "Fullscreen post photos must preserve their full proportions without legacy overlays"
 );
 assert.ok(
- postInteractions.includes("filterRow.remove();note.remove();side.append(shell)")&&
- postInteractions.includes("panel.insertBefore(filterRow,entries);panel.insertBefore(note,entries)")&&
+ !postInteractions.includes('make("select","ui-vatra-post-comments-sort-001")')&&
+ postInteractions.includes('const commentSort="newest"')&&
+ postInteractions.includes("side.append(shell)")&&
  postInteractions.includes("dialog.showModal();content.scrollTop=0"),
  "Photo comments must hide sorting and normal comments must start at the top"
 );
@@ -33,7 +34,7 @@ assert.ok(
  !profileHtml.includes('id="profile-photo-comment-sort"')&&
  !profileHtml.includes('class="profile-photo-comment-filters')&&
  !profile.includes("commentSort.value")&&
- profile.includes('photoCommentSort="relevant"'),
+ profile.includes('photoCommentSort="newest"'),
  "Avatar comments must not display sorting controls"
 );
 assert.ok(
@@ -226,6 +227,8 @@ assert.ok(
  albums.includes("ui-vatra-album-comments-form-001 vatra-media-form-unified-001")&&
  albums.includes("vatra-album-comments-emoji-panel-001")&&
  albums.includes("vatra-media-empty-icon-unified-001")&&
+ albums.includes('commentsList.addEventListener("scroll",loadOnCommentScroll,{passive:true})')&&
+ albums.includes("commentLoading||commentsMore.hidden")&&
  postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-author-unified-001{")&&
  postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-actions-unified-001{")&&
  postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-comments-unified-001{")&&
@@ -237,38 +240,17 @@ assert.ok(
 console.log("VATRA media viewer layout checks passed.");
 
 {
- const start=postMedia.indexOf(" const photoMatteChecks="),end=postMedia.indexOf(" function clearPhotoSlide(",start);
- assert.ok(start>=0&&end>start);
- let alpha=255,tainted=false,reads=0,closed=0;
- const ctx={setTimeout,clearTimeout,AbortController,createImageBitmap:async()=>({width:1,height:1,close(){closed++;}}),document:{createElement(){let readable=false;return {width:0,height:0,getContext(){return {drawImage(image){readable=typeof image.close==="function";},getImageData(){if(tainted&&!readable)throw Error("CORS");return {data:new Uint8ClampedArray([0,0,0,alpha])};}};}};}}};
- runInNewContext(postMedia.slice(start,end)+"\nglobalThis.geometry={photoMatte,fitPhotoViewer};",ctx);
- const {fitPhotoViewer,photoMatte}=ctx.geometry;
- for(const [w,h] of [[1024,1024],[6000,4000],[4000,6000],[7680,4320],[500,1800]]){
-  const vars={},dialog={dataset:{},style:{setProperty:(k,v)=>vars[k]=v}},stage={dataset:{}};
-  fitPhotoViewer(dialog,stage,{naturalWidth:w,naturalHeight:h},"photo.png");
-  assert.equal(dialog.dataset.photoSized,undefined,"Image proportions must never resize the viewer");
-  assert.deepEqual(vars,{},"Photo loading must not set viewport dimensions");
- }
+ assert.ok(!/photoMatte|readPhotoAlpha|fitPhotoViewer|photoOriginalReaders/.test(postMedia),"No format or transparency analysis in the photo viewer");
  assert.ok(!postCss.includes("data-photo-sized")&&!postMedia.includes("photoSized")&&!postCss.includes("--vatra-photo-ratio")&&!postCss.includes("--vatra-photo-inverse"),"No aspect-dependent window mode");
  const albumsCss=await read("assets/css/photo-albums.css");
  for(const [source,selector] of [[postCss,".vatra-post-media-viewer{"],[profileCss,"body.profile-page .profile-media-viewer{"],[albumsCss,"body.profile-page .ui-vatra-album-viewer-001{"]]){
   const rule=source.slice(source.indexOf(selector)).split("}")[0];
   assert.ok(rule.includes("inset:0")&&rule.includes("width:100vw")&&rule.includes("height:100dvh")&&rule.includes("max-width:none")&&rule.includes("max-height:none")&&rule.includes("margin:0")&&rule.includes("border-radius:0"),"All three photo viewers always fill the viewport");
  }
- for(const src of ["a.png","a.webp","a.jpg"]){
-  alpha=255;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"dark");
-  alpha=0;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"white");
-  alpha=128;assert.equal(await photoMatte({src,naturalWidth:1,naturalHeight:1}),"white");
- }
- tainted=true;assert.equal(await photoMatte({src:"private.png",naturalWidth:1,naturalHeight:1}),"unknown");
- const original=async()=>{reads++;return {type:"image/png"};};
- for(const [value,expected] of [[0,"white"],[255,"dark"]]){alpha=value;assert.equal(await photoMatte({src:"private.png",naturalWidth:1,naturalHeight:1},()=>true,original),expected);}
- assert.equal(reads,2);assert.equal(closed,2);
- tainted=false;
  assert.ok(postMedia.includes("duration:300")&&postMedia.includes("prefers-reduced-motion: reduce"));
  assert.ok(postMedia.includes("(-sign*distance)")&&postMedia.includes("(sign*distance)"));
  assert.ok(profile.includes("renderGalleryPhoto(delta)")&&albums.includes("openPhoto(next,nextAlbum,dir)"));
- assert.ok(postCss.includes('[data-photo-matte="dark"]{background:#111419}')&&postCss.includes('[data-photo-matte="white"]{background:#fff}'));
+ assert.ok(!postCss.includes("data-photo-matte")&&!profileCss.includes("data-photo-matte")&&postCss.includes("background:#111419;--vatra-photo-arrow-color:#fff"));
  const logoRule=postCss.match(/\.vatra-photo-viewer-brand-001\{[^}]+\}/)?.[0]||"";
  assert.ok(logoRule.includes("background:transparent")&&!logoRule.includes("border-radius")&&!logoRule.includes("box-shadow"),"Viewer logo must not have a white disc or shadow");
  assert.ok(profileCss.includes("overflow:hidden;padding:0"));
@@ -281,4 +263,4 @@ assert.ok(postMedia.includes('authorName.split(/\\s+/)[0]')&&postMedia.includes(
  let value=1;for(let i=0;i<20;i++)value=context.zoom(value,1);assert.equal(value,3);for(let i=0;i<20;i++)value=context.zoom(value,-1);assert.equal(value,1);assert.equal(context.zoom(1,1),1.25);
 }
 
-assert.ok(postMedia.includes("finish(image);void fitPhotoViewer(dialog,stage,image,path);"),"Ready photos and controls must not wait for asynchronous matte detection");
+assert.ok(postMedia.includes("finish(image);"),"Ready photos and controls must not wait for asynchronous matte detection");

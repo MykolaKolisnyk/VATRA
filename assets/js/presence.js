@@ -6,6 +6,13 @@ const grammar=gender=>gender==="male"?"masculine":gender==="female"?"feminine":"
 const activeWindow=150000;
 const HEARTBEAT_INTERVAL_MS=45000,RETRY_INTERVAL_MS=12000;
 let active=null;
+function deviceType(nav=window.navigator){
+ if(!nav)return null;
+ const ua=nav.userAgent||"";
+ if(/iPad|Tablet|PlayBook|Kindle|Silk|SM-T/i.test(ua)||(nav.platform==="MacIntel"&&nav.maxTouchPoints>1)||(/Android/i.test(ua)&&!/Mobile/i.test(ua)&&nav.userAgentData?.mobile!==true))return "tablet";
+ if(nav.userAgentData?.mobile===true||/Android|iPhone|iPod|Mobile/i.test(ua))return "mobile";
+ return nav.userAgentData?.mobile===false||nav.userAgent?"desktop":null;
+}
 function stop(){
  const state=active;
  if(!state)return;
@@ -36,7 +43,7 @@ function start(client,ownId,gender){
   state.updating=true;state.lastAttemptAt=Date.now();
   try{
    const {data,error}=await client.from("profile_presence")
-    .upsert({vatra_id:id,last_seen_at:new Date().toISOString(),form:grammar(gender)},
+    .upsert({vatra_id:id,last_seen_at:new Date().toISOString(),form:grammar(gender),device_type:deviceType()},
      {onConflict:"vatra_id"}).select("vatra_id").maybeSingle();
    if(error||String(data?.vatra_id)!==id)throw error||Error("Presence heartbeat not confirmed");
    if(active!==state)return false;
@@ -126,11 +133,11 @@ async function load(client,targetId){
  const request=(async()=>{
   try{
    let query=client.from("profile_presence")
-    .select("last_seen_at,form").eq("vatra_id",key).maybeSingle();
+    .select("last_seen_at,form,device_type").eq("vatra_id",key).maybeSingle();
    if(typeof query.abortSignal==="function")query=query.abortSignal(controller.signal);
    const {data,error}=await query;
    if(controller.signal.aborted||state.generation!==generation||error)return null;
-   const record=data?{last_seen_at:data.last_seen_at,form:data.form}:null;
+   const record=data?{last_seen_at:data.last_seen_at,form:data.form,device_type:["desktop","mobile","tablet"].includes(data.device_type)?data.device_type:null}:null;
    if(state.entries.get(key)===entry){
     state.entries.delete(key);
     state.entries.set(key,{value:record,expires:Date.now()+
@@ -185,5 +192,21 @@ function format(record,english=false){
  return {online:false,text:english?"Last seen "+ago:verb?verb+" "+ago:"Остання активність: "+ago,date};
 }
 
-window.VATRA_PRESENCE={start,load,format,grammar,relative};
+function appendDevice(target,device,english=false){
+ if(!target||!["desktop","mobile","tablet"].includes(device))return;
+ const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
+ svg.setAttribute("class","vatra-presence-device-icon-001");svg.setAttribute("viewBox","0 0 24 24");
+ svg.setAttribute("width","14");svg.setAttribute("height","14");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.7");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
+ svg.setAttribute("role","img");
+ const labels={desktop:["Комп’ютер","Computer"],mobile:["Мобільний пристрій","Mobile device"],tablet:["Планшет","Tablet"]};
+ const [uk,en]=labels[device],locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang;
+ const label=english||locale==="en"?en:locale==="uk"?uk:window.VATRA_LANGUAGE?.translate?.(uk)||uk;
+ svg.style.verticalAlign="middle";svg.style.flexShrink="0";
+ svg.setAttribute("aria-label",label);
+ const tooltipText=()=>{const lang=window.VATRA_LANGUAGE?.locale||document.documentElement.lang;return lang==="en"?en:lang==="uk"?uk:window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
+ window.VATRA_TOOLTIP?.bind(svg,tooltipText);
+ const path=document.createElementNS(ns,"path");path.setAttribute("d",device==="tablet"?"M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm6 17h2":device==="mobile"?"M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm3 17h2":"M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 15v3m-4 0h8");svg.append(path);
+ target.append(document.createTextNode(" "),svg);
+}
+window.VATRA_PRESENCE={start,load,format,grammar,relative,deviceType,appendDevice};
 })();

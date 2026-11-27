@@ -66,6 +66,7 @@
   return entry.promise;
  }
  let active=null,tip=null,activeMode=null,inputMode="keyboard";
+ const tooltipCopy=new WeakMap();
  const labels={
   uk:["Верифікована сторінка","Справжність цього акаунта підтверджено VATRA."],
   en:["Verified profile","VATRA has confirmed the authenticity of this account."],
@@ -88,7 +89,7 @@
   const rect=active.getBoundingClientRect(),v=window.visualViewport;
   const left=v?.offsetLeft||0,top=v?.offsetTop||0,w=v?.width||window.innerWidth,h=v?.height||window.innerHeight;
   if(rect.bottom<top||rect.top>top+h){close();return;}
-  const width=Math.min(290,w-20);
+  const width=Math.min(tooltipCopy.has(active)?180:290,w-20);
   tip.style.width=width+"px";
   const height=tip.offsetHeight,x=Math.max(left+10,Math.min(rect.left+rect.width/2-width/2,left+w-width-10));
   const above=rect.top-height-9>=top+8;
@@ -102,9 +103,10 @@
   close();active=mark;activeMode=mode;
   tip=document.createElement("div");tip.id="vatra-verified-tooltip";tip.className="vatra-verified-tooltip";tip.setAttribute("role","tooltip");
   const title=document.createElement("strong"),body=document.createElement("span");
+  const custom=tooltipCopy.get(mark);
   title.className="vatra-verified-tooltip-title";title.textContent=copy()[0];
-  body.className="vatra-verified-tooltip-text";body.textContent=copy()[1];
-  tip.append(title,body);
+  body.className="vatra-verified-tooltip-text";body.textContent=custom?custom():copy()[1];
+  if(custom)tip.append(body);else tip.append(title,body);
   if(typeof tip.showPopover==="function"){
    tip.setAttribute("popover","manual");document.body.append(tip);
    try{tip.showPopover();}catch(_){tip.removeAttribute("popover");(mark.closest("dialog[open]")||document.body).append(tip);}
@@ -122,7 +124,12 @@
   seal.setAttribute("class","vatra-verified-seal");seal.setAttribute("d","M12 0.35L14.511 2.631L17.825 1.911L18.859 5.141L22.089 6.175L21.369 9.489L23.65 12L21.369 14.511L22.089 17.825L18.859 18.859L17.825 22.089L14.511 21.369L12 23.65L9.489 21.369L6.175 22.089L5.141 18.859L1.911 17.825L2.631 14.511L0.35 12L2.631 9.489L1.911 6.175L5.141 5.141L6.175 1.911L9.489 2.631Z");seal.setAttribute("fill","currentColor");seal.setAttribute("stroke","currentColor");seal.setAttribute("stroke-width","1.15");seal.setAttribute("stroke-linejoin","round");seal.setAttribute("transform","translate(1 1) scale(.916667)");
   path.setAttribute("class","vatra-verified-check");path.setAttribute("d","M7.2 12.2l3.1 3.1 6.5-6.5");path.setAttribute("stroke","#fff");path.setAttribute("stroke-width","2.35");path.setAttribute("stroke-linecap","round");path.setAttribute("stroke-linejoin","round");
   svg.append(seal,path);mark.append(svg);
-  if(!interactive)return mark;
+  if(interactive)bindTooltip(mark);
+  return mark;
+ }
+ function bindTooltip(mark,getText){
+  if(getText)tooltipCopy.set(mark,getText);
+  mark.setAttribute("tabindex","0");mark.setAttribute("role","button");mark.setAttribute("aria-expanded","false");
   let lastPointer="";
   mark.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse")open(mark,"hover");});
   mark.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"&&active===mark)close();});
@@ -182,4 +189,5 @@
  window.visualViewport?.addEventListener("resize",position,{passive:true});
  window.visualViewport?.addEventListener("scroll",position,{passive:true});
  window.VATRA_VERIFIED={attach};
+ window.VATRA_TOOLTIP={bind:bindTooltip};
 })();

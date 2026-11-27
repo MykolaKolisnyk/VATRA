@@ -7,7 +7,7 @@ import { redisDeadline } from "../_shared/redis-deadline.ts";
 type PublicName = { vatra_id: number; display_name: string; verified: boolean };
 const TTL_SECONDS = 120;
 const MAX_IDS = 48;
-const PREFIX = "vatra:public:profile-name:v2:";
+const PREFIX = "vatra:public:profile-name:";
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",

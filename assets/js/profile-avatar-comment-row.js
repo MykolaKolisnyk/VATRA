@@ -3,7 +3,7 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,node,t,memberUrl,dateText,feedback,clearCommentCache,onDelete}){
     const id=String(item.author_vatra_id);
-    const member=names.get(id)||t("Учасник VATRA","VATRA member");
+    const member=names.get(id)||t("Користувач VATRA","VATRA user");
     const card=node("article","profile-photo-comment ui-profile-photo-comment-001 vatra-media-comment-row-001");
     card.dataset.commentId=String(item.id);
     const head=node("div","profile-photo-comment-head ui-profile-photo-comment-head-001");
@@ -67,7 +67,9 @@ function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,no
      const text=commentText;
      const edit=node("button","vatra-profile-photo-comment-edit-001 vatra-comment-hover-edit-001");
      edit.type="button";edit.setAttribute("aria-label",t("Редагувати коментар","Edit comment"));
-     edit.textContent="✎";
+     const editIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+     for(const [key,value] of Object.entries({viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))editIcon.setAttribute(key,value);
+     const editPath=document.createElementNS(editIcon.namespaceURI,"path");editPath.setAttribute("d","m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15l-1 5Z");editIcon.append(editPath);edit.append(editIcon);
      edit.addEventListener("click",()=>{
       if(card.classList.contains("is-deleted-pending")||card.querySelector(".vatra-photo-comment-edit-form-001"))return;
       const form=node("form","vatra-photo-comment-edit-form-001");

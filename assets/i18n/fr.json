@@ -3221,7 +3221,6 @@
   "Не вдалося завантажити перевірку безпеки. Перевірте інтернет.": "Impossible de charger la vérification de sécurité. Vérifiez votre connexion Internet.",
   "Перевірку безпеки скасовано.": "La vérification de sécurité a été annulée.",
   "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Impossible de terminer la vérification de sécurité. Réessayez ou vérifiez votre connexion.",
-  "Учасник VATRA": "Membre de VATRA",
   "Видалити мою публікацію": "Supprimer ma publication",
   "Не вдалося завантажити публікації. Перевірте підключення й спробуйте ще раз.": "Impossible de charger les publications. Vérifiez votre connexion et réessayez.",
   "Публікація має містити від 1 до 2000 символів.": "Une publication doit contenir entre 1 et 2 000 caractères.",
@@ -3449,7 +3448,7 @@
   "{name}: вподобайка коментаря під фото": "{name} a aimé un commentaire sous votre photo",
   "{name}: нова подія": "{name} : nouvelle activité",
   "Сповіщення: {count} непрочитаних": "Notifications : {count} non lues",
-  "Учасник VATRA ID {id}": "Membre VATRA ID {id}",
+  "Користувач VATRA ID {id}": "Utilisateur VATRA ID {id}",
   "Сторінка {page}": "Page {page}",
   "Видалити сповіщення": "Supprimer la notification",
   "Акаунт видалено": "Compte supprimé",
@@ -3520,7 +3519,7 @@
   "Не вдалося завантажити публікації.": "Impossible de charger les publications de la communauté.",
   "Не вдалося перевірити підписку.": "Impossible de vérifier l’abonnement.",
   "Не вдалося змінити підписку.": "Impossible de modifier l’abonnement.",
-  "Додайте текст, фото або відео (до 2000 символів).": "Ajoutez du texte, une photo ou une vidéo (jusqu’à 2000 caractères).",
+  "Додайте текст, фото або відео (до 20000 символів).": "Ajoutez du texte, une photo ou une vidéo (jusqu’à 20000 caractères).",
   "Не вдалося опублікувати допис.": "Impossible de publier le message.",
   "Спільноту не знайдено": "Communauté introuvable",
   "Ця спільнота не існує або її видалено.": "Cette communauté n’existe pas ou a été supprimée.",
@@ -3911,7 +3910,7 @@
   "Фото: до 30 МБ. Відео: до 50 МБ. Доступні JPEG, PNG, WebP, MP4, WebM.": "Photos : 30 Mo maximum. Vidéos : 50 Mo maximum. Formats : JPEG, PNG, WebP, MP4, WebM.",
   "Стікер": "Autocollant",
   "Фото в коментарі": "Photo dans le commentaire",
-  "Користувач VATRA": "Membre VATRA",
+  "Користувач VATRA": "Utilisateur VATRA",
   "Не вдалося видалити коментар.": "Impossible de supprimer le commentaire.",
   "Можливий спам": "Indésirable potentiel",
   "Відповісти": "Répondre",
@@ -4190,5 +4189,11 @@
   "Адреса містить облікові дані.": "L’adresse contient des identifiants.",
   "Домен може імітувати відомий сервіс.": "Le domaine peut imiter un service connu.",
   "Адреса може перенаправити на інший сайт.": "L’adresse peut rediriger vers un autre site.",
-  "Посилання може завантажити виконуваний файл.": "Le lien peut télécharger un fichier exécutable."
+  "Посилання може завантажити виконуваний файл.": "Le lien peut télécharger un fichier exécutable.",
+  "Додати до чорного списку": "Ajouter à la liste de blocage",
+  "Посилання на профіль або VATRA ID": "Lien du profil ou identifiant VATRA"
+,
+  "Комп’ютер": "Ordinateur",
+  "Мобільний пристрій": "Appareil mobile",
+  "Планшет": "Tablette"
 }

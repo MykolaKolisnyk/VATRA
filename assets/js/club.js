@@ -69,7 +69,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
     article.dataset.postId=post.id;
     const head=node("div","feed-post-header ui-club-post-head-001");
     const profile=node("a","feed-post-name vatra-club-post-author-001",
-     names.get(id)||t("Учасник VATRA","VATRA member"));
+     names.get(id)||t("Користувач VATRA","VATRA user"));
     profile.href=root+"id"+id;
     if(names.has(id))void window.VATRA_VERIFIED?.attach(client,profile,id);
     const time=node("time","feed-post-date vatra-club-post-date-001",
@@ -144,9 +144,9 @@ async function setupClubSocial(client,clubId,ownId,userId){
   event.preventDefault();
   const body=input.value.trim(),files=picker?.getFiles()||[],save=$("#club-compose-save");
   if(!isFollowing||save.disabled)return;
-  if((!body&&!files.length)||Array.from(body).length>2000){
-   show(status,t("Додайте текст, фото або відео (до 2000 символів).",
-    "Add text, a photo or a video (up to 2000 characters)."));return;
+  if((!body&&!files.length)||body.length>20000){
+   show(status,t("Додайте текст, фото або відео (до 20000 символів).",
+    "Add text, a photo or a video (up to 20000 characters)."));return;
   }
   save.disabled=true;status.hidden=true;
   let uploaded=null;

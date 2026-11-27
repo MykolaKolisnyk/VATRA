@@ -53,7 +53,15 @@ const criticalStart=dynamicKeys.indexOf("Зачекайте…");
 const criticalEnd=dynamicKeys.indexOf("Зміна email до підтвердження створить інший акаунт. Початковий непідтверджений акаунт не зміниться.");
 assert.ok(criticalStart>=0&&criticalEnd>criticalStart,"Missing dynamic status anchors in reference dictionary");
 const criticalMessages=dynamicKeys.slice(criticalStart,criticalEnd+1);
-assert.equal(criticalMessages.length,74,"Unexpected change in high-priority auth/status message set");
+// The retired "Учасник VATRA" alias was removed in favor of the shared user label.
+assert.equal(criticalMessages.length,73,"Unexpected change in high-priority auth/status message set");
+assert.ok(!Object.hasOwn(en,"Учасник VATRA")&&en["Користувач VATRA"]==="VATRA user",
+ "Account fallback must use the canonical VATRA user label");
+for(const code of codes){
+ const dictionary=await read(code);
+ assert.ok(!Object.hasOwn(dictionary,"Учасник VATRA")&&typeof dictionary["Користувач VATRA"]==="string"&&dictionary["Користувач VATRA"].trim(),
+  code+": canonical user label must replace the retired member alias");
+}
 // All first-visit Vatryk tour steps, controls, hints and milestone states
 // should be translated together, without partial Ukrainian tutorial content.
 const tourStart=dynamicKeys.indexOf("Твоя стрічка");
@@ -154,8 +162,8 @@ assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
 // Read labels from actual post media controls, including aria and error strings.
 const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/tr\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
  .map(match=>JSON.parse(match[1])))];
-assert.equal(postMediaKeys.length,48,"Post media runtime includes retry and all three photo zoom labels");
-for(const key of ["Масштаб фотографії","Наблизити","Віддалити"])assert.ok(postMediaKeys.includes(key),"Missing zoom label: "+key);
+assert.equal(postMediaKeys.length,49,"Post media runtime includes retry and all three photo zoom labels");
+for(const key of ["Масштаб фотографії","Наблизити","Віддалити","Показати менше"])assert.ok(postMediaKeys.includes(key),"Missing zoom label: "+key);
 assert.ok(postMediaKeys.includes("Повторити"),"Media retry action must be translated");
 for(const key of postMediaKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
@@ -215,7 +223,7 @@ const communityKeys=[
  "Не вдалося завантажити публікації.",
  "Не вдалося перевірити підписку.",
  "Не вдалося змінити підписку.",
- "Додайте текст, фото або відео (до 2000 символів).",
+ "Додайте текст, фото або відео (до 20000 символів).",
  "Не вдалося опублікувати допис.",
  "Спільноту не знайдено",
  "Ця спільнота не існує або її видалено.",
@@ -346,7 +354,7 @@ const notificationKeys=[
   "Ваш коментар під фото вподобано: {name}",
   "{name}: нова подія",
   "Сповіщення: {count} непрочитаних",
-  "Учасник VATRA ID {id}",
+  "Користувач VATRA ID {id}",
   "Сторінка {page}",
   "Видалити сповіщення",
   "Акаунт видалено",
@@ -371,7 +379,7 @@ assert.ok(notificationRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")
  notificationRuntime.includes("const neutralEvents={")&&
  notificationRuntime.includes("format(text,en,{name:first})")&&
  notificationRuntime.includes('format("Сповіщення: {count} непрочитаних"')&&
- notificationRuntime.includes('format("Учасник VATRA ID {id}"')&&
+ notificationRuntime.includes('format("Користувач VATRA ID {id}"')&&
  notificationRuntime.includes('format("Сторінка {page}"')&&
  notificationRuntime.includes("const timeValue=date=>{")&&
  notificationRuntime.includes("const plural=(n,a,b,c)=>")&&

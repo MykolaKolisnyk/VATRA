@@ -101,7 +101,7 @@ try{
    '</head><body class="vatra-section-page" data-page="vatra-id"><main class="ui-vatra-section-main-001"><h1 id="design-title"></h1><p id="design-subtitle"></p><div id="design-content"></div></main></body></html>'}));
   await accountDesign.goto(base+"design-probe#personal");
   await accountDesign.evaluate(()=>{
-   window.__designWrites=[];window.__designMessage="";
+   window.__designWrites=[];window.__designMessage="";window.__fixtureBlocks=[];
    const make=(tag,cls,text)=>{const element=document.createElement(tag);element.className=cls;if(text!==undefined)element.textContent=text;return element;};
    const btn=(label,cls,fn)=>{const b=make("button",cls,label);b.type="button";b.onclick=fn;return b;};
    const card=cls=>make("section","ui-vatra-section-card-001 "+cls);
@@ -112,11 +112,19 @@ try{
    const sectionIcon=()=>{const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");return svg;};
    const link=(label,href,cls)=>{const a=make("a",cls,label);a.href=href;return a;};
    const user={id:"fixture",email:"fixture@example.test",user_metadata:{first_name:"Тест",last_name:"VATRA",birthdate:"2000-05-12",gender:"male"}};
-   const client={from(table){let change;return {select(){return this;},eq(){return this;},update(value){change=value;window.__designWrites.push(table);return this;},maybeSingle:async()=>({data:change||{},error:null})};},
+   const client={from(table){
+    let change,selection=[],deleting=false,filters={};
+    const read=()=>({data:table==="member_blocks"?window.__fixtureBlocks.slice():table==="friendships"?[{requester_id:"12",recipient_id:"1"}]:table==="public_profiles"?[{vatra_id:"1",display_name:"Друг VATRA"},{vatra_id:"23",display_name:"Інший користувач"}].filter(row=>selection.includes(row.vatra_id)):[],error:null});
+    return {select(){return this;},eq(k,v){filters[k]=String(v);return this;},or(){return this;},order(){return this;},range(){return this;},limit(){return this;},in(k,v){selection=v.map(String);return this;},update(value){change=value;window.__designWrites.push(table);return this;},
+     insert:async value=>{if(table==="member_blocks")window.__fixtureBlocks.push({...value,created_at:new Date().toISOString()});return {error:null};},
+     delete(){deleting=true;return this;},maybeSingle:async()=>{if(deleting&&table==="member_blocks"){const id=filters.blocked_vatra_id;window.__fixtureBlocks=window.__fixtureBlocks.filter(row=>String(row.blocked_vatra_id)!==id);return {data:{blocked_vatra_id:id},error:null};}return {data:change||{},error:null};},
+     then(resolve,reject){return Promise.resolve(read()).then(resolve,reject);}};
+   },
     auth:{updateUser:async value=>{window.__designWrites.push(value.data);return {data:{user:{...user,user_metadata:value.data}},error:null};}}};
    window.VATRA_LANGUAGE={locale:"uk"};
    window.VATRA_SECTION_CORE={start:fn=>fn({root:new URL("./",location.href),locale:"uk",t:uk=>uk,$:s=>document.querySelector(s),make,btn,card,field,link,sectionIcon,
-    client,user,ownId:"12",nameOf:async()=>"Тест VATRA",title:document.querySelector("#design-title"),subtitle:document.querySelector("#design-subtitle"),content:document.querySelector("#design-content"),
+    client,user,ownId:"12",nameOf:async id=>String(id)==="23"?"Інший користувач":"Друг VATRA",valid:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),empty:label=>make("p","vatra-section-empty-001",label),confirmRemove:async()=>true,
+    dialog:heading=>{const d=make("dialog","ui-vatra-section-dialog-001"),form=make("form","ui-vatra-section-dialog-form-001");d.append(make("h2","vatra-section-dialog-title-001",heading),form);document.body.append(d);return {d,form};},title:document.querySelector("#design-title"),subtitle:document.querySelector("#design-subtitle"),content:document.querySelector("#design-content"),
     message:value=>{window.__designMessage=value;},tabs:(items,go)=>{const bar=make("div","ui-vatra-section-tabs-001");for(const [id,label] of items){const b=btn(label,"vatra-section-tab-"+id,()=>go(id));b.dataset.tab=id;bar.append(b);}return bar;},
     submit:(form,label,fn)=>{const b=btn(label,"vatra-section-submit-001",()=>void fn());form.append(b);}})};
   });
@@ -156,7 +164,25 @@ try{
   await accountDesign.locator(".ui-vatra-preferences-nav-001").waitFor({state:"visible"});
   assert.equal(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").count(),4);
   assert.deepEqual(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).width)),["20px","20px","20px","20px"]);
-  console.log("VATRA account design: shared birthday controls, ISO date save, dropdown dismissal, mobile fit and settings icon size passed.");
+  await accountDesign.locator('[data-tab="blocked"]').click();
+  await accountDesign.locator(".ui-vatra-preferences-block-empty-001").waitFor({state:"visible"});
+  await accountDesign.locator(".ui-vatra-block-header-001 button").click();
+  const picker=accountDesign.locator(".ui-vatra-block-picker-001");
+  await picker.locator(".vatra-preferences-block-name-001").filter({hasText:"Друг VATRA"}).waitFor({state:"visible"});
+  assert.equal(await picker.locator(".vatra-preferences-block-name-001").count(),1,"Only accepted friends are offered initially");
+  await picker.locator("#vatra-section-block-profile").fill("https://example.invalid/id23");
+  await picker.locator('button[type="submit"]').click();
+  await picker.getByText("Користувача не знайдено",{exact:true}).waitFor({state:"visible"});
+  await picker.locator("#vatra-section-block-profile").fill("https://mykolakolisnyk.github.io/VATRA/id23");
+  await picker.locator('button[type="submit"]').click();
+  await picker.getByText("Інший користувач",{exact:true}).waitFor({state:"visible"});
+  await picker.getByRole("button",{name:"Заблокувати",exact:true}).click();
+  await accountDesign.locator(".ui-vatra-preferences-block-list-001").getByText("Інший користувач",{exact:true}).waitFor({state:"visible"});
+  assert.deepEqual(await accountDesign.evaluate(()=>window.__fixtureBlocks.map(row=>String(row.blocked_vatra_id))),["23"]);
+  await accountDesign.getByRole("button",{name:"Розблокувати",exact:true}).click();
+  await accountDesign.locator(".ui-vatra-preferences-block-empty-001").waitFor({state:"visible"});
+  assert.equal(await accountDesign.evaluate(()=>window.__fixtureBlocks.length),0);
+  console.log("VATRA account design: settings and friend/profile link block and unblock flow passed.");
  }finally{await accountDesign.close();}
 
  // Collapsible posts must place the toggle after the final text/hashtag,
@@ -196,16 +222,16 @@ try{
    document.body.classList.add("profile-page");
    const profileStyle=measure();
    button.click();
-   const expanded=paragraph.textContent===original&&
-    !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&
-    paragraph.querySelectorAll(".vatra-feed-post-read-more-001").length===0;
-   return {collapsed,collapsedChecks,expanded,feedStyle,profileStyle};
+   const expanded=paragraph.textContent===original+" Показати менше"&&
+    !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&button.getAttribute("aria-expanded")==="true"&&!!button.querySelector("svg");
+   button.click();const recollapsed=paragraph.textContent.endsWith("… Показати більше")&&button.getAttribute("aria-expanded")==="false";
+   return {collapsed,collapsedChecks,expanded,recollapsed,feedStyle,profileStyle};
   });
-  assert.ok(result.collapsed&&result.expanded,
-   "Read-more must appear inline, expand once and preserve hashtags: "+JSON.stringify(result));
+  assert.ok(result.collapsed&&result.expanded&&result.recollapsed,
+   "Read-more must appear inline, expand, collapse and preserve hashtags: "+JSON.stringify(result));
   assert.deepEqual(result.feedStyle,result.profileStyle,
    "Feed and Profile post body typography must match: "+JSON.stringify(result));
-  console.log("VATRA post text: inline one-way expansion and matching Feed/Profile fonts passed.");
+  console.log("VATRA post text: inline reversible expansion and matching Feed/Profile fonts passed.");
  }finally{await bodyTextProbe.close();}
 
  // All three production viewer types must share exact sidebar measurements.
@@ -279,7 +305,7 @@ try{
    ["avatar","ui-profile-photo-content-001","vatra-profile-avatar-prev-001","vatra-profile-avatar-next-001"],
    ["album","ui-vatra-post-media-viewer-content-001 ui-vatra-album-viewer-media-001","vatra-post-gallery-nav-prev","vatra-post-gallery-nav-next"]
   ].map(([id,stage,left,right])=>'<section id="arrow-'+id+'" class="'+stage+
-   '" data-photo-matte="dark" style="position:relative;width:300px;height:200px;flex:none">'+
+   '" style="position:relative;width:300px;height:200px;flex:none">'+
    '<button class="'+left+'" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor"/></svg></button>'+
    '<button class="'+right+'" aria-label="Next"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor"/></svg></button></section>').join("");
   await viewerGeometryPage.setContent('<!doctype html><html><head>'+
@@ -292,11 +318,10 @@ try{
    const stage=viewerGeometryPage.locator("#arrow-"+id);
    const left=stage.getByRole("button",{name:"Previous"}),right=stage.getByRole("button",{name:"Next"});
    for(const [matte,color,hover,outline] of [
-    ["dark","rgb(255, 255, 255)","rgba(21, 27, 39, 0.91)","rgb(16, 20, 28)"],
-    ["white","rgb(49, 68, 95)","rgba(237, 242, 248, 0.96)","rgb(255, 255, 255)"]
+    ["black","rgb(255, 255, 255)","rgba(21, 27, 39, 0.91)","rgb(16, 20, 28)"]
    ]){
     await viewerGeometryPage.mouse.move(1380,890);
-    await stage.evaluate((el,value)=>{el.dataset.photoMatte=value;},matte);
+    assert.equal(await stage.evaluate(el=>getComputedStyle(el).backgroundColor),"rgb(17, 20, 25)");
     await stage.hover();
     await viewerGeometryPage.waitForFunction(({id,color})=>[...document.querySelectorAll("#arrow-"+id+" button")].every(el=>getComputedStyle(el).color===color),{id,color});
     for(const button of [left,right]){
@@ -320,7 +345,7 @@ try{
    await right.focus();
    assert.equal(await left.evaluate(el=>getComputedStyle(el).pointerEvents),"none");
   }
-  console.log("VATRA photo navigation: both matte colors, contrast outlines, hover backgrounds and disabled controls verified across three viewer types.");
+  console.log("VATRA photo navigation: uniform dark graphite matte, contrast outlines, hover backgrounds and disabled controls verified across three viewer types.");
  }finally{await viewerGeometryPage.close();}
 
  // Simulate previously cached stylesheet/JS content after a deployment.
@@ -401,7 +426,7 @@ try{
   coverContrast.reduce((sum,sample)=>sum+sample.distance,0)/3>=35,
   "Default profile cover must remain perceptibly distinct from page background: "+
    JSON.stringify(coverContrast));
- console.log("VATRA neutral cover: rendered blue/lilac contrast against page background OK");
+ console.log("VATRA neutral cover: rendered neutral gray contrast against page background OK");
 
 
  // Verify the rendered spacing, not only a CSS string: empty list wrappers
@@ -986,7 +1011,7 @@ try{
   "VATRA must show exactly eight selected languages and no removed placeholders");
  assert.equal(await page.locator(".language-option:disabled").count(),0,
   "All eight translated VATRA languages must be selectable");
- await page.locator("#vatra-language-search").fill("English");
+ assert.equal(await page.locator("#vatra-language-search").count(),0);
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
  await page.waitForFunction(()=>document.documentElement.lang==="en");
  assert.equal(await page.evaluate(()=>localStorage.getItem("vatra-language")),"en","Language storage");
@@ -1213,28 +1238,12 @@ try{
    else assert.ok(shell.back,"Signup must retain the Back link");
    await probe.locator("[data-language-trigger]").click();
    await probe.locator(".language-dialog").waitFor({state:"visible"});
-   const picker=await probe.evaluate(()=>{
-    const d=document.querySelector(".language-dialog").getBoundingClientRect();
-    const f=document.querySelector(".language-search-field").getBoundingClientRect();
-    const s=document.querySelector("#vatra-language-search").getBoundingClientRect();
-    const label=document.querySelector(".language-search-shell .vatra-floating-hint");
-    const shell=document.querySelector(".language-search-shell");
-    return {dialog:d.width,field:f.width,search:s.width,
-      captionOffset:label.getBoundingClientRect().y-s.y,
-      captionSize:getComputedStyle(label).fontSize,
-      uniqueHint:shell.querySelectorAll(".vatra-floating-hint").length,
-      placeholder:document.querySelector("#vatra-language-search").placeholder};
-   });
-   assert.ok(picker.field>=picker.dialog-55&&picker.search>=picker.field-2&&
-    picker.uniqueHint===1&&picker.placeholder===" ",
-    "Search must have a single floating caption across dialog width "+width+" "+route+": "+JSON.stringify(picker));
+   const picker=await probe.evaluate(()=>({dialog:document.querySelector(".language-dialog").getBoundingClientRect().width,grid:document.querySelector(".language-grid").getBoundingClientRect().width,count:document.querySelectorAll(".language-option").length,search:!!document.querySelector("#vatra-language-search")}));
+   assert.ok(picker.count===8&&!picker.search&&picker.grid<=picker.dialog,"All eight languages without search: "+JSON.stringify(picker));
    samples.push(picker);
    await probe.close();
   }
-  assert.ok(Math.abs(samples[0].search-samples[1].search)<=2&&
-   Math.abs(samples[0].captionOffset-samples[1].captionOffset)<=2&&
-   samples[0].captionSize===samples[1].captionSize,
-   "Language search style differs between auth pages at "+width+": "+JSON.stringify(samples));
+  assert.ok(Math.abs(samples[0].grid-samples[1].grid)<=2,"Language picker width matches across auth pages");
   console.log("VATRA auth shell and language picker match "+width+"x"+height+": OK");
  }
 
@@ -1512,6 +1521,7 @@ try{
   await probe.locator(action).click();
   await probe.waitForTimeout(240);
   const error=await metrics();
+  assert.equal(await probe.locator("input[aria-invalid=true],select[aria-invalid=true]").count(),1,"Only the field named in the validation toast is marked");
   assert.ok(error.invalid==="true"&&error.oldInlineErrors===0&&
    error.hintCount===1&&error.placeholder===" "&&
    (error.floating?error.hintBottom<=error.inputTop+24:
@@ -1580,37 +1590,10 @@ try{
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
   await waitReady(probe);
   await probe.locator("[data-language-trigger]").click();
-  const search=probe.locator("#vatra-language-search");
-  assert.equal(await probe.locator(".language-search-shell .vatra-floating-hint").count(),1,
-   "Language search must not show duplicate captions");
-  await search.fill("abcdef-not-a-language");
-  await probe.waitForTimeout(240);
-  const hintGeometry=await probe.evaluate(()=>{
-   const field=document.querySelector("#vatra-language-search");
-   const shell=document.querySelector(".language-search-shell");
-   const hint=shell.querySelector(".vatra-floating-hint");
-   const ir=field.getBoundingClientRect(),hr=hint.getBoundingClientRect();
-   return {raised:shell.classList.contains("is-floating"),hintBottom:hr.bottom,fieldTop:ir.top};
-  });
-  assert.ok(hintGeometry.raised&&hintGeometry.hintBottom<=hintGeometry.fieldTop+25,
-   "Search caption must float above typed text: "+JSON.stringify(hintGeometry));
-  const clear=probe.locator(".language-search-clear");
-  await clear.waitFor({state:"visible"});
-  const pos=await probe.evaluate(()=>{
-   const input=document.querySelector("#vatra-language-search").getBoundingClientRect();
-   const button=document.querySelector(".language-search-clear").getBoundingClientRect();
-   const glyph=document.querySelector(".language-search-clear svg").getBoundingClientRect();
-   return {dy:Math.abs(button.top+button.height/2-input.top-input.height/2),
-    glyphDy:Math.abs(glyph.top+glyph.height/2-button.top-button.height/2),
-    rightGap:input.right-button.right,accessible:document.querySelector(".language-search-clear").getAttribute("aria-label")};
-  });
-  assert.ok(pos.dy<=1.5&&pos.glyphDy<=1.5&&pos.rightGap>=0&&pos.rightGap<=28&&pos.accessible,
-   "Search clear X must be centered and accessible: "+route+" "+JSON.stringify(pos));
-  await clear.click();
-  assert.equal(await search.inputValue(),"","Clearing search must remove input text "+route);
-  assert.equal(await probe.locator(".language-option:not([hidden])").count(),8,
-   "Clearing search must restore all languages "+route);
-  assert.equal(await clear.isVisible(),false,"Clear button hides when search empty "+route);
+  assert.equal(await probe.locator("#vatra-language-search").count(),0);
+  assert.equal(await probe.locator(".language-option").count(),8);
+  await probe.locator(".language-close").click();
+  assert.equal(await probe.locator(".language-dialog").isVisible(),false);
   await probe.close();
  }
  console.log("VATRA cross alignment and clearing across auth/legal pages: OK");
@@ -2973,6 +2956,8 @@ try{
  await waitReady(savedPage);
  await savedPage.locator("#saved-account-remove").click();
  assert.equal(await savedPage.locator("#saved-account-remove-dialog").isVisible(),true);
+ const savedButtons=await savedPage.locator(".saved-remove-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight})));
+ assert.deepEqual(savedButtons[0],savedButtons[1],"Confirmation buttons have equal outer dimensions");
  await savedPage.locator("#saved-remove-cancel").click();
  assert.equal(await savedPage.locator("#saved-account-remove-dialog").isVisible(),false);
  await savedPage.waitForTimeout(250);
@@ -3057,8 +3042,13 @@ try{
     table==="friendships"?
     {select:()=>({or(){return this;},eq(){return this;},order(){return this;},
      limit:async n=>{window.__vatraFriendLimitCalls.push(n);
-      return {data:window.__vatraFriendActionRows||[],error:null};}}),
-     insert:async()=>({error:null}),
+      return {data:window.__vatraFriendActionRows||[],error:null};},
+     maybeSingle:async()=>({data:window.__vatraFriendActionRows[0]||null,error:null})}),
+     insert:row=>({select:()=>({maybeSingle:async()=>{
+      const inserted={...row,id:"00000000-0000-4000-8000-000000000883",status:"pending"};
+      window.__vatraFriendActionRows.push(inserted);
+      return {data:{id:inserted.id},error:null};
+     }})}),
      delete:()=>({
       filters:[],
       eq(column,value){this.filters.push([column,String(value)]);return this;},
@@ -3679,7 +3669,7 @@ try{
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraWebpFixture.calls.signed),
    [previewFixture.item.preview_path,previewFixture.item.media_path],
    "Opening fullscreen must sign the unmodified original");
-  await feedProbe.waitForFunction(()=>{const photo=document.querySelector("#vatra-post-media-viewer .ui-vatra-post-expanded-image-001");return photo?.complete&&photo.naturalWidth>0&&photo.closest(".ui-vatra-post-media-viewer-content-001").dataset.photoMatte==="dark";});
+  await feedProbe.waitForFunction(()=>{const photo=document.querySelector("#vatra-post-media-viewer .ui-vatra-post-expanded-image-001");return photo?.complete&&photo.naturalWidth>0;});
   const postFrame=await feedProbe.evaluate(()=>{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const rect=dialog.getBoundingClientRect();
@@ -3705,22 +3695,17 @@ try{
   assert.equal(postFrame.imageFit,"contain","Post photos must preserve original proportions");
   assert.ok(Math.abs(postFrame.imageWidth-postFrame.canvasWidth)<=2&&
    Math.abs(postFrame.imageHeight-postFrame.canvasHeight)<=2,
-   "Post image must use all available black canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
+   "Post image must use all available dark graphite canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
   assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
   assert.equal(postFrame.background,"rgb(17, 20, 25)",
    "Original PNG photographs must not have white letterboxing");
   const zoomPlus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-in-001"),zoomMinus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-out-001");
   assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-viewer-brand-001").isVisible(),true);
-  const matteProbe=await feedProbe.evaluate(async()=>{
-   const canvas=document.createElement("canvas");canvas.width=4;canvas.height=4;
-   const ctx=canvas.getContext("2d");ctx.fillStyle="#3476d5";ctx.fillRect(0,0,4,4);
-   const read=async()=>{const image=new Image();image.src=canvas.toDataURL("image/png");await image.decode();return window.VATRA_POST_MEDIA.photoMatte(image);};
-   const opaque=await read();ctx.clearRect(3,3,1,1);const transparent=await read();
+  const matteProbe=await feedProbe.evaluate(()=>{
    const logo=document.querySelector("#vatra-post-media-viewer .vatra-photo-viewer-brand-001"),style=getComputedStyle(logo);
-   return {opaque,transparent,logoBackground:style.backgroundColor,logoShadow:style.boxShadow};
+   return {analysis:typeof window.VATRA_POST_MEDIA.photoMatte,background:getComputedStyle(document.querySelector(".ui-vatra-post-media-viewer-content-001")).backgroundColor,logoBackground:style.backgroundColor,logoShadow:style.boxShadow};
   });
-  assert.deepEqual(matteProbe,{opaque:"dark",transparent:"white",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"},
-   "The same PNG format must use different mattes according to actual decoded transparency, with an unboxed logo");
+  assert.deepEqual(matteProbe,{analysis:"undefined",background:"rgb(17, 20, 25)",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"});
   assert.equal(await zoomMinus.isDisabled(),true);
   const zoomValue=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001");
   await feedProbe.mouse.move(0,0);
@@ -3871,9 +3856,16 @@ try{
   console.log("VATRA Feed photo navigation: single photo isolation, same-post gallery and keyboard bounds verified.");
   assert.equal(await feedProbe.locator("#feed-create-menu").isVisible(),true,
    "Members can create from their Feed");
+  const feedCreateGeometry=await feedProbe.locator("#feed-create-menu").evaluate(button=>{const card=button.closest(".vatra-quick-compose-001"),a=card.getBoundingClientRect(),b=button.getBoundingClientRect(),style=getComputedStyle(card);return {card:a.height,button:b.height,top:b.top-a.top,bottom:a.bottom-b.bottom,borders:parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth)};});
+  assert.ok(Math.abs(feedCreateGeometry.card-feedCreateGeometry.button-feedCreateGeometry.borders)<=1&&Math.abs(feedCreateGeometry.top-feedCreateGeometry.bottom)<=1&&Math.abs(feedCreateGeometry.button-51)<=1,"Create card must match the shared compact height with no empty vertical space: "+JSON.stringify(feedCreateGeometry));
   await feedProbe.locator("#feed-create-menu").hover();
   await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-create-menu-story").isVisible(),true);
+  await feedProbe.locator("#feed-create-menu").evaluate(el=>{el.closest("[data-create-menu]").style.display="none";});
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-create-menu-panel").hidden&&document.querySelector("#feed-create-menu").getAttribute("aria-expanded")==="false");
+  await feedProbe.locator("#feed-create-menu").evaluate(el=>{el.closest("[data-create-menu]").style.removeProperty("display");});
+  await feedProbe.locator("#feed-create-menu").click();
+  await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),false);
   await feedProbe.locator("#feed-create-menu").click();
@@ -3928,6 +3920,12 @@ try{
   await feedProbe.locator("#feed-compose-media-remove").click();
   assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isDisabled(),true,
    "Removing the only attachment must lock Next in Feed");
+  assert.equal(await feedProbe.locator("#feed-compose-text").getAttribute("maxlength"),"20000");
+  await feedProbe.locator("#feed-compose-text").fill("x".repeat(17999));
+  assert.equal(await feedProbe.locator("#feed-compose-counter").isVisible(),false);
+  await feedProbe.locator("#feed-compose-text").fill("x".repeat(18000));
+  assert.equal(await feedProbe.locator("#feed-compose-counter").textContent(),"18000 / 20000");
+  assert.equal(await feedProbe.locator("#feed-compose-counter").isVisible(),true);
   await feedProbe.locator("#feed-compose-text").fill("VATRA Feed publishing smoke test");
   await feedProbe.locator(".vatra-post-composer-next-001").click();
   await feedProbe.locator("#feed-compose-save").click();
@@ -3996,14 +3994,11 @@ try{
   assert.notEqual(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>
    getComputedStyle(el,"::backdrop").backdropFilter),"none",
    "The underlying Feed should blur while comments are open");
-  await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comments-sort-001").selectOption("newest");
-  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant"],
-   "Changing sort while comments load must queue the refresh instead of starting a duplicate RPC");
+  assert.equal(await feedProbe.locator(".ui-vatra-post-comments-sort-001").count(),0,"No comment ranking selector");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["newest"]);
   await feedProbe.evaluate(()=>window.__vatraSmokeReleaseFirstComment());
-  await feedProbe.waitForFunction(()=>window.__vatraSmokeCommentCalls.length===2&&
-   document.querySelector(".ui-vatra-post-comment-list-001")?.getAttribute("aria-busy")==="false");
-  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
-   "After the in-flight request finishes, the latest selected sort must be fetched");
+  await feedProbe.waitForFunction(()=>document.querySelector(".ui-vatra-post-comment-list-001")?.getAttribute("aria-busy")==="false");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["newest"],"One chronological request");
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeReplyBatches),[
    ["00000000-0000-4000-8000-000000000101","00000000-0000-4000-8000-000000000102"]
   ],"Both roots must have a single batched reply count query");
@@ -4024,14 +4019,14 @@ try{
    return list?.getAttribute("aria-busy")==="false"&&
     list.querySelectorAll(".vatra-post-comment").length===2;
   });
-  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
-   "Reopening within four seconds should reuse the sorted comment page without a third RPC");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["newest"],
+   "Reopening within four seconds should reuse the chronological comment page without another RPC");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
     interactions:width(".vatra-post-interactions"),
     actions:width(".vatra-post-action-row"),
-    comments:width(".vatra-post-comments-filter-row"),
+    comments:width(".vatra-post-comment-list"),
     composer:width(".vatra-post-comment-form")
    };
   });
@@ -4060,35 +4055,13 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").isVisible(),true,
    "Emoji picker opens inside the current comment composer");
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-post-comment-emoji-option-001").length>1000);
-  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-sticker-tab-001").click();
-  await feedProbe.locator(".vatra-sticker-option-001").first().waitFor();
-  assert.equal(await feedProbe.locator(".vatra-sticker-pack-001").count(),9);
-  await feedProbe.getByRole("button",{name:"Батя",exact:true}).click().catch(async()=>{await feedProbe.getByRole("button",{name:"Dad",exact:true}).click();});
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-sticker-option-001").length===20);
-  await feedProbe.waitForFunction(()=>{const art=document.querySelector(".vatra-sticker-option-001 .ui-vatra-sticker-art-001");return art&&art.style.width&&art.style.visibility!=="hidden";});
-  const cropRatio=await feedProbe.locator(".vatra-sticker-option-001 .ui-vatra-sticker-art-001").first().evaluate(async art=>{
-   const mod=await import(new URL("assets/js/comment-picker.js",location.href).href);
-   const image=new Image();image.src=JSON.parse(art.style.backgroundImage.slice(4,-1));await image.decode();
-   const pack=mod.packs.find(p=>p.id==="dad"||p.uk==="Батя"),[, ,w,h]=pack.rects[0],rect=art.getBoundingClientRect();
-   return {actual:rect.width/rect.height,expected:w*image.naturalWidth/(h*image.naturalHeight)};
-  });
-  assert.ok(Math.abs(cropRatio.actual-cropRatio.expected)<.03,"Sticker thumbnails preserve the crop aspect ratio");
-  await feedProbe.locator(".vatra-sticker-option-001").first().click();
-  await feedProbe.waitForFunction(()=>!!window.__vatraSmokeStickerInsert?.media_path);
-  const sentSticker=await feedProbe.evaluate(()=>({upload:window.__vatraSmokeStickerUpload,insert:window.__vatraSmokeStickerInsert}));
-  assert.equal(sentSticker.upload.bucket,"post-images");
-  assert.equal(sentSticker.upload.type,"image/webp");
-  assert.ok(sentSticker.upload.size>0);
-  assert.match(sentSticker.upload.path,/^654321\/comments\/sticker-[0-9a-f-]+\.webp$/i);
-  assert.equal(sentSticker.insert.media_path,sentSticker.upload.path);
-  assert.equal(sentSticker.insert.body,"");
-  assert.equal(await feedProbe.locator(".vatra-post-comment-file-preview").isVisible(),false,"Sticker sends directly without a file-preview step");
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"","Sticker is an independent image, not fake emoji text");
+  assert.equal(await feedProbe.locator(".vatra-post-comment-sticker-tab-001,.vatra-sticker-option-001").count(),0,"Only ordinary emoji are available");
   const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-001");
   await attachmentControl.click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
+  await feedProbe.waitForFunction(()=>{const anchor=document.querySelector("#vatra-smoke-inline-interactions .vatra-post-comment-attach-001");const menu=document.querySelector(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu");if(!anchor||!menu||menu.hidden)return false;const a=anchor.getBoundingClientRect(),m=menu.getBoundingClientRect();return m.left>=0&&m.top>=0&&m.right<=innerWidth+1&&m.bottom<=innerHeight+1&&m.left<=a.right+2&&m.right>=a.left-2&&Math.min(Math.abs(m.bottom-a.top),Math.abs(m.top-a.bottom))<=14;},null,{timeout:3000});
 
   await feedProbe.locator(".vatra-post-comment-dialog-close-001").click();
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
@@ -4187,6 +4160,11 @@ try{
   });
   const reactHost="#vatra-reaction-integrity-test";
   const reactLike=feedProbe.locator(reactHost+" .vatra-post-like-001");
+  for(const cls of [".vatra-post-like-001",".vatra-post-comments-toggle-001",".vatra-post-share-toggle-001"]){
+   const action=feedProbe.locator(reactHost+" "+cls);
+   assert.equal(await action.getAttribute("title"),null,"Post actions must not show native tooltips");
+   assert.ok(await action.getAttribute("aria-label"),"Post actions retain accessible labels");
+  }
   const reactSave=feedProbe.locator(reactHost+" .vatra-post-save-001");
   await reactLike.click();
   await feedProbe.waitForFunction(()=>window.__vatraReactionTest.deleted.includes("post_likes")&&
@@ -4593,7 +4571,7 @@ try{
   assert.ok(await storyCanvas.isVisible(),"Photo must be drawn into the real story canvas");
   assert.equal(await storyCanvas.evaluate(el=>el.width/el.height),540/960);
   assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"overview");
-  assert.equal(await feedProbe.locator(".ui-vatra-story-tools-001 button svg").count(),6,"All story tools use SVG icons");
+  assert.equal(await feedProbe.locator(".ui-vatra-story-tools-001 button svg").count(),5,"All story tools use SVG icons");
   await feedProbe.locator("#feed-story-cancel").click();
   await feedProbe.locator(".ui-vatra-story-discard-dialog-001").waitFor({state:"visible"});
   await feedProbe.locator(".vatra-story-discard-keep-001").click();
@@ -4614,13 +4592,17 @@ try{
   assert.equal(await feedProbe.locator(".vatra-story-filter-001").nth(1).getAttribute("aria-pressed"),"true");
   await feedProbe.locator(".vatra-story-undo-001").click();
   assert.equal(await feedProbe.locator(".vatra-story-filter-001").first().getAttribute("aria-pressed"),"true");
+  assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","Story privacy defaults to friends");
+  await feedProbe.locator("#feed-story-audience").selectOption("public");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
+  assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.visibility),"public","Explicit public story audience must be persisted");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.media_kind),"image",
    "Image-only story must persist media metadata");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.body),"",
    "Story captions are optional when media exists");
   await feedProbe.locator("#feed-create-story").click();
+  assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","New stories must reset to private friends-only visibility");
   assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();
@@ -4684,10 +4666,10 @@ try{
   const accountPanel=feedProbe.locator(".feed-account-dropdown");
   const accountProfileGroup=accountPanel.locator(":scope > .ui-vatra-account-profile-group-001");
   assert.equal(await accountProfileGroup.count(),1);
-  assert.equal(await accountPanel.locator(":scope > a").count(),2,
-   "Support and Settings are the only standalone account links");
-  assert.equal(await accountPanel.locator("a").count(),4,
-   "Profile, VATRA ID, Support and Settings must remain available");
+  assert.equal(await accountPanel.locator(":scope > a").count(),3,
+   "Support, Settings and VATRA Documents are the standalone account links");
+  assert.equal(await accountPanel.locator("a").count(),5,
+   "Profile, VATRA ID, Support, Settings and VATRA Documents must remain available");
   assert.deepEqual(await accountProfileGroup.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-account-profile")?"profile":link.classList.contains("vatra-account-manage-001")?"manage":"unexpected")),["profile","manage"],
    "VATRA ID must be directly below My Profile in the same group");
   const manageAccount=accountProfileGroup.locator(".vatra-account-manage-001");
@@ -4706,8 +4688,8 @@ try{
   assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account management label and VATRA ID brand must be adjacent: "+JSON.stringify(accountRowGeometry));
   assert.deepEqual(await manageAccount.locator(":scope > span").evaluateAll(nodes=>nodes.map(node=>node.className)),["vatra-account-manage-label-001","ui-vatra-account-id-brand-001"]);
   assert.equal(await manageAccount.locator(".ui-vatra-account-id-brand-001 > .vatra-account-id-label-001").count(),1);
-  assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
-   "Support must precede Settings in the account menu");
+  assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":link.classList.contains("feed-menu-documents-link")?"documents":"unexpected")),["support","settings","documents"],
+   "Support, Settings and VATRA Documents must appear in order");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
    "Account menu contains logout and the tutorial replay action");
   assert.equal(await feedProbe.locator("#vatra-onboarding-replay").count(),1);
@@ -4716,6 +4698,9 @@ try{
   assert.equal(await feedProbe.locator(".feed-account-profile > svg").count(),1);
   assert.equal(await feedProbe.locator(".feed-menu-settings-link > svg").count(),1);
   assert.equal(await feedProbe.locator(".feed-menu-support > svg").count(),1);
+  assert.equal(await feedProbe.locator(".feed-menu-documents-link > svg").count(),1);
+  assert.equal(await feedProbe.locator(".feed-menu-documents-link").evaluate(el=>new URL(el.href).pathname.split("/").pop()),"documents");
+  assert.equal((await feedProbe.locator(".vatra-account-documents-label-001").textContent()).trim(),language==="en"?"VATRA documents":"Документи VATRA");
   assert.equal(await feedProbe.locator("#feed-logout > svg").count(),1,
    "All account actions must have persistent SVG icons in UK and EN");
   assert.equal((await feedProbe.locator(".vatra-account-settings-label-001").textContent()).trim(),
@@ -5108,8 +5093,8 @@ try{
    "Cover viewer must share the standard VATRA modal dimming");
   assert.equal(coverLayout.backdropBlur,"blur(3px)","Cover viewer must share the standard VATRA modal blur");
   assert.equal(coverLayout.modalAnimation,"none","The fullscreen cover shell must stay fixed; only the photo and backdrop may animate");
-  assert.equal(coverLayout.dialogBackground,"rgba(0, 0, 0, 0)",
-   "The dialog must not paint a second translucent layer over the background");
+  assert.equal(coverLayout.dialogBackground,"rgb(17, 20, 25)",
+   "Expanded cover must use the same solid VATRA graphite background as other photos");
   assert.equal(coverLayout.stageVisibility,"visible",
    "The final photo must appear fully opaque after its decode completes");
   assert.equal(coverLayout.originalHidden,true,
@@ -5224,7 +5209,7 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
    (language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2"),
    "Own photo captions should have no repeated name or decorative separator");
-  await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0&&document.querySelector("#profile-photo-content").dataset.photoMatte==="dark";});
+  await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0;});
   const fullscreenAvatar=await profilePage.evaluate(()=>{
    const dialog=document.querySelector("#profile-media-viewer"),rect=dialog.getBoundingClientRect();
    return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top};
@@ -5369,6 +5354,8 @@ try{
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),true,
    "Owner edits profile media separately from the public status");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
+  const profileCreateGeometry=await profilePage.locator("#profile-write-post").evaluate(button=>{const card=button.closest(".vatra-quick-compose-001"),a=card.getBoundingClientRect(),b=button.getBoundingClientRect(),style=getComputedStyle(card);return {card:a.height,button:b.height,top:b.top-a.top,bottom:a.bottom-b.bottom,borders:parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth)};});
+  assert.ok(Math.abs(profileCreateGeometry.card-profileCreateGeometry.button-profileCreateGeometry.borders)<=1&&Math.abs(profileCreateGeometry.top-profileCreateGeometry.bottom)<=1&&Math.abs(profileCreateGeometry.button-51)<=1,"Create card must match the shared compact height with no empty vertical space: "+JSON.stringify(profileCreateGeometry));
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
    language==="en"?"Create a post":"Створити публікацію");
   assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
@@ -5496,12 +5483,27 @@ try{
   assert.equal(await profilePage.locator("#profile-about-card").evaluate(el=>getComputedStyle(el).position),"static",
    "Information must not follow a reader scrolling long profile posts");
   await profilePage.locator("#profile-last-seen").waitFor({state:"visible"});
+  const deviceTips=await profilePage.evaluate(()=>{
+   const root=document.createElement("div");root.style.cssText="position:fixed;top:100px;left:100px";document.body.append(root);
+   const results=[];
+   for(const device of ["desktop","mobile","tablet"]){
+    root.replaceChildren();window.VATRA_PRESENCE.appendDevice(root,device);
+    const icon=root.querySelector("svg");icon.dispatchEvent(new PointerEvent("pointerenter",{pointerType:"mouse"}));
+    const tip=document.querySelector(".vatra-verified-tooltip");results.push({branded:!!tip?.textContent,native:!!icon.querySelector("title"),label:!!icon.getAttribute("aria-label")});
+    icon.dispatchEvent(new PointerEvent("pointerleave",{pointerType:"mouse"}));
+   }
+   root.remove();return results;
+  });
+  assert.deepEqual(deviceTips,Array.from({length:3},()=>({branded:true,native:false,label:true})),"Device icons share the VATRA tooltip");
   assert.equal(await profilePage.locator("#profile-online-dot").count(),0,"Online status is textual, not a green badge");
   await profilePage.locator("#profile-status").click();
   assert.equal(await profilePage.locator("#profile-status-dialog").evaluate(el=>el.open),true,
    "Clicking status opens a dedicated status editor");
   assert.equal(await profilePage.locator("#profile-edit-dialog").count(),0,"Legacy media dialog must be removed");
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false,"Status editing must not open the profile workspace");
+  assert.equal(await profilePage.locator("#profile-status-input").getAttribute("maxlength"),"50");
+  await profilePage.locator("#profile-status-input").fill("x".repeat(50));
+  assert.equal(await profilePage.locator("#profile-status-counter").textContent(),"50 / 50");
   await profilePage.locator("#profile-status-cancel").click();
   assert.equal(await profilePage.locator("#profile-about-more").isVisible(),false,
    "Do not show a More details action if no additional information exists");
@@ -5514,6 +5516,9 @@ try{
    "The editor keeps seven profile sections");
   assert.equal(await profilePage.locator(".profile-editor-nav-link [class^='ui-vatra-profile-editor-nav-symbol-']").count(),7,
    "Each editor section needs a recognizable VATRA icon");
+  assert.equal(await profilePage.locator("#profile-editor-short_bio").getAttribute("maxlength"),"101");
+  await profilePage.locator("#profile-editor-short_bio").fill("x".repeat(101));
+  assert.equal(await profilePage.locator("#profile-short-bio-counter").textContent(),"101 / 101");
   await profilePage.locator("#profile-editor-short_bio").fill("Тестова інформація");
   const chooseProfileEditorOption=async(id,value,label)=>{
    const trigger=profilePage.locator("#"+id);
@@ -5764,6 +5769,9 @@ try{
    "Media-only Profile post must reach visibility settings");
   await profilePage.locator(".vatra-post-composer-back-001").click();
   await profilePage.locator("#profile-compose-media-remove").click();
+  assert.equal(await profilePage.locator("#profile-compose-text").getAttribute("maxlength"),"20000");
+  await profilePage.locator("#profile-compose-text").fill("x".repeat(18000));
+  assert.equal(await profilePage.locator("#profile-compose-counter").isVisible(),true);
   await profilePage.locator("#profile-compose-text").fill(injectionText);
   await profilePage.locator(".vatra-post-composer-next-001").click();
   await profilePage.locator("#profile-compose-submit").click();
@@ -5831,7 +5839,7 @@ try{
   assert.equal(await profilePage.locator("#profile-status").isVisible(),false,
    "A visitor sees no placeholder when another member has not set a status");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
-   language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
+   language==="en"?"VATRA user · ID 789012":"Користувач VATRA · ID 789012");
 
   await profilePage.locator("#profile-tab-photos").click();
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});
@@ -5882,8 +5890,12 @@ try{
    "Friends are accessible from the About-side Friends card, not the main tabs");
   assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true,
    "Visitors have a clearly visible More menu beside friend actions");
-  await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="outgoing";});
-  await profilePage.locator("#profile-friend-button").hover();
+  const visitorFriendButton=profilePage.locator("#profile-friend-button");
+  await profilePage.waitForFunction(()=>{const el=document.querySelector("#profile-friend-button");return el?.dataset.friendState==="none"&&!el.disabled;});
+  await visitorFriendButton.click();
+  await profilePage.waitForFunction(()=>{const el=document.querySelector("#profile-friend-button");return el?.dataset.friendState==="outgoing"&&!el.disabled;});
+  await profilePage.mouse.move(0,0);
+  await visitorFriendButton.hover();
   await profilePage.locator("#profile-friend-menu-action").waitFor({state:"visible"});
   await profilePage.locator("#profile-friend-menu-action").hover();
   const friendMenuPlacement=await profilePage.locator("#profile-friend-menu").evaluate(el=>{const r=el.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,headerBottom:header.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight,topLayer:typeof el.showPopover!=="function"||el.matches(":popover-open")};});
@@ -5893,7 +5905,11 @@ try{
    "Request cancellation must remain reachable while moving from button into submenu");
   const friendColor=await profilePage.locator("#profile-friend-menu").evaluate(el=>getComputedStyle(el).backgroundColor);
   assert.equal(friendColor,"rgb(255, 255, 255)","Friend-request submenu must match white VATRA surfaces");
-  await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="none";});
+  await profilePage.evaluate(()=>{window.__vatraFriendDenyDelete=false;});
+  await profilePage.locator("#profile-friend-menu-action").click();
+  await profilePage.waitForFunction(()=>{const el=document.querySelector("#profile-friend-button");return el?.dataset.friendState==="none"&&!el.disabled;});
+  assert.equal(await profilePage.locator("#profile-friend-menu").isVisible(),false,"Cancel request must close the submenu");
+  assert.equal(await profilePage.evaluate(()=>window.__vatraFriendActionRows.length),0,"Cancel request must remove the pending friendship from the fixture");
   await profilePage.locator("#profile-more-trigger").click();
   const moreColor=await profilePage.locator("#profile-more-panel").evaluate(el=>getComputedStyle(el).backgroundColor);
   assert.equal(moreColor,"rgb(255, 255, 255)","More submenu must not have a dark visual theme");

@@ -3221,7 +3221,6 @@
   "Не вдалося завантажити перевірку безпеки. Перевірте інтернет.": "Die Sicherheitsprüfung konnte nicht geladen werden. Prüfe deine Internetverbindung.",
   "Перевірку безпеки скасовано.": "Die Sicherheitsprüfung wurde abgebrochen.",
   "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Die Sicherheitsprüfung konnte nicht abgeschlossen werden. Versuche es erneut oder prüfe die Verbindung.",
-  "Учасник VATRA": "VATRA-Mitglied",
   "Видалити мою публікацію": "Meinen Beitrag löschen",
   "Не вдалося завантажити публікації. Перевірте підключення й спробуйте ще раз.": "Beiträge konnten nicht geladen werden. Prüfe deine Verbindung und versuche es erneut.",
   "Публікація має містити від 1 до 2000 символів.": "Ein Beitrag muss 1–2000 Zeichen enthalten.",
@@ -3449,7 +3448,7 @@
   "{name}: вподобайка коментаря під фото": "{name} hat einen Kommentar zu deinem Foto mit „Gefällt mir“ markiert",
   "{name}: нова подія": "{name}: neue Aktivität",
   "Сповіщення: {count} непрочитаних": "Benachrichtigungen: {count} ungelesen",
-  "Учасник VATRA ID {id}": "VATRA-Mitglied ID {id}",
+  "Користувач VATRA ID {id}": "VATRA-Nutzer ID {id}",
   "Сторінка {page}": "Seite {page}",
   "Видалити сповіщення": "Benachrichtigung löschen",
   "Акаунт видалено": "Konto gelöscht",
@@ -3520,7 +3519,7 @@
   "Не вдалося завантажити публікації.": "Community-Beiträge konnten nicht geladen werden.",
   "Не вдалося перевірити підписку.": "Das Abonnement konnte nicht überprüft werden.",
   "Не вдалося змінити підписку.": "Das Abonnement konnte nicht geändert werden.",
-  "Додайте текст, фото або відео (до 2000 символів).": "Füge Text, ein Foto oder Video hinzu (bis zu 2000 Zeichen).",
+  "Додайте текст, фото або відео (до 20000 символів).": "Füge Text, ein Foto oder Video hinzu (bis zu 20000 Zeichen).",
   "Не вдалося опублікувати допис.": "Der Beitrag konnte nicht veröffentlicht werden.",
   "Спільноту не знайдено": "Community nicht gefunden",
   "Ця спільнота не існує або її видалено.": "Diese Community existiert nicht oder wurde gelöscht.",
@@ -3911,7 +3910,7 @@
   "Фото: до 30 МБ. Відео: до 50 МБ. Доступні JPEG, PNG, WebP, MP4, WebM.": "Fotos: bis 30 MB. Videos: bis 50 MB. Erlaubt: JPEG, PNG, WebP, MP4, WebM.",
   "Стікер": "Sticker",
   "Фото в коментарі": "Foto im Kommentar",
-  "Користувач VATRA": "VATRA-Mitglied",
+  "Користувач VATRA": "VATRA-Nutzer",
   "Не вдалося видалити коментар.": "Kommentar konnte nicht gelöscht werden.",
   "Можливий спам": "Möglicher Spam",
   "Відповісти": "Antworten",
@@ -4190,5 +4189,11 @@
   "Адреса містить облікові дані.": "Die Adresse enthält Anmeldedaten.",
   "Домен може імітувати відомий сервіс.": "Die Domain könnte einen bekannten Dienst imitieren.",
   "Адреса може перенаправити на інший сайт.": "Die Adresse könnte auf eine andere Website weiterleiten.",
-  "Посилання може завантажити виконуваний файл.": "Der Link könnte eine ausführbare Datei herunterladen."
+  "Посилання може завантажити виконуваний файл.": "Der Link könnte eine ausführbare Datei herunterladen.",
+  "Додати до чорного списку": "Zur Sperrliste hinzufügen",
+  "Посилання на профіль або VATRA ID": "Profillink oder VATRA-ID"
+,
+  "Комп’ютер": "Computer",
+  "Мобільний пристрій": "Mobilgerät",
+  "Планшет": "Tablet"
 }

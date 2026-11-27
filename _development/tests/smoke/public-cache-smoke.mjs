@@ -158,7 +158,7 @@ function userClient(author){
  const {readFileSync}=await import("node:fs");
  const edge=readFileSync("_development/supabase/functions/public-profile-names/index.ts","utf8");
  const verified=readFileSync("assets/js/verified.js","utf8");
- assert.ok(edge.includes('const PREFIX = "vatra:public:profile-name:v2:"')&&
+ assert.ok(edge.includes('const PREFIX = "vatra:public:profile-name:"')&&
   edge.includes('client.from("verified_accounts")')&&
   edge.includes('typeof row.verified === "boolean"'));
  assert.ok(!edge.includes("service_role")&&!edge.includes("SUPABASE_SECRET_KEYS"));

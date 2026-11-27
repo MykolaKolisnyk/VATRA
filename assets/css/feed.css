@@ -519,7 +519,7 @@ body.feed-page .vatra-post-gallery-extra-001{
  max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;
  overflow:hidden;overscroll-behavior:contain;background:#111419;color:#fff
 }
-.vatra-post-media-viewer::backdrop{background:rgba(12,16,24,.92)}
+.vatra-post-media-viewer::backdrop{background:#111419}
 .vatra-post-media-viewer[open]{display:flex;align-items:stretch;justify-content:stretch}
 .vatra-post-media-viewer-frame{
  display:flex;align-items:center;justify-content:center;
@@ -1082,13 +1082,14 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{
 body.feed-page:not(.community-page):not(.profile-page) .feed-main{
  grid-column:2;grid-row:1;
  display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important;
+ grid-template-rows:max-content max-content auto auto;
  column-gap:var(--vatra-card-gap)!important;row-gap:var(--vatra-card-gap)!important;align-items:start!important;
  width:100%;max-width:none;min-width:0;margin:0!important
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{display:contents!important}
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
  grid-column:1;grid-row:2;width:100%;min-width:0;margin:0;
- align-self:start;min-height:72px
+ align-self:start
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
  grid-column:1;grid-row:1;width:100%;min-width:0;margin:0;align-self:start
@@ -2392,7 +2393,7 @@ body.feed-page .vatra-post-comment .vatra-post-comment-body-001{
  color:#31415a;font:480 13.5px/1.52 "Onest",system-ui,sans-serif;
  white-space:pre-wrap;overflow-wrap:anywhere
 }
-body.feed-page .vatra-post-comment .vatra-post-comment-body-001.is-sticker{
+body.feed-page .vatra-post-comment .vatra-post-comment-body-001.is-emoji-only{
  font:500 48px/1.15 "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
  padding:5px 0
 }
@@ -2443,9 +2444,9 @@ body.feed-page .vatra-post-comment-media img{
  display:block;width:auto;height:auto;max-width:min(100%,340px);max-height:360px;
  object-fit:contain;border-radius:11px
 }
-body.feed-page .vatra-post-comment-media.is-vatra-sticker{border-radius:0;overflow:visible;margin:6px 0 4px}
-body.feed-page .vatra-post-comment-media.is-vatra-sticker img{width:auto;height:auto;max-width:min(100%,144px);max-height:144px;border-radius:0;object-fit:contain}
-body.feed-page .ui-vatra-comment-author-row-001{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0}
+body.feed-page .ui-vatra-comment-author-row-001{display:flex;align-items:center;gap:8px;width:100%;min-width:0}
+body.feed-page .ui-vatra-comment-owner-tools-001{display:flex;align-items:center;gap:4px;margin-left:auto;flex:none}
+body.feed-page .ui-vatra-comment-owner-tools-001>button{width:28px;height:28px}
 body.feed-page .vatra-comment-hover-delete-001{
  display:grid;place-items:center;flex:none;width:28px;height:28px;
  padding:4px;border:0;border-radius:8px;background:transparent;
@@ -2590,7 +2591,6 @@ body.feed-page .vatra-post-comment-emoji-option-001{
  font:26px/1 "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
  cursor:pointer
 }
-body.feed-page .vatra-post-comment-emoji-option-001.is-sticker{}
 body.feed-page .vatra-post-comment-emoji-option-001:hover{
  background:#eef4ff;transform:scale(1.07)
 }
@@ -2608,7 +2608,6 @@ body.feed-page .vatra-post-comment-emoji-option-001:hover{
  body.feed-page .vatra-post-comment-toolbar>button svg{width:18px;height:18px}
  body.feed-page .vatra-post-comment-emoji-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
  body.feed-page .vatra-post-comment-emoji-option-001{font-size:23px}
- body.feed-page .vatra-post-comment-emoji-option-001.is-sticker{font-size:35px}
 }
 
 
@@ -2694,7 +2693,7 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
 
 @media(min-width:951px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-main{
-  grid-template-rows:auto 72px auto auto!important;
+  grid-template-rows:max-content max-content auto auto!important;
   align-content:start!important;row-gap:var(--vatra-card-gap)!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{
@@ -2789,7 +2788,6 @@ body.feed-page .vatra-post-comment-emoji-tabs{flex:none}
 body.feed-page .vatra-post-comment-emoji-scroll{flex:1;min-height:0;overflow-y:auto;padding:8px 10px 10px}
 body.feed-page .vatra-post-comment-emoji-grid{grid-template-columns:repeat(auto-fit,minmax(34px,1fr));gap:3px}
 body.feed-page .vatra-post-comment-emoji-option-001{width:100%;min-width:0;height:36px;aspect-ratio:auto;font-size:23px}
-body.feed-page .vatra-post-comment-emoji-option-001.is-sticker{height:43px;font-size:32px}
 @media(max-width:600px){
  body.feed-page .vatra-post-comment-toolbar>button{width:32px;height:36px;padding:5px}
  body.feed-page .vatra-post-comment-input-wrap .ui-vatra-post-comment-input-001{font-size:16px;padding:10px 8px!important}
@@ -2883,13 +2881,6 @@ body.feed-page .vatra-post-comment-dialog .feed-post-card>.feed-post-media .feed
 .vatra-account-blocked-action-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#2863d8;color:white}
 
 
-body.feed-page .ui-vatra-sticker-packs-001{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:thin}
-body.feed-page .vatra-sticker-pack-001{flex:none;border:0;border-radius:9px;padding:8px 12px;background:#f0f4fa;color:var(--ink);font:600 13px/1.4 Onest,Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap}
-body.feed-page .vatra-sticker-pack-001[aria-pressed="true"]{background:var(--vatra-action-selected);color:var(--vatra-action-ink)}
-body.feed-page .ui-vatra-sticker-grid-001{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
-body.feed-page .vatra-sticker-option-001{display:grid;place-items:center;width:100%;min-width:0;aspect-ratio:1;border:0;padding:3px;border-radius:10px;background:transparent;cursor:pointer;overflow:hidden}
-body.feed-page .vatra-sticker-option-001:hover{background:#f0f4fa}
-body.feed-page .ui-vatra-sticker-art-001{display:block;width:100%;height:100%;background-repeat:no-repeat;pointer-events:none}
 body.feed-page .vatra-picker-loading-001,body.feed-page .vatra-picker-retry-001{font:500 14px/1.5 Onest,Inter,system-ui,sans-serif;color:var(--soft)}
 
 
@@ -3458,15 +3449,9 @@ body.feed-page .vatra-post-comments-sentinel-001[hidden]{display:none!important}
 .vatra-media-description-input-001{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #aab7c8;border-radius:8px;background:transparent;color:inherit;font:inherit;resize:vertical}
 .vatra-media-description-form-001[hidden],.vatra-media-description-001 [hidden],.vatra-media-description-001[hidden]{display:none!important}
 
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="dark"]{background:#111419}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="white"]{background:#fff}
 body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001){
- --vatra-photo-arrow-color:#fff;--vatra-photo-arrow-outline:#10141c;
+ background:#111419;--vatra-photo-arrow-color:#fff;--vatra-photo-arrow-outline:#10141c;
  --vatra-photo-arrow-hover:#151b27e8;--vatra-photo-arrow-hover-color:#fff
-}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="white"]{
- --vatra-photo-arrow-color:#31445f;--vatra-photo-arrow-outline:#fff;
- --vatra-photo-arrow-hover:#edf2f8f5;--vatra-photo-arrow-hover-color:#192c48
 }
 body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001) :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001){
  color:var(--vatra-photo-arrow-color);background:transparent;border-radius:10px;
@@ -3501,8 +3486,6 @@ body.feed-page .vatra-photo-zoom-value-001{position:absolute;left:calc(var(--vat
 body.feed-page .ui-vatra-photo-zoom-controls-001:has(.vatra-photo-zoom-wrap-in-001:hover,.vatra-photo-zoom-in-001:focus-visible) .vatra-photo-zoom-value-001{opacity:1;visibility:visible;left:calc(var(--vatra-zoom-button-size) / 2)}
 body.feed-page .ui-vatra-photo-zoom-controls-001:has(.vatra-photo-zoom-wrap-out-001:hover,.vatra-photo-zoom-out-001:focus-visible) .vatra-photo-zoom-value-001{opacity:1;visibility:visible;left:calc(100% - var(--vatra-zoom-button-size) / 2)}
 body.feed-page .vatra-photo-zoom-target-001{-webkit-user-drag:none;user-select:none}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="unknown"]{background:#fff}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="unknown"] .vatra-photo-zoom-target-001{visibility:hidden}
 body.feed-page .vatra-post-media-viewer:has(.ui-vatra-post-expanded-video-001) .ui-vatra-photo-zoom-controls-001{display:none}
 body.feed-page .profile-media-viewer.is-photo-deleted .ui-vatra-photo-zoom-controls-001{visibility:hidden}
 body.feed-page .vatra-photo-zoom-target-001{transform-origin:center;transition:scale .24s cubic-bezier(.22,.61,.36,1)}
@@ -3544,3 +3527,7 @@ body.feed-page .vatra-post-undo-001:focus-visible{outline:2px solid #8eb0f5;outl
 body.feed-page .vatra-post-undo-001:disabled{opacity:.55;cursor:wait}
 @media(prefers-reduced-motion:no-preference){.vatra-post-deleted-line-001{animation:vatra-popup-enter .18s ease-out both}}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-post-undo-001{transition:none}}
+
+body.feed-page .vatra-feed-post-read-more-001>svg{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-left:4px;transition:transform .18s ease}
+body.feed-page .vatra-feed-post-read-more-001[aria-expanded="true"]>svg{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){body.feed-page .vatra-feed-post-read-more-001>svg{transition:none}}

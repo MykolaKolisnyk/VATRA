@@ -35,6 +35,7 @@
    cancel.focus({preventScroll:true});
   });
  };
+ const profileFieldLimit=(key,kind)=>({short_bio:101,mobile_phone:32,additional_phone:32,website:250}[key]??(kind==="long"?500:120));
  const groups=[
   {id:"profile",label:["Профіль","Profile"],icon:"user-round",fields:[
    ["short_bio","Коротка інформація","Short bio","long"],
@@ -364,8 +365,8 @@
    }
 
 
-   const bio=visibleField("short_bio");
-   paragraph.textContent=bio;
+   const bio=visibleField("short_bio"),bioLimit=profileFieldLimit("short_bio","long");
+   paragraph.textContent=bio.length>bioLimit?bio.slice(0,bioLimit-1).replace(/[\uD800-\uDBFF]$/,"")+"…":bio;
    paragraph.hidden=!bio;
 
    const selected=profileSummaryKeys(visibleField);
@@ -730,7 +731,7 @@
    if(!selectBox.value)selectBox.value="friends";
    const control=make("div","ui-profile-editor-field-control-"+key);
    const inputId="profile-editor-"+key;
-   let readValue;
+   let readValue,fieldCounter;
    if(key==="address"){
     let value=current.value;
     const trigger=make("button","vatra-profile-editor-address-open-001");trigger.id=inputId;trigger.type="button";trigger.setAttribute("aria-haspopup","dialog");trigger.setAttribute("aria-label",tr("Вказати адресу","Set address"));
@@ -838,17 +839,23 @@
     }else{
      if(kind==="long")input.rows=3;
      else input.type=["mobile_phone","additional_phone"].includes(key)?"tel":"text";
-     input.maxLength=1000;input.spellcheck=kind==="long";
+     input.maxLength=profileFieldLimit(key,kind);input.spellcheck=kind==="long";
      input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):tr("Не вказано","Not specified");
      if(key==="city"||key==="hometown"){
       input.autocomplete="off";input.placeholder=key==="hometown"?tr("Місто або село, країна (за бажанням)","City or village, country (optional)"):tr("Знайти або ввести населений пункт","Find or enter a settlement");
      }
     }
     input.value=key==="country"&&!countryCodes.includes(selectedValue)?"":selectedValue;readValue=()=>input.value;
-    control.append(input);input.addEventListener(menu?"change":"input",()=>update());
+    if(key==="short_bio"){
+      fieldCounter=make("span","vatra-profile-status-counter-001");fieldCounter.id="profile-short-bio-counter";
+      input.setAttribute("aria-describedby",fieldCounter.id);
+      const refreshCount=()=>{fieldCounter.textContent=input.value.length+" / "+input.maxLength;};
+      input.addEventListener("input",refreshCount);refreshCount();
+     }
+     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city")enhanceCityInput(input);
    }
-   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
+   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
@@ -931,6 +938,11 @@
   };
   form.addEventListener("submit",async event=>{
    event.preventDefault();closeEditorMenu();if(save.disabled)return;
+   for(const [key,uk,en,kind] of groups.flatMap(group=>group.fields)){
+    if(key==="address"||key==="country"||key==="relationship"||key==="languages"||choices[key]||multiChoiceKeys.has(key))continue;
+    const value=normalizedField(draft.get(key)).value,previous=normalizedField(saved.get(key)).value,limit=profileFieldLimit(key,kind);
+    if(value!==previous&&value.length>limit){note(tr(uk,en)+": "+value.length+" / "+limit);return;}
+   }
    save.disabled=true;
 
    const records=groups.flatMap(group=>group.fields).map(field=>{
@@ -1387,7 +1399,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
    const [people,communities]=await Promise.all([namedAuthors(all),namedCommunities(all.filter(x=>x.club_id))]);
    for(const save of rows){
     const post=map.get(save.post_kind+":"+save.post_id);if(!post)continue;
-    const author=people.get(String(post.author_vatra_id))||t("Учасник VATRA","VATRA member");
+    const author=people.get(String(post.author_vatra_id))||t("Користувач VATRA","VATRA user");
     const community=save.post_kind==="group"?communities.get(String(post.club_id)):null;
     const heading=community?community+" · "+author:author;
     const article=makeRow(list,heading,post.body||t("Медіапублікація","Media post"));
@@ -1614,9 +1626,9 @@ function bindPostComposer(client,user,ownId){
  if(!trigger||!dialog||!form||!input||!submit||!validId(ownId))return;
  let publishing=false,picker=null,composerUI=null,composerLoading=null;
  const update=()=>{
-  const length=Array.from(input.value).length;
-  counter.textContent=length+" / 2000";
-  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length&&!composerUI?.getPoll?.())||length>2000||!!composerUI?.hasInvalidPoll?.()||!!composerUI?.hasInvalidSchedule?.();
+  const length=input.value.length;
+  counter.textContent=length+" / 20000";counter.hidden=length<18000;
+  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length&&!composerUI?.getPoll?.())||length>20000||!!composerUI?.hasInvalidPoll?.()||!!composerUI?.hasInvalidSchedule?.();
  };
  const clearStatus=()=>{status.textContent="";status.hidden=true;};
  picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
@@ -1662,7 +1674,7 @@ function bindPostComposer(client,user,ownId){
   const body=input.value.trim(),files=picker?.getFiles()||[];
   const poll=composerUI?.getPoll?.()||null;
   const publishAt=composerUI?.getScheduledAt?.()||null;
-  if((!body&&!files.length&&!poll)||Array.from(body).length>2000||
+  if((!body&&!files.length&&!poll)||body.length>20000||
    composerUI?.hasInvalidPoll?.()||composerUI?.hasInvalidSchedule?.()){
    status.textContent=t("Перевірте текст, опитування та дату публікації.",
     "Check the text, poll and scheduled date.");
@@ -1793,7 +1805,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
    }
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
     state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-    namesMap.get(id)||t("Учасник VATRA","VATRA member");
+    namesMap.get(id)||t("Користувач VATRA","VATRA user");
    return {id,name,avatar,state};
   });
  }
@@ -2270,11 +2282,14 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    finally{preferencesBusy=false;paintPreferences();}
   });
   if(morePanel&&removeFriend)removeFriend.addEventListener("click",()=>{if(moreMenu)moreMenu.open=false;void changeFriendship();});
-  let relation=null,busy=false,friendMenuCloseTimer=null;
+  let relation=null,busy=false,friendMenuCloseTimer=null,friendMenuKeyboard=false;
+  const friendMenuObserver=new MutationObserver(()=>{if(!friendMenu.hidden&&(!friendButton.isConnected||!friendButton.getClientRects().length||friendButton.disabled))friendMenuOpen(false);});
   const friendPopover=typeof friendMenu.showPopover==="function"&&typeof friendMenu.hidePopover==="function";
   if(friendPopover)friendMenu.setAttribute("popover","manual");
   const positionFriendMenu=()=>{
-   if(friendMenu.hidden||!friendPopover)return;
+   if(friendMenu.hidden)return;
+   if(!friendButton.isConnected||!friendButton.getClientRects().length||friendButton.disabled){friendMenuOpen(false);return;}
+   if(!friendPopover)return;
    const anchor=friendButton.getBoundingClientRect(),viewport=window.visualViewport;
    const left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=top+(viewport?.height||innerHeight);
    const headerBottom=Math.max(top,q(".feed-header")?.getBoundingClientRect().bottom||0);
@@ -2290,11 +2305,13 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=null;
    const available=["outgoing","friends"].includes(friendButton.dataset.friendState);
-   if(state&&available&&!friendAction.hidden){
+   if(state&&available&&!friendAction.hidden&&friendButton.getClientRects().length&&!friendButton.disabled){
     friendMenu.hidden=false;
     if(friendPopover&&!friendMenu.matches(":popover-open"))friendMenu.showPopover();
     positionFriendMenu();
+    if(!friendMenu.hidden){for(let node=friendButton;node;node=node.parentElement)friendMenuObserver.observe(node,{attributes:true,attributeFilter:["hidden","class","style","disabled","open"]});}
    }else{
+    friendMenuObserver.disconnect();
     if(friendPopover&&friendMenu.matches(":popover-open"))friendMenu.hidePopover();
     friendMenu.hidden=true;
    }
@@ -2307,12 +2324,16 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   const scheduleFriendMenuClose=()=>{
    clearTimeout(friendMenuCloseTimer);
    friendMenuCloseTimer=setTimeout(()=>{
-    if(!friendAction.matches(":hover")&&!friendMenu.matches(":hover")&&!friendMenu.contains(document.activeElement))friendMenuOpen(false);
+    if(!friendAction.matches(":hover")&&!friendMenu.matches(":hover")&&!(friendMenuKeyboard&&friendMenu.contains(document.activeElement)))friendMenuOpen(false);
    },340);
   };
   friendButton.setAttribute("aria-haspopup","menu");
   friendButton.setAttribute("aria-controls","profile-friend-menu");
-  friendAction.addEventListener("mouseenter",()=>friendMenuOpen(true));
+  friendAction.addEventListener("mouseenter",()=>{friendMenuKeyboard=false;friendMenuOpen(true);});
+  friendAction.addEventListener("pointerdown",()=>{friendMenuKeyboard=false;});
+  friendAction.addEventListener("keydown",()=>{friendMenuKeyboard=true;});
+  window.addEventListener("pagehide",()=>friendMenuOpen(false));
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)friendMenuOpen(false);});
   friendAction.addEventListener("mouseleave",scheduleFriendMenuClose);
   friendMenu.addEventListener("mouseenter",()=>friendMenuOpen(true));
   friendMenu.addEventListener("mouseleave",scheduleFriendMenuClose);
@@ -2438,11 +2459,12 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 }
 
 
-function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
+const PROFILE_STATUS_LIMIT=50;
+ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  const displayed=q("#profile-status"),statusText=q("#profile-status-text");
- let saved=String(initialStatus||"").slice(0,140);
+ let saved=String(initialStatus||"");
  const render=()=>{
-  statusText.textContent=saved?(Array.from(saved).length>80?Array.from(saved).slice(0,79).join("")+"…":saved):(isMine?t("Додайте статус","Add a status"):"");
+  statusText.textContent=saved?(saved.length>PROFILE_STATUS_LIMIT?saved.slice(0,PROFILE_STATUS_LIMIT-1).replace(/[\uD800-\uDBFF]$/,"")+"…":saved):(isMine?t("Додайте статус","Add a status"):"");
   displayed.hidden=!saved&&!isMine;
   displayed.disabled=!isMine;
   displayed.classList.toggle("is-editable",isMine);
@@ -2453,15 +2475,16 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  const dialog=q("#profile-status-dialog"),input=q("#profile-status-input"),
   count=q("#profile-status-counter"),save=q("#profile-status-save"),note=q("#profile-status-error");
  input.placeholder=t("Напишіть статус","Write a status");
- const counter=()=>{count.textContent=Array.from(input.value).length+" / 80";};
- const openStatus=()=>{input.value=Array.from(saved).slice(0,80).join("");counter();note.hidden=true;dialog.showModal();input.focus();};
+ input.maxLength=PROFILE_STATUS_LIMIT;
+  const counter=()=>{count.textContent=input.value.length+" / "+PROFILE_STATUS_LIMIT;};
+ const openStatus=()=>{input.value=saved;counter();note.hidden=true;dialog.showModal();input.focus();};
  displayed.addEventListener("click",openStatus);
  input.addEventListener("input",counter);
  q("#profile-status-cancel").addEventListener("click",()=>dialog.close());
  q("#profile-status-form").addEventListener("submit",async event=>{
   event.preventDefault();if(save.disabled)return;
   const next=input.value.trim();
-  if(Array.from(next).length>80){note.textContent=t("Статус надто довгий.","Status is too long.");note.hidden=false;return;}
+  if(next.length>PROFILE_STATUS_LIMIT){note.textContent=t("Статус надто довгий.","Status is too long.");note.hidden=false;return;}
   save.disabled=true;note.hidden=true;
   try{
    const {data,error}=await client.from("public_profiles")
@@ -2480,6 +2503,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
  if(!caption||!window.VATRA_PRESENCE)return;
  if(String(targetId)===String(ownId)){
   caption.textContent=t("У мережі","Online");
+  window.VATRA_PRESENCE.appendDevice(caption,window.VATRA_PRESENCE.deviceType(),english);
   caption.hidden=false;caption.dataset.online="true";caption.removeAttribute("title");
   return;
  }
@@ -2489,8 +2513,9 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
    const record=await window.VATRA_PRESENCE.load(client,targetId);
    const state=window.VATRA_PRESENCE.format(record,english);
    caption.textContent=state.online?t("У мережі","Online"):state.text||t("Статус мережі невідомий","Online status unavailable");
+   if(state.date)window.VATRA_PRESENCE.appendDevice(caption,record?.device_type,english);
    caption.hidden=false;caption.dataset.online=String(state.online);
-   if(state.date)caption.setAttribute("title",state.date.toLocaleString(english?"en-GB":"uk-UA"));else caption.removeAttribute("title");
+   caption.removeAttribute("title");
   }catch(_){caption.textContent=t("Статус мережі невідомий","Online status unavailable");caption.dataset.online="false";caption.removeAttribute("title");}
  };
  void refresh();
@@ -2568,7 +2593,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const resetTagMode=()=>{tagMode=false;photoCanvas.classList.remove("is-tagging");closeTagPicker();};
  const fitPhoto=()=>{
   if(!mediaImage.complete||!mediaImage.naturalWidth||!mediaImage.naturalHeight)return;
-  window.VATRA_POST_MEDIA?.fitPhotoViewer(mediaDialog,photoContent,mediaImage,gallery[galleryIndex]);
   const style=getComputedStyle(photoContent);
   const roomW=photoContent.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
   const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
@@ -2677,7 +2701,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentForm=q("#profile-photo-comment-form"),commentInput=q("#profile-photo-comment-text");
  const commentSend=q("#profile-photo-comment-send"),commentStatus=q("#profile-photo-status");
  const shareButton=q("#profile-photo-share");
- const photoCommentSentinel=q("#profile-photo-comments-sentinel"),photoCommentSort="relevant";
+ const photoCommentSentinel=q("#profile-photo-comments-sentinel"),photoCommentSort="newest";
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false,photoCommentHasMore=false;
  let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
@@ -3018,7 +3042,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  commentForm.addEventListener("submit",async event=>{
   event.preventDefault();
   const path=photoPath(),body=commentInput.value.trim();
-  if(commentBusy||!path||!body||Array.from(body).length>1000||!validId(ownId))return;
+  if(commentBusy||!path||!body||body.length>2000||!validId(ownId))return;
   commentBusy=true;commentSend.disabled=true;feedback("");
   try{
    const {error}=await client.from("avatar_comments").insert({
@@ -3057,7 +3081,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  commentInput.addEventListener("focus",expandComposer);commentInput.addEventListener("input",()=>{commentSend.disabled=commentBusy||!commentInput.value.trim();});
  cancelComment.addEventListener("click",()=>{resetPhotoComposer();cancelComment.blur();});
  emojiToggle.addEventListener("click",()=>{expandComposer();setEmojiOpen(emojiPanel.hidden);});
- for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>1000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
+ for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>2000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
  mediaDialog.addEventListener("click",e=>{if(!emojiPanel.hidden&&!emojiPanel.contains(e.target)&&!emojiToggle.contains(e.target))setEmojiOpen(false);});
  mediaDialog.addEventListener("close",resetPhotoComposer);
  const readAvatarGallery=async()=>{
@@ -3088,7 +3112,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    t("Фото профілю ","Profile photo of ")+displayName.split(/\s+/)[0];
   mediaHeading.textContent=photoTitle;mediaHeading.hidden=true;
   mediaDialog.setAttribute("aria-label",photoTitle);
-  mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
 
 
@@ -3099,7 +3122,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    mediaImage.onerror=null;mediaImage.src=url;originalLink.href=url;
   };
   mediaImage.alt=photoTitle;mediaImage.src=sourceUrl||url;
-  window.VATRA_POST_MEDIA?.watchPhotoViewer(mediaDialog,photoContent,mediaImage,path,finishSlide,async()=>{const {data,error}=await client.storage.from("avatars").download(path);if(error)throw error;return data;});
+  window.VATRA_POST_MEDIA?.watchPhotoViewer(mediaDialog,photoContent,mediaImage,finishSlide);
   if(mediaImage.complete)queueMicrotask(fitPhoto);
   originalLink.href=sourceUrl||url;photoFooter.hidden=false;
   resetTagMode();closeMore();reportTag("");tagMarkers.replaceChildren();tagEpoch++;
@@ -3183,7 +3206,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  coverView.addEventListener("click",()=>void openCover());
  mediaDialog.addEventListener("close",()=>{
-  window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete mediaDialog.dataset.photoSized;delete photoContent.dataset.photoMatte;
+  window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete mediaDialog.dataset.photoSized;
   galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();
   hideAvatarUndo();discardAvatarUndo();
  });
@@ -3760,7 +3783,7 @@ async function start(){
   const ownName=[metadata.first_name,metadata.last_name]
    .filter(value=>typeof value==="string"&&value.trim())
    .map(value=>value.trim()).join(" ")
-   ||String(metadata.full_name||"").trim()||t("Учасник VATRA","VATRA member");
+   ||String(metadata.full_name||"").trim()||t("Користувач VATRA","VATRA user");
   const cleanOwnName=Array.from(ownName).slice(0,100).join("");
   const nameParts=cleanOwnName.split(/\s+/).filter(Boolean);
   const first=Array.from(nameParts[0]||"V")[0]||"V";
@@ -3862,9 +3885,9 @@ async function start(){
    publicOutcome.value:{data:null,error:true};
   if(!publicError&&typeof publicProfile?.display_name==="string"){
    publicName=publicProfile.display_name.trim();
-   publicStatus=String(publicProfile.status_text||"").slice(0,140);
+   publicStatus=String(publicProfile.status_text||"");
   }
-  const fallback=t("Учасник VATRA","VATRA member")+" · ID "+targetId;
+  const fallback=t("Користувач VATRA","VATRA user")+" · ID "+targetId;
   const name=publicName||(isMine?cleanOwnName:fallback);
   q("#profile-heading").textContent=name;
   q("#profile-avatar").textContent=isMine?ownAvatar:(publicName?(

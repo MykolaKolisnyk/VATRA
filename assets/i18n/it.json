@@ -3221,7 +3221,6 @@
   "Не вдалося завантажити перевірку безпеки. Перевірте інтернет.": "Impossibile caricare il controllo di sicurezza. Controlla la connessione Internet.",
   "Перевірку безпеки скасовано.": "La verifica di sicurezza è stata annullata.",
   "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Impossibile completare la verifica di sicurezza. Riprova o controlla la connessione.",
-  "Учасник VATRA": "Membro di VATRA",
   "Видалити мою публікацію": "Elimina il mio post",
   "Не вдалося завантажити публікації. Перевірте підключення й спробуйте ще раз.": "Impossibile caricare i post. Controlla la connessione e riprova.",
   "Публікація має містити від 1 до 2000 символів.": "Un post deve contenere da 1 a 2000 caratteri.",
@@ -3449,7 +3448,7 @@
   "{name}: вподобайка коментаря під фото": "{name} ha messo Mi piace a un commento sotto la tua foto",
   "{name}: нова подія": "{name}: nuova attività",
   "Сповіщення: {count} непрочитаних": "Notifiche: {count} non lette",
-  "Учасник VATRA ID {id}": "Membro VATRA ID {id}",
+  "Користувач VATRA ID {id}": "Utente VATRA ID {id}",
   "Сторінка {page}": "Pagina {page}",
   "Видалити сповіщення": "Elimina notifica",
   "Акаунт видалено": "Account eliminato",
@@ -3520,7 +3519,7 @@
   "Не вдалося завантажити публікації.": "Impossibile caricare i post della comunità.",
   "Не вдалося перевірити підписку.": "Impossibile verificare l’iscrizione.",
   "Не вдалося змінити підписку.": "Impossibile modificare l’iscrizione.",
-  "Додайте текст, фото або відео (до 2000 символів).": "Aggiungi testo, una foto o un video (fino a 2000 caratteri).",
+  "Додайте текст, фото або відео (до 20000 символів).": "Aggiungi testo, una foto o un video (fino a 20000 caratteri).",
   "Не вдалося опублікувати допис.": "Impossibile pubblicare il post.",
   "Спільноту не знайдено": "Comunità non trovata",
   "Ця спільнота не існує або її видалено.": "Questa comunità non esiste oppure è stata eliminata.",
@@ -4190,5 +4189,11 @@
   "Адреса містить облікові дані.": "L’indirizzo contiene credenziali.",
   "Домен може імітувати відомий сервіс.": "Il dominio potrebbe imitare un servizio noto.",
   "Адреса може перенаправити на інший сайт.": "L’indirizzo potrebbe reindirizzare a un altro sito.",
-  "Посилання може завантажити виконуваний файл.": "Il link potrebbe scaricare un file eseguibile."
+  "Посилання може завантажити виконуваний файл.": "Il link potrebbe scaricare un file eseguibile.",
+  "Додати до чорного списку": "Aggiungi alla lista degli utenti bloccati",
+  "Посилання на профіль або VATRA ID": "Link al profilo o ID VATRA"
+,
+  "Комп’ютер": "Computer",
+  "Мобільний пристрій": "Dispositivo mobile",
+  "Планшет": "Tablet"
 }

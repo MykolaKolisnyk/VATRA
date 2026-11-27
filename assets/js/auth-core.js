@@ -103,16 +103,17 @@ const FIELD_ERROR_DURATION_MS=5500;
 const fieldErrorTimers=new WeakMap();
 function showFieldError(control,message){
  if(!control)return;
- const wrapper=control.closest(".field,.check-terms");
+ const wrapper=control.closest(".vatra-select,.field,.check-terms");
+ const visual=control.closest(".vatra-select")?.querySelector(".vatra-select-trigger");
  if(!wrapper)return;
  clearTimeout(fieldErrorTimers.get(control));
  fieldErrorTimers.delete(control);
  wrapper.classList.toggle("is-invalid",Boolean(message));
  if(message){
-  control.setAttribute("aria-invalid","true");
+  control.setAttribute("aria-invalid","true");visual?.setAttribute("aria-invalid","true");
   fieldErrorTimers.set(control,setTimeout(()=>showFieldError(control,""),FIELD_ERROR_DURATION_MS));
  }else{
-  control.removeAttribute("aria-invalid");
+  control.removeAttribute("aria-invalid");visual?.removeAttribute("aria-invalid");
   control.removeAttribute("aria-describedby");
  }
 }
@@ -181,29 +182,31 @@ function wireFieldValidation(){
    const value=day&&month&&year?validateBirthday():null;
    const correctDate=typeof value==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(value);
    const message=!day?"Оберіть день народження.":!month?"Оберіть місяць народження.":!year?"Оберіть рік народження.":correctDate?"":typeof value==="string"?value:"Вкажіть правильну дату народження.";
-   showFieldError(q("#birth-day"),message);
-   return message;
+   const invalid=!day?q("#birth-day"):!month?q("#birth-month"):!year?q("#birth-year"):control;
+   if(message)showFieldError(invalid,message);
+   return {control:invalid,message};
   }
   const message=validationText(control,form);
   showFieldError(control,message);
-  return message;
+  return {control,message};
  };
  for(const control of controls){
   const clear=()=>{
    showFieldError(control,"");
-   if(control.id?.startsWith("birth-"))showFieldError(q("#birth-day"),"");
+   if(control.id?.startsWith("birth-"))for(const id of ["#birth-day","#birth-month","#birth-year"])showFieldError(q(id),"");
   };
   control.addEventListener("input",clear);
   control.addEventListener("change",clear);
  }
  const validateScope=scope=>{
   let first=null;
+  for(const control of controls)showFieldError(control,"");
   for(const control of controls){
    if(scope&&!scope.contains(control))continue;
    if(control.closest("[data-create-account-step]")?.hidden)continue;
    if(control.id.startsWith("birth-")&&control.id!=="birth-day")continue;
-   const message=check(control);
-   if(message&&!first)first={control,message};
+   const result=check(control);
+   if(result.message){first=result;break;}
   }
   if(first){
    feedback(first.message,"error",{group:"auth-validation"});

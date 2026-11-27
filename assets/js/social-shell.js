@@ -82,6 +82,19 @@
   }
   const support=dropdown.querySelector(".feed-menu-support"),settings=dropdown.querySelector(".feed-menu-settings-link");
   if(support&&settings)settings.before(support);
+  if(settings&&!dropdown.querySelector(".feed-menu-documents-link")){
+   const root=new URL("../../",shellScript||location.href);
+   const documents=make("a","feed-menu-documents-link vatra-feed-menu-documents-link-001");
+   documents.href=new URL("documents",root).href;
+   const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
+   for(const [key,value] of Object.entries({class:"ui-vatra-account-documents-icon-001",viewBox:"0 0 24 24",width:"20",height:"20",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))svg.setAttribute(key,value);
+   const path=document.createElementNS(ns,"path");
+   path.setAttribute("d","M8 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2M6 7h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z");
+   svg.append(path);
+   const label=make("span","vatra-account-documents-label-001",tr("Документи VATRA","VATRA documents"));
+   label.dataset.socialUk="Документи VATRA";label.dataset.socialEn="VATRA documents";
+   documents.append(svg,label);settings.after(documents);
+  }
   const icon=(anchor,kind)=>{
    const svg=anchor?.querySelector("svg");
    if(!svg)return;
@@ -373,7 +386,7 @@
    return null;
   };
   const groupLabel=kind=>{const entry=scopes.find(x=>x[0]===kind);return entry?tr(entry[1],entry[2]):"";};
-  const resultTitle=(kind,item)=>kind==="people"?item.display_name||tr("Учасник VATRA","VATRA member"):kind==="communities"?item.name:kind==="products"?item.title:String(item.body||groupLabel(kind)).slice(0,105);
+  const resultTitle=(kind,item)=>kind==="people"?item.display_name||tr("Користувач VATRA","VATRA user"):kind==="communities"?item.name:kind==="products"?item.title:String(item.body||groupLabel(kind)).slice(0,105);
   const resultDetails=(kind,item)=>kind==="people"?item.status_text:kind==="communities"?item.description:kind==="products"?[Number(item.price).toLocaleString(lang()==="en"?"en-GB":"uk-UA",{maximumFractionDigits:2})+" "+({UAH:"₴",USD:"$",EUR:"€"}[item.currency]||"₴"),item.city].filter(Boolean).join(" · "):item.kind==="group"?tr("Дописи спільнот","Community posts"):tr("Стрічка VATRA","VATRA feed");
   const vectors={people:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21v-2a7.5 7.5 0 0 1 15 0v2",communities:"M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 20v-1a6 6 0 0 1 12 0v1M17 6a3 3 0 0 1 0 5M18 14a5 5 0 0 1 3 5v1",products:"M4 7h16l1 14H3L4 7Zm4 0V5a4 4 0 0 1 8 0v2",posts:"M5 3.5h14v17H5zM8 9h8M8 13h8M8 17h5",photos:"M3 4h18v16H3zM3 17l6-6 4 4 3-3 5 5M16 8h.1",videos:"M3 5h13v14H3zM16 10l5-3v10l-5-3",clips:"M3 4h18v16H3zM9 9l6 3-6 3z"};
   const resultIcon=(kind,item,suffix)=>{
