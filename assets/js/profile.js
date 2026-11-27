@@ -1485,7 +1485,8 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
      const dialog=q("#profile-story-viewer");
      const text=q("#profile-story-viewer-text");
      q("#profile-story-viewer-heading").textContent=dateText(item.created_at);
-     q("#profile-story-viewer-delete").hidden=true;
+     const storyMenu=q("#profile-story-viewer-menu");
+     storyMenu.open=false;storyMenu.hidden=true;q("#profile-story-viewer-delete").hidden=true;
      text.textContent=item.body||"";text.hidden=!item.body;
      dialog.dataset.theme=String(item.theme||0);
      dialog.showModal();
@@ -2595,7 +2596,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const mediaDialog=q("#profile-media-viewer"),mediaImage=q("#profile-media-viewer-image");
  const mediaHeading=q("#profile-media-viewer-heading"),storyDialog=q("#profile-story-viewer");
  const storyHeading=q("#profile-story-viewer-heading"),storyBody=q("#profile-story-viewer-text");
- const storyMedia=q("#profile-story-viewer-media"),storyViewerDelete=q("#profile-story-viewer-delete");
+ const storyMedia=q("#profile-story-viewer-media"),storyViewerDelete=q("#profile-story-viewer-delete"),storyMenu=q("#profile-story-viewer-menu");
  const bucketFor=kind=>kind==="avatar"?"avatars":"covers";
  let saved=null,activeStory=null;
  const photoURLs={avatar:null,cover:null};
@@ -3241,7 +3242,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   storyBody.textContent=activeStory.body||"";
   storyBody.hidden=!String(activeStory.body||"").trim();
   storyDialog.dataset.theme=String(activeStory.theme||0);
-  storyViewerDelete.hidden=!canEdit||!activeStory.id;
+  storyMenu.open=false;storyMenu.hidden=storyViewerDelete.hidden=!canEdit||!activeStory.id;
   closeAvatarMenu();
   storyDialog.showModal();
   void window.VATRA_POST_MEDIA?.renderStory(client,
@@ -3282,7 +3283,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }finally{deleteStoryButton.disabled=storyViewerDelete.disabled=false;}
  };
  deleteStoryButton.addEventListener("click",deleteActiveStory);
- storyViewerDelete.addEventListener("click",deleteActiveStory);
+ storyViewerDelete.addEventListener("click",()=>{storyMenu.open=false;void deleteActiveStory();});
+ storyDialog.addEventListener("click",event=>{if(storyMenu.open&&!storyMenu.contains(event.target))storyMenu.open=false;});
+ storyDialog.addEventListener("cancel",event=>{if(storyMenu.open){event.preventDefault();storyMenu.open=false;q("#profile-story-viewer-menu-toggle").focus();}});
  q("#profile-media-viewer-close").addEventListener("click",()=>{
   if(!avatarDeleteInProgress&&!uploading)mediaDialog.close();
  });
@@ -3291,7 +3294,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  q("#profile-story-viewer-close").addEventListener("click",()=>storyDialog.close());
  storyDialog.addEventListener("close",()=>{
-  if(!storyDialog.open)window.VATRA_POST_MEDIA?.clearStory(storyMedia);
+  if(!storyDialog.open){storyMenu.open=false;window.VATRA_POST_MEDIA?.clearStory(storyMedia);}
  });
  mediaDialog.addEventListener("click",event=>{
   if(event.target===mediaDialog&&!avatarDeleteInProgress&&!uploading)mediaDialog.close();

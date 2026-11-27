@@ -5476,7 +5476,13 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
    "The profile owner must be able to delete the active story");
   await profilePage.locator("#profile-avatar-story").click();
-  assert.equal(await profilePage.locator("#profile-story-viewer-delete").isVisible(),true,"Owner can delete directly from the viewer");
+  assert.equal(await profilePage.locator("#profile-story-viewer-delete").isVisible(),false,"Owner actions start closed");
+  await profilePage.locator("#profile-story-viewer-menu-toggle").click();
+  assert.equal(await profilePage.locator("#profile-story-viewer-delete").isVisible(),true,"Owner can delete from the viewer action menu");
+  await profilePage.keyboard.press("Escape");
+  assert.equal(await profilePage.locator("#profile-story-viewer").evaluate(el=>el.open),true,"Escape dismisses actions before the viewer");
+  assert.equal(await profilePage.locator("#profile-story-viewer-delete").isVisible(),false);
+  await profilePage.locator("#profile-story-viewer-menu-toggle").click();
   await profilePage.locator("#profile-story-viewer-delete").click();
   assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),true,
    "Story deletion must use VATRA's styled confirmation instead of a browser alert");
