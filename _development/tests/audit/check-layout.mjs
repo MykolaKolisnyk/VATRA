@@ -1443,6 +1443,20 @@ assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-story-menu-icon-00
  "Viewing a story must use the same vector in the avatar menu and visitor button");
 const postActionSource=await read("assets/js/post-interactions.js");
 const photoActionSource=await read("assets/js/post-media.js");
+const editGeometry=sharedIconGeometry(iconProfileMarkup,"ui-profile-edit-profile-icon-001");
+assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-cover-change-icon-001"),editGeometry,
+ "Profile and cover edit buttons must use one normalized pencil SVG");
+const pencilPath=editGeometry.match(/ d="([^"]+)"/)?.[1];
+assert.ok(pencilPath,"Canonical edit pencil path is required");
+for(const [path,extract] of [
+ ["assets/js/profile.js",/edit:"([^"]+)"/],
+ ["assets/js/post-interactions.js",/if\(type==="edit"\)path\("([^"]+)"\)/],
+ ["assets/js/profile-avatar-comment-row.js",/editPath\.setAttribute\("d","([^"]+)"\)/],
+ ["assets/js/photo-albums.js",/edit:"([^"]+)"/]
+]){
+ assert.equal((await read(path)).match(extract)?.[1],pencilPath,path+": edit actions must use the canonical pencil geometry");
+}
+
 for(const [photoKey,postKey] of [["trash","delete"],["pin","pin"],["archive","archive"],["share","share"]]){
  const postPath=postActionSource.split('if(type==="'+postKey+'")path("')[1]?.split('"')[0];
  const photoPath=photoActionSource.split(photoKey+':"')[1]?.split('"')[0];

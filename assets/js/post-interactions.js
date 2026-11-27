@@ -24,7 +24,7 @@
   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
   svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("width","20");
   svg.setAttribute("height","20");svg.setAttribute("fill","none");
-  svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.85");
+  svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width",type==="edit"?"1.8":"1.85");
   svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
   svg.setAttribute("aria-hidden","true");svg.classList.add("ui-vatra-post-action-symbol-001");
   const path=(d)=>{
@@ -44,7 +44,7 @@
   if(type==="file")path("M6 3h9l4 4v14H6V3ZM15 3v5h4");
   if(type==="x")path("M5 5 19 19M19 5 5 19");
   if(type==="pin")path("m16 3 5 5-4 1-3 5v3l-2 2-7-7 2-2h3l5-3 1-4ZM8 16l-5 5");
-  if(type==="edit")path("m4 16-1 5 5-1L21 7l-4-4Zm10-10 4 4");
+  if(type==="edit")path("M14.5 5.5l4 4M3 21l5-1L20.5 7.5a2.83 2.83 0 0 0-4-4L4 16l-1 5Z");
   if(type==="copy")path("M8 8h13v13H8zM16 8V3H3v13h5");
   if(type==="archive")path("M3 5h18v4H3zM5 9v12h14V9m-9 4h4");
   if(type==="delete")path("M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7");

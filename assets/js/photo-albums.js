@@ -23,7 +23,7 @@
   el.setAttribute("class",cls);el.setAttribute("viewBox","0 0 24 24");
   el.setAttribute("width","22");el.setAttribute("height","22");
   el.setAttribute("fill","none");el.setAttribute("stroke","currentColor");
-  el.setAttribute("stroke-width","1.85");el.setAttribute("stroke-linecap","round");
+  el.setAttribute("stroke-width",type==="edit"?"1.8":"1.85");el.setAttribute("stroke-linecap","round");
   el.setAttribute("stroke-linejoin","round");el.setAttribute("aria-hidden","true");
   const paths={
    albums:"M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 11h18",
@@ -38,6 +38,7 @@
    smile:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM8 14c2.2 3 5.8 3 8 0M9 10h.01M15 10h.01",
    upload:"M12 16V3m-5 5 5-5 5 5M4 17v4h16v-4",
    settings:"M4 7h16M7 7v4M4 17h16M17 13v4",
+   edit:"M14.5 5.5l4 4M3 21l5-1L20.5 7.5a2.83 2.83 0 0 0-4-4L4 16l-1 5Z",
    trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7",
    shield:"M12 2l8 4v6c0 5-3.3 8-8 10-4.7-2-8-5-8-10V6z"
   };
@@ -981,7 +982,7 @@
    });
    actions.append(share);
    if(isMine){
-    actions.append(addIcon(button("vatra-albums-icon-button-001",t("Редагувати","Edit"),()=>editAlbum(album)),"settings"),
+    actions.append(addIcon(button("vatra-albums-icon-button-001",t("Редагувати","Edit"),()=>editAlbum(album)),"edit"),
      addIcon(button("vatra-albums-icon-button-001",t("Додати фотографії","Add photos"),()=>{state.uploadMode="album";uploadInput.click();}),"upload"),
      addIcon(button("vatra-albums-delete-button-001",t("Видалити альбом","Delete album"),()=>void removeAlbum(album)),"trash"));
    }
