@@ -5514,6 +5514,9 @@ try{
    "Clicking status opens a dedicated status editor");
   assert.equal(await profilePage.locator("#profile-edit-dialog").count(),0,"Legacy media dialog must be removed");
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false,"Status editing must not open the profile workspace");
+  assert.equal(await profilePage.locator("#profile-status-input").getAttribute("maxlength"),"50");
+  await profilePage.locator("#profile-status-input").fill("x".repeat(50));
+  assert.equal(await profilePage.locator("#profile-status-counter").textContent(),"50 / 50");
   await profilePage.locator("#profile-status-cancel").click();
   assert.equal(await profilePage.locator("#profile-about-more").isVisible(),false,
    "Do not show a More details action if no additional information exists");
@@ -5526,6 +5529,9 @@ try{
    "The editor keeps seven profile sections");
   assert.equal(await profilePage.locator(".profile-editor-nav-link [class^='ui-vatra-profile-editor-nav-symbol-']").count(),7,
    "Each editor section needs a recognizable VATRA icon");
+  assert.equal(await profilePage.locator("#profile-editor-short_bio").getAttribute("maxlength"),"101");
+  await profilePage.locator("#profile-editor-short_bio").fill("x".repeat(101));
+  assert.equal(await profilePage.locator("#profile-short-bio-counter").textContent(),"101 / 101");
   await profilePage.locator("#profile-editor-short_bio").fill("Тестова інформація");
   const chooseProfileEditorOption=async(id,value,label)=>{
    const trigger=profilePage.locator("#"+id);

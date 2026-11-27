@@ -35,6 +35,7 @@
    cancel.focus({preventScroll:true});
   });
  };
+ const profileFieldLimit=(key,kind)=>({short_bio:101,mobile_phone:32,additional_phone:32,website:250}[key]??(kind==="long"?500:120));
  const groups=[
   {id:"profile",label:["Профіль","Profile"],icon:"user-round",fields:[
    ["short_bio","Коротка інформація","Short bio","long"],
@@ -364,8 +365,8 @@
    }
 
 
-   const bio=visibleField("short_bio");
-   paragraph.textContent=bio;
+   const bio=visibleField("short_bio"),bioLimit=profileFieldLimit("short_bio","long");
+   paragraph.textContent=bio.length>bioLimit?bio.slice(0,bioLimit-1).replace(/[\uD800-\uDBFF]$/,"")+"…":bio;
    paragraph.hidden=!bio;
 
    const selected=profileSummaryKeys(visibleField);
@@ -730,7 +731,7 @@
    if(!selectBox.value)selectBox.value="friends";
    const control=make("div","ui-profile-editor-field-control-"+key);
    const inputId="profile-editor-"+key;
-   let readValue;
+   let readValue,fieldCounter;
    if(key==="address"){
     let value=current.value;
     const trigger=make("button","vatra-profile-editor-address-open-001");trigger.id=inputId;trigger.type="button";trigger.setAttribute("aria-haspopup","dialog");trigger.setAttribute("aria-label",tr("Вказати адресу","Set address"));
@@ -838,17 +839,23 @@
     }else{
      if(kind==="long")input.rows=3;
      else input.type=["mobile_phone","additional_phone"].includes(key)?"tel":"text";
-     input.maxLength=1000;input.spellcheck=kind==="long";
+     input.maxLength=profileFieldLimit(key,kind);input.spellcheck=kind==="long";
      input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):tr("Не вказано","Not specified");
      if(key==="city"||key==="hometown"){
       input.autocomplete="off";input.placeholder=key==="hometown"?tr("Місто або село, країна (за бажанням)","City or village, country (optional)"):tr("Знайти або ввести населений пункт","Find or enter a settlement");
      }
     }
     input.value=key==="country"&&!countryCodes.includes(selectedValue)?"":selectedValue;readValue=()=>input.value;
-    control.append(input);input.addEventListener(menu?"change":"input",()=>update());
+    if(key==="short_bio"){
+      fieldCounter=make("span","vatra-profile-status-counter-001");fieldCounter.id="profile-short-bio-counter";
+      input.setAttribute("aria-describedby",fieldCounter.id);
+      const refreshCount=()=>{fieldCounter.textContent=input.value.length+" / "+input.maxLength;};
+      input.addEventListener("input",refreshCount);refreshCount();
+     }
+     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city")enhanceCityInput(input);
    }
-   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
+   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
@@ -931,6 +938,11 @@
   };
   form.addEventListener("submit",async event=>{
    event.preventDefault();closeEditorMenu();if(save.disabled)return;
+   for(const [key,uk,en,kind] of groups.flatMap(group=>group.fields)){
+    if(key==="address"||key==="country"||key==="relationship"||key==="languages"||choices[key]||multiChoiceKeys.has(key))continue;
+    const value=normalizedField(draft.get(key)).value,previous=normalizedField(saved.get(key)).value,limit=profileFieldLimit(key,kind);
+    if(value!==previous&&value.length>limit){note(tr(uk,en)+": "+value.length+" / "+limit);return;}
+   }
    save.disabled=true;
 
    const records=groups.flatMap(group=>group.fields).map(field=>{
@@ -2438,11 +2450,12 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 }
 
 
-function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
+const PROFILE_STATUS_LIMIT=50;
+ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  const displayed=q("#profile-status"),statusText=q("#profile-status-text");
- let saved=String(initialStatus||"").slice(0,140);
+ let saved=String(initialStatus||"");
  const render=()=>{
-  statusText.textContent=saved?(Array.from(saved).length>80?Array.from(saved).slice(0,79).join("")+"…":saved):(isMine?t("Додайте статус","Add a status"):"");
+  statusText.textContent=saved?(saved.length>PROFILE_STATUS_LIMIT?saved.slice(0,PROFILE_STATUS_LIMIT-1).replace(/[\uD800-\uDBFF]$/,"")+"…":saved):(isMine?t("Додайте статус","Add a status"):"");
   displayed.hidden=!saved&&!isMine;
   displayed.disabled=!isMine;
   displayed.classList.toggle("is-editable",isMine);
@@ -2453,15 +2466,16 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  const dialog=q("#profile-status-dialog"),input=q("#profile-status-input"),
   count=q("#profile-status-counter"),save=q("#profile-status-save"),note=q("#profile-status-error");
  input.placeholder=t("Напишіть статус","Write a status");
- const counter=()=>{count.textContent=Array.from(input.value).length+" / 80";};
- const openStatus=()=>{input.value=Array.from(saved).slice(0,80).join("");counter();note.hidden=true;dialog.showModal();input.focus();};
+ input.maxLength=PROFILE_STATUS_LIMIT;
+  const counter=()=>{count.textContent=input.value.length+" / "+PROFILE_STATUS_LIMIT;};
+ const openStatus=()=>{input.value=saved;counter();note.hidden=true;dialog.showModal();input.focus();};
  displayed.addEventListener("click",openStatus);
  input.addEventListener("input",counter);
  q("#profile-status-cancel").addEventListener("click",()=>dialog.close());
  q("#profile-status-form").addEventListener("submit",async event=>{
   event.preventDefault();if(save.disabled)return;
   const next=input.value.trim();
-  if(Array.from(next).length>80){note.textContent=t("Статус надто довгий.","Status is too long.");note.hidden=false;return;}
+  if(next.length>PROFILE_STATUS_LIMIT){note.textContent=t("Статус надто довгий.","Status is too long.");note.hidden=false;return;}
   save.disabled=true;note.hidden=true;
   try{
    const {data,error}=await client.from("public_profiles")
@@ -3862,7 +3876,7 @@ async function start(){
    publicOutcome.value:{data:null,error:true};
   if(!publicError&&typeof publicProfile?.display_name==="string"){
    publicName=publicProfile.display_name.trim();
-   publicStatus=String(publicProfile.status_text||"").slice(0,140);
+   publicStatus=String(publicProfile.status_text||"");
   }
   const fallback=t("Користувач VATRA","VATRA user")+" · ID "+targetId;
   const name=publicName||(isMine?cleanOwnName:fallback);
