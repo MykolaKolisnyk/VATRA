@@ -2494,6 +2494,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
  if(!caption||!window.VATRA_PRESENCE)return;
  if(String(targetId)===String(ownId)){
   caption.textContent=t("У мережі","Online");
+  window.VATRA_PRESENCE.appendDevice(caption,window.VATRA_PRESENCE.deviceType(),english);
   caption.hidden=false;caption.dataset.online="true";caption.removeAttribute("title");
   return;
  }
@@ -2503,6 +2504,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
    const record=await window.VATRA_PRESENCE.load(client,targetId);
    const state=window.VATRA_PRESENCE.format(record,english);
    caption.textContent=state.online?t("У мережі","Online"):state.text||t("Статус мережі невідомий","Online status unavailable");
+   if(state.date)window.VATRA_PRESENCE.appendDevice(caption,record?.device_type,english);
    caption.hidden=false;caption.dataset.online=String(state.online);
    if(state.date)caption.setAttribute("title",state.date.toLocaleString(english?"en-GB":"uk-UA"));else caption.removeAttribute("title");
   }catch(_){caption.textContent=t("Статус мережі невідомий","Online status unavailable");caption.dataset.online="false";caption.removeAttribute("title");}

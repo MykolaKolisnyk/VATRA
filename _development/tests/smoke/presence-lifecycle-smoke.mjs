@@ -18,6 +18,7 @@ const document={
  addEventListener(name,handler,options){listeners.push({name,handler,options});}
 };
 const window={
+ navigator:{userAgent:"Desktop browser",userAgentData:{mobile:false}},
  addEventListener(name,handler,options){listeners.push({name,handler,options});}
 };
 function fire(name,event={}){
@@ -34,6 +35,7 @@ function makeClient(label){
    return {upsert(row,options){
     assert.equal(options.onConflict,"vatra_id");
     assert.ok(row.last_seen_at);
+    assert.equal(row.device_type,window.navigator.userAgentData.mobile?"mobile":"desktop");
     assert.ok(["masculine","feminine","neutral"].includes(row.form));
     return {select(columns){
      assert.equal(columns,"vatra_id");
@@ -62,9 +64,13 @@ const validId=x=>/^[1-9][0-9]{0,18}$/.test(String(x??""));
 const grammar=gender=>gender==="male"?"masculine":gender==="female"?"feminine":"neutral";
 const activeWindow=150000,HEARTBEAT_INTERVAL_MS=45000,RETRY_INTERVAL_MS=12000;
 ${source.slice(first,end)}
-globalThis.presenceTest={start,stop,active:()=>active};
+globalThis.presenceTest={start,stop,deviceType,active:()=>active};
 `,context);
 const presence=context.presenceTest;
+assert.equal(presence.deviceType({userAgent:"Mozilla Android",userAgentData:{mobile:true}}),"mobile");
+assert.equal(presence.deviceType({userAgent:"Desktop",platform:"MacIntel",maxTouchPoints:5}),"mobile");
+assert.equal(presence.deviceType({userAgent:"Desktop",userAgentData:{mobile:false}}),"desktop");
+assert.equal(presence.deviceType({}),null);
 const a=makeClient("A"),b=makeClient("B");
 const started=presence.start(a.client,"12","male");
 await new Promise(resolve=>setImmediate(resolve));

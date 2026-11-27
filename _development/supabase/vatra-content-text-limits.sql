@@ -1,5 +1,5 @@
 -- Prepared for review; do not run before checking the release workflow and current schema.
--- VATRA content text limits. Existing text is never truncated or deleted.
+-- VATRA content text limits. Trim existing oversized profile text as requested.
 -- Apply atomically. Keep all existing media and non-empty content requirements.
 begin;
 set local lock_timeout = '5s';
@@ -42,27 +42,18 @@ alter table public.photo_album_comments
  drop constraint photo_album_comments_body_check,
  add constraint photo_album_comments_body_check check (char_length(btrim(body)) between 1 and 2000);
 
+update public.profile_details set field_value=left(field_value,101)
+ where field_key='short_bio' and char_length(field_value)>101;
 alter table public.profile_details
  add constraint vatra_profile_short_bio_length check (field_key <> 'short_bio' or char_length(field_value) <= 101);
+update public.public_profiles set status_text=left(status_text,50) where char_length(status_text)>50;
+alter table public.public_profiles
+ drop constraint vatra_public_profiles_status_length,
+ add constraint vatra_public_profiles_status_length check (status_text is null or char_length(status_text)<=50);
 
--- One existing status is over 50 characters. Retain the original 140-char check
--- for legacy rows; reject new oversized statuses without blocking unrelated updates.
-create function public.vatra_enforce_status_text_limit() returns trigger
- language plpgsql security invoker set search_path = '' as $$
-begin
- if tg_op = 'UPDATE' then
-  if new.status_text is not distinct from old.status_text then return new; end if;
- end if;
- if char_length(new.status_text) > 50 then
-  raise exception 'Profile status exceeds 50 characters' using errcode = '23514';
- end if;
- return new;
-end;
-$$;
-revoke all on function public.vatra_enforce_status_text_limit() from public, anon, authenticated;
-create trigger vatra_enforce_status_text_limit
- before insert or update of status_text on public.public_profiles
- for each row execute function public.vatra_enforce_status_text_limit();
+-- Same row-level access and heartbeat schedule; no raw device identifiers.
+alter table public.profile_presence
+ add column device_type text check (device_type in ('desktop','mobile'));
 
 -- Stories already have the agreed 260-character check. No change.
 commit;

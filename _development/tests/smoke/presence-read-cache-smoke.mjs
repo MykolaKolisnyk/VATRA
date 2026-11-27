@@ -26,7 +26,7 @@ function viewer(label){
   from(table){
    assert.equal(table,"profile_presence");
    return {select(fields){
-    assert.equal(fields,"last_seen_at,form");
+    assert.equal(fields,"last_seen_at,form,device_type");
     return {eq(key,id){
      assert.equal(key,"vatra_id");
      return {maybeSingle(){
@@ -56,7 +56,7 @@ function viewer(label){
   }};
 }
 const profile=(id,form="neutral")=>({
- last_seen_at:"2026-11-14T12:00:00.000Z",form,
+ last_seen_at:"2026-11-14T12:00:00.000Z",form,device_type:"mobile",
  vatra_id:"should-not-enter-cache"
 });
 const a=viewer("A"),b=viewer("B");
@@ -65,6 +65,7 @@ assert.equal(a.calls,1,"Two simultaneous readers need only one RLS request");
 a.finish(profile(17,"masculine"));
 const [a1,a2]=await Promise.all([first,shared]);
 assert.equal(a1.form,"masculine");
+assert.equal(a1.device_type,"mobile");
 assert.equal(a2.form,"masculine");
 assert.equal(a1.vatra_id,undefined,"Cache exposes only the selected presence fields");
 a1.form="mutated";
