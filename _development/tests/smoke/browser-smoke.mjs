@@ -5425,9 +5425,11 @@ try{
    "Restore must return to the same gallery photo after the profile refresh completes");
 
   assert.equal(await profilePage.locator("#profile-avatar-engagement").isVisible(),true,"Historical avatars retain their own engagement panel");
+  assert.equal(await profilePage.locator("#profile-media-viewer .vatra-media-description-001").count(),0,"Historical avatars have no description editor");
   assert.equal(await profilePage.locator("#profile-media-viewer-heading").isVisible(),false,"Avatar gallery has no redundant heading");
   await profilePage.keyboard.press("ArrowLeft");
   assert.ok(/\/avatars\/654321\/avatar\/test-profile(?:-original)?\.webp/.test(await profilePage.locator("#profile-media-viewer-image").getAttribute("src")));
+  assert.equal(await profilePage.locator("#profile-media-viewer .vatra-media-description-001").count(),0,"Current avatar has no description editor");
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape should close the fullscreen avatar viewer");

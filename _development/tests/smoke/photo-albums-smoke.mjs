@@ -193,12 +193,11 @@ assert.ok(
  script.includes('photoCaptionEditor.paint(state.currentPhoto?.caption,isMine)')&&
  script.includes('client.from("album_photos").update({caption}).eq("id",row.id).eq("owner_vatra_id",ownId)')&&
  script.includes('photoCaptionEditor.reset()')&&
- profile.includes('VATRA_POST_MEDIA.mediaDescription({kind:"avatar-photo"')&&
- profile.includes('avatarCaption.paint(data?.caption,canEdit)')&&
- profile.includes('upsert({owner_vatra_id:ownId,avatar_path:path,caption}')&&
- profile.includes('avatarCaption.reset()')&&
+ !profile.includes('VATRA_POST_MEDIA.mediaDescription({kind:"avatar-photo"')&&
+ !profile.includes("loadAvatarDescription")&&
+ !profile.includes('from("avatar_photo_descriptions").upsert')&&
  profile.includes("VATRA_USE_PHOTO_AS_AVATAR"),
- "Single-post, album and avatar descriptions must share the editor, preserve source identity, owner-scoped writes and avatar selection"
+ "Only single-post and ordinary album photos may have descriptions; preserve owner-scoped writes and avatar selection"
 );
 
 const feedCss=await readFile("assets/css/feed.css","utf8");
@@ -229,7 +228,7 @@ assert.ok(
 );
 console.log("VATRA albums: syntax, navigation, CRUD, private Storage, RLS, responsive UI and cache isolation passed.");
 
-assert.ok(profile.includes('from("avatar_photo_descriptions")')&&profile.includes("loadAvatarDescription(path)"),"Avatar descriptions must be keyed by source image");
+assert.ok(!profile.includes('from("avatar_photo_descriptions").select')&&!profile.includes('from("avatar_photo_descriptions").upsert'),"Avatar viewer must not read or edit descriptions");
 assert.ok(script.includes("selectedPhotos=new Map()")&&script.includes("selectPhoto(photo)")&&script.includes("bulkDelete"),"Album multi-selection must manage actual photo rows");
 
 const photoActions=await readFile("_development/supabase/migrations/20261124065500_avatar_photo_descriptions.sql","utf8");
