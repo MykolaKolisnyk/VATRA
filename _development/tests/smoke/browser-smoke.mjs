@@ -3690,7 +3690,7 @@ try{
   assert.equal(postFrame.imageFit,"contain","Post photos must preserve original proportions");
   assert.ok(Math.abs(postFrame.imageWidth-postFrame.canvasWidth)<=2&&
    Math.abs(postFrame.imageHeight-postFrame.canvasHeight)<=2,
-   "Post image must use all available black canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
+   "Post image must use all available dark graphite canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
   assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
   assert.equal(postFrame.background,"rgb(17, 20, 25)",
    "Original PNG photographs must not have white letterboxing");
@@ -5088,8 +5088,8 @@ try{
    "Cover viewer must share the standard VATRA modal dimming");
   assert.equal(coverLayout.backdropBlur,"blur(3px)","Cover viewer must share the standard VATRA modal blur");
   assert.equal(coverLayout.modalAnimation,"none","The fullscreen cover shell must stay fixed; only the photo and backdrop may animate");
-  assert.equal(coverLayout.dialogBackground,"rgba(0, 0, 0, 0)",
-   "The dialog must not paint a second translucent layer over the background");
+  assert.equal(coverLayout.dialogBackground,"rgb(17, 20, 25)",
+   "Expanded cover must use the same solid VATRA graphite background as other photos");
   assert.equal(coverLayout.stageVisibility,"visible",
    "The final photo must appear fully opaque after its decode completes");
   assert.equal(coverLayout.originalHidden,true,
