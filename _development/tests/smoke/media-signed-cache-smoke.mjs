@@ -313,7 +313,9 @@ console.log("VATRA inline video: deferred request, actual download failure, fres
  const begin=source.indexOf(" async function removeGallery(");
  const finish=source.indexOf(" async function uploadGallery(",begin);
  assert.ok(begin>=0&&finish>begin);
- const env={};runInNewContext(source.slice(begin,finish)+"\nglobalThis.cleanup=removeGallery;",env);
+ const routingStart=source.indexOf(" const validId="),routingEnd=source.indexOf(" const storyPathValid=",routingStart);
+ assert.ok(routingStart>=0&&routingEnd>routingStart);
+ const env={};runInNewContext(source.slice(routingStart,routingEnd)+source.slice(begin,finish)+"\nglobalThis.cleanup=removeGallery;",env);
  const items=[{media_kind:"image",media_path:"a.jpg",preview_path:"a.webp"},{media_kind:"image",media_path:"a.jpg"},{media_kind:"video",media_path:"b.mp4"}];
  const calls=[];
  const client={storage:{from:bucket=>({async remove(paths){calls.push([bucket,...paths]);return {error:bucket==="videos"?Error("Storage unavailable"):null};}})}};
