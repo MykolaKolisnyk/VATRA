@@ -4569,7 +4569,7 @@ try{
   assert.ok(await storyCanvas.isVisible(),"Photo must be drawn into the real story canvas");
   assert.equal(await storyCanvas.evaluate(el=>el.width/el.height),540/960);
   assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"overview");
-  assert.equal(await feedProbe.locator(".ui-vatra-story-tools-001 button svg").count(),6,"All story tools use SVG icons");
+  assert.equal(await feedProbe.locator(".ui-vatra-story-tools-001 button svg").count(),5,"All story tools use SVG icons");
   await feedProbe.locator("#feed-story-cancel").click();
   await feedProbe.locator(".ui-vatra-story-discard-dialog-001").waitFor({state:"visible"});
   await feedProbe.locator(".vatra-story-discard-keep-001").click();

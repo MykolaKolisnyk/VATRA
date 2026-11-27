@@ -4189,5 +4189,7 @@
   "Адреса містить облікові дані.": "Die Adresse enthält Anmeldedaten.",
   "Домен може імітувати відомий сервіс.": "Die Domain könnte einen bekannten Dienst imitieren.",
   "Адреса може перенаправити на інший сайт.": "Die Adresse könnte auf eine andere Website weiterleiten.",
-  "Посилання може завантажити виконуваний файл.": "Der Link könnte eine ausführbare Datei herunterladen."
+  "Посилання може завантажити виконуваний файл.": "Der Link könnte eine ausführbare Datei herunterladen.",
+  "Додати до чорного списку": "Zur Sperrliste hinzufügen",
+  "Посилання на профіль або VATRA ID": "Profillink oder VATRA-ID"
 }

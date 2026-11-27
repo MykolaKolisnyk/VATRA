@@ -4189,5 +4189,7 @@
   "Адреса містить облікові дані.": "L’indirizzo contiene credenziali.",
   "Домен може імітувати відомий сервіс.": "Il dominio potrebbe imitare un servizio noto.",
   "Адреса може перенаправити на інший сайт.": "L’indirizzo potrebbe reindirizzare a un altro sito.",
-  "Посилання може завантажити виконуваний файл.": "Il link potrebbe scaricare un file eseguibile."
+  "Посилання може завантажити виконуваний файл.": "Il link potrebbe scaricare un file eseguibile.",
+  "Додати до чорного списку": "Aggiungi alla lista degli utenti bloccati",
+  "Посилання на профіль або VATRA ID": "Link al profilo o ID VATRA"
 }

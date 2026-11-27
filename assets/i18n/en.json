@@ -4047,5 +4047,7 @@
   "Адреса містить облікові дані.": "The address contains credentials.",
   "Домен може імітувати відомий сервіс.": "The domain may imitate a familiar service.",
   "Адреса може перенаправити на інший сайт.": "The address may redirect to another website.",
-  "Посилання може завантажити виконуваний файл.": "The link may download an executable file."
+  "Посилання може завантажити виконуваний файл.": "The link may download an executable file.",
+  "Додати до чорного списку": "Add to blocked list",
+  "Посилання на профіль або VATRA ID": "Profile link or VATRA ID"
 }
