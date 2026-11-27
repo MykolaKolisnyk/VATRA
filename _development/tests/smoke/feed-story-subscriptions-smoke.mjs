@@ -21,7 +21,7 @@ const source=feed.slice(deadlineStart,deadlineEnd)+"\n"+
 let now=Date.parse("2026-11-14T08:00:00Z");
 class FakeDate extends Date{static now(){return now;}}
 const owner="654321";
-function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetadata=false}={}){
+function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetadata=false,wide=false}={}){
  let lastRendered,finishFriends,friendCalls=0,storyCalls=0,storyFilters=[],rendererCalls=0;
  const observers=[];
  let resolveMetadata,metadataReady=!slowMetadata;
@@ -89,9 +89,13 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
   return result;
  };
  const dialog={open:false,dataset:{},showModal(){this.open=true;}};
- const viewerNodes=new Map([["#feed-story-view",dialog],...["heading","body","position","prev","next","media"].map(key=>["#feed-story-view-"+key,{}])]);
+ const viewerNodes=new Map([["#feed-story-view",dialog],...["heading","body","position","prev","next","media","delete"].map(key=>["#feed-story-view-"+key,{}])]);
+ for(const dir of ["prev","next"]){
+  const slot={hidden:true,textContent:""},label={textContent:""};
+  viewerNodes.set("#feed-story-neighbor-"+dir,{hidden:true,dataset:{},querySelector:selector=>selector.includes("media")?slot:label,setAttribute(){}});
+ }
  const context={
-  Date:FakeDate,Map,Set,Promise,String,Number,IntersectionObserver:lazy?PreviewObserver:undefined,
+  matchMedia:()=>({matches:wide}),Date:FakeDate,Map,Set,Promise,String,Number,IntersectionObserver:lazy?PreviewObserver:undefined,
   client:database,vatraId:owner,friends:new Set(),hiddenPostAuthors:new Set(),followedClubs:new Map(),
   subscriptionsLoadedAt:0,subscriptionsInflight:null,
   validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
@@ -252,3 +256,23 @@ console.log("VATRA story viewer: grouped author navigation, expiry and no additi
  assert.equal(v.storyCalls,1);
 }
 console.log("VATRA story metadata: render before delayed names and avatars, refresh existing tile and open viewer passed.");
+
+{
+ const friend="789012";
+ const v=makeViewer([friend],{wide:true,storyRows:[
+  {id:"own-story",author_vatra_id:owner,body:"Own story",theme:0},
+  {id:"friend-story",author_vatra_id:friend,body:"Friend story",theme:1,visibility:"friends"}
+ ]});
+ await v.context.feedTest.loadStories();
+ v.holder.children[0].click();
+ assert.equal(v.viewerNodes.get("#feed-story-view-delete").hidden,false,"Only own story exposes deletion");
+ assert.equal(v.viewerNodes.get("#feed-story-neighbor-prev").hidden,true);
+ assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").hidden,false);
+ assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").querySelector("media").textContent,"Friend story");
+ v.context.feedTest.openStoryAt(1);
+ assert.equal(v.viewerNodes.get("#feed-story-view-delete").hidden,true,"Another author's story cannot be deleted");
+ assert.equal(v.viewerNodes.get("#feed-story-neighbor-prev").hidden,false);
+ assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").hidden,true);
+ assert.equal(v.storyCalls,1,"Adjacent stories reuse the authorized loaded snapshot");
+}
+console.log("VATRA story viewer: owner-only deletion and real adjacent previews verified.");
