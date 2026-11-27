@@ -59,7 +59,6 @@ async function openDirectory(client,ownId,userId){
 
 
   const PUBLIC_DIRECTORY_CACHE_ENABLED=window.VATRA_COMMUNITY_EDGE_ENABLED===true;
-  // Membership and public directory reads are independent; start them together.
   const membershipTask=Promise.allSettled([
    Promise.resolve().then(()=>ownId?client.from("community_follows").select("club_id").eq("member_vatra_id",ownId):{data:[]}),
    Promise.resolve().then(()=>client.from("communities").select("club_id").eq("owner_id",userId))
