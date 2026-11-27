@@ -1733,7 +1733,8 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab);if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox)') &&
+ detailsModule.includes('labelGroup.append(lab);if(settlementType){labelGroup.append(settlementType);enhanceEditorSelect(settlementType);}') &&
+ detailsModule.includes('if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox)') &&
  detailsModule.includes('if(variant==="compact")button.append(iconWrap);') &&
  !detailsModule.includes('ui-profile-editor-disclosure-') &&
  memberCss.includes('grid-template-columns:minmax(0,1fr) 44px;align-items:start') &&

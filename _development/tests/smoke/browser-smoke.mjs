@@ -5740,12 +5740,26 @@ try{
   };
   await selectCountry("PL");
   await profilePage.locator("#profile-editor-hometown").fill("Львів, Україна");
+  await chooseProfileEditorOption("profile-editor-hometown-type","city",language==="uk"?"Місто":"City");
+  assert.equal(await profilePage.locator(".vatra-profile-editor-label-hometown").textContent(),language==="uk"?"Рідне місто":"Hometown");
+  await chooseProfileEditorOption("profile-editor-hometown-type","village",language==="uk"?"Село":"Village");
+  assert.equal(await profilePage.locator(".vatra-profile-editor-label-hometown").textContent(),language==="uk"?"Рідне село":"Home village");
+  assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Львів, Україна");
+  await chooseProfileEditorOption("profile-editor-hometown-type","",language==="uk"?"Не вибрано":"Not selected");
   assert.equal(await profilePage.locator("#profile-editor-hometown").getAttribute("aria-haspopup"),null,"Hometown is independent of residence and accepts arbitrary places");
   await checkCityOptions("profile-editor-city","Warszawa","Київ");
   await selectCountry("UA");
   assert.equal(await profilePage.locator("#profile-editor-hometown").inputValue(),"Львів, Україна","Changing residence country must not alter hometown");
   await checkCityOptions("profile-editor-city","Невицьке","Warszawa");
   await checkCityOptions("profile-editor-city","Київ","Warszawa");
+  await chooseProfileEditorOption("profile-editor-city-type","city",language==="uk"?"Місто":"City");
+  assert.equal(await profilePage.locator(".vatra-profile-editor-label-city").textContent(),language==="uk"?"Місто проживання":"City of residence");
+  await chooseProfileEditorOption("profile-editor-city-type","",language==="uk"?"Не вибрано":"Not selected");
+  const identityGeometry=await profilePage.locator(".ui-profile-editor-identity-001").evaluate(el=>{
+   const cover=el.querySelector(".ui-profile-editor-cover-preview-001").getBoundingClientRect(),avatar=el.querySelector(".ui-profile-editor-avatar-preview-001").getBoundingClientRect(),name=el.querySelector(".vatra-profile-editor-identity-name-001").getBoundingClientRect();
+   return {ratio:cover.width/cover.height,overlap:cover.bottom-avatar.top,nameClear:name.left>=avatar.right,avatarSquare:Math.abs(avatar.width-avatar.height)<1};
+  });
+  assert.ok(Math.abs(identityGeometry.ratio-2000/580)<.02&&identityGeometry.overlap>0&&identityGeometry.nameClear&&identityGeometry.avatarSquare,"Editor identity geometry: "+JSON.stringify(identityGeometry));
   assert.equal(await profilePage.locator(".ui-profile-editor-field-control-short_bio #profile-editor-visibility-short_bio").count(),1,"Visibility must be inside the same field box");
   for(const key of ["short_bio","country","hometown","languages","relationship"]){
    const geometry=await profilePage.locator(".ui-profile-editor-field-control-"+key).evaluate(box=>{
