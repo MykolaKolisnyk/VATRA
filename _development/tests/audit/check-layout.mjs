@@ -1440,7 +1440,8 @@ function sharedIconGeometry(markup,cls){
 }
 const messengerGeometry=sharedIconGeometry(iconProfileMarkup,"ui-profile-messenger-icon-001");
 assert.ok(messengerGeometry.includes('fill="currentColor"')&&messengerGeometry.includes('stroke="none"'),
- "Messenger uses a solid paper plane silhouette, not a thin outline");
+ "Messenger uses a solid theme-colored chat silhouette");
+assert.ok(messengerGeometry.includes('fill-rule="evenodd"')&&messengerGeometry.includes('M8 13.5')&&!messengerGeometry.includes('M21.6 3.5'),"Messenger must use the VATRA chat bubble and lightning cutout, never a paper plane");
 for(const page of ["feed","profile","communities","club","notifications","friends","gifts","clips","marketplace","vatra-id","settings"]){
  assert.equal(sharedIconGeometry(await read(page+".html"),"ui-vatra-nav-messenger-001"),messengerGeometry,
   page+": Messenger navigation and profile contact must share the same vector geometry");
@@ -2132,7 +2133,7 @@ assert.ok(
   systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-neutral-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
-assert.ok(plainCoverSvg.includes("<linearGradient")&&plainCoverSvg.includes('fill="url(#base)"')&&readEmbeddedSvg(systemAvatarCss,"vatra-neutral-cover")?.includes('fill="#ccd2da"')&&
+assert.ok(plainCoverSvg.includes("<linearGradient")&&plainCoverSvg.includes('fill="url(#base)"')&&systemAvatarCss.includes("--vatra-neutral-cover:var(--vatra-default-cover)")&&plainCoverSvg.includes('stop-color="#f3f5f8"')&&plainCoverSvg.includes('stop-color="#dce4ef"')&&
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
  systemProfileCss.includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
  (await read("assets/css/guest-view.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&

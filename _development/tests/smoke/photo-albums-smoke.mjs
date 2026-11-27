@@ -124,7 +124,7 @@ assert.ok(
  script.includes('const PAGE_SIZE=18,FEATURED_LIMIT=12')&&
  gallery.includes("openPostPhoto(client,post,item,{ownId,userId,items:photoEntries,removePhoto,hasMore:()=>hasMore,loadMore:()=>load(true)})")&&
  profile.includes("window.VATRA_OPEN_PROFILE_AVATAR=path=>")&&
- media.includes("openPostPhoto,photoNavigation,photoMenuIcon,renderStory"),
+ media.includes("openPostPhoto,photoNavigation,photoMenuIcon,bindPhotoTileMenu,renderStory"),
  "Source-aware photographs, direct uploads, per-photo interactions and incremental loading must remain intact"
 );
 assert.ok(

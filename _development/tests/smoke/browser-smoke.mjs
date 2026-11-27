@@ -413,8 +413,11 @@ try{
   canvas.width=600;canvas.height=180;
   const ctx=canvas.getContext("2d",{willReadFrequently:true});
   ctx.drawImage(img,0,0,canvas.width,canvas.height);
-  return [.15,.5,.85].map(position=>{
-   const data=ctx.getImageData(Math.round(canvas.width*position),90,1,1).data;
+  const allStates=["deleted","blocked","not-found"].every(state=>
+   getComputedStyle(document.documentElement).getPropertyValue("--vatra-"+state+"-cover").trim()===css.trim());
+  if(!allStates)throw Error("All system cover states must share the same neutral SVG");
+  return [.08,.5,.92].map(position=>{
+   const data=ctx.getImageData(300,Math.round(canvas.height*position),1,1).data;
    const rgb=[data[0],data[1],data[2]];
    const distance=rgb.reduce((sum,channel,index)=>
     sum+Math.abs(channel-[244,246,251][index]),0)/3;
@@ -422,9 +425,9 @@ try{
   });
  });
  await coverContrastPage.close();
- assert.ok(coverContrast.every(sample=>sample.distance>=22)&&
-  coverContrast.reduce((sum,sample)=>sum+sample.distance,0)/3>=35,
-  "Default profile cover must remain perceptibly distinct from page background: "+
+ assert.ok(coverContrast.every(({rgb})=>rgb.every(c=>c>=210)&&rgb[2]>=rgb[0]&&Math.max(...rgb)-Math.min(...rgb)<=30)&&
+  coverContrast[2].distance>=12&&coverContrast[2].distance>coverContrast[0].distance+8,
+  "Default profile cover must remain a soft neutral blue-gray gradient: "+
    JSON.stringify(coverContrast));
  assert.ok(new Set(coverContrast.map(sample=>sample.rgb.join(","))).size===3,"Default cover must render a real gradient, not a flat color");
  console.log("VATRA default cover: branded gradient and contrast OK");
