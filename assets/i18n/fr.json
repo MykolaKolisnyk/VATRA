@@ -1,4 +1,9 @@
 {
+  "Звуки сповіщень": "Sons des notifications",
+  "Звук нових сповіщень і подій дружби.": "Son des nouvelles notifications et des événements liés aux amis.",
+  "Звуки вподобань": "Sons des mentions J’aime",
+  "Звук під час додавання вподобання.": "Son lors de l’ajout d’une mention J’aime.",
+  "Звукові налаштування діють у цьому браузері для вашого акаунта.": "Les réglages audio s’appliquent à votre compte dans ce navigateur.",
   "Мультимедіа": "Multimédia",
   "Автоматично відтворювати відео у переглядачі": "Lire automatiquement les vidéos dans la visionneuse",
   "Діє у цьому браузері після відкриття відео на весь екран. Вимкнення не заважає запускати відео вручну.": "S’applique dans ce navigateur à l’ouverture d’une vidéo en plein écran. La lecture manuelle reste possible.",

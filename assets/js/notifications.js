@@ -875,7 +875,7 @@ function start(c,id){
      filter:"recipient_vatra_id=eq."+run.id},payload=>{
        if(notificationRun!==run)return;
        refresh(true);
-       if(!document.hidden){
+       if(!document.hidden&&!hiddenNotificationKinds(run.id).includes(String(payload?.new?.kind||""))){
         window.VATRA_SOUNDS?.play?.(["friend_request","friend_accepted","friend_declined"].includes(payload?.new?.kind)?"newFollower":"notification");
         incomingToast(payload?.new);
        }
