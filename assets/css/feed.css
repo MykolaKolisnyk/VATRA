@@ -2693,7 +2693,7 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
 
 @media(min-width:951px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-main{
-  grid-template-rows:auto 72px auto auto!important;
+  grid-template-rows:max-content max-content auto auto!important;
   align-content:start!important;row-gap:var(--vatra-card-gap)!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{
