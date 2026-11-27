@@ -743,6 +743,8 @@
  const playSound=kind=>{
   const filename=soundFiles[kind];
   if(!filename||document.hidden||!window.Audio)return false;
+  const id=String(window.VATRA_AUTH_MEMBER_ID||"");
+  if(/^[1-9][0-9]{0,18}$/.test(id))try{if(localStorage.getItem("vatra:sound:"+id+":"+(kind==="like"?"like":"notification"))==="off")return false;}catch(_){}
   const now=Date.now();
   if(now-soundLastPlayed<350)return false;
   soundLastPlayed=now;

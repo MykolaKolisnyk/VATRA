@@ -1,4 +1,9 @@
 {
+  "Звуки сповіщень": "Benachrichtigungstöne",
+  "Звук нових сповіщень і подій дружби.": "Ton bei neuen Benachrichtigungen und Freundschaftsereignissen.",
+  "Звуки вподобань": "Gefällt-mir-Töne",
+  "Звук під час додавання вподобання.": "Ton beim Hinzufügen eines Likes.",
+  "Звукові налаштування діють у цьому браузері для вашого акаунта.": "Die Toneinstellungen gelten für dein Konto in diesem Browser.",
   "Мультимедіа": "Medien",
   "Автоматично відтворювати відео у переглядачі": "Videos im Medienbetrachter automatisch abspielen",
   "Діє у цьому браузері після відкриття відео на весь екран. Вимкнення не заважає запускати відео вручну.": "Gilt in diesem Browser beim Öffnen eines Videos im Vollbildmodus. Manuelle Wiedergabe bleibt möglich.",

@@ -2743,18 +2743,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false,photoCommentHasMore=false;
  let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
- let captionEpoch=0;
- const avatarCaption=window.VATRA_POST_MEDIA.mediaDescription({kind:"avatar-photo",limit:2000,translate:t,onSave:async caption=>{
-  const path=photoPath();if(!canEdit||!path)throw Error("Not permitted");
-  const {data,error}=await client.from("avatar_photo_descriptions").upsert({owner_vatra_id:ownId,avatar_path:path,caption},{onConflict:"owner_vatra_id,avatar_path"}).select("caption").maybeSingle();if(error||!data)throw Error("Not saved");return data.caption;
- },onError:()=>status(t("Не вдалося зберегти.","Could not save."),true)});
- const avatarDescription=avatarCaption.root;
- q(".ui-profile-photo-actions-001").after(avatarDescription);
- const loadAvatarDescription=async path=>{const ticket=++captionEpoch;avatarCaption.reset();interaction.scrollTop=0;
-  try{const {data,error}=await client.from("avatar_photo_descriptions").select("caption").eq("owner_vatra_id",targetId).eq("avatar_path",path).maybeSingle();if(error)throw error;if(ticket!==captionEpoch||photoPath()!==path)return;avatarCaption.paint(data?.caption,canEdit);}
-  catch(_){if(ticket===captionEpoch)avatarCaption.reset();}
- };
-
  const tagFailure=(error,fallback,retry)=>{
   if(!window.VATRA_SERVICE_NOTICE?.report(error,{retry}))reportTag(fallback);
  };
@@ -3110,7 +3098,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  emojiToggle.addEventListener("click",()=>{expandComposer();setEmojiOpen(emojiPanel.hidden);});
  for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>2000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
  mediaDialog.addEventListener("click",e=>{if(!emojiPanel.hidden&&!emojiPanel.contains(e.target)&&!emojiToggle.contains(e.target))setEmojiOpen(false);});
- mediaDialog.addEventListener("close",()=>{captionEpoch++;avatarCaption.reset();resetPhotoComposer();});
+ mediaDialog.addEventListener("close",resetPhotoComposer);
  const readAvatarGallery=async()=>{
   const current=saved?.avatar_path,folder=targetId+"/avatar",bucket=client.storage.from("avatars"),files=[];
   if(typeof bucket.list!=="function")return current?[current]:[];
@@ -3179,7 +3167,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const uploaded=galleryDates.get(path);
   date.textContent=uploaded?(window.VATRA_PRESENCE?.relative?.(uploaded,english)||dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
   resetPhotoComposer();syncComposerAvatar();
-  void loadAvatarDescription(path);
+  interaction.scrollTop=0;
   void reloadPhotoActivity(false,true,lastAvatarCommentKey===path+"|"+photoCommentSort);
   void loadTags();
  };
@@ -3200,7 +3188,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(!coverViewer){
     const feature=await window.VATRA_FEATURES.load("cover-viewer");
     coverViewer=feature.mount({q,t,coverPhoto,getCoverUrl:()=>photoURLs.cover,
-     getSavedCoverPath:()=>saved?.cover_path,getPublicPath,
      allowed:()=>canViewPhoto,closeAvatarMenu});
    }
    if(!canViewPhoto||(coverPhoto.currentSrc||photoURLs.cover)!==current)return;
