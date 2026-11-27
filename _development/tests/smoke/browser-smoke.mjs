@@ -4459,7 +4459,7 @@ try{
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
-  const postDeleteButtons=await feedProbe.locator(".feed-delete-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
+  const postDeleteButtons=await feedProbe.locator("#feed-delete-dialog .feed-delete-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
   assert.deepEqual(postDeleteButtons[0],postDeleteButtons[1],"Actual post deletion buttons must have equal geometry");
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
@@ -5258,8 +5258,10 @@ try{
   const activeRing=await storyAvatar.evaluate(el=>({
    kind:el.getAttribute("data-vatra-ring-kind"),
    gradient:getComputedStyle(el,"::before").backgroundImage,
+   inset:getComputedStyle(el,"::before").top,
    border:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor
   }));
+  assert.equal(activeRing.inset,"-2px","Active story ring extends exactly 2 CSS pixels outside the avatar");
   assert.equal(activeRing.kind,null,
    "A member with an uploaded photo must never be treated as a system portrait");
   assert.ok(activeRing.gradient.includes("conic-gradient")&&
@@ -5284,6 +5286,10 @@ try{
   assert.equal(await profilePage.locator("#profile-story-viewer-close svg").count(),1);
   const viewerStage=await profilePage.locator("#profile-story-viewer .ui-vatra-story-view-stage-001").boundingBox();
   assert.ok(Math.abs(viewerStage.width/viewerStage.height-9/16)<.02,"Story viewer has a vertical 9:16 stage");
+  const fullStory=await profilePage.locator("#profile-story-viewer").boundingBox();
+  const storyViewport=profilePage.viewportSize();
+  assert.ok(fullStory&&Math.abs(fullStory.x)<1&&Math.abs(fullStory.y)<1&&Math.abs(fullStory.width-storyViewport.width)<2&&Math.abs(fullStory.height-storyViewport.height)<2,"Story viewer fills the viewport");
+  assert.ok(viewerStage.x>=0&&viewerStage.y>=0&&viewerStage.x+viewerStage.width<=storyViewport.width+1&&viewerStage.y+viewerStage.height<=storyViewport.height+1,"Story media stays inside the fullscreen viewer");
   await profilePage.locator("#profile-story-viewer-close").click();
   assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-avatar-comment-row.js"]').count(),0,
    "Avatar comment cards must not load during initial profile render");
@@ -5469,7 +5475,9 @@ try{
   await profilePage.locator("#profile-avatar-plus").hover();
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
    "The profile owner must be able to delete the active story");
-  await profilePage.locator("#profile-avatar-story-delete").click();
+  await profilePage.locator("#profile-avatar-story").click();
+  assert.equal(await profilePage.locator("#profile-story-viewer-delete").isVisible(),true,"Owner can delete directly from the viewer");
+  await profilePage.locator("#profile-story-viewer-delete").click();
   assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),true,
    "Story deletion must use VATRA's styled confirmation instead of a browser alert");
   await profilePage.locator("#profile-confirm-accept").click();

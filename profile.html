@@ -17,9 +17,9 @@
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css?rev=c372f59ba51d79fd8d82a7b94a2bd69aa7d4f8fb">
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=2cf4e899ec24b55aafd2c6c41ad8abf5d4645e3a">
-    <link rel="stylesheet" href="assets/css/feed.css?rev=b53d9782661a1085e1cb290b5b343bb98ddaa153">
+    <link rel="stylesheet" href="assets/css/feed.css?rev=8657db9a8bc33ccb2edf1ca31277471fe2ab2caa">
     <link rel="stylesheet" href="assets/css/vatra-player.css?rev=6d2ceb40c665f32c1d852ebf73cb7ffafdc6e434">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=241067cef987e2b5cd4002ddc59f52ba9bb00017">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=73714e1efba3c468c2efc3b5aab6165cbbe5f2c1">
     <link rel="stylesheet" href="assets/css/create-menu.css?rev=26c98c4b349b7acafac621058b1ba6515a78955f">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -33,8 +33,8 @@
     <script defer src="assets/js/notifications.js?rev=fc2fb10ecb013a95e9c672bc29df0cadfe60997f"></script>
     <script defer src="assets/js/gift-catalog.js?rev=3a4f84bd30f882272cdaa8436e9b4258137d81ee"></script>
     <script defer src="assets/js/guest-view.js?rev=b60284bde18bf3fc0ecff2849633046e7f47ded0"></script>
-    <script defer src="assets/js/feature-loader.js?rev=6286c5bb36a0643b1eba23dbb2abb680a1225b5f"></script>
-    <script defer src="assets/js/profile.js?rev=325ca4651aa16b532232d6b0ed14616f5eb08d1b"></script>
+    <script defer src="assets/js/feature-loader.js?rev=982558ce8c0dbde272d4049cf4b1cf1351000482"></script>
+    <script defer src="assets/js/profile.js?rev=1cdcd1cf5c037525f4fdb36f0a24bcd0a8e1e770"></script>
     <script defer src="assets/js/network.js?rev=111422be73f779068c5c4e03ced3f45ddd8433fa"></script>
     <script defer src="assets/js/social-shell.js?rev=8f585b98d0d81ca1968782c821f5092d103911b4"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -473,9 +473,9 @@
             </form>
           </aside>
         </dialog>
-        <dialog id="profile-story-viewer" class="profile-story-viewer ui-profile-story-viewer-001" aria-labelledby="profile-story-viewer-heading">
+        <dialog id="profile-story-viewer" data-fullpage="true" class="profile-story-viewer ui-profile-story-viewer-001" aria-labelledby="profile-story-viewer-heading">
           <div class="profile-story-viewer-content ui-profile-story-viewer-content-001">
-            <div class="ui-vatra-story-view-header-001"><h2 id="profile-story-viewer-heading" class="profile-story-viewer-heading vatra-profile-story-viewer-heading-001"></h2><button id="profile-story-viewer-close" class="profile-story-viewer-close vatra-profile-story-viewer-close-001" type="button" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close"><svg class="ui-profile-story-viewer-close-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-story-viewer-close-path-001" d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+            <div class="ui-vatra-story-view-header-001"><h2 id="profile-story-viewer-heading" class="profile-story-viewer-heading vatra-profile-story-viewer-heading-001"></h2><div class="ui-vatra-story-view-actions-001"><button id="profile-story-viewer-delete" class="vatra-story-view-delete-001" type="button" aria-label="Видалити історію" data-shell-aria-uk="Видалити історію" data-shell-aria-en="Delete story" hidden><svg class="ui-profile-story-view-delete-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-story-view-delete-path-001" d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"/></svg></button><button id="profile-story-viewer-close" class="profile-story-viewer-close vatra-profile-story-viewer-close-001" type="button" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close"><svg class="ui-profile-story-viewer-close-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-story-viewer-close-path-001" d="m6 6 12 12M18 6 6 18"/></svg></button></div></div>
              <div class="ui-vatra-story-view-stage-001"><div id="profile-story-viewer-media" class="profile-story-viewer-media ui-profile-story-viewer-media-001" hidden></div><p id="profile-story-viewer-text" class="profile-story-viewer-text vatra-profile-story-viewer-text-001"></p></div>
           </div>
         </dialog>

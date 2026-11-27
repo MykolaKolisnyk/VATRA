@@ -2844,7 +2844,7 @@ assert.ok(
  feedStoryOptimization.includes("function ensureSubscriptions()")&&
  feedStoryOptimization.includes("if(subscriptionsInflight)return subscriptionsInflight;")&&
  feedStoryOptimization.includes("await feedDeadline(ensureSubscriptions());")&&
- feedStoryOptimization.includes('.select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path,visibility")')&&
+ feedStoryOptimization.includes('.select("id,author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path,visibility")')&&
  !feedStoryOptimization.includes('query=query.in("author_vatra_id",storyAuthors)')&&
  feedStoryOptimization.includes('if(!storyLive(story)||(id!==vatraId&&!friends.has(id)&&story.visibility!=="public"))continue;')&&
  feedStoryOptimization.includes('if(seen.has(id))continue;items.push(story);seen.add(id);')&&

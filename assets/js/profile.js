@@ -1485,6 +1485,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
      const dialog=q("#profile-story-viewer");
      const text=q("#profile-story-viewer-text");
      q("#profile-story-viewer-heading").textContent=dateText(item.created_at);
+     q("#profile-story-viewer-delete").hidden=true;
      text.textContent=item.body||"";text.hidden=!item.body;
      dialog.dataset.theme=String(item.theme||0);
      dialog.showModal();
@@ -2594,7 +2595,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const mediaDialog=q("#profile-media-viewer"),mediaImage=q("#profile-media-viewer-image");
  const mediaHeading=q("#profile-media-viewer-heading"),storyDialog=q("#profile-story-viewer");
  const storyHeading=q("#profile-story-viewer-heading"),storyBody=q("#profile-story-viewer-text");
- const storyMedia=q("#profile-story-viewer-media");
+ const storyMedia=q("#profile-story-viewer-media"),storyViewerDelete=q("#profile-story-viewer-delete");
  const bucketFor=kind=>kind==="avatar"?"avatars":"covers";
  let saved=null,activeStory=null;
  const photoURLs={avatar:null,cover:null};
@@ -3240,6 +3241,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   storyBody.textContent=activeStory.body||"";
   storyBody.hidden=!String(activeStory.body||"").trim();
   storyDialog.dataset.theme=String(activeStory.theme||0);
+  storyViewerDelete.hidden=!canEdit||!activeStory.id;
   closeAvatarMenu();
   storyDialog.showModal();
   void window.VATRA_POST_MEDIA?.renderStory(client,
@@ -3247,17 +3249,17 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  storyButton.addEventListener("click",openStory);
  visitorStory.addEventListener("click",openStory);
- deleteStoryButton.addEventListener("click",async()=>{
-  if(!isMine||!activeStory?.id||deleteStoryButton.disabled)return;
-  if(!await window.VATRA_PROFILE_CONFIRM({
+ const deleteActiveStory=async()=>{
+  if(!canEdit||!activeStory?.id||deleteStoryButton.disabled)return;
+  const removingId=activeStory.id,removingStory={...activeStory};
+  deleteStoryButton.disabled=storyViewerDelete.disabled=true;
+  try{
+   if(!await window.VATRA_PROFILE_CONFIRM({
    title:t("Видалити історію?","Delete this story?"),
    description:t("Історію буде видалено для всіх без можливості відновлення.",
     "This story will be removed for everyone and cannot be restored."),
    action:t("Видалити","Delete")
-  }))return;
-  const removingId=activeStory.id,removingStory={...activeStory};
-  deleteStoryButton.disabled=true;
-  try{
+   }))return;
    const result=await client.from("stories").delete()
     .eq("id",removingId).eq("author_vatra_id",ownId).select("id");
    if(result.error||!result.data?.some(row=>row.id===removingId))
@@ -3277,8 +3279,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }catch(_){
    status(t("Не вдалося видалити історію. Спробуйте ще раз.",
     "Could not delete the story. Please retry."),true);
-  }finally{deleteStoryButton.disabled=false;}
- });
+  }finally{deleteStoryButton.disabled=storyViewerDelete.disabled=false;}
+ };
+ deleteStoryButton.addEventListener("click",deleteActiveStory);
+ storyViewerDelete.addEventListener("click",deleteActiveStory);
  q("#profile-media-viewer-close").addEventListener("click",()=>{
   if(!avatarDeleteInProgress&&!uploading)mediaDialog.close();
  });
