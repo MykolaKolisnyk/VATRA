@@ -1194,7 +1194,7 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationScript.includes('pageLoad(false)')&&
  notificationScript.includes('c.channel("vatra-notices-"+run.id)')&&
  notificationScript.includes('run.client.from("member_notifications")')&&
- (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
+ (await read("feed.html")).includes('data-feed-filter="all"')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
  "VATRA notifications must include the private inbox and three-item header preview");
 const noticeCSS=await read("assets/css/feed.css");
