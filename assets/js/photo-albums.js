@@ -667,6 +667,7 @@
   function goToAlbum(album){
    if(photoDialog.open)photoDialog.close();
    if(state.tab==="archive")window.VATRA_PROFILE_CHOOSE_TAB?.("photos");
+   if(album.is_personal){state.selected=null;switchTab("photos");return;}
    state.selected=album.id;switchTab("albums");
    const url=new URL(location.href);url.searchParams.set("album",album.id);
    url.searchParams.delete("photo");history.replaceState(history.state,"",url);
@@ -706,6 +707,64 @@
    }catch(_){failed=true;}
    finally{state.busy=false;}
    notify(failed?t("Не вдалося зберегти.","Could not save."):restore?t("Фотографії відновлено.","Photos restored."):t("Фотографії архівовано.","Photos archived."),failed?"error":"success");
+  }
+  async function addExistingPhotos(album){
+   if(!isMine||state.busy||album.is_personal||document.querySelector(".vatra-album-existing-dialog-001[open]"))return;
+   const ranks={private:0,friends:1,public:2};
+   const ids=state.albums.filter(a=>a.id!==album.id&&ranks[album.visibility]<=ranks[a.visibility]).map(a=>a.id);
+   const dialog=make("dialog","ui-vatra-albums-dialog-001 vatra-album-existing-dialog-001");
+   const box=make("div","ui-vatra-albums-form-001");
+   const title=make("h3","vatra-albums-dialog-title-001",t("Вибрати фотографію","Select photo"));
+   const grid=make("div","ui-vatra-album-photos-grid-001");
+   const chosen=new Map();let busy=false,offset=0,hasMore=!!ids.length;
+   const actions=make("div","ui-vatra-albums-dialog-actions-001");
+   const cancel=button("vatra-albums-secondary-001",t("Скасувати","Cancel"),()=>dialog.close());
+   const save=button("vatra-albums-primary-001",t("Додати фотографії","Add photos"),async()=>{
+    if(state.busy||!chosen.size)return;
+    state.busy=true;busy=true;save.disabled=cancel.disabled=more.disabled=true;let done=0;
+    try{
+     for(const row of chosen.values()){
+      try{
+       const {data,error}=await client.storage.from(BUCKET).download(row.media_path);
+       const ext=row.media_path.match(/\.(jpe?g|png|webp)$/i)?.[1]?.toLowerCase();
+       if(error||!data||!ext||!data.size||data.size>MAX_SIZE)throw Error("Unavailable");
+       const path=ownId+"/albums/"+album.id+"/"+crypto.randomUUID()+"."+ext;
+       const mime=ext==="png"?"image/png":ext==="webp"?"image/webp":"image/jpeg";
+       const uploaded=await client.storage.from(BUCKET).upload(path,data,{contentType:mime,cacheControl:"120",upsert:false});
+       if(uploaded.error)throw uploaded.error;
+       const inserted=await client.from("album_photos").insert({album_id:album.id,owner_vatra_id:Number(ownId),media_path:path,caption:row.caption||""});
+       if(inserted.error){await client.storage.from(BUCKET).remove([path]).catch(()=>{});throw inserted.error;}
+       done++;
+      }catch(_){}
+     }
+     dialog.close();await refreshPhotoLists();
+     notify(done?t("Додано фотографій: ","Photos added: ")+done:t("Не вдалося додати фотографії.","Could not add photos."),done?"success":"error");
+    }finally{state.busy=false;busy=false;}
+   });
+   save.disabled=true;
+   const more=button("vatra-albums-more-photos-001",t("Ще фотографії","More photos"),()=>void load());
+   async function load(){
+    if(busy||!hasMore)return;busy=true;more.disabled=true;
+    try{
+     const {data,error}=await client.from("album_photos").select("id,album_id,media_path,caption,created_at")
+      .eq("owner_vatra_id",Number(ownId)).in("album_id",ids).is("archived_at",null)
+      .order("created_at",{ascending:false}).order("id",{ascending:false}).range(offset,offset+PAGE_SIZE);
+     if(error)throw error;
+     const page=(data||[]).slice(0,PAGE_SIZE);offset+=page.length;hasMore=(data||[]).length>PAGE_SIZE;
+     for(const row of page){
+      const tile=button("vatra-album-photo-tile-001 vatra-album-existing-tile-001","");
+      tile.setAttribute("aria-label",t("Вибрати фотографію","Select photo"));tile.setAttribute("aria-pressed","false");
+      const img=make("img","ui-vatra-album-photo-image-001");paintImage(img,row.media_path);tile.append(img);
+      tile.onclick=()=>{if(state.busy)return;if(chosen.has(row.id))chosen.delete(row.id);else if(chosen.size<PHOTO_LIMIT)chosen.set(row.id,row);tile.setAttribute("aria-pressed",String(chosen.has(row.id)));save.disabled=!chosen.size;};
+      grid.append(tile);
+     }
+    }catch(_){hasMore=false;notify(t("Не вдалося завантажити фото.","Could not load photos."));}
+    finally{busy=false;more.disabled=false;more.hidden=!hasMore;if(!grid.childElementCount)grid.append(make("p","vatra-albums-hint-001",t("У цьому альбомі поки немає фотографій.","This album has no photos yet.")));}
+   }
+   actions.append(cancel,save);box.append(title,grid,more,actions);dialog.append(box);document.body.append(dialog);
+   dialog.addEventListener("cancel",event=>{if(state.busy)event.preventDefault();});
+   dialog.addEventListener("close",()=>dialog.remove(),{once:true});dialog.showModal();more.hidden=!hasMore;
+   if(hasMore)void load();else grid.append(make("p","vatra-albums-hint-001",t("У цьому альбомі поки немає фотографій.","This album has no photos yet.")));
   }
   async function chooseDestination(rows){
    if(!isMine||state.busy||!rows.length||document.querySelector(".vatra-album-move-dialog-001[open]"))return;
@@ -841,11 +900,15 @@
    const step=async dir=>{
     if(stepping||!photoDialog.open||state.currentPhoto!==row)return;stepping=true;
     try{
-     let next=currentItems()[index+dir];
+     const currentIndex=currentItems().findIndex(item=>item.id===row.id);
+     if(currentIndex<0)return;
+     let next=currentItems()[currentIndex+dir];
      if(!next&&dir>0&&hasMore()){
       if(state.tab==="archive")await loadArchive(true);else if(state.tab==="albums")await loadAlbumPage(album.id,true);else await loadFeaturedPage(true);
       if(!photoDialog.open||state.currentPhoto!==row)return;
-      next=currentItems()[index+dir];
+      const refreshedIndex=currentItems().findIndex(item=>item.id===row.id);
+      if(refreshedIndex<0)return;
+      next=currentItems()[refreshedIndex+dir];
      }
      const nextAlbum=state.albums.find(a=>a.id===next?.album_id);
      if(next&&nextAlbum)await openPhoto(next,nextAlbum,dir);
@@ -971,6 +1034,7 @@
    if(isMine){
     actions.append(addIcon(button("vatra-albums-icon-button-001",t("Редагувати","Edit"),()=>editAlbum(album)),"edit"),
      addIcon(button("vatra-albums-icon-button-001",t("Додати фотографії","Add photos"),()=>{state.uploadMode="album";uploadInput.click();}),"upload"),
+     addIcon(button("vatra-albums-icon-button-001",t("Вибрати фотографію","Select photo"),()=>void addExistingPhotos(album)),"image"),
      addIcon(button("vatra-albums-delete-button-001",t("Видалити альбом","Delete album"),()=>void removeAlbum(album)),"trash"));
    }
    head.append(back,titleBox,actions);albumPane.append(head);
@@ -1164,7 +1228,13 @@
     renderFeatured();
     if(window.VATRA_CAN_VIEW_PROFILE_AVATAR===true&&!state.avatarChecked)
      void loadAvatarPage();
-    if(state.selected&&state.albums.some(a=>a.id===state.selected&&!a.is_personal)){
+    const requestedPersonal=state.albums.find(a=>a.id===state.selected&&a.is_personal);
+    if(requestedPersonal&&state.pendingPhotoId){
+     const photoId=state.pendingPhotoId;state.pendingPhotoId=null;state.selected=null;switchTab("photos");
+     const lookup=await client.from("album_photos").select("id,album_id,media_path,created_at,caption,pinned_at")
+      .eq("album_id",requestedPersonal.id).eq("id",photoId).is("archived_at",null).maybeSingle();
+     if(ticket===state.rev&&!lookup.error&&lookup.data)void openPhoto(lookup.data,requestedPersonal);
+    }else if(state.selected&&state.albums.some(a=>a.id===state.selected&&!a.is_personal)){
      state.photos=[];state.photoAlbumId=state.selected;state.photosBusy=true;
      if(state.tab==="albums")renderAlbumPane();
      void loadAlbumPage(state.selected);
