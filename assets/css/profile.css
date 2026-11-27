@@ -3039,3 +3039,13 @@ body.profile-page .profile-archive-wrap{align-self:stretch}
 body.profile-page .profile-archive-wrap>.social-profile-tab{height:100%;align-self:stretch}
 body.profile-page .profile-archive-wrap>.social-profile-tab-active::after{left:0;right:0;bottom:0}
 body.profile-page .vatra-profile-photo-comment-edit-001 svg{width:18px;height:18px}
+
+/* Shared profile card rhythm and readable detail rows. */
+body.profile-page .profile-posts-main>.vatra-quick-compose-001:not([hidden]){margin:0}
+body.profile-page .profile-posts-main>#profile-posts{margin:0;padding:0;gap:var(--vatra-card-gap)}
+body.profile-page .vatra-profile-details-section{padding:16px 0 8px}
+body.profile-page .vatra-profile-details-section-head{margin:0;padding:0 0 10px}
+body.profile-page .vatra-profile-details-row{grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:12px;padding:11px 0}
+body.profile-page [class^="vatra-profile-detail-label-"]{font:500 13px/1.6 Onest,system-ui,sans-serif;color:#657892}
+body.profile-page [class^="vatra-profile-detail-value-"]{font:500 14px/1.6 Onest,system-ui,sans-serif;color:#394964;white-space:pre-wrap}
+@media(max-width:540px){body.profile-page .vatra-profile-details-row{grid-template-columns:minmax(0,1fr);gap:4px}}

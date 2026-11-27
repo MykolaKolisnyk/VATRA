@@ -3262,9 +3262,9 @@ try{
    const compact=await noticeProbe.locator("#vatra-notification-panel").evaluate(el=>{
     const p=el.getBoundingClientRect(),h=el.querySelector(".vatra-notification-panel-heading").getBoundingClientRect(),f=el.querySelector(".vatra-notification-all-001").getBoundingClientRect(),l=el.querySelector(".vatra-notification-list");
     l.scrollTop=l.scrollHeight;
-    return {height:p.height,header:h.top>=p.top,footer:f.bottom<=p.bottom+1,scroll:getComputedStyle(l).overflowY,panelScroll:getComputedStyle(el).overflowY,left:p.left,right:p.right,viewport:innerWidth};
+    return {height:p.height,header:h.top>=p.top,footer:f.bottom<=p.bottom+1,scroll:getComputedStyle(l).overflowY,panelScroll:getComputedStyle(el).overflowY,left:p.left,right:p.right,viewport:document.documentElement.clientWidth,radius:getComputedStyle(el).borderBottomRightRadius};
    });
-   assert.ok(compact.height<=441&&compact.header&&compact.footer&&compact.scroll==="auto"&&compact.panelScroll==="hidden"&&compact.left>=0&&compact.right<=compact.viewport,"Notification dropdown must fit viewport with a fixed header/footer: "+JSON.stringify(compact));
+   assert.ok(compact.height<=441&&compact.header&&compact.footer&&compact.scroll==="auto"&&compact.panelScroll==="hidden"&&compact.left>=0&&Math.abs(compact.right-compact.viewport)<=1&&compact.radius==="0px","Notification dropdown must fit viewport with a fixed header/footer: "+JSON.stringify(compact));
   }
   await noticeProbe.keyboard.press("Escape");
   assert.equal(await noticeProbe.locator("#vatra-notification-panel").isVisible(),false);

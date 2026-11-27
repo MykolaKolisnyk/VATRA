@@ -117,6 +117,8 @@ assert.ok(
  script.includes('state.uploadMode="personal"')&&
  script.includes("ensurePersonalAlbum()")&&
  script.includes("is_personal:true")&&
+ script.includes("const visibleAlbums=state.albums.filter(album=>!album.is_personal)")&&
+ script.includes("state.albums.find(a=>a.id===state.selected&&!a.is_personal)")&&
  script.includes('photo_id:photo?.id||null')&&
  script.includes('client.from("album_photo_likes")')&&
  script.includes('commentsList.prepend(pending)')&&

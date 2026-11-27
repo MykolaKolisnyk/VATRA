@@ -712,7 +712,7 @@
    const ranks={private:0,friends:1,public:2};
    const sources=rows.map(row=>state.albums.find(a=>a.id===row.album_id));
    if(sources.some(a=>!a))return;
-   const allowed=state.albums.filter(a=>sources.every(source=>ranks[a.visibility]<=ranks[source.visibility])&&rows.some(row=>row.album_id!==a.id));
+   const allowed=state.albums.filter(a=>!a.is_personal&&sources.every(source=>ranks[a.visibility]<=ranks[source.visibility])&&rows.some(row=>row.album_id!==a.id));
    const dialog=make("dialog","ui-vatra-albums-dialog-001 vatra-album-move-dialog-001");
    const box=make("div","ui-vatra-albums-form-001");
    const title=make("h3","vatra-albums-dialog-title-001",t("Перемістити фотографії","Move photos"));
@@ -936,16 +936,17 @@
      make("span","vatra-albums-card-count-001",t("Фотографій: ","Photos: ")+(state.avatarList.length?state.avatarList.length+(state.avatarHasMore?"+":""):(state.avatar?.url?1:0))));
     virtual.append(cover,label);virtual.addEventListener("click",()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
     grid.append(virtual);
-    for(const album of state.albums)
+    const visibleAlbums=state.albums.filter(album=>!album.is_personal);
+    for(const album of visibleAlbums)
      grid.append(albumCard({...album,count:album.photo_count},album.cover_path?{media_path:album.cover_path}:null));
     albumPane.append(grid);
-    if(isMine&&!state.albums.length){
+    if(isMine&&!visibleAlbums.length){
      const note=make("p","vatra-albums-hint-001",t("Створіть перший альбом для подорожей, близьких людей або улюблених подій.","Create your first collection for travels, people or favorite moments."));
      albumPane.append(note);
     }
     return;
    }
-   const album=state.albums.find(a=>a.id===state.selected);
+   const album=state.albums.find(a=>a.id===state.selected&&!a.is_personal);
    if(!album){state.selected=null;renderAlbumPane();return;}
    const head=make("div","ui-vatra-albums-detail-header-001");
    const back=addIcon(button("vatra-albums-back-001",t("Усі альбоми","All albums"),()=>{
@@ -1163,7 +1164,7 @@
     renderFeatured();
     if(window.VATRA_CAN_VIEW_PROFILE_AVATAR===true&&!state.avatarChecked)
      void loadAvatarPage();
-    if(state.selected&&state.albums.some(a=>a.id===state.selected)){
+    if(state.selected&&state.albums.some(a=>a.id===state.selected&&!a.is_personal)){
      state.photos=[];state.photoAlbumId=state.selected;state.photosBusy=true;
      if(state.tab==="albums")renderAlbumPane();
      void loadAlbumPage(state.selected);
