@@ -4206,5 +4206,14 @@
   "Комп’ютер": "Computer",
   "Мобільний пристрій": "Mobilgerät",
   "Планшет": "Tablet",
-  "Введіть опис": "Beschreibung eingeben"
+  "Введіть опис": "Beschreibung eingeben",
+  "Населений пункт проживання": "Wohnort",
+  "Тип населеного пункту": "Ortsart",
+  "Село": "Dorf",
+  "Селище": "Kleinstadt",
+  "Місто проживання": "Wohnstadt",
+  "Село проживання": "Wohndorf",
+  "Селище проживання": "Wohnort (Kleinstadt)",
+  "Рідне село": "Heimatdorf",
+  "Рідне селище": "Heimatkleinstadt"
 }
