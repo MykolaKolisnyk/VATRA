@@ -2906,8 +2906,8 @@ body.profile-page .profile-actions:not([hidden]){gap:9px;align-items:center}
 }
 
 body.profile-page .vatra-profile-photo-comment-edit-001{
- position:absolute;right:42px;top:10px;display:grid;place-items:center;
- width:27px;height:27px;padding:3px;border:0;border-radius:8px;
+ position:absolute;right:33px;top:9px;display:grid;place-items:center;
+ width:28px;height:28px;padding:3px;border:0;border-radius:8px;
  background:transparent;color:#8597b1;font:700 20px "Onest",system-ui,sans-serif;
  opacity:0;cursor:pointer;transition:opacity .18s,color .18s,background .18s
 }
@@ -3037,8 +3037,7 @@ body.profile-page .vatra-profile-editor-multi-option-001:has(input:checked){bord
 body.profile-page .vatra-profile-editor-multi-option-001:focus-within{outline:2px solid #8eb0f5;outline-offset:1px}
 body.profile-page .ui-profile-editor-multi-check-001{appearance:auto;accent-color:#2865d8;width:16px;height:16px;flex:none;margin:0}
 
-body.profile-page .profile-archive-wrap{align-self:stretch;align-items:stretch}
+body.profile-page .profile-archive-wrap{align-self:stretch}
 body.profile-page .profile-archive-wrap>.social-profile-tab{height:100%;align-self:stretch}
 body.profile-page .profile-archive-wrap>.social-profile-tab-active::after{left:0;right:0;bottom:0}
-body.profile-page .vatra-profile-photo-comment-edit-001{right:33px;top:9px;width:28px;height:28px}
 body.profile-page .vatra-profile-photo-comment-edit-001 svg{width:18px;height:18px}

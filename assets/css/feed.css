@@ -3536,7 +3536,6 @@ body.feed-page .vatra-post-undo-001:disabled{opacity:.55;cursor:wait}
 @media(prefers-reduced-motion:no-preference){.vatra-post-deleted-line-001{animation:vatra-popup-enter .18s ease-out both}}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-post-undo-001{transition:none}}
 
-/* Inline post disclosure and viewport-relative composer menus. */
 body.feed-page .vatra-feed-post-read-more-001>svg{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-left:4px;transition:transform .18s ease}
 body.feed-page .vatra-feed-post-read-more-001[aria-expanded="true"]>svg{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-feed-post-read-more-001>svg{transition:none}}

@@ -834,7 +834,6 @@ function appendAudience(container,level,isGroup=false){
   panel.hidden=true;
   commentsButton.setAttribute("aria-expanded","false");
 
-  // A single chronological order for roots and replies in every post viewer.
   const commentSort="newest";
   const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001 vatra-media-comments-unified-001");
   entries.setAttribute("role","feed");entries.setAttribute("aria-busy","false");
