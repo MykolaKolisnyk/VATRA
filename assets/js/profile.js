@@ -531,16 +531,24 @@
    if(typeof state.panel.hidePopover==="function")try{state.panel.hidePopover();}catch(_){}
    state.panel.remove();
   };
+  const editorViewport=anchor=>{
+   const v=window.visualViewport,left=v?.offsetLeft||0,top=v?.offsetTop||0,width=v?.width||window.innerWidth,height=v?.height||window.innerHeight;
+   const header=anchor.closest("dialog[open]")?top:Math.max(top,document.querySelector(".feed-header")?.getBoundingClientRect().bottom||0);
+   return {left,top:header,width,bottom:top+height};
+  };
+  const revealEditorAnchor=(anchor,wrapper)=>{
+   const rect=wrapper.getBoundingClientRect(),view=editorViewport(anchor);
+   if(rect.top<view.top+8||rect.bottom>view.bottom-8)wrapper.scrollIntoView({block:"center",inline:"nearest",behavior:"instant"});
+  };
   const positionEditorMenu=()=>{
    const state=editorMenu;if(!state)return;
    if(!state.anchor.isConnected||!state.anchor.getClientRects().length){closeEditorMenu();return;}
-   const rect=state.wrapper.getBoundingClientRect(),v=window.visualViewport;
-   const left=v?.offsetLeft||0,top=v?.offsetTop||0,width=v?.width||window.innerWidth,height=v?.height||window.innerHeight;
-   if(rect.bottom<top||rect.top>top+height){closeEditorMenu();return;}
+   const rect=state.wrapper.getBoundingClientRect(),{left,top,width,bottom}=editorViewport(state.anchor);
+   if(rect.bottom<=top||rect.top>=bottom){closeEditorMenu();return;}
    const compact=state.wrapper.dataset.variant==="compact";
    const w=Math.min(Math.max(rect.width,compact?220:0),width-16);
    const x=Math.max(left+8,Math.min(compact?rect.right-w:rect.left,left+width-w-8));
-   const down=top+height-rect.bottom-9,up=rect.top-top-9;
+   const down=bottom-rect.bottom-9,up=rect.top-top-9;
 
    state.panel.style.width=Math.round(w)+"px";
    const desired=Math.min(300,state.panel.scrollHeight+2);
@@ -570,6 +578,7 @@
   };
   const openEditorMenu=(anchor,wrapper,items,choose,selectedValue,keyboard=false)=>{
    closeEditorMenu();
+   revealEditorAnchor(anchor,wrapper);
    const panel=make("div","ui-profile-editor-dropdown-panel-001");
    panel.id="vatra-editor-options-"+(++editorMenuSerial);panel.setAttribute("role","listbox");
    panel.setAttribute("aria-label",anchor.getAttribute("aria-label")||tr("Варіанти","Options"));

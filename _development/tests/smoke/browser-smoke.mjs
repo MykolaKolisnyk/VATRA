@@ -5572,7 +5572,10 @@ try{
   assert.ok(await profilePage.locator("#profile-editor-languages-native option").evaluateAll(options=>options.every(option=>!option.value||!(/^[a-z]{2}$/i.test(option.value)))),"Language labels must not fall back to codes");
   assert.equal(await profilePage.locator('#profile-editor-languages-native option[value="Русский"]').count(),0,"Russian must not be a new selectable language");
   const languageSearch=profilePage.locator("#profile-editor-languages");await languageSearch.fill("English");
-  const languagePanel=profilePage.locator("#"+await languageSearch.getAttribute("aria-controls"));
+  const languagePanelId=await languageSearch.getAttribute("aria-controls");
+  assert.ok(languagePanelId&&await languageSearch.getAttribute("aria-expanded")==="true","Language search must open its results even when focus moves the viewport");
+  const languagePanel=profilePage.locator("#"+languagePanelId);
+  await languagePanel.getByRole("option").filter({hasText:"English"}).waitFor({state:"visible"});
   assert.equal(await languagePanel.getByRole("option").filter({hasText:"English"}).count(),1,"Language search finds matching names");
   await languagePanel.getByRole("option").filter({hasText:"English"}).click();
   assert.equal(await profilePage.locator(".vatra-profile-editor-language-chip-001").filter({hasText:"English"}).count(),1);
