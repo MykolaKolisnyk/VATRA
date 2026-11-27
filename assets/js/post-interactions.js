@@ -1744,8 +1744,9 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     preview.append(groupLink);
    }
    if(data.body){
-    const body=make("p","vatra-post-share-preview-body-001",data.body);
+    const body=make("p","feed-post-body vatra-post-share-preview-body-001",data.body);
     window.VATRA_POST_MEDIA?.linkifyHashtags(body);preview.append(body);
+    window.VATRA_POST_MEDIA?.collapsibleBody(body);
    }
    if(data.is_clip){const clip=make("a","vatra-post-original-link-001",tr("Відкрити кліп","Open clip"));clip.href=permalink({...data,kind:"person"});preview.append(clip);}
    else if(data.media_items?.length||(data.media_kind&&data.media_path))void window.VATRA_POST_MEDIA?.mount(client,data,preview);

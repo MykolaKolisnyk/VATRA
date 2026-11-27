@@ -221,17 +221,27 @@ try{
    const feedStyle=measure();
    document.body.classList.add("profile-page");
    const profileStyle=measure();
+   document.body.classList.remove("profile-page");document.body.classList.add("community-page");
+   const communityStyle=measure();
+   document.body.classList.remove("community-page");
+   const caption=window.VATRA_POST_MEDIA.mediaDescription({kind:"test-font",limit:2000,onSave:async value=>value});
+   caption.paint(original,false);document.body.append(caption.root);
+   const viewerStyle=["fontFamily","fontSize","fontWeight","lineHeight","letterSpacing","color"].map(key=>getComputedStyle(caption.root.querySelector(".vatra-media-description-copy-001"))[key]);
+   caption.root.remove();
    button.click();
    const expanded=paragraph.textContent===original+" Показати менше"&&
     !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&button.getAttribute("aria-expanded")==="true"&&!!button.querySelector("svg");
    button.click();const recollapsed=paragraph.textContent.endsWith("… Показати більше")&&button.getAttribute("aria-expanded")==="false";
-   return {collapsed,collapsedChecks,expanded,recollapsed,feedStyle,profileStyle};
+   return {collapsed,collapsedChecks,expanded,recollapsed,feedStyle,profileStyle,communityStyle,viewerStyle};
   });
   assert.ok(result.collapsed&&result.expanded&&result.recollapsed,
    "Read-more must appear inline, expand, collapse and preserve hashtags: "+JSON.stringify(result));
   assert.deepEqual(result.feedStyle,result.profileStyle,
    "Feed and Profile post body typography must match: "+JSON.stringify(result));
-  console.log("VATRA post text: inline reversible expansion and matching Feed/Profile fonts passed.");
+  assert.deepEqual(result.feedStyle,result.communityStyle,"Community typography must match Feed");
+  assert.deepEqual(result.feedStyle.slice(0,6),result.viewerStyle,"Photo caption typography must match Feed");
+  assert.equal(result.feedStyle[1],"14.5px","Canonical post font size");
+  console.log("VATRA post text: identical Feed, Profile, Community and photo caption typography passed.");
  }finally{await bodyTextProbe.close();}
 
  // All three production viewer types must share exact sidebar measurements.
@@ -413,8 +423,11 @@ try{
   canvas.width=600;canvas.height=180;
   const ctx=canvas.getContext("2d",{willReadFrequently:true});
   ctx.drawImage(img,0,0,canvas.width,canvas.height);
-  return [.15,.5,.85].map(position=>{
-   const data=ctx.getImageData(Math.round(canvas.width*position),90,1,1).data;
+  const allStates=["deleted","blocked","not-found"].every(state=>
+   getComputedStyle(document.documentElement).getPropertyValue("--vatra-"+state+"-cover").trim()===css.trim());
+  if(!allStates)throw Error("All system cover states must share the same neutral SVG");
+  return [.08,.5,.92].map(position=>{
+   const data=ctx.getImageData(300,Math.round(canvas.height*position),1,1).data;
    const rgb=[data[0],data[1],data[2]];
    const distance=rgb.reduce((sum,channel,index)=>
     sum+Math.abs(channel-[244,246,251][index]),0)/3;
@@ -422,9 +435,9 @@ try{
   });
  });
  await coverContrastPage.close();
- assert.ok(coverContrast.every(sample=>sample.distance>=22)&&
-  coverContrast.reduce((sum,sample)=>sum+sample.distance,0)/3>=35,
-  "Default profile cover must remain perceptibly distinct from page background: "+
+ assert.ok(coverContrast.every(({rgb})=>rgb.every(c=>c>=210)&&rgb[2]>=rgb[0]&&Math.max(...rgb)-Math.min(...rgb)<=30)&&
+  coverContrast[2].distance>=12&&coverContrast[2].distance>coverContrast[0].distance+8,
+  "Default profile cover must remain a soft neutral blue-gray gradient: "+
    JSON.stringify(coverContrast));
  assert.ok(new Set(coverContrast.map(sample=>sample.rgb.join(","))).size===3,"Default cover must render a real gradient, not a flat color");
  console.log("VATRA default cover: branded gradient and contrast OK");
@@ -3893,10 +3906,18 @@ try{
    let saved=null;const component=window.VATRA_POST_MEDIA.mediaDescription({kind:"test-photo",limit:2000,onSave:async value=>{saved=value;return value;}});
    const root=component.root;document.body.append(root);
    try{
-    const full="VATRA description ".repeat(35);component.paint(full,true);
+    const full=("VATRA description ".repeat(35)+"\n\n#VATRA #Верифікація https://example.com").trim();component.paint(full,true);
     const copy=root.querySelector(".vatra-media-description-copy-001"),more=root.querySelector(".vatra-media-description-more-001"),edit=root.querySelector(".vatra-media-description-edit-001"),form=root.querySelector("form"),input=root.querySelector("textarea");
     const collapsed=copy.textContent.length<full.length&&!more.hidden&&edit.hidden;
     more.click();const expanded=copy.textContent===full&&more.getAttribute("aria-expanded")==="true";
+    const feedBody=document.createElement("p");feedBody.className="feed-post-body";feedBody.textContent=full;document.body.append(feedBody);window.VATRA_POST_MEDIA.collapsibleBody(feedBody);
+    try{
+     const feedMore=feedBody.querySelector(".vatra-feed-post-read-more-001");feedMore.click();
+     const sameLinks=[...copy.querySelectorAll("a")].map(a=>a.href).join("|")===[...feedBody.querySelectorAll("a")].map(a=>a.href).join("|")&&copy.querySelectorAll("a").length===3;
+     const sameControl=more.classList.contains("vatra-feed-post-read-more-001")&&more.querySelector("svg")?.innerHTML===feedMore.querySelector("svg")?.innerHTML&&more.textContent===feedMore.textContent;
+     if(!sameLinks||!sameControl)throw Error("Photo descriptions must share post links and expand/collapse icon");
+     const tag=copy.querySelector("a");tag.addEventListener("click",e=>e.preventDefault(),{once:true});tag.click();if(!form.hidden)throw Error("Clicking a hashtag must not enter edit mode");
+    }finally{feedBody.remove();}
     more.click();const recollapsed=copy.textContent!==full&&more.getAttribute("aria-expanded")==="false";
     copy.click();const editing=!form.hidden&&input.value===full;
     input.value="Updated caption";form.requestSubmit();await Promise.resolve();await Promise.resolve();
@@ -5874,6 +5895,15 @@ try{
   await tileMenu.locator("summary").hover();
   await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"visible"});
   assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
+  await tileMenu.locator(".vatra-album-photo-menu-danger-001").hover();
+  assert.ok(await tileMenu.evaluate(el=>el.open),"Moving into the menu must not close it");
+  await profilePage.locator("#profile-tab-photos").hover();
+  await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"hidden"});
+  await galleryTiles.first().hover();await tileMenu.locator("summary").hover();
+  await tileMenu.locator("summary").focus();await profilePage.keyboard.press("Escape");
+  assert.equal(await tileMenu.evaluate(el=>el.open),false,"Escape dismisses the photo tile menu");
+  await profilePage.locator("#profile-tab-photos").hover();
+  await galleryTiles.first().hover();await tileMenu.locator("summary").hover();
   await tileMenu.getByRole("button",{name:language==="en"?"Select multiple":"Вибрати декілька",exact:true}).click();
   await galleryTiles.nth(1).locator("[data-vatra-select-photo]").click();
   assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),language==="en"?"Selected: 2":"Вибрано: 2");
@@ -6192,6 +6222,8 @@ try{
   assert.ok(systemCover.expected?.startsWith("data:image/svg+xml,")&&
    systemCover.image.includes(systemCover.expected),
    "The missing member's cover is rendered by CSS SVG, not a separate file");
+  assert.equal(systemCover.expected,await profilePage.evaluate(()=>window.VATRA_AVATAR.coverAsset("default")),
+   "Missing users must use the same fallback cover as ordinary profiles");
   assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
   assert.equal(await profilePage.locator("body").getAttribute("data-vatra-profile-unavailable"),"not-found");
   const missingAlignment=await profilePage.evaluate(()=>{
@@ -6270,9 +6302,13 @@ try{
    assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".webp")&&
     neutralArt.actualAvatar!==neutralArt.sharedAvatar,
     "Deleted and blocked members must use their own Vatryk WebP");
-   assert.notEqual(neutralArt.actualCover,neutralArt.sharedCover,
-    "Unavailable members retain neutral cover, distinct from ordinary branded gradient");
-   assert.ok(decodeURIComponent(neutralArt.actualCover).includes('fill="#ccd2da"'));
+   assert.equal(neutralArt.actualCover,neutralArt.sharedCover,
+    "Unavailable members must use the same neutral gradient as ordinary profiles without a cover");
+   const neutralSvg=decodeURIComponent(neutralArt.actualCover);
+   assert.ok(neutralSvg.includes('stop-color="#f3f5f8"')&&neutralSvg.includes('stop-color="#dce4ef"'),
+    "Unavailable profiles retain the approved light blue-gray gradient");
+   const renderedCover=await profilePage.locator("#profile-cover-system").evaluate(el=>getComputedStyle(el).backgroundImage);
+   assert.ok(renderedCover.includes(neutralArt.sharedCover),"Unavailable profile actually renders the shared cover");
    const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
     background:getComputedStyle(el,"::before").backgroundColor,
     image:getComputedStyle(el,"::before").backgroundImage,
@@ -6525,7 +6561,7 @@ try{
    window.__clubPostRanges=[];
    const rows=Array.from({length:25},(_,i)=>({
     id:"00000000-0000-4000-8000-"+String(i+101).padStart(12,"0"),
-    author_vatra_id:654321,body:"VATRA community page "+(i+1),
+    author_vatra_id:654321,body:i===0?("VATRA community text ".repeat(30)+"#VATRA"):"VATRA community page "+(i+1),
     created_at:new Date(Date.now()-i*60000).toISOString(),media_items:[]
    }));
    localStorage.setItem("vatra-test-club-posts",JSON.stringify(rows));
@@ -6535,6 +6571,14 @@ try{
   await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=12);
   assert.equal(await page.locator("#club-posts .feed-post-card").count(),12,
    "Community must mount only the first 12 posts, not all 25");
+  const communityBody=page.locator("#club-posts .feed-post-body").first();
+  const communityMore=communityBody.locator(".vatra-feed-post-read-more-001");
+  assert.equal(await communityMore.getAttribute("aria-expanded"),"false");
+  await communityMore.click();
+  assert.equal(await communityBody.locator(".vatra-feed-post-hashtag-001").textContent(),"#VATRA");
+  assert.equal(await communityBody.evaluate(el=>getComputedStyle(el).fontSize),"14.5px");
+  await communityMore.click();
+  assert.equal(await communityMore.getAttribute("aria-expanded"),"false");
   assert.deepEqual(await page.evaluate(()=>window.__clubPostRanges[0]),[0,11],
    "Community initial DB page must be bounded to twelve rows");
   await page.locator("#club-posts-more").click();

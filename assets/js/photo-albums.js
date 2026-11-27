@@ -808,10 +808,7 @@
    }
    if(isMine)list.append(decoratePhotoAction(button("vatra-album-photo-menu-item-001",t("Вибрати декілька","Select multiple"),()=>{menu.open=false;selectPhoto(photo);}),"select"));
    menu.append(trigger,list);wrap.append(menu);
-   menu.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse"){for(const other of queryPhotoElements(".ui-vatra-album-tile-menu-001[open]"))if(other!==menu)other.open=false;menu.open=true;}});
-   menu.addEventListener("pointerleave",event=>{if(event.pointerType==="mouse")menu.open=false;});
-   wrap.addEventListener("pointerleave",event=>{if(event.pointerType==="mouse")menu.open=false;});
-   menu.addEventListener("toggle",()=>{if(menu.open)for(const other of queryPhotoElements(".ui-vatra-album-tile-menu-001[open]"))if(other!==menu)other.open=false;});
+   window.VATRA_POST_MEDIA.bindPhotoTileMenu(menu,trigger);
    return wrap;
   }
   async function openPhoto(row,album,direction=0){
@@ -1059,7 +1056,7 @@
       action(t("Вибрати декілька","Select multiple"),()=>selectPhoto(selectionRow));
       action(t("Видалити","Delete"),()=>deleteSelected([selectionRow]));
       menu.append(trigger,list);wrap.append(menu);
-      menu.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse")menu.open=true;});menu.addEventListener("pointerleave",event=>{if(event.pointerType==="mouse")menu.open=false;});
+      window.VATRA_POST_MEDIA.bindPhotoTileMenu(menu,trigger);
       grid.append(wrap);
      }else grid.append(tile);
     }

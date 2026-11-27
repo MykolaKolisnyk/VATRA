@@ -407,6 +407,7 @@
     const href=resultHref(kind,item);if(!href)return;
     const suffix=String(index+1).padStart(3,"0"),row=make("a","vatra-search-live-result ui-vatra-search-live-result-"+kind+"-"+suffix);row.href=href;
     const content=make("span","vatra-search-live-text ui-vatra-search-live-text-"+kind+"-"+suffix),primary=make("strong","vatra-search-live-primary-"+kind+"-"+suffix,resultTitle(kind,item));content.append(primary);
+    if(["posts","photos","videos","clips"].includes(kind))primary.classList.add("vatra-search-post-excerpt-001");
     if(kind==="people"&&item.verified===true)window.VATRA_SITE_SEARCH?.attachVerified?.(primary,item.vatra_id);
     const detail=resultDetails(kind,item);if(detail)content.append(make("small","vatra-search-live-secondary-"+kind+"-"+suffix,detail));
     row.append(resultIcon(kind,item,suffix),content);if(kind==="people")row.append(make("small","vatra-search-result-id-001","ID "+item.vatra_id));

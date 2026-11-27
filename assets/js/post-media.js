@@ -507,32 +507,45 @@
    else slot.textContent=tr("Медіафайл історії недоступний.","Story media is unavailable.");
   }
  }
+ function postBodyPreview(full){
+  const chars=Array.from(full);
+  return chars.length<=440?full:chars.slice(0,350).join("").trimEnd()+"…";
+ }
+ function readMoreControl(button,translate=tr){
+  button.type="button";button.classList.add("vatra-feed-post-read-more-001");
+  const label=document.createElement("span");
+  const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.8");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");
+  const chevron=document.createElementNS(icon.namespaceURI,"path");chevron.setAttribute("d","m6 9 6 6 6-6");icon.append(chevron);button.append(label,icon);
+  return expanded=>{label.textContent=expanded?translate("Показати менше","Show less"):translate("Показати більше","Show more");button.setAttribute("aria-expanded",String(expanded));};
+ }
  function mediaDescription({kind,limit,translate=tr,onSave,onError}){
   const make=(tag,part)=>{const el=document.createElement(tag);el.className="vatra-media-description-"+part+"-001 vatra-"+kind+"-description-"+part+"-001";return el;};
   const root=make("div","root");root.classList.add("vatra-media-description-001");root.hidden=true;
-  const copy=make("p","copy"),edit=make("button","edit"),more=make("button","more"),form=make("form","form"),input=make("textarea","input"),actions=make("div","controls"),save=make("button","save"),cancel=make("button","cancel");
+  const paragraph=make("p","body");paragraph.classList.add("feed-post-body");
+  const copy=make("span","copy"),edit=make("button","edit"),more=make("button","more"),form=make("form","form"),input=make("textarea","input"),actions=make("div","controls"),save=make("button","save"),cancel=make("button","cancel");
   edit.type=more.type=cancel.type="button";save.type="submit";input.maxLength=limit;input.rows=2;
   const editLabel=translate("Редагувати опис","Edit description");
   edit.textContent=editLabel;input.placeholder=translate("Введіть опис","Enter a description");input.setAttribute("aria-label",editLabel);
   save.textContent=translate("Зберегти","Save");cancel.textContent=translate("Скасувати","Cancel");
-  actions.append(cancel,save);form.append(input,actions);root.append(copy,edit,more,form);
+  actions.append(cancel,save);form.append(input,actions);paragraph.append(copy,document.createTextNode(" "),more);root.append(paragraph,edit,form);
+  const updateMore=readMoreControl(more,translate);
   let value="",editable=false,expanded=false,editing=false,epoch=0;
-  const preview=()=>{const chars=Array.from(value),lines=value.split("\n");const compact=Array.from(lines.slice(0,5).join("\n")).slice(0,240).join("").trimEnd();return chars.length>240||lines.length>5?compact+"…":value;};
+  const preview=()=>postBodyPreview(value);
   const render=()=>{
    const compact=preview();root.hidden=!editable&&!value;root.dataset.expanded=String(expanded&&!editing);
-   copy.textContent=expanded?value:compact;copy.hidden=editing||!value;
-   if(editable){copy.tabIndex=0;copy.setAttribute("role","button");copy.setAttribute("aria-label",editLabel+": "+copy.textContent);}
+   copy.textContent=expanded?value.trimEnd():compact;linkifyHashtags(copy);copy.hidden=editing||!value;paragraph.hidden=editing||!value;
+   if(editable){copy.tabIndex=0;copy.setAttribute("role",copy.querySelector("a")?"group":"button");copy.setAttribute("aria-label",editLabel+": "+copy.textContent);}
    else{copy.removeAttribute("tabindex");copy.removeAttribute("role");copy.removeAttribute("aria-label");}
-   edit.hidden=editing||!editable||!!value;more.hidden=editing||compact===value;more.setAttribute("aria-expanded",String(expanded));
-   more.textContent=expanded?translate("Показати менше","Show less"):translate("Показати більше","Show more");
+   edit.hidden=editing||!editable||!!value;more.hidden=editing||compact===value;updateMore(expanded);
    form.hidden=!editing;
   };
   const resize=()=>{input.style.height="auto";input.style.height=Math.min(260,Math.max(52,input.scrollHeight+2))+"px";};
   const begin=()=>{if(!editable||editing)return;editing=true;input.value=value;render();resize();input.focus();};
   const finish=()=>{editing=false;render();};
   const paint=(text,canEdit)=>{epoch++;value=String(text||"");editable=!!canEdit;expanded=false;editing=false;save.disabled=cancel.disabled=input.disabled=false;render();};
-  copy.addEventListener("click",()=>{const selection=window.getSelection?.();if(selection&&!selection.isCollapsed&&copy.contains(selection.anchorNode))return;begin();});
-  copy.addEventListener("keydown",event=>{if(editable&&["Enter"," "].includes(event.key)){event.preventDefault();begin();}});
+  copy.addEventListener("click",event=>{if(event.target.closest("a,button"))return;const selection=window.getSelection?.();if(selection&&!selection.isCollapsed&&copy.contains(selection.anchorNode))return;begin();});
+  copy.addEventListener("keydown",event=>{if(editable&&event.target===copy&&["Enter"," "].includes(event.key)){event.preventDefault();begin();}});
   edit.addEventListener("click",begin);more.addEventListener("click",()=>{expanded=!expanded;render();if(!expanded&&more.getBoundingClientRect().top<root.closest(".vatra-media-side-unified-001")?.getBoundingClientRect().top)more.scrollIntoView({block:"nearest"});});
   input.addEventListener("input",resize);
   input.addEventListener("keydown",event=>{if(event.key==="Escape"&&!save.disabled){event.preventDefault();event.stopPropagation();finish();}else if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)){event.preventDefault();form.requestSubmit();}});
@@ -547,22 +560,15 @@
  function collapsibleBody(paragraph){
   if(!paragraph||paragraph.dataset.vatraCollapsed)return;
   const full=paragraph.textContent||"";
-  if(Array.from(full).length<=440)return;
-  const compact=Array.from(full).slice(0,350).join("").trimEnd()+"…";
+  const compact=postBodyPreview(full);if(compact===full)return;
   const button=document.createElement("button");
-  button.type="button";button.className="vatra-feed-post-read-more-001";
-  button.setAttribute("aria-expanded","false");
-  const label=document.createElement("span");
-  const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
-  icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.8");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");
-  const chevron=document.createElementNS(icon.namespaceURI,"path");chevron.setAttribute("d","m6 9 6 6 6-6");icon.append(chevron);button.append(label,icon);
+  const updateMore=readMoreControl(button);
   paragraph.dataset.vatraCollapsed="true";
   let expanded=false;
   const update=()=>{
    paragraph.textContent=expanded?full.trimEnd():compact;
    linkifyHashtags(paragraph);
-   label.textContent=expanded?tr("Показати менше","Show less"):tr("Показати більше","Show more");
-   button.setAttribute("aria-expanded",String(expanded));
+   updateMore(expanded);
    paragraph.dataset.vatraCollapsed=expanded?"expanded":"true";
    paragraph.append(document.createTextNode(" "),button);
   };
@@ -1251,11 +1257,22 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   watchMediaTarget(slot,priority,load);
  }
  let photoSourceCleanup=null,photoSourceTicket=0;
+ function bindPhotoTileMenu(menu,trigger){
+  let timer=0,hovered=false;
+  const clear=()=>{clearTimeout(timer);timer=0;};
+  const close=()=>{clear();menu.open=false;};
+  const exclusive=()=>{for(const other of document.querySelectorAll(".ui-vatra-album-tile-menu-001[open]"))if(other!==menu)other.open=false;};
+  menu.addEventListener("pointerenter",event=>{if(event.pointerType!=="mouse")return;hovered=true;clear();exclusive();menu.open=true;});
+  menu.addEventListener("pointerleave",event=>{if(event.pointerType!=="mouse"||menu.contains(event.relatedTarget))return;hovered=false;clear();if(menu.open)timer=setTimeout(close,180);});
+  menu.addEventListener("toggle",()=>{if(menu.open)exclusive();else clear();});
+  menu.addEventListener("focusout",event=>{if(!hovered&&!menu.contains(event.relatedTarget))close();});
+  menu.addEventListener("keydown",event=>{if(event.key!=="Escape"||!menu.open)return;event.preventDefault();event.stopPropagation();close();trigger.focus();});
+ }
  function photoMenuIcon(kind){
   const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
-  svg.setAttribute("class","vatra-photo-menu-icon-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.85");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
+  svg.setAttribute("class","vatra-photo-menu-icon-001 vatra-photo-menu-icon-"+kind+"-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.85");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
   const paths={dots:"M5 12h.01M12 12h.01M19 12h.01",download:"M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4",post:"M5 3h14v18H5zM8 8h8M8 12h8M8 16h5",avatar:"M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-3a8 8 0 0 1 16 0v3",select:"M8 12l3 3 5-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7",album:"M3 7h7l2 2h9v11H3z",share:"M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z",move:"M3 7h7l2 2h9v11H3zM8 14h8m-3-3 3 3-3 3",archive:"M3 5h18v4H3zM5 9v12h14V9m-9 4h4",pin:"m16 3 5 5-4 1-3 5v3l-2 2-7-7 2-2h3l5-3 1-4ZM8 16l-5 5",restore:"M3 12a9 9 0 1 1 3 7M3 5v7h7"};
-  const path=document.createElementNS(ns,"path");path.setAttribute("d",paths[kind]||paths.album);if(kind==="dots")path.setAttribute("stroke-width","4");svg.append(path);return svg;
+  const path=document.createElementNS(ns,"path");path.setAttribute("class","vatra-photo-menu-path-"+kind+"-001");path.setAttribute("d",paths[kind]||paths.album);if(kind==="dots")path.setAttribute("stroke-width","4");svg.append(path);return svg;
  }
  function photoNavigation(stage,index,total,step,hasMore=false){
   const buttons=[-1,1].map(dir=>{const button=document.createElement("button");button.type="button";button.className="vatra-post-gallery-nav-"+(dir<0?"prev":"next");button.setAttribute("aria-label",dir<0?tr("Попередній файл","Previous media"):tr("Наступний файл","Next media"));
@@ -1346,5 +1363,5 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
- window.VATRA_POST_MEDIA={mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.VATRA_POST_MEDIA={mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,bindPhotoTileMenu,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();

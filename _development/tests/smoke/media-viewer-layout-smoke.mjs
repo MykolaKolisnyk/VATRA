@@ -191,10 +191,18 @@ assert.ok(
 assert.ok(
  postMedia.includes('paragraph.append(document.createTextNode(" "),button);')&&
  postMedia.includes('expanded?full.trimEnd():compact')&&
+ postMedia.includes('const preview=()=>postBodyPreview(value)')&&
+ postMedia.includes('linkifyHashtags(copy)')&&
+ postMedia.includes('const updateMore=readMoreControl(more,translate)')&&
+ postCss.includes('.vatra-media-description-body-001.feed-post-body,')&&
+ postCss.includes('.vatra-post-share-preview .feed-post-body,')&&
+ postCss.includes('.ui-vatra-guest-post-001 .feed-post-body,')&&
+ postCss.includes('.feed-post-body.vatra-clip-caption-001{margin:0;color:#394964;font:480 14.5px/1.65')&&
+ !postCss.includes('.vatra-media-description-copy-001[role="button"]:hover{background:')&&
  !postMedia.includes('paragraph.insertAdjacentElement("afterend",button)')&&
  postCss.includes('body.feed-page .feed-post-body > .vatra-feed-post-read-more-001{')&&
  postCss.includes('display:inline;margin:0;padding:0;border:0;background:transparent;')&&
- postCss.includes('body.feed-page:not(.community-page) .feed-post-card > .feed-post-body{')&&
+ postCss.includes('body.feed-page .feed-post-card > .feed-post-body{')&&
  postCss.includes('font:480 14.5px/1.65 "Onest",system-ui,sans-serif;letter-spacing:.001em')&&
  !profileCss.includes('.profile-posts-section .feed-post-body{'),
  "Feed and Profile must use identical post typography with inline, accessible expand/collapse controls"
