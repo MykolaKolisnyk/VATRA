@@ -119,6 +119,7 @@ function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGall
      if(el.src.includes("profile-avatar-comment-row.js"))window.VATRA_PROFILE_AVATAR_COMMENT_ROW={create(){}};
      if(el.src.includes("photo-albums.js"))window.VATRA_ALBUMS={mount(){}};
      if(el.src.includes("story-editor.js"))window.VATRA_STORY_EDITOR={mount(){}};
+     if(el.src.includes("form-select.js"))window.VATRA_FORM_SELECT={wireSelects(){}};
      if(el.src.includes("post-composer-ui.js"))window.VATRA_COMPOSER_UI={bind(){}};
      if(el.src.includes("gift-viewer.js"))window.VATRA_GIFT_VIEWER={open(){}};
     }
@@ -144,44 +145,44 @@ await browser.window.VATRA_FEATURES.load("albums");
 assert.equal(browser.requests.length,2,"Loaded features must not fetch again");
 await browser.window.VATRA_FEATURES.load("story");
 await browser.window.VATRA_FEATURES.load("composer");
-assert.equal(browser.requests.length,6,"Independent features load only when requested");
+assert.equal(browser.requests.length,8,"Independent features load only when requested");
 await browser.window.VATRA_FEATURES.load("gift");
-assert.equal(browser.requests.length,8,"Gift viewer is requested only on demand");
+assert.equal(browser.requests.length,10,"Gift viewer is requested only on demand");
 const galleryTask=browser.window.VATRA_FEATURES.load("profile-gallery");
 assert.strictEqual(browser.window.VATRA_FEATURES.load("profile-gallery"),galleryTask,
  "Concurrent gallery loads must share one Promise");
 await galleryTask;
-assert.equal(browser.requests.length,9,"Gallery JS loads only on demand");
+assert.equal(browser.requests.length,11,"Gallery JS loads only on demand");
 assert.equal(browser.requests.at(-1).tag,"SCRIPT","Gallery has no separate stylesheet");
 await browser.window.VATRA_FEATURES.load("profile-gallery");
-assert.equal(browser.requests.length,9,"Gallery must not download twice");
+assert.equal(browser.requests.length,11,"Gallery must not download twice");
 await browser.window.VATRA_FEATURES.load("cover-editor");
 assert.deepEqual(browser.requests.map(x=>x.tag).slice(-1),["SCRIPT"],
  "Cover editor must not fetch a redundant stylesheet");
-assert.equal(browser.requests.length,10,"Cover editor is loaded only when requested");
+assert.equal(browser.requests.length,12,"Cover editor is loaded only when requested");
 await browser.window.VATRA_FEATURES.load("cover-editor");
-assert.equal(browser.requests.length,10,"The cover editor is reused after its first load");
+assert.equal(browser.requests.length,12,"The cover editor is reused after its first load");
 const avatarTask=browser.window.VATRA_FEATURES.load("avatar-editor");
 assert.strictEqual(browser.window.VATRA_FEATURES.load("avatar-editor"),avatarTask,
  "Concurrent avatar editor loads must share one Promise");
 await avatarTask;
-assert.equal(browser.requests.length,11,"Avatar editor loads only on request");
+assert.equal(browser.requests.length,13,"Avatar editor loads only on request");
 assert.equal(browser.requests.at(-1).tag,"SCRIPT","Avatar editor reuses existing profile styles");
 await browser.window.VATRA_FEATURES.load("avatar-editor");
-assert.equal(browser.requests.length,11,"The avatar editor is reused after its first load");
+assert.equal(browser.requests.length,13,"The avatar editor is reused after its first load");
 await browser.window.VATRA_FEATURES.load("cover-viewer");
-assert.equal(browser.requests.length,12,"Cover fullscreen viewer loads only after a request");
+assert.equal(browser.requests.length,14,"Cover fullscreen viewer loads only after a request");
 assert.equal(browser.requests.at(-1).tag,"SCRIPT","Cover viewer requires no extra stylesheet");
 await browser.window.VATRA_FEATURES.load("cover-viewer");
-assert.equal(browser.requests.length,12,"Cover fullscreen viewer is reused after first load");
+assert.equal(browser.requests.length,14,"Cover fullscreen viewer is reused after first load");
 const commentsTask=browser.window.VATRA_FEATURES.load("avatar-comment-row");
 assert.strictEqual(browser.window.VATRA_FEATURES.load("avatar-comment-row"),commentsTask,
  "Concurrent avatar comment card loads share the same Promise");
 await commentsTask;
-assert.equal(browser.requests.length,13,"Avatar comment cards load only when requested");
+assert.equal(browser.requests.length,15,"Avatar comment cards load only when requested");
 assert.equal(browser.requests.at(-1).tag,"SCRIPT","Avatar comment UI has no extra stylesheet");
 await browser.window.VATRA_FEATURES.load("avatar-comment-row");
-assert.equal(browser.requests.length,13,"Avatar comment cards are reused");
+assert.equal(browser.requests.length,15,"Avatar comment cards are reused");
 const avatarRetry=fakeBrowser(false,false,false,true);
 await assert.rejects(avatarRetry.window.VATRA_FEATURES.load("avatar-editor"));
 await avatarRetry.window.VATRA_FEATURES.load("avatar-editor");

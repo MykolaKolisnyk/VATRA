@@ -184,10 +184,11 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
    else{await document.fonts?.ready;const out=document.createElement("canvas");out.width=1080;out.height=1920;draw(out);let blob=await new Promise(resolve=>out.toBlob(resolve,"image/webp",.91));if(!blob||!["image/webp","image/png","image/jpeg"].includes(blob.type)||blob.size>6291456)throw Error("Story encoding failed");const ext=blob.type==="image/webp"?"webp":blob.type==="image/jpeg"?"jpg":"png";fileToPublish=new File([blob],"vatra-story."+ext,{type:blob.type});}
    if(!fileToPublish)throw Error("Missing story media");
    uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,id,fileToPublish);
+   if(!uploaded||!["image","video"].includes(uploaded.media_kind)||typeof uploaded.media_path!=="string"||!uploaded.media_path.startsWith(String(id)+"/stories/"))throw Error("Invalid uploaded story metadata");
    const visibility=audience.value==="public"?"public":"friends";
    const {error:insertError}=await client.from("stories").insert({author_vatra_id:String(id),body,theme:0,visibility,media_kind:uploaded.media_kind,media_path:uploaded.media_path});
-   if(insertError)throw insertError;inserted=true;
-  }catch(error){if(uploaded&&!inserted)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}note(error?.code==="23514"?tr("Не вдалося зберегти медіафайл історії. Повторіть спробу з новим файлом.","The story media failed validation. Try again with a new file."):tr("Не вдалося опублікувати історію. Спробуйте ще раз.","Could not publish the story. Try again."));}
+   if(insertError){const failure=Error("Story insert failed");failure.code=insertError.code;failure.constraint=insertError.message?.match(/vatra_stories_[a-z_]+_check/)?.[0];throw failure;}inserted=true;
+  }catch(error){if(uploaded&&!inserted)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}if(error?.code)console.warn("VATRA story publication rejected",String(error.code),error.constraint||"");note(error?.code==="23514"?tr("Не вдалося зберегти медіафайл історії. Повторіть спробу з новим файлом.","The story media failed validation. Try again with a new file."):tr("Не вдалося опублікувати історію. Спробуйте ще раз.","Could not publish the story. Try again."));}
   finally{publishing=false;render();}
   if(inserted){dialog.close();reset();try{onPublished?.();}catch(_){}}
  });

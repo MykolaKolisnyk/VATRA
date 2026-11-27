@@ -12,9 +12,9 @@ body.feed-page .ui-vatra-story-editor-001 button:disabled{opacity:.47;cursor:def
 body.feed-page .ui-vatra-story-editor-001 button:focus-visible,body.feed-page .ui-vatra-story-editor-001 input:focus-visible,body.feed-page .ui-vatra-story-editor-001 textarea:focus-visible{outline:2px solid #9fbaff;outline-offset:3px}
 body.feed-page .ui-vatra-story-editor-001 button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px #8bb0ff;background:#e6efff}
 body.feed-page .vatra-story-close-001{width:36px;height:36px;padding:0!important;display:grid;place-items:center}
-body.feed-page .ui-vatra-story-workspace-001{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;padding:16px 20px;min-width:0}
+body.feed-page .ui-vatra-story-workspace-001{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;padding:16px 20px;min-width:0;align-items:start}
 body.feed-page .ui-vatra-story-stage-001{display:flex;flex-direction:column;min-width:0;align-items:center;gap:10px}
-body.feed-page .ui-vatra-story-surface-001{width:min(100%,calc((100dvh - 170px)*.5625));min-width:min(100%,220px);aspect-ratio:9/16;position:relative;isolation:isolate;overflow:hidden;border-radius:9px;background:#344158;box-shadow:0 4px 18px #0b152a30}
+body.feed-page .ui-vatra-story-surface-001{width:min(100%,calc((100dvh - 250px)*.5625));min-width:min(100%,220px);aspect-ratio:9/16;position:relative;isolation:isolate;overflow:hidden;border-radius:9px;background:#344158;box-shadow:0 4px 18px #0b152a30}
 body.feed-page .ui-vatra-story-surface-001[data-drag="true"]{outline:3px solid #a3c0ff;outline-offset:2px}
 body.feed-page :is(.ui-vatra-story-canvas-001,.ui-vatra-story-video-001){display:block;width:100%;height:100%;object-fit:contain}
 body.feed-page .ui-vatra-story-canvas-001{touch-action:none;cursor:move}
@@ -67,9 +67,16 @@ body.feed-page .ui-vatra-story-filter-preview-001{display:block;width:100%;aspec
 @media(max-width:720px){body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"] .ui-vatra-story-tools-001{flex-wrap:wrap;overflow:visible}body.feed-page .ui-vatra-story-sidebar-001[data-panel="overview"] .ui-vatra-story-tools-001 button{flex:1 1 130px}body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]){grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){body.feed-page .ui-vatra-story-editor-001 button{transition:none}}
 
-body.feed-page .ui-vatra-story-stage-001{padding:14px;border:1px solid #e2e9f2;border-radius:14px;background:#f5f7fb}
-body.feed-page .ui-vatra-story-sidebar-001 .ui-vatra-story-tools-001{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;border:0;padding:0;overflow:visible}
-body.feed-page .ui-vatra-story-sidebar-001 .ui-vatra-story-tools-001 button{justify-content:flex-start;border:1px solid #e1e8f2;border-radius:10px;padding:9px;min-height:44px;white-space:normal}
+body.feed-page .ui-vatra-story-stage-001{padding:0;border:0;background:transparent}
+body.feed-page .ui-vatra-story-sidebar-001 .ui-vatra-story-tools-001{display:grid;grid-template-columns:minmax(0,1fr);gap:3px;border:0;padding:0;overflow:visible}
+body.feed-page .ui-vatra-story-sidebar-001 .ui-vatra-story-tools-001 button{justify-content:flex-start;border:0;border-radius:9px;padding:10px 12px;min-height:44px;white-space:normal}
+body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]){grid-template-columns:44px minmax(0,1fr);gap:10px}
+body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]) .ui-vatra-story-tools-001 button{justify-content:center;padding:8px}
+body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]) .ui-vatra-story-tools-001 button span:last-child{display:none}
+body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]) .ui-vatra-story-panel-001{max-height:calc(100dvh - 250px)}
+body.feed-page .ui-vatra-story-discard-dialog-001 .ui-vatra-story-discard-actions-001{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:10px}
+body.feed-page .ui-vatra-story-discard-dialog-001 .ui-vatra-story-discard-actions-001>button{box-sizing:border-box;width:100%;min-width:0;max-width:none;min-height:44px;height:100%;padding:10px 12px;margin:0;white-space:normal;text-align:center}
+@media(max-width:720px){body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]){grid-template-columns:1fr}body.feed-page .ui-vatra-story-sidebar-001 .ui-vatra-story-tools-001{grid-template-columns:repeat(5,minmax(0,1fr))}body.feed-page .ui-vatra-story-sidebar-001 .ui-vatra-story-tools-001 button{justify-content:center;padding:8px}body.feed-page .ui-vatra-story-sidebar-001 .ui-vatra-story-tools-001 button span:last-child{display:none}body.feed-page .ui-vatra-story-sidebar-001:not([data-panel="overview"]) .ui-vatra-story-panel-001{max-height:none}}
 body.feed-page .ui-vatra-story-panel-001:empty{display:none}
 body.feed-page .ui-vatra-story-history-001 button{color:#fff}
 @media(max-width:720px){body.feed-page .ui-vatra-story-stage-001{padding:10px}body.feed-page .ui-vatra-story-header-001,body.feed-page .ui-vatra-story-footer-001{padding:12px}}

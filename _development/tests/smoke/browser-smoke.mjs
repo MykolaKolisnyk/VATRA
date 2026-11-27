@@ -4009,16 +4009,26 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isEnabled(),true,
    "A valid poll without media or post text must unlock the shared editor");
   await feedProbe.locator(".vatra-post-composer-next-001").click();
-  const scheduleToggle=feedProbe.locator(".vatra-post-composer-schedule-toggle-001");
-  await scheduleToggle.check();
+  const scheduleToggle=feedProbe.locator(".vatra-select-trigger-feed-publication-mode");
+  await scheduleToggle.click();
+  await feedProbe.locator(".ui-select-options-feed-publication-mode [data-value='scheduled']").click();
   const plannedDate=await feedProbe.evaluate(()=>{
    const date=new Date(Date.now()+15*60*1000);
    return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
   });
-  await feedProbe.locator(".vatra-post-composer-schedule-date-001").fill(plannedDate);
+  const scheduleFields=feedProbe.locator(".vatra-post-composer-schedule-date-001");
+  assert.equal(await scheduleFields.locator(".vatra-select-trigger").count(),5,"Schedule uses the shared VATRA date and time selectors");
+  const dateParts=plannedDate.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+  for(const [key,value] of [["year",dateParts[1]],["month",dateParts[2]],["day",dateParts[3]],["hour",dateParts[4]],["minute",dateParts[5]]]){
+   await feedProbe.locator(".vatra-select-trigger-feed-schedule-"+key).click();
+   await feedProbe.locator(".ui-select-options-feed-schedule-"+key+" [data-value='"+value+"']").click();
+  }
+  assert.equal(await scheduleFields.evaluate(el=>el.value),plannedDate);
   assert.equal(await feedProbe.locator("#feed-compose-save").isEnabled(),true,
    "Valid future schedule must allow a server-managed publication");
-  await scheduleToggle.uncheck();
+  await scheduleToggle.click();
+  await feedProbe.locator(".ui-select-options-feed-publication-mode [data-value='now']").click();
+  assert.equal(await scheduleFields.isVisible(),false);
   await feedProbe.locator(".vatra-post-composer-back-001").click();
   await feedProbe.locator(".vatra-post-composer-poll-toggle-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isDisabled(),true,
