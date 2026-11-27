@@ -1251,11 +1251,22 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   watchMediaTarget(slot,priority,load);
  }
  let photoSourceCleanup=null,photoSourceTicket=0;
+ function bindPhotoTileMenu(menu,trigger){
+  let timer=0,hovered=false;
+  const clear=()=>{clearTimeout(timer);timer=0;};
+  const close=()=>{clear();menu.open=false;};
+  const exclusive=()=>{for(const other of document.querySelectorAll(".ui-vatra-album-tile-menu-001[open]"))if(other!==menu)other.open=false;};
+  menu.addEventListener("pointerenter",event=>{if(event.pointerType!=="mouse")return;hovered=true;clear();exclusive();menu.open=true;});
+  menu.addEventListener("pointerleave",event=>{if(event.pointerType!=="mouse"||menu.contains(event.relatedTarget))return;hovered=false;clear();if(menu.open)timer=setTimeout(close,180);});
+  menu.addEventListener("toggle",()=>{if(menu.open)exclusive();else clear();});
+  menu.addEventListener("focusout",event=>{if(!hovered&&!menu.contains(event.relatedTarget))close();});
+  menu.addEventListener("keydown",event=>{if(event.key!=="Escape"||!menu.open)return;event.preventDefault();event.stopPropagation();close();trigger.focus();});
+ }
  function photoMenuIcon(kind){
   const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
-  svg.setAttribute("class","vatra-photo-menu-icon-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.85");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
+  svg.setAttribute("class","vatra-photo-menu-icon-001 vatra-photo-menu-icon-"+kind+"-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.85");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
   const paths={dots:"M5 12h.01M12 12h.01M19 12h.01",download:"M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4",post:"M5 3h14v18H5zM8 8h8M8 12h8M8 16h5",avatar:"M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-3a8 8 0 0 1 16 0v3",select:"M8 12l3 3 5-6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",trash:"M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7",album:"M3 7h7l2 2h9v11H3z",share:"M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z",move:"M3 7h7l2 2h9v11H3zM8 14h8m-3-3 3 3-3 3",archive:"M3 5h18v4H3zM5 9v12h14V9m-9 4h4",pin:"m16 3 5 5-4 1-3 5v3l-2 2-7-7 2-2h3l5-3 1-4ZM8 16l-5 5",restore:"M3 12a9 9 0 1 1 3 7M3 5v7h7"};
-  const path=document.createElementNS(ns,"path");path.setAttribute("d",paths[kind]||paths.album);if(kind==="dots")path.setAttribute("stroke-width","4");svg.append(path);return svg;
+  const path=document.createElementNS(ns,"path");path.setAttribute("class","vatra-photo-menu-path-"+kind+"-001");path.setAttribute("d",paths[kind]||paths.album);if(kind==="dots")path.setAttribute("stroke-width","4");svg.append(path);return svg;
  }
  function photoNavigation(stage,index,total,step,hasMore=false){
   const buttons=[-1,1].map(dir=>{const button=document.createElement("button");button.type="button";button.className="vatra-post-gallery-nav-"+(dir<0?"prev":"next");button.setAttribute("aria-label",dir<0?tr("Попередній файл","Previous media"):tr("Наступний файл","Next media"));
@@ -1346,5 +1357,5 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
- window.VATRA_POST_MEDIA={mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.VATRA_POST_MEDIA={mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,bindPhotoTileMenu,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();

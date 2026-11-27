@@ -5874,6 +5874,15 @@ try{
   await tileMenu.locator("summary").hover();
   await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"visible"});
   assert.equal(await tileMenu.locator(".vatra-photo-menu-icon-001").count(),6,"Photo menu has a centered SVG trigger and icons for all actions");
+  await tileMenu.locator(".vatra-album-photo-menu-danger-001").hover();
+  assert.ok(await tileMenu.evaluate(el=>el.open),"Moving into the menu must not close it");
+  await profilePage.locator("#profile-tab-photos").hover();
+  await tileMenu.locator(".vatra-album-photo-menu-danger-001").waitFor({state:"hidden"});
+  await galleryTiles.first().hover();await tileMenu.locator("summary").hover();
+  await tileMenu.locator("summary").focus();await profilePage.keyboard.press("Escape");
+  assert.equal(await tileMenu.evaluate(el=>el.open),false,"Escape dismisses the photo tile menu");
+  await profilePage.locator("#profile-tab-photos").hover();
+  await galleryTiles.first().hover();await tileMenu.locator("summary").hover();
   await tileMenu.getByRole("button",{name:language==="en"?"Select multiple":"Вибрати декілька",exact:true}).click();
   await galleryTiles.nth(1).locator("[data-vatra-select-photo]").click();
   assert.equal(await profilePage.locator(".vatra-album-bulk-count-001").textContent(),language==="en"?"Selected: 2":"Вибрано: 2");

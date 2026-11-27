@@ -294,7 +294,10 @@ console.log("VATRA profile gallery: retry routing, quick tab reuse and mutation 
  for(const id of ["messenger","gift","hide-news","post-notice","story-notice","remove-friend"])assert.ok(html.includes('id="profile-'+id+'"'));
  assert.ok(profile.includes("friendAction.hidden=accepted;messenger.hidden=false;gift.hidden=!accepted;"));
  assert.ok(css.includes(".vatra-album-select-photo-001[aria-pressed=true]::before"));
- assert.ok(gallery.includes('tile.addEventListener("pointerleave"'));
+ assert.ok(gallery.includes('bindPhotoTileMenu?.(details,trigger)')&&
+  script.split('bindPhotoTileMenu(menu,trigger)').length===3&&
+  media.includes('timer=setTimeout(close,180)')&&media.includes('event.key!=="Escape"'),
+  "All three photo tile sources must share delayed mouse dismissal and keyboard Escape");
  assert.ok(login.includes("margin-block-start:clamp(7px,1.2vh,16px)"));
 }
 console.log("VATRA profile: deep-linked photos, selection marks, contact actions and responsive login copy verified.");
