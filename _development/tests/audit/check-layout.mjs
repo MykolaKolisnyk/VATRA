@@ -1199,7 +1199,7 @@ assert.ok(notificationScript.includes("Math.min(440,innerHeight-top-12)")&&
  notificationScript.includes("vatra-notice-preview-text-001")&&
  noticeCSS.includes(".ui-vatra-notification-panel-list-001{flex:1 1 auto;min-height:0;overflow:auto")&&
  noticeCSS.includes(".vatra-notification-panel .vatra-notification-all-001{flex:none")&&
- noticeCSS.includes("#notifications-list .vatra-notice-preview-thumb-001{width:72px;height:72px}"),
+ noticeCSS.includes("#notifications-list .vatra-notice-preview-thumb-001{width:56px;height:56px}"),
  "Notifications must have compact shared rows and a separately scrollable three-item dropdown");
 const normalizedSocialHeader=html=>{
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];
@@ -1439,9 +1439,9 @@ function sharedIconGeometry(markup,cls){
  return icons[0].replace(/\s(?:class|width|height)="[^"]*"/g,"").replace(/\s+/g," ").trim();
 }
 const messengerGeometry=sharedIconGeometry(iconProfileMarkup,"ui-profile-messenger-icon-001");
-assert.ok(messengerGeometry.includes('fill="currentColor"')&&messengerGeometry.includes('stroke="none"'),
- "Messenger uses a solid theme-colored chat silhouette");
-assert.ok(messengerGeometry.includes('fill-rule="evenodd"')&&messengerGeometry.includes('M8 13.5')&&!messengerGeometry.includes('M21.6 3.5'),"Messenger must use the VATRA chat bubble and lightning cutout, never a paper plane");
+assert.ok(messengerGeometry.includes('fill="none"')&&messengerGeometry.includes('stroke="currentColor"')&&messengerGeometry.includes('stroke-width="1.8"'),
+ "Messenger uses the same outline weight as the other header controls");
+assert.ok(messengerGeometry.includes('M8 13.5')&&!messengerGeometry.includes('M21.6 3.5'),"Messenger uses a chat bubble and lightning, never a paper plane");
 for(const page of ["feed","profile","communities","club","notifications","friends","gifts","clips","marketplace","vatra-id","settings"]){
  assert.equal(sharedIconGeometry(await read(page+".html"),"ui-vatra-nav-messenger-001"),messengerGeometry,
   page+": Messenger navigation and profile contact must share the same vector geometry");

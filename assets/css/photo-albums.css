@@ -432,3 +432,6 @@ body.profile-page .vatra-album-selection-active-001 .ui-vatra-album-tile-menu-00
 body.profile-page .vatra-album-bulk-more-001::-webkit-details-marker{display:none}
 
 body.profile-page .ui-vatra-album-comment-001.is-linked-comment{background:#edf4ff;outline:2px solid #a8c4fa;outline-offset:2px;border-radius:10px;scroll-margin-block:18px}
+
+body.profile-page .vatra-album-existing-dialog-001 .ui-vatra-albums-form-001{padding-block-start:20px}
+body.profile-page .vatra-album-existing-tile-001[aria-pressed="true"]{outline:3px solid var(--blue);outline-offset:-3px;box-shadow:0 0 0 2px var(--blue)}

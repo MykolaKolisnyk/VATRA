@@ -542,7 +542,7 @@
   ".feed-compose-dialog",".ui-vatra-story-editor-001",".ui-vatra-story-panel-001",".ui-vatra-story-tools-001",".club-compose-dialog",
   ".vatra-post-comment-dialog-content",".vatra-gallery-picker-grid",
   ".vatra-search-history",".vatra-search-live-results",".feed-account-dropdown",
-  ".vatra-notification-panel",".vatra-post-share-dialog",".vatra-post-comment-emoji-scroll",
+  ".vatra-notification-panel",".ui-vatra-notification-panel-list-001",".ui-vatra-albums-dialog-001",".ui-vatra-album-comments-list-001",".vatra-post-share-dialog",".vatra-post-comment-emoji-scroll",
   ".profile-compose-dialog",".profile-photo-comments",
   ".vatra-profile-details-content",".profile-report-content",
   ".profile-confirm-dialog",".ui-profile-editor-dropdown-panel-001",

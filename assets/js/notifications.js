@@ -620,9 +620,10 @@ async function panelLoad(){
 function positionPanel(){
  if(!open||!panel||!bell)return;
  const r=bell.getBoundingClientRect();
- const width=Math.min(440,innerWidth-24);
+ const width=Math.min(440,document.documentElement.clientWidth);
  panel.style.width=width+"px";
- panel.style.left=Math.round(Math.max(12,Math.min(innerWidth-width-12,r.left)))+"px";
+ panel.style.removeProperty("left");
+ panel.style.right="0px";
  const headerBottom=document.querySelector(".feed-header")?.getBoundingClientRect().bottom??r.bottom;
  const top=Math.max(0,Math.round(headerBottom));
  panel.style.top=top+"px";

@@ -1032,13 +1032,13 @@ body.profile-page .vatra-profile-details-content{
  gap:0;padding:0 22px 16px;background:#fff;scrollbar-gutter:stable
 }
 body.profile-page .vatra-profile-details-section{
- padding:18px 0 12px;border:0;border-bottom:1px solid #e7edf5;border-radius:0;
+ padding:16px 0 8px;border:0;border-bottom:1px solid #e7edf5;border-radius:0;
  background:#fff;box-shadow:none;
 }
 body.profile-page .vatra-profile-details-section:last-child{border-bottom:0}
 body.profile-page .vatra-profile-details-section-head{
- display:flex;align-items:center;padding:0 0 13px;
- margin-bottom:5px;}
+ display:flex;align-items:center;padding:0 0 10px;
+ margin:0;}
 body.profile-page .vatra-profile-details-section-icon{
  display:grid;place-items:center;flex:none;width:33px;height:33px;
  border:1px solid #dbe5fa;border-radius:10px;
@@ -1059,10 +1059,10 @@ body.profile-page .vatra-profile-detail-icon{
 }
 body.profile-page .vatra-profile-detail-icon svg{width:17px;height:17px}
 body.profile-page [class^="vatra-profile-detail-label-"]{
- color:#7b8ca9;font:630 12px/1.5 "Onest",system-ui,sans-serif
+ color:#657892;font:500 13px/1.6 "Onest",system-ui,sans-serif
 }
 body.profile-page [class^="vatra-profile-detail-value-"]{
- color:#304366;font:650 13px/1.6 "Onest",system-ui,sans-serif
+ color:#394964;font:500 14px/1.6 "Onest",system-ui,sans-serif
 }
 
 
@@ -1385,11 +1385,11 @@ body.profile-page .profile-information-item > [class^="vatra-profile-information
 }
 
 body.profile-page .vatra-profile-details-section-head{
- gap:0;padding-bottom:12px;border-bottom:1px solid #e8edf7
+ gap:0;border-bottom:1px solid #e8edf7
 }
 body.profile-page .vatra-profile-details-row{
- grid-template-columns:minmax(0,40%) minmax(0,1fr);
- gap:14px;padding:10px 0;min-height:0;align-items:start
+ grid-template-columns:minmax(0,38%) minmax(0,1fr);
+ gap:12px;padding:11px 0;min-height:0;align-items:start
 }
 body.profile-page .vatra-profile-detail-bio-001{
  margin:0;padding:12px 0;white-space:pre-line;overflow-wrap:anywhere;
@@ -3039,3 +3039,7 @@ body.profile-page .profile-archive-wrap{align-self:stretch}
 body.profile-page .profile-archive-wrap>.social-profile-tab{height:100%;align-self:stretch}
 body.profile-page .profile-archive-wrap>.social-profile-tab-active::after{left:0;right:0;bottom:0}
 body.profile-page .vatra-profile-photo-comment-edit-001 svg{width:18px;height:18px}
+
+body.profile-page .profile-posts-main>.vatra-quick-compose-001:not([hidden]){margin:0}
+body.profile-page .profile-posts-main>#profile-posts{margin:0;padding:0;gap:var(--vatra-card-gap)}
+

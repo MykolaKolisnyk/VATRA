@@ -3262,9 +3262,9 @@ try{
    const compact=await noticeProbe.locator("#vatra-notification-panel").evaluate(el=>{
     const p=el.getBoundingClientRect(),h=el.querySelector(".vatra-notification-panel-heading").getBoundingClientRect(),f=el.querySelector(".vatra-notification-all-001").getBoundingClientRect(),l=el.querySelector(".vatra-notification-list");
     l.scrollTop=l.scrollHeight;
-    return {height:p.height,header:h.top>=p.top,footer:f.bottom<=p.bottom+1,scroll:getComputedStyle(l).overflowY,panelScroll:getComputedStyle(el).overflowY,left:p.left,right:p.right,viewport:innerWidth};
+    return {height:p.height,header:h.top>=p.top,footer:f.bottom<=p.bottom+1,scroll:getComputedStyle(l).overflowY,panelScroll:getComputedStyle(el).overflowY,left:p.left,right:p.right,viewport:document.documentElement.clientWidth,radius:getComputedStyle(el).borderBottomRightRadius};
    });
-   assert.ok(compact.height<=441&&compact.header&&compact.footer&&compact.scroll==="auto"&&compact.panelScroll==="hidden"&&compact.left>=0&&compact.right<=compact.viewport,"Notification dropdown must fit viewport with a fixed header/footer: "+JSON.stringify(compact));
+   assert.ok(compact.height<=441&&compact.header&&compact.footer&&compact.scroll==="auto"&&compact.panelScroll==="hidden"&&compact.left>=0&&Math.abs(compact.right-compact.viewport)<=1&&compact.radius==="0px","Notification dropdown must fit viewport with a fixed header/footer: "+JSON.stringify(compact));
   }
   await noticeProbe.keyboard.press("Escape");
   assert.equal(await noticeProbe.locator("#vatra-notification-panel").isVisible(),false);
@@ -3985,7 +3985,7 @@ try{
   assert.equal(await feedProbe.locator("#feed-create-menu").isVisible(),true,
    "Members can create from their Feed");
   const feedCreateGeometry=await feedProbe.locator("#feed-create-menu").evaluate(button=>{const card=button.closest(".vatra-quick-compose-001"),a=card.getBoundingClientRect(),b=button.getBoundingClientRect(),style=getComputedStyle(card);return {card:a.height,button:b.height,top:b.top-a.top,bottom:a.bottom-b.bottom,borders:parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth)};});
-  assert.ok(Math.abs(feedCreateGeometry.card-feedCreateGeometry.button-feedCreateGeometry.borders)<=1&&Math.abs(feedCreateGeometry.top-feedCreateGeometry.bottom)<=1&&Math.abs(feedCreateGeometry.button-51)<=1,"Create card must match the shared compact height with no empty vertical space: "+JSON.stringify(feedCreateGeometry));
+  assert.ok(Math.abs(feedCreateGeometry.card-feedCreateGeometry.button-feedCreateGeometry.borders)<=1&&Math.abs(feedCreateGeometry.top-feedCreateGeometry.bottom)<=1&&Math.abs(feedCreateGeometry.button-64)<=1,"Create card must match the shared compact height with no empty vertical space: "+JSON.stringify(feedCreateGeometry));
   await feedProbe.locator("#feed-create-menu").hover();
   await feedProbe.locator("#feed-compose-open").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-create-menu-story").isVisible(),true);
@@ -5515,7 +5515,7 @@ try{
    "Owner edits profile media separately from the public status");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
   const profileCreateGeometry=await profilePage.locator("#profile-write-post").evaluate(button=>{const card=button.closest(".vatra-quick-compose-001"),a=card.getBoundingClientRect(),b=button.getBoundingClientRect(),style=getComputedStyle(card);return {card:a.height,button:b.height,top:b.top-a.top,bottom:a.bottom-b.bottom,borders:parseFloat(style.borderTopWidth)+parseFloat(style.borderBottomWidth)};});
-  assert.ok(Math.abs(profileCreateGeometry.card-profileCreateGeometry.button-profileCreateGeometry.borders)<=1&&Math.abs(profileCreateGeometry.top-profileCreateGeometry.bottom)<=1&&Math.abs(profileCreateGeometry.button-51)<=1,"Create card must match the shared compact height with no empty vertical space: "+JSON.stringify(profileCreateGeometry));
+  assert.ok(Math.abs(profileCreateGeometry.card-profileCreateGeometry.button-profileCreateGeometry.borders)<=1&&Math.abs(profileCreateGeometry.top-profileCreateGeometry.bottom)<=1&&Math.abs(profileCreateGeometry.button-64)<=1,"Create card must match the shared compact height with no empty vertical space: "+JSON.stringify(profileCreateGeometry));
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
    language==="en"?"Create a post":"Створити публікацію");
   assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
