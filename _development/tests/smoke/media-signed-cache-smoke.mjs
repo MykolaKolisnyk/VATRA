@@ -644,3 +644,27 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  assert.ok(events.some(x=>x[0]==="remove"&&x[1]==="videos"&&x[2]===video.media_path));
  console.log("VATRA clips: independent upload, signing, bulk signing and deletion passed.");
 }
+
+{
+ const runtime=await readFile("assets/js/clips.js","utf8");
+ const from=runtime.indexOf("const clipSwipeDirection="),to=runtime.indexOf("async function clips()",from);
+ assert.ok(from>=0&&to>from);
+ const env={};
+ runInNewContext(runtime.slice(from,to)+"\nglobalThis.navigation={clipSwipeDirection,clipPageFilter};",env);
+ const {clipSwipeDirection:swipe,clipPageFilter:cursor}=env.navigation;
+ const point=(x,y)=>({clientX:x,clientY:y});
+ assert.equal(swipe(point(30,200),point(34,80)),1);
+ assert.equal(swipe(point(30,80),point(34,200)),-1);
+ assert.equal(swipe(point(30,80),point(130,100)),0);
+ assert.equal(swipe(point(30,80),point(30,105)),0);
+ assert.equal(swipe(null,point(30,105)),0);
+ const row={created_at:"2026-11-27T16:06:03.126756+00:00",id:"01234567-89ab-4def-8123-456789abcdef"};
+ assert.equal(cursor(row),"created_at.lt."+row.created_at+",and(created_at.eq."+row.created_at+",id.lt."+row.id+")");
+ assert.equal(cursor({...row,id:"invalid"}),null);
+ assert.equal(cursor({...row,created_at:"invalid"}),null);
+ assert.ok(runtime.includes('.order("created_at",{ascending:false}).order("id",{ascending:false}).limit(pageSize)'));
+ assert.ok(runtime.includes('if(items.length&&(mode==="all"||mode==="friends"))show(0);else browse();'));
+ assert.ok(runtime.includes('if(state.pending)return state.pending;')&&runtime.includes('state!==pageState'));
+ assert.ok(runtime.includes('document.addEventListener("visibilitychange"')&&runtime.includes('video?.pause()'));
+ console.log("VATRA vertical clips: swipe direction, stable pagination cursor, default viewer and visibility guard passed.");
+}
