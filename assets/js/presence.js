@@ -9,7 +9,9 @@ let active=null;
 // Only the coarse device category is persisted, never the user agent.
 function deviceType(nav=window.navigator){
  if(!nav)return null;
- if(nav.userAgentData?.mobile===true||/Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(nav.userAgent||"")||(nav.platform==="MacIntel"&&nav.maxTouchPoints>1))return "mobile";
+ const ua=nav.userAgent||"";
+ if(/iPad|Tablet|PlayBook|Kindle|Silk|SM-T/i.test(ua)||(nav.platform==="MacIntel"&&nav.maxTouchPoints>1)||(/Android/i.test(ua)&&!/Mobile/i.test(ua)&&nav.userAgentData?.mobile!==true))return "tablet";
+ if(nav.userAgentData?.mobile===true||/Android|iPhone|iPod|Mobile/i.test(ua))return "mobile";
  return nav.userAgentData?.mobile===false||nav.userAgent?"desktop":null;
 }
 function stop(){
@@ -136,7 +138,7 @@ async function load(client,targetId){
    if(typeof query.abortSignal==="function")query=query.abortSignal(controller.signal);
    const {data,error}=await query;
    if(controller.signal.aborted||state.generation!==generation||error)return null;
-   const record=data?{last_seen_at:data.last_seen_at,form:data.form,device_type:["desktop","mobile"].includes(data.device_type)?data.device_type:null}:null;
+   const record=data?{last_seen_at:data.last_seen_at,form:data.form,device_type:["desktop","mobile","tablet"].includes(data.device_type)?data.device_type:null}:null;
    if(state.entries.get(key)===entry){
     state.entries.delete(key);
     state.entries.set(key,{value:record,expires:Date.now()+
@@ -192,15 +194,18 @@ function format(record,english=false){
 }
 
 function appendDevice(target,device,english=false){
- if(!target||!["desktop","mobile"].includes(device))return;
+ if(!target||!["desktop","mobile","tablet"].includes(device))return;
  const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
  svg.setAttribute("class","vatra-presence-device-icon-001");svg.setAttribute("viewBox","0 0 24 24");
  svg.setAttribute("width","14");svg.setAttribute("height","14");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.7");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
  svg.setAttribute("role","img");
- const label=device==="mobile"?(english?"Mobile device":"Мобільний пристрій"):(english?"Computer":"Комп’ютер");
+ const labels={desktop:["Комп’ютер","Computer"],mobile:["Мобільний пристрій","Mobile device"],tablet:["Планшет","Tablet"]};
+ const [uk,en]=labels[device],locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang;
+ const label=english||locale==="en"?en:locale==="uk"?uk:window.VATRA_LANGUAGE?.translate?.(uk)||uk;
+ svg.style.verticalAlign="middle";svg.style.flexShrink="0";
  svg.setAttribute("aria-label",label);
  const title=document.createElementNS(ns,"title");title.textContent=label;svg.append(title);
- const path=document.createElementNS(ns,"path");path.setAttribute("d",device==="mobile"?"M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm3 17h2":"M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 15v3m-4 0h8");svg.append(path);
+ const path=document.createElementNS(ns,"path");path.setAttribute("d",device==="tablet"?"M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm6 17h2":device==="mobile"?"M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm3 17h2":"M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 15v3m-4 0h8");svg.append(path);
  target.append(document.createTextNode(" "),svg);
 }
 window.VATRA_PRESENCE={start,load,format,grammar,relative,deviceType,appendDevice};

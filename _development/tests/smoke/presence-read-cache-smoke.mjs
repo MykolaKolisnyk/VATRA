@@ -56,7 +56,7 @@ function viewer(label){
   }};
 }
 const profile=(id,form="neutral")=>({
- last_seen_at:"2026-11-14T12:00:00.000Z",form,device_type:"mobile",
+ last_seen_at:"2026-11-14T12:00:00.000Z",form,device_type:"tablet",
  vatra_id:"should-not-enter-cache"
 });
 const a=viewer("A"),b=viewer("B");
@@ -65,7 +65,7 @@ assert.equal(a.calls,1,"Two simultaneous readers need only one RLS request");
 a.finish(profile(17,"masculine"));
 const [a1,a2]=await Promise.all([first,shared]);
 assert.equal(a1.form,"masculine");
-assert.equal(a1.device_type,"mobile");
+assert.equal(a1.device_type,"tablet");
 assert.equal(a2.form,"masculine");
 assert.equal(a1.vatra_id,undefined,"Cache exposes only the selected presence fields");
 a1.form="mutated";
