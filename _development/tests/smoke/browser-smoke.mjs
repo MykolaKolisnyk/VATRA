@@ -5487,8 +5487,15 @@ try{
    const root=document.createElement("div");root.style.cssText="position:fixed;top:100px;left:100px";document.body.append(root);
    const results=[];
    for(const device of ["desktop","mobile","tablet"]){
-    root.replaceChildren();window.VATRA_PRESENCE.appendDevice(root,device);
-    const icon=root.querySelector("svg");icon.dispatchEvent(new PointerEvent("pointerenter",{pointerType:"mouse"}));
+    root.replaceChildren(document.createTextNode("Online"));window.VATRA_PRESENCE.appendDevice(root,device);
+    const icon=root.querySelector("svg"),range=document.createRange();range.selectNode(root.firstChild);
+    const textBounds=range.getBoundingClientRect(),iconBounds=icon.getBoundingClientRect();
+    const spacing=iconBounds.left-textBounds.right;
+    if(Math.abs(iconBounds.width-16)>0.5||Math.abs(iconBounds.height-16)>0.5||spacing<7.5||spacing>8.5||
+     Math.abs((iconBounds.top+iconBounds.bottom-textBounds.top-textBounds.bottom)/2)>3||
+     icon.querySelectorAll("rect").length!==1||icon.querySelectorAll("path").length!==1)
+     throw Error("Device icon geometry or spacing: "+device+" gap="+spacing);
+    icon.dispatchEvent(new PointerEvent("pointerenter",{pointerType:"mouse"}));
     const tip=document.querySelector(".vatra-verified-tooltip");results.push({branded:!!tip?.textContent,native:!!icon.querySelector("title"),label:!!icon.getAttribute("aria-label")});
     icon.dispatchEvent(new PointerEvent("pointerleave",{pointerType:"mouse"}));
    }

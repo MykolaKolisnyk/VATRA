@@ -1431,9 +1431,13 @@ function sharedIconGeometry(markup,cls){
  assert.equal(icons.length,1,"Expected exactly one icon "+cls);
  return icons[0].replace(/\s(?:class|width|height)="[^"]*"/g,"").replace(/\s+/g," ").trim();
 }
-assert.equal(sharedIconGeometry(await read("feed.html"),"ui-vatra-nav-messenger-001"),
- sharedIconGeometry(iconProfileMarkup,"ui-profile-messenger-icon-001"),
- "Messenger navigation and profile contact must share the same vector geometry");
+const messengerGeometry=sharedIconGeometry(iconProfileMarkup,"ui-profile-messenger-icon-001");
+assert.ok(messengerGeometry.includes('fill="currentColor"')&&messengerGeometry.includes('stroke="none"'),
+ "Messenger uses a solid paper plane silhouette, not a thin outline");
+for(const page of ["feed","profile","communities","club","notifications","friends","gifts","clips","marketplace","vatra-id","settings"]){
+ assert.equal(sharedIconGeometry(await read(page+".html"),"ui-vatra-nav-messenger-001"),messengerGeometry,
+  page+": Messenger navigation and profile contact must share the same vector geometry");
+}
 assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-story-menu-icon-001"),
  sharedIconGeometry(iconProfileMarkup,"ui-profile-visitor-story-icon-001"),
  "Viewing a story must use the same vector in the avatar menu and visitor button");
