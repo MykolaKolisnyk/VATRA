@@ -707,7 +707,13 @@
   q("#feed-story-view-prev").disabled=!viewSequence.slice(0,index).some(storyLive);
   q("#feed-story-view-next").disabled=!viewSequence.slice(index+1).some(storyLive);
   if(!dialog.open)dialog.showModal();
-  void window.VATRA_POST_MEDIA?.renderStory(client,story,q("#feed-story-view-media"));
+  const media=q("#feed-story-view-media");
+  void window.VATRA_POST_MEDIA?.renderStory(client,story,media);
+  window.VATRA_STORY_PROGRESS?.start(dialog,media,story,()=>{
+   if(!dialog.open||viewSequence[viewIndex]!==story)return;
+   if(viewSequence.slice(viewIndex+1).some(storyLive))openStoryAt(viewIndex+1);
+   else dialog.close();
+  },()=>actions.open||!!q("#feed-story-delete-dialog")?.open||deleteAction.disabled);
   syncStoryNeighbors();
  };
  async function loadStories(){
@@ -919,7 +925,7 @@
   storyWide.addEventListener("change",syncStoryNeighbors);
   storyViewer.addEventListener("keydown",event=>{if(event.target.closest("video,input,textarea,select,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();const step=event.key==="ArrowLeft"?-1:1;openStoryAt(viewIndex+step,step);}});
   storyViewer.addEventListener("close",()=>{
-   if(!storyViewer.open){storyMenu.open=false;viewSequence=[];viewIndex=-1;window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));syncStoryNeighbors();}
+   if(!storyViewer.open){window.VATRA_STORY_PROGRESS?.stop(storyViewer);storyMenu.open=false;viewSequence=[];viewIndex=-1;window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));syncStoryNeighbors();}
   });
 
  }

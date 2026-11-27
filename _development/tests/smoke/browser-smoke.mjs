@@ -5284,6 +5284,9 @@ try{
   assert.equal((await profilePage.locator("#profile-story-viewer-text").textContent()).trim(),
    "Моя тестова історія");
   assert.equal(await profilePage.locator("#profile-story-viewer-close svg").count(),1);
+  assert.equal(await profilePage.locator("#profile-story-viewer progress").isVisible(),true,"Active story has a real progress track");
+  await profilePage.locator("#profile-story-viewer .vatra-story-progress-pause-001").click();
+  assert.equal(await profilePage.locator("#profile-story-viewer .vatra-story-progress-pause-001").getAttribute("aria-pressed"),"true");
   const viewerStage=await profilePage.locator("#profile-story-viewer .ui-vatra-story-view-stage-001").boundingBox();
   assert.ok(Math.abs(viewerStage.width/viewerStage.height-9/16)<.02,"Story viewer has a vertical 9:16 stage");
   const fullStory=await profilePage.locator("#profile-story-viewer").boundingBox();

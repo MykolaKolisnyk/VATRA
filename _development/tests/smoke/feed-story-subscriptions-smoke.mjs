@@ -285,3 +285,36 @@ console.log("VATRA story metadata: render before delayed names and avatars, refr
  assert.equal(v.storyCalls,1,"Adjacent stories reuse the authorized loaded snapshot");
 }
 console.log("VATRA story viewer: owner-only deletion and real adjacent previews verified.");
+
+ // Exercise the actual shared viewer clock using a controlled monotonic clock.
+{
+ const runtime=await readFile("assets/js/story-view-progress.js","utf8");
+ let tick,clock=0,completed=0,blocked=false,media=null;
+ const listeners=()=>({events:new Map(),addEventListener(k,fn){this.events.set(k,fn);},removeEventListener(k,fn){if(this.events.get(k)===fn)this.events.delete(k);}});
+ const button={...listeners(),setAttribute(k,v){this[k]=v;},hidden:false};
+ const bar={value:0,setAttribute(){}};
+ const row={hidden:true,querySelector:s=>s==="progress"?bar:button};
+ const dialog={...listeners(),open:true,querySelector:()=>row};
+ const document={...listeners(),hidden:false,documentElement:{lang:"uk"}},window={};
+ const slot={querySelector:()=>media};
+ runInNewContext(runtime,{window,document,performance:{now:()=>clock},WeakMap,Number,Math,String,
+  setInterval(fn){tick=fn;return 1;},clearInterval(){tick=null;}});
+ const api=window.VATRA_STORY_PROGRESS,advance=n=>{for(let i=0;i<n;i++){clock+=100;tick?.();}};
+ api.start(dialog,slot,{},()=>completed++,()=>blocked);
+ advance(30);assert.ok(bar.value>.4&&bar.value<.5);
+ blocked=true;const before=bar.value;advance(100);assert.equal(bar.value,before);
+ blocked=false;button.events.get("click")();advance(100);assert.equal(bar.value,before);
+ button.events.get("click")();document.hidden=true;advance(100);assert.equal(bar.value,before);
+ document.hidden=false;advance(40);assert.equal(completed,1);assert.equal(row.hidden,true);assert.equal(tick,null);
+ api.start(dialog,slot,{media_kind:"image",media_path:"photo"},()=>completed++);
+ advance(100);assert.equal(bar.value,0,"Signing and image loading must not consume story time");
+ media={complete:true,naturalWidth:100};advance(70);assert.equal(completed,2);
+ media={duration:20,currentTime:10,ended:false};
+ api.start(dialog,slot,{media_kind:"video",media_path:"video"},()=>completed++,()=>blocked);
+ advance(100);assert.equal(bar.value,.5);assert.equal(completed,2);assert.equal(button.hidden,true);
+ blocked=true;media.ended=true;media.currentTime=20;advance(1);assert.equal(completed,2);
+ blocked=false;advance(1);assert.equal(completed,3);
+ api.start(dialog,slot,{},()=>completed++);dialog.open=false;advance(1);
+ assert.equal(tick,null);assert.equal(completed,3);assert.equal(row.hidden,true);
+}
+console.log("VATRA story clock: media readiness, pause, hidden tab, modal blocking, real video time, completion and cleanup verified.");
