@@ -6,7 +6,6 @@ const grammar=gender=>gender==="male"?"masculine":gender==="female"?"feminine":"
 const activeWindow=150000;
 const HEARTBEAT_INTERVAL_MS=45000,RETRY_INTERVAL_MS=12000;
 let active=null;
-// Only the coarse device category is persisted, never the user agent.
 function deviceType(nav=window.navigator){
  if(!nav)return null;
  const ua=nav.userAgent||"";
