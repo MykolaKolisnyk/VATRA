@@ -3896,10 +3896,18 @@ try{
    let saved=null;const component=window.VATRA_POST_MEDIA.mediaDescription({kind:"test-photo",limit:2000,onSave:async value=>{saved=value;return value;}});
    const root=component.root;document.body.append(root);
    try{
-    const full="VATRA description ".repeat(35);component.paint(full,true);
+    const full=("VATRA description ".repeat(35)+"\n\n#VATRA #Верифікація https://example.com").trim();component.paint(full,true);
     const copy=root.querySelector(".vatra-media-description-copy-001"),more=root.querySelector(".vatra-media-description-more-001"),edit=root.querySelector(".vatra-media-description-edit-001"),form=root.querySelector("form"),input=root.querySelector("textarea");
     const collapsed=copy.textContent.length<full.length&&!more.hidden&&edit.hidden;
     more.click();const expanded=copy.textContent===full&&more.getAttribute("aria-expanded")==="true";
+    const feedBody=document.createElement("p");feedBody.className="feed-post-body";feedBody.textContent=full;document.body.append(feedBody);window.VATRA_POST_MEDIA.collapsibleBody(feedBody);
+    try{
+     const feedMore=feedBody.querySelector(".vatra-feed-post-read-more-001");feedMore.click();
+     const sameLinks=[...copy.querySelectorAll("a")].map(a=>a.href).join("|")===[...feedBody.querySelectorAll("a")].map(a=>a.href).join("|")&&copy.querySelectorAll("a").length===3;
+     const sameControl=more.classList.contains("vatra-feed-post-read-more-001")&&more.querySelector("svg")?.innerHTML===feedMore.querySelector("svg")?.innerHTML&&more.textContent===feedMore.textContent;
+     if(!sameLinks||!sameControl)throw Error("Photo descriptions must share post links and expand/collapse icon");
+     const tag=copy.querySelector("a");tag.addEventListener("click",e=>e.preventDefault(),{once:true});tag.click();if(!form.hidden)throw Error("Clicking a hashtag must not enter edit mode");
+    }finally{feedBody.remove();}
     more.click();const recollapsed=copy.textContent!==full&&more.getAttribute("aria-expanded")==="false";
     copy.click();const editing=!form.hidden&&input.value===full;
     input.value="Updated caption";form.requestSubmit();await Promise.resolve();await Promise.resolve();

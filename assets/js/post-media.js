@@ -507,32 +507,45 @@
    else slot.textContent=tr("Медіафайл історії недоступний.","Story media is unavailable.");
   }
  }
+ function postBodyPreview(full){
+  const chars=Array.from(full);
+  return chars.length<=440?full:chars.slice(0,350).join("").trimEnd()+"…";
+ }
+ function readMoreControl(button,translate=tr){
+  button.type="button";button.classList.add("vatra-feed-post-read-more-001");
+  const label=document.createElement("span");
+  const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.8");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");
+  const chevron=document.createElementNS(icon.namespaceURI,"path");chevron.setAttribute("d","m6 9 6 6 6-6");icon.append(chevron);button.append(label,icon);
+  return expanded=>{label.textContent=expanded?translate("Показати менше","Show less"):translate("Показати більше","Show more");button.setAttribute("aria-expanded",String(expanded));};
+ }
  function mediaDescription({kind,limit,translate=tr,onSave,onError}){
   const make=(tag,part)=>{const el=document.createElement(tag);el.className="vatra-media-description-"+part+"-001 vatra-"+kind+"-description-"+part+"-001";return el;};
   const root=make("div","root");root.classList.add("vatra-media-description-001");root.hidden=true;
-  const copy=make("p","copy"),edit=make("button","edit"),more=make("button","more"),form=make("form","form"),input=make("textarea","input"),actions=make("div","controls"),save=make("button","save"),cancel=make("button","cancel");
+  const paragraph=make("p","body");paragraph.classList.add("feed-post-body");
+  const copy=make("span","copy"),edit=make("button","edit"),more=make("button","more"),form=make("form","form"),input=make("textarea","input"),actions=make("div","controls"),save=make("button","save"),cancel=make("button","cancel");
   edit.type=more.type=cancel.type="button";save.type="submit";input.maxLength=limit;input.rows=2;
   const editLabel=translate("Редагувати опис","Edit description");
   edit.textContent=editLabel;input.placeholder=translate("Введіть опис","Enter a description");input.setAttribute("aria-label",editLabel);
   save.textContent=translate("Зберегти","Save");cancel.textContent=translate("Скасувати","Cancel");
-  actions.append(cancel,save);form.append(input,actions);root.append(copy,edit,more,form);
+  actions.append(cancel,save);form.append(input,actions);paragraph.append(copy,document.createTextNode(" "),more);root.append(paragraph,edit,form);
+  const updateMore=readMoreControl(more,translate);
   let value="",editable=false,expanded=false,editing=false,epoch=0;
-  const preview=()=>{const chars=Array.from(value),lines=value.split("\n");const compact=Array.from(lines.slice(0,5).join("\n")).slice(0,240).join("").trimEnd();return chars.length>240||lines.length>5?compact+"…":value;};
+  const preview=()=>postBodyPreview(value);
   const render=()=>{
    const compact=preview();root.hidden=!editable&&!value;root.dataset.expanded=String(expanded&&!editing);
-   copy.textContent=expanded?value:compact;copy.hidden=editing||!value;
-   if(editable){copy.tabIndex=0;copy.setAttribute("role","button");copy.setAttribute("aria-label",editLabel+": "+copy.textContent);}
+   copy.textContent=expanded?value.trimEnd():compact;linkifyHashtags(copy);copy.hidden=editing||!value;paragraph.hidden=editing||!value;
+   if(editable){copy.tabIndex=0;copy.setAttribute("role",copy.querySelector("a")?"group":"button");copy.setAttribute("aria-label",editLabel+": "+copy.textContent);}
    else{copy.removeAttribute("tabindex");copy.removeAttribute("role");copy.removeAttribute("aria-label");}
-   edit.hidden=editing||!editable||!!value;more.hidden=editing||compact===value;more.setAttribute("aria-expanded",String(expanded));
-   more.textContent=expanded?translate("Показати менше","Show less"):translate("Показати більше","Show more");
+   edit.hidden=editing||!editable||!!value;more.hidden=editing||compact===value;updateMore(expanded);
    form.hidden=!editing;
   };
   const resize=()=>{input.style.height="auto";input.style.height=Math.min(260,Math.max(52,input.scrollHeight+2))+"px";};
   const begin=()=>{if(!editable||editing)return;editing=true;input.value=value;render();resize();input.focus();};
   const finish=()=>{editing=false;render();};
   const paint=(text,canEdit)=>{epoch++;value=String(text||"");editable=!!canEdit;expanded=false;editing=false;save.disabled=cancel.disabled=input.disabled=false;render();};
-  copy.addEventListener("click",()=>{const selection=window.getSelection?.();if(selection&&!selection.isCollapsed&&copy.contains(selection.anchorNode))return;begin();});
-  copy.addEventListener("keydown",event=>{if(editable&&["Enter"," "].includes(event.key)){event.preventDefault();begin();}});
+  copy.addEventListener("click",event=>{if(event.target.closest("a,button"))return;const selection=window.getSelection?.();if(selection&&!selection.isCollapsed&&copy.contains(selection.anchorNode))return;begin();});
+  copy.addEventListener("keydown",event=>{if(editable&&event.target===copy&&["Enter"," "].includes(event.key)){event.preventDefault();begin();}});
   edit.addEventListener("click",begin);more.addEventListener("click",()=>{expanded=!expanded;render();if(!expanded&&more.getBoundingClientRect().top<root.closest(".vatra-media-side-unified-001")?.getBoundingClientRect().top)more.scrollIntoView({block:"nearest"});});
   input.addEventListener("input",resize);
   input.addEventListener("keydown",event=>{if(event.key==="Escape"&&!save.disabled){event.preventDefault();event.stopPropagation();finish();}else if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)){event.preventDefault();form.requestSubmit();}});
@@ -547,22 +560,15 @@
  function collapsibleBody(paragraph){
   if(!paragraph||paragraph.dataset.vatraCollapsed)return;
   const full=paragraph.textContent||"";
-  if(Array.from(full).length<=440)return;
-  const compact=Array.from(full).slice(0,350).join("").trimEnd()+"…";
+  const compact=postBodyPreview(full);if(compact===full)return;
   const button=document.createElement("button");
-  button.type="button";button.className="vatra-feed-post-read-more-001";
-  button.setAttribute("aria-expanded","false");
-  const label=document.createElement("span");
-  const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
-  icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.8");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");
-  const chevron=document.createElementNS(icon.namespaceURI,"path");chevron.setAttribute("d","m6 9 6 6 6-6");icon.append(chevron);button.append(label,icon);
+  const updateMore=readMoreControl(button);
   paragraph.dataset.vatraCollapsed="true";
   let expanded=false;
   const update=()=>{
    paragraph.textContent=expanded?full.trimEnd():compact;
    linkifyHashtags(paragraph);
-   label.textContent=expanded?tr("Показати менше","Show less"):tr("Показати більше","Show more");
-   button.setAttribute("aria-expanded",String(expanded));
+   updateMore(expanded);
    paragraph.dataset.vatraCollapsed=expanded?"expanded":"true";
    paragraph.append(document.createTextNode(" "),button);
   };

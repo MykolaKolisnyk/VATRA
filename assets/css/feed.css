@@ -3443,13 +3443,12 @@ body.feed-page .vatra-post-comments-sentinel-001[hidden]{display:none!important}
 }
 
 body.feed-page .vatra-media-side-unified-001 .vatra-media-description-001{flex:0 0 auto;min-width:0;padding:2px 20px 14px;border-bottom:1px solid #e7edf6;color:#334761;white-space:normal;overflow:visible}
-.vatra-media-description-copy-001{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:500 14px/1.5 Onest,system-ui,sans-serif}
-.vatra-media-description-copy-001[role="button"]{cursor:text;border-radius:6px}
-.vatra-media-description-copy-001[role="button"]:hover{background:#f5f7fb}
-.vatra-media-description-copy-001[role="button"]:focus-visible{outline:2px solid #9bb8ec;outline-offset:3px}
-.vatra-media-description-edit-001,.vatra-media-description-more-001{display:block;border:0;background:transparent;color:#4879ac;cursor:pointer;font:500 13px/1.4 Onest,system-ui,sans-serif;padding:3px 0;text-align:left}
-.vatra-media-description-more-001{margin-top:4px}
-.vatra-media-description-edit-001:hover,.vatra-media-description-more-001:hover{text-decoration:underline}
+body.feed-page .vatra-media-description-001 .vatra-media-description-body-001.feed-post-body{margin:0;color:#394964;font:480 14.5px/1.65 "Onest",system-ui,sans-serif;letter-spacing:.001em;white-space:pre-wrap;overflow-wrap:anywhere;background:transparent}
+.vatra-media-description-copy-001{font:inherit;color:inherit;white-space:inherit;overflow-wrap:inherit;background:transparent}
+.vatra-media-description-copy-001[tabindex="0"]{cursor:text}
+.vatra-media-description-copy-001[tabindex="0"]:focus-visible{outline:2px solid #9bb8ec;outline-offset:3px}
+.vatra-media-description-edit-001{display:block;border:0;background:transparent;color:#4879ac;cursor:pointer;font:500 13px/1.4 Onest,system-ui,sans-serif;padding:3px 0;text-align:left}
+.vatra-media-description-edit-001:hover{text-decoration:underline}
 .vatra-media-description-form-001{display:flex;flex-direction:column;gap:8px;margin:0}
 .vatra-media-description-input-001{display:block;width:100%;box-sizing:border-box;min-height:52px;max-height:260px;padding:8px 10px;border:1px solid #d5deeb;border-radius:8px;background:#fff;color:#334761;font:500 14px/1.5 Onest,system-ui,sans-serif;resize:vertical;overflow:auto}
 .vatra-media-description-input-001:focus{border-color:#82a8e8;outline:none}

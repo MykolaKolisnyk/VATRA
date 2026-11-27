@@ -191,6 +191,11 @@ assert.ok(
 assert.ok(
  postMedia.includes('paragraph.append(document.createTextNode(" "),button);')&&
  postMedia.includes('expanded?full.trimEnd():compact')&&
+ postMedia.includes('const preview=()=>postBodyPreview(value)')&&
+ postMedia.includes('linkifyHashtags(copy)')&&
+ postMedia.includes('const updateMore=readMoreControl(more,translate)')&&
+ postCss.includes('.vatra-media-description-body-001.feed-post-body{margin:0;color:#394964;font:480 14.5px/1.65')&&
+ !postCss.includes('.vatra-media-description-copy-001[role="button"]:hover{background:')&&
  !postMedia.includes('paragraph.insertAdjacentElement("afterend",button)')&&
  postCss.includes('body.feed-page .feed-post-body > .vatra-feed-post-read-more-001{')&&
  postCss.includes('display:inline;margin:0;padding:0;border:0;background:transparent;')&&
