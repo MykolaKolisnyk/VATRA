@@ -687,6 +687,7 @@
   q("#feed-story-view-heading").textContent=memberName(String(story.author_vatra_id));
   text.textContent=String(story.body||"").trim();text.hidden=!text.textContent;
   dialog.dataset.theme=String(story.theme||0);
+  q("#feed-story-view-delete").hidden=String(story.author_vatra_id)!==vatraId||!story.id;
   q("#feed-story-view-position").textContent=(index+1)+" / "+viewSequence.length;
   q("#feed-story-view-prev").disabled=!viewSequence.slice(0,index).some(storyLive);
   q("#feed-story-view-next").disabled=!viewSequence.slice(index+1).some(storyLive);
@@ -703,7 +704,7 @@
    await feedDeadline(ensureSubscriptions());
    if(generation!==storyLoadGeneration)return;
    const query=client.from("stories")
-    .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path,visibility")
+    .select("id,author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path,visibility")
     .gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false});
    const {data,error}=await feedDeadline(query.limit(60));
@@ -868,7 +869,29 @@
    }finally{storyLoading=false;storyTrigger.disabled=false;storyTrigger.removeAttribute("aria-busy");}
   }
   storyTrigger.addEventListener("click",firstStoryClick);
-  const storyViewer=q("#feed-story-view");
+  const storyViewer=q("#feed-story-view"),storyDelete=q("#feed-story-view-delete"),storyConfirm=q("#feed-story-delete-dialog"),storyAccept=q("#feed-story-delete-confirm");
+  let pendingStoryDelete=null;
+  storyDelete.addEventListener("click",()=>{
+   const story=viewSequence[viewIndex];
+   if(!story?.id||String(story.author_vatra_id)!==vatraId||storyDelete.disabled||storyConfirm.open)return;
+   pendingStoryDelete=story;storyConfirm.showModal();
+  });
+  q("#feed-story-delete-cancel").addEventListener("click",()=>storyConfirm.close());
+  storyConfirm.addEventListener("close",()=>{if(!storyAccept.disabled)pendingStoryDelete=null;});
+  storyAccept.addEventListener("click",async()=>{
+   const story=pendingStoryDelete;if(!story?.id||String(story.author_vatra_id)!==vatraId||storyAccept.disabled)return;
+   storyAccept.disabled=storyDelete.disabled=true;
+   try{
+    const result=await client.from("stories").delete().eq("id",story.id).eq("author_vatra_id",vatraId).select("id");
+    if(result.error||!result.data?.some(row=>String(row.id)===String(story.id)))throw result.error||Error("Story not deleted");
+    if(story.media_path)try{await window.VATRA_POST_MEDIA?.remove(client,story);}catch(_){}
+    storyConfirm.close();if(storyViewer.open)storyViewer.close();
+    storySequence=storySequence.filter(item=>item.id!==story.id);
+    message(t("Історію видалено.","Story deleted."),"success");void loadStories();
+   }catch(_){storyConfirm.close();if(storyViewer.open)storyViewer.close();message(t("Не вдалося видалити історію. Спробуйте ще раз.","Could not delete the story. Try again."));}
+   finally{pendingStoryDelete=null;storyAccept.disabled=storyDelete.disabled=false;}
+  });
+  storyConfirm.addEventListener("cancel",event=>{if(storyAccept.disabled)event.preventDefault();});
   q("#feed-story-view-close").addEventListener("click",()=>storyViewer.close());
   q("#feed-story-view-prev").addEventListener("click",()=>openStoryAt(viewIndex-1,-1));
   q("#feed-story-view-next").addEventListener("click",()=>openStoryAt(viewIndex+1));

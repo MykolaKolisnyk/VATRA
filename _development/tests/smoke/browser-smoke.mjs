@@ -5258,8 +5258,10 @@ try{
   const activeRing=await storyAvatar.evaluate(el=>({
    kind:el.getAttribute("data-vatra-ring-kind"),
    gradient:getComputedStyle(el,"::before").backgroundImage,
+   inset:getComputedStyle(el,"::before").top,
    border:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor
   }));
+  assert.equal(activeRing.inset,"-2px","Active story ring extends exactly 2 CSS pixels outside the avatar");
   assert.equal(activeRing.kind,null,
    "A member with an uploaded photo must never be treated as a system portrait");
   assert.ok(activeRing.gradient.includes("conic-gradient")&&
@@ -5473,7 +5475,9 @@ try{
   await profilePage.locator("#profile-avatar-plus").hover();
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
    "The profile owner must be able to delete the active story");
-  await profilePage.locator("#profile-avatar-story-delete").click();
+  await profilePage.locator("#profile-avatar-story").click();
+  assert.equal(await profilePage.locator("#profile-story-viewer-delete").isVisible(),true,"Owner can delete directly from the viewer");
+  await profilePage.locator("#profile-story-viewer-delete").click();
   assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),true,
    "Story deletion must use VATRA's styled confirmation instead of a browser alert");
   await profilePage.locator("#profile-confirm-accept").click();

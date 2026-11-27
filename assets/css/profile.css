@@ -351,7 +351,7 @@ body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap .profile-a
  position:relative;z-index:1;box-sizing:border-box
 }
 body.profile-page .profile-avatar-wrap.has-active-story::before{
- content:"";position:absolute;inset:-6px;border-radius:50%;
+ content:"";position:absolute;inset:-2px;border-radius:50%;
  background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8)
 }
 body.profile-page .profile-avatar-menu{
@@ -1983,7 +1983,7 @@ body.profile-page .profile-avatar-wrap::before{
 body.profile-page .profile-avatar-wrap .profile-avatar{opacity:1!important;}
 body.profile-page .profile-avatar-wrap.has-active-story:not([data-vatra-ring-kind])::before{
  background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8);
- box-shadow:0 0 0 1px #e3e9f4
+ box-shadow:none
 }
 
  
@@ -2181,7 +2181,7 @@ body.profile-page .profile-avatar-wrap[data-vatra-ring-kind]::before{
 body.profile-page .profile-avatar-wrap.has-active-story::before,
 body.profile-page .profile-avatar-wrap.has-active-story[data-vatra-ring-kind]::before{
  background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8)!important;
- box-shadow:0 0 0 1px #e1e7f1!important
+ box-shadow:none!important
 }
 body.profile-page .profile-avatar-wrap .profile-avatar{border-color:#fff!important;box-shadow:none!important}
 body.profile-page .profile-content-panel{

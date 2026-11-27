@@ -712,6 +712,13 @@ body.feed-page :is(.vatra-feed-story-view-close-001,.profile-story-viewer-close,
 body.feed-page :is(.vatra-feed-story-view-close-001,.profile-story-viewer-close,.vatra-story-view-nav-001):focus-visible{outline:2px solid #fff;outline-offset:2px}
 body.feed-page :is(.vatra-feed-story-view-close-001,.profile-story-viewer-close,.vatra-story-view-nav-001) svg{width:19px;height:19px}
 body.feed-page .vatra-story-view-nav-001:disabled{opacity:.35;cursor:default}
+body.feed-page .ui-vatra-story-view-actions-001{display:flex;align-items:center;gap:6px}
+body.feed-page .vatra-story-view-delete-001{display:grid;place-items:center;flex:none;width:34px;height:34px;padding:0;border:0;border-radius:8px;background:#10182735;color:#fff;cursor:pointer}
+body.feed-page .vatra-story-view-delete-001[hidden]{display:none!important}
+body.feed-page .vatra-story-view-delete-001:disabled{opacity:.45;cursor:default}
+body.feed-page .vatra-story-view-delete-001:hover:not(:disabled){background:#10182766}
+body.feed-page .vatra-story-view-delete-001:focus-visible{outline:2px solid #fff;outline-offset:2px}
+body.feed-page .vatra-story-view-delete-001 svg{width:19px;height:19px}
 body.feed-page .ui-vatra-story-view-stage-001{position:relative;display:grid;grid-template:minmax(0,1fr)/minmax(0,1fr);min-height:0;width:var(--vatra-story-view-width);aspect-ratio:9/16;isolation:isolate;overflow:hidden;border-radius:12px;background:var(--vatra-story-view-theme)}
 body.feed-page :is(.vatra-feed-story-view-body-001,.profile-story-viewer-text){grid-area:1/1;display:grid;place-items:center;min-width:0;min-height:0;margin:0;padding:16px;color:#fff;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;font:650 20px/1.4 Onest,system-ui,sans-serif}
 body.feed-page .ui-vatra-story-view-navigation-001{display:flex;align-items:center;justify-content:space-between;gap:8px;width:var(--vatra-story-view-width);padding:0}
