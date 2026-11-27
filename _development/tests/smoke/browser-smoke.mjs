@@ -305,7 +305,7 @@ try{
    ["avatar","ui-profile-photo-content-001","vatra-profile-avatar-prev-001","vatra-profile-avatar-next-001"],
    ["album","ui-vatra-post-media-viewer-content-001 ui-vatra-album-viewer-media-001","vatra-post-gallery-nav-prev","vatra-post-gallery-nav-next"]
   ].map(([id,stage,left,right])=>'<section id="arrow-'+id+'" class="'+stage+
-   '" data-photo-matte="dark" style="position:relative;width:300px;height:200px;flex:none">'+
+   '" style="position:relative;width:300px;height:200px;flex:none">'+
    '<button class="'+left+'" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor"/></svg></button>'+
    '<button class="'+right+'" aria-label="Next"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor"/></svg></button></section>').join("");
   await viewerGeometryPage.setContent('<!doctype html><html><head>'+
@@ -318,11 +318,10 @@ try{
    const stage=viewerGeometryPage.locator("#arrow-"+id);
    const left=stage.getByRole("button",{name:"Previous"}),right=stage.getByRole("button",{name:"Next"});
    for(const [matte,color,hover,outline] of [
-    ["dark","rgb(255, 255, 255)","rgba(21, 27, 39, 0.91)","rgb(16, 20, 28)"],
-    ["white","rgb(49, 68, 95)","rgba(237, 242, 248, 0.96)","rgb(255, 255, 255)"]
+    ["black","rgb(255, 255, 255)","rgba(21, 27, 39, 0.91)","rgb(16, 20, 28)"]
    ]){
     await viewerGeometryPage.mouse.move(1380,890);
-    await stage.evaluate((el,value)=>{el.dataset.photoMatte=value;},matte);
+    assert.equal(await stage.evaluate(el=>getComputedStyle(el).backgroundColor),"rgb(0, 0, 0)");
     await stage.hover();
     await viewerGeometryPage.waitForFunction(({id,color})=>[...document.querySelectorAll("#arrow-"+id+" button")].every(el=>getComputedStyle(el).color===color),{id,color});
     for(const button of [left,right]){
@@ -346,7 +345,7 @@ try{
    await right.focus();
    assert.equal(await left.evaluate(el=>getComputedStyle(el).pointerEvents),"none");
   }
-  console.log("VATRA photo navigation: both matte colors, contrast outlines, hover backgrounds and disabled controls verified across three viewer types.");
+  console.log("VATRA photo navigation: uniform black matte, contrast outlines, hover backgrounds and disabled controls verified across three viewer types.");
  }finally{await viewerGeometryPage.close();}
 
  // Simulate previously cached stylesheet/JS content after a deployment.
@@ -3665,7 +3664,7 @@ try{
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraWebpFixture.calls.signed),
    [previewFixture.item.preview_path,previewFixture.item.media_path],
    "Opening fullscreen must sign the unmodified original");
-  await feedProbe.waitForFunction(()=>{const photo=document.querySelector("#vatra-post-media-viewer .ui-vatra-post-expanded-image-001");return photo?.complete&&photo.naturalWidth>0&&photo.closest(".ui-vatra-post-media-viewer-content-001").dataset.photoMatte==="dark";});
+  await feedProbe.waitForFunction(()=>{const photo=document.querySelector("#vatra-post-media-viewer .ui-vatra-post-expanded-image-001");return photo?.complete&&photo.naturalWidth>0;});
   const postFrame=await feedProbe.evaluate(()=>{
    const dialog=document.querySelector("#vatra-post-media-viewer");
    const rect=dialog.getBoundingClientRect();
@@ -3693,20 +3692,15 @@ try{
    Math.abs(postFrame.imageHeight-postFrame.canvasHeight)<=2,
    "Post image must use all available black canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
   assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
-  assert.equal(postFrame.background,"rgb(17, 20, 25)",
+  assert.equal(postFrame.background,"rgb(0, 0, 0)",
    "Original PNG photographs must not have white letterboxing");
   const zoomPlus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-in-001"),zoomMinus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-out-001");
   assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-viewer-brand-001").isVisible(),true);
-  const matteProbe=await feedProbe.evaluate(async()=>{
-   const canvas=document.createElement("canvas");canvas.width=4;canvas.height=4;
-   const ctx=canvas.getContext("2d");ctx.fillStyle="#3476d5";ctx.fillRect(0,0,4,4);
-   const read=async()=>{const image=new Image();image.src=canvas.toDataURL("image/png");await image.decode();return window.VATRA_POST_MEDIA.photoMatte(image);};
-   const opaque=await read();ctx.clearRect(3,3,1,1);const transparent=await read();
+  const matteProbe=await feedProbe.evaluate(()=>{
    const logo=document.querySelector("#vatra-post-media-viewer .vatra-photo-viewer-brand-001"),style=getComputedStyle(logo);
-   return {opaque,transparent,logoBackground:style.backgroundColor,logoShadow:style.boxShadow};
+   return {analysis:typeof window.VATRA_POST_MEDIA.photoMatte,background:getComputedStyle(document.querySelector(".ui-vatra-post-media-viewer-content-001")).backgroundColor,logoBackground:style.backgroundColor,logoShadow:style.boxShadow};
   });
-  assert.deepEqual(matteProbe,{opaque:"dark",transparent:"white",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"},
-   "The same PNG format must use different mattes according to actual decoded transparency, with an unboxed logo");
+  assert.deepEqual(matteProbe,{analysis:"undefined",background:"rgb(0, 0, 0)",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"});
   assert.equal(await zoomMinus.isDisabled(),true);
   const zoomValue=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001");
   await feedProbe.mouse.move(0,0);
@@ -5210,7 +5204,7 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-gallery-count").textContent(),
    (language==="en"?"Profile photo 2 of 2":"Фото профілю 2 із 2"),
    "Own photo captions should have no repeated name or decorative separator");
-  await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0&&document.querySelector("#profile-photo-content").dataset.photoMatte==="dark";});
+  await profilePage.waitForFunction(()=>{const photo=document.querySelector("#profile-media-viewer-image");return photo?.complete&&photo.naturalWidth>0;});
   const fullscreenAvatar=await profilePage.evaluate(()=>{
    const dialog=document.querySelector("#profile-media-viewer"),rect=dialog.getBoundingClientRect();
    return {w:rect.width,h:rect.height,vw:innerWidth,vh:innerHeight,x:rect.left,y:rect.top};
@@ -5240,7 +5234,7 @@ try{
    arrowLayout.left.right<arrowLayout.right.left,
    "Navigation arrows remain aligned inside opposite edges of the photo surface: "+
    JSON.stringify(arrowLayout));
-  assert.equal(arrowLayout.background,"rgb(17, 20, 25)",
+  assert.equal(arrowLayout.background,"rgb(0, 0, 0)",
    "WebP avatar must use the neutral dark photo surface");
   assert.equal(arrowLayout.matte,"none","Avatar photos must not display a blurred duplicate");
   assert.ok(!arrowLayout.leftRadius.includes("50%"),

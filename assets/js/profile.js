@@ -2593,7 +2593,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const resetTagMode=()=>{tagMode=false;photoCanvas.classList.remove("is-tagging");closeTagPicker();};
  const fitPhoto=()=>{
   if(!mediaImage.complete||!mediaImage.naturalWidth||!mediaImage.naturalHeight)return;
-  window.VATRA_POST_MEDIA?.fitPhotoViewer(mediaDialog,photoContent,mediaImage,gallery[galleryIndex]);
   const style=getComputedStyle(photoContent);
   const roomW=photoContent.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
   const roomH=photoContent.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
@@ -3113,7 +3112,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    t("Фото профілю ","Profile photo of ")+displayName.split(/\s+/)[0];
   mediaHeading.textContent=photoTitle;mediaHeading.hidden=true;
   mediaDialog.setAttribute("aria-label",photoTitle);
-  mediaDialog.dataset.imageFormat=/\.(?:png|webp)$/i.test(path)?"png":"jpeg";
   photoCanvas.style.removeProperty("width");photoCanvas.style.removeProperty("height");
 
 
@@ -3124,7 +3122,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    mediaImage.onerror=null;mediaImage.src=url;originalLink.href=url;
   };
   mediaImage.alt=photoTitle;mediaImage.src=sourceUrl||url;
-  window.VATRA_POST_MEDIA?.watchPhotoViewer(mediaDialog,photoContent,mediaImage,path,finishSlide,async()=>{const {data,error}=await client.storage.from("avatars").download(path);if(error)throw error;return data;});
+  window.VATRA_POST_MEDIA?.watchPhotoViewer(mediaDialog,photoContent,mediaImage,finishSlide);
   if(mediaImage.complete)queueMicrotask(fitPhoto);
   originalLink.href=sourceUrl||url;photoFooter.hidden=false;
   resetTagMode();closeMore();reportTag("");tagMarkers.replaceChildren();tagEpoch++;
@@ -3208,7 +3206,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  coverView.addEventListener("click",()=>void openCover());
  mediaDialog.addEventListener("close",()=>{
-  window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete mediaDialog.dataset.photoSized;delete photoContent.dataset.photoMatte;
+  window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete mediaDialog.dataset.photoSized;
   galleryEpoch++;activityTicket++;tagEpoch++;resetTagMode();closeMore();
   hideAvatarUndo();discardAvatarUndo();
  });

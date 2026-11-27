@@ -517,9 +517,9 @@ body.feed-page .vatra-post-gallery-extra-001{
 .vatra-post-media-viewer{
  position:fixed;inset:0;width:100vw;height:100dvh;
  max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;
- overflow:hidden;overscroll-behavior:contain;background:#111419;color:#fff
+ overflow:hidden;overscroll-behavior:contain;background:#000;color:#fff
 }
-.vatra-post-media-viewer::backdrop{background:rgba(12,16,24,.92)}
+.vatra-post-media-viewer::backdrop{background:#000}
 .vatra-post-media-viewer[open]{display:flex;align-items:stretch;justify-content:stretch}
 .vatra-post-media-viewer-frame{
  display:flex;align-items:center;justify-content:center;
@@ -540,7 +540,7 @@ body.feed-page :is(.vatra-post-media-close-001,.profile-media-viewer-close):focu
 .ui-vatra-post-media-viewer-content-001{
  position:relative;display:flex;align-items:center;justify-content:center;
  min-width:0;min-height:0;width:100%;height:100%;max-height:100%;
- overflow:hidden;background:#111419
+ overflow:hidden;background:#000
 }
 .ui-vatra-post-expanded-image-001,.ui-vatra-post-expanded-video-001{
  display:block;flex:0 1 auto;min-width:0;min-height:0;
@@ -3449,15 +3449,9 @@ body.feed-page .vatra-post-comments-sentinel-001[hidden]{display:none!important}
 .vatra-media-description-input-001{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #aab7c8;border-radius:8px;background:transparent;color:inherit;font:inherit;resize:vertical}
 .vatra-media-description-form-001[hidden],.vatra-media-description-001 [hidden],.vatra-media-description-001[hidden]{display:none!important}
 
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="dark"]{background:#111419}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="white"]{background:#fff}
 body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001){
- --vatra-photo-arrow-color:#fff;--vatra-photo-arrow-outline:#10141c;
+ background:#000;--vatra-photo-arrow-color:#fff;--vatra-photo-arrow-outline:#10141c;
  --vatra-photo-arrow-hover:#151b27e8;--vatra-photo-arrow-hover-color:#fff
-}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="white"]{
- --vatra-photo-arrow-color:#31445f;--vatra-photo-arrow-outline:#fff;
- --vatra-photo-arrow-hover:#edf2f8f5;--vatra-photo-arrow-hover-color:#192c48
 }
 body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001) :is(.vatra-post-gallery-nav-prev,.vatra-post-gallery-nav-next,.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-001){
  color:var(--vatra-photo-arrow-color);background:transparent;border-radius:10px;
@@ -3492,8 +3486,6 @@ body.feed-page .vatra-photo-zoom-value-001{position:absolute;left:calc(var(--vat
 body.feed-page .ui-vatra-photo-zoom-controls-001:has(.vatra-photo-zoom-wrap-in-001:hover,.vatra-photo-zoom-in-001:focus-visible) .vatra-photo-zoom-value-001{opacity:1;visibility:visible;left:calc(var(--vatra-zoom-button-size) / 2)}
 body.feed-page .ui-vatra-photo-zoom-controls-001:has(.vatra-photo-zoom-wrap-out-001:hover,.vatra-photo-zoom-out-001:focus-visible) .vatra-photo-zoom-value-001{opacity:1;visibility:visible;left:calc(100% - var(--vatra-zoom-button-size) / 2)}
 body.feed-page .vatra-photo-zoom-target-001{-webkit-user-drag:none;user-select:none}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="unknown"]{background:#fff}
-body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001)[data-photo-matte="unknown"] .vatra-photo-zoom-target-001{visibility:hidden}
 body.feed-page .vatra-post-media-viewer:has(.ui-vatra-post-expanded-video-001) .ui-vatra-photo-zoom-controls-001{display:none}
 body.feed-page .profile-media-viewer.is-photo-deleted .ui-vatra-photo-zoom-controls-001{visibility:hidden}
 body.feed-page .vatra-photo-zoom-target-001{transform-origin:center;transition:scale .24s cubic-bezier(.22,.61,.36,1)}

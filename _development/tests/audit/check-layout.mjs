@@ -2327,8 +2327,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-deleted-notice"')&&
  memberCss.includes('overflow:hidden;padding:0')&&
  !systemFeedCss.includes("data-photo-sized")&&
  systemFeedCss.includes("width:100vw;height:100dvh;")&&
- systemFeedCss.includes('[data-photo-matte="dark"]')&&
- systemFeedCss.includes('[data-photo-matte="white"]')&&
+ !systemFeedCss.includes("data-photo-matte")&&
+ systemFeedCss.includes("background:#000;--vatra-photo-arrow-color:#fff")&&
  memberProfileMarkup.indexOf('id="profile-avatar-prev"')<memberProfileMarkup.indexOf('id="profile-photo-footer"'),
  "Avatar deletions preserve a restorable backup and viewers always fill the viewport");
 

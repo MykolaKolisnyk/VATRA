@@ -336,7 +336,6 @@
   photoLoading.setAttribute("role","status");
   photoContent.append(photoImage,photoLoading);
   photoImage.addEventListener("load",()=>{photoLoading.hidden=true;});
-  window.addEventListener("resize",()=>{if(photoDialog.open)window.VATRA_POST_MEDIA?.fitPhotoViewer(photoDialog,photoContent,photoImage,state.currentPhoto?.media_path);},{passive:true});
   photoImage.addEventListener("error",()=>{
    photoLoading.hidden=false;photoLoading.classList.remove("vatra-skeleton-block","is-skeleton");
    photoLoading.textContent=t("Не вдалося завантажити фотографію.","Could not load photograph.");
@@ -434,7 +433,7 @@
   photoDialog.append(photoStage,photoSide);
   photoDialog.addEventListener("click",e=>{if(e.target===photoDialog)photoDialog.close();});
   photoDialog.addEventListener("close",()=>{
-   window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete photoDialog.dataset.photoSized;delete photoContent.dataset.photoMatte;
+   window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete photoDialog.dataset.photoSized;
    photoLikeTicket++;photoImage.removeAttribute("src");state.currentPhoto=null;photoMore.open=false;
    if(commentsBox.parentElement===photoSide){commentsDialog.append(commentsBox);commentsClose.hidden=false;}
   });
@@ -876,7 +875,7 @@
      if(photoDialog.open&&state.currentPhoto===row)void window.VATRA_VERIFIED?.attach?.(client,photoAuthorName,targetId);
     }catch(_){}
    })();
-   try{const url=await signedUrl(row.media_path);if(photoDialog.open&&state.currentPhoto===row){photoImage.src=url;window.VATRA_POST_MEDIA?.watchPhotoViewer(photoDialog,photoContent,photoImage,row.media_path,finishSlide,async()=>{const {data,error}=await client.storage.from(BUCKET).download(row.media_path);if(error)throw error;return data;});}}
+   try{const url=await signedUrl(row.media_path);if(photoDialog.open&&state.currentPhoto===row){photoImage.src=url;window.VATRA_POST_MEDIA?.watchPhotoViewer(photoDialog,photoContent,photoImage,finishSlide);}}
    catch(_){if(photoDialog.open&&state.currentPhoto===row){notify(t("Фото недоступне.","Photo unavailable."));photoDialog.close();}}
   }
   async function removePhoto(row=state.currentPhoto){
