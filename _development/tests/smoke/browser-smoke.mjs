@@ -5155,6 +5155,7 @@ try{
   // Both the owner's and a friend's legacy square source must open as the
   // same 2000:580 banner; the shared avatar viewer is never activated.
   assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),true);
+  await profilePage.locator("#profile-cover-view").evaluate(el=>el.scrollIntoView({block:"center",inline:"nearest",behavior:"instant"}));
   const profileBeforeCover=await profilePage.evaluate(()=>({
    cover:document.querySelector("#profile-cover-photo").getBoundingClientRect().toJSON(),
    avatar:document.querySelector("#profile-avatar-wrap").getBoundingClientRect().toJSON(),
