@@ -3026,4 +3026,4 @@ for(const page of (await readdir(".")).filter(p=>p.endsWith(".html"))){
  if(ownsMedia)assert.ok(html.indexOf("assets/js/vatra-player.js?rev=")<html.indexOf("assets/js/post-media.js?rev="),page+": player must load before media");
 }
 
-assert.ok((await read("assets/css/feed.css")).includes(".feed-post-card.vatra-post-delete-pending-001{box-sizing:border-box;padding:0;min-height:66px}")&&(await read("assets/css/feed.css")).includes("padding:10px 12px;min-height:64px;text-align:center"),"Deleted post notice must match the compact 64px composer control");
+assert.ok((await read("assets/css/feed.css")).includes(".profile-posts-section .feed-post-card.vatra-post-delete-pending-001{box-sizing:border-box;padding:0;min-height:66px}")&&(await read("assets/css/feed.css")).includes("padding:10px 12px;min-height:64px;text-align:center"),"Deleted post notice must match the compact 64px composer control");
