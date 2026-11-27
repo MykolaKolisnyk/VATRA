@@ -328,7 +328,11 @@
    item.dataset.postId=String(post.id);item.dataset.postKind=post.kind;
    const name=node("a","feed-post-name vatra-feed-post-name-001",memberName(String(post.author_vatra_id)));
    name.href=new URL("id"+String(post.author_vatra_id),home).href;item.append(name);
-   if(post.body)item.append(node("p","feed-post-body vatra-feed-post-body-001",String(post.body)));
+   if(post.body){
+    const body=node("p","feed-post-body vatra-feed-post-body-001",String(post.body));item.append(body);
+    optionalFeedFeature("recovered hashtags",()=>window.VATRA_POST_MEDIA?.linkifyHashtags(body));
+    optionalFeedFeature("recovered post text",()=>window.VATRA_POST_MEDIA?.collapsibleBody(body));
+   }
    if(post.media_items?.length||(post.media_kind&&post.media_path))optionalFeedFeature("recovered media",()=>window.VATRA_POST_MEDIA?.mount(client,post,item));
    return item;
   }

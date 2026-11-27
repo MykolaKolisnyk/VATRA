@@ -6551,7 +6551,7 @@ try{
    window.__clubPostRanges=[];
    const rows=Array.from({length:25},(_,i)=>({
     id:"00000000-0000-4000-8000-"+String(i+101).padStart(12,"0"),
-    author_vatra_id:654321,body:"VATRA community page "+(i+1),
+    author_vatra_id:654321,body:i===0?("VATRA community text ".repeat(30)+"#VATRA"):"VATRA community page "+(i+1),
     created_at:new Date(Date.now()-i*60000).toISOString(),media_items:[]
    }));
    localStorage.setItem("vatra-test-club-posts",JSON.stringify(rows));
@@ -6561,6 +6561,14 @@ try{
   await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=12);
   assert.equal(await page.locator("#club-posts .feed-post-card").count(),12,
    "Community must mount only the first 12 posts, not all 25");
+  const communityBody=page.locator("#club-posts .feed-post-body").first();
+  const communityMore=communityBody.locator(".vatra-feed-post-read-more-001");
+  assert.equal(await communityMore.getAttribute("aria-expanded"),"false");
+  await communityMore.click();
+  assert.equal(await communityBody.locator(".vatra-feed-post-hashtag-001").textContent(),"#VATRA");
+  assert.equal(await communityBody.evaluate(el=>getComputedStyle(el).fontSize),"14.5px");
+  await communityMore.click();
+  assert.equal(await communityMore.getAttribute("aria-expanded"),"false");
   assert.deepEqual(await page.evaluate(()=>window.__clubPostRanges[0]),[0,11],
    "Community initial DB page must be bounded to twelve rows");
   await page.locator("#club-posts-more").click();

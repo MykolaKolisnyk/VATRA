@@ -84,6 +84,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
      const body=node("p","feed-post-body vatra-club-post-body-001",post.body);
      window.VATRA_POST_MEDIA?.linkifyHashtags(body);
      article.append(body);
+     window.VATRA_POST_MEDIA?.collapsibleBody(body);
     }
    if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,article);
     window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"group",club_id:clubId},article,{
