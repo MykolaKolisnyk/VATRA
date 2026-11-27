@@ -536,3 +536,23 @@ console.log("VATRA visible preview batching: cross-card request reduction, cache
  assert.equal(photo.children[0]?.tag,"img");
 }
 console.log("VATRA story photo previews: shared signing, cache reuse, path validation and session isolation passed.");
+
+{
+ const player=await readFile("assets/js/vatra-player.js","utf8");
+ assert.doesNotThrow(()=>new Function(player));
+ const helper=player.slice(player.indexOf("const clamp="),player.indexOf("function attach("));
+ const env={localStorage:{getItem:()=>null}};
+ runInNewContext(helper+";globalThis.test={time,volumePreference};",env);
+ assert.equal(env.test.time(0),"0:00");assert.equal(env.test.time(65),"1:05");assert.equal(env.test.time(3661),"1:01:01");assert.equal(env.test.time(Infinity),"0:00");
+ assert.equal(env.test.volumePreference(),1);
+ env.localStorage.getItem=()=>".35";assert.equal(env.test.volumePreference(),.35);
+ env.localStorage.getItem=()=>"-3";assert.equal(env.test.volumePreference(),0);
+ env.localStorage.getItem=()=>"9";assert.equal(env.test.volumePreference(),1);
+ env.localStorage.getItem=()=>"invalid";assert.equal(env.test.volumePreference(),1);
+ env.localStorage.getItem=()=>{throw Error("storage blocked");};assert.equal(env.test.volumePreference(),1);
+ for(const mode of ["inline","viewer","story"])assert.ok(source.includes('VATRA_PLAYER?.attach(')&&source.includes('mode:"'+mode+'"'));
+ const clip=await readFile("assets/js/clips.js","utf8");assert.ok(clip.includes('VATRA_PLAYER?.attach(video,{mode:"clip"})'));
+ assert.ok(player.includes("video.controls=false")&&player.includes("requestPictureInPicture")&&player.includes("requestFullscreen"));
+ for(const file of ["feed.html","profile.html","club.html","clips.html"]){const html=await readFile(file,"utf8");assert.ok(html.indexOf("assets/js/vatra-player.js?rev=")<html.indexOf("assets/js/post-media.js?rev="));assert.ok(html.includes("assets/css/vatra-player.css?rev="));}
+ console.log("VATRA Player: helpers, route wiring, native fallback and modes checked.");
+}
