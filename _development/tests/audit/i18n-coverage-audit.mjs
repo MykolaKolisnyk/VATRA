@@ -160,9 +160,10 @@ assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
  !postMediaRuntime.includes('const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;'),
  "Post media must use the shared locale dictionary");
 // Read labels from actual post media controls, including aria and error strings.
-const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/tr\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
+const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/\b(?:tr|translate)\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
  .map(match=>JSON.parse(match[1])))];
-assert.equal(postMediaKeys.length,49,"Post media runtime includes retry and all three photo zoom labels");
+assert.equal(postMediaKeys.length,50,"Post media runtime includes retry, photo zoom and shared description controls");
+for(const key of ["Редагувати опис","Введіть опис","Зберегти","Скасувати","Показати більше","Показати менше"])assert.ok(postMediaKeys.includes(key),"Missing description label: "+key);
 for(const key of ["Масштаб фотографії","Наблизити","Віддалити","Показати менше"])assert.ok(postMediaKeys.includes(key),"Missing zoom label: "+key);
 assert.ok(postMediaKeys.includes("Повторити"),"Media retry action must be translated");
 for(const key of postMediaKeys){
