@@ -4378,6 +4378,8 @@ try{
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
+  const postDeleteButtons=await feedProbe.locator(".feed-delete-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
+  assert.deepEqual(postDeleteButtons[0],postDeleteButtons[1],"Actual post deletion buttons must have equal geometry");
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
   await feedProbe.evaluate(()=>window.VATRA_POST_INTERACTIONS.finalizePendingPostDeletes());
@@ -5317,8 +5319,8 @@ try{
   for(const {dialogClass,buttons:[cancel,accept]} of confirmationGeometry){
    assert.ok(Math.abs(cancel.width-accept.width)<=1&&Math.abs(cancel.height-accept.height)<=1&&Math.abs(cancel.top-accept.top)<=1,
     dialogClass+": equal outer button geometry "+JSON.stringify([cancel,accept]));
-   assert.equal(cancel.radius,accept.radius);assert.equal(cancel.radius,"11px");assert.equal(cancel.border,accept.border);
-   assert.equal(cancel.font,accept.font);assert.equal(cancel.background,"rgb(237, 242, 248)");
+   assert.equal(cancel.radius,accept.radius);assert.equal(cancel.radius,"999px");assert.equal(cancel.border,accept.border);
+   assert.equal(cancel.font,accept.font);assert.equal(cancel.background,"rgb(255, 255, 255)");
   }
 
   await profilePage.locator("#profile-confirm-accept").click();
@@ -5362,6 +5364,14 @@ try{
    await profilePage.locator("#profile-cover-photo").evaluate(el=>el.src));
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),false);
+  await profilePage.locator("#profile-cover-change").hover();
+  await profilePage.locator("#profile-owner-media-menu [data-action=trash]").click();
+  await profilePage.locator("#profile-confirm-dialog").waitFor({state:"visible"});
+  const coverDeleteButtons=await profilePage.locator(".profile-confirm-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
+  assert.deepEqual(coverDeleteButtons[0],coverDeleteButtons[1],"Actual cover deletion buttons must have equal geometry");
+  await profilePage.locator("#profile-confirm-cancel").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-cover-photo").isVisible(),true,"Cancellation must preserve the existing cover");
 
   await profilePage.locator("#profile-avatar-plus").hover();
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
