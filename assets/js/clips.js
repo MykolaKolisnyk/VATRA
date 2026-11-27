@@ -3,7 +3,6 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 window.VATRA_SECTION_CORE?.start(async ({root,locale,t,$,make,link,btn,valid,title,subtitle,action,content,notice,client,user,ownId,message,empty,card,field,submit,confirmRemove,tabs,dialog,nameOf,sectionIcon,sectionIconButton,discoveryIcons})=>{
 let renderTicket=0;
-// One active clip; keep navigation gestures and query cursors independent of media loading.
 const clipSwipeDirection=(start,end)=>{
  if(!start||!end)return 0;
  const x=end.clientX-start.clientX,y=end.clientY-start.clientY;
