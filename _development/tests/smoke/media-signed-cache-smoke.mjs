@@ -5,6 +5,18 @@ import {runInNewContext} from "node:vm";
 
 const source=await readFile("assets/js/post-media.js","utf8");
 const interactions=await readFile("assets/js/post-interactions.js","utf8");
+const storyMediaMigration=await readFile("_development/supabase/migrations/20261127154857_fix_story_media_uuid_validation.sql","utf8");
+const storyPathChecks=[...storyMediaMigration.matchAll(/'\/stories\/([^']+)'/g)].map(match=>new RegExp("^9/stories/"+match[1]));
+assert.equal(storyPathChecks.length,2,"Story media migration validates photos and videos separately");
+for(const [index,ext] of [[0,"jpg"],[0,"png"],[0,"webp"],[1,"mp4"],[1,"webm"]]){
+ const valid="9/stories/00000000-0000-4000-8000-000000000001."+ext;
+ assert.ok(storyPathChecks[index].test(valid),"SQL must accept standard UUID "+ext+" paths");
+ assert.ok(!storyPathChecks[index].test(valid.replace("9/","8/")),"SQL must reject another owner's path");
+ assert.ok(!storyPathChecks[index].test(valid.replace("-8000-","-8000-0000-")),"SQL must reject extra UUID groups");
+ assert.ok(!storyPathChecks[1-index].test(valid),"SQL must reject mismatched media types");
+}
+assert.ok(storyMediaMigration.includes("IS TRUE"),"Incomplete media metadata must fail the database check");
+
 assert.ok(source.includes("collapsibleBody,signed};"),"Expose the shared signed URL helper");
 assert.ok(source.includes("if(missing.length>1)await preSignGallery(client,missing,ttl);")&&source.includes("await preSignVisible(client,imageTiles)"),
  "Only multiple uncached visible previews may trigger bulk signing");

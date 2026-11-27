@@ -78,7 +78,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
  };
  const holder={children:[],busy:"false",setAttribute(key,value){assert.equal(key,"aria-busy");this.busy=value;},replaceChildren(){this.children=[];},
   append(item){this.children.push(item);},contains(item){return this.children.includes(item);}};
- const style={empty:true,classList:{
+ const style={empty:true,hidden:true,classList:{
   add(value){assert.equal(value,"is-empty");style.empty=true;},
   toggle(value,state){assert.equal(value,"is-empty");style.empty=state;}
  }};
@@ -126,13 +126,15 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
  assert.equal(v.storyCalls,0,"Stories must wait for the friend query");
  assert.equal(v.holder.children.length,0,"Never render fictitious friend story cards");
  assert.equal(v.holder.busy,"true","Friend list loading is exposed through aria-busy");
- assert.equal(v.style.empty,true,"Keep only the vertical creation tile while loading");
+ assert.equal(v.style.empty,true,"No placeholder stories while loading");
+ assert.equal(v.style.hidden,true,"Hide the rail while the first story list loads");
  v.release();
  await Promise.all([feedReady,stories]);
  assert.equal(v.storyCalls,1);
  assert.equal(v.storyFilters.length,0,"RLS must scope the single bounded read, including public stories");
  assert.equal(v.holder.children.length,1,"Friend stories must remain visible on slow networks");
  assert.equal(v.style.empty,false);
+ assert.equal(v.style.hidden,false);
  assert.equal(v.holder.busy,"false");
  await v.context.feedTest.loadStories();
  assert.equal(v.friendCalls,1,"A second story visit reuses the same snapshot for 60s");
@@ -149,6 +151,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
  assert.equal(v.storyFilters.length,0);
  assert.equal(v.holder.children.length,1);
  assert.equal(v.style.empty,false);
+ assert.equal(v.style.hidden,false);
 }
 // Public stories from non-friends must be visible; friends-only stories must not.
 {
@@ -171,6 +174,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
  await v.context.feedTest.loadStories();
  assert.equal(v.storyCalls,1);
  assert.equal(v.storyFilters.length,0);
+ assert.equal(v.style.hidden,true,"No active stories means no rail");
 }
 console.log("VATRA Feed stories: shared friendship singleflight, own stories without friends, bounded RLS reads, public audience and TTL passed.");
 

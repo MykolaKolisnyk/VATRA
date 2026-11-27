@@ -293,7 +293,8 @@
  }
  async function uploadClip(client,id,file){
   const format=formatFor(file);
-  if(format.kind!=="video"||!validId(id))throw Error(tr("Виберіть MP4 або WebM.","Choose MP4 or WebM."));
+  if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
+  if(format.kind!=="video")throw Error(tr("Не вдалося завантажити файл. Спробуйте знову.","Could not upload media. Try again."));
   const path=String(id)+"/clips/"+crypto.randomUUID().toLowerCase()+"."+format.ext;
   if(!clipPathValid(path,id))throw Error("Invalid clip media path");
   const {error}=await client.storage.from("clips").upload(path,file,{

@@ -12,6 +12,38 @@ const make=(tag,cls,label)=>{
  const el=document.createElement(tag);el.className=cls;
  if(label!==undefined)el.textContent=label;return el;
 };
+const dateTimeFields=(cls,id,label)=>{
+ const root=make("div",cls+" ui-vatra-composer-datetime-001");
+ root.setAttribute("role","group");root.setAttribute("aria-label",label);root.tabIndex=-1;
+ const now=new Date(),pad=n=>String(n).padStart(2,"0"),range=(start,end)=>Array.from({length:end-start+1},(_,i)=>start+i);
+ const months=new Intl.DateTimeFormat(language(),{month:"long"});
+ const fields=[
+  ["day",t("День","Day"),range(1,31).map(n=>[pad(n),pad(n)])],
+  ["month",t("Місяць","Month"),range(1,12).map(n=>[pad(n),months.format(new Date(2024,n-1,1))])],
+  ["year",t("Рік","Year"),range(now.getFullYear(),now.getFullYear()+5).map(n=>[String(n),String(n)])],
+  ["hour","HH",range(0,23).map(n=>[pad(n),pad(n)])],
+  ["minute","MM",range(0,59).map(n=>[pad(n),pad(n)])]
+ ];
+ const controls=fields.map(([key,caption,options])=>{
+  const input=make("select","vatra-composer-datetime-part-001");input.id=id+"-"+key;
+  input.setAttribute("aria-label",label+" · "+caption);input.dataset.datePart=key;
+  input.add(new Option(caption,""));for(const [value,name] of options)input.add(new Option(name,value));
+  root.append(input);return input;
+ });
+ Object.defineProperty(root,"value",{get(){
+  const [d,m,y,h,min]=controls.map(el=>el.value);if(!d||!m||!y||!h||!min)return "";
+  const value=y+"-"+m+"-"+d+"T"+h+":"+min,date=new Date(value);
+  return Number.isFinite(date.getTime())&&date.getFullYear()===Number(y)&&date.getMonth()+1===Number(m)&&date.getDate()===Number(d)&&date.getHours()===Number(h)&&date.getMinutes()===Number(min)?value:"";
+ },set(value){
+  const match=String(value||"").match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  const parts=match?[match[3],match[2],match[1],match[4],match[5]]:["","","","",""];
+  controls.forEach((el,i)=>{el.value=parts[i];el.dispatchEvent(new Event("change"));});
+ }});
+ Object.defineProperty(root,"incomplete",{get(){return controls.some(el=>el.value)&&!root.value;}});
+ root.focus=()=>root.querySelector(".vatra-select-trigger")?.focus();
+ window.VATRA_FORM_SELECT?.wireSelects(controls);
+ return root;
+};
 const vectorIcon=(name,cls)=>{
  const ns="http://www.w3.org/2000/svg";
  const svg=document.createElementNS(ns,"svg");
@@ -142,10 +174,9 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
  const pollAnonymous=pollCheck("anonymous","Анонімне голосування","Anonymous voting");
  const pollRevote=pollCheck("revote","Дозволити зміну голосу","Allow changing a vote");
  pollRevote.checked=true;
- const pollEndLabel=make("label","vatra-post-composer-poll-end-label-001",
+ const pollEndLabel=make("div","vatra-post-composer-poll-end-label-001",
   t("Завершити опитування (необов’язково)","Poll end time (optional)"));
- const pollEnd=make("input","vatra-post-composer-poll-end-001");
- pollEnd.type="datetime-local";pollEnd.setAttribute("aria-label",pollEndLabel.textContent);
+ const pollEnd=dateTimeFields("vatra-post-composer-poll-end-001",prefix+"-poll-end",pollEndLabel.textContent);
  pollEndLabel.append(pollEnd);
  const pollHint=make("p","vatra-post-composer-poll-hint-001",
   t("Мінімум два різні варіанти відповіді.","Provide at least two different answers."));
@@ -177,9 +208,10 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
   const options=optionInputs.map(input=>input.value.trim()).filter(Boolean);
   if(!question||options.length<2||options.length>10||
    (new Set(options.map(x=>x.toLocaleLowerCase()))).size!==options.length)return null;
+  if(pollEnd.incomplete)return null;
   const closesAt=pollEnd.value?new Date(pollEnd.value):null;
   if(closesAt&&(!Number.isFinite(closesAt.getTime())||closesAt.getTime()<=Date.now()))return null;
-  const plannedAt=scheduleToggle.checked?getScheduledAt():null;
+  const plannedAt=(scheduleToggle.value==="scheduled")?getScheduledAt():null;
   if(closesAt&&plannedAt&&closesAt.getTime()<=new Date(plannedAt).getTime())return null;
   return {question,options,multiple:pollMultiple.checked,
    anonymous:pollAnonymous.checked,allow_revote:pollRevote.checked,
@@ -259,28 +291,28 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
  if(editing)localOnly.textContent=t("Зміни буде збережено в наявній публікації.","Changes will be saved to the existing post.");
  settings.append(localOnly);
  const scheduleBox=make("div","vatra-post-composer-schedule-box-001");
- const scheduleLabel=make("label","vatra-post-composer-schedule-toggle-label-001");
- const scheduleToggle=make("input","vatra-post-composer-schedule-toggle-001");
- scheduleToggle.type="checkbox";
- scheduleLabel.append(scheduleToggle,vectorIcon("calendar","ui-vatra-post-composer-schedule-icon-001"),
-  make("span","vatra-post-composer-schedule-title-001",t("Запланувати публікацію","Schedule publication")));
- const scheduleInput=make("input","vatra-post-composer-schedule-date-001");
- scheduleInput.type="datetime-local";scheduleInput.setAttribute("aria-label",
-  t("Дата і час публікації","Publication date and time"));
+ const scheduleLabel=make("div","vatra-post-composer-schedule-toggle-label-001");
+ const scheduleToggle=make("select","vatra-post-composer-schedule-toggle-001");
+ scheduleToggle.id=prefix+"-publication-mode";
+ scheduleToggle.setAttribute("aria-label",t("Дата і час публікації","Publication date and time"));
+ scheduleToggle.add(new Option(t("Опублікувати","Publish"),"now"));
+ scheduleToggle.add(new Option(t("Запланувати публікацію","Schedule publication"),"scheduled"));
+ scheduleLabel.append(vectorIcon("calendar","ui-vatra-post-composer-schedule-icon-001"),scheduleToggle);
+ window.VATRA_FORM_SELECT?.wireSelects([scheduleToggle]);
+ const scheduleInput=dateTimeFields("vatra-post-composer-schedule-date-001",prefix+"-schedule",t("Дата і час публікації","Publication date and time"));
  scheduleInput.hidden=true;
  const scheduleHint=make("p","vatra-post-composer-schedule-hint-001");
  scheduleHint.hidden=true;
  const isoLocal=(date)=>new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
  const getScheduledAt=()=>{
-  if(!scheduleToggle.checked)return null;
+  if(scheduleToggle.value!=="scheduled")return null;
   const date=new Date(scheduleInput.value);
   return Number.isFinite(date.getTime())&&date.getTime()>Date.now()+120000?date.toISOString():null;
  };
  const syncSchedule=()=>{
-  const active=scheduleToggle.checked;
+  const active=scheduleToggle.value==="scheduled";
   scheduleInput.hidden=!active;scheduleHint.hidden=!active;
-  if(active){scheduleInput.min=isoLocal(new Date(Date.now()+180000));
-   if(!scheduleInput.value)scheduleInput.value=isoLocal(new Date(Date.now()+600000));}
+  if(active&&!scheduleInput.value&&!scheduleInput.incomplete)scheduleInput.value=isoLocal(new Date(Date.now()+600000));
   const planned=getScheduledAt();
   const pollDeadline=pollEnabled&&pollEnd.value?new Date(pollEnd.value).getTime():null;
   const deadlineConflict=!!(planned&&Number.isFinite(pollDeadline)&&
@@ -296,7 +328,7 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
   localOnly.hidden=active;
   sync();
  };
- scheduleLabel.addEventListener("change",syncSchedule);
+ scheduleToggle.addEventListener("change",syncSchedule);
  scheduleInput.addEventListener("change",syncSchedule);
  scheduleBox.append(scheduleLabel,scheduleInput,scheduleHint);
  if(!editing)settings.append(scheduleBox);
@@ -338,16 +370,14 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
      reschedule.type="button";
      const dateEditor=make("div","vatra-post-composer-queue-editor-001");
      dateEditor.hidden=true;
-     const dateInput=make("input","vatra-post-composer-queue-date-001");
-     dateInput.type="datetime-local";dateInput.value=isoLocal(new Date(item.publish_at));
-     dateInput.setAttribute("aria-label",t("Дата і час публікації","Publication date and time"));
+     const dateInput=dateTimeFields("vatra-post-composer-queue-date-001",prefix+"-queue-"+String(item.id),t("Дата і час публікації","Publication date and time"));
+     dateInput.value=isoLocal(new Date(item.publish_at));
      const saveTime=make("button","vatra-post-composer-queue-save-001",t("Зберегти","Save"));
      saveTime.type="button";
      const closeTime=make("button","vatra-post-composer-queue-close-001",t("Скасувати","Cancel"));
      closeTime.type="button";
      closeTime.addEventListener("click",()=>{dateEditor.hidden=true;reschedule.hidden=false;});
      reschedule.addEventListener("click",()=>{
-      dateInput.min=isoLocal(new Date(Date.now()+180000));
       reschedule.hidden=true;dateEditor.hidden=false;dateInput.focus({preventScroll:true});
      });
      saveTime.addEventListener("click",async()=>{
@@ -430,7 +460,7 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
   const hasContent=!!textarea.value.trim()||hasMedia||existingContent;
   next.disabled=!(hasContent||getPoll())||(pollEnabled&&!getPoll());
   if(stage==="settings")submit.disabled=(pollEnabled&&!getPoll())||
-   (scheduleToggle.checked&&!getScheduledAt());
+   ((scheduleToggle.value==="scheduled")&&!getScheduledAt());
   const selected=!!mediaPreview?.querySelector(".vatra-gallery-picker-tile");
   zone.classList.toggle("has-media",selected);
   mediaTools.classList.toggle("has-media",selected);
@@ -475,7 +505,7 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
      pollRevote.checked=item.poll.allow_revote!==false;
      pollEnd.value=item.poll.closes_at?isoLocal(new Date(item.poll.closes_at)):"";
     }
-    scheduleToggle.checked=!!item.scheduled_at;
+    scheduleToggle.value=item.scheduled_at?"scheduled":"now";scheduleToggle.dispatchEvent(new Event("change"));
     scheduleInput.value=item.scheduled_at?isoLocal(new Date(item.scheduled_at)):"";
     setStage("edit");textarea.focus();
    });
@@ -525,11 +555,11 @@ function bind({prefix,ownerId,getFile,client,editing=false,existingContent=false
    pollEnabled=false;pollSection.hidden=true;optionInputs=[];pollOptions.replaceChildren();
    pollQuestion.value="";pollEnd.value="";pollMultiple.checked=false;
    pollAnonymous.checked=false;pollRevote.checked=true;pollToggle.classList.remove("is-active");
-   scheduleToggle.checked=false;scheduleInput.value="";syncSchedule();
+   scheduleToggle.value="now";scheduleInput.value="";scheduleToggle.dispatchEvent(new Event("change"));
    setStage("edit");
   },
   getPoll,getScheduledAt,hasInvalidPoll:()=>pollEnabled&&!getPoll(),
-  hasInvalidSchedule:()=>scheduleToggle.checked&&!getScheduledAt(),
+  hasInvalidSchedule:()=>(scheduleToggle.value==="scheduled")&&!getScheduledAt(),
   step(){return stage;},setStage,sync
  };
 }
