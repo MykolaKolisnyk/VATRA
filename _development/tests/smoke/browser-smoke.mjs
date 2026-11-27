@@ -5238,7 +5238,7 @@ try{
    Math.abs(coverLayout.avatarY-profileBeforeCover.avatar.y)<2&&
    Math.abs(coverLayout.nameX-profileBeforeCover.name.x)<2&&
    Math.abs(coverLayout.nameY-profileBeforeCover.name.y)<2,
-   "Avatar and profile heading must not jump when opening the cover");
+   "Avatar and profile heading must not jump when opening the cover: "+JSON.stringify({before:profileBeforeCover,after:{avatarX:coverLayout.avatarX,avatarY:coverLayout.avatarY,nameX:coverLayout.nameX,nameY:coverLayout.nameY}}));
   await profilePage.locator("#profile-cover-viewer-close").click();
   assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),false);
   const storyAvatar=profilePage.locator("#profile-avatar-wrap");

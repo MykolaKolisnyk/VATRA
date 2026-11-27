@@ -2640,6 +2640,7 @@ body.profile-page .profile-media-viewer[open]{
 }
 body.profile-page .profile-media-viewer::backdrop{background:#111419}
 
+html:has(body.profile-page){scrollbar-gutter:stable}
 body.profile-page .ui-profile-cover-viewer-001{
  box-sizing:border-box;position:fixed;inset:0;
  display:grid;place-items:center;width:100vw;height:100dvh;
