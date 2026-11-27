@@ -89,7 +89,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
   return result;
  };
  const dialog={open:false,dataset:{},showModal(){this.open=true;}};
- const viewerNodes=new Map([["#feed-story-view",dialog],...["heading","body","position","prev","next","media","delete"].map(key=>["#feed-story-view-"+key,{}])]);
+ const viewerNodes=new Map([["#feed-story-view",dialog],...["heading","body","position","prev","next","media","delete","menu"].map(key=>["#feed-story-view-"+key,{}])]);
  for(const dir of ["prev","next"]){
   const slot={hidden:true,textContent:""},label={textContent:""};
   viewerNodes.set("#feed-story-neighbor-"+dir,{hidden:true,dataset:{},querySelector:selector=>selector.includes("media")?slot:label,setAttribute(){}});
@@ -269,11 +269,15 @@ console.log("VATRA story metadata: render before delayed names and avatars, refr
  await v.context.feedTest.loadStories();
  v.holder.children[0].click();
  assert.equal(v.viewerNodes.get("#feed-story-view-delete").hidden,false,"Only own story exposes deletion");
+ assert.equal(v.viewerNodes.get("#feed-story-view-menu").hidden,false);
+ v.viewerNodes.get("#feed-story-view-menu").open=true;
  assert.equal(v.viewerNodes.get("#feed-story-neighbor-prev").hidden,true);
  assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").hidden,false);
  assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").querySelector("media").textContent,"Friend story");
  v.context.feedTest.openStoryAt(1);
  assert.equal(v.viewerNodes.get("#feed-story-view-delete").hidden,true,"Another author's story cannot be deleted");
+ assert.equal(v.viewerNodes.get("#feed-story-view-menu").hidden,true);
+ assert.equal(v.viewerNodes.get("#feed-story-view-menu").open,false,"Navigation closes the previous owner action menu");
  assert.equal(v.viewerNodes.get("#feed-story-neighbor-prev").hidden,false);
  assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").hidden,true);
  assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").querySelector("media").textContent,"","Unavailable neighbor must clear its previous preview");

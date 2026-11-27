@@ -701,7 +701,8 @@
   q("#feed-story-view-heading").textContent=memberName(String(story.author_vatra_id));
   text.textContent=String(story.body||"").trim();text.hidden=!text.textContent;
   dialog.dataset.theme=String(story.theme||0);
-  q("#feed-story-view-delete").hidden=String(story.author_vatra_id)!==vatraId||!story.id;
+  const actions=q("#feed-story-view-menu"),deleteAction=q("#feed-story-view-delete");
+  actions.open=false;actions.hidden=deleteAction.hidden=String(story.author_vatra_id)!==vatraId||!story.id;
   q("#feed-story-view-position").textContent=(index+1)+" / "+viewSequence.length;
   q("#feed-story-view-prev").disabled=!viewSequence.slice(0,index).some(storyLive);
   q("#feed-story-view-next").disabled=!viewSequence.slice(index+1).some(storyLive);
@@ -885,11 +886,14 @@
   }
   storyTrigger.addEventListener("click",firstStoryClick);
   const storyViewer=q("#feed-story-view"),storyDelete=q("#feed-story-view-delete"),storyConfirm=q("#feed-story-delete-dialog"),storyAccept=q("#feed-story-delete-confirm");
+  const storyMenu=q("#feed-story-view-menu");
   let pendingStoryDelete=null;
+  storyViewer.addEventListener("click",event=>{if(storyMenu.open&&!storyMenu.contains(event.target))storyMenu.open=false;});
+  storyViewer.addEventListener("cancel",event=>{if(storyMenu.open){event.preventDefault();storyMenu.open=false;q("#feed-story-view-menu-toggle").focus();}});
   storyDelete.addEventListener("click",()=>{
    const story=viewSequence[viewIndex];
    if(!story?.id||String(story.author_vatra_id)!==vatraId||storyDelete.disabled||storyConfirm.open)return;
-   pendingStoryDelete=story;storyConfirm.showModal();
+   storyMenu.open=false;pendingStoryDelete=story;storyConfirm.showModal();
   });
   q("#feed-story-delete-cancel").addEventListener("click",()=>storyConfirm.close());
   storyConfirm.addEventListener("close",()=>{if(!storyAccept.disabled)pendingStoryDelete=null;});
@@ -915,7 +919,7 @@
   storyWide.addEventListener("change",syncStoryNeighbors);
   storyViewer.addEventListener("keydown",event=>{if(event.target.closest("video,input,textarea,select,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();const step=event.key==="ArrowLeft"?-1:1;openStoryAt(viewIndex+step,step);}});
   storyViewer.addEventListener("close",()=>{
-   if(!storyViewer.open){viewSequence=[];viewIndex=-1;window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));syncStoryNeighbors();}
+   if(!storyViewer.open){storyMenu.open=false;viewSequence=[];viewIndex=-1;window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));syncStoryNeighbors();}
   });
 
  }
