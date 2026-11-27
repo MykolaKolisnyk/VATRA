@@ -5284,6 +5284,10 @@ try{
   assert.equal(await profilePage.locator("#profile-story-viewer-close svg").count(),1);
   const viewerStage=await profilePage.locator("#profile-story-viewer .ui-vatra-story-view-stage-001").boundingBox();
   assert.ok(Math.abs(viewerStage.width/viewerStage.height-9/16)<.02,"Story viewer has a vertical 9:16 stage");
+  const fullStory=await profilePage.locator("#profile-story-viewer").boundingBox();
+  const storyViewport=profilePage.viewportSize();
+  assert.ok(fullStory&&Math.abs(fullStory.x)<1&&Math.abs(fullStory.y)<1&&Math.abs(fullStory.width-storyViewport.width)<2&&Math.abs(fullStory.height-storyViewport.height)<2,"Story viewer fills the viewport");
+  assert.ok(viewerStage.x>=0&&viewerStage.y>=0&&viewerStage.x+viewerStage.width<=storyViewport.width+1&&viewerStage.y+viewerStage.height<=storyViewport.height+1,"Story media stays inside the fullscreen viewer");
   await profilePage.locator("#profile-story-viewer-close").click();
   assert.equal(await profilePage.locator('script[data-vatra-lazy-script*="profile-avatar-comment-row.js"]').count(),0,
    "Avatar comment cards must not load during initial profile render");
