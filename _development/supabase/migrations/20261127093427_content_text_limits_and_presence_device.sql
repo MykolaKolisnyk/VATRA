@@ -1,4 +1,4 @@
--- Prepared for review; do not run before checking the release workflow and current schema.
+-- Applied migration: 20261127093427_content_text_limits_and_presence_device.
 -- VATRA content text limits. Trim existing oversized profile text as requested.
 -- Apply atomically. Keep all existing media and non-empty content requirements.
 begin;
