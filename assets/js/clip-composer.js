@@ -8,7 +8,7 @@ export function createClipComposer({dialog,field,t,make,submit,message,client,ow
   let url=URL.createObjectURL(f);let probe=document.createElement("video");probe.preload="metadata";
   let duration;try{duration=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error("timeout")),10000);probe.onloadedmetadata=()=>{clearTimeout(timeout);resolve(probe.duration);};probe.onerror=()=>{clearTimeout(timeout);reject(Error("video"));};probe.src=url;});}finally{probe.removeAttribute("src");probe.load();URL.revokeObjectURL(url);}
   if(!Number.isFinite(duration)||duration<=0||duration>60){message(t("Тривалість кліпу має бути до 60 секунд.","A clip must be up to 60 seconds."),true);return;}
-  let uploaded;try{uploaded=await window.VATRA_POST_MEDIA.upload(client,ownId,f);const {error}=await client.from("feed_posts").insert({author_id:user.id,author_vatra_id:ownId,body:body.value.trim(),visibility:"public",is_clip:true,media_items:[uploaded]});if(error)throw error;}catch(e){if(uploaded)await window.VATRA_POST_MEDIA.removeGallery(client,[uploaded]).catch(()=>{});throw e;}
+  let uploaded;try{uploaded=await window.VATRA_POST_MEDIA.uploadClip(client,ownId,f);const {error}=await client.from("feed_posts").insert({author_id:user.id,author_vatra_id:ownId,body:body.value.trim(),visibility:"public",is_clip:true,media_items:[uploaded]});if(error)throw error;}catch(e){if(uploaded)await window.VATRA_POST_MEDIA.removeGallery(client,[uploaded]).catch(()=>{});throw e;}
   form.reset();d.close();await load();
  });
  return d;

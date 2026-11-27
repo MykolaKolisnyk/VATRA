@@ -60,7 +60,7 @@ async function clips(){
    }
    if(term)query=query.ilike("body","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
    const result=await query.order("created_at",{ascending:false}).limit(60);if(ticket!==renderTicket)return;if(result.error)throw result.error;
-   const acceptable=post=>{const item=post.media_items?.[0],id=String(post.author_vatra_id);return valid(id)&&item?.media_kind==="video"&&typeof item.media_path==="string"&&item.media_path.startsWith(id+"/posts/");};
+   const acceptable=post=>{const item=post.media_items?.[0],id=String(post.author_vatra_id);return valid(id)&&item?.media_kind==="video"&&window.VATRA_POST_MEDIA?.clipPathValid(item.media_path,id);};
    items=(result.data||[]).filter(acceptable);
    if(requestedClip){const requested=requestedClip;requestedClip=null;let at=items.findIndex(post=>post.id===requested);if(at<0){const direct=await client.from("feed_posts").select("id,author_vatra_id,body,media_items,created_at,is_clip").eq("id",requested).eq("is_clip",true).is("archived_at",null).maybeSingle();if(ticket!==renderTicket)return;if(!direct.error&&direct.data&&acceptable(direct.data)){items.unshift(direct.data);at=0;}}if(at>=0){show(at);return;}message(t("Кліп недоступний.","Clip unavailable."),true);}
    browse();
@@ -73,7 +73,7 @@ async function clips(){
   composerLoading=true;action.setAttribute("aria-busy","true");
   try{
    if(!composerDialog){
-    const module=await import(new URL("assets/js/clip-composer.js?rev=f9a6635c0da0e0f8c14c3e3f847b4b0252a7dee3",root).href);
+    const module=await import(new URL("assets/js/clip-composer.js?rev=e55d638c4ae19ac1d54e4680f370a75584d818d7",root).href);
     composerDialog=module.createClipComposer({dialog,field,t,make,submit,message,client,ownId,user,load});
    }
    if(action.isConnected)composerDialog.showModal();
