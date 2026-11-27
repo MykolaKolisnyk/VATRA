@@ -179,7 +179,22 @@ assert.ok(commentRow.includes('client.from("avatar_comments").delete()')&&
  profile.includes('avatarCommentPages.clear()')&&
  !html.includes('id="profile-photo-download"')&&!html.includes('id="profile-photo-open-album"'),
  "Avatar viewer must not include album/download actions");
-assert.ok(media.includes('copy.textContent=String(post.body||"")')&&script.includes("photoDescriptionForm.onsubmit")&&profile.includes("VATRA_USE_PHOTO_AS_AVATAR"),"Photo source descriptions and avatar selection must be connected");
+assert.ok(
+ media.includes('function mediaDescription({kind,limit,translate=tr,onSave,onError})')&&
+ media.includes('if(post&&kind==="image"&&attachmentCount===1)')&&
+ media.includes('description.paint(post.body,mine)')&&
+ media.includes('client.from("feed_posts").update({body}).eq("id",post.id).eq("author_vatra_id",ownerId)')&&
+ script.includes('VATRA_POST_MEDIA.mediaDescription({kind:"album-photo"')&&
+ script.includes('photoCaptionEditor.paint(state.currentPhoto?.caption,isMine)')&&
+ script.includes('client.from("album_photos").update({caption}).eq("id",row.id).eq("owner_vatra_id",ownId)')&&
+ script.includes('photoCaptionEditor.reset()')&&
+ profile.includes('VATRA_POST_MEDIA.mediaDescription({kind:"avatar-photo"')&&
+ profile.includes('avatarCaption.paint(data?.caption,canEdit)')&&
+ profile.includes('upsert({owner_vatra_id:ownId,avatar_path:path,caption}')&&
+ profile.includes('avatarCaption.reset()')&&
+ profile.includes("VATRA_USE_PHOTO_AS_AVATAR"),
+ "Single-post, album and avatar descriptions must share the editor, preserve source identity, owner-scoped writes and avatar selection"
+);
 
 const feedCss=await readFile("assets/css/feed.css","utf8");
 assert.ok(

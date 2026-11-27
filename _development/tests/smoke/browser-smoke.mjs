@@ -3904,7 +3904,23 @@ try{
     component.paint("Visitor caption",false);copy.click();const readonly=form.hidden&&edit.hidden&&!copy.hasAttribute("tabindex");
     component.paint("",true);const emptyOwner=!edit.hidden&&copy.hidden;
     component.paint("",false);const emptyVisitor=root.hidden;
-    return {collapsed,expanded,recollapsed,editing,committed,readonly,emptyOwner,emptyVisitor};
+    let resolveSave,rejectSave,errors=0;
+    const pending=window.VATRA_POST_MEDIA.mediaDescription({kind:"test-race-photo",limit:300,onSave:()=>new Promise((resolve,reject)=>{resolveSave=resolve;rejectSave=reject;}),onError:()=>{errors++;}});
+    document.body.append(pending.root);
+    try{
+     const copy=pending.root.querySelector(".vatra-media-description-copy-001"),form=pending.root.querySelector("form"),input=form.querySelector("textarea"),cancel=form.querySelector(".vatra-media-description-cancel-001"),save=form.querySelector(".vatra-media-description-save-001");
+     pending.paint("Original caption",true);copy.click();input.value="Unsaved";cancel.click();
+     const cancelled=form.hidden&&copy.textContent==="Original caption";
+     copy.click();input.value="First photo update";form.requestSubmit();
+     const busy=save.disabled&&cancel.disabled&&input.disabled;
+     pending.paint("Next photo",true);resolveSave("First photo update");await Promise.resolve();await Promise.resolve();
+     const staleIgnored=copy.textContent==="Next photo"&&form.hidden&&!save.disabled;
+     copy.click();input.value="Retry caption";form.requestSubmit();rejectSave(new Error("offline"));await Promise.resolve();await Promise.resolve();
+     const retryable=errors===1&&!form.hidden&&input.value==="Retry caption"&&!save.disabled&&!input.disabled;
+     form.requestSubmit();resolveSave("Retry caption");await Promise.resolve();await Promise.resolve();
+     const retried=copy.textContent==="Retry caption"&&form.hidden;
+     return {collapsed,expanded,recollapsed,editing,committed,readonly,emptyOwner,emptyVisitor,cancelled,busy,staleIgnored,retryable,retried};
+    }finally{pending.root.remove();}
    }finally{root.remove();}
   });
   assert.ok(Object.values(captionChecks).every(Boolean),"Photo description expand, collapse, inline edit and ownership: "+JSON.stringify(captionChecks));
