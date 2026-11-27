@@ -6,6 +6,7 @@ const words=()=>labels[String(window.VATRA_LANGUAGE?.locale||document.documentEl
 const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id))&&(typeof id!=="number"||Number.isSafeInteger(id));
 const validStory=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id));
 const live=story=>validStory(story?.id)&&Date.parse(story.expires_at)>Date.now();
+const profileHref=id=>validId(id)?new URL("id"+String(id),new URL("./",location.href)).href:"";
 async function record(client,story,viewer){
  if(!client||!live(story)||!validId(viewer)||!validId(story.author_vatra_id)||String(viewer)===String(story.author_vatra_id))return false;
  let cache=records.get(client);if(!cache){cache=new Map();records.set(client,cache);}
@@ -67,7 +68,7 @@ function start(dialog,client,story,viewer){
    const result=await page(client,story.id,offset);
    if(!current()||!ui.open)return;
    if(!result){status.textContent=w[3];more.hidden=false;return;}
-   updateCount(result.count);for(const viewer of result.rows){const li=document.createElement("li"),a=document.createElement("a");a.className="vatra-story-viewer-link-001";a.href="profile?"+new URLSearchParams({id:viewer.id});a.textContent=viewer.name||w[5]+" · "+viewer.id;li.append(a);list.append(li);}
+   updateCount(result.count);for(const viewer of result.rows){const li=document.createElement("li"),a=document.createElement("a");a.className="vatra-story-viewer-link-001";a.href=profileHref(viewer.id);a.textContent=viewer.name||w[5]+" · "+viewer.id;li.append(a);list.append(li);}
    offset=result.next;loaded=true;status.textContent=result.count===0?w[2]:"";more.hidden=offset>=result.count||!result.rows.length;
   }finally{loading=false;if(current()&&ui.open&&!loaded&&status.textContent===w[1])void load();}
  };
@@ -79,5 +80,5 @@ function start(dialog,client,story,viewer){
  ui.addEventListener("toggle",toggle);more.addEventListener("click",moreClick);dialog.addEventListener("close",close);
  void count(client,story.id).then(n=>{if(current()&&n!==null&&total===null){updateCount(n);ui.hidden=false;}});
 }
-window.VATRA_STORY_VIEWS={record,count,page,start,stop,viewed,blocked};
+window.VATRA_STORY_VIEWS={record,count,page,start,stop,viewed,blocked,profileHref};
 })();

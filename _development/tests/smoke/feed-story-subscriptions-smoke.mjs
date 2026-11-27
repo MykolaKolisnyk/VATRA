@@ -314,6 +314,15 @@ console.log("VATRA story viewer: owner-only deletion and real adjacent previews 
  advance(100);assert.equal(bar.value,.5);assert.equal(completed,2);assert.equal(button.hidden,true);
  blocked=true;media.ended=true;media.currentTime=20;advance(1);assert.equal(completed,2);
  blocked=false;advance(1);assert.equal(completed,3);
+ let views=0;
+ media={duration:20,currentTime:0,ended:false,paused:false,seeking:false,readyState:2,playbackRate:1};
+ api.start(dialog,slot,{media_kind:"video",media_path:"video"},()=>{},()=>blocked,()=>views++);
+ advance(50);assert.equal(views,0,"Buffering without moving media time is not a view");
+ media.currentTime=10;advance(1);assert.equal(views,0,"Seeking forward is not a view");
+ for(let i=0;i<5;i++){media.currentTime+=.1;advance(1);}assert.equal(views,0);
+ blocked=true;for(let i=0;i<20;i++){media.currentTime+=.1;advance(1);}assert.equal(views,0,"Hidden playback behind a modal does not count");
+ blocked=false;for(let i=0;i<7;i++){media.currentTime+=.1;advance(1);}assert.equal(views,1);
+ for(let i=0;i<20;i++){media.currentTime+=.1;advance(1);}assert.equal(views,1,"One playback reports at most once");
  api.start(dialog,slot,{},()=>completed++);dialog.open=false;advance(1);
  assert.equal(tick,null);assert.equal(completed,3);assert.equal(row.hidden,true);
 }
@@ -321,9 +330,12 @@ console.log("VATRA story clock: media readiness, pause, hidden tab, modal blocki
 
 {
  const runtime=await readFile("assets/js/story-views.js","utf8");
- const window={},document={documentElement:{lang:"uk"}};
- runInNewContext(runtime,{window,document,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URLSearchParams});
+ const window={},document={documentElement:{lang:"uk"}},location={href:"https://example.test/VATRA/feed"};
+ runInNewContext(runtime,{window,document,location,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URL});
  const api=window.VATRA_STORY_VIEWS,id="10000000-0000-0000-0000-000000000001",story={id,author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
+ assert.equal(api.profileHref("102"),"https://example.test/VATRA/id102");
+ location.href="https://example.test/VATRA/id101";assert.equal(api.profileHref("102"),"https://example.test/VATRA/id102");
+ assert.equal(api.profileHref("../bad"),"");
  let inserts=0,error=null,reads=0;
  const client={from(table){assert.equal(table,"story_views");return {
  insert(value){inserts++;assert.equal(value.story_id,id);assert.equal(value.viewer_vatra_id,"102");return Promise.resolve({error});},
