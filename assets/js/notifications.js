@@ -620,8 +620,7 @@ async function panelLoad(){
 function positionPanel(){
  if(!open||!panel||!bell)return;
  const r=bell.getBoundingClientRect();
- const width=Math.min(440,document.documentElement.clientWidth);
- panel.style.width=width+"px";
+ panel.style.width="min(440px, 100%)";
  panel.style.removeProperty("left");
  panel.style.right="0px";
  const headerBottom=document.querySelector(".feed-header")?.getBoundingClientRect().bottom??r.bottom;
@@ -875,7 +874,7 @@ function start(c,id){
      filter:"recipient_vatra_id=eq."+run.id},payload=>{
        if(notificationRun!==run)return;
        refresh(true);
-       if(!document.hidden){
+       if(!document.hidden&&!hiddenNotificationKinds(run.id).includes(String(payload?.new?.kind||""))){
         window.VATRA_SOUNDS?.play?.(["friend_request","friend_accepted","friend_declined"].includes(payload?.new?.kind)?"newFollower":"notification");
         incomingToast(payload?.new);
        }

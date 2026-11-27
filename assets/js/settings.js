@@ -374,6 +374,19 @@ async function preferences(){
   }
   if(id==="notifications"){
    panel.append(make("p","vatra-preferences-description-001",t("Ці налаштування визначають показ сповіщень у цьому браузері та не вимикають їх на інших пристроях.","These settings control notification display in this browser and do not disable notifications on other devices.")));
+   const sounds=settingsCard(t("Звук","Sound"));
+   sounds.append(make("p","vatra-preferences-description-001",t("Звукові налаштування діють у цьому браузері для вашого акаунта.","Sound settings apply to your account in this browser.")));
+   for(const [kind,label,description] of [
+    ["notification",t("Звуки сповіщень","Notification sounds"),t("Звук нових сповіщень і подій дружби.","Sound for new notifications and friendship events.")],
+    ["like",t("Звуки вподобань","Like sounds"),t("Звук під час додавання вподобання.","Sound when adding a like.")]
+   ]){
+    const key="vatra:sound:"+ownId+":"+kind,control=make("input","ui-vatra-preferences-toggle-001");
+    control.type="checkbox";control.setAttribute("role","switch");
+    let enabled=true;try{enabled=localStorage.getItem(key)!=="off";}catch(_){}
+    control.checked=enabled;row(sounds,label,description,control,"sound-"+kind);
+    control.addEventListener("change",()=>{try{localStorage.setItem(key,control.checked?"on":"off");enabled=control.checked;message(t("Зміни збережено.","Changes saved."));}catch(_){control.checked=enabled;message(t("Не вдалося зберегти зміни.","Could not save changes."),true);}});
+   }
+   panel.append(sounds);
    let hidden=[];try{const value=JSON.parse(localStorage.getItem(prefKey)||"[]");if(Array.isArray(value))hidden=value.filter(x=>typeof x==="string");}catch(_){}
    for(const [,heading,kinds] of notificationKinds){const c=settingsCard(heading);panel.append(c);
    for(const [key,label,description] of kinds){const control=make("input","ui-vatra-preferences-toggle-001");control.type="checkbox";control.setAttribute("role","switch");control.checked=!hidden.includes(key);row(c,label,description,control,key);

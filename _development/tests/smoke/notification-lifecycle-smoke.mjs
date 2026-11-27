@@ -255,3 +255,27 @@ console.log("VATRA notifications: in-flight coalescing, session teardown, no sta
  assert.equal(time("invalid"),"");
  console.log("VATRA notification timestamps: six additional locales and UK/EN compatibility passed.");
 }
+
+{
+ const shell=await readFile("assets/js/social-shell.js","utf8");
+ const start=shell.indexOf(" const soundFiles="),end=shell.indexOf(" function setupHeaderDismiss(",start);
+ const prefs=new Map(),played=[];
+ let now=1000;
+ class Audio{constructor(url){this.url=url;}play(){played.push(this.url);return Promise.resolve();}}
+ const env={window:{Audio,VATRA_AUTH_MEMBER_ID:"12"},document:{hidden:false},Audio,URL,soundRoot:new URL("https://example.test/"),Date:{now:()=>now},localStorage:{getItem:key=>prefs.get(key)||null}};
+ runInNewContext(shell.slice(start,end),env);
+ const play=env.window.VATRA_SOUNDS.play;
+ prefs.set("vatra:sound:12:notification","off");
+ assert.equal(play("notification"),false);assert.equal(play("newFollower"),false);
+ assert.equal(play("like"),true);
+ now+=400;env.window.VATRA_AUTH_MEMBER_ID="13";
+ assert.equal(play("notification"),true);
+ now+=400;prefs.set("vatra:sound:13:like","off");
+ assert.equal(play("like"),false);assert.equal(play("newFollower"),true);
+ now+=400;env.document.hidden=true;assert.equal(play("notification"),false);
+ assert.equal(played.length,3);
+ assert.ok(code.includes('!hiddenNotificationKinds(run.id).includes(String(payload?.new?.kind||""))'));
+ const settings=await readFile("assets/js/settings.js","utf8");
+ assert.ok(settings.includes('key="vatra:sound:"+ownId+":"+kind')&&settings.includes('localStorage.setItem(key,control.checked?"on":"off")'));
+ console.log("VATRA sound preferences: actual playback gating, independent categories, account isolation and hidden realtime notifications passed.");
+}
