@@ -101,7 +101,7 @@ try{
    '</head><body class="vatra-section-page" data-page="vatra-id"><main class="ui-vatra-section-main-001"><h1 id="design-title"></h1><p id="design-subtitle"></p><div id="design-content"></div></main></body></html>'}));
   await accountDesign.goto(base+"design-probe#personal");
   await accountDesign.evaluate(()=>{
-   window.__designWrites=[];window.__designMessage="";
+   window.__designWrites=[];window.__designMessage="";window.__fixtureBlocks=[];
    const make=(tag,cls,text)=>{const element=document.createElement(tag);element.className=cls;if(text!==undefined)element.textContent=text;return element;};
    const btn=(label,cls,fn)=>{const b=make("button",cls,label);b.type="button";b.onclick=fn;return b;};
    const card=cls=>make("section","ui-vatra-section-card-001 "+cls);
@@ -112,11 +112,19 @@ try{
    const sectionIcon=()=>{const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");return svg;};
    const link=(label,href,cls)=>{const a=make("a",cls,label);a.href=href;return a;};
    const user={id:"fixture",email:"fixture@example.test",user_metadata:{first_name:"Тест",last_name:"VATRA",birthdate:"2000-05-12",gender:"male"}};
-   const client={from(table){let change;return {select(){return this;},eq(){return this;},update(value){change=value;window.__designWrites.push(table);return this;},maybeSingle:async()=>({data:change||{},error:null})};},
+   const client={from(table){
+    let change,selection=[],deleting=false,filters={};
+    const read=()=>({data:table==="member_blocks"?window.__fixtureBlocks.slice():table==="friendships"?[{requester_id:"12",recipient_id:"1"}]:table==="public_profiles"?[{vatra_id:"1",display_name:"Друг VATRA"},{vatra_id:"23",display_name:"Інший користувач"}].filter(row=>selection.includes(row.vatra_id)):[],error:null});
+    return {select(){return this;},eq(k,v){filters[k]=String(v);return this;},or(){return this;},order(){return this;},range(){return this;},limit(){return this;},in(k,v){selection=v.map(String);return this;},update(value){change=value;window.__designWrites.push(table);return this;},
+     insert:async value=>{if(table==="member_blocks")window.__fixtureBlocks.push({...value,created_at:new Date().toISOString()});return {error:null};},
+     delete(){deleting=true;return this;},maybeSingle:async()=>{if(deleting&&table==="member_blocks"){const id=filters.blocked_vatra_id;window.__fixtureBlocks=window.__fixtureBlocks.filter(row=>String(row.blocked_vatra_id)!==id);return {data:{blocked_vatra_id:id},error:null};}return {data:change||{},error:null};},
+     then(resolve,reject){return Promise.resolve(read()).then(resolve,reject);}};
+   },
     auth:{updateUser:async value=>{window.__designWrites.push(value.data);return {data:{user:{...user,user_metadata:value.data}},error:null};}}};
    window.VATRA_LANGUAGE={locale:"uk"};
    window.VATRA_SECTION_CORE={start:fn=>fn({root:new URL("./",location.href),locale:"uk",t:uk=>uk,$:s=>document.querySelector(s),make,btn,card,field,link,sectionIcon,
-    client,user,ownId:"12",nameOf:async()=>"Тест VATRA",title:document.querySelector("#design-title"),subtitle:document.querySelector("#design-subtitle"),content:document.querySelector("#design-content"),
+    client,user,ownId:"12",nameOf:async id=>String(id)==="23"?"Інший користувач":"Друг VATRA",valid:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),empty:label=>make("p","vatra-section-empty-001",label),confirmRemove:async()=>true,
+    dialog:heading=>{const d=make("dialog","ui-vatra-section-dialog-001"),form=make("form","ui-vatra-section-dialog-form-001");d.append(make("h2","vatra-section-dialog-title-001",heading),form);document.body.append(d);return {d,form};},title:document.querySelector("#design-title"),subtitle:document.querySelector("#design-subtitle"),content:document.querySelector("#design-content"),
     message:value=>{window.__designMessage=value;},tabs:(items,go)=>{const bar=make("div","ui-vatra-section-tabs-001");for(const [id,label] of items){const b=btn(label,"vatra-section-tab-"+id,()=>go(id));b.dataset.tab=id;bar.append(b);}return bar;},
     submit:(form,label,fn)=>{const b=btn(label,"vatra-section-submit-001",()=>void fn());form.append(b);}})};
   });
@@ -156,7 +164,25 @@ try{
   await accountDesign.locator(".ui-vatra-preferences-nav-001").waitFor({state:"visible"});
   assert.equal(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").count(),4);
   assert.deepEqual(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).width)),["20px","20px","20px","20px"]);
-  console.log("VATRA account design: shared birthday controls, ISO date save, dropdown dismissal, mobile fit and settings icon size passed.");
+  await accountDesign.locator('[data-tab="blocked"]').click();
+  await accountDesign.locator(".ui-vatra-preferences-block-empty-001").waitFor({state:"visible"});
+  await accountDesign.locator(".ui-vatra-block-header-001 button").click();
+  const picker=accountDesign.locator(".ui-vatra-block-picker-001");
+  await picker.locator(".vatra-preferences-block-name-001").filter({hasText:"Друг VATRA"}).waitFor({state:"visible"});
+  assert.equal(await picker.locator(".vatra-preferences-block-name-001").count(),1,"Only accepted friends are offered initially");
+  await picker.locator("#vatra-section-block-profile").fill("https://example.invalid/id23");
+  await picker.locator('button[type="submit"]').click();
+  await picker.getByText("Користувача не знайдено",{exact:true}).waitFor({state:"visible"});
+  await picker.locator("#vatra-section-block-profile").fill("https://mykolakolisnyk.github.io/VATRA/id23");
+  await picker.locator('button[type="submit"]').click();
+  await picker.getByText("Інший користувач",{exact:true}).waitFor({state:"visible"});
+  await picker.getByRole("button",{name:"Заблокувати",exact:true}).click();
+  await accountDesign.locator(".ui-vatra-preferences-block-list-001").getByText("Інший користувач",{exact:true}).waitFor({state:"visible"});
+  assert.deepEqual(await accountDesign.evaluate(()=>window.__fixtureBlocks.map(row=>String(row.blocked_vatra_id))),["23"]);
+  await accountDesign.getByRole("button",{name:"Розблокувати",exact:true}).click();
+  await accountDesign.locator(".ui-vatra-preferences-block-empty-001").waitFor({state:"visible"});
+  assert.equal(await accountDesign.evaluate(()=>window.__fixtureBlocks.length),0);
+  console.log("VATRA account design: settings and friend/profile link block and unblock flow passed.");
  }finally{await accountDesign.close();}
 
  // Collapsible posts must place the toggle after the final text/hashtag,
@@ -4065,6 +4091,7 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
+  await feedProbe.waitForFunction(()=>{const anchor=document.querySelector("#vatra-smoke-inline-interactions .vatra-post-comment-attach-001");const menu=document.querySelector(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu");if(!anchor||!menu||menu.hidden)return false;const a=anchor.getBoundingClientRect(),m=menu.getBoundingClientRect();return m.left>=0&&m.top>=0&&m.right<=innerWidth+1&&m.bottom<=innerHeight+1&&m.left<=a.right+2&&m.right>=a.left-2&&Math.min(Math.abs(m.bottom-a.top),Math.abs(m.top-a.bottom))<=14;},null,{timeout:3000});
 
   await feedProbe.locator(".vatra-post-comment-dialog-close-001").click();
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
