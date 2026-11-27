@@ -556,3 +556,41 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  for(const file of ["feed.html","profile.html","club.html","clips.html"]){const html=await readFile(file,"utf8");assert.ok(html.indexOf("assets/js/vatra-player.js?rev=")<html.indexOf("assets/js/post-media.js?rev="));assert.ok(html.includes("assets/css/vatra-player.css?rev="));}
  console.log("VATRA Player: helpers, route wiring, native fallback and modes checked.");
 }
+
+{
+ const player=await readFile("assets/js/vatra-player.js","utf8");
+ const create=tag=>{
+  const classes=new Set(),events={},el={tag,children:[],parentNode:null,dataset:{},attrs:{},isConnected:true,style:{setProperty(){}},
+   classList:{add:k=>classes.add(k),remove:k=>classes.delete(k),toggle(k,on){if(on)classes.add(k);else classes.delete(k);}},
+   setAttribute(k,v){this.attrs[k]=v;},matches(){return false;},addEventListener(k,fn){(events[k]??=[]).push(fn);},
+   emit(k,e={}){for(const fn of events[k]||[])fn(e);},click(){this.emit("click");},
+   append(...items){for(const item of items){item.remove();item.parentNode=this;this.children.push(item);}},
+   prepend(item){item.remove();item.parentNode=this;this.children.unshift(item);},
+   insertBefore(item,before){item.remove();item.parentNode=this;this.children.splice(this.children.indexOf(before),0,item);},
+   replaceChildren(...items){for(const item of this.children)item.parentNode=null;this.children=[];this.append(...items);},
+   remove(){if(this.parentNode){const p=this.parentNode;p.children.splice(p.children.indexOf(this),1);this.parentNode=null;}}
+  };return el;
+ };
+ const state=new Map([["vatra:player-volume",".4"]]);
+ const document={documentElement:{lang:"uk"},createElement:create,createElementNS(ns,tag){const el=create(tag);el.namespaceURI=ns;return el;},pictureInPictureEnabled:false};
+ const window={VATRA_HOST_ALLOWED:true,getComputedStyle:()=>({getPropertyValue:()=>"1"})};
+ const storage={getItem:k=>state.get(k)??null,setItem:(k,v)=>state.set(k,v)};
+ const env={document,window,localStorage:storage,setTimeout:()=>1,clearTimeout(){}};
+ runInNewContext(player,env);
+ const parent=create("div"),video=create("video");Object.assign(video,{controls:true,paused:true,ended:false,volume:1,muted:false,duration:120,currentTime:0,playbackRate:1,play(){this.paused=false;this.emit("play");return Promise.resolve();},pause(){this.paused=true;this.emit("pause");}});parent.append(video);
+ const root=window.VATRA_PLAYER.attach(video,{mode:"viewer"});
+ assert.ok(root);assert.equal(parent.children[0],root);assert.equal(root.children[0],video);assert.equal(video.controls,false);assert.equal(video.volume,.4);
+ const find=(node,part)=>node.className==="vatra-player-"+part+"-001"?node:node.children.map(child=>find(child,part)).find(Boolean);
+ const play=find(root,"play"),seek=find(root,"seek"),volume=find(root,"volume"),speed=find(root,"speed"),mute=find(root,"mute");
+ play.click();assert.equal(video.paused,false);assert.equal(play.attrs["aria-label"],"Пауза");
+ play.click();assert.equal(video.paused,true);
+ seek.value="75";seek.emit("input");assert.equal(video.currentTime,75);
+ volume.value=".7";volume.emit("input");assert.equal(video.volume,.7);assert.equal(state.get("vatra:player-volume"),"0.7");
+ mute.click();assert.equal(video.muted,true);
+ speed.value="1.5";speed.emit("change");assert.equal(video.playbackRate,1.5);
+ let consumed=false;root.emit("keydown",{target:root,key:"ArrowLeft",preventDefault(){consumed=true;},stopPropagation(){}});assert.equal(video.currentTime,70);assert.equal(consumed,true);
+ assert.equal(find(root,"pip").hidden,true);assert.equal(window.VATRA_PLAYER.attach(video),root,"Duplicate attachment must not wrap the video again");
+ const fallback=create("video");fallback.controls=true;parent.append(fallback);window.getComputedStyle=()=>({getPropertyValue:()=>""});
+ assert.equal(window.VATRA_PLAYER.attach(fallback),null);assert.equal(fallback.parentNode,parent);assert.equal(fallback.controls,true);
+ console.log("VATRA Player: actual control events, keyboard seek, volume persistence and missing stylesheet fallback verified.");
+}

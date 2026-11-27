@@ -20,6 +20,9 @@ function attach(video,{mode="inline",onExpand}={}){
  const words=labels[window.VATRA_LANGUAGE?.locale||document.documentElement.lang]||labels.uk;
  const make=(tag,part)=>{const el=document.createElement(tag);el.className="vatra-player-"+part+"-001";return el;};
  const root=make("div","root");root.dataset.mode=mode;root.setAttribute("role","group");root.setAttribute("aria-label",words[10]);root.tabIndex=0;
+ // A stylesheet failure must leave native video controls usable.
+ const parent=video.parentNode;parent.insertBefore(root,video);
+ if(typeof window.getComputedStyle==="function"&&window.getComputedStyle(root).getPropertyValue("--vatra-player-ready").trim()!=="1"){root.remove();return null;}
  const controls=make("div","controls"),bar=make("div","bar"),left=make("div","left"),right=make("div","right"),clock=make("span","time"),status=make("span","status");
  status.setAttribute("role","status");status.hidden=true;
  const setIcon=(button,key,label)=>{const svg=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS(svg.namespaceURI,"path");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");p.setAttribute("d",icons[key]);svg.append(p);button.replaceChildren(svg);button.title=label;button.setAttribute("aria-label",label);};
@@ -54,8 +57,8 @@ function attach(video,{mode="inline",onExpand}={}){
  root.addEventListener("keydown",e=>{if(e.target!==root||e.altKey||e.ctrlKey||e.metaKey)return;const k=e.key.toLowerCase();if(![" ","k","m","f","arrowleft","arrowright","arrowup","arrowdown"].includes(k))return;e.preventDefault();e.stopPropagation();if(k===" "||k==="k")toggle();else if(k==="m")mute.click();else if(k==="f")full.click();else if(k==="arrowleft")seekBy(-5);else if(k==="arrowright")seekBy(5);else{video.muted=false;video.volume=clamp(video.volume+(k==="arrowup"?.1:-.1),0,1);}reveal();});
  left.append(play,mute,volume,clock);right.append(speed,pip,full);bar.append(left,right);controls.append(seek,bar);root.append(controls,status);
  // Preserve native controls if styles or enhancement cannot be installed.
- const parent=video.parentNode;parent.insertBefore(root,video);root.prepend(video);
- video.volume=volumePreference();updateVolume();updateTime();updatePlay();video.controls=false;
+ root.prepend(video);
+ try{video.volume=volumePreference();}catch(_){}updateVolume();updateTime();updatePlay();video.controls=false;
  instances.set(video,{root});return root;
 }
 window.VATRA_PLAYER={attach};
