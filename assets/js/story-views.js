@@ -33,7 +33,7 @@ async function page(client,id,offset=0){
  if(!validStory(id)||!Number.isSafeInteger(offset)||offset<0)return null;
  try{
  const result=await client.from("story_views").select("viewer_vatra_id,viewed_at",{count:"exact"}).eq("story_id",id).order("viewed_at",{ascending:false}).order("viewer_vatra_id",{ascending:true}).range(offset,offset+pageSize-1);
- if(result.error||!Array.isArray(result.data)||!Number.isSafeInteger(result.count))return null;
+ if(result.error||!Array.isArray(result.data)||!Number.isSafeInteger(result.count)||result.count<0)return null;
  const ids=[...new Set(result.data.map(x=>x.viewer_vatra_id).filter(validId).map(String))];let names=new Map();
  if(ids.length)try{
  const named=await (window.VATRA_PUBLIC_NAMES?.get(client,ids)||client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids));
@@ -59,20 +59,25 @@ function start(dialog,client,story,viewer){
  const label=ui.querySelector("summary"),list=ui.querySelector("ul"),status=ui.querySelector("[data-story-views-status]"),more=ui.querySelector("button");
  if(!label||!list||!status||!more)return;
  const w=words(),current=()=>active.get(dialog)===state&&dialog.open;
- let offset=0,loading=false,loaded=false,total=null;
+ let offset=0,loading=false,total=null,request=0;
+ const shown=new Set();
  const updateCount=n=>{total=n;label.textContent=w[0]+": "+n;};
  const load=async()=>{
   if(loading||!current()||!ui.open)return;
+  const generation=++request;
   loading=true;status.textContent=w[1];more.hidden=true;
   try{
    const result=await page(client,story.id,offset);
-   if(!current()||!ui.open)return;
+   if(generation!==request||!current()||!ui.open)return;
    if(!result){status.textContent=w[3];more.hidden=false;return;}
-   updateCount(result.count);for(const viewer of result.rows){const li=document.createElement("li"),a=document.createElement("a");a.className="vatra-story-viewer-link-001";a.href=profileHref(viewer.id);a.textContent=viewer.name||w[5]+" · "+viewer.id;li.append(a);list.append(li);}
-   offset=result.next;loaded=true;status.textContent=result.count===0?w[2]:"";more.hidden=offset>=result.count||!result.rows.length;
-  }finally{loading=false;if(current()&&ui.open&&!loaded&&status.textContent===w[1])void load();}
+   updateCount(result.count);for(const viewer of result.rows){if(shown.has(viewer.id))continue;shown.add(viewer.id);const li=document.createElement("li"),a=document.createElement("a");a.className="vatra-story-viewer-link-001";a.href=profileHref(viewer.id);a.textContent=viewer.name||w[5]+" · "+viewer.id;li.append(a);list.append(li);}
+   offset=result.next;status.textContent=result.count===0?w[2]:"";more.hidden=offset>=result.count||!result.rows.length;
+  }finally{if(generation===request)loading=false;}
  };
- const toggle=()=>{if(ui.open&&!loaded)void load();};
+ const toggle=()=>{
+  request++;loading=false;offset=0;shown.clear();list.replaceChildren();status.textContent="";more.hidden=true;
+  if(ui.open)void load();
+ };
  const moreClick=()=>{void load();};
  const close=()=>{if(!dialog.open)stop(dialog);};
  Object.assign(state,{ui,list,status,more,toggle,moreClick,close});
