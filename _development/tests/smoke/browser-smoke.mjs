@@ -3042,8 +3042,13 @@ try{
     table==="friendships"?
     {select:()=>({or(){return this;},eq(){return this;},order(){return this;},
      limit:async n=>{window.__vatraFriendLimitCalls.push(n);
-      return {data:window.__vatraFriendActionRows||[],error:null};}}),
-     insert:async()=>({error:null}),
+      return {data:window.__vatraFriendActionRows||[],error:null};},
+     maybeSingle:async()=>({data:window.__vatraFriendActionRows[0]||null,error:null})}),
+     insert:row=>({select:()=>({maybeSingle:async()=>{
+      const inserted={...row,id:"00000000-0000-4000-8000-000000000883",status:"pending"};
+      window.__vatraFriendActionRows.push(inserted);
+      return {data:{id:inserted.id},error:null};
+     }})}),
      delete:()=>({
       filters:[],
       eq(column,value){this.filters.push([column,String(value)]);return this;},
@@ -5885,8 +5890,12 @@ try{
    "Friends are accessible from the About-side Friends card, not the main tabs");
   assert.equal(await profilePage.locator("#profile-more-menu").isVisible(),true,
    "Visitors have a clearly visible More menu beside friend actions");
-  await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="outgoing";});
-  await profilePage.locator("#profile-friend-button").hover();
+  const visitorFriendButton=profilePage.locator("#profile-friend-button");
+  await profilePage.waitForFunction(()=>{const el=document.querySelector("#profile-friend-button");return el?.dataset.friendState==="none"&&!el.disabled;});
+  await visitorFriendButton.click();
+  await profilePage.waitForFunction(()=>{const el=document.querySelector("#profile-friend-button");return el?.dataset.friendState==="outgoing"&&!el.disabled;});
+  await profilePage.mouse.move(0,0);
+  await visitorFriendButton.hover();
   await profilePage.locator("#profile-friend-menu-action").waitFor({state:"visible"});
   await profilePage.locator("#profile-friend-menu-action").hover();
   const friendMenuPlacement=await profilePage.locator("#profile-friend-menu").evaluate(el=>{const r=el.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,headerBottom:header.bottom,viewportWidth:innerWidth,viewportHeight:innerHeight,topLayer:typeof el.showPopover!=="function"||el.matches(":popover-open")};});
@@ -5896,7 +5905,11 @@ try{
    "Request cancellation must remain reachable while moving from button into submenu");
   const friendColor=await profilePage.locator("#profile-friend-menu").evaluate(el=>getComputedStyle(el).backgroundColor);
   assert.equal(friendColor,"rgb(255, 255, 255)","Friend-request submenu must match white VATRA surfaces");
-  await profilePage.locator("#profile-friend-button").evaluate(el=>{el.dataset.friendState="none";});
+  await profilePage.evaluate(()=>{window.__vatraFriendDenyDelete=false;});
+  await profilePage.locator("#profile-friend-menu-action").click();
+  await profilePage.waitForFunction(()=>{const el=document.querySelector("#profile-friend-button");return el?.dataset.friendState==="none"&&!el.disabled;});
+  assert.equal(await profilePage.locator("#profile-friend-menu").isVisible(),false,"Cancel request must close the submenu");
+  assert.equal(await profilePage.evaluate(()=>window.__vatraFriendActionRows.length),0,"Cancel request must remove the pending friendship from the fixture");
   await profilePage.locator("#profile-more-trigger").click();
   const moreColor=await profilePage.locator("#profile-more-panel").evaluate(el=>getComputedStyle(el).backgroundColor);
   assert.equal(moreColor,"rgb(255, 255, 255)","More submenu must not have a dark visual theme");
