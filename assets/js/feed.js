@@ -171,7 +171,6 @@
     window.VATRA_AVATAR?.fromPath(client,user?.email,vatraId,mine?.avatar_path||null);
    }
    applyAvatar(q("#feed-header-avatar"),vatraId);
-   applyAvatar(q("#feed-story-create-avatar"),vatraId);
   }catch(_){ }
  }
  const memberName=id=>{
@@ -667,10 +666,10 @@
    if(refreshQueued){refreshQueued=false;void loadPosts(true);}
   }
  }
- const storyTrack=q(".feed-stories-track"),storiesNext=q("#feed-stories-next");
+ const storyRail=q(".feed-stories"),storyTrack=q(".feed-stories-track"),storiesNext=q("#feed-stories-next");
  function updateStoryArrow(){
   if(!storyTrack||!storiesNext)return;
-  storiesNext.hidden=storyTrack.scrollWidth-storyTrack.clientWidth-storyTrack.scrollLeft<8;
+  storiesNext.hidden=storyRail?.hidden||storyTrack.scrollWidth-storyTrack.clientWidth-storyTrack.scrollLeft<8;
  }
  if(storyTrack&&storiesNext){
   storiesNext.addEventListener("click",()=>storyTrack.scrollBy({
@@ -695,7 +694,7 @@
   void window.VATRA_POST_MEDIA?.renderStory(client,story,q("#feed-story-view-media"));
  };
  async function loadStories(){
-  const holder=q("#feed-friend-stories");
+  const holder=q("#feed-friend-stories"),storyRail=q(".feed-stories");
   if(!holder||!vatraId)return;
   const generation=++storyLoadGeneration;
   storyPreviewObserver?.disconnect();storyPreviewObserver=null;
@@ -736,7 +735,7 @@
     if(!pendingPreviews.size){observer.disconnect();if(storyPreviewObserver===observer)storyPreviewObserver=null;}
    }):null;
    storyPreviewObserver=observer;
-   q(".feed-stories")?.classList.toggle("is-empty",items.length===0);
+   if(storyRail){storyRail.hidden=items.length===0;storyRail.classList.toggle("is-empty",storyRail.hidden);}
    for(const story of items){
     const id=String(story.author_vatra_id);
     const button=node("button","feed-story-preview ui-feed-story-live-preview-001");
@@ -776,7 +775,7 @@
     if(current&&dialog?.open)q("#feed-story-view-heading").textContent=memberName(String(current.author_vatra_id));
    }).catch(error=>reportFeedFailure("story metadata",error));
   }catch(error){
-   if(generation===storyLoadGeneration){storyPreviewObserver?.disconnect();storyPreviewObserver=null;reportFeedFailure("stories",error);holder.replaceChildren();storySequence=[];q(".feed-stories")?.classList.add("is-empty");}
+   if(generation===storyLoadGeneration){storyPreviewObserver?.disconnect();storyPreviewObserver=null;reportFeedFailure("stories",error);holder.replaceChildren();storySequence=[];if(storyRail){storyRail.hidden=true;storyRail.classList.add("is-empty");}}
   }finally{if(generation===storyLoadGeneration){holder.setAttribute("aria-busy","false");requestAnimationFrame(updateStoryArrow);}}
  }
  function bindComposer(){
@@ -810,7 +809,6 @@
    }finally{trigger.disabled=false;trigger.removeAttribute("aria-busy");}
   };
   q("#feed-compose-open").addEventListener("click",()=>void open());
-  q("#feed-create-menu-story")?.addEventListener("click",()=>q("#feed-create-story")?.click());
   q("#feed-compose-cancel").addEventListener("click",()=>dialog.close());
   const updateCounter=()=>{counter.textContent=text.value.length+" / "+POST_LIMIT;counter.hidden=text.value.length<POST_LIMIT*0.9;};
   text.addEventListener("input",updateCounter);updateCounter();
@@ -852,7 +850,7 @@
     t("Публікацію додано.","Post published."),"success");
    if(!publishAt)void loadPosts(true);
   });
-  const storyTrigger=q("#feed-create-story");
+  const storyTrigger=q("#feed-create-menu-story");
   let storyLoading=false;
   async function firstStoryClick(){
    if(storyLoading)return;

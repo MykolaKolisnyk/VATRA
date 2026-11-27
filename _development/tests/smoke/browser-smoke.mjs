@@ -3136,7 +3136,7 @@ try{
       eq(){this.singleAuthor=true;return this;},
       gt(){return this;},order(){return this;},
       limit:async function(){
-       return {data:this.singleAuthor&&window.__feedMockStory?[window.__feedMockStory]:[],error:null};
+       return {data:window.__feedMockStory&&(this.singleAuthor||window.__feedMockStory.id==="00000000-0000-4000-8000-000000000002")?[window.__feedMockStory]:[],error:null};
       }
     }),
     delete:()=>({
@@ -3568,31 +3568,26 @@ try{
    const geometry=await feedProbe.evaluate(()=>{
     const r=selector=>document.querySelector(selector).getBoundingClientRect();
     const story=r(".feed-stories"),posts=r(".feed-posts-section"),
-     composer=r(".feed-quick-compose"),storyCard=r(".feed-story-create"),
+     composer=r(".feed-quick-compose"),
      nav=r(".social-top-nav"),logo=r(".ui-feed-logo-001"),
      account=r(".feed-account-toggle"),search=r(".feed-header .feed-search-form"),
      brand=r(".feed-header-brand");
     return {storyLeft:story.left,postLeft:posts.left,storyWidth:story.width,postWidth:posts.width,
      composerWidth:composer.width,composerLeft:composer.left,storyBottom:story.bottom,composerTop:composer.top,mainWidth:r(".feed-main").width,
-     storyCardWidth:storyCard.width,storyCardHeight:storyCard.height,
+     storyHidden:document.querySelector(".feed-stories").hidden,
      storyCenter:(story.left+story.right)/2,
      navCenter:(nav.left+nav.right)/2,viewportCenter:document.documentElement.clientWidth/2,
      logoMargin:logo.left,rightMargin:document.documentElement.clientWidth-account.right,
      logoToSearch:search.left-brand.right,
      headerHeight:r(".feed-header").height};
    });
-   assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
-    Math.abs(geometry.storyLeft-geometry.composerLeft)<3&&
-    Math.abs(geometry.storyWidth-geometry.composerWidth)<3&&
+   assert.ok(geometry.storyHidden&&
     Math.abs(geometry.postWidth-geometry.composerWidth)<3&&
-    geometry.storyBottom<=geometry.composerTop+1&&
-    geometry.storyCardWidth>=95&&geometry.storyCardWidth<=120&&
-    geometry.storyCardHeight>=169&&geometry.storyCardHeight<=212&&
-    geometry.storyCardHeight>geometry.storyCardWidth*1.65&&
+    Math.abs(geometry.postLeft-geometry.composerLeft)<3&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
-    "VATRA header symmetry and vertical Story tiles above composer: "+
+    "VATRA header symmetry and compact reading column without stories: "+
     JSON.stringify(geometry));
   }
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0,
@@ -4017,16 +4012,26 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isEnabled(),true,
    "A valid poll without media or post text must unlock the shared editor");
   await feedProbe.locator(".vatra-post-composer-next-001").click();
-  const scheduleToggle=feedProbe.locator(".vatra-post-composer-schedule-toggle-001");
-  await scheduleToggle.check();
+  const scheduleToggle=feedProbe.locator(".vatra-select-trigger-feed-publication-mode");
+  await scheduleToggle.click();
+  await feedProbe.locator(".ui-select-options-feed-publication-mode [data-value='scheduled']").click();
   const plannedDate=await feedProbe.evaluate(()=>{
    const date=new Date(Date.now()+15*60*1000);
    return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
   });
-  await feedProbe.locator(".vatra-post-composer-schedule-date-001").fill(plannedDate);
+  const scheduleFields=feedProbe.locator(".vatra-post-composer-schedule-date-001");
+  assert.equal(await scheduleFields.locator(".vatra-select-trigger").count(),5,"Schedule uses the shared VATRA date and time selectors");
+  const dateParts=plannedDate.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+  for(const [key,value] of [["year",dateParts[1]],["month",dateParts[2]],["day",dateParts[3]],["hour",dateParts[4]],["minute",dateParts[5]]]){
+   await feedProbe.locator(".vatra-select-trigger-feed-schedule-"+key).click();
+   await feedProbe.locator(".ui-select-options-feed-schedule-"+key+" [data-value='"+value+"']").click();
+  }
+  assert.equal(await scheduleFields.evaluate(el=>el.value),plannedDate);
   assert.equal(await feedProbe.locator("#feed-compose-save").isEnabled(),true,
    "Valid future schedule must allow a server-managed publication");
-  await scheduleToggle.uncheck();
+  await scheduleToggle.click();
+  await feedProbe.locator(".ui-select-options-feed-publication-mode [data-value='now']").click();
+  assert.equal(await scheduleFields.isVisible(),false);
   await feedProbe.locator(".vatra-post-composer-back-001").click();
   await feedProbe.locator(".vatra-post-composer-poll-toggle-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-composer-next-001").isDisabled(),true,
@@ -4677,7 +4682,7 @@ try{
   await feedProbe.locator("#vatra-search-back").click();
   console.log("VATRA search history: no cross-account or legacy global history leakage");
 
-  assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
+  assert.equal(await feedProbe.locator(".feed-stories").isVisible(),false);
   assert.equal(await feedProbe.locator(".feed-story-preview").count(),0,
    "No friends means no fabricated Story previews");
   assert.equal(await feedProbe.locator("#feed-friend-stories").count(),1);
@@ -4685,17 +4690,20 @@ try{
    "A missing story must not create an explanatory row");
   assert.equal(await feedProbe.locator(".feed-stories").evaluate(el=>el.classList.contains("is-empty")),true);
   assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").count(),0);
-  assert.equal(await feedProbe.locator("#feed-story-create-avatar").isVisible(),true);
+  assert.equal(await feedProbe.locator("#feed-story-create-avatar").count(),0);
+  assert.equal(await feedProbe.locator("#feed-create-story").count(),0);
+  assert.equal(await feedProbe.locator("[data-feed-filter] svg").count(),0);
   assert.equal(await feedProbe.locator(".vatra-feed-story-create-subtitle-001").count(),0);
   assert.equal(await feedProbe.evaluate(()=>!!window.VATRA_STORY_EDITOR),false,
    "Story editor should not load before opening it");
-  await feedProbe.locator("#feed-create-story").click();
+  const openStoryComposer=async()=>{await feedProbe.locator("#feed-create-menu").hover();await feedProbe.locator("#feed-create-menu-story").waitFor({state:"visible"});await feedProbe.locator("#feed-create-menu-story").click();};
+  await openStoryComposer();
   await feedProbe.locator("#feed-story-dialog").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true);
   await feedProbe.locator("#feed-story-cancel").click();
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),false);
   // Image-only stories can be published without the old mandatory text field.
-  await feedProbe.locator("#feed-create-story").click();
+  await openStoryComposer();
   await feedProbe.locator("#feed-story-media").setInputFiles({
    name:"story-test.png",mimeType:"image/png",buffer:onePixelPng
   });
@@ -4734,13 +4742,15 @@ try{
    "Image-only story must persist media metadata");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.body),"",
    "Story captions are optional when media exists");
-  await feedProbe.locator("#feed-create-story").click();
+  await openStoryComposer();
   assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","New stories must reset to private friends-only visibility");
   assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();
   await feedProbe.evaluate(()=>window.scrollTo({top:0,behavior:"instant"}));
   await feedProbe.waitForFunction(()=>window.scrollY<=1);
+  await feedProbe.locator(".feed-story-preview").first().waitFor({state:"visible"});
+  assert.equal(await feedProbe.locator(".feed-story-preview").count(),1,"Only the published story is visible");
   const storyGeometry=await feedProbe.evaluate(()=>{
    const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();

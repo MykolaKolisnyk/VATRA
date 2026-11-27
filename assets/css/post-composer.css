@@ -380,3 +380,11 @@ body.profile-page .vatra-post-composer-audience select{max-width:none!important;
  body.profile-page .vatra-post-composer-audience select{grid-column:1/-1;font-size:16px}
  body.feed-page .vatra-post-composer-dialog textarea,body.profile-page .vatra-post-composer-dialog textarea{font-size:16px}
 }
+
+.vatra-post-composer-dialog .ui-vatra-composer-datetime-001{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.5fr) minmax(0,1fr) repeat(2,minmax(0,.75fr));gap:6px;padding:0;border:0;background:transparent;min-height:0;margin-top:10px}
+.vatra-post-composer-dialog .ui-vatra-composer-datetime-001[hidden]{display:none!important}
+.vatra-post-composer-dialog :is(.ui-vatra-composer-datetime-001,.vatra-post-composer-schedule-toggle-label-001) .vatra-select-trigger,.vatra-post-composer-dialog :is(.vatra-composer-datetime-part-001,.vatra-post-composer-schedule-toggle-001):not(.vatra-select-native){box-sizing:border-box;width:100%;min-height:42px;border:1px solid #d3e0f1;border-radius:9px;padding:9px 10px;background:#fff;color:#304563;font:600 13px/1.4 Onest,system-ui,sans-serif}
+.vatra-post-composer-dialog .vatra-post-composer-schedule-toggle-label-001 .vatra-select{flex:1}
+.vatra-post-composer-dialog .ui-vatra-composer-datetime-001 .vatra-select-list{min-width:90px}
+.vatra-post-composer-dialog .ui-vatra-composer-datetime-001 .vatra-select-option{font-size:13px}
+@media(max-width:540px){.vatra-post-composer-dialog .ui-vatra-composer-datetime-001{grid-template-columns:repeat(3,minmax(0,1fr))}}

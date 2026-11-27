@@ -1157,6 +1157,9 @@ assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
  profileExtraScript.includes('friendButton.dataset.friendState=')&&
  scrollRailScript.includes('scrollTo({top:0')&&
  (await read("feed.html")).includes('ui-feed-filter-heading-icon-001')&&
+ !(await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
+ !(await read("feed.html")).includes('ui-feed-filter-friends-icon-001')&&
+ !(await read("feed.html")).includes('ui-feed-filter-communities-icon-001')&&
  (await read("assets/css/feed.css")).includes('vatra-post-share-dialog')&&
  (await read("assets/js/notifications.js")).includes('vatra-notification-avatar'),
  "Social interactions, full post cards, branded filters and scroll rail must remain functional");
@@ -1191,7 +1194,7 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationScript.includes('pageLoad(false)')&&
  notificationScript.includes('c.channel("vatra-notices-"+run.id)')&&
  notificationScript.includes('run.client.from("member_notifications")')&&
- (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
+ (await read("feed.html")).includes('data-feed-filter="all"')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
  "VATRA notifications must include the private inbox and three-item header preview");
 const noticeCSS=await read("assets/css/feed.css");
@@ -1489,13 +1492,15 @@ for(const [event,postKey] of [['record.kind==="post_share"?','share'],['["post_c
  assert.equal(noticePath,postPath,"Notification and post action vectors must agree: "+postKey);
 }
 const storyPreviewMarkup=await read("feed.html");
-assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
+assert.ok(storyPreviewMarkup.includes('id="feed-create-menu-story"')&&
+ !storyPreviewMarkup.includes('id="feed-create-story"')&&
+ storyPreviewMarkup.includes('class="feed-stories is-empty ui-feed-stories-001" hidden')&&
  storyPreviewMarkup.includes('id="feed-friend-stories"')&&
  storyPreviewMarkup.includes('id="feed-compose-open"')&&
  storyPreviewMarkup.includes('id="feed-compose-form"')&&
  storyPreviewMarkup.includes('id="feed-story-dialog"')&&storyPreviewMarkup.includes('assets/js/feature-loader.js?rev=')&&
  !storyPreviewMarkup.includes('src="assets/js/story-editor.js?rev=')&&
- storyPreviewMarkup.includes('id="feed-story-create-avatar"')&&
+ !storyPreviewMarkup.includes('id="feed-story-create-avatar"')&&
  !storyPreviewMarkup.includes("vatra-feed-story-create-subtitle-001")&&
  !storyPreviewMarkup.includes("ui-feed-story-logo-001")&&
  !storyPreviewMarkup.includes("ui-feed-story-preview-001")&&
@@ -1987,7 +1992,8 @@ assert.ok(
  feedScript.includes('String(data?.id)!==String(toDelete.id)')&&
  feedScript.includes('if(insertError)throw insertError;')&&
  feedScript.includes('if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}')&&
- storyEditorRuntime.includes('if(insertError)throw insertError;inserted=true;')&&
+ storyEditorRuntime.includes('if(insertError){const failure=Error("Story insert failed");')&&
+ storyEditorRuntime.includes('throw failure;}inserted=true;')&&
  storyEditorRuntime.includes('if(uploaded&&!inserted)')&&
  storyEditorRuntime.indexOf('if(inserted){dialog.close();reset();try{onPublished?.();}')>storyEditorRuntime.indexOf('if(uploaded&&!inserted)')&&
  interactionsScript.includes("committed=true;")&&
