@@ -102,7 +102,10 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
   q:key=>key==="#feed-friend-stories"?holder:key===".feed-stories"?style:viewerNodes.get(key),
   requestAnimationFrame(fn){fn();},updateStoryArrow(){},setTimeout,clearTimeout,
   loadPublicNames:()=>metadataGate,loadAvatars:()=>metadataGate,
-  window:{VATRA_POST_MEDIA:{renderStory(_client,story){rendererCalls++;lastRendered=story;}}},
+  window:{VATRA_POST_MEDIA:{
+   clearStory(slot){if(!slot)return;slot.textContent="";slot.hidden=true;},
+   renderStory(_client,story){rendererCalls++;lastRendered=story;}
+  }},
   memberName:id=>(metadataReady?"Name ":"VATRA ID ")+id,initials:()=> "N",applyAvatar(){},
   node,t:(uk)=>uk
  };
@@ -273,6 +276,8 @@ console.log("VATRA story metadata: render before delayed names and avatars, refr
  assert.equal(v.viewerNodes.get("#feed-story-view-delete").hidden,true,"Another author's story cannot be deleted");
  assert.equal(v.viewerNodes.get("#feed-story-neighbor-prev").hidden,false);
  assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").hidden,true);
+ assert.equal(v.viewerNodes.get("#feed-story-neighbor-next").querySelector("media").textContent,"","Unavailable neighbor must clear its previous preview");
+ assert.equal(v.viewerNodes.get("#feed-story-neighbor-prev").querySelector("media").textContent,"Own story");
  assert.equal(v.storyCalls,1,"Adjacent stories reuse the authorized loaded snapshot");
 }
 console.log("VATRA story viewer: owner-only deletion and real adjacent previews verified.");
