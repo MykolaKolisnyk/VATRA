@@ -59,6 +59,10 @@ async function openDirectory(client,ownId,userId){
 
 
   const PUBLIC_DIRECTORY_CACHE_ENABLED=window.VATRA_COMMUNITY_EDGE_ENABLED===true;
+  const membershipTask=Promise.allSettled([
+   Promise.resolve().then(()=>ownId?client.from("community_follows").select("club_id").eq("member_vatra_id",ownId):{data:[]}),
+   Promise.resolve().then(()=>client.from("communities").select("club_id").eq("owner_id",userId))
+  ]);
   let data=null;
   if(!term&&PUBLIC_DIRECTORY_CACHE_ENABLED&&client.functions?.invoke){
    try{
@@ -73,10 +77,7 @@ async function openDirectory(client,ownId,userId){
   }
   let directory=(data||[]);const knownClubs=new Map(directory.map(club=>[String(club.club_id),club]));const filters=[...document.querySelectorAll("[data-community-filter]")];
   let mode="all",following=new Set(),owned=new Set(),filterError=false;
-  const results=await Promise.allSettled([
-   ownId?client.from("community_follows").select("club_id").eq("member_vatra_id",ownId):Promise.resolve({data:[]}),
-   client.from("communities").select("club_id").eq("owner_id",userId)
-  ]);
+  const results=await membershipTask;
   if(results[0].status==="fulfilled"&&!results[0].value.error)following=new Set((results[0].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
   if(results[1].status==="fulfilled"&&!results[1].value.error)owned=new Set((results[1].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
   const missing=[...new Set([...owned,...following])].filter(id=>!knownClubs.has(id)).slice(0,6);
@@ -133,7 +134,7 @@ async function openDirectory(client,ownId,userId){
   const topicCards=new Map();
   const revealTopicCover=photo=>{
    const filename=photo.dataset.topicCover;
-   if(filename)photo.style.backgroundImage="url("+JSON.stringify(root+"assets/communities_covers/"+filename+".webp")+")";
+   if(filename)photo.style.backgroundImage="url("+JSON.stringify(root+"assets/illustrations/"+filename+".webp")+")";
   };
   const coverObserver=typeof IntersectionObserver==="function"?new IntersectionObserver(entries=>{
    for(const entry of entries)if(entry.isIntersecting){revealTopicCover(entry.target);coverObserver.unobserve(entry.target);}
