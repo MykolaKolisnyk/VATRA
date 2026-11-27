@@ -1,5 +1,5 @@
 
-body.feed-page .ui-vatra-story-editor-001{box-sizing:border-box;width:min(880px,calc(100vw - 28px));max-height:calc(100dvh - 28px);padding:0;margin:auto;border:1px solid #dce5f1;border-radius:var(--vatra-dialog-radius);background:#fff;color:#2C3850;box-shadow:0 24px 80px #101b35a6;font:500 14px/1.5 Onest,system-ui,sans-serif;overflow:auto}
+body.feed-page .ui-vatra-story-editor-001{box-sizing:border-box;width:min(720px,calc(100vw - 28px));max-height:calc(100dvh - 28px);padding:0;margin:auto;border:1px solid #dce5f1;border-radius:var(--vatra-dialog-radius);background:#fff;color:#2C3850;box-shadow:0 24px 80px #101b35a6;font:500 14px/1.5 Onest,system-ui,sans-serif;overflow:auto}
 body.feed-page .ui-vatra-story-editor-001:not([open]){display:none}
 body.feed-page .ui-vatra-story-editor-001::backdrop{background:rgba(17,29,51,.62);backdrop-filter:blur(4px)}
 body.feed-page .ui-vatra-story-editor-001 [hidden]{display:none!important}
@@ -82,3 +82,15 @@ body.feed-page .ui-vatra-story-audience-field-001{display:flex;align-items:cente
 body.feed-page .vatra-story-audience-001{font:600 13px/1.4 Onest,system-ui,sans-serif;background:#f4f7fc;color:#334967;border:1px solid #dce5f1;border-radius:10px;padding:8px 12px;min-height:42px;max-width:100%;cursor:pointer}
 body.feed-page .vatra-story-audience-001:focus-visible{outline:2px solid #88a9ff;outline-offset:2px}
 body.feed-page .ui-vatra-story-info-001{align-items:center}
+
+@media(min-width:721px) and (min-height:580px){
+ body.feed-page .ui-vatra-story-form-001{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;gap:10px 12px;padding:10px}
+ body.feed-page .ui-vatra-story-header-001{grid-column:2;grid-row:1;padding:4px 4px 4px 8px;border:0}
+ body.feed-page .ui-vatra-story-workspace-001{display:contents}
+ body.feed-page .ui-vatra-story-stage-001{grid-column:1;grid-row:1/4;align-self:start;padding:8px;background:#edf1f7;border-radius:10px}
+ body.feed-page .ui-vatra-story-surface-001{width:min(100%,calc((100dvh - 150px)*.5625));min-width:0;box-shadow:none}
+ body.feed-page .ui-vatra-story-sidebar-001{grid-column:2;grid-row:2;max-height:calc(100dvh - 250px);overflow:auto}
+ body.feed-page .ui-vatra-story-footer-001{grid-column:2;grid-row:3;display:grid;gap:10px;padding:8px 4px 0;border:0}
+ body.feed-page .ui-vatra-story-info-001{display:grid;gap:8px}
+ body.feed-page .vatra-story-publish-001{width:100%;min-width:0}
+}
