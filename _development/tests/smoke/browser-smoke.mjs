@@ -4459,7 +4459,7 @@ try{
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
-  const postDeleteButtons=await feedProbe.locator(".feed-delete-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
+  const postDeleteButtons=await feedProbe.locator("#feed-delete-dialog .feed-delete-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
   assert.deepEqual(postDeleteButtons[0],postDeleteButtons[1],"Actual post deletion buttons must have equal geometry");
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
