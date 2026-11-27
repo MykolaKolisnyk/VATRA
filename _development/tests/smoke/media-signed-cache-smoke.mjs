@@ -594,3 +594,39 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  assert.equal(window.VATRA_PLAYER.attach(fallback),null);assert.equal(fallback.parentNode,parent);assert.equal(fallback.controls,true);
  console.log("VATRA Player: actual control events, keyboard seek, volume persistence and missing stylesheet fallback verified.");
 }
+
+{
+ const env={Map,WeakMap,Set,Date,URL,Promise,Number,setTimeout,clearTimeout,
+  location:{origin:"https://example.test"},tr:(uk,en)=>en,
+  crypto:{randomUUID:()=>"01234567-89ab-4def-8123-456789abcdef"}};
+ const part=(a,b)=>{const x=source.indexOf(a),y=source.indexOf(b,x);assert.ok(x>=0&&y>x);return source.slice(x,y);};
+ runInNewContext(part(" const formats="," function linkifyHashtags(")+
+  part(" async function removeGallery("," async function uploadGallery(")+
+  part(" async function upload(client,"," async function uploadStory(")+
+  part(" const signedURLCaches="," async function renderStory(")+
+  "\nglobalThis.clipTest={upload,uploadClip,removeGallery,signed,preSignGallery,clipPathValid};",env);
+ const api=env.clipTest,events=[];
+ const client={storage:{from:bucket=>({
+  async upload(path){events.push(["upload",bucket,path]);return {error:null};},
+  async remove(paths){events.push(["remove",bucket,...paths]);return {error:null};},
+  async createSignedUrl(path){events.push(["sign",bucket,path]);return {data:{signedUrl:host+"/storage/v1/object/sign/"+bucket+"/"+path}};},
+  async createSignedUrls(paths){events.push(["bulk",bucket,...paths]);return {data:paths.map(path=>({path,signedUrl:host+"/storage/v1/object/sign/"+bucket+"/"+path}))};}
+ })}};
+ const file={type:"video/mp4",size:42};
+ const video=await api.upload(client,7,file),clip=await api.uploadClip(client,7,file);
+ assert.equal(video.media_path,"7/posts/01234567-89ab-4def-8123-456789abcdef.mp4");
+ assert.equal(clip.media_path,"7/clips/01234567-89ab-4def-8123-456789abcdef.mp4");
+ assert.equal(api.clipPathValid(video.media_path,7),false);
+ assert.equal(api.clipPathValid(clip.media_path,8),false);
+ await assert.rejects(api.uploadClip(client,7,{type:"image/png",size:42}));
+ assert.deepEqual(events.slice(0,2).map(x=>x.slice(0,2)),[["upload","videos"],["upload","clips"]]);
+ await api.preSignGallery(client,[video,clip],300);
+ assert.ok(events.some(x=>x[0]==="bulk"&&x[1]==="videos"&&x[2]===video.media_path));
+ assert.ok(events.some(x=>x[0]==="bulk"&&x[1]==="clips"&&x[2]===clip.media_path));
+ assert.ok((await api.signed(client,"video",clip.media_path,900)).includes("/clips/7/clips/"));
+ assert.ok((await api.signed(client,"video",video.media_path,900)).includes("/videos/7/posts/"));
+ assert.equal(await api.removeGallery(client,[video,clip]),true);
+ assert.ok(events.some(x=>x[0]==="remove"&&x[1]==="clips"&&x[2]===clip.media_path));
+ assert.ok(events.some(x=>x[0]==="remove"&&x[1]==="videos"&&x[2]===video.media_path));
+ console.log("VATRA clips: independent upload, signing, bulk signing and deletion passed.");
+}

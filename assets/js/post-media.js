@@ -25,12 +25,14 @@
    tr("Відео має бути до 50 МБ.","Video must be under 50 MB."));
   return info;
  };
+ const clipPathValid=(path,id)=>validId(id)&&typeof path==="string"&&new RegExp("^"+id+"/clips/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}[.](mp4|webm)$").test(path);
  const name=(path,kind,id)=>{
+  if(kind==="video"&&clipPathValid(path,id))return true;
   const ext=kind==="image"?"(?:jpg|png|webp)":"(?:mp4|webm)";
   return validId(id)&&typeof path==="string"&&
    new RegExp("^"+id+"/posts/[a-f0-9-]{36}\\."+ext+"$").test(path);
  };
- const bucketFor=kind=>kind==="image"?"post-images":"videos";
+ const bucketFor=(kind,path)=>kind==="image"?"post-images":clipPathValid(path,typeof path==="string"?path.split("/")[0]:"")?"clips":"videos";
  const storyPathValid=(path,kind,id)=>{
   if(!validId(id)||typeof path!=="string"||!["image","video"].includes(kind))return false;
   const extension=kind==="image"?"(?:jpg|png|webp)":"(?:mp4|webm)";
@@ -145,7 +147,7 @@
   return {getFiles:()=>[...selected],getFile:()=>selected[0]||null,reset};
  }
  async function removeGallery(client,items){
-  const imagePaths=[],videoPaths=[];
+  const imagePaths=[],videoPaths=[],clipPaths=[];
   for(const item of items||[]){
    if(!item||!["image","video"].includes(item.media_kind)||!item.media_path)continue;
    if(item.media_kind==="image"){
@@ -153,11 +155,12 @@
 
     if(typeof item.preview_path==="string"&&item.preview_path!==item.media_path)
      imagePaths.push(item.preview_path);
-   }else videoPaths.push(item.media_path);
+   }else (bucketFor(item.media_kind,item.media_path)==="clips"?clipPaths:videoPaths).push(item.media_path);
   }
   const results=await Promise.allSettled([
    imagePaths.length?Promise.resolve().then(()=>client.storage.from("post-images").remove([...new Set(imagePaths)])):Promise.resolve(),
-   videoPaths.length?Promise.resolve().then(()=>client.storage.from("videos").remove([...new Set(videoPaths)])):Promise.resolve()
+   videoPaths.length?Promise.resolve().then(()=>client.storage.from("videos").remove([...new Set(videoPaths)])):Promise.resolve(),
+   clipPaths.length?Promise.resolve().then(()=>client.storage.from("clips").remove([...new Set(clipPaths)])):Promise.resolve()
   ]);
   return results.every(result=>result.status==="fulfilled"&&!result.value?.error);
  }
@@ -288,6 +291,17 @@
   }
   return item;
  }
+ async function uploadClip(client,id,file){
+  const format=formatFor(file);
+  if(format.kind!=="video"||!validId(id))throw Error(tr("Виберіть MP4 або WebM.","Choose MP4 or WebM."));
+  const path=String(id)+"/clips/"+crypto.randomUUID().toLowerCase()+"."+format.ext;
+  if(!clipPathValid(path,id))throw Error("Invalid clip media path");
+  const {error}=await client.storage.from("clips").upload(path,file,{
+   contentType:file.type,cacheControl:"3600",upsert:false
+  });
+  if(error)throw Error(tr("Не вдалося завантажити файл. Спробуйте знову.","Could not upload media. Try again."));
+  return {media_kind:"video",media_path:path};
+ }
  async function uploadStory(client,id,file){
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
@@ -301,7 +315,7 @@
  }
  async function remove(client,attachment){
   if(!attachment?.media_kind||!attachment?.media_path)return;
-  const bucket=bucketFor(attachment.media_kind);
+  const bucket=bucketFor(attachment.media_kind,attachment.media_path);
   return client.storage.from(bucket).remove([attachment.media_path]);
  }
 
@@ -373,11 +387,13 @@
    const cached=cachedSignedURL(signedURLs,key),pending=state.singlePending.get(key)||state.bulkPending.get(key);
    if(cached){waiting.add(cached.promise);continue;}
    if(pending){waiting.add(pending);continue;}
-   if(!grouped.has(kind))grouped.set(kind,new Set());
-   grouped.get(kind).add(path);
+   const group=kind+":"+bucketFor(kind,path);
+   if(!grouped.has(group))grouped.set(group,new Set());
+   grouped.get(group).add(path);
   }
-  for(const [kind,pathSet] of grouped){
-   const allPaths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
+  for(const [group,pathSet] of grouped){
+   const [kind,bucketId]=group.split(":");
+   const allPaths=[...pathSet],bucket=client.storage.from(bucketId);
    if(typeof bucket.createSignedUrls!=="function")continue;
    for(let offset=0;offset<allPaths.length;offset+=100){
    const paths=allPaths.slice(offset,offset+100),keys=paths.map(path=>ttl+":"+kind+":"+path);
@@ -438,7 +454,7 @@
   const pending=state.singlePending.get(key);
   if(pending)return pending;
   const expiry=Date.now()+Math.max(0,ttl-30)*1000;
-  const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl)).then(({data,error})=>{
+  const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind,path)).createSignedUrl(path,ttl)).then(({data,error})=>{
 
    if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
@@ -1368,5 +1384,5 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
- window.VATRA_POST_MEDIA={mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,bindPhotoTileMenu,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.VATRA_POST_MEDIA={mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadClip,clipPathValid,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,bindPhotoTileMenu,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();
