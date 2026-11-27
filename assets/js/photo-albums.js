@@ -260,7 +260,7 @@
   const options=(select,items)=>items.forEach(([value,label])=>{
    const option=make("option","vatra-albums-option-001",label);option.value=value;select.append(option);
   });
-  options(visibility,[["public",t("Учасники VATRA","VATRA members")],
+  options(visibility,[["public",t("Учасники VATRA","VATRA users")],
    ["friends",t("Мої друзі","My friends")],["private",t("Лише я","Only me")]]);
   options(comments,[["everyone",t("Усі, хто бачить альбом","Anyone who can view the album")],
    ["friends",t("Тільки друзі","Friends only")],["off",t("Вимкнені","Off")]]);
@@ -346,7 +346,7 @@
   const photoAuthorImage=make("a","vatra-album-photo-author-avatar-001");
   photoAuthorImage.href=new URL("id"+targetId,new URL(".",location.href)).href;
   photoAuthorImage.setAttribute("aria-label",t("Профіль автора","Author profile"));
-  const photoAuthorName=make("a","vatra-album-photo-author-name-001",t("Учасник VATRA","VATRA member"));
+  const photoAuthorName=make("a","vatra-album-photo-author-name-001",t("Користувач VATRA","VATRA user"));
   photoAuthorName.href=new URL("id"+targetId,new URL(".",location.href)).href;
   const photoAuthorCopy=make("div","vatra-album-photo-author-copy-001");
   const photoAuthorDate=make("time","vatra-album-photo-author-date-001");
@@ -516,7 +516,7 @@
    const row=make("article","ui-vatra-album-comment-001");
    row.dataset.commentId=String(item.id);
    const info=make("div","ui-vatra-album-comment-author-001");
-   const author=make("a","vatra-album-comment-name-001",names.get(String(item.author_vatra_id))||t("Учасник VATRA","VATRA member"));
+   const author=make("a","vatra-album-comment-name-001",names.get(String(item.author_vatra_id))||t("Користувач VATRA","VATRA user"));
    author.href=new URL("id"+item.author_vatra_id,new URL(".",location.href)).href;
    const portrait=make("a","vatra-album-comment-avatar-001");
    portrait.href=author.href;portrait.dataset.vatraId=String(item.author_vatra_id);
@@ -827,7 +827,7 @@
    photoMoreItems.replaceChildren(...photoActionButtons(row,album));
    photoAuthorImage.style.backgroundImage=state.avatar?.url?"url("+JSON.stringify(state.avatar.url)+")":"";
    photoAuthorImage.classList.toggle("has-photo",!!state.avatar?.url);
-   photoAuthorName.textContent=document.querySelector("#profile-heading")?.textContent?.trim()||t("Учасник VATRA","VATRA member");
+   photoAuthorName.textContent=document.querySelector("#profile-heading")?.textContent?.trim()||t("Користувач VATRA","VATRA user");
    const when=Date.parse(row.created_at||"");
    photoAuthorDate.hidden=!Number.isFinite(when);
    if(Number.isFinite(when)){
@@ -960,7 +960,7 @@
    titleBox.append(make("h3","vatra-albums-detail-title-001",album.title));
    if(album.description)titleBox.append(make("p","vatra-albums-detail-description-001",album.description));
    titleBox.append(make("span","vatra-albums-detail-privacy-001",album.visibility==="private"?t("Лише я","Only me"):
-    album.visibility==="friends"?t("Для друзів","Friends"):t("Для учасників VATRA","VATRA members")));
+    album.visibility==="friends"?t("Для друзів","Friends"):t("Для учасників VATRA","VATRA users")));
    const actions=make("div","ui-vatra-albums-detail-actions-001");
    const commentBtn=addIcon(button("vatra-albums-icon-button-001",t("Коментарі альбому","Album comments"),()=>void openComments(album,null)),"comments");
    actions.append(commentBtn);

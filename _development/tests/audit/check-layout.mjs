@@ -2118,8 +2118,7 @@ assert.ok(
   systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
-assert.ok(plainCoverSvg.includes('stop-color="#edf1f5"')&&
- plainCoverSvg.includes('stop-color="#dce4ef"')&&!plainCoverSvg.includes("<path")&&
+assert.ok(plainCoverSvg.includes('fill="#edf1f5"')&&!/Gradient|<path/.test(plainCoverSvg)&&
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
  systemProfileCss.includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
  (await read("assets/css/guest-view.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
@@ -2995,3 +2994,5 @@ assert.ok(memberProfileMarkup.includes('id="profile-photo-emoji-toggle"')&&membe
 assert.ok(profileBehavior.includes("cachedFriends.slice(0,4)")&&profileBehavior.includes('q("#profile-gifts-dialog")')&&profileBehavior.includes('if(!compact)item.append(title,sub)'),"Profile uses four friends and image-only gifts with history dialog");
 
 assert.ok(settingsRuntime.includes("VATRA_FORM_SELECT.fillBirthdays(day,month,year)")&&settingsRuntime.includes("VATRA_FORM_SELECT.wireSelects([...dateParts,gender])")&&!settingsRuntime.includes('field(form,"birthdate"'),"VATRA ID must reuse the registration date and gender component");
+
+assert.ok(!/sticker|стікер/i.test(storyEditorRuntime)&&!/sticker/i.test(storyEditorStyles),"Retired sticker tools must not remain in stories");
