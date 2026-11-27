@@ -1,0 +1,36 @@
+.vatra-player-root-001{--vatra-player-ready:1;position:relative;display:grid;place-items:center;isolation:isolate;width:100%;min-width:0;min-height:0;overflow:hidden;background:#111419;color:#fff;font:500 13px/1.3 "Onest",system-ui,sans-serif;container-type:inline-size}
+.vatra-player-root-001>video{display:block;max-width:100%;object-fit:contain;background:#111419;cursor:pointer}
+.vatra-player-root-001[data-mode="viewer"],.vatra-player-root-001[data-mode="story"],.vatra-player-root-001[data-mode="clip"]{height:100%;width:100%;max-height:100%}
+.vatra-player-root-001[data-mode="viewer"]>video,.vatra-player-root-001[data-mode="story"]>video,.vatra-player-root-001[data-mode="clip"]>video{width:100%;height:100%;max-height:100%;object-fit:contain}
+.vatra-player-root-001:fullscreen{width:100vw;height:100dvh;max-height:none;background:#000}
+.vatra-player-root-001:-webkit-full-screen{width:100vw;height:100dvh;max-height:none;background:#000}
+.vatra-player-root-001:fullscreen>video{width:100%;height:100%;max-height:100%;object-fit:contain}
+.vatra-player-root-001:-webkit-full-screen>video{width:100%;height:100%;max-height:100%;object-fit:contain}
+.vatra-player-controls-001{position:absolute;z-index:2;inset:auto 0 0;padding:18px 10px 8px;background:linear-gradient(transparent,rgba(0,0,0,.83) 38%);display:grid;gap:4px;transition:opacity .18s}
+.vatra-player-root-001.is-controls-hidden .vatra-player-controls-001{opacity:0;pointer-events:none}
+.vatra-player-root-001:focus-within .vatra-player-controls-001{opacity:1;pointer-events:auto}
+.vatra-player-bar-001,.vatra-player-left-001,.vatra-player-right-001{display:flex;align-items:center;gap:4px;min-width:0}
+.vatra-player-bar-001{justify-content:space-between;flex-wrap:wrap}
+.vatra-player-root-001 button{display:grid;place-items:center;width:32px;height:32px;flex:none;border:0;border-radius:6px;background:transparent;color:#fff;cursor:pointer;padding:5px}
+.vatra-player-root-001 button[hidden],.vatra-player-status-001[hidden]{display:none}
+.vatra-player-root-001 button:hover,.vatra-player-root-001 button:focus-visible{background:#ffffff24}
+.vatra-player-root-001 svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.vatra-player-root-001 button.vatra-player-play-001 svg{fill:none}
+.vatra-player-root-001 input[type=range]{min-width:0;margin:0;accent-color:#6599ff;cursor:pointer}
+.vatra-player-seek-001{width:100%;height:14px}
+.vatra-player-volume-001{width:62px}
+.vatra-player-time-001{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:12px}
+.vatra-player-speed-001{color:white;background:#262b35;border:0;border-radius:6px;padding:5px 3px;font:inherit;cursor:pointer}
+.vatra-player-status-001{position:absolute;top:12px;left:12px;right:12px;padding:8px;background:#151922df;border-radius:8px;text-align:center;pointer-events:none}
+.vatra-player-root-001:focus-visible,.vatra-player-root-001 :is(button,input,select):focus-visible{outline:2px solid #83aaff;outline-offset:-2px}
+@container(max-width:380px){.vatra-player-volume-001{width:40px}.vatra-player-root-001 button{width:28px;height:30px}.vatra-player-controls-001{padding-inline:6px}.vatra-player-bar-001,.vatra-player-left-001,.vatra-player-right-001{gap:2px}}
+@container(max-width:260px){.vatra-player-volume-001{display:none}.vatra-player-bar-001{justify-content:center}.vatra-player-time-001{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.vatra-player-controls-001{transition:none}}
+
+body.vatra-section-page .ui-vatra-clip-rail-001 button[hidden]{display:none}
+.vatra-player-root-001:is([data-mode="viewer"],[data-mode="story"],[data-mode="clip"]){grid-template:minmax(0,1fr)/minmax(0,1fr)}
+
+body.feed-page .vatra-feed-post-video-expand-001[hidden]{display:none}
+.vatra-player-root-001[data-mode="inline"]>video{width:100%;height:auto;max-height:440px}
+body.feed-page .vatra-player-root-001:fullscreen>video{height:100%;max-height:100%;width:100%}
+body.feed-page .vatra-player-root-001:-webkit-full-screen>video{height:100%;max-height:100%;width:100%}

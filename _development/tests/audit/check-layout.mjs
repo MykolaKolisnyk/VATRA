@@ -1300,7 +1300,7 @@ const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
- 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"',
+ 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"','href="assets/css/vatra-player.css"',
  'href="assets/css/profile.css"','href="assets/css/create-menu.css"','href="assets/css/external-links.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
@@ -2540,7 +2540,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","create-menu.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","create-menu.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","vatra-player.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -3017,3 +3017,11 @@ assert.ok(storyEditorRuntime.includes('audience.value="friends"')&&storyEditorRu
 // Social settings own their media controls; account actions remain in VATRA ID.
 assert.ok(settingsRuntime.includes('document.body.dataset.page==="settings"')&&settingsRuntime.includes('vatra-id#home')&&!settingsRuntime.includes('const accountCard=settingsCard("VATRA ID")'));
 assert.ok(settingsRuntime.includes('localStorage.setItem(mediaKey,autoplay.checked?"on":"off")')&&(await read("assets/js/post-media.js")).includes('localStorage.getItem("vatra:viewer-video-autoplay")!=="off"'));
+
+// The shared player is only loaded on routes that own post media.
+for(const page of (await readdir(".")).filter(p=>p.endsWith(".html"))){
+ const html=await read(page),ownsMedia=html.includes("assets/js/post-media.js?rev=");
+ assert.equal(html.includes("assets/js/vatra-player.js?rev="),ownsMedia,page+": shared video player script ownership");
+ assert.equal(html.includes("assets/css/vatra-player.css?rev="),ownsMedia,page+": shared video player stylesheet ownership");
+ if(ownsMedia)assert.ok(html.indexOf("assets/js/vatra-player.js?rev=")<html.indexOf("assets/js/post-media.js?rev="),page+": player must load before media");
+}
