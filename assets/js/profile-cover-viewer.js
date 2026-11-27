@@ -43,6 +43,7 @@ function mount({q,t,coverPhoto,getCoverUrl,allowed,closeAvatarMenu}){
   coverImage.onload=prepareImage;
   coverImage.onerror=()=>{if(ticket===coverEpoch&&coverViewerDialog.open)coverViewerDialog.close();};
   coverImage.src=source;
+  coverViewerDialog.toggleAttribute("data-preserve-gutter",window.innerWidth>document.documentElement.clientWidth);
   coverViewerDialog.showModal();
   const destination=coverStage.getBoundingClientRect();
   const flight=coverPhoto.cloneNode(false);
@@ -75,7 +76,7 @@ function mount({q,t,coverPhoto,getCoverUrl,allowed,closeAvatarMenu}){
  coverViewerDialog.querySelector("#profile-cover-viewer-close").addEventListener("click",()=>coverViewerDialog.close());
  coverViewerDialog.addEventListener("click",event=>{if(event.target===coverViewerDialog)coverViewerDialog.close();});
  coverViewerDialog.addEventListener("close",()=>{
-  coverEpoch++;clearCoverFlight();coverViewerDialog.classList.remove("is-ready");
+  coverEpoch++;clearCoverFlight();coverViewerDialog.classList.remove("is-ready");coverViewerDialog.removeAttribute("data-preserve-gutter");
   coverImage.onload=coverImage.onerror=null;coverImage.removeAttribute("src");
  });
  return Object.freeze({open:openCover});
