@@ -321,7 +321,7 @@ try{
     ["black","rgb(255, 255, 255)","rgba(21, 27, 39, 0.91)","rgb(16, 20, 28)"]
    ]){
     await viewerGeometryPage.mouse.move(1380,890);
-    assert.equal(await stage.evaluate(el=>getComputedStyle(el).backgroundColor),"rgb(0, 0, 0)");
+    assert.equal(await stage.evaluate(el=>getComputedStyle(el).backgroundColor),"rgb(17, 20, 25)");
     await stage.hover();
     await viewerGeometryPage.waitForFunction(({id,color})=>[...document.querySelectorAll("#arrow-"+id+" button")].every(el=>getComputedStyle(el).color===color),{id,color});
     for(const button of [left,right]){
@@ -345,7 +345,7 @@ try{
    await right.focus();
    assert.equal(await left.evaluate(el=>getComputedStyle(el).pointerEvents),"none");
   }
-  console.log("VATRA photo navigation: uniform black matte, contrast outlines, hover backgrounds and disabled controls verified across three viewer types.");
+  console.log("VATRA photo navigation: uniform dark graphite matte, contrast outlines, hover backgrounds and disabled controls verified across three viewer types.");
  }finally{await viewerGeometryPage.close();}
 
  // Simulate previously cached stylesheet/JS content after a deployment.
@@ -3692,7 +3692,7 @@ try{
    Math.abs(postFrame.imageHeight-postFrame.canvasHeight)<=2,
    "Post image must use all available black canvas space, without CSS shrinkage: "+JSON.stringify(postFrame));
   assert.equal(postFrame.matte,"none","Post photos must not render a blurred duplicate");
-  assert.equal(postFrame.background,"rgb(0, 0, 0)",
+  assert.equal(postFrame.background,"rgb(17, 20, 25)",
    "Original PNG photographs must not have white letterboxing");
   const zoomPlus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-in-001"),zoomMinus=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-out-001");
   assert.equal(await feedProbe.locator("#vatra-post-media-viewer .vatra-photo-viewer-brand-001").isVisible(),true);
@@ -3700,7 +3700,7 @@ try{
    const logo=document.querySelector("#vatra-post-media-viewer .vatra-photo-viewer-brand-001"),style=getComputedStyle(logo);
    return {analysis:typeof window.VATRA_POST_MEDIA.photoMatte,background:getComputedStyle(document.querySelector(".ui-vatra-post-media-viewer-content-001")).backgroundColor,logoBackground:style.backgroundColor,logoShadow:style.boxShadow};
   });
-  assert.deepEqual(matteProbe,{analysis:"undefined",background:"rgb(0, 0, 0)",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"});
+  assert.deepEqual(matteProbe,{analysis:"undefined",background:"rgb(17, 20, 25)",logoBackground:"rgba(0, 0, 0, 0)",logoShadow:"none"});
   assert.equal(await zoomMinus.isDisabled(),true);
   const zoomValue=feedProbe.locator("#vatra-post-media-viewer .vatra-photo-zoom-value-001");
   await feedProbe.mouse.move(0,0);
@@ -5234,7 +5234,7 @@ try{
    arrowLayout.left.right<arrowLayout.right.left,
    "Navigation arrows remain aligned inside opposite edges of the photo surface: "+
    JSON.stringify(arrowLayout));
-  assert.equal(arrowLayout.background,"rgb(0, 0, 0)",
+  assert.equal(arrowLayout.background,"rgb(17, 20, 25)",
    "WebP avatar must use the neutral dark photo surface");
   assert.equal(arrowLayout.matte,"none","Avatar photos must not display a blurred duplicate");
   assert.ok(!arrowLayout.leftRadius.includes("50%"),

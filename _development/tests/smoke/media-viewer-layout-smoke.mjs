@@ -117,8 +117,8 @@ assert.ok(
  !postCss.includes(".has-photo-backdrop")&&
  !postCss.includes("--vatra-post-photo-fill")&&
  !postCss.includes("filter:blur(36px)")&&
- postCss.includes("overflow:hidden;background:#000")&&
- profileCss.includes("overflow:hidden;background:#000")&&
+ postCss.includes("overflow:hidden;background:#111419")&&
+ profileCss.includes("overflow:hidden;background:#111419")&&
  !postCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  postCss.includes("object-fit:contain"),
  "Post and avatar viewers must use the same solid dark image matte, without blurred duplicates or the removed right gutter"
@@ -250,7 +250,7 @@ console.log("VATRA media viewer layout checks passed.");
  assert.ok(postMedia.includes("duration:300")&&postMedia.includes("prefers-reduced-motion: reduce"));
  assert.ok(postMedia.includes("(-sign*distance)")&&postMedia.includes("(sign*distance)"));
  assert.ok(profile.includes("renderGalleryPhoto(delta)")&&albums.includes("openPhoto(next,nextAlbum,dir)"));
- assert.ok(!postCss.includes("data-photo-matte")&&!profileCss.includes("data-photo-matte")&&postCss.includes("background:#000;--vatra-photo-arrow-color:#fff"));
+ assert.ok(!postCss.includes("data-photo-matte")&&!profileCss.includes("data-photo-matte")&&postCss.includes("background:#111419;--vatra-photo-arrow-color:#fff"));
  const logoRule=postCss.match(/\.vatra-photo-viewer-brand-001\{[^}]+\}/)?.[0]||"";
  assert.ok(logoRule.includes("background:transparent")&&!logoRule.includes("border-radius")&&!logoRule.includes("box-shadow"),"Viewer logo must not have a white disc or shadow");
  assert.ok(profileCss.includes("overflow:hidden;padding:0"));

@@ -548,7 +548,7 @@
   const ghost=document.createElement("img");
   ghost.className="vatra-photo-slide-outgoing-001";ghost.alt="";ghost.setAttribute("aria-hidden","true");
   ghost.src=image.currentSrc||image.src;
-  ghost.style.background="#000";
+  ghost.style.background="#111419";
   stage.append(ghost);
   let animation=null,incoming=null,timer=null;
   const state={cancel(){clearTimeout(timer);animation?.cancel();incoming?.cancel();ghost.remove();}};
