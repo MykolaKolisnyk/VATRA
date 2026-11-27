@@ -507,6 +507,43 @@
    else slot.textContent=tr("Медіафайл історії недоступний.","Story media is unavailable.");
   }
  }
+ function mediaDescription({kind,limit,translate=tr,onSave,onError}){
+  const make=(tag,part)=>{const el=document.createElement(tag);el.className="vatra-media-description-"+part+"-001 vatra-"+kind+"-description-"+part+"-001";return el;};
+  const root=make("div","root");root.classList.add("vatra-media-description-001");root.hidden=true;
+  const copy=make("p","copy"),edit=make("button","edit"),more=make("button","more"),form=make("form","form"),input=make("textarea","input"),actions=make("div","controls"),save=make("button","save"),cancel=make("button","cancel");
+  edit.type=more.type=cancel.type="button";save.type="submit";input.maxLength=limit;input.rows=2;
+  const editLabel=translate("Редагувати опис","Edit description");
+  edit.textContent=editLabel;input.placeholder=translate("Введіть опис","Enter a description");input.setAttribute("aria-label",editLabel);
+  save.textContent=translate("Зберегти","Save");cancel.textContent=translate("Скасувати","Cancel");
+  actions.append(cancel,save);form.append(input,actions);root.append(copy,edit,more,form);
+  let value="",editable=false,expanded=false,editing=false,epoch=0;
+  const preview=()=>{const chars=Array.from(value),lines=value.split("\n");const compact=Array.from(lines.slice(0,5).join("\n")).slice(0,240).join("").trimEnd();return chars.length>240||lines.length>5?compact+"…":value;};
+  const render=()=>{
+   const compact=preview();root.hidden=!editable&&!value;root.dataset.expanded=String(expanded&&!editing);
+   copy.textContent=expanded?value:compact;copy.hidden=editing||!value;
+   if(editable){copy.tabIndex=0;copy.setAttribute("role","button");copy.setAttribute("aria-label",editLabel+": "+copy.textContent);}
+   else{copy.removeAttribute("tabindex");copy.removeAttribute("role");copy.removeAttribute("aria-label");}
+   edit.hidden=editing||!editable||!!value;more.hidden=editing||compact===value;more.setAttribute("aria-expanded",String(expanded));
+   more.textContent=expanded?translate("Показати менше","Show less"):translate("Показати більше","Show more");
+   form.hidden=!editing;
+  };
+  const resize=()=>{input.style.height="auto";input.style.height=Math.min(260,Math.max(52,input.scrollHeight+2))+"px";};
+  const begin=()=>{if(!editable||editing)return;editing=true;input.value=value;render();resize();input.focus();};
+  const finish=()=>{editing=false;render();};
+  const paint=(text,canEdit)=>{epoch++;value=String(text||"");editable=!!canEdit;expanded=false;editing=false;save.disabled=cancel.disabled=input.disabled=false;render();};
+  copy.addEventListener("click",()=>{const selection=window.getSelection?.();if(selection&&!selection.isCollapsed&&copy.contains(selection.anchorNode))return;begin();});
+  copy.addEventListener("keydown",event=>{if(editable&&["Enter"," "].includes(event.key)){event.preventDefault();begin();}});
+  edit.addEventListener("click",begin);more.addEventListener("click",()=>{expanded=!expanded;render();if(!expanded&&more.getBoundingClientRect().top<root.closest(".vatra-media-side-unified-001")?.getBoundingClientRect().top)more.scrollIntoView({block:"nearest"});});
+  input.addEventListener("input",resize);
+  input.addEventListener("keydown",event=>{if(event.key==="Escape"&&!save.disabled){event.preventDefault();event.stopPropagation();finish();}else if(event.key==="Enter"&&(event.ctrlKey||event.metaKey)){event.preventDefault();form.requestSubmit();}});
+  cancel.addEventListener("click",finish);
+  form.addEventListener("submit",async event=>{event.preventDefault();if(!editable||!editing||save.disabled)return;const ticket=epoch;save.disabled=cancel.disabled=input.disabled=true;
+   try{const saved=await onSave(input.value.trim());if(ticket===epoch){value=String(saved??"");expanded=false;finish();}}
+   catch(error){if(ticket===epoch)onError?.(error);}
+   finally{if(ticket===epoch)save.disabled=cancel.disabled=input.disabled=false;}
+  });
+  return {root,paint,reset:()=>paint("",false)};
+ }
  function collapsibleBody(paragraph){
   if(!paragraph||paragraph.dataset.vatraCollapsed)return;
   const full=paragraph.textContent||"";
@@ -728,33 +765,20 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   mediaCaption.textContent=ownerId&&viewerId&&ownerId===viewerId?label:
    authorName?label+" "+(groupPost?authorName:authorName.split(/\s+/)[0]):label;
   if(identity){const info=document.createElement("header");info.className="ui-vatra-post-media-author-001 vatra-media-author-unified-001";if(avatar)info.append(avatar.cloneNode(true));info.append(identity.cloneNode(true));mediaSide.append(info);}
-  if(post){
-   const description=document.createElement("div");description.className="vatra-media-description-001";
-   const copy=document.createElement("p");copy.className="vatra-media-description-copy-001";copy.textContent=String(post.body||"");copy.hidden=!copy.textContent;
-   description.append(copy);
+  let description=null;
+  const attachmentCount=Array.isArray(post?.media_items)&&post.media_items.length?post.media_items.length:(post?.media_path?1:0);
+  if(post&&kind==="image"&&attachmentCount===1){
    const mine=!!client&&!groupPost&&ownerId&&viewerId&&ownerId===viewerId;
-   if(mine){
-    const edit=document.createElement("button");edit.type="button";edit.className="vatra-media-description-edit-001";edit.textContent=tr("Редагувати опис","Edit description");
-    const form=document.createElement("form");form.className="vatra-media-description-form-001";form.hidden=true;
-    const input=document.createElement("textarea");input.className="vatra-media-description-input-001";input.maxLength=2000;input.rows=3;input.setAttribute("aria-label",edit.textContent);
-    const save=document.createElement("button");save.type="submit";save.className="vatra-media-description-save-001";save.textContent=tr("Зберегти","Save");
-    const cancel=document.createElement("button");cancel.type="button";cancel.className="vatra-media-description-cancel-001";cancel.textContent=tr("Скасувати","Cancel");
-    form.append(input,save,cancel);description.append(edit,form);
-    edit.onclick=()=>{input.value=String(post.body||"");form.hidden=false;copy.hidden=true;edit.hidden=true;input.focus();};
-    const finish=()=>{form.hidden=true;edit.hidden=false;copy.hidden=!copy.textContent;};
-    cancel.onclick=finish;
-    form.onsubmit=async event=>{event.preventDefault();if(save.disabled)return;save.disabled=cancel.disabled=true;
-     try{const body=input.value.trim();const {data,error}=await client.from("feed_posts").update({body}).eq("id",post.id).eq("author_vatra_id",ownerId).select("id,body").maybeSingle();if(error||!data)throw Error("Not saved");post.body=data.body;copy.textContent=data.body;
-     const visible=postCard&&!postCard.classList.contains("ui-vatra-photo-source-context-001")?postCard:[...document.querySelectorAll(".feed-post-card")].find(card=>card!==container&&card.dataset.postId===String(post.id));
-     if(visible){let paragraph=visible.querySelector(".feed-post-body");if(data.body){if(!paragraph){paragraph=document.createElement("p");paragraph.className="feed-post-body vatra-feed-post-body-001";visible.querySelector(".feed-post-header")?.after(paragraph);}delete paragraph.dataset.vatraCollapsed;paragraph.textContent=data.body;linkifyHashtags(paragraph);collapsibleBody(paragraph);}else paragraph?.remove();}
-     finish();window.dispatchEvent(new Event("vatra:profile-media-changed"));}
-     catch(_){window.VATRA_TOAST?.show?.(tr("Не вдалося зберегти.","Could not save."),"error");}
-     finally{save.disabled=cancel.disabled=false;}
-    };
-   }
-   if(copy.textContent||mine)mediaSide.append(description);
+   description=mediaDescription({kind:"post-photo",limit:20000,onSave:async body=>{
+    const {data,error}=await client.from("feed_posts").update({body}).eq("id",post.id).eq("author_vatra_id",ownerId).select("id,body").maybeSingle();if(error||!data)throw Error("Not saved");post.body=data.body;
+    const visible=postCard&&!postCard.classList.contains("ui-vatra-photo-source-context-001")?postCard:[...document.querySelectorAll(".feed-post-card")].find(card=>card!==container&&card.dataset.postId===String(post.id));
+    if(visible){let paragraph=visible.querySelector(".feed-post-body");if(data.body){if(!paragraph){paragraph=document.createElement("p");paragraph.className="feed-post-body vatra-feed-post-body-001";visible.querySelector(".feed-post-header")?.after(paragraph);}delete paragraph.dataset.vatraCollapsed;paragraph.textContent=data.body;linkifyHashtags(paragraph);collapsibleBody(paragraph);}else paragraph?.remove();}
+    window.dispatchEvent(new Event("vatra:profile-media-changed"));return data.body;
+   },onError:()=>window.VATRA_TOAST?.show?.(tr("Не вдалося зберегти.","Could not save."),"error")});
+   description.paint(post.body,mine);
   }
-  restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide):null;
+  restoreMediaPanel=container?window.VATRA_POST_INTERACTIONS?.attachMediaPanel?.(container,mediaSide,description?.root):null;
+  mediaSide.scrollTop=0;
   mediaSide.hidden=!restoreMediaPanel;
   mediaFooterShare.hidden=!restoreMediaPanel;
   mediaFooterActions.querySelector(".vatra-post-media-set-avatar-001")?.remove();
@@ -1322,5 +1346,5 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
- window.VATRA_POST_MEDIA={beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.VATRA_POST_MEDIA={mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();

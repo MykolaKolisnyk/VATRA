@@ -69,7 +69,7 @@ function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,no
      edit.type="button";edit.setAttribute("aria-label",t("Редагувати коментар","Edit comment"));
      const editIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
      for(const [key,value] of Object.entries({viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))editIcon.setAttribute(key,value);
-     const editPath=document.createElementNS(editIcon.namespaceURI,"path");editPath.setAttribute("d","m15 5 4 4M4 20l4-1 12-12a2.8 2.8 0 0 0-4-4L4 15l-1 5Z");editIcon.append(editPath);edit.append(editIcon);
+     const editPath=document.createElementNS(editIcon.namespaceURI,"path");editPath.setAttribute("d","M14.5 5.5l4 4M3 21l5-1L20.5 7.5a2.83 2.83 0 0 0-4-4L4 16l-1 5Z");editIcon.append(editPath);edit.append(editIcon);
      edit.addEventListener("click",()=>{
       if(card.classList.contains("is-deleted-pending")||card.querySelector(".vatra-photo-comment-edit-form-001"))return;
       const form=node("form","vatra-photo-comment-edit-form-001");

@@ -426,7 +426,8 @@ try{
   coverContrast.reduce((sum,sample)=>sum+sample.distance,0)/3>=35,
   "Default profile cover must remain perceptibly distinct from page background: "+
    JSON.stringify(coverContrast));
- console.log("VATRA neutral cover: rendered neutral gray contrast against page background OK");
+ assert.ok(new Set(coverContrast.map(sample=>sample.rgb.join(","))).size===3,"Default cover must render a real gradient, not a flat color");
+ console.log("VATRA default cover: branded gradient and contrast OK");
 
 
  // Verify the rendered spacing, not only a CSS string: empty list wrappers
@@ -3104,6 +3105,16 @@ try{
        },error:null
       })})
     })}:
+    table==="member_notifications"&&Array.isArray(window.__vatraNoticeRows)?
+    {select:()=>({
+     readFilter:null,ascending:false,eq(){return this;},is(){this.readFilter="unread";return this;},
+     not(key,operator){if(key==="read_at"&&operator==="is")this.readFilter="read";return this;},
+     order(key,options){if(key==="created_at")this.ascending=options.ascending;return this;},
+     rows(){return window.__vatraNoticeRows.filter(row=>this.readFilter==="unread"?!row.read_at:this.readFilter==="read"?!!row.read_at:true)
+      .sort((a,b)=>(this.ascending?1:-1)*a.created_at.localeCompare(b.created_at));},
+     range:async function(a,b){return {data:this.rows().slice(a,b+1),error:null};},
+     then(resolve,reject){return Promise.resolve({count:this.rows().length,error:null}).then(resolve,reject);}
+    })}:
     table==="stories"?
     {select:()=>({
       eq(){this.singleAuthor=true;return this;},
@@ -3207,6 +3218,51 @@ try{
   };
   `
  }));
+ // Real browser regression for the compact inbox and header preview.
+ const noticeProbe=await feedContext.newPage();
+ try{
+  await noticeProbe.setViewportSize({width:1366,height:844});
+  await noticeProbe.route("**/storage/v1/object/public/avatars/**",route=>route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+  await noticeProbe.addInitScript(()=>{
+   localStorage.setItem("vatra-language","uk");
+   window.__vatraNoticeRows=Array.from({length:5},(_,i)=>({
+    id:"00000000-0000-4000-8000-00000000001"+i,actor_vatra_id:789012,kind:"avatar_like",target_kind:"avatar",
+    avatar_owner_vatra_id:654321,event_key:"avatar_like:654321:654321/avatar/notification-test.webp:789012",
+    read_at:"2026-11-26T10:00:00Z",created_at:new Date(Date.now()-i*3600000-3600000).toISOString()
+   }));
+  });
+  await noticeProbe.goto(base+"notifications.html",{waitUntil:"domcontentloaded"});
+  await noticeProbe.waitForFunction(()=>document.querySelectorAll("#notifications-list .vatra-notification-row").length===5);
+  await noticeProbe.locator("#notifications-list .vatra-notice-preview-thumb-001").first().waitFor({state:"visible"});
+  const fullNotice=await noticeProbe.locator("#notifications-list .vatra-notification-row").first().evaluate(row=>{
+   const title=row.querySelector(".vatra-notification-link").getBoundingClientRect(),time=row.querySelector("time").getBoundingClientRect();
+   const preview=row.querySelector(".vatra-notice-preview-001");
+   return {timeRight:time.left>=title.right-1,timeTop:Math.abs(time.top-title.top)<=2,previewBorder:getComputedStyle(preview).borderTopWidth};
+  });
+  assert.deepEqual(fullNotice,{timeRight:true,timeTop:true,previewBorder:"0px"},"Inbox uses compact borderless previews and right-aligned time");
+  await noticeProbe.locator(".ui-feed-notifications-button-001").click();
+  await noticeProbe.waitForFunction(()=>document.querySelectorAll("#vatra-notification-panel .vatra-notification-row").length===3);
+  await noticeProbe.locator("#vatra-notification-panel .vatra-notice-preview-thumb-001").first().waitFor({state:"visible"});
+  for(const width of [1366,390]){
+   await noticeProbe.setViewportSize({width,height:844});
+   await noticeProbe.waitForFunction(()=>document.querySelector("#vatra-notification-panel").getBoundingClientRect().right<=innerWidth);
+   const compact=await noticeProbe.locator("#vatra-notification-panel").evaluate(el=>{
+    const p=el.getBoundingClientRect(),h=el.querySelector(".vatra-notification-panel-heading").getBoundingClientRect(),f=el.querySelector(".vatra-notification-all-001").getBoundingClientRect(),l=el.querySelector(".vatra-notification-list");
+    l.scrollTop=l.scrollHeight;
+    return {height:p.height,header:h.top>=p.top,footer:f.bottom<=p.bottom+1,scroll:getComputedStyle(l).overflowY,panelScroll:getComputedStyle(el).overflowY,left:p.left,right:p.right,viewport:innerWidth};
+   });
+   assert.ok(compact.height<=441&&compact.header&&compact.footer&&compact.scroll==="auto"&&compact.panelScroll==="hidden"&&compact.left>=0&&compact.right<=compact.viewport,"Notification dropdown must fit viewport with a fixed header/footer: "+JSON.stringify(compact));
+  }
+  await noticeProbe.keyboard.press("Escape");
+  assert.equal(await noticeProbe.locator("#vatra-notification-panel").isVisible(),false);
+  await noticeProbe.locator('[data-notification-filter="unread"]').click();
+  await noticeProbe.locator("#notifications-empty").waitFor({state:"visible"});
+  assert.equal(await noticeProbe.locator("#notifications-list .vatra-notification-row").count(),0);
+  await noticeProbe.locator('[data-notification-filter="all"]').click();
+  await noticeProbe.waitForFunction(()=>document.querySelectorAll("#notifications-list .vatra-notification-row").length===5);
+  assert.equal(await noticeProbe.locator("#notifications-empty").isVisible(),false);
+ }finally{await noticeProbe.close();}
+ console.log("VATRA notifications: compact three-row dropdown, full inbox, scrolling and filters verified.");
  // The signed-in pages for friends and gifts are first-class VATRA routes.
  const friendsProbe=await feedContext.newPage();
  await friendsProbe.goto(base+"friends.html",{waitUntil:"domcontentloaded"});
@@ -3821,10 +3877,59 @@ try{
     await window.VATRA_POST_MEDIA.mount(client,{id:card.dataset.postId,author_vatra_id:"12",kind:"person",body:label,media_kind:"image",media_path:item.media_path},card);
    }
   });
+  // The actual photo viewer must pass a description only for a single attachment.
+  // The navigation fixture has no mounted social interactions; supply a minimal panel
+  // adapter here, leaving the production viewer and description component unchanged.
+  await feedProbe.evaluate(()=>{
+   const api=window.VATRA_POST_INTERACTIONS,original=api.attachMediaPanel;
+   window.__vatraRestoreCaptionAdapter=()=>{api.attachMediaPanel=original;};
+   api.attachMediaPanel=(container,side,description)=>{
+    if(!container.id.startsWith("feed-nav-fixture-"))return original(container,side,description);
+    if(description)side.append(description);
+    return ()=>description?.remove();
+   };
+  });
+  const captionChecks=await feedProbe.evaluate(async()=>{
+   let saved=null;const component=window.VATRA_POST_MEDIA.mediaDescription({kind:"test-photo",limit:2000,onSave:async value=>{saved=value;return value;}});
+   const root=component.root;document.body.append(root);
+   try{
+    const full="VATRA description ".repeat(35);component.paint(full,true);
+    const copy=root.querySelector(".vatra-media-description-copy-001"),more=root.querySelector(".vatra-media-description-more-001"),edit=root.querySelector(".vatra-media-description-edit-001"),form=root.querySelector("form"),input=root.querySelector("textarea");
+    const collapsed=copy.textContent.length<full.length&&!more.hidden&&edit.hidden;
+    more.click();const expanded=copy.textContent===full&&more.getAttribute("aria-expanded")==="true";
+    more.click();const recollapsed=copy.textContent!==full&&more.getAttribute("aria-expanded")==="false";
+    copy.click();const editing=!form.hidden&&input.value===full;
+    input.value="Updated caption";form.requestSubmit();await Promise.resolve();await Promise.resolve();
+    const committed=saved==="Updated caption"&&copy.textContent===saved&&form.hidden;
+    component.paint("Visitor caption",false);copy.click();const readonly=form.hidden&&edit.hidden&&!copy.hasAttribute("tabindex");
+    component.paint("",true);const emptyOwner=!edit.hidden&&copy.hidden;
+    component.paint("",false);const emptyVisitor=root.hidden;
+    let resolveSave,rejectSave,errors=0;
+    const pending=window.VATRA_POST_MEDIA.mediaDescription({kind:"test-race-photo",limit:300,onSave:()=>new Promise((resolve,reject)=>{resolveSave=resolve;rejectSave=reject;}),onError:()=>{errors++;}});
+    document.body.append(pending.root);
+    try{
+     const copy=pending.root.querySelector(".vatra-media-description-copy-001"),form=pending.root.querySelector("form"),input=form.querySelector("textarea"),cancel=form.querySelector(".vatra-media-description-cancel-001"),save=form.querySelector(".vatra-media-description-save-001");
+     pending.paint("Original caption",true);copy.click();input.value="Unsaved";cancel.click();
+     const cancelled=form.hidden&&copy.textContent==="Original caption";
+     copy.click();input.value="First photo update";form.requestSubmit();
+     const busy=save.disabled&&cancel.disabled&&input.disabled;
+     pending.paint("Next photo",true);resolveSave("First photo update");await Promise.resolve();await Promise.resolve();
+     const staleIgnored=copy.textContent==="Next photo"&&form.hidden&&!save.disabled;
+     copy.click();input.value="Retry caption";form.requestSubmit();rejectSave(new Error("offline"));await Promise.resolve();await Promise.resolve();
+     const retryable=errors===1&&!form.hidden&&input.value==="Retry caption"&&!save.disabled&&!input.disabled;
+     form.requestSubmit();resolveSave("Retry caption");await Promise.resolve();await Promise.resolve();
+     const retried=copy.textContent==="Retry caption"&&form.hidden;
+     return {collapsed,expanded,recollapsed,editing,committed,readonly,emptyOwner,emptyVisitor,cancelled,busy,staleIgnored,retryable,retried};
+    }finally{pending.root.remove();}
+   }finally{root.remove();}
+  });
+  assert.ok(Object.values(captionChecks).every(Boolean),"Photo description expand, collapse, inline edit and ownership: "+JSON.stringify(captionChecks));
   const firstFeedPhoto=feedProbe.locator("#feed-nav-fixture-1 .vatra-feed-post-media-open-001");
   await feedProbe.locator("#feed-nav-fixture-1").scrollIntoViewIfNeeded();await firstFeedPhoto.click();
   const feedViewer=feedProbe.locator("#vatra-post-media-viewer"),feedCounter=feedViewer.locator(".vatra-post-gallery-counter-001");
   await feedViewer.waitFor({state:"visible"});
+  assert.equal(await feedViewer.locator(".vatra-media-description-copy-001").textContent(),"FeedAlpha","Single attachment shows the post text");
+  assert.equal(await feedViewer.locator(".vatra-media-description-edit-001").isVisible(),false,"Visitor cannot edit another member’s photo description");
   assert.equal(await feedViewer.locator(".vatra-post-gallery-nav-next:visible,.vatra-post-gallery-nav-prev:visible,.vatra-post-gallery-counter-001:visible").count(),0,"Single post photo has no gallery navigation");
   await feedProbe.keyboard.press("ArrowRight");
   assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
@@ -3839,6 +3944,7 @@ try{
   });
   await feedProbe.locator("#feed-nav-fixture-1 .vatra-post-gallery-tile").first().click();
   await feedCounter.waitFor({state:"attached"});assert.equal(await feedCounter.textContent(),"1 / 2");
+  assert.equal(await feedViewer.locator(".vatra-media-description-001").count(),0,"A multi-attachment post must not show the post description beside its photos");
   const feedNext=feedViewer.locator(".vatra-post-gallery-nav-next");
   assert.equal(await feedNext.isDisabled(),false);
   await feedViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
@@ -3847,12 +3953,13 @@ try{
   assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
   assert.ok((await feedViewer.locator(".vatra-post-media-footer-open-post-001").getAttribute("data-href")).includes("00000000-0000-4000-8000-000000000001"));
   assert.equal(await feedNext.isDisabled(),true);
+  assert.equal(await feedViewer.locator(".vatra-media-description-001").count(),0,"Gallery navigation must never reintroduce the multi-post description");
   await feedProbe.keyboard.press("ArrowRight");
   assert.equal(await feedCounter.textContent(),"2 / 2");
   await feedProbe.keyboard.press("ArrowLeft");
   await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
   await feedProbe.keyboard.press("Escape");
-  await feedProbe.evaluate(()=>{document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
+  await feedProbe.evaluate(()=>{window.__vatraRestoreCaptionAdapter?.();delete window.__vatraRestoreCaptionAdapter;document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
   console.log("VATRA Feed photo navigation: single photo isolation, same-post gallery and keyboard bounds verified.");
   assert.equal(await feedProbe.locator("#feed-create-menu").isVisible(),true,
    "Members can create from their Feed");
@@ -4323,6 +4430,8 @@ try{
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
+  const postDeleteButtons=await feedProbe.locator(".feed-delete-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
+  assert.deepEqual(postDeleteButtons[0],postDeleteButtons[1],"Actual post deletion buttons must have equal geometry");
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.locator(".vatra-post-undo-001").waitFor({state:"visible"});
   await feedProbe.evaluate(()=>window.VATRA_POST_INTERACTIONS.finalizePendingPostDeletes());
@@ -5246,6 +5355,26 @@ try{
    "Navigation must use unframed chevrons, not round floating buttons");
   await profilePage.locator("#profile-avatar-gallery-delete").click();
   assert.equal(await profilePage.locator("#profile-confirm-dialog").evaluate(el=>el.open),true);
+  const confirmationGeometry=await profilePage.evaluate(()=>{
+   const classes=[["profile-confirm-dialog","profile-confirm-actions"],["feed-delete-dialog","feed-delete-actions"],
+    ["ui-vatra-albums-confirm-001","ui-vatra-albums-confirm-actions-001"],["ui-vatra-story-discard-dialog-001","ui-vatra-story-discard-actions-001"],
+    ["ui-vatra-section-confirm-001","ui-vatra-market-controls-001"],["saved-remove-dialog","saved-remove-actions"]];
+   return classes.map(([dialogClass,actionsClass])=>{
+    const d=document.createElement("dialog");d.className=dialogClass;d.style.animation="none";
+    const actions=document.createElement("div");actions.className=actionsClass;
+    for(const label of ["Скасувати","Підтвердити дію з довгою назвою"]){const button=document.createElement("button");button.type="button";button.textContent=label;actions.append(button);}
+    d.append(actions);document.body.append(d);d.showModal();
+    const buttons=[...actions.children].map(b=>{const r=b.getBoundingClientRect(),c=getComputedStyle(b);return {width:r.width,height:r.height,top:r.top,radius:c.borderRadius,border:c.borderTopWidth,background:c.backgroundColor,font:c.fontWeight};});
+    d.close();d.remove();return {dialogClass,buttons};
+   });
+  });
+  for(const {dialogClass,buttons:[cancel,accept]} of confirmationGeometry){
+   assert.ok(Math.abs(cancel.width-accept.width)<=1&&Math.abs(cancel.height-accept.height)<=1&&Math.abs(cancel.top-accept.top)<=1,
+    dialogClass+": equal outer button geometry "+JSON.stringify([cancel,accept]));
+   assert.equal(cancel.radius,accept.radius);assert.equal(cancel.radius,"999px");assert.equal(cancel.border,accept.border);
+   assert.equal(cancel.font,accept.font);assert.equal(cancel.background,"rgb(255, 255, 255)");
+  }
+
   await profilePage.locator("#profile-confirm-accept").click();
   await profilePage.locator("#profile-photo-deleted-notice").waitFor({state:"visible",timeout:6000});
   assert.equal((await profilePage.locator("#profile-photo-deleted-message").textContent()).trim(),
@@ -5287,6 +5416,16 @@ try{
    await profilePage.locator("#profile-cover-photo").evaluate(el=>el.src));
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-cover-viewer").evaluate(el=>el.open),false);
+  await profilePage.locator("#profile-cover-image").hover();
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
+  await profilePage.locator("#profile-cover-change").hover();
+  await profilePage.locator("#profile-owner-media-menu [data-action=trash]").click();
+  await profilePage.locator("#profile-confirm-dialog").waitFor({state:"visible"});
+  const coverDeleteButtons=await profilePage.locator(".profile-confirm-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
+  assert.deepEqual(coverDeleteButtons[0],coverDeleteButtons[1],"Actual cover deletion buttons must have equal geometry");
+  await profilePage.locator("#profile-confirm-cancel").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-cover-photo").isVisible(),true,"Cancellation must preserve the existing cover");
 
   await profilePage.locator("#profile-avatar-plus").hover();
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
@@ -5372,7 +5511,12 @@ try{
   assert.equal(await coverActions.locator('[data-action="upload"]').count(),1);
   assert.equal(await coverActions.locator('[data-action="crop"]').count(),initialCover?1:0);
   assert.equal(await coverActions.locator('[data-action="trash"]').count(),initialCover?1:0);
-  await profilePage.locator("#profile-heading").hover();await coverActions.waitFor({state:"hidden"});
+  await coverActions.locator('[data-action="upload"]').hover();
+  assert.equal(await coverActions.isVisible(),true,"Moving from the trigger into the menu must keep it open");
+  const menuIcons=await coverActions.locator("button").evaluateAll(buttons=>buttons.map(button=>({action:button.dataset.action,unique:button.classList.contains("vatra-profile-owner-media-action-"+button.dataset.action+"-001"),icon:button.querySelector("svg")?.getAttribute("class"),label:button.querySelector("span")?.className,stroke:getComputedStyle(button.querySelector("svg")).strokeWidth,width:button.querySelector("svg").getBoundingClientRect().width})));
+  for(const icon of menuIcons)assert.ok(icon.unique&&icon.icon.includes("ui-profile-owner-media-icon-"+icon.action+"-001")&&icon.label.includes("vatra-profile-owner-media-label-"+icon.action+"-001")&&icon.stroke==="1.8px"&&Math.abs(icon.width-18)<=1,"Each menu action owns its SVG, text class and geometry: "+JSON.stringify(icon));
+  await profilePage.locator("#profile-heading").hover();await coverActions.waitFor({state:"hidden",timeout:1500});
+  assert.equal(await profilePage.locator("#profile-cover-change").getAttribute("aria-expanded"),"false");
   await profilePage.locator("#profile-cover-image").hover();
   await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
   await profilePage.locator("#profile-cover-change").hover();await coverActions.waitFor({state:"visible"});
@@ -5487,8 +5631,15 @@ try{
    const root=document.createElement("div");root.style.cssText="position:fixed;top:100px;left:100px";document.body.append(root);
    const results=[];
    for(const device of ["desktop","mobile","tablet"]){
-    root.replaceChildren();window.VATRA_PRESENCE.appendDevice(root,device);
-    const icon=root.querySelector("svg");icon.dispatchEvent(new PointerEvent("pointerenter",{pointerType:"mouse"}));
+    root.replaceChildren(document.createTextNode("Online"));window.VATRA_PRESENCE.appendDevice(root,device);
+    const icon=root.querySelector("svg"),range=document.createRange();range.selectNode(root.firstChild);
+    const textBounds=range.getBoundingClientRect(),iconBounds=icon.getBoundingClientRect();
+    const spacing=iconBounds.left-textBounds.right;
+    if(Math.abs(iconBounds.width-16)>0.5||Math.abs(iconBounds.height-16)>0.5||spacing<7.5||spacing>8.5||
+     Math.abs((iconBounds.top+iconBounds.bottom-textBounds.top-textBounds.bottom)/2)>3||
+     icon.querySelectorAll("rect").length!==1||icon.querySelectorAll("path").length!==1)
+     throw Error("Device icon geometry or spacing: "+device+" gap="+spacing);
+    icon.dispatchEvent(new PointerEvent("pointerenter",{pointerType:"mouse"}));
     const tip=document.querySelector(".vatra-verified-tooltip");results.push({branded:!!tip?.textContent,native:!!icon.querySelector("title"),label:!!icon.getAttribute("aria-label")});
     icon.dispatchEvent(new PointerEvent("pointerleave",{pointerType:"mouse"}));
    }
@@ -5709,6 +5860,7 @@ try{
   await photoViewer.waitFor({state:"visible"});
   const photoCounter=photoViewer.locator(".vatra-post-gallery-counter-001");
   assert.equal(await photoCounter.textContent(),"1 / 2","Gallery opens with navigation across the loaded photos");
+  assert.equal(await photoViewer.locator(".vatra-media-description-001").count(),0,"Photos tab preserves the original post attachment count");
   await photoViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
   await photoViewer.locator(".vatra-post-gallery-nav-next").click();
   await profilePage.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");
@@ -6118,8 +6270,9 @@ try{
    assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".webp")&&
     neutralArt.actualAvatar!==neutralArt.sharedAvatar,
     "Deleted and blocked members must use their own Vatryk WebP");
-   assert.equal(neutralArt.actualCover,neutralArt.sharedCover,
-    "Deleted and blocked members use the same neutral SVG cover as ordinary accounts");
+   assert.notEqual(neutralArt.actualCover,neutralArt.sharedCover,
+    "Unavailable members retain neutral cover, distinct from ordinary branded gradient");
+   assert.ok(decodeURIComponent(neutralArt.actualCover).includes('fill="#ccd2da"'));
    const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
     background:getComputedStyle(el,"::before").backgroundColor,
     image:getComputedStyle(el,"::before").backgroundImage,

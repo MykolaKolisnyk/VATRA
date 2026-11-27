@@ -196,17 +196,25 @@ function appendDevice(target,device,english=false){
  if(!target||!["desktop","mobile","tablet"].includes(device))return;
  const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
  svg.setAttribute("class","vatra-presence-device-icon-001");svg.setAttribute("viewBox","0 0 24 24");
- svg.setAttribute("width","14");svg.setAttribute("height","14");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.7");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
+ svg.setAttribute("width","16");svg.setAttribute("height","16");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.9");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
  svg.setAttribute("role","img");
  const labels={desktop:["Комп’ютер","Computer"],mobile:["Мобільний пристрій","Mobile device"],tablet:["Планшет","Tablet"]};
  const [uk,en]=labels[device],locale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang;
  const label=english||locale==="en"?en:locale==="uk"?uk:window.VATRA_LANGUAGE?.translate?.(uk)||uk;
- svg.style.verticalAlign="middle";svg.style.flexShrink="0";
+ svg.style.verticalAlign="middle";svg.style.flexShrink="0";svg.style.display="inline-block";svg.style.marginInlineStart="8px";
  svg.setAttribute("aria-label",label);
  const tooltipText=()=>{const lang=window.VATRA_LANGUAGE?.locale||document.documentElement.lang;return lang==="en"?en:lang==="uk"?uk:window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
  window.VATRA_TOOLTIP?.bind(svg,tooltipText);
- const path=document.createElementNS(ns,"path");path.setAttribute("d",device==="tablet"?"M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm6 17h2":device==="mobile"?"M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm3 17h2":"M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 15v3m-4 0h8");svg.append(path);
- target.append(document.createTextNode(" "),svg);
+ const rect=document.createElementNS(ns,"rect"),detail=document.createElementNS(ns,"path");
+ const geometry={
+  desktop:{x:2.5,y:3.5,width:19,height:13,rx:2,d:"M12 16.5v4m-4 0h8"},
+  mobile:{x:6.5,y:2.5,width:11,height:19,rx:2.2,d:"M11 18h2"},
+  tablet:{x:4,y:2.5,width:16,height:19,rx:2.2,d:"M11 18h2"}
+ }[device];
+ for(const key of ["x","y","width","height","rx"])rect.setAttribute(key,String(geometry[key]));
+ detail.setAttribute("d",geometry.d);
+ svg.append(rect,detail);
+ target.append(svg);
 }
 window.VATRA_PRESENCE={start,load,format,grammar,relative,deviceType,appendDevice};
 })();

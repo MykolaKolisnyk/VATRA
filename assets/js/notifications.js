@@ -308,7 +308,7 @@ async function enrichInteraction(record,body,link){
    content=await read("post_comments","id,body,post_id,post_kind,media_kind,media_path",record.target_id);
    if(content.post_kind==="group"&&kind==="comment_like"){
     const url=new URL("feed",root);url.searchParams.set("post",content.post_id);url.searchParams.set("comment",content.id);link.href=url.href;
-    if(run===notificationRun&&body.isConnected){const card=make("div","vatra-notice-preview-001");card.textContent=t("Коментар: ","Comment: ")+String(content.body||"").slice(0,175);body.insertBefore(card,body.querySelector(".vatra-notification-time"));}return;
+    if(run===notificationRun&&body.isConnected){const card=make("div","vatra-notice-preview-001");card.append(make("span","vatra-notice-preview-text-001",t("Коментар: ","Comment: ")+String(content.body||"").slice(0,175)));body.insertBefore(card,body.querySelector(".vatra-notification-time"));}return;
    }
    if(content.post_kind!=="person"||!exactNoticeUUID(content.post_id))return;
    post=await read("feed_posts","id,author_vatra_id,body,media_kind,media_path,media_items,is_clip",content.post_id);
@@ -362,7 +362,7 @@ async function enrichInteraction(record,body,link){
   if(run!==notificationRun||!body.isConnected)return;
   const excerpt=String(content?.body||"").trim().slice(0,175);
   const card=make("div","vatra-notice-preview-001");
-  card.textContent=excerpt||t("Відкрити вміст","Open content");
+  card.append(make("span","vatra-notice-preview-text-001",excerpt||t("Відкрити вміст","Open content")));
   body.insertBefore(card,body.querySelector(".vatra-notification-time"));
   let url=null;
   if(bucket==="avatars"&&/^\d+\/avatar\/[A-Za-z0-9._-]+$/.test(photoPath))url=run.client.storage.from(bucket).getPublicUrl(photoPath)?.data?.publicUrl;
@@ -371,7 +371,7 @@ async function enrichInteraction(record,body,link){
    const signed=await run.client.storage.from(bucket).createSignedUrl(photoPath,120);
    if(!signed.error&&signed.data?.signedUrl){const candidate=new URL(signed.data.signedUrl);if(candidate.protocol==="https:"&&candidate.hostname==="cxrcycxrlkufozomsxcs.supabase.co")url=candidate.href;}
   }
-  if(url&&run===notificationRun&&card.isConnected){const thumb=make("img","vatra-notice-preview-thumb-001");thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.src=url;card.append(thumb);}
+  if(url&&run===notificationRun&&card.isConnected){const thumb=make("img","vatra-notice-preview-thumb-001");thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.addEventListener("error",()=>thumb.remove(),{once:true});thumb.src=url;card.append(thumb);}
  }catch(_){}
 }
 async function enrichNotice(record,body,link){
@@ -420,17 +420,17 @@ async function enrichNotice(record,body,link){
   const label=kind==="comment_like"||kind==="avatar_comment_like"?
    t("Коментар: ","Comment: "):["post_like","member_post"].includes(kind)?t("Публікація: ","Post: "):"";
   const card=make("div","vatra-notice-preview-001");
-  card.textContent=excerpt?label+excerpt+(String(content.body).length>175?"…":""):
-   kind==="avatar_like"?t("Фото профілю","Profile photo"):t("Переглянути публікацію","View the post");
+  card.append(make("span","vatra-notice-preview-text-001",excerpt?label+excerpt+(String(content.body).length>175?"…":""):
+   kind==="avatar_like"?t("Фото профілю","Profile photo"):t("Переглянути публікацію","View the post")));
   body.insertBefore(card,body.querySelector(".vatra-notification-time"));
   if(bucket==="avatars"&&/^\d+\/avatar\/[A-Za-z0-9._-]+$/.test(photoPath)){
    const publicUrl=run.client.storage.from("avatars").getPublicUrl(photoPath)?.data?.publicUrl;
-   if(publicUrl){const thumb=make("img","vatra-notice-preview-thumb-001");thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.src=publicUrl;card.prepend(thumb);}
+   if(publicUrl){const thumb=make("img","vatra-notice-preview-thumb-001");thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.addEventListener("error",()=>thumb.remove(),{once:true});thumb.src=publicUrl;card.append(thumb);}
   }else if(bucket==="post-images"&&/^\d+\/(?:posts|comments)\/[A-Za-z0-9._-]+\.(?:jpg|png|webp)$/i.test(photoPath)){
    const signedUrl=await noticePreviewURL(run,photoPath);
    if(run===notificationRun&&card.isConnected){
     const thumb=make("img","vatra-notice-preview-thumb-001");
-    thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.src=signedUrl;card.prepend(thumb);
+    thumb.alt=t("Фото","Photo");thumb.loading="lazy";thumb.decoding="async";thumb.addEventListener("error",()=>thumb.remove(),{once:true});thumb.src=signedUrl;card.append(thumb);
    }
   }
  }catch(_){}
@@ -593,7 +593,7 @@ async function panelLoad(){
  const task=(async()=>{
   const list=panelItems;
   const rows=await renderRows(list,pick("#vatra-notification-panel-empty"),
-   {page:0,size:5},panelLoad,null,null,null);
+   {page:0,size:3},panelLoad,null,null,null);
   if(!open||run!==notificationRun)return;
 
   const unread=rows.filter(row=>!row.read_at).map(row=>row.id);
@@ -620,13 +620,13 @@ async function panelLoad(){
 function positionPanel(){
  if(!open||!panel||!bell)return;
  const r=bell.getBoundingClientRect();
- const width=Math.min(390,innerWidth-24);
+ const width=Math.min(440,innerWidth-24);
  panel.style.width=width+"px";
- panel.style.left=Math.round(Math.max(12,Math.min(innerWidth-width-12,r.right-width)))+"px";
+ panel.style.left=Math.round(Math.max(12,Math.min(innerWidth-width-12,r.left)))+"px";
  const headerBottom=document.querySelector(".feed-header")?.getBoundingClientRect().bottom??r.bottom;
  const top=Math.max(0,Math.round(headerBottom));
  panel.style.top=top+"px";
- panel.style.maxHeight=Math.max(180,innerHeight-top-12)+"px";
+ panel.style.maxHeight=Math.max(100,Math.min(440,innerHeight-top-12))+"px";
 }
 function closePanel(){
  if(!open)return;open=false;panel.hidden=true;
@@ -659,6 +659,7 @@ function headerUI(){
  settings.href=new URL("settings#notifications",root).href;
  settings.append(icon("settings","M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM20 12a8 8 0 0 0-.2-1.8l1.5-1.4-2-3.4-2 .7A8 8 0 0 0 14.4 5L14 3h-4l-.4 2A8 8 0 0 0 6.7 6l-2-.7-2 3.4 1.5 1.4a8 8 0 0 0 0 3.8l-1.5 1.4 2 3.4 2-.7A8 8 0 0 0 9.6 19l.4 2h4l.4-2a8 8 0 0 0 2.9-1.1l2 .7 2-3.4-1.5-1.4A8 8 0 0 0 20 12Z"));
  settings.setAttribute("aria-label",t("Налаштування сповіщень","Notification settings"));
+ settings.append(make("span","vatra-notification-settings-label-001",t("Налаштування","Settings")));
  heading.append(title,settings);
  panelItems=make("div","vatra-notification-list ui-vatra-notification-panel-list-001");
  const empty=make("p","vatra-notification-panel-empty-001");

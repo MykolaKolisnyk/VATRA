@@ -1187,13 +1187,20 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationScript.includes('sortMenu.open=false;trigger.focus')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
- notificationScript.includes('{page:0,size:5},panelLoad')&&
+ notificationScript.includes('{page:0,size:3},panelLoad')&&
  notificationScript.includes('pageLoad(false)')&&
  notificationScript.includes('c.channel("vatra-notices-"+run.id)')&&
  notificationScript.includes('run.client.from("member_notifications")')&&
  (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
- "VATRA notifications must include the private inbox and five-item header preview");
+ "VATRA notifications must include the private inbox and three-item header preview");
+const noticeCSS=await read("assets/css/feed.css");
+assert.ok(notificationScript.includes("Math.min(440,innerHeight-top-12)")&&
+ notificationScript.includes("vatra-notice-preview-text-001")&&
+ noticeCSS.includes(".ui-vatra-notification-panel-list-001{flex:1 1 auto;min-height:0;overflow:auto")&&
+ noticeCSS.includes(".vatra-notification-panel .vatra-notification-all-001{flex:none")&&
+ noticeCSS.includes("#notifications-list .vatra-notice-preview-thumb-001{width:72px;height:72px}"),
+ "Notifications must have compact shared rows and a separately scrollable three-item dropdown");
 const normalizedSocialHeader=html=>{
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];
  assert.ok(header,"Signed-in VATRA page must have the shared header");
@@ -1431,14 +1438,32 @@ function sharedIconGeometry(markup,cls){
  assert.equal(icons.length,1,"Expected exactly one icon "+cls);
  return icons[0].replace(/\s(?:class|width|height)="[^"]*"/g,"").replace(/\s+/g," ").trim();
 }
-assert.equal(sharedIconGeometry(await read("feed.html"),"ui-vatra-nav-messenger-001"),
- sharedIconGeometry(iconProfileMarkup,"ui-profile-messenger-icon-001"),
- "Messenger navigation and profile contact must share the same vector geometry");
+const messengerGeometry=sharedIconGeometry(iconProfileMarkup,"ui-profile-messenger-icon-001");
+assert.ok(messengerGeometry.includes('fill="currentColor"')&&messengerGeometry.includes('stroke="none"'),
+ "Messenger uses a solid paper plane silhouette, not a thin outline");
+for(const page of ["feed","profile","communities","club","notifications","friends","gifts","clips","marketplace","vatra-id","settings"]){
+ assert.equal(sharedIconGeometry(await read(page+".html"),"ui-vatra-nav-messenger-001"),messengerGeometry,
+  page+": Messenger navigation and profile contact must share the same vector geometry");
+}
 assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-story-menu-icon-001"),
  sharedIconGeometry(iconProfileMarkup,"ui-profile-visitor-story-icon-001"),
  "Viewing a story must use the same vector in the avatar menu and visitor button");
 const postActionSource=await read("assets/js/post-interactions.js");
 const photoActionSource=await read("assets/js/post-media.js");
+const editGeometry=sharedIconGeometry(iconProfileMarkup,"ui-profile-edit-profile-icon-001");
+assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-cover-change-icon-001"),editGeometry,
+ "Profile and cover edit buttons must use one normalized pencil SVG");
+const pencilPath=editGeometry.match(/ d="([^"]+)"/)?.[1];
+assert.ok(pencilPath,"Canonical edit pencil path is required");
+for(const [path,extract] of [
+ ["assets/js/profile.js",/edit:"([^"]+)"/],
+ ["assets/js/post-interactions.js",/if\(type==="edit"\)path\("([^"]+)"\)/],
+ ["assets/js/profile-avatar-comment-row.js",/editPath\.setAttribute\("d","([^"]+)"\)/],
+ ["assets/js/photo-albums.js",/edit:"([^"]+)"/]
+]){
+ assert.equal((await read(path)).match(extract)?.[1],pencilPath,path+": edit actions must use the canonical pencil geometry");
+}
+
 for(const [photoKey,postKey] of [["trash","delete"],["pin","pin"],["archive","archive"],["share","share"]]){
  const postPath=postActionSource.split('if(type==="'+postKey+'")path("')[1]?.split('"')[0];
  const photoPath=photoActionSource.split(photoKey+':"')[1]?.split('"')[0];
@@ -2104,10 +2129,10 @@ assert.ok(
  plainCoverSvg?.startsWith("<svg")&&plainCoverSvg.includes('viewBox="0 0 1600 480"')&&
  ["deleted","blocked","not-found"].every(state=>
   systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.webp")')&&
-  systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
+  systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-neutral-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
-assert.ok(plainCoverSvg.includes('fill="#ccd2da"')&&!/Gradient|<path/.test(plainCoverSvg)&&
+assert.ok(plainCoverSvg.includes("<linearGradient")&&plainCoverSvg.includes('fill="url(#base)"')&&readEmbeddedSvg(systemAvatarCss,"vatra-neutral-cover")?.includes('fill="#ccd2da"')&&
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
  systemProfileCss.includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
  (await read("assets/css/guest-view.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&

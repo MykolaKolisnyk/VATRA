@@ -178,8 +178,11 @@ globalThis.panelTest={panelLoad};
 await Promise.all(Array.from({length:9},()=>panelContext.panelTest.panelLoad()));
 await new Promise(resolve=>setImmediate(resolve));
 assert.equal(queries.length,2,"Concurrent panel refreshes must coalesce to at most two queries");
-assert.deepEqual(writes,[shown.slice(0,5).map(row=>row.id)],
- "The drawer must acknowledge exactly five visible unread notifications, not the entire inbox");
+assert.ok(queries.every(query=>query.size===3),"The drawer must request only three notifications per refresh");
+assert.deepEqual(writes,[shown.slice(0,3).map(row=>row.id)],
+ "The drawer must acknowledge exactly three visible unread notifications, not the entire inbox");
+assert.equal(panelList.children.length,3,"Only three rows may be rendered in the drawer");
+assert.ok(shown.slice(3).every(row=>row.read_at===null),"Notifications outside the drawer must remain unread");
 // Slow full-inbox reads must not render notifications from a previous viewer.
 const fullInbox=section("async function pageLoad(append=false){","function pageUI(){");
 let finishOld;
@@ -227,7 +230,7 @@ assert.ok(
  friendshipLifecycle.includes("REVOKE ALL ON FUNCTION private.notify_friend_declined()"),
  "Resolved friend invitations must clear stale notices on accept/cancel/decline, but only recipient declines notify the sender"
 );
-console.log("VATRA notifications: in-flight coalescing, session teardown, no stale badge, five-row acknowledgment and stale full-inbox protection passed.");
+console.log("VATRA notifications: in-flight coalescing, session teardown, no stale badge, three-row acknowledgment and stale full-inbox protection passed.");
 
 {
  const fixedNow=Date.UTC(2026,10,24,12);
