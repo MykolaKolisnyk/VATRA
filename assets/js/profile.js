@@ -3162,7 +3162,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(!coverViewer){
     const feature=await window.VATRA_FEATURES.load("cover-viewer");
     coverViewer=feature.mount({q,t,coverPhoto,getCoverUrl:()=>photoURLs.cover,
-     getSavedCoverPath:()=>saved?.cover_path,getPublicPath,
      allowed:()=>canViewPhoto,closeAvatarMenu});
    }
    if(!canViewPhoto||(coverPhoto.currentSrc||photoURLs.cover)!==current)return;

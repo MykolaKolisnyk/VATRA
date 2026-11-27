@@ -5209,7 +5209,7 @@ try{
     source:image.currentSrc||image.src,profileCover:cover.currentSrc||cover.src,
     fit:getComputedStyle(image).objectFit,
     avatarX:avatar.x,avatarY:avatar.y,nameX:name.x,nameY:name.y,
-    originalHidden:document.querySelector("#profile-cover-viewer-original").hidden
+    originalAbsent:!document.querySelector("#profile-cover-viewer-original")
    };
   });
   assert.equal(coverLayout.source,coverLayout.profileCover,
@@ -5227,8 +5227,8 @@ try{
    "Expanded cover must use the same solid VATRA graphite background as other photos");
   assert.equal(coverLayout.stageVisibility,"visible",
    "The final photo must appear fully opaque after its decode completes");
-  assert.equal(coverLayout.originalHidden,true,
-   "A legacy cover without an original must not expose a broken image link");
+  assert.equal(coverLayout.originalAbsent,true,
+   "Cover viewer must not expose an original link");
   assert.ok(Math.abs(coverLayout.avatarX-profileBeforeCover.avatar.x)<2&&
    Math.abs(coverLayout.avatarY-profileBeforeCover.avatar.y)<2&&
    Math.abs(coverLayout.nameX-profileBeforeCover.name.x)<2&&

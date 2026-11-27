@@ -3017,3 +3017,5 @@ assert.ok(storyEditorRuntime.includes('audience.value="friends"')&&storyEditorRu
 // Social settings own their media controls; account actions remain in VATRA ID.
 assert.ok(settingsRuntime.includes('document.body.dataset.page==="settings"')&&settingsRuntime.includes('vatra-id#home')&&!settingsRuntime.includes('const accountCard=settingsCard("VATRA ID")'));
 assert.ok(settingsRuntime.includes('localStorage.setItem(mediaKey,autoplay.checked?"on":"off")')&&(await read("assets/js/post-media.js")).includes('localStorage.getItem("vatra:viewer-video-autoplay")!=="off"'));
+
+assert.ok(!memberProfileMarkup.includes('id="profile-cover-viewer-original"')&&!profileCoverViewerScript.includes("coverOriginal")&&!memberCss.includes("vatra-profile-cover-viewer-original-001"),"Cover viewer must not include an original link or unused styles");

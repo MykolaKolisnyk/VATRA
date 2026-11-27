@@ -1,9 +1,9 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-function mount({q,t,coverPhoto,getCoverUrl,getSavedCoverPath,getPublicPath,allowed,closeAvatarMenu}){
+function mount({q,t,coverPhoto,getCoverUrl,allowed,closeAvatarMenu}){
  const coverViewerDialog=q("#profile-cover-viewer"),coverStage=q("#profile-cover-viewer-stage");
- const coverImage=q("#profile-cover-viewer-image"),coverOriginal=q("#profile-cover-viewer-original");
+ const coverImage=q("#profile-cover-viewer-image");
  let coverEpoch=0,coverFlight=null,coverAnimation=null;
  const clearCoverFlight=()=>{
   coverFlight?.remove();coverFlight=null;
@@ -17,7 +17,6 @@ function mount({q,t,coverPhoto,getCoverUrl,getSavedCoverPath,getPublicPath,allow
   const ticket=++coverEpoch,source=coverPhoto.currentSrc||url;
   const origin=coverPhoto.getBoundingClientRect();
   clearCoverFlight();coverViewerDialog.classList.remove("is-ready");
-  coverOriginal.hidden=true;coverOriginal.removeAttribute("href");
   coverImage.alt=t("Обкладинка профілю","Profile cover photo");
   let decoded=false,arrived=false,finished=false,decoding=false;
   const finish=()=>{
@@ -72,21 +71,12 @@ function mount({q,t,coverPhoto,getCoverUrl,getSavedCoverPath,getPublicPath,allow
   if(coverImage.complete&&coverImage.naturalWidth)queueMicrotask(prepareImage);
 
 
-  const originalPath=getSavedCoverPath()?.replace(/\.(jpe?g|png|webp)$/i,"-original.$1");
-  const originalUrl=originalPath?getPublicPath(originalPath,"cover"):null;
-  if(originalUrl&&originalUrl!==source){
-   const probe=new Image();
-   probe.onload=()=>{if(ticket!==coverEpoch||!coverViewerDialog.open)return;
-    coverOriginal.href=originalUrl;coverOriginal.hidden=false;};
-   probe.src=originalUrl;
-  }
  };
  coverViewerDialog.querySelector("#profile-cover-viewer-close").addEventListener("click",()=>coverViewerDialog.close());
  coverViewerDialog.addEventListener("click",event=>{if(event.target===coverViewerDialog)coverViewerDialog.close();});
  coverViewerDialog.addEventListener("close",()=>{
   coverEpoch++;clearCoverFlight();coverViewerDialog.classList.remove("is-ready");
   coverImage.onload=coverImage.onerror=null;coverImage.removeAttribute("src");
-  coverOriginal.hidden=true;coverOriginal.removeAttribute("href");
  });
  return Object.freeze({open:openCover});
 }
