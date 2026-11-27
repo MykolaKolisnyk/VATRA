@@ -314,7 +314,77 @@ console.log("VATRA story viewer: owner-only deletion and real adjacent previews 
  advance(100);assert.equal(bar.value,.5);assert.equal(completed,2);assert.equal(button.hidden,true);
  blocked=true;media.ended=true;media.currentTime=20;advance(1);assert.equal(completed,2);
  blocked=false;advance(1);assert.equal(completed,3);
+ let views=0;
+ media={duration:20,currentTime:0,ended:false,paused:false,seeking:false,readyState:2,playbackRate:1};
+ api.start(dialog,slot,{media_kind:"video",media_path:"video"},()=>{},()=>blocked,()=>views++);
+ advance(50);assert.equal(views,0,"Buffering without moving media time is not a view");
+ media.currentTime=10;advance(1);assert.equal(views,0,"Seeking forward is not a view");
+ for(let i=0;i<5;i++){media.currentTime+=.1;advance(1);}assert.equal(views,0);
+ blocked=true;for(let i=0;i<20;i++){media.currentTime+=.1;advance(1);}assert.equal(views,0,"Hidden playback behind a modal does not count");
+ blocked=false;for(let i=0;i<7;i++){media.currentTime+=.1;advance(1);}assert.equal(views,1);
+ for(let i=0;i<20;i++){media.currentTime+=.1;advance(1);}assert.equal(views,1,"One playback reports at most once");
  api.start(dialog,slot,{},()=>completed++);dialog.open=false;advance(1);
  assert.equal(tick,null);assert.equal(completed,3);assert.equal(row.hidden,true);
 }
 console.log("VATRA story clock: media readiness, pause, hidden tab, modal blocking, real video time, completion and cleanup verified.");
+
+{
+ const runtime=await readFile("assets/js/story-views.js","utf8");
+ const window={},document={documentElement:{lang:"uk"}},location={href:"https://example.test/VATRA/feed"};
+ runInNewContext(runtime,{window,document,location,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URL});
+ const api=window.VATRA_STORY_VIEWS,id="10000000-0000-0000-0000-000000000001",story={id,author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
+ assert.equal(api.profileHref("102"),"https://example.test/VATRA/id102");
+ location.href="https://example.test/VATRA/id101";assert.equal(api.profileHref("102"),"https://example.test/VATRA/id102");
+ assert.equal(api.profileHref("../bad"),"");
+ let inserts=0,error=null,reads=0;
+ const client={from(table){assert.equal(table,"story_views");return {
+ insert(value){inserts++;assert.equal(value.story_id,id);assert.equal(value.viewer_vatra_id,"102");return Promise.resolve({error});},
+ select(columns,options){reads++;assert.equal(options.head,true);return {eq(key,value){assert.equal(key,"story_id");assert.equal(value,id);return Promise.resolve({count:7,error});}};}
+ };}};
+ assert.equal(await api.record(client,story,"101"),false);assert.equal(inserts,0);
+ assert.equal(await api.record(client,{...story,expires_at:new Date(now-1).toISOString()},"102"),false);assert.equal(inserts,0);
+ error={code:"network"};assert.equal(await api.record(client,story,"102"),false);assert.equal(inserts,1);
+ error={code:"23505"};assert.deepEqual(await Promise.all([api.record(client,story,"102"),api.record(client,story,"102")]),[true,true]);assert.equal(inserts,2);
+ assert.equal(await api.record(client,story,"102"),true);assert.equal(inserts,2);
+ error=null;assert.equal(await api.count(client,id),7);assert.equal(reads,1);
+ error={code:"PGRST205"};assert.equal(await api.count(client,id),null,"Missing backend must never display a fake zero");
+ assert.equal(await api.count(client,"bad"),null);assert.equal(reads,2);
+}
+console.log("VATRA story views: live-only insert, self exclusion, duplicate/network handling and authoritative count verified.");
+
+{
+ const runtime=await readFile("assets/js/story-views.js","utf8");
+ const element=()=>({events:new Map(),children:[],hidden:false,open:false,textContent:"",
+  addEventListener(k,fn){this.events.set(k,fn);},removeEventListener(k,fn){if(this.events.get(k)===fn)this.events.delete(k);},
+  append(...items){this.children.push(...items);},replaceChildren(...items){this.children=items;}});
+ const label=element(),list=element(),status=element(),more=element(),ui=element(),dialog=element();
+ ui.querySelector=s=>({"summary":label,"ul":list,"[data-story-views-status]":status,"button":more})[s];
+ dialog.querySelector=()=>ui;dialog.open=true;
+ const window={VATRA_PUBLIC_NAMES:{get:async(_client,ids)=>({data:ids.map(vatra_id=>({vatra_id,display_name:"Name "+vatra_id}))})}},
+ document={documentElement:{lang:"uk"},createElement:element},location={href:"https://example.test/VATRA/feed"};
+ runInNewContext(runtime,{window,document,location,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URL});
+ const api=window.VATRA_STORY_VIEWS,id="10000000-0000-0000-0000-000000000001",story={id,author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
+ const pending=[];let countReads=0;
+ const client={from(table){assert.equal(table,"story_views");return {select(_cols,opts){
+  const q={eq(){return q;},order(){return q;},range(start,end){assert.equal(end-start,49);return new Promise(resolve=>pending.push({start,resolve}));}};
+  if(opts.head){countReads++;q.eq=()=>Promise.resolve({count:3});}return q;
+ }};}};
+ const flush=async()=>{for(let i=0;i<20;i++)await Promise.resolve();};
+ const toggle=open=>{ui.open=open;ui.events.get("toggle")();};
+ api.start(dialog,client,story,"101");await flush();
+ assert.equal(countReads,1);assert.equal(ui.hidden,false);assert.equal(label.textContent,"Перегляди: 3");
+ toggle(true);assert.equal(pending.length,1);assert.equal(api.blocked(dialog),true);
+ toggle(false);toggle(true);assert.equal(pending.length,2);
+ pending[0].resolve({count:3,data:[{viewer_vatra_id:102}]});await flush();
+ assert.equal(list.children.length,0,"A response from the previous open cannot paint the new list");
+ pending[1].resolve({count:3,data:[{viewer_vatra_id:103},{viewer_vatra_id:104}]});await flush();
+ assert.equal(list.children.length,2);assert.equal(list.children[0].children[0].textContent,"Name 103");
+ more.events.get("click")();assert.equal(pending[2].start,2);
+ pending[2].resolve({count:3,data:[{viewer_vatra_id:104},{viewer_vatra_id:105}]});await flush();
+ assert.equal(list.children.length,3,"Repeated rows across pages are displayed once");
+ toggle(false);assert.equal(list.children.length,0,"Closed list drops private viewer data");
+ toggle(true);assert.equal(pending[3].start,0,"Reopening refreshes access and names from the server");
+ api.stop(dialog);pending[3].resolve({count:1,data:[{viewer_vatra_id:102}]});await flush();
+ assert.equal(list.children.length,0);assert.equal(ui.hidden,true);assert.equal(api.blocked(dialog),false);
+}
+console.log("VATRA story views: list refresh, pagination deduplication, stale response isolation and teardown verified.");
