@@ -5301,6 +5301,26 @@ try{
    "Navigation must use unframed chevrons, not round floating buttons");
   await profilePage.locator("#profile-avatar-gallery-delete").click();
   assert.equal(await profilePage.locator("#profile-confirm-dialog").evaluate(el=>el.open),true);
+  const confirmationGeometry=await profilePage.evaluate(()=>{
+   const classes=[["profile-confirm-dialog","profile-confirm-actions"],["feed-delete-dialog","feed-delete-actions"],
+    ["ui-vatra-albums-confirm-001","ui-vatra-albums-confirm-actions-001"],["ui-vatra-story-discard-dialog-001","ui-vatra-story-discard-actions-001"],
+    ["ui-vatra-section-confirm-001","ui-vatra-market-controls-001"],["saved-remove-dialog","saved-remove-actions"]];
+   return classes.map(([dialogClass,actionsClass])=>{
+    const d=document.createElement("dialog");d.className=dialogClass;d.style.animation="none";
+    const actions=document.createElement("div");actions.className=actionsClass;
+    for(const label of ["Скасувати","Підтвердити дію з довгою назвою"]){const button=document.createElement("button");button.type="button";button.textContent=label;actions.append(button);}
+    d.append(actions);document.body.append(d);d.showModal();
+    const buttons=[...actions.children].map(b=>{const r=b.getBoundingClientRect(),c=getComputedStyle(b);return {width:r.width,height:r.height,top:r.top,radius:c.borderRadius,border:c.borderTopWidth,background:c.backgroundColor,font:c.fontWeight};});
+    d.close();d.remove();return {dialogClass,buttons};
+   });
+  });
+  for(const {dialogClass,buttons:[cancel,accept]} of confirmationGeometry){
+   assert.ok(Math.abs(cancel.width-accept.width)<=1&&Math.abs(cancel.height-accept.height)<=1&&Math.abs(cancel.top-accept.top)<=1,
+    dialogClass+": equal outer button geometry "+JSON.stringify([cancel,accept]));
+   assert.equal(cancel.radius,accept.radius);assert.equal(cancel.radius,"11px");assert.equal(cancel.border,accept.border);
+   assert.equal(cancel.font,accept.font);assert.equal(cancel.background,"rgb(237, 242, 248)");
+  }
+
   await profilePage.locator("#profile-confirm-accept").click();
   await profilePage.locator("#profile-photo-deleted-notice").waitFor({state:"visible",timeout:6000});
   assert.equal((await profilePage.locator("#profile-photo-deleted-message").textContent()).trim(),

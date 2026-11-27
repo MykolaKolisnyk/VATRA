@@ -3365,7 +3365,7 @@ body.feed-page .vatra-notice-empty-illustration-001{
 body.feed-page .vatra-notice-empty-illustration-001 svg{width:37px;height:37px;stroke-width:1.7}
 body.feed-page .vatra-notice-empty-title-001{font:740 17px/1.4 "Onest",system-ui,sans-serif;color:#304563}
 body.feed-page .vatra-notice-empty-description-001{font:500 12px/1.5 "Onest",system-ui,sans-serif;color:#7889a3}
-body.notifications-page .notifications-main:not([hidden]){width:min(calc(100% - 36px),980px);margin:34px auto 72px}
+body.notifications-page .notifications-main:not([hidden]){width:min(calc(100% - 32px),820px);margin:34px auto 72px}
 body.notifications-page .notifications-main .notifications-toolbar{padding:12px 16px;margin-bottom:14px}
 body.notifications-page .notifications-main .notifications-content{border-radius:18px;box-shadow:0 8px 30px rgba(26,43,78,.06)}
 body.notifications-page .notifications-main .notifications-content .vatra-notification-row{padding:20px 21px}
@@ -3532,7 +3532,6 @@ body.feed-page .vatra-feed-post-read-more-001>svg{display:inline-block;width:14p
 body.feed-page .vatra-feed-post-read-more-001[aria-expanded="true"]>svg{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-feed-post-read-more-001>svg{transition:none}}
 
-/* Compact notifications: only the dropdown list scrolls; header and footer stay visible. */
 body.feed-page .vatra-notification-panel{box-sizing:border-box;max-height:min(76dvh,440px);overflow:hidden;border-radius:0 0 14px 14px}
 body.feed-page .vatra-notification-panel-heading{position:static;flex:none;gap:8px;padding:9px 12px}
 body.feed-page .vatra-notification-panel .vatra-notification-title-001{font-size:15px;font-weight:700;letter-spacing:0}
@@ -3566,7 +3565,6 @@ body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notific
 body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-delete{grid-column:3;grid-row:1;width:26px;height:26px;min-width:26px;min-height:26px;padding:3px;transform:none}
 body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notice-friend-controls-001{grid-column:2/-1;grid-row:2;position:static;justify-content:flex-start}
 body.feed-page .vatra-notification-panel .vatra-notification-skeleton{min-height:58px;padding:9px 12px;box-sizing:border-box;flex:none}
-body.notifications-page .notifications-main:not([hidden]){width:min(calc(100% - 32px),820px)}
 body.notifications-page .notifications-main #notifications-list .vatra-notification-row{padding:12px 16px;gap:6px 12px}
 body.notifications-page .notifications-main #notifications-list .vatra-notification-link{font-size:14px}
 body.notifications-page .notifications-main #notifications-list .vatra-notification-time{font-size:12px;max-width:130px}
