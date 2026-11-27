@@ -306,3 +306,19 @@ console.log("VATRA profile gallery: retry routing, quick tab reuse and mutation 
  assert.ok(login.includes("margin-block-start:clamp(7px,1.2vh,16px)"));
 }
 console.log("VATRA profile: deep-linked photos, selection marks, contact actions and responsive login copy verified.");
+
+// Hidden images must retain a layout box so IntersectionObserver can reveal them.
+for(const selector of ["ui-vatra-albums-cover-image-001","ui-vatra-album-photo-image-001"]){
+ const rule=css.match(new RegExp(selector+"\\:not\\(\\[src\\]\\)[^{}]*\\{([^}]+)\\}"))?.[1];
+ assert.ok(rule&&rule.includes("visibility:hidden")&&!rule.includes("display:none"),selector+" must intersect before receiving a URL");
+}
+assert.ok(css.includes(".vatra-album-photo-loading-001{position:absolute")&&script.includes('photoLoadController?.abort()')&&script.includes('photoLoadError(row,album)'));
+{
+ const source=script.slice(script.indexOf("  function discardSignature("),script.indexOf("  async function revealImage("));
+ const signed=new Map(),urls=["https://example.test/expired","https://example.test/fresh"];let calls=0;
+ const env={signed,signatureGeneration:0,signedUrl:async path=>{const url=urls[calls++];signed.set(path,{url});return url;},setTimeout,clearTimeout};
+ runInNewContext(source+";globalThis.load=loadAlbumImage;",env);
+ const events=new Map(),image={complete:false,naturalWidth:0,addEventListener(k,fn){events.set(k,fn);},removeEventListener(k){events.delete(k);},set src(url){queueMicrotask(()=>{if(url.endsWith("fresh")){this.naturalWidth=10;events.get("load")?.();}else events.get("error")?.();});}};
+ assert.equal(await env.load(image,"owner/albums/photo.jpg",()=>true),true);assert.equal(calls,2);assert.equal(signed.get("owner/albums/photo.jpg").url,urls[1]);
+}
+console.log("VATRA album preview visibility, expired signature recovery and viewer overlay checked.");
