@@ -1586,8 +1586,8 @@ body.feed-page .vatra-notification-count{
 body.feed-page .vatra-notification-count[hidden]{display:none!important}
 .vatra-notification-panel{
  position:fixed;z-index:132;display:flex;flex-direction:column;gap:0;
- width:min(390px,calc(100vw - 24px));min-height:185px;max-height:min(76dvh,575px);
- overflow:auto;overscroll-behavior:contain;padding:0;
+ width:min(440px,calc(100vw - 24px));min-height:0;max-height:min(76dvh,440px);
+ overflow:hidden;overscroll-behavior:contain;padding:0;
  border:1px solid #dce5f2;border-top:0;border-radius:0 0 16px 16px;background:#fff;color:#30415b;
  box-shadow:0 18px 52px rgba(26,45,81,.15);font-family:"Onest",system-ui,sans-serif;
  animation:vatraNotifyReveal .22s cubic-bezier(.2,.78,.24,1) both
@@ -3531,3 +3531,55 @@ body.feed-page .vatra-post-undo-001:disabled{opacity:.55;cursor:wait}
 body.feed-page .vatra-feed-post-read-more-001>svg{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-left:4px;transition:transform .18s ease}
 body.feed-page .vatra-feed-post-read-more-001[aria-expanded="true"]>svg{transform:rotate(180deg)}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-feed-post-read-more-001>svg{transition:none}}
+
+/* Compact notifications: only the dropdown list scrolls; header and footer stay visible. */
+body.feed-page .vatra-notification-panel{box-sizing:border-box;max-height:min(76dvh,440px);overflow:hidden;border-radius:0 0 14px 14px}
+body.feed-page .vatra-notification-panel-heading{position:static;flex:none;gap:8px;padding:9px 12px}
+body.feed-page .vatra-notification-panel .vatra-notification-title-001{font-size:15px;font-weight:700;letter-spacing:0}
+body.feed-page .vatra-notification-panel .vatra-notification-settings-001{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:auto;height:32px;padding:0 9px;background:#f0f3f7;color:#466b9b;font:600 12px/1.3 Onest,system-ui,sans-serif}
+body.feed-page .vatra-notification-panel .vatra-notification-settings-001 svg{width:16px;height:16px;flex:none}
+body.feed-page .ui-vatra-notification-panel-list-001{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c1cad7 transparent}
+body.feed-page .ui-vatra-notification-panel-list-001:empty{display:none}
+body.feed-page .vatra-notification-panel .vatra-notification-all-001{flex:none;padding:11px 12px;font-size:13px;font-weight:600}
+body.feed-page .vatra-notification-panel .vatra-notification-panel-empty-001:not([hidden]){flex:1 1 auto;min-height:0;overflow:auto;padding:18px 12px}
+body.feed-page .vatra-notification-panel .vatra-notification-panel-empty-001[hidden]{display:none!important}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-row,
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-row:has(.vatra-notice-friend-controls-001){
+ grid-template-columns:42px minmax(0,1fr) 26px;gap:6px 10px;align-items:start;padding:10px 12px;flex:none
+}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-avatar-stack{width:42px;height:42px;grid-column:1;grid-row:1}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-avatar{width:42px;height:42px;background-size:cover}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-kind{width:19px;height:19px;right:-2px;bottom:-2px}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-kind svg{width:12px;height:12px}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-unread{left:2px;width:3px;height:20px}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-content{
+ grid-column:2;grid-row:1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:5px 9px;padding:0
+}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-link{grid-column:1;grid-row:1;font:600 13px/1.4 Onest,system-ui,sans-serif;overflow-wrap:anywhere}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-time{grid-column:2;grid-row:1;text-align:right;max-width:100px;font:500 11px/1.4 Onest,system-ui,sans-serif;overflow-wrap:anywhere;color:#8291a6}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notice-preview-001{
+ grid-column:1/-1;display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:0;border:0;border-radius:0;background:transparent;color:#74859d;font:500 12px/1.4 Onest,system-ui,sans-serif
+}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notice-preview-text-001{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:100%;overflow-wrap:anywhere}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notice-preview-thumb-001{order:0;margin:0;width:60px;height:60px;border-radius:6px;object-fit:cover}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-actions{display:contents}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-delete{grid-column:3;grid-row:1;width:26px;height:26px;min-width:26px;min-height:26px;padding:3px;transform:none}
+body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notice-friend-controls-001{grid-column:2/-1;grid-row:2;position:static;justify-content:flex-start}
+body.feed-page .vatra-notification-panel .vatra-notification-skeleton{min-height:58px;padding:9px 12px;box-sizing:border-box;flex:none}
+body.notifications-page .notifications-main:not([hidden]){width:min(calc(100% - 32px),820px)}
+body.notifications-page .notifications-main #notifications-list .vatra-notification-row{padding:12px 16px;gap:6px 12px}
+body.notifications-page .notifications-main #notifications-list .vatra-notification-link{font-size:14px}
+body.notifications-page .notifications-main #notifications-list .vatra-notification-time{font-size:12px;max-width:130px}
+body.notifications-page .notifications-main #notifications-list .vatra-notice-preview-text-001{-webkit-line-clamp:3}
+body.notifications-page .notifications-main #notifications-list .vatra-notice-preview-thumb-001{width:72px;height:72px}
+@media(max-width:480px){
+ body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-row,
+ body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-row:has(.vatra-notice-friend-controls-001),
+ body.notifications-page .notifications-main #notifications-list .vatra-notification-row{grid-template-columns:36px minmax(0,1fr) 24px;gap:5px 7px;padding:9px 8px}
+ body.feed-page :is(.vatra-notification-panel,#notifications-list) :is(.vatra-notification-avatar-stack,.vatra-notification-avatar){width:36px;height:36px}
+ body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-content{column-gap:6px}
+ body.feed-page :is(.vatra-notification-panel,#notifications-list) .vatra-notification-time{max-width:70px;font-size:10px}
+ body.feed-page .vatra-notification-panel .vatra-notification-settings-001{padding-inline:6px}
+}
+
+body.notifications-page #notifications-empty[hidden]{display:none!important}

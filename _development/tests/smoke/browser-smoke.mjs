@@ -3104,6 +3104,16 @@ try{
        },error:null
       })})
     })}:
+    table==="member_notifications"&&Array.isArray(window.__vatraNoticeRows)?
+    {select:()=>({
+     readFilter:null,ascending:false,eq(){return this;},is(){this.readFilter="unread";return this;},
+     not(key,operator){if(key==="read_at"&&operator==="is")this.readFilter="read";return this;},
+     order(key,options){if(key==="created_at")this.ascending=options.ascending;return this;},
+     rows(){return window.__vatraNoticeRows.filter(row=>this.readFilter==="unread"?!row.read_at:this.readFilter==="read"?!!row.read_at:true)
+      .sort((a,b)=>(this.ascending?1:-1)*a.created_at.localeCompare(b.created_at));},
+     range:async function(a,b){return {data:this.rows().slice(a,b+1),error:null};},
+     then(resolve,reject){return Promise.resolve({count:this.rows().length,error:null}).then(resolve,reject);}
+    })}:
     table==="stories"?
     {select:()=>({
       eq(){this.singleAuthor=true;return this;},
@@ -3207,6 +3217,51 @@ try{
   };
   `
  }));
+ // Real browser regression for the compact inbox and header preview.
+ const noticeProbe=await feedContext.newPage();
+ try{
+  await noticeProbe.setViewportSize({width:1366,height:844});
+  await noticeProbe.route("**/storage/v1/object/public/avatars/**",route=>route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
+  await noticeProbe.addInitScript(()=>{
+   localStorage.setItem("vatra-language","uk");
+   window.__vatraNoticeRows=Array.from({length:5},(_,i)=>({
+    id:"00000000-0000-4000-8000-00000000001"+i,actor_vatra_id:789012,kind:"avatar_like",target_kind:"avatar",
+    avatar_owner_vatra_id:654321,event_key:"avatar_like:654321:654321/avatar/notification-test.webp:789012",
+    read_at:"2026-11-26T10:00:00Z",created_at:new Date(Date.now()-i*3600000-3600000).toISOString()
+   }));
+  });
+  await noticeProbe.goto(base+"notifications.html",{waitUntil:"domcontentloaded"});
+  await noticeProbe.waitForFunction(()=>document.querySelectorAll("#notifications-list .vatra-notification-row").length===5);
+  await noticeProbe.locator("#notifications-list .vatra-notice-preview-thumb-001").first().waitFor({state:"visible"});
+  const fullNotice=await noticeProbe.locator("#notifications-list .vatra-notification-row").first().evaluate(row=>{
+   const title=row.querySelector(".vatra-notification-link").getBoundingClientRect(),time=row.querySelector("time").getBoundingClientRect();
+   const preview=row.querySelector(".vatra-notice-preview-001");
+   return {timeRight:time.left>=title.right-1,timeTop:Math.abs(time.top-title.top)<=2,previewBorder:getComputedStyle(preview).borderTopWidth};
+  });
+  assert.deepEqual(fullNotice,{timeRight:true,timeTop:true,previewBorder:"0px"},"Inbox uses compact borderless previews and right-aligned time");
+  await noticeProbe.locator(".ui-feed-notifications-button-001").click();
+  await noticeProbe.waitForFunction(()=>document.querySelectorAll("#vatra-notification-panel .vatra-notification-row").length===3);
+  await noticeProbe.locator("#vatra-notification-panel .vatra-notice-preview-thumb-001").first().waitFor({state:"visible"});
+  for(const width of [1366,390]){
+   await noticeProbe.setViewportSize({width,height:844});
+   await noticeProbe.waitForFunction(()=>document.querySelector("#vatra-notification-panel").getBoundingClientRect().right<=innerWidth);
+   const compact=await noticeProbe.locator("#vatra-notification-panel").evaluate(el=>{
+    const p=el.getBoundingClientRect(),h=el.querySelector(".vatra-notification-panel-heading").getBoundingClientRect(),f=el.querySelector(".vatra-notification-all-001").getBoundingClientRect(),l=el.querySelector(".vatra-notification-list");
+    l.scrollTop=l.scrollHeight;
+    return {height:p.height,header:h.top>=p.top,footer:f.bottom<=p.bottom+1,scroll:getComputedStyle(l).overflowY,panelScroll:getComputedStyle(el).overflowY,left:p.left,right:p.right,viewport:innerWidth};
+   });
+   assert.ok(compact.height<=441&&compact.header&&compact.footer&&compact.scroll==="auto"&&compact.panelScroll==="hidden"&&compact.left>=0&&compact.right<=compact.viewport,"Notification dropdown must fit viewport with a fixed header/footer: "+JSON.stringify(compact));
+  }
+  await noticeProbe.keyboard.press("Escape");
+  assert.equal(await noticeProbe.locator("#vatra-notification-panel").isVisible(),false);
+  await noticeProbe.locator('[data-notification-filter="unread"]').click();
+  await noticeProbe.locator("#notifications-empty").waitFor({state:"visible"});
+  assert.equal(await noticeProbe.locator("#notifications-list .vatra-notification-row").count(),0);
+  await noticeProbe.locator('[data-notification-filter="all"]').click();
+  await noticeProbe.waitForFunction(()=>document.querySelectorAll("#notifications-list .vatra-notification-row").length===5);
+  assert.equal(await noticeProbe.locator("#notifications-empty").isVisible(),false);
+ }finally{await noticeProbe.close();}
+ console.log("VATRA notifications: compact three-row dropdown, full inbox, scrolling and filters verified.");
  // The signed-in pages for friends and gifts are first-class VATRA routes.
  const friendsProbe=await feedContext.newPage();
  await friendsProbe.goto(base+"friends.html",{waitUntil:"domcontentloaded"});

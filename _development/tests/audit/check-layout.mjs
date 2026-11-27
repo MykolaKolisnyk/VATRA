@@ -1187,13 +1187,20 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationScript.includes('sortMenu.open=false;trigger.focus')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
- notificationScript.includes('{page:0,size:5},panelLoad')&&
+ notificationScript.includes('{page:0,size:3},panelLoad')&&
  notificationScript.includes('pageLoad(false)')&&
  notificationScript.includes('c.channel("vatra-notices-"+run.id)')&&
  notificationScript.includes('run.client.from("member_notifications")')&&
  (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
- "VATRA notifications must include the private inbox and five-item header preview");
+ "VATRA notifications must include the private inbox and three-item header preview");
+const noticeCSS=await read("assets/css/feed.css");
+assert.ok(notificationScript.includes("Math.min(440,innerHeight-top-12)")&&
+ notificationScript.includes("vatra-notice-preview-text-001")&&
+ noticeCSS.includes(".ui-vatra-notification-panel-list-001{flex:1 1 auto;min-height:0;overflow:auto")&&
+ noticeCSS.includes(".vatra-notification-panel .vatra-notification-all-001{flex:none")&&
+ noticeCSS.includes("#notifications-list .vatra-notice-preview-thumb-001{width:72px;height:72px}"),
+ "Notifications must have compact shared rows and a separately scrollable three-item dropdown");
 const normalizedSocialHeader=html=>{
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];
  assert.ok(header,"Signed-in VATRA page must have the shared header");
