@@ -294,19 +294,7 @@ assert.ok(lang.includes('function initLanguagePicker()')&&lang.includes('trigger
  "Language dropdown must initialize reliably even if script is loaded late");
 assert.ok(lang.includes('document.querySelectorAll("[data-i18n]")'),"DOM translation bindings missing");
 assert.ok(lang.includes('location.reload()'),"Language selection must reuse the same page URL");
-assert.ok(lang.includes('search.id = "vatra-language-search"')&&
- lang.includes('search.name = "vatra-language-search"'),
- "Language search input requires ID and name to support browser autofill");
-assert.ok(lang.includes('search.placeholder = " ";')&&
- lang.includes('searchHint.textContent = words.search;')&&
- lang.includes('searchShell.append(search,searchHint,clearSearch)')&&
- css.includes('.language-search-shell .vatra-floating-hint{'),
- "Language search must share one floating hint with auth inputs");
-assert.ok(lang.includes('clearSearch.className="language-search-clear vatra-language-clear-button"')&&
- lang.includes('search.dispatchEvent(new Event("input",{bubbles:true}))')&&
- css.includes(".language-search-clear{position:absolute;top:50%;right:11px;")&&
- css.includes(".language-search::-webkit-search-cancel-button,"),
- "Language search must use a centered SVG clear button, not the browser X");
+assert.ok(!lang.includes('vatra-language-search')&&!css.includes('.language-search-field')&&lang.includes('dialog.append(headingRow, scrollShell)'),"Eight-language picker has no unnecessary search");
 const excludedLocales=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
 assert.ok(!/\["(?:ru|be|sk|hu|sr|zh)"/.test(excludedLocales),
  "Unavailable and intentionally excluded locale entries must not appear in VATRA");
@@ -960,7 +948,7 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
  en.__pages.index.nodes.n128.text["0"]==="Create account"&&
  uk.__pages["create-account"].nodes.n59.text["0"]==="Створити акаунт",
  "Create account must be the unified account creation action");
-assert.ok(css.includes('.field.is-invalid .control{border-color:#e49aa7'),
+assert.ok(css.includes('.control[aria-invalid="true"]{border-color:#e49aa7'),
  "Invalid field visual feedback must remain visible");
 assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&

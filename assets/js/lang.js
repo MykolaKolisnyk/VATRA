@@ -288,14 +288,14 @@
   };
 
   const wordsByLanguage={
-    uk:{name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено",clear:"Очистити пошук"},
-    en:{name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",future:"In development",current:"Selected",close:"Close",empty:"No matching languages",clear:"Clear search"},
-    pl:{name:"Język",heading:"Wybierz język",details:"Język interfejsu VATRA",search:"Szukaj języków",future:"W przygotowaniu",current:"Wybrano",close:"Zamknij",empty:"Nie znaleziono języków",clear:"Wyczyść wyszukiwanie"},
-    de:{name:"Sprache",heading:"Sprache auswählen",details:"Sprache der VATRA-Oberfläche",search:"Sprachen suchen",future:"In Entwicklung",current:"Ausgewählt",close:"Schließen",empty:"Keine passenden Sprachen",clear:"Suche löschen"},
-    fr:{name:"Langue",heading:"Choisissez votre langue",details:"Langue de l'interface VATRA",search:"Rechercher une langue",future:"En préparation",current:"Sélectionnée",close:"Fermer",empty:"Aucune langue trouvée",clear:"Effacer la recherche"},
-    it:{name:"Lingua",heading:"Scegli la tua lingua",details:"Lingua dell'interfaccia VATRA",search:"Cerca lingue",future:"In preparazione",current:"Selezionata",close:"Chiudi",empty:"Nessuna lingua trovata",clear:"Cancella la ricerca"},
-    ka:{name:"ენა",heading:"აირჩიეთ ენა",details:"VATRA-ს ინტერფეისის ენა",search:"ენების ძებნა",future:"მზადების პროცესშია",current:"არჩეულია",close:"დახურვა",empty:"ენა ვერ მოიძებნა",clear:"ძიების გასუფთავება"},
-    bg:{name:"Език",heading:"Изберете език",details:"Език на интерфейса на VATRA",search:"Търсене на езици",future:"В подготовка",current:"Избран",close:"Затвори",empty:"Няма намерени езици",clear:"Изчисти търсенето"}
+    uk:{name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",future:"У розробці",current:"Обрано",close:"Закрити"},
+    en:{name:"Language",heading:"Choose your language",details:"VATRA interface language",future:"In development",current:"Selected",close:"Close"},
+    pl:{name:"Język",heading:"Wybierz język",details:"Język interfejsu VATRA",future:"W przygotowaniu",current:"Wybrano",close:"Zamknij"},
+    de:{name:"Sprache",heading:"Sprache auswählen",details:"Sprache der VATRA-Oberfläche",future:"In Entwicklung",current:"Ausgewählt",close:"Schließen"},
+    fr:{name:"Langue",heading:"Choisissez votre langue",details:"Langue de l'interface VATRA",future:"En préparation",current:"Sélectionnée",close:"Fermer"},
+    it:{name:"Lingua",heading:"Scegli la tua lingua",details:"Lingua dell'interfaccia VATRA",future:"In preparazione",current:"Selezionata",close:"Chiudi"},
+    ka:{name:"ენა",heading:"აირჩიეთ ენა",details:"VATRA-ს ინტერფეისის ენა",future:"მზადების პროცესშია",current:"არჩეულია",close:"დახურვა"},
+    bg:{name:"Език",heading:"Изберете език",details:"Език на интерфейса на VATRA",future:"В подготовка",current:"Избран",close:"Затвори"}
   };
   const words=wordsByLanguage[current];
 
@@ -365,55 +365,16 @@
     closePath.setAttribute("d","M6 6l12 12M18 6 6 18");
     closeIcon.append(closePath);closeBtn.append(closeIcon);
     headingRow.append(texts, closeBtn);
-    const searchField = document.createElement("div");
-    searchField.className = "field language-search-field vatra-language-search-label";
-    const searchShell = document.createElement("span");
-    searchShell.className = "vatra-input-shell language-search-shell";
-    const searchHint = document.createElement("span");
-    searchHint.className = "vatra-floating-hint vatra-language-search-caption";
-    searchHint.setAttribute("aria-hidden","true");
-    searchHint.textContent = words.search;
-    const search = document.createElement("input");
-    search.className = "control language-search ui-language-search-input";
-    search.type = "search";
-    search.id = "vatra-language-search";
-    search.name = "vatra-language-search";
-    search.autocomplete = "off";
-    search.placeholder = " "; // The floating hint replaces the native placeholder.
-    search.setAttribute("aria-label", words.search);
-    const clearSearch=document.createElement("button");
-    clearSearch.className="language-search-clear vatra-language-clear-button";
-    clearSearch.type="button";
-    clearSearch.hidden=true;
-    clearSearch.setAttribute("aria-label",words.clear);
-    const clearIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
-    clearIcon.setAttribute("viewBox","0 0 24 24");
-    clearIcon.setAttribute("aria-hidden","true");
-    const cross=document.createElementNS("http://www.w3.org/2000/svg","path");
-    cross.setAttribute("d","M18 6 6 18M6 6l12 12");
-    clearIcon.append(cross);
-    clearSearch.append(clearIcon);
-    searchShell.append(search,searchHint,clearSearch);
-    searchField.append(searchShell);
-    const syncSearchHint=()=>searchShell.classList.toggle("is-floating",Boolean(search.value));
-    search.addEventListener("input",syncSearchHint);
-    search.addEventListener("change",syncSearchHint);
-    search.addEventListener("blur",syncSearchHint);
     const list = document.createElement("div");
     list.className = "language-grid ui-language-options-grid";
     list.tabIndex = 0;
     list.setAttribute("role", "region");
     list.setAttribute("aria-label", words.heading);
-    const notFound = document.createElement("p");
-    notFound.className = "language-empty vatra-language-no-results";
-    notFound.textContent = words.empty;
-    notFound.hidden = true;
     let restoreFocus = null;
     for (const [code,name,englishName,country,enabled] of languages) {
       const button = document.createElement("button");
       button.className = "language-option vatra-language-choice-" + code + (code === current ? " is-selected" : "");
       button.type = "button";
-      button.dataset.search = (code + " " + name + " " + englishName).toLocaleLowerCase();
       button.append(flag(country));
       const copy = document.createElement("span");
       copy.className = "language-option-copy vatra-language-copy-" + code;
@@ -448,7 +409,7 @@
     scrollThumb.className = "language-scroll-thumb ui-language-scroll-thumb";
     scrollTrack.append(scrollThumb);
     scrollShell.append(list, scrollTrack);
-    dialog.append(headingRow, searchField, scrollShell, notFound);
+    dialog.append(headingRow, scrollShell);
     backdrop.append(dialog);
     document.body.append(backdrop);
 
@@ -541,44 +502,23 @@
     function open(e) {
       restoreFocus = e?.currentTarget || document.activeElement;
       for(const trigger of triggers)trigger.setAttribute("aria-expanded","true");
-      search.value = "";
-      syncSearchHint();
-      clearSearch.hidden = true;
-      [...list.children].forEach(node => { node.hidden = false; });
-      notFound.hidden = true;
+      list.scrollTop = 0;
       backdrop.hidden = false;
       document.body.classList.add("language-dialog-open");
-      search.focus();
+      closeBtn.focus({preventScroll:true});
       requestAnimationFrame(() => {
         updateScrollbar();
         pointerInsideDialog=dialog.matches(":hover");
         showScrollbar();
       });
     }
-    search.addEventListener("input", () => {
-      clearSearch.hidden = !search.value;
-      const q = search.value.trim().toLocaleLowerCase();
-      let count = 0;
-      for (const node of list.children) {
-        node.hidden = !node.dataset.search.includes(q);
-        if (!node.hidden) count++;
-      }
-      notFound.hidden = count > 0;
-      list.scrollTop = 0;
-      requestAnimationFrame(() => { updateScrollbar(); showScrollbar(); });
-    });
-    clearSearch.addEventListener("click",()=>{
-      search.value="";
-      search.dispatchEvent(new Event("input",{bubbles:true}));
-      search.focus();
-    });
     closeBtn.addEventListener("click", close);
     backdrop.addEventListener("click", e => { if (e.target === backdrop) close(); });
     document.addEventListener("keydown", e => {
       if (backdrop.hidden) return;
       if (e.key === "Escape") { close(); return; }
       if (e.key === "Tab") {
-        const tabbable = [...dialog.querySelectorAll("button:not(:disabled):not([hidden]),input:not([hidden])")].filter(x => x.offsetParent !== null);
+        const tabbable = [...dialog.querySelectorAll("button:not(:disabled):not([hidden]),[tabindex=\"0\"]")].filter(x => x.offsetParent !== null);
         const first=tabbable[0], last=tabbable[tabbable.length-1];
         if (e.shiftKey && document.activeElement === first) {e.preventDefault();last.focus();}
         else if (!e.shiftKey && document.activeElement === last) {e.preventDefault();first.focus();}

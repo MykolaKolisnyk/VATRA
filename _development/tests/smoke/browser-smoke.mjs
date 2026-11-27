@@ -1012,7 +1012,7 @@ try{
   "VATRA must show exactly eight selected languages and no removed placeholders");
  assert.equal(await page.locator(".language-option:disabled").count(),0,
   "All eight translated VATRA languages must be selectable");
- await page.locator("#vatra-language-search").fill("English");
+ assert.equal(await page.locator("#vatra-language-search").count(),0);
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
  await page.waitForFunction(()=>document.documentElement.lang==="en");
  assert.equal(await page.evaluate(()=>localStorage.getItem("vatra-language")),"en","Language storage");
@@ -1239,28 +1239,12 @@ try{
    else assert.ok(shell.back,"Signup must retain the Back link");
    await probe.locator("[data-language-trigger]").click();
    await probe.locator(".language-dialog").waitFor({state:"visible"});
-   const picker=await probe.evaluate(()=>{
-    const d=document.querySelector(".language-dialog").getBoundingClientRect();
-    const f=document.querySelector(".language-search-field").getBoundingClientRect();
-    const s=document.querySelector("#vatra-language-search").getBoundingClientRect();
-    const label=document.querySelector(".language-search-shell .vatra-floating-hint");
-    const shell=document.querySelector(".language-search-shell");
-    return {dialog:d.width,field:f.width,search:s.width,
-      captionOffset:label.getBoundingClientRect().y-s.y,
-      captionSize:getComputedStyle(label).fontSize,
-      uniqueHint:shell.querySelectorAll(".vatra-floating-hint").length,
-      placeholder:document.querySelector("#vatra-language-search").placeholder};
-   });
-   assert.ok(picker.field>=picker.dialog-55&&picker.search>=picker.field-2&&
-    picker.uniqueHint===1&&picker.placeholder===" ",
-    "Search must have a single floating caption across dialog width "+width+" "+route+": "+JSON.stringify(picker));
+   const picker=await probe.evaluate(()=>({dialog:document.querySelector(".language-dialog").getBoundingClientRect().width,grid:document.querySelector(".language-grid").getBoundingClientRect().width,count:document.querySelectorAll(".language-option").length,search:!!document.querySelector("#vatra-language-search")}));
+   assert.ok(picker.count===8&&!picker.search&&picker.grid<=picker.dialog,"All eight languages without search: "+JSON.stringify(picker));
    samples.push(picker);
    await probe.close();
   }
-  assert.ok(Math.abs(samples[0].search-samples[1].search)<=2&&
-   Math.abs(samples[0].captionOffset-samples[1].captionOffset)<=2&&
-   samples[0].captionSize===samples[1].captionSize,
-   "Language search style differs between auth pages at "+width+": "+JSON.stringify(samples));
+  assert.ok(Math.abs(samples[0].grid-samples[1].grid)<=2,"Language picker width matches across auth pages");
   console.log("VATRA auth shell and language picker match "+width+"x"+height+": OK");
  }
 
@@ -1538,6 +1522,7 @@ try{
   await probe.locator(action).click();
   await probe.waitForTimeout(240);
   const error=await metrics();
+  assert.equal(await probe.locator("input[aria-invalid=true],select[aria-invalid=true]").count(),1,"Only the field named in the validation toast is marked");
   assert.ok(error.invalid==="true"&&error.oldInlineErrors===0&&
    error.hintCount===1&&error.placeholder===" "&&
    (error.floating?error.hintBottom<=error.inputTop+24:
@@ -1606,37 +1591,10 @@ try{
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
   await waitReady(probe);
   await probe.locator("[data-language-trigger]").click();
-  const search=probe.locator("#vatra-language-search");
-  assert.equal(await probe.locator(".language-search-shell .vatra-floating-hint").count(),1,
-   "Language search must not show duplicate captions");
-  await search.fill("abcdef-not-a-language");
-  await probe.waitForTimeout(240);
-  const hintGeometry=await probe.evaluate(()=>{
-   const field=document.querySelector("#vatra-language-search");
-   const shell=document.querySelector(".language-search-shell");
-   const hint=shell.querySelector(".vatra-floating-hint");
-   const ir=field.getBoundingClientRect(),hr=hint.getBoundingClientRect();
-   return {raised:shell.classList.contains("is-floating"),hintBottom:hr.bottom,fieldTop:ir.top};
-  });
-  assert.ok(hintGeometry.raised&&hintGeometry.hintBottom<=hintGeometry.fieldTop+25,
-   "Search caption must float above typed text: "+JSON.stringify(hintGeometry));
-  const clear=probe.locator(".language-search-clear");
-  await clear.waitFor({state:"visible"});
-  const pos=await probe.evaluate(()=>{
-   const input=document.querySelector("#vatra-language-search").getBoundingClientRect();
-   const button=document.querySelector(".language-search-clear").getBoundingClientRect();
-   const glyph=document.querySelector(".language-search-clear svg").getBoundingClientRect();
-   return {dy:Math.abs(button.top+button.height/2-input.top-input.height/2),
-    glyphDy:Math.abs(glyph.top+glyph.height/2-button.top-button.height/2),
-    rightGap:input.right-button.right,accessible:document.querySelector(".language-search-clear").getAttribute("aria-label")};
-  });
-  assert.ok(pos.dy<=1.5&&pos.glyphDy<=1.5&&pos.rightGap>=0&&pos.rightGap<=28&&pos.accessible,
-   "Search clear X must be centered and accessible: "+route+" "+JSON.stringify(pos));
-  await clear.click();
-  assert.equal(await search.inputValue(),"","Clearing search must remove input text "+route);
-  assert.equal(await probe.locator(".language-option:not([hidden])").count(),8,
-   "Clearing search must restore all languages "+route);
-  assert.equal(await clear.isVisible(),false,"Clear button hides when search empty "+route);
+  assert.equal(await probe.locator("#vatra-language-search").count(),0);
+  assert.equal(await probe.locator(".language-option").count(),8);
+  await probe.locator(".language-close").click();
+  assert.equal(await probe.locator(".language-dialog").isVisible(),false);
   await probe.close();
  }
  console.log("VATRA cross alignment and clearing across auth/legal pages: OK");
@@ -2999,6 +2957,8 @@ try{
  await waitReady(savedPage);
  await savedPage.locator("#saved-account-remove").click();
  assert.equal(await savedPage.locator("#saved-account-remove-dialog").isVisible(),true);
+ const savedButtons=await savedPage.locator(".saved-remove-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight})));
+ assert.deepEqual(savedButtons[0],savedButtons[1],"Confirmation buttons have equal outer dimensions");
  await savedPage.locator("#saved-remove-cancel").click();
  assert.equal(await savedPage.locator("#saved-account-remove-dialog").isVisible(),false);
  await savedPage.waitForTimeout(250);
