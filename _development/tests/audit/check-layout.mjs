@@ -2815,21 +2815,19 @@ assert.ok(siteSearchSQL.includes("security invoker")&&
  "Server search must keep RLS, public posts, approved listings and authenticated access");
 await import("../smoke/live-search-cache-smoke.mjs");
 
-/* Stories share the Feed's social graph; wait for the friendship snapshot,
-   include the viewer's own stories, and filter other authors against friends. */
+/* Stories use server RLS, with a shared friendship snapshot for the client-side guard. */
 const feedStoryOptimization=await read("assets/js/feed.js");
 assert.ok(
  feedStoryOptimization.includes("let subscriptionsLoadedAt=0,subscriptionsInflight=null")&&
  feedStoryOptimization.includes("function ensureSubscriptions()")&&
  feedStoryOptimization.includes("if(subscriptionsInflight)return subscriptionsInflight;")&&
  feedStoryOptimization.includes("await feedDeadline(ensureSubscriptions());")&&
- feedStoryOptimization.includes('const storyAuthors=[...new Set([vatraId,...friends])];')&&
- feedStoryOptimization.includes('if(storyAuthors.length<=100&&typeof query.in==="function")')&&
- feedStoryOptimization.includes('query=query.in("author_vatra_id",storyAuthors)')&&
- feedStoryOptimization.includes('if((id!==vatraId&&!friends.has(id))||!storyLive(story))continue;')&&
+ feedStoryOptimization.includes('.select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path,visibility")')&&
+ !feedStoryOptimization.includes('query=query.in("author_vatra_id",storyAuthors)')&&
+ feedStoryOptimization.includes('if(!storyLive(story)||(id!==vatraId&&!friends.has(id)&&story.visibility!=="public"))continue;')&&
  feedStoryOptimization.includes('if(seen.has(id))continue;items.push(story);seen.add(id);')&&
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
- "Feed and friend stories must share their RLS-scoped subscription snapshot");
+ "Feed stories must include public stories and respect the shared friendship snapshot");
 await import("../smoke/feed-story-subscriptions-smoke.mjs");
 
 await import("../smoke/section-loading-smoke.mjs");

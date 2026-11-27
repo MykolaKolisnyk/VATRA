@@ -130,7 +130,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
  v.release();
  await Promise.all([feedReady,stories]);
  assert.equal(v.storyCalls,1);
- assert.deepEqual(v.storyFilters[0].ids,[owner,"789012"]);
+ assert.equal(v.storyFilters.length,0,"RLS must scope the single bounded read, including public stories");
  assert.equal(v.holder.children.length,1,"Friend stories must remain visible on slow networks");
  assert.equal(v.style.empty,false);
  assert.equal(v.holder.busy,"false");
@@ -145,21 +145,23 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
  const v=makeViewer([],{storyRows:[{author_vatra_id:owner,body:"Own story",theme:0}]});
  await Promise.all([v.context.feedTest.ensureSubscriptions(),v.context.feedTest.loadStories()]);
  assert.equal(v.friendCalls,1);
- assert.equal(v.storyCalls,1,"Read only own stories without friends");
- assert.deepEqual(v.storyFilters[0].ids,[owner]);
+ assert.equal(v.storyCalls,1,"One RLS-scoped read without friends");
+ assert.equal(v.storyFilters.length,0);
  assert.equal(v.holder.children.length,1);
  assert.equal(v.style.empty,false);
 }
-// A targeted PostgREST filter excludes unrelated stories before the limit.
+// Public stories from non-friends must be visible; friends-only stories must not.
 {
  const v=makeViewer(["789012"],{storyRows:[
-  {author_vatra_id:"999999",body:"Stranger",theme:0},
-  {author_vatra_id:"789012",body:"Friend",theme:2}
+  {author_vatra_id:"999999",body:"Private stranger",theme:0,visibility:"friends"},
+  {author_vatra_id:"999998",body:"Public stranger",theme:1,visibility:"public"},
+  {author_vatra_id:"789012",body:"Friend",theme:2,visibility:"friends"}
  ]});
  await v.context.feedTest.loadStories();
- assert.equal(v.holder.children.length,1);
+ assert.equal(v.holder.children.length,2);
  assert.equal(v.storyCalls,1);
- assert.equal(v.storyFilters[0].field,"author_vatra_id");
+ assert.equal(v.storyFilters.length,0);
+ assert.deepEqual(v.holder.children.map(tile=>tile.children.find(child=>child.cls==="vatra-feed-story-live-body-001").textContent),["Public stranger","Friend"]);
 }
 // For very large friend lists, keep the original (bounded) broad query
 // instead of generating a very large URL with hundreds of IDs.
@@ -170,7 +172,7 @@ function makeViewer(friendIds,{deferred=false,storyRows=[],lazy=false,slowMetada
  assert.equal(v.storyCalls,1);
  assert.equal(v.storyFilters.length,0);
 }
-console.log("VATRA Feed stories: shared friendship singleflight, own stories without friends, targeted RLS reads and TTL passed.");
+console.log("VATRA Feed stories: shared friendship singleflight, own stories without friends, bounded RLS reads, public audience and TTL passed.");
 
 {
  const storyRows=[

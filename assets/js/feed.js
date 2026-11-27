@@ -699,20 +699,17 @@
   try{
    await feedDeadline(ensureSubscriptions());
    if(generation!==storyLoadGeneration)return;
-   const storyAuthors=[...new Set([vatraId,...friends])];
-   let query=client.from("stories")
-    .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
+   const query=client.from("stories")
+    .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path,visibility")
     .gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false});
-   if(storyAuthors.length<=100&&typeof query.in==="function")
-    query=query.in("author_vatra_id",storyAuthors);
    const {data,error}=await feedDeadline(query.limit(60));
    if(generation!==storyLoadGeneration)return;
    if(error)throw error;
    const items=[],seen=new Set(),groups=new Map();
    for(const story of data||[]){
     const id=String(story.author_vatra_id);
-    if((id!==vatraId&&!friends.has(id))||!storyLive(story))continue;
+    if(!storyLive(story)||(id!==vatraId&&!friends.has(id)&&story.visibility!=="public"))continue;
     if(!groups.has(id))groups.set(id,[]);groups.get(id).push(story);
     if(seen.has(id))continue;items.push(story);seen.add(id);
    }
