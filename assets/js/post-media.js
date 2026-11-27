@@ -501,6 +501,7 @@
     if(preview)element.setAttribute("aria-hidden","true");
    }
    slot.replaceChildren(element);
+   if(kind==="video"&&!preview&&typeof window!=="undefined")window.VATRA_PLAYER?.attach(element,{mode:"story"});
   }catch(_){
    if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
    if(preview){slot.hidden=true;slot.replaceChildren();}
@@ -738,7 +739,9 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   else element.alt=tr("Фото публікації","Post photo");
   const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),kind==="image"?direction:0);
   const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
+  const previousVideo=mediaDialogContent.querySelector("video");if(previousVideo){previousVideo.pause();previousVideo.removeAttribute("src");previousVideo.load();}
   element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
+  if(kind==="video")window.VATRA_PLAYER?.attach(element,{mode:"viewer"});
   if(kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,finishSlide);
   restoreOwnerMenu?.();restoreOwnerMenu=null;restoreMediaPanel?.();restoreMediaPanel=null;mediaSide.replaceChildren();
   const postCard=container?.closest(".feed-post-card")||container?.querySelector(".feed-post-card");
@@ -1042,7 +1045,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      if(!active||token!==renderTicket||!mediaDialog.open)return;
      const element=document.createElement(item.media_kind==="video"?"video":"img");
      element.className=item.media_kind==="video"?"ui-vatra-post-expanded-video-001":"ui-vatra-post-expanded-image-001";
-     if(item.media_kind==="video"){element.controls=true;element.playsInline=true;}
+     if(item.media_kind==="video"){element.controls=true;element.playsInline=true;try{element.autoplay=localStorage.getItem("vatra:viewer-video-autoplay")!=="off";}catch(_){element.autoplay=true;}}
      else element.alt=tr("Фото публікації","Post photo");
      if(item.media_kind==="image"){await loadImageSource(element,url);if(!active||token!==renderTicket||!mediaDialog.open)return;}
      else element.src=url;
@@ -1057,15 +1060,16 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      prev.addEventListener("click",()=>{if(index>0){index--;void render(-1);}});
      next.addEventListener("click",()=>{if(index<media.length-1){index++;void render(1);}});
      const currentVideo=mediaDialogContent.querySelector("video");
-     currentVideo?.pause();
+     if(currentVideo){currentVideo.pause();currentVideo.removeAttribute("src");currentVideo.load();}
      const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),item.media_kind==="image"?direction:0);
      const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
      mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]),prev,next,counter);
+     if(item.media_kind==="video")window.VATRA_PLAYER?.attach(element,{mode:"viewer"});
      if(item.media_kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,finishSlide);
     }catch(_){}
    };
    mediaDialog.addEventListener("keydown",event=>{
-    if(event.target?.closest?.("input,textarea,select,video,[contenteditable]"))return;
+    if(event.target?.closest?.("input,textarea,select,video,.vatra-player-root-001,[contenteditable]"))return;
     if(event.key==="ArrowLeft"&&index>0){event.preventDefault();index--;void render(-1);}
     if(event.key==="ArrowRight"&&index<media.length-1){event.preventDefault();index++;void render(1);}
    },{signal:controller.signal});
@@ -1186,9 +1190,9 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
      expand.className="vatra-feed-post-video-expand-001";
      expand.textContent=tr("На весь екран","Fullscreen");
      const recover=async()=>{
-      if(!slot.isConnected||video.parentNode!==slot||video.error?.code===1)return;
+      if(!slot.isConnected||(video.parentNode!==slot&&video.parentNode?.parentNode!==slot)||video.error?.code===1)return;
       await forgetFailedSignedURL(client,"video",path,src);
-      if(!slot.isConnected||video.parentNode!==slot)return;
+      if(!slot.isConnected||(video.parentNode!==slot&&video.parentNode?.parentNode!==slot))return;
       video.pause();retry();video.removeAttribute("src");video.load();
      };
      video.addEventListener("error",()=>void recover(),{once:true});
@@ -1202,6 +1206,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
       finally{expand.disabled=false;}
      });
      slot.replaceChildren(video,expand);
+     if(typeof window!=="undefined"&&window.VATRA_PLAYER?.attach(video,{mode:"inline",onExpand:()=>expand.click()}))expand.hidden=true;
      video.src=src;
      void video.play().catch(()=>{});
     }catch(_){retry();}

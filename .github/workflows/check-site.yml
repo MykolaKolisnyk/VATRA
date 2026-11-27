@@ -115,6 +115,8 @@ jobs:
           npx playwright install --with-deps chromium firefox webkit
       - name: Check external link dialog in Chromium Firefox WebKit
         run: node _development/tests/smoke/external-links-browser-smoke.mjs
+      - name: Check VATRA Player controls in Chromium Firefox WebKit
+        run: node _development/tests/smoke/vatra-player-browser-smoke.mjs
       - name: Check layout, forms, accessibility and cross-browser rendering
         run: node _development/tests/smoke/browser-smoke.mjs
       - name: Check email layout in Chromium Firefox WebKit
