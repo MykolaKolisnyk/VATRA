@@ -566,7 +566,7 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
    const id=String(record.actor_vatra_id),state=states.get(id);
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
     state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-    names.get(id)||format("Учасник VATRA ID {id}","VATRA member ID {id}",{id});
+    names.get(id)||format("Користувач VATRA ID {id}","VATRA user ID {id}",{id});
    return createRow(record,name,String(opts.page*opts.size+i+1),
     onChange,avatars.get(id),state,forms.get(id));
   });
@@ -909,7 +909,7 @@ async function pageLoad(append=false){
    const state=authors.states.get(id);
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
     state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-    authors.names.get(id)||format("Учасник VATRA ID {id}","VATRA member ID {id}",{id});
+    authors.names.get(id)||format("Користувач VATRA ID {id}","VATRA user ID {id}",{id});
    list.append(createRow(row,name,String(index),()=>pageLoad(false),authors.avatars.get(id),state,authors.forms.get(id)));
   }
   sectionPage=page;sectionScope=scope;

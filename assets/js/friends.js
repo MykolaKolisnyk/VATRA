@@ -129,7 +129,7 @@ function person(item,index){
  const id=counterpart(item),state=accountStates.get(id);
  const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
   state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-  names.get(id)||t("Учасник VATRA","VATRA member");
+  names.get(id)||t("Користувач VATRA","VATRA user");
  const article=make("article","vatra-friends-person ui-vatra-friends-person-"+index);
  const avatar=make("a","vatra-friends-portrait vatra-friends-portrait-"+index);
  avatar.href=new URL("id"+id,root).href;avatar.setAttribute("aria-label",name);
@@ -248,7 +248,7 @@ async function boot(){
   if(!me){
    for(const el of document.querySelectorAll("[data-friends-tab]"))el.hidden=["incoming","outgoing"].includes(el.dataset.friendsTab);
    const identity=await (window.VATRA_PUBLIC_NAMES?.get?.(client,[targetId])||client.from("public_profiles").select("vatra_id,display_name").eq("vatra_id",targetId));
-   targetName=identity.data?.[0]?.display_name||t("Учасник VATRA","VATRA member");
+   targetName=identity.data?.[0]?.display_name||t("Користувач VATRA","VATRA user");
    const heading=q("#friends-heading");heading.removeAttribute("data-social-uk");heading.removeAttribute("data-social-en");heading.textContent=t("Друзі: ","Friends: ")+targetName;
    const back=make("a","vatra-friends-owner-link-001",t("До профілю","Back to profile"));back.href=new URL("id"+targetId,root).href;heading.after(back);
   }

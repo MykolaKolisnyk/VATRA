@@ -179,7 +179,7 @@
   if(state==="deleted")return t("Акаунт видалено","Account deleted");
   if(state==="blocked")return t("Акаунт заблоковано","Account blocked");
   return publicNames.get(String(id))||
-   (String(id)===vatraId?displayName:t("Учасник VATRA","VATRA member"));
+   (String(id)===vatraId?displayName:t("Користувач VATRA","VATRA user"));
  };
  async function loadPublicNames(ids){
   const needed=[...new Set(ids.map(String).filter(validId))].filter(id=>!publicNames.has(id));
@@ -389,7 +389,7 @@
    const avatar=node("span","vatra-global-search-avatar ui-vatra-global-search-avatar-001");
    applyAvatar(avatar,id);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-info-001");
-   const resultName=node("strong","vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member"));
+   const resultName=node("strong","vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Користувач VATRA","VATRA user"));
    info.append(resultName);
    if(!avatarStates.get(id))void window.VATRA_VERIFIED?.attach(client,resultName,id);
    info.append(node("small","vatra-global-search-description-001","VATRA ID "+id+(person.status_text?" · "+person.status_text.slice(0,100):"")));

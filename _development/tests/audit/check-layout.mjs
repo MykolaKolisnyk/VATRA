@@ -2109,21 +2109,22 @@ function readEmbeddedSvg(css,name){
  return match?decodeURIComponent(match[1]):null;
 }
 const plainAvatarSvg=readEmbeddedSvg(systemAvatarCss,"vatra-default-avatar");
-const plainCoverSvg=readEmbeddedSvg(systemProfileCss,"vatra-default-cover");
+const plainCoverSvg=readEmbeddedSvg(systemAvatarCss,"vatra-default-cover");
 assert.ok(
  plainAvatarSvg?.startsWith("<svg")&&plainAvatarSvg.includes('viewBox="0 0 256 256"')&&
  plainCoverSvg?.startsWith("<svg")&&plainCoverSvg.includes('viewBox="0 0 1600 480"')&&
  ["deleted","blocked","not-found"].every(state=>
   systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.webp")')&&
-  systemProfileCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
+  systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
-assert.ok(plainCoverSvg.includes('stop-color="#9db8d7"')&&
- plainCoverSvg.includes('stop-color="#b3c9e2"')&&
- plainCoverSvg.includes('stop-color="#ddc9dd"')&&
- plainCoverSvg.includes('fill="#5f88b2" opacity=".18"')&&
+assert.ok(plainCoverSvg.includes('stop-color="#edf1f5"')&&
+ plainCoverSvg.includes('stop-color="#dce4ef"')&&!plainCoverSvg.includes("<path")&&
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
- systemProfileCss.includes('background:linear-gradient(105deg,#9db8d7')&&
+ systemProfileCss.includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
+ (await read("assets/css/guest-view.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
+ (await read("assets/css/communities.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
+ systemAvatarCss.includes('[data-vatra-avatar-state="default"]:not(.has-photo){background-image:var(--vatra-default-avatar)')&&
  systemProfileCss.includes('.profile-cover.has-photo{'),
  "SVG cover must remain distinct from the page background without affecting uploads");
 assert.ok(!plainAvatarSvg.includes("<clipPath")&&
@@ -2942,7 +2943,7 @@ assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&modera
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
 
 const publicFriendSQL=await read("_development/supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
-const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
+const emojiCatalog=await read("assets/js/comment-picker.js");assert.ok(emojiCatalog.includes("export const emojiGroups=")&&!emojiCatalog.includes("stickerFile")&&!interactionsScript.includes("chooseSticker(")&&interactionsScript.includes("import(pickerURL)"),"Comments offer only the lazy-loaded emoji catalog");
 
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileAvatarScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('const removed=await storage.remove([path,...(fullBlob?[originalPath]:[])])')&&
  profileScript.includes('storage.upload(undo.path,undo.thumbnail'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");

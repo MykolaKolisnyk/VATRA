@@ -346,7 +346,7 @@ const notificationKeys=[
   "Ваш коментар під фото вподобано: {name}",
   "{name}: нова подія",
   "Сповіщення: {count} непрочитаних",
-  "Учасник VATRA ID {id}",
+  "Користувач VATRA ID {id}",
   "Сторінка {page}",
   "Видалити сповіщення",
   "Акаунт видалено",
@@ -371,7 +371,7 @@ assert.ok(notificationRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")
  notificationRuntime.includes("const neutralEvents={")&&
  notificationRuntime.includes("format(text,en,{name:first})")&&
  notificationRuntime.includes('format("Сповіщення: {count} непрочитаних"')&&
- notificationRuntime.includes('format("Учасник VATRA ID {id}"')&&
+ notificationRuntime.includes('format("Користувач VATRA ID {id}"')&&
  notificationRuntime.includes('format("Сторінка {page}"')&&
  notificationRuntime.includes("const timeValue=date=>{")&&
  notificationRuntime.includes("const plural=(n,a,b,c)=>")&&

@@ -4062,30 +4062,7 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").isVisible(),true,
    "Emoji picker opens inside the current comment composer");
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-post-comment-emoji-option-001").length>1000);
-  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-sticker-tab-001").click();
-  await feedProbe.locator(".vatra-sticker-option-001").first().waitFor();
-  assert.equal(await feedProbe.locator(".vatra-sticker-pack-001").count(),9);
-  await feedProbe.getByRole("button",{name:"Батя",exact:true}).click().catch(async()=>{await feedProbe.getByRole("button",{name:"Dad",exact:true}).click();});
-  await feedProbe.waitForFunction(()=>document.querySelectorAll(".vatra-sticker-option-001").length===20);
-  await feedProbe.waitForFunction(()=>{const art=document.querySelector(".vatra-sticker-option-001 .ui-vatra-sticker-art-001");return art&&art.style.width&&art.style.visibility!=="hidden";});
-  const cropRatio=await feedProbe.locator(".vatra-sticker-option-001 .ui-vatra-sticker-art-001").first().evaluate(async art=>{
-   const mod=await import(new URL("assets/js/comment-picker.js",location.href).href);
-   const image=new Image();image.src=JSON.parse(art.style.backgroundImage.slice(4,-1));await image.decode();
-   const pack=mod.packs.find(p=>p.id==="dad"||p.uk==="Батя"),[, ,w,h]=pack.rects[0],rect=art.getBoundingClientRect();
-   return {actual:rect.width/rect.height,expected:w*image.naturalWidth/(h*image.naturalHeight)};
-  });
-  assert.ok(Math.abs(cropRatio.actual-cropRatio.expected)<.03,"Sticker thumbnails preserve the crop aspect ratio");
-  await feedProbe.locator(".vatra-sticker-option-001").first().click();
-  await feedProbe.waitForFunction(()=>!!window.__vatraSmokeStickerInsert?.media_path);
-  const sentSticker=await feedProbe.evaluate(()=>({upload:window.__vatraSmokeStickerUpload,insert:window.__vatraSmokeStickerInsert}));
-  assert.equal(sentSticker.upload.bucket,"post-images");
-  assert.equal(sentSticker.upload.type,"image/webp");
-  assert.ok(sentSticker.upload.size>0);
-  assert.match(sentSticker.upload.path,/^654321\/comments\/sticker-[0-9a-f-]+\.webp$/i);
-  assert.equal(sentSticker.insert.media_path,sentSticker.upload.path);
-  assert.equal(sentSticker.insert.body,"");
-  assert.equal(await feedProbe.locator(".vatra-post-comment-file-preview").isVisible(),false,"Sticker sends directly without a file-preview step");
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"","Sticker is an independent image, not fake emoji text");
+  assert.equal(await feedProbe.locator(".vatra-post-comment-sticker-tab-001,.vatra-sticker-option-001").count(),0,"Only ordinary emoji are available");
   const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-001");
   await attachmentControl.click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
@@ -5835,7 +5812,7 @@ try{
   assert.equal(await profilePage.locator("#profile-status").isVisible(),false,
    "A visitor sees no placeholder when another member has not set a status");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
-   language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
+   language==="en"?"VATRA user · ID 789012":"Користувач VATRA · ID 789012");
 
   await profilePage.locator("#profile-tab-photos").click();
   await profilePage.locator(".ui-vatra-albums-controls-001").waitFor({state:"visible"});

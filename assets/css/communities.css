@@ -25,8 +25,7 @@
 body.feed-page.community-page[data-page="club"] .feed-layout{width:min(calc(100% - 40px),1000px);margin:0 auto 70px}
 body.community-page[data-page="club"] .ui-club-main-001{min-width:0;gap:14px}
 body.community-page .ui-club-hero-001{background:#fff;border:1px solid var(--line);border-top:0;border-radius:0 0 18px 18px;overflow:hidden;box-shadow:0 5px 20px #243b6208}
-body.community-page .ui-club-cover-001{height:230px;position:relative;overflow:hidden;background:radial-gradient(ellipse 48% 95% at 78% 0%,rgba(229,158,217,.52),transparent 80%),radial-gradient(ellipse 40% 88% at 2% 93%,rgba(52,119,222,.48),transparent 90%),linear-gradient(110deg,#daeafc 0%,#cad9f8 39%,#e8d9f8 80%,#f2e4f5 100%)}
-body.community-page .ui-club-cover-001::after{content:"";position:absolute;width:280px;aspect-ratio:1;top:-70px;right:8%;border:48px solid #ffffff40;border-radius:50%;box-shadow:0 0 0 26px #ffffff20}
+body.community-page .ui-club-cover-001{height:230px;position:relative;overflow:hidden;background:var(--vatra-default-cover) center/cover no-repeat}
 body.community-page .ui-club-summary-001{display:grid;grid-template-columns:112px minmax(0,1fr) auto;align-items:center;gap:14px;padding:0 20px 14px;position:relative;min-height:88px}
 body.community-page .vatra-club-avatar-001{width:112px;height:112px;display:grid;place-items:center;margin-top:-42px;border:5px solid #fff;border-radius:50%;background:linear-gradient(145deg,#2567e9,#8569e9);color:#fff;font:700 40px/1 Onest,system-ui,sans-serif;box-shadow:0 0 0 1px #dde5f4;position:relative}
 body.community-page .ui-club-identity-001{display:grid;gap:5px;min-width:0;padding-top:10px}
@@ -103,9 +102,7 @@ body.feed-page .ui-communities-main-001{grid-template-areas:"sidebar cover" "sid
 .ui-community-list-001 .ui-community-directory-empty-001{grid-column:1/-1;min-height:160px;border:0;background:transparent}
 .ui-community-card-001{min-width:0;overflow:hidden;display:flex;flex-direction:column;padding:0;gap:0;border:1px solid #e2e9f4;border-radius:var(--vatra-card-radius);background:#fff;box-shadow:0 4px 16px #243b6208}
 .ui-community-card-001:focus-within,.ui-community-card-001:hover{border-color:#c5d4ed;box-shadow:0 8px 24px #243b6210}
-.ui-community-card-cover-001{aspect-ratio:2.25;position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(132deg,#dce9fc,#e9e0f6);display:grid;place-items:center;text-decoration:none}
-.ui-community-card-cover-001::before{content:"";position:absolute;z-index:-1;inset:-50% -25% auto auto;width:80%;aspect-ratio:1;border:1px solid #fff8;border-radius:50%;box-shadow:0 0 0 24px #ffffff24,0 0 0 48px #ffffff17}
-.ui-community-card-cover-001::after{content:"";position:absolute;z-index:-1;inset:auto auto -72% -15%;width:75%;aspect-ratio:1;border:1px solid #ffffff8c;border-radius:50%;background:#ffffff29}
+.ui-community-card-cover-001{aspect-ratio:2.25;position:relative;isolation:isolate;overflow:hidden;background:var(--vatra-default-cover) center/cover no-repeat;display:grid;place-items:center;text-decoration:none}
 .ui-community-card-avatar-001{display:grid;place-items:center;width:56px;height:56px;border:2px solid #fff;border-radius:15px;background:#fff;color:var(--blue);font:700 25px/1 "Onest",system-ui,sans-serif;box-shadow:0 6px 18px #253a6514}
 .ui-community-card-detail-001{padding:16px;min-width:0;flex:1;display:flex;flex-direction:column;gap:9px}
 .ui-community-card-head-001{display:block;min-width:0}

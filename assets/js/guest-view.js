@@ -40,7 +40,7 @@ async function profile(client,id){
  const main=layout("#profile-loading","#profile-app");
  if(!result.data){document.title=t("Користувача не знайдено","User not found");main.append(node("section","ui-vatra-guest-note-001",document.title));return true;}
 
- let name=t("Учасник VATRA","VATRA member");
+ let name=t("Користувач VATRA","VATRA user");
  try{const preview=await client.from("public_profiles").select("display_name").eq("vatra_id",id).maybeSingle();if(!preview.error&&typeof preview.data?.display_name==="string"&&preview.data.display_name.trim())name=preview.data.display_name.trim().slice(0,100);}catch(_){}
  document.title=name;identity(main,name,true,t("Сторінку приховано","Profile hidden"));
  main.append(node("section","ui-vatra-guest-note-001",t("Сторінка доступна лише авторизованим користувачам.","This page is available to signed-in members only.")));return true;

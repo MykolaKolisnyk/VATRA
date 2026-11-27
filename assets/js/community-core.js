@@ -128,7 +128,7 @@ async function start(init){
   const user=data.user,meta=user.user_metadata||{};
   const ownName=[meta.first_name,meta.last_name].filter(x=>typeof x==="string"&&x.trim())
     .map(x=>x.trim()).join(" ")||String(meta.full_name||"").trim()||
-    t("Учасник VATRA","VATRA member");
+    t("Користувач VATRA","VATRA user");
   const cleanName=Array.from(ownName).slice(0,100).join("");
   const headerName=Array.from((typeof meta.first_name==="string"&&meta.first_name.trim()?meta.first_name.trim():cleanName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   const nameParts=cleanName.split(/\s+/).filter(Boolean);

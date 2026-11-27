@@ -16,7 +16,7 @@
     try{
       const src=new URL(img.currentSrc||img.src,document.baseURI);
       return src.origin===scriptUrl.origin&&src.pathname.startsWith(ROOT)&&
-        /^(?:assets\/)(?:vatryk|logo|illustrations|flags|gifts|stickers)\//.test(src.pathname.slice(ROOT.length));
+        /^(?:assets\/)(?:vatryk|logo|illustrations|flags|gifts)\//.test(src.pathname.slice(ROOT.length));
     }catch(_){return false;}
   };
   for(const type of ["contextmenu","dragstart"])

@@ -412,37 +412,9 @@ console.log("VATRA media: shared viewport observer, batched mounts, removal clea
 }
 {
  const picker=await readFile("assets/js/comment-picker.js","utf8");
- const begin=picker.indexOf("const SHEET_CACHE_MAX=3;");
- const end=picker.indexOf("export async function stickerFile(",begin);
- assert.ok(begin>=0&&end>begin);
- const requests=[];
- class MockImage{
-  set src(value){this.url=value;requests.push(this);}
- }
- const env={Image:MockImage,url:pack=>pack.id,images:new Map()};
- runInNewContext(picker.slice(begin,end)+"\nglobalThis.sheet=sheet;",env);
- const load=async id=>{
-  const task=env.sheet({id});requests.at(-1).onload();return task;
- };
- const one=env.sheet({id:"one"}),duplicate=env.sheet({id:"one"});
- assert.equal(requests.length,1,"Simultaneous sticker tiles share one image request");
- requests[0].onload();assert.equal(await one,await duplicate);
- await load("two");await load("three");
- await env.sheet({id:"one"});
- await load("four");
- assert.equal(env.images.size,3);
- assert.equal(env.images.has("one"),true,"Recently used sprite remains cached");
- assert.equal(env.images.has("two"),false,"Old sprite reference is released");
- const pending=env.sheet({id:"pending"});
- await load("five");
- assert.equal(env.images.has("pending"),true,"Unsettled image is not evicted");
- const failed=env.sheet({id:"failed"});requests.at(-1).onerror(Error("broken image"));
- await assert.rejects(failed,/broken image/);
- assert.equal(env.images.has("failed"),false);
- requests.find(x=>x.url==="pending").onload();await pending;
- assert.equal(env.images.size,3,"Finished image references are capped at three");
+ assert.ok(picker.includes("export const emojiGroups=")&&!picker.includes("stickerFile")&&!picker.includes("export const packs="));
 }
-console.log("VATRA media: LRU signed URLs, bounded sprite image references and retry safety verified.");
+console.log("VATRA media: LRU signed URLs and emoji-only picker verified.");
 
 {
  const c=makeClient("burst");

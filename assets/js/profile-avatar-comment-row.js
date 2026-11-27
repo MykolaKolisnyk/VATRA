@@ -3,7 +3,7 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 function create(item,{client,ownId,userId,locale,names,images,ownCommentLikes,node,t,memberUrl,dateText,feedback,clearCommentCache,onDelete}){
     const id=String(item.author_vatra_id);
-    const member=names.get(id)||t("Учасник VATRA","VATRA member");
+    const member=names.get(id)||t("Користувач VATRA","VATRA user");
     const card=node("article","profile-photo-comment ui-profile-photo-comment-001 vatra-media-comment-row-001");
     card.dataset.commentId=String(item.id);
     const head=node("div","profile-photo-comment-head ui-profile-photo-comment-head-001");

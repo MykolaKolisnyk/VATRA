@@ -1082,6 +1082,7 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{
 body.feed-page:not(.community-page):not(.profile-page) .feed-main{
  grid-column:2;grid-row:1;
  display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important;
+ grid-template-rows:max-content max-content auto auto;
  column-gap:var(--vatra-card-gap)!important;row-gap:var(--vatra-card-gap)!important;align-items:start!important;
  width:100%;max-width:none;min-width:0;margin:0!important
 }
@@ -2392,7 +2393,7 @@ body.feed-page .vatra-post-comment .vatra-post-comment-body-001{
  color:#31415a;font:480 13.5px/1.52 "Onest",system-ui,sans-serif;
  white-space:pre-wrap;overflow-wrap:anywhere
 }
-body.feed-page .vatra-post-comment .vatra-post-comment-body-001.is-sticker{
+body.feed-page .vatra-post-comment .vatra-post-comment-body-001.is-emoji-only{
  font:500 48px/1.15 "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
  padding:5px 0
 }
@@ -2443,8 +2444,6 @@ body.feed-page .vatra-post-comment-media img{
  display:block;width:auto;height:auto;max-width:min(100%,340px);max-height:360px;
  object-fit:contain;border-radius:11px
 }
-body.feed-page .vatra-post-comment-media.is-vatra-sticker{border-radius:0;overflow:visible;margin:6px 0 4px}
-body.feed-page .vatra-post-comment-media.is-vatra-sticker img{width:auto;height:auto;max-width:min(100%,144px);max-height:144px;border-radius:0;object-fit:contain}
 body.feed-page .ui-vatra-comment-author-row-001{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0}
 body.feed-page .vatra-comment-hover-delete-001{
  display:grid;place-items:center;flex:none;width:28px;height:28px;
@@ -2590,7 +2589,6 @@ body.feed-page .vatra-post-comment-emoji-option-001{
  font:26px/1 "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
  cursor:pointer
 }
-body.feed-page .vatra-post-comment-emoji-option-001.is-sticker{}
 body.feed-page .vatra-post-comment-emoji-option-001:hover{
  background:#eef4ff;transform:scale(1.07)
 }
@@ -2608,7 +2606,6 @@ body.feed-page .vatra-post-comment-emoji-option-001:hover{
  body.feed-page .vatra-post-comment-toolbar>button svg{width:18px;height:18px}
  body.feed-page .vatra-post-comment-emoji-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
  body.feed-page .vatra-post-comment-emoji-option-001{font-size:23px}
- body.feed-page .vatra-post-comment-emoji-option-001.is-sticker{font-size:35px}
 }
 
 
@@ -2789,7 +2786,6 @@ body.feed-page .vatra-post-comment-emoji-tabs{flex:none}
 body.feed-page .vatra-post-comment-emoji-scroll{flex:1;min-height:0;overflow-y:auto;padding:8px 10px 10px}
 body.feed-page .vatra-post-comment-emoji-grid{grid-template-columns:repeat(auto-fit,minmax(34px,1fr));gap:3px}
 body.feed-page .vatra-post-comment-emoji-option-001{width:100%;min-width:0;height:36px;aspect-ratio:auto;font-size:23px}
-body.feed-page .vatra-post-comment-emoji-option-001.is-sticker{height:43px;font-size:32px}
 @media(max-width:600px){
  body.feed-page .vatra-post-comment-toolbar>button{width:32px;height:36px;padding:5px}
  body.feed-page .vatra-post-comment-input-wrap .ui-vatra-post-comment-input-001{font-size:16px;padding:10px 8px!important}
@@ -2883,13 +2879,6 @@ body.feed-page .vatra-post-comment-dialog .feed-post-card>.feed-post-media .feed
 .vatra-account-blocked-action-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#2863d8;color:white}
 
 
-body.feed-page .ui-vatra-sticker-packs-001{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:thin}
-body.feed-page .vatra-sticker-pack-001{flex:none;border:0;border-radius:9px;padding:8px 12px;background:#f0f4fa;color:var(--ink);font:600 13px/1.4 Onest,Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap}
-body.feed-page .vatra-sticker-pack-001[aria-pressed="true"]{background:var(--vatra-action-selected);color:var(--vatra-action-ink)}
-body.feed-page .ui-vatra-sticker-grid-001{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
-body.feed-page .vatra-sticker-option-001{display:grid;place-items:center;width:100%;min-width:0;aspect-ratio:1;border:0;padding:3px;border-radius:10px;background:transparent;cursor:pointer;overflow:hidden}
-body.feed-page .vatra-sticker-option-001:hover{background:#f0f4fa}
-body.feed-page .ui-vatra-sticker-art-001{display:block;width:100%;height:100%;background-repeat:no-repeat;pointer-events:none}
 body.feed-page .vatra-picker-loading-001,body.feed-page .vatra-picker-retry-001{font:500 14px/1.5 Onest,Inter,system-ui,sans-serif;color:var(--soft)}
 
 

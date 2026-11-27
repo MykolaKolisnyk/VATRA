@@ -1,7 +1,7 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const pickerURL=new URL("comment-picker.js?rev=225475fd9ab4a94e97aabc208e2d4216c99adb25",document.currentScript?.src||location.href).href;
+ const pickerURL=new URL("comment-picker.js?rev=c05ee435b212250a9a8a05f812250892dc8c5a1d",document.currentScript?.src||location.href).href;
  let pickerPromise=null;const loadPicker=()=>pickerPromise||(pickerPromise=import(pickerURL).catch(error=>{pickerPromise=null;throw error;}));
  const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
  const tr=(uk,english)=>{
@@ -893,7 +893,7 @@ function appendAudience(container,level,isGroup=false){
    button.setAttribute("aria-label",label);button.title=label;return button;
   };
   const attach=tool("paperclip","vatra-post-comment-attach-001",tr("Додати вкладення","Attach media"));
-  const emoji=tool("smile","vatra-post-comment-emoji-001",tr("Емодзі та стікери","Emoji and stickers"));
+  const emoji=tool("smile","vatra-post-comment-emoji-001",tr("Емодзі","Emoji"));
   const send=tool("arrow","vatra-post-comment-send-001",tr("Опублікувати коментар","Post comment"));
   send.type="submit";
   controls.append(attach,emoji,send);
@@ -920,13 +920,8 @@ function appendAudience(container,level,isGroup=false){
   );
   const emojiPanel=make("div","vatra-post-comment-emoji-panel ui-vatra-post-comment-emoji-panel-001");
   emojiPanel.hidden=true;
-  const emojiTabs=make("div","vatra-post-comment-emoji-tabs ui-vatra-post-comment-emoji-tabs-001");
-  const emojisTab=make("button","vatra-post-comment-emoji-tab-001",tr("Емодзі","Emoji"));
-  const stickerTab=make("button","vatra-post-comment-sticker-tab-001",tr("Стікери","Stickers"));
-  emojisTab.type="button";stickerTab.type="button";
-  emojiTabs.append(emojisTab,stickerTab);
   const emojiContent=make("div","vatra-post-comment-emoji-scroll ui-vatra-post-comment-emoji-scroll-001");
-  emojiPanel.append(emojiContent,emojiTabs);
+  emojiPanel.append(emojiContent);
   popovers.append(attachmentMenu,emojiPanel);
   const attachmentPreview=make("div","vatra-post-comment-file-preview ui-vatra-post-comment-file-preview-001");
   attachmentPreview.hidden=true;
@@ -942,7 +937,7 @@ function appendAudience(container,level,isGroup=false){
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
   const replySize=3;
   let canLoadMore=false;
-  let commentOffset=0,busy=false,ticket=0,pendingReset=false,pendingKeep=false,replyTarget=null,chosenFile=null,emojiMode="emoji",pickerVersion=0,activePack="vatryk",cropVersion=0,cropping=false,submitting=false;
+  let commentOffset=0,busy=false,ticket=0,pendingReset=false,pendingKeep=false,replyTarget=null,chosenFile=null,pickerVersion=0,cropVersion=0,cropping=false,submitting=false;
   const rootReplies=new Map();
   const stopReply=()=>{
    replyTarget=null;replying.hidden=true;replyingText.textContent="";
@@ -1026,41 +1021,19 @@ function appendAudience(container,level,isGroup=false){
    input.setRangeText(value,start,end,"end");input.dispatchEvent(new Event("input",{bubbles:true}));
    input.focus();
   };
-  async function chooseSticker(catalog,pack,index){
-   if(submitting||cropping)return;
-   const version=++cropVersion;cropping=true;updateSend();
-   try{
-    const file=await catalog.stickerFile(pack.id,index);if(version!==cropVersion||!form.isConnected)return;
-    cropping=false;hideMenus();feedback("");
-    await publishComment({file,kind:"image",ext:"webp",sticker:true});
-   }catch(_){if(version===cropVersion)feedback(tr("Не вдалося підготувати стікер. Спробуйте ще раз.","Could not prepare sticker. Please retry."),true);}
-   finally{if(version===cropVersion){cropping=false;updateSend();}}
-  }
   async function renderEmoji(){
    const version=++pickerVersion;emojiContent.replaceChildren(make("p","vatra-picker-loading-001",tr("Завантаження…","Loading…")));
-   emojisTab.setAttribute("aria-selected",String(emojiMode==="emoji"));stickerTab.setAttribute("aria-selected",String(emojiMode==="sticker"));
    try{
     const catalog=await loadPicker();if(version!==pickerVersion||!form.isConnected)return;
     emojiContent.replaceChildren();emojiContent.scrollTop=0;
-    if(emojiMode==="sticker"){
-     const pack=catalog.packs.find(x=>x.id===activePack)||catalog.packs[0];
-     const packNav=make("div","ui-vatra-sticker-packs-001");
-     for(const item of catalog.packs){const button=make("button","vatra-sticker-pack-001",tr(item.uk,item.en));button.type="button";button.setAttribute("aria-pressed",String(item.id===pack.id));button.addEventListener("click",()=>{activePack=item.id;void renderEmoji();});packNav.append(button);}
-     emojiContent.append(packNav,make("h4","vatra-post-comment-emoji-heading-001",tr(pack.uk,pack.en)));
-     const grid=make("div","ui-vatra-sticker-grid-001");
-     pack.rects.forEach((r,index)=>{const button=make("button","vatra-sticker-option-001");button.type="button";button.setAttribute("aria-label",tr(pack.uk,pack.en)+" · "+(index+1));button.append(catalog.stickerArt(pack,index));button.addEventListener("click",()=>void chooseSticker(catalog,pack,index));grid.append(button);});emojiContent.append(grid);
-    }else{
      const fragment=document.createDocumentFragment();
      for(const group of catalog.emojiGroups){fragment.append(make("h4","vatra-post-comment-emoji-heading-001",tr(group.uk,group.en)));
       const grid=make("div","vatra-post-comment-emoji-grid ui-vatra-post-comment-emoji-grid-001");
       for(const value of group.values){const button=make("button","vatra-post-comment-emoji-option-001",value);button.type="button";button.setAttribute("aria-label",value);button.addEventListener("click",()=>addEmoji(value));grid.append(button);}fragment.append(grid);
      }emojiContent.append(fragment);
-    }
     if(activeMenu===emojiPanel)positionPopover(emojiPanel);
    }catch(_){if(version===pickerVersion){const retry=make("button","vatra-picker-retry-001",tr("Повторити","Retry"));retry.type="button";retry.addEventListener("click",()=>void renderEmoji());emojiContent.replaceChildren(retry);}}
   }
-  emojisTab.addEventListener("click",()=>{emojiMode="emoji";void renderEmoji();});
-  stickerTab.addEventListener("click",()=>{emojiMode="sticker";void renderEmoji();});
   document.addEventListener("pointerdown",event=>{
    if(!form.isConnected)return;
    if(!attach.contains(event.target)&&!emoji.contains(event.target)&&!popovers.contains(event.target))hideMenus();
@@ -1112,11 +1085,10 @@ function appendAudience(container,level,isGroup=false){
    if(!validId(id)||!["image","video"].includes(kind)||
     !path.startsWith(id+"/comments/"))return;
    const box=make("div","vatra-post-comment-media ui-vatra-post-comment-media-001");
-   if(kind==="image"&&/\/comments\/sticker-[0-9a-f-]+\.webp$/i.test(path))box.classList.add("is-vatra-sticker");
    const media=make(kind==="image"?"img":"video",
     "ui-vatra-post-comment-media-"+kind+"-001");
    if(kind==="image"){
-    media.alt=box.classList.contains("is-vatra-sticker")?tr("Стікер","Sticker"):tr("Фото в коментарі","Comment photo");media.loading="lazy";
+    media.alt=tr("Фото в коментарі","Comment photo");media.loading="lazy";
    }else{media.controls=true;media.preload="metadata";media.playsInline=true;}
    box.append(media);content.append(box);
    const bucket=kind==="image"?"post-images":"videos";
@@ -1141,7 +1113,7 @@ function appendAudience(container,level,isGroup=false){
   };
   function renderComment(item,people,ownLikes,rootId,isReply=false,initialReplyCount=0){
    const id=String(item.author_vatra_id);
-   const name=people.names.get(id)||tr("Користувач VATRA","VATRA member");
+   const name=people.names.get(id)||tr("Користувач VATRA","VATRA user");
    const card=make("article","vatra-post-comment ui-vatra-post-comment-001 vatra-media-comment-row-001");
    card.id="vatra-comment-"+item.id;card.dataset.commentId=item.id;
    if(isReply)card.classList.add("is-reply");
@@ -1159,7 +1131,7 @@ function appendAudience(container,level,isGroup=false){
    if(item.body){
     const emojiOnly=Array.from(item.body.trim()).length<=8 &&
      /^[\p{Extended_Pictographic}\uFE0F\u200D\p{Emoji_Modifier}\s]+$/u.test(item.body.trim());
-    if(emojiOnly)body.classList.add("is-sticker");
+    if(emojiOnly)body.classList.add("is-emoji-only");
    }
    const authorRow=make("div","ui-vatra-comment-author-row-001");authorRow.append(author);
    if(String(item.author_vatra_id)===String(ownId)&&userId){
@@ -1557,9 +1529,9 @@ function appendAudience(container,level,isGroup=false){
    document.addEventListener("scroll",check,{passive:true});
    panel.addEventListener("scroll",check,{passive:true});
   }
-  async function publishComment(sticker=null){
+  async function publishComment(){
    hideMenus();
-   const body=sticker?"":input.value.trim(),file=sticker||chosenFile;
+   const body=input.value.trim(),file=chosenFile;
    if(commentsLocked||submitting||cropping||(!body&&!file)||body.length>1000||!validId(ownId))return;
    submitting=true;updateSend();let uploaded=null,committed=false;
    try{
@@ -1569,7 +1541,7 @@ function appendAudience(container,level,isGroup=false){
     if(target)payload.parent_comment_id=target.id;
     if(file){
      const bucket=file.kind==="image"?"post-images":"videos";
-     const filename=(file.sticker?"sticker-":"")+crypto.randomUUID()+"."+file.ext;
+     const filename=crypto.randomUUID()+"."+file.ext;
      const path=ownId+"/comments/"+filename;
      const {error}=await client.storage.from(bucket).upload(path,file.file,{
       contentType:file.file.type,cacheControl:"3600",upsert:false
@@ -1582,8 +1554,7 @@ function appendAudience(container,level,isGroup=false){
     if(result.error)throw result.error;
     committed=true;
     invalidateEngagement(client);invalidateComments(client);
-    if(!sticker){input.value="";chosenFile=null;fileInput.value="";attachmentPreview.hidden=true;stopReply();}
-    else if(!input.value.trim()&&!chosenFile)stopReply();
+    input.value="";chosenFile=null;fileInput.value="";attachmentPreview.hidden=true;stopReply();
     updateSend();
     if(target&&rootReplies.has(target.id)){
      void rootReplies.get(target.id).expand(true);
@@ -1781,7 +1752,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    const member=await client.from("public_profiles").select("display_name")
     .eq("vatra_id",data.author_vatra_id).maybeSingle();
    const name=!member.error&&member.data?.display_name?
-    member.data.display_name:tr("Користувач VATRA","VATRA member");
+    member.data.display_name:tr("Користувач VATRA","VATRA user");
    const link=make("a","vatra-post-original-link-001",name);
    link.href=new URL("id"+data.author_vatra_id,relativeRoot()).href;
    preview.append(link);

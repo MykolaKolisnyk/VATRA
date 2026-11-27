@@ -69,7 +69,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
     article.dataset.postId=post.id;
     const head=node("div","feed-post-header ui-club-post-head-001");
     const profile=node("a","feed-post-name vatra-club-post-author-001",
-     names.get(id)||t("Учасник VATRA","VATRA member"));
+     names.get(id)||t("Користувач VATRA","VATRA user"));
     profile.href=root+"id"+id;
     if(names.has(id))void window.VATRA_VERIFIED?.attach(client,profile,id);
     const time=node("time","feed-post-date vatra-club-post-date-001",

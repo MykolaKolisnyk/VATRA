@@ -1387,7 +1387,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
    const [people,communities]=await Promise.all([namedAuthors(all),namedCommunities(all.filter(x=>x.club_id))]);
    for(const save of rows){
     const post=map.get(save.post_kind+":"+save.post_id);if(!post)continue;
-    const author=people.get(String(post.author_vatra_id))||t("Учасник VATRA","VATRA member");
+    const author=people.get(String(post.author_vatra_id))||t("Користувач VATRA","VATRA user");
     const community=save.post_kind==="group"?communities.get(String(post.club_id)):null;
     const heading=community?community+" · "+author:author;
     const article=makeRow(list,heading,post.body||t("Медіапублікація","Media post"));
@@ -1793,7 +1793,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
    }
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
     state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-    namesMap.get(id)||t("Учасник VATRA","VATRA member");
+    namesMap.get(id)||t("Користувач VATRA","VATRA user");
    return {id,name,avatar,state};
   });
  }
@@ -3760,7 +3760,7 @@ async function start(){
   const ownName=[metadata.first_name,metadata.last_name]
    .filter(value=>typeof value==="string"&&value.trim())
    .map(value=>value.trim()).join(" ")
-   ||String(metadata.full_name||"").trim()||t("Учасник VATRA","VATRA member");
+   ||String(metadata.full_name||"").trim()||t("Користувач VATRA","VATRA user");
   const cleanOwnName=Array.from(ownName).slice(0,100).join("");
   const nameParts=cleanOwnName.split(/\s+/).filter(Boolean);
   const first=Array.from(nameParts[0]||"V")[0]||"V";
@@ -3864,7 +3864,7 @@ async function start(){
    publicName=publicProfile.display_name.trim();
    publicStatus=String(publicProfile.status_text||"").slice(0,140);
   }
-  const fallback=t("Учасник VATRA","VATRA member")+" · ID "+targetId;
+  const fallback=t("Користувач VATRA","VATRA user")+" · ID "+targetId;
   const name=publicName||(isMine?cleanOwnName:fallback);
   q("#profile-heading").textContent=name;
   q("#profile-avatar").textContent=isMine?ownAvatar:(publicName?(

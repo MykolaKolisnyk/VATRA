@@ -373,7 +373,7 @@
    return null;
   };
   const groupLabel=kind=>{const entry=scopes.find(x=>x[0]===kind);return entry?tr(entry[1],entry[2]):"";};
-  const resultTitle=(kind,item)=>kind==="people"?item.display_name||tr("Учасник VATRA","VATRA member"):kind==="communities"?item.name:kind==="products"?item.title:String(item.body||groupLabel(kind)).slice(0,105);
+  const resultTitle=(kind,item)=>kind==="people"?item.display_name||tr("Користувач VATRA","VATRA user"):kind==="communities"?item.name:kind==="products"?item.title:String(item.body||groupLabel(kind)).slice(0,105);
   const resultDetails=(kind,item)=>kind==="people"?item.status_text:kind==="communities"?item.description:kind==="products"?[Number(item.price).toLocaleString(lang()==="en"?"en-GB":"uk-UA",{maximumFractionDigits:2})+" "+({UAH:"₴",USD:"$",EUR:"€"}[item.currency]||"₴"),item.city].filter(Boolean).join(" · "):item.kind==="group"?tr("Дописи спільнот","Community posts"):tr("Стрічка VATRA","VATRA feed");
   const vectors={people:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21v-2a7.5 7.5 0 0 1 15 0v2",communities:"M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 20v-1a6 6 0 0 1 12 0v1M17 6a3 3 0 0 1 0 5M18 14a5 5 0 0 1 3 5v1",products:"M4 7h16l1 14H3L4 7Zm4 0V5a4 4 0 0 1 8 0v2",posts:"M5 3.5h14v17H5zM8 9h8M8 13h8M8 17h5",photos:"M3 4h18v16H3zM3 17l6-6 4 4 3-3 5 5M16 8h.1",videos:"M3 5h13v14H3zM16 10l5-3v10l-5-3",clips:"M3 4h18v16H3zM9 9l6 3-6 3z"};
   const resultIcon=(kind,item,suffix)=>{
