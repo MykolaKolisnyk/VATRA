@@ -3004,6 +3004,7 @@ try{
  // The gallery smoke fixture uses /sign/example as a fictional image URL.
  // Unlike the main context, the gallery runs in feedContext; intercept it here
  // so HeadlessChrome never creates HTTP 400 / NoSuchBucket production logs.
+ await feedContext.route("**/storage/v1/object/sign/album-photos/**",route=>route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
  await feedContext.route("**/storage/v1/object/sign/example",route=>route.fulfill({
   status:200,contentType:"image/png",headers:{"access-control-allow-origin":"*"},body:onePixelPng
  }));
@@ -3109,6 +3110,8 @@ try{
     }})}:
     table==="verified_accounts"?
     {select:()=>({in:async(_key,ids)=>({data:ids.filter(id=>String(id)==="654321").map(vatra_id=>({vatra_id})),error:null})})}:
+    table==="photo_album_summaries"?
+    {select:()=>({eq(_field,id){this.owner=String(id);return this;},order(){return this;},async limit(){return {data:[{id:"11111111-1111-4111-8111-111111111111",title:"Album fixture",description:"",visibility:"public",comments_mode:"all",show_in_photos:false,created_at:"2026-11-20T00:00:00Z",photo_count:2,cover_path:this.owner+"/albums/11111111-1111-4111-8111-111111111111/latest.jpg",is_personal:false}],error:null};}})}:
     table==="profile_media"?
     {select:()=>({
       eq:(_field,id)=>({maybeSingle:async()=>({
@@ -5110,8 +5113,10 @@ try{
   assert.equal(await profilePage.locator(".vatra-albums-tab-001").count(),2,"Photos must only contain Photos and Albums tabs");
   await profilePage.locator(".vatra-albums-tab-001").nth(1).click();
   await profilePage.locator(".vatra-albums-card-001").first().waitFor({state:"visible",timeout:6000});
-  assert.ok((await profilePage.locator(".vatra-albums-card-title-001").first().textContent()).trim().length>0,
-   "The profile photo collection must appear as a built-in album");
+  assert.equal(await profilePage.locator(".vatra-albums-card-001").count(),1,"Only the real album must appear, not the avatar collection");
+  assert.equal(await profilePage.locator(".vatra-albums-card-title-001").first().textContent(),"Album fixture");
+  await profilePage.locator(".ui-vatra-albums-cover-image-001").scrollIntoViewIfNeeded();
+  await profilePage.waitForFunction(()=>{const img=document.querySelector(".ui-vatra-albums-cover-image-001");return img?.complete&&img.naturalWidth>0&&img.src.includes("/albums/11111111-1111-4111-8111-111111111111/latest.jpg");},null,{timeout:12000});
   const albumCreate=profilePage.locator(".ui-vatra-albums-controls-001 .vatra-albums-primary-001");
   assert.equal(await albumCreate.isVisible(),true,"Only profile owners can create photo albums");
   await albumCreate.click();
