@@ -244,7 +244,8 @@
     for(const entry of entries){
      if(!entry.isIntersecting)continue;
      imageObserver.unobserve(entry.target);
-     void revealImage(entry.target);
+     const image=entry.target.querySelector("img[data-path]");
+     if(image)void revealImage(image);
     }
    },{rootMargin:"220px 0px"}):null;
   function paintImage(image,path){
@@ -253,7 +254,7 @@
    image.dataset.path=path;
    queueMicrotask(()=>{
     if(!image.isConnected)return;
-    if(imageObserver)imageObserver.observe(image);
+    if(imageObserver&&image.parentElement)imageObserver.observe(image.parentElement);
     else void revealImage(image);
    });
   }
@@ -1042,15 +1043,6 @@
     intro.append(make("p","vatra-albums-intro-copy-001",t("Зберігайте важливі миті в окремих колекціях.","Keep memorable moments in their own collections.")));
     albumPane.append(intro);
     const grid=make("div","ui-vatra-albums-grid-001");
-    const virtual=button("vatra-albums-card-001","");
-    const cover=make("span","ui-vatra-albums-cover-001");
-    if(state.avatar?.url){const img=make("img","ui-vatra-albums-cover-image-001");img.src=state.avatar.url;img.alt="";cover.append(img);}
-    else{cover.classList.add("is-empty");cover.append(svg("ui-vatra-albums-placeholder-icon-001","image"));}
-    const label=make("span","ui-vatra-albums-card-copy-001");
-    label.append(make("strong","vatra-albums-card-title-001",t("Фото профілю","Profile photos")),
-     make("span","vatra-albums-card-count-001",t("Фотографій: ","Photos: ")+(state.avatarList.length?state.avatarList.length+(state.avatarHasMore?"+":""):(state.avatar?.url?1:0))));
-    virtual.append(cover,label);virtual.addEventListener("click",()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
-    grid.append(virtual);
     const visibleAlbums=state.albums.filter(album=>!album.is_personal);
     for(const album of visibleAlbums)
      grid.append(albumCard({...album,count:album.photo_count},album.cover_path?{media_path:album.cover_path}:null));
@@ -1246,7 +1238,7 @@
    }catch(_){state.avatarHasMore=false;
     if(!state.avatarList.length&&state.avatar?.url&&state.avatar?.path)
      state.avatarList=[{path:state.avatar.path,url:state.avatar.url}];
-   }finally{state.avatarBusy=false;if(state.tab==="photos")renderFeatured();else if(state.tab==="albums"&&state.loaded)renderAlbumPane();}
+   }finally{state.avatarBusy=false;if(state.tab==="photos")renderFeatured();}
   }
   let albumsLoading=null;
   async function loadAlbums(){

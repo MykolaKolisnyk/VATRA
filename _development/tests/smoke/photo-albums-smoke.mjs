@@ -328,3 +328,13 @@ assert.ok(script.includes('button("vatra-album-viewer-like-001","",')&&script.in
 assert.ok(script.includes('icon.setAttribute("width","46");icon.setAttribute("height","46")'));
 assert.ok(css.includes('.ui-vatra-album-comments-dialog-001 .vatra-media-empty-icon-unified-001{display:block;flex:none;width:46px;height:46px')&&css.includes('.ui-vatra-album-comments-dialog-001 .vatra-media-empty-unified-001{display:flex;flex-direction:column;align-items:center;justify-content:center'));
 console.log("VATRA album viewer: icon-only like and standalone empty comments sizing verified.");
+
+{
+ const albumList=script.slice(script.indexOf("  function renderAlbumPane(){"),script.indexOf("  async function loadAlbumPage("));
+ assert.ok(!albumList.includes("const virtual=")&&!albumList.includes("VATRA_OPEN_PROFILE_AVATAR")&&!albumList.includes("state.avatarList"),"Profile photos must not be listed as an album");
+ assert.ok(albumList.includes('const visibleAlbums=state.albums.filter(album=>!album.is_personal)')&&albumList.includes('album.cover_path?{media_path:album.cover_path}:null'),"Only real albums use their own summary cover");
+ assert.ok(script.includes("imageObserver.observe(image.parentElement)")&&script.includes('entry.target.querySelector("img[data-path]")'),"Observe the laid-out tile instead of the not-yet-loaded image");
+ assert.ok(photoActions.includes("p.album_id=a.id and p.archived_at is null\n  order by p.created_at desc,p.id desc limit 1) as cover_path"),"The latest active photo from the same album must be its cover regardless of pin order");
+ assert.ok(script.includes("async function refreshPhotoLists(){\n   endSelection();await loadAlbums();"),"Media mutations must refresh album summaries");
+}
+console.log("VATRA albums: no virtual avatar album, latest active album cover and stable lazy target verified.");
