@@ -82,6 +82,19 @@
   }
   const support=dropdown.querySelector(".feed-menu-support"),settings=dropdown.querySelector(".feed-menu-settings-link");
   if(support&&settings)settings.before(support);
+  if(settings&&!dropdown.querySelector(".feed-menu-documents-link")){
+   const root=new URL("../../",shellScript||location.href);
+   const documents=make("a","feed-menu-documents-link vatra-feed-menu-documents-link-001");
+   documents.href=new URL("documents",root).href;
+   const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");
+   for(const [key,value] of Object.entries({class:"ui-vatra-account-documents-icon-001",viewBox:"0 0 24 24",width:"20",height:"20",fill:"none",stroke:"currentColor","stroke-width":"1.8","stroke-linecap":"round","stroke-linejoin":"round","aria-hidden":"true"}))svg.setAttribute(key,value);
+   const path=document.createElementNS(ns,"path");
+   path.setAttribute("d","M8 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2M6 7h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z");
+   svg.append(path);
+   const label=make("span","vatra-account-documents-label-001",tr("Документи VATRA","VATRA documents"));
+   label.dataset.socialUk="Документи VATRA";label.dataset.socialEn="VATRA documents";
+   documents.append(svg,label);settings.after(documents);
+  }
   const icon=(anchor,kind)=>{
    const svg=anchor?.querySelector("svg");
    if(!svg)return;

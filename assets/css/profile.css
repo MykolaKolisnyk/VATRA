@@ -2167,7 +2167,6 @@ body.profile-page :is(.profile-mini-more,.vatra-profile-about-more-001) svg{
 }
 body.profile-page .vatra-profile-about-more-001 svg{transform:rotate(180deg)}
 body.profile-page .profile-mini-more:hover svg{transform:translateX(3px)}
-body.profile-page .vatra-profile-about-more-001:hover svg{transform:translateX(3px) rotate(180deg)}
 @media(prefers-reduced-motion:reduce){body.profile-page :is(.profile-mini-more,.vatra-profile-about-more-001) svg{transition:none}}
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  margin-top:-38px!important

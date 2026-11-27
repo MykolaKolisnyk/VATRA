@@ -4686,8 +4686,8 @@ try{
   assert.ok(Object.values(accountRowGeometry).every(value=>value<2),"Account management label and VATRA ID brand must be adjacent: "+JSON.stringify(accountRowGeometry));
   assert.deepEqual(await manageAccount.locator(":scope > span").evaluateAll(nodes=>nodes.map(node=>node.className)),["vatra-account-manage-label-001","ui-vatra-account-id-brand-001"]);
   assert.equal(await manageAccount.locator(".ui-vatra-account-id-brand-001 > .vatra-account-id-label-001").count(),1);
-  assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":"unexpected")),["support","settings"],
-   "Support must precede Settings in the account menu");
+  assert.deepEqual(await accountPanel.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-menu-support")?"support":link.classList.contains("feed-menu-settings-link")?"settings":link.classList.contains("feed-menu-documents-link")?"documents":"unexpected")),["support","settings","documents"],
+   "Support, Settings and VATRA Documents must appear in order");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
    "Account menu contains logout and the tutorial replay action");
   assert.equal(await feedProbe.locator("#vatra-onboarding-replay").count(),1);
@@ -4696,6 +4696,9 @@ try{
   assert.equal(await feedProbe.locator(".feed-account-profile > svg").count(),1);
   assert.equal(await feedProbe.locator(".feed-menu-settings-link > svg").count(),1);
   assert.equal(await feedProbe.locator(".feed-menu-support > svg").count(),1);
+  assert.equal(await feedProbe.locator(".feed-menu-documents-link > svg").count(),1);
+  assert.equal(await feedProbe.locator(".feed-menu-documents-link").evaluate(el=>new URL(el.href).pathname.split("/").pop()),"documents");
+  assert.equal((await feedProbe.locator(".vatra-account-documents-label-001").textContent()).trim(),language==="en"?"VATRA documents":"Документи VATRA");
   assert.equal(await feedProbe.locator("#feed-logout > svg").count(),1,
    "All account actions must have persistent SVG icons in UK and EN");
   assert.equal((await feedProbe.locator(".vatra-account-settings-label-001").textContent()).trim(),
