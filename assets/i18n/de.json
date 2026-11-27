@@ -1,4 +1,9 @@
 {
+  "Мультимедіа": "Medien",
+  "Автоматично відтворювати відео у переглядачі": "Videos im Medienbetrachter automatisch abspielen",
+  "Діє у цьому браузері після відкриття відео на весь екран. Вимкнення не заважає запускати відео вручну.": "Gilt in diesem Browser beim Öffnen eines Videos im Vollbildmodus. Manuelle Wiedergabe bleibt möglich.",
+  "Ці налаштування визначають показ сповіщень у цьому браузері та не вимикають їх на інших пристроях.": "Diese Einstellungen steuern die Anzeige von Benachrichtigungen in diesem Browser und deaktivieren sie nicht auf anderen Geräten.",
+  "Керування акаунтом": "Konto verwalten",
   "Країна проживання": "Wohnsitzland",
   "Місто або село проживання": "Aktueller Wohnort",
   "Рідне місто або село": "Heimatort",
