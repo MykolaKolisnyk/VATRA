@@ -739,6 +739,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
   else element.alt=tr("Фото публікації","Post photo");
   const finishSlide=beginPhotoSlide(mediaDialogContent,mediaDialogContent.querySelector("img:not(.vatra-photo-slide-outgoing-001)"),kind==="image"?direction:0);
   const ghost=mediaDialogContent.querySelector(".vatra-photo-slide-outgoing-001");
+  const previousVideo=mediaDialogContent.querySelector("video");if(previousVideo){previousVideo.pause();previousVideo.removeAttribute("src");previousVideo.load();}
   element.src=url;mediaDialogContent.replaceChildren(element,...(ghost?[ghost]:[]));
   if(kind==="video")window.VATRA_PLAYER?.attach(element,{mode:"viewer"});
   if(kind==="image")watchPhotoViewer(mediaDialog,mediaDialogContent,element,finishSlide);
@@ -1205,7 +1206,7 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
       finally{expand.disabled=false;}
      });
      slot.replaceChildren(video,expand);
-     if(typeof window!=="undefined")window.VATRA_PLAYER?.attach(video,{mode:"inline",onExpand:()=>expand.click()});
+     if(typeof window!=="undefined"&&window.VATRA_PLAYER?.attach(video,{mode:"inline",onExpand:()=>expand.click()}))expand.hidden=true;
      video.src=src;
      void video.play().catch(()=>{});
     }catch(_){retry();}

@@ -29,3 +29,8 @@
 
 body.vatra-section-page .ui-vatra-clip-rail-001 button[hidden]{display:none}
 .vatra-player-root-001:is([data-mode="viewer"],[data-mode="story"],[data-mode="clip"]){grid-template:minmax(0,1fr)/minmax(0,1fr)}
+
+body.feed-page .vatra-feed-post-video-expand-001[hidden]{display:none}
+.vatra-player-root-001[data-mode="inline"]>video{width:100%;height:auto;max-height:440px}
+body.feed-page .vatra-player-root-001:fullscreen>video{height:100%;max-height:100%;width:100%}
+body.feed-page .vatra-player-root-001:-webkit-full-screen>video{height:100%;max-height:100%;width:100%}

@@ -20,7 +20,6 @@ function attach(video,{mode="inline",onExpand}={}){
  const words=labels[window.VATRA_LANGUAGE?.locale||document.documentElement.lang]||labels.uk;
  const make=(tag,part)=>{const el=document.createElement(tag);el.className="vatra-player-"+part+"-001";return el;};
  const root=make("div","root");root.dataset.mode=mode;root.setAttribute("role","group");root.setAttribute("aria-label",words[10]);root.tabIndex=0;
- // A stylesheet failure must leave native video controls usable.
  const parent=video.parentNode;parent.insertBefore(root,video);
  if(typeof window.getComputedStyle==="function"&&window.getComputedStyle(root).getPropertyValue("--vatra-player-ready").trim()!=="1"){root.remove();return null;}
  const controls=make("div","controls"),bar=make("div","bar"),left=make("div","left"),right=make("div","right"),clock=make("span","time"),status=make("span","status");
@@ -29,13 +28,13 @@ function attach(video,{mode="inline",onExpand}={}){
  const button=(part,key,label,fn)=>{const b=make("button",part);b.type="button";setIcon(b,key,label);b.addEventListener("click",fn);return b;};
  const showError=()=>{status.textContent=words[11];status.hidden=false;};
  const toggle=()=>{if(video.paused||video.ended){status.hidden=true;try{Promise.resolve(video.play()).catch(showError);}catch(_){showError();}}else video.pause();};
- const play=button("play","play",words[0],toggle),mute=button("mute","sound",words[2],()=>{video.muted=!video.muted;if(!video.muted&&video.volume===0)video.volume=.5;});
+ const play=button("play","play",words[0],toggle),mute=button("mute","sound",words[2],()=>{if(video.muted||video.volume===0){if(video.volume===0)video.volume=.5;video.muted=false;}else video.muted=true;updateVolume();});
  const seek=make("input","seek");seek.type="range";seek.min="0";seek.max="1";seek.step="any";seek.value="0";seek.disabled=true;seek.setAttribute("aria-label",words[5]);
  const volume=make("input","volume");volume.type="range";volume.min="0";volume.max="1";volume.step=".05";volume.setAttribute("aria-label",words[4]);
  const speed=make("select","speed");speed.setAttribute("aria-label",words[6]);speed.title=words[6];
  for(const rate of [.5,.75,1,1.25,1.5,2]){const o=document.createElement("option");o.value=String(rate);o.textContent=rate+"×";speed.append(o);}speed.value="1";
  const isFull=()=>document.fullscreenElement===root||document.webkitFullscreenElement===root;
- const full=button("fullscreen","full",words[7],async()=>{try{if(isFull()){const exit=document.exitFullscreen||document.webkitExitFullscreen;await exit?.call(document);}else if(root.requestFullscreen)await root.requestFullscreen();else if(root.webkitRequestFullscreen)root.webkitRequestFullscreen();else if(typeof video.webkitEnterFullscreen==="function")video.webkitEnterFullscreen();else onExpand?.();}catch(_){if(!isFull())onExpand?.();}});
+ const full=button("fullscreen","full",words[7],async()=>{try{if(isFull()){const exit=document.exitFullscreen||document.webkitExitFullscreen;await exit?.call(document);}else if(root.requestFullscreen&&document.fullscreenEnabled!==false)await root.requestFullscreen();else if(root.webkitRequestFullscreen)root.webkitRequestFullscreen();else if(typeof video.webkitEnterFullscreen==="function")video.webkitEnterFullscreen();else onExpand?.();}catch(_){if(!isFull())onExpand?.();}});
  full.hidden=!(root.requestFullscreen||root.webkitRequestFullscreen||video.webkitEnterFullscreen||onExpand);
  const pip=button("pip","pip",words[9],async()=>{try{if(document.pictureInPictureElement===video)await document.exitPictureInPicture();else await video.requestPictureInPicture();}catch(_){}});
  pip.hidden=!(document.pictureInPictureEnabled&&typeof video.requestPictureInPicture==="function");
@@ -56,7 +55,6 @@ function attach(video,{mode="inline",onExpand}={}){
  for(const event of ["fullscreenchange","webkitfullscreenchange"])root.addEventListener(event,()=>{setIcon(full,isFull()?"exit":"full",words[isFull()?8:7]);reveal();});
  root.addEventListener("keydown",e=>{if(e.target!==root||e.altKey||e.ctrlKey||e.metaKey)return;const k=e.key.toLowerCase();if(![" ","k","m","f","arrowleft","arrowright","arrowup","arrowdown"].includes(k))return;e.preventDefault();e.stopPropagation();if(k===" "||k==="k")toggle();else if(k==="m")mute.click();else if(k==="f")full.click();else if(k==="arrowleft")seekBy(-5);else if(k==="arrowright")seekBy(5);else{video.muted=false;video.volume=clamp(video.volume+(k==="arrowup"?.1:-.1),0,1);}reveal();});
  left.append(play,mute,volume,clock);right.append(speed,pip,full);bar.append(left,right);controls.append(seek,bar);root.append(controls,status);
- // Preserve native controls if styles or enhancement cannot be installed.
  root.prepend(video);
  try{video.volume=volumePreference();}catch(_){}updateVolume();updateTime();updatePlay();video.controls=false;
  instances.set(video,{root});return root;
