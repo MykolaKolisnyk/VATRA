@@ -41,8 +41,8 @@
    ["short_bio","Коротка інформація","Short bio","long"],
    ["relationship","Сімейний стан","Relationship status"],
    ["country","Країна проживання","Country of residence"],
-   ["city","Місто або село проживання","Current city or village"],
-   ["hometown","Рідне місто або село","Hometown or village"],
+   ["city","Населений пункт проживання","Place of residence"],
+   ["hometown","Рідний населений пункт","Place of origin"],
    ["languages","Знання мов","Languages"],
    ["family","Родина","Family","long"]
   ]},
@@ -149,6 +149,26 @@
   return parts.length===3?parts:[ "","",text ];
  };
  const addressText=value=>addressParts(value).filter(Boolean).join(", ");
+ const settlementKinds=[
+  ["city","м. ","Місто","City","Місто проживання","City of residence","Рідне місто","Hometown"],
+  ["village","с. ","Село","Village","Село проживання","Village of residence","Рідне село","Home village"],
+  ["town","селище ","Селище","Town","Селище проживання","Town of residence","Рідне селище","Home town"]
+ ];
+ const isSettlement=key=>key==="city"||key==="hometown";
+ const settlementParts=value=>{
+  const text=String(value||"");
+  const kind=settlementKinds.find(item=>text.startsWith(item[1])&&text.slice(item[1].length).trim());
+  return {type:kind?.[0]||"",name:kind?text.slice(kind[1].length):text};
+ };
+ const settlementValue=(type,name)=>{
+  const prefix=settlementKinds.find(item=>item[0]===type)?.[1]||"";
+  return name.trim()?prefix+name.trim():"";
+ };
+ const settlementLabel=(key,type)=>{
+  const kind=settlementKinds.find(item=>item[0]===type);
+  return kind?tr(...kind.slice(key==="city"?4:6,key==="city"?6:8)):
+   key==="city"?tr("Населений пункт проживання","Place of residence"):tr("Рідний населений пункт","Place of origin");
+ };
  const make=(tag,cls,content)=>{
   const e=document.createElement(tag);
   if(cls)e.className=cls;
@@ -294,7 +314,7 @@
     return detailed?make("p","vatra-profile-detail-bio-001",data.value):null;
    }
    const label=make("span",detailed?
-    "vatra-profile-detail-label-"+key:"vatra-profile-information-label-"+key,tr(field[1],field[2]));
+    "vatra-profile-detail-label-"+key:"vatra-profile-information-label-"+key,isSettlement(key)?settlementLabel(key,settlementParts(data.value).type):tr(field[1],field[2]));
    const content=make("span",detailed?
     "vatra-profile-detail-value-"+key:"vatra-profile-information-value-"+key);
    if(key==="website"){
@@ -304,7 +324,7 @@
      link.href=href;link.target="_blank";link.rel="noopener noreferrer nofollow";
      content.append(link);
     }else content.textContent=data.value;
-   }else content.textContent=key==="address"?addressText(data.value):key==="country"?countryLabel(data.value):key==="relationship"?relationshipLabel(data.value,profileGender):choiceLabel(key,data.value);
+   }else content.textContent=key==="address"?addressText(data.value):key==="country"?countryLabel(data.value):key==="relationship"?relationshipLabel(data.value,profileGender):isSettlement(key)?settlementParts(data.value).name:choiceLabel(key,data.value);
    if(!detailed&&key==="city"&&visibleField("country")){
     const country=countryLabel(visibleField("country"));if(country)content.append(document.createTextNode(", "+country));
    }
@@ -697,7 +717,7 @@
    arrow.setAttribute("aria-label",tr("Список населених пунктів","Settlement suggestions"));arrow.append(menuArrow());
    input.before(wrapper);wrapper.append(input,arrow);
    input.setAttribute("role","combobox");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-expanded","false");input.setAttribute("aria-haspopup","listbox");
-   if(!input.hasAttribute("aria-label"))input.setAttribute("aria-label",tr("Місто або село проживання","Current city or village"));
+   if(!input.hasAttribute("aria-label"))input.setAttribute("aria-label",tr("Населений пункт проживання","Place of residence"));
    const open=(keyboard=false,all=false)=>{
     const query=all?"":input.value.trim().toLocaleLowerCase();
     const items=citiesForCountry(draft.get("country")?.value).filter(city=>!query||city.toLocaleLowerCase().includes(query)).sort((a,b)=>a.localeCompare(b,window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk")).map(city=>({value:city,text:city}));
@@ -731,7 +751,7 @@
    if(!selectBox.value)selectBox.value="friends";
    const control=make("div","ui-profile-editor-field-control-"+key);
    const inputId="profile-editor-"+key;
-   let readValue,fieldCounter;
+   let readValue,fieldCounter,settlementType;
    if(key==="address"){
     let value=current.value;
     const trigger=make("button","vatra-profile-editor-address-open-001");trigger.id=inputId;trigger.type="button";trigger.setAttribute("aria-haspopup","dialog");trigger.setAttribute("aria-label",tr("Вказати адресу","Set address"));
@@ -749,7 +769,7 @@
       const row=make("div","profile-editor-field ui-profile-editor-address-row-"+key),group=make("div","ui-profile-editor-field-label-group-001"),label=make("label","vatra-profile-editor-label-place-"+key,tr(uk,en));
       const input=make("input","ui-profile-editor-input-place-"+key);input.id="profile-editor-place-"+key;input.type="text";input.maxLength=250;input.autocomplete="off";input.value=initial;label.htmlFor=input.id;group.append(label);row.append(group,input);body.append(row);return input;
      };
-     const city=addField("city","Населений пункт","City, town or village",existingCity||draft.get("city")?.value||"");
+     const city=addField("city","Населений пункт","City, town or village",existingCity||settlementParts(draft.get("city")?.value).name||"");
      const street=addField("street","Вулиця","Street",existingStreet),name=addField("name","Назва","Name",existingName);
      city.placeholder=tr("Знайти або ввести населений пункт","Find or enter a settlement");enhanceCityInput(city);
      street.placeholder=tr("Введіть назву вулиці","Enter street name");name.placeholder=tr("Наприклад, Дім","For example, Home");
@@ -841,11 +861,29 @@
      else input.type=["mobile_phone","additional_phone"].includes(key)?"tel":"text";
      input.maxLength=profileFieldLimit(key,kind);input.spellcheck=kind==="long";
      input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):tr("Не вказано","Not specified");
-     if(key==="city"||key==="hometown"){
-      input.autocomplete="off";input.placeholder=key==="hometown"?tr("Місто або село, країна (за бажанням)","City or village, country (optional)"):tr("Знайти або ввести населений пункт","Find or enter a settlement");
+     if(isSettlement(key)){
+      input.autocomplete="off";input.placeholder=tr("Знайти або ввести населений пункт","Find or enter a settlement");
      }
     }
     input.value=key==="country"&&!countryCodes.includes(selectedValue)?"":selectedValue;readValue=()=>input.value;
+    if(isSettlement(key)){
+     const initial=settlementParts(current.value);
+     input.value=initial.name;
+     settlementType=make("select","ui-profile-editor-settlement-type-001");
+     settlementType.id=inputId+"-type";settlementType.setAttribute("aria-label",tr("Тип населеного пункту","Settlement type")+": "+tr(uk,en));
+     settlementType.append(opt("",tr("Не вибрано","Not selected")));
+     for(const [type,prefix,ua,eng] of settlementKinds)settlementType.append(opt(type,tr(ua,eng)));
+     settlementType.value=initial.type;
+     readValue=()=>settlementValue(settlementType.value,input.value);
+     const refreshLabel=()=>{
+      const title=settlementLabel(key,settlementType.value);
+      lab.textContent=title;input.setAttribute("aria-label",title);
+      selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+title);
+      input.maxLength=profileFieldLimit(key,kind)-(settlementKinds.find(item=>item[0]===settlementType.value)?.[1].length||0);
+     };
+     refreshLabel();
+     settlementType.addEventListener("change",()=>{refreshLabel();selectBox.dispatchEvent(new Event("change"));});
+    }
     if(key==="short_bio"){
       fieldCounter=make("span","vatra-profile-status-counter-001");fieldCounter.id="profile-short-bio-counter";
       input.setAttribute("aria-describedby",fieldCounter.id);
@@ -855,7 +893,7 @@
      control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city")enhanceCityInput(input);
    }
-   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
+   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);if(settlementType){labelGroup.append(settlementType);enhanceEditorSelect(settlementType);}if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
@@ -901,13 +939,13 @@
     const sectionObserver=new MutationObserver(()=>{if(!identity.isConnected){observe.disconnect();sectionObserver.disconnect();}});
     sectionObserver.observe(fields,{childList:true});
     bindMenu(coverButton,coverButton,"cover");bindMenu(avatarPreview,avatarButton,"avatar");
-    avatarPreview.append(avatarButton);coverPreview.append(coverButton,avatarPreview);
+    avatarPreview.append(avatarButton);coverPreview.append(coverButton);
     const identityInfo=make("div","ui-profile-editor-identity-info-001");
     const nameLine=make("div","ui-profile-editor-identity-name-row-001");
     nameLine.append(make("strong","vatra-profile-editor-identity-name-001",select("#profile-heading")?.querySelector(".vatra-verified-name-text")?.textContent||select("#profile-heading")?.textContent.trim()||"VATRA"));
     const idLink=make("a","vatra-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id#personal",location.href).href;
     nameLine.append(idLink);identityInfo.append(nameLine);
-    identity.append(coverPreview,identityInfo);fields.append(identity);
+    identityInfo.prepend(avatarPreview);identity.append(coverPreview,identityInfo);fields.append(identity);
 
    }
    if(["education","career","military"].includes(id)){

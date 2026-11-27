@@ -4059,5 +4059,14 @@
   "Комп’ютер": "Computer",
   "Мобільний пристрій": "Mobile device",
   "Планшет": "Tablet",
-  "Введіть опис": "Enter a description"
+  "Введіть опис": "Enter a description",
+  "Населений пункт проживання": "Place of residence",
+  "Тип населеного пункту": "Settlement type",
+  "Село": "Village",
+  "Селище": "Town",
+  "Місто проживання": "City of residence",
+  "Село проживання": "Village of residence",
+  "Селище проживання": "Town of residence",
+  "Рідне село": "Home village",
+  "Рідне селище": "Home town"
 }

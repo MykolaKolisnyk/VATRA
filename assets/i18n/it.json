@@ -4201,5 +4201,14 @@
   "Комп’ютер": "Computer",
   "Мобільний пристрій": "Dispositivo mobile",
   "Планшет": "Tablet",
-  "Введіть опис": "Inserisci una descrizione"
+  "Введіть опис": "Inserisci una descrizione",
+  "Населений пункт проживання": "Luogo di residenza",
+  "Тип населеного пункту": "Tipo di località",
+  "Село": "Villaggio",
+  "Селище": "Borgo",
+  "Місто проживання": "Città di residenza",
+  "Село проживання": "Villaggio di residenza",
+  "Селище проживання": "Borgo di residenza",
+  "Рідне село": "Villaggio di origine",
+  "Рідне селище": "Borgo di origine"
 }

@@ -4201,5 +4201,14 @@
   "Комп’ютер": "Komputer",
   "Мобільний пристрій": "Urządzenie mobilne",
   "Планшет": "Tablet",
-  "Введіть опис": "Wprowadź opis"
+  "Введіть опис": "Wprowadź opis",
+  "Населений пункт проживання": "Miejsce zamieszkania",
+  "Тип населеного пункту": "Typ miejscowości",
+  "Село": "Wieś",
+  "Селище": "Osada",
+  "Місто проживання": "Miasto zamieszkania",
+  "Село проживання": "Wieś zamieszkania",
+  "Селище проживання": "Osada zamieszkania",
+  "Рідне село": "Rodzinna wieś",
+  "Рідне селище": "Rodzinna osada"
 }
