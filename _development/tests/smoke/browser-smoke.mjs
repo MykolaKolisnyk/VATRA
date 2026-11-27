@@ -4196,6 +4196,11 @@ try{
   });
   const reactHost="#vatra-reaction-integrity-test";
   const reactLike=feedProbe.locator(reactHost+" .vatra-post-like-001");
+  for(const cls of [".vatra-post-like-001",".vatra-post-comments-toggle-001",".vatra-post-share-toggle-001"]){
+   const action=feedProbe.locator(reactHost+" "+cls);
+   assert.equal(await action.getAttribute("title"),null,"Post actions must not show native tooltips");
+   assert.ok(await action.getAttribute("aria-label"),"Post actions retain accessible labels");
+  }
   const reactSave=feedProbe.locator(reactHost+" .vatra-post-save-001");
   await reactLike.click();
   await feedProbe.waitForFunction(()=>window.__vatraReactionTest.deleted.includes("post_likes")&&
@@ -5514,6 +5519,18 @@ try{
   assert.equal(await profilePage.locator("#profile-about-card").evaluate(el=>getComputedStyle(el).position),"static",
    "Information must not follow a reader scrolling long profile posts");
   await profilePage.locator("#profile-last-seen").waitFor({state:"visible"});
+  const deviceTips=await profilePage.evaluate(()=>{
+   const root=document.createElement("div");root.style.cssText="position:fixed;top:100px;left:100px";document.body.append(root);
+   const results=[];
+   for(const device of ["desktop","mobile","tablet"]){
+    root.replaceChildren();window.VATRA_PRESENCE.appendDevice(root,device);
+    const icon=root.querySelector("svg");icon.dispatchEvent(new PointerEvent("pointerenter",{pointerType:"mouse"}));
+    const tip=document.querySelector(".vatra-verified-tooltip");results.push({branded:!!tip?.textContent,native:!!icon.querySelector("title"),label:!!icon.getAttribute("aria-label")});
+    icon.dispatchEvent(new PointerEvent("pointerleave",{pointerType:"mouse"}));
+   }
+   root.remove();return results;
+  });
+  assert.deepEqual(deviceTips,Array.from({length:3},()=>({branded:true,native:false,label:true})),"Device icons share the VATRA tooltip");
   assert.equal(await profilePage.locator("#profile-online-dot").count(),0,"Online status is textual, not a green badge");
   await profilePage.locator("#profile-status").click();
   assert.equal(await profilePage.locator("#profile-status-dialog").evaluate(el=>el.open),true,

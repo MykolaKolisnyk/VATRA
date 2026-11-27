@@ -203,7 +203,8 @@ function appendDevice(target,device,english=false){
  const label=english||locale==="en"?en:locale==="uk"?uk:window.VATRA_LANGUAGE?.translate?.(uk)||uk;
  svg.style.verticalAlign="middle";svg.style.flexShrink="0";
  svg.setAttribute("aria-label",label);
- const title=document.createElementNS(ns,"title");title.textContent=label;svg.append(title);
+ const tooltipText=()=>{const lang=window.VATRA_LANGUAGE?.locale||document.documentElement.lang;return lang==="en"?en:lang==="uk"?uk:window.VATRA_LANGUAGE?.translate?.(uk)||uk;};
+ window.VATRA_TOOLTIP?.bind(svg,tooltipText);
  const path=document.createElementNS(ns,"path");path.setAttribute("d",device==="tablet"?"M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm6 17h2":device==="mobile"?"M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm3 17h2":"M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 15v3m-4 0h8");svg.append(path);
  target.append(document.createTextNode(" "),svg);
 }

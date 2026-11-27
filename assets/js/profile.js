@@ -2506,7 +2506,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
    caption.textContent=state.online?t("У мережі","Online"):state.text||t("Статус мережі невідомий","Online status unavailable");
    if(state.date)window.VATRA_PRESENCE.appendDevice(caption,record?.device_type,english);
    caption.hidden=false;caption.dataset.online=String(state.online);
-   if(state.date)caption.setAttribute("title",state.date.toLocaleString(english?"en-GB":"uk-UA"));else caption.removeAttribute("title");
+   caption.removeAttribute("title");
   }catch(_){caption.textContent=t("Статус мережі невідомий","Online status unavailable");caption.dataset.online="false";caption.removeAttribute("title");}
  };
  void refresh();

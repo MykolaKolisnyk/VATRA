@@ -56,7 +56,8 @@
  const action=(className,type,label)=>{
   const button=make("button",className);button.type="button";
   button.append(glyph(type),make("span","vatra-post-action-label-001",label));
-  button.setAttribute("aria-label",label);button.title=label;
+  button.setAttribute("aria-label",label);
+  if(!["thumb","comments","share"].includes(type))button.title=label;
   return button;
  };
  const relativeRoot=()=>{
