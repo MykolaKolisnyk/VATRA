@@ -2677,7 +2677,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const commentForm=q("#profile-photo-comment-form"),commentInput=q("#profile-photo-comment-text");
  const commentSend=q("#profile-photo-comment-send"),commentStatus=q("#profile-photo-status");
  const shareButton=q("#profile-photo-share");
- const photoCommentSentinel=q("#profile-photo-comments-sentinel"),photoCommentSort="relevant";
+ const photoCommentSentinel=q("#profile-photo-comments-sentinel"),photoCommentSort="newest";
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false,photoCommentHasMore=false;
  let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;

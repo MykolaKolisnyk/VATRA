@@ -24,8 +24,9 @@ assert.ok(
  "Fullscreen post photos must preserve their full proportions without legacy overlays"
 );
 assert.ok(
- postInteractions.includes("filterRow.remove();note.remove();side.append(shell)")&&
- postInteractions.includes("panel.insertBefore(filterRow,entries);panel.insertBefore(note,entries)")&&
+ !postInteractions.includes('make("select","ui-vatra-post-comments-sort-001")')&&
+ postInteractions.includes('const commentSort="newest"')&&
+ postInteractions.includes("side.append(shell)")&&
  postInteractions.includes("dialog.showModal();content.scrollTop=0"),
  "Photo comments must hide sorting and normal comments must start at the top"
 );
@@ -33,7 +34,7 @@ assert.ok(
  !profileHtml.includes('id="profile-photo-comment-sort"')&&
  !profileHtml.includes('class="profile-photo-comment-filters')&&
  !profile.includes("commentSort.value")&&
- profile.includes('photoCommentSort="relevant"'),
+ profile.includes('photoCommentSort="newest"'),
  "Avatar comments must not display sorting controls"
 );
 assert.ok(
@@ -226,6 +227,8 @@ assert.ok(
  albums.includes("ui-vatra-album-comments-form-001 vatra-media-form-unified-001")&&
  albums.includes("vatra-album-comments-emoji-panel-001")&&
  albums.includes("vatra-media-empty-icon-unified-001")&&
+ albums.includes('commentsList.addEventListener("scroll",loadOnCommentScroll,{passive:true})')&&
+ albums.includes("commentLoading||commentsMore.hidden")&&
  postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-author-unified-001{")&&
  postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-actions-unified-001{")&&
  postCss.includes("body.feed-page .vatra-media-side-unified-001 .vatra-media-comments-unified-001{")&&

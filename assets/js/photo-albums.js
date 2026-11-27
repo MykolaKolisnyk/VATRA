@@ -484,6 +484,16 @@
   let commentAlbum=null,commentPhoto=null,commentOffset=0,commentsTicket=0,commentLoading=false;
   const commentsMore=button("vatra-albums-more-photos-001",t("Ще коментарі","More comments"),()=>void loadComments(commentAlbum,commentPhoto,true));
   commentsMore.hidden=true;commentsBox.insertBefore(commentsMore,commentsForm);
+  const discussionOpen=()=>commentsDialog.open||(photoDialog.open&&commentsBox.parentElement===photoSide);
+  const loadOnCommentScroll=()=>{
+   if(!discussionOpen()||commentLoading||commentsMore.hidden||!commentAlbum)return;
+   if(commentsList.scrollHeight-commentsList.scrollTop-commentsList.clientHeight<=320)
+    void loadComments(commentAlbum,commentPhoto,true);
+  };
+  commentsList.addEventListener("scroll",loadOnCommentScroll,{passive:true});
+  const stopComments=()=>{commentsTicket++;commentLoading=false;commentsMore.hidden=true;commentAlbum=null;commentPhoto=null;};
+  commentsDialog.addEventListener("close",stopComments);
+  photoDialog.addEventListener("close",()=>{if(commentPhoto)stopComments();});
   const sameDiscussion=(album,photo)=>commentAlbum?.id===album?.id&&
    (commentPhoto?.id||null)===(photo?.id||null);
   async function paintAvatars(nodes,ticket){
@@ -540,7 +550,7 @@
    if(!album||(append&&commentLoading))return;
    const ticket=++commentsTicket;
    commentLoading=true;commentsMore.disabled=true;
-   if(!append){commentOffset=0;loading(commentsList);}
+   if(!append){commentOffset=0;commentsMore.hidden=true;loading(commentsList);}
    try{
     const offset=commentOffset;
     let query=client.from("photo_album_comments")
@@ -594,7 +604,7 @@
    }finally{if(ticket===commentsTicket){commentLoading=false;commentsMore.disabled=false;}}
   }
   async function openComments(album,photo=null){
-   commentAlbum=album;commentPhoto=photo;commentOffset=0;
+   commentAlbum=album;commentPhoto=photo;commentOffset=0;commentsMore.hidden=true;commentsList.scrollTop=0;
    commentsTitle.textContent=photo?t("Коментарі до фотографії","Photo comments"):t("Коментарі до альбому","Album comments");
    commentsInput.value="";commentsSend.disabled=true;emojiPanel.hidden=true;
    commentsEmoji.setAttribute("aria-expanded","false");void paintComposerAvatar();
@@ -605,7 +615,7 @@
      .or("and(requester_id.eq."+ownId+",recipient_id.eq."+targetId+"),and(recipient_id.eq."+ownId+",requester_id.eq."+targetId+")").limit(1);
     commentsForm.hidden=!!error||!data?.length;
    }
-   if(photo&&!photoDialog.open)return;
+   if(!sameDiscussion(album,photo)||(photo&&!photoDialog.open))return;
    const inline=!!photo&&photoDialog.open&&state.currentPhoto?.id===photo.id;
    commentsClose.hidden=inline;
    if(inline)photoSide.append(commentsBox);
