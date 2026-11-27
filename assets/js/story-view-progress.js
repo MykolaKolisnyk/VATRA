@@ -1,4 +1,3 @@
-/* VATRA: one playback clock per open story viewer. */
 (()=>{
 "use strict";
 const active=new WeakMap(),duration=7000;
