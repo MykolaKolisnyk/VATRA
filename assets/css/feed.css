@@ -3145,7 +3145,7 @@ body.feed-page .vatra-media-side-unified-001 .vatra-media-empty-unified-001 .vat
 body.feed-page .vatra-media-side-unified-001 .vatra-post-media-empty-basic-001{display:none}
 body.feed-page .vatra-media-side-unified-001 .vatra-post-media-empty-expanded-001{display:block}
 body.feed-page .vatra-media-side-unified-001 .vatra-media-form-unified-001{
- position:relative;box-sizing:border-box;display:flex;flex:0 0 auto;
+ position:sticky;bottom:0;z-index:4;box-sizing:border-box;display:flex;flex:0 0 auto;
  flex-direction:column;justify-content:center;gap:0;min-width:0;
  min-height:84px;margin:0!important;padding:12px 20px!important;
  background:#fff;border:0;border-top:1px solid #e8edf5
@@ -3442,12 +3442,34 @@ body.feed-page .vatra-post-comments-sentinel-001[hidden]{display:none!important}
  body.feed-page .vatra-post-comment .vatra-post-comment-edit-001{transition:none;transform:none}
 }
 
-.vatra-media-description-001{flex:0 0 auto;max-height:32%;overflow:auto;padding:12px 20px;border-bottom:1px solid var(--border-color,#e2e8f0);color:inherit;white-space:normal}
-.vatra-media-description-copy-001{margin:0 0 6px;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}
-.vatra-media-description-edit-001,.vatra-media-description-save-001,.vatra-media-description-cancel-001{border:0;background:transparent;color:inherit;cursor:pointer;font:inherit;padding:6px 8px}
-.vatra-media-description-edit-001{color:#4879ac;padding-left:0}
-.vatra-media-description-input-001{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #aab7c8;border-radius:8px;background:transparent;color:inherit;font:inherit;resize:vertical}
+body.feed-page .vatra-media-side-unified-001 .vatra-media-description-001{flex:0 0 auto;min-width:0;padding:2px 20px 14px;border-bottom:1px solid #e7edf6;color:#334761;white-space:normal;overflow:visible}
+.vatra-media-description-copy-001{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:500 14px/1.5 Onest,system-ui,sans-serif}
+.vatra-media-description-copy-001[role="button"]{cursor:text;border-radius:6px}
+.vatra-media-description-copy-001[role="button"]:hover{background:#f5f7fb}
+.vatra-media-description-copy-001[role="button"]:focus-visible{outline:2px solid #9bb8ec;outline-offset:3px}
+.vatra-media-description-edit-001,.vatra-media-description-more-001{display:block;border:0;background:transparent;color:#4879ac;cursor:pointer;font:500 13px/1.4 Onest,system-ui,sans-serif;padding:3px 0;text-align:left}
+.vatra-media-description-more-001{margin-top:4px}
+.vatra-media-description-edit-001:hover,.vatra-media-description-more-001:hover{text-decoration:underline}
+.vatra-media-description-form-001{display:flex;flex-direction:column;gap:8px;margin:0}
+.vatra-media-description-input-001{display:block;width:100%;box-sizing:border-box;min-height:52px;max-height:260px;padding:8px 10px;border:1px solid #d5deeb;border-radius:8px;background:#fff;color:#334761;font:500 14px/1.5 Onest,system-ui,sans-serif;resize:vertical;overflow:auto}
+.vatra-media-description-input-001:focus{border-color:#82a8e8;outline:none}
+.vatra-media-description-controls-001{display:flex;justify-content:flex-end;gap:8px}
+.vatra-media-description-save-001,.vatra-media-description-cancel-001{box-sizing:border-box;min-height:32px;padding:6px 12px;border:1px solid #dce5f4;border-radius:8px;background:#f2f6fd;color:#436184;cursor:pointer;font:650 12px/1.4 Onest,system-ui,sans-serif}
+.vatra-media-description-save-001{background:#2865d8;border-color:#2865d8;color:#fff}
+.vatra-media-description-controls-001 button:disabled{opacity:.5;cursor:progress}
 .vatra-media-description-form-001[hidden],.vatra-media-description-001 [hidden],.vatra-media-description-001[hidden]{display:none!important}
+body.feed-page :is(.vatra-post-media-viewer,.profile-media-viewer,.ui-vatra-album-photo-side-001) .vatra-media-side-unified-001,
+body.feed-page .ui-vatra-album-photo-side-001.vatra-media-side-unified-001{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin}
+body.feed-page .vatra-media-side-unified-001 .vatra-media-actions-unified-001:has(+.vatra-media-description-001:not([hidden])){border-bottom:0}
+body.feed-page .vatra-media-side-unified-001 .vatra-post-interactions,
+body.feed-page .vatra-media-side-unified-001 .vatra-post-comments-panel,
+body.feed-page .vatra-media-side-unified-001.ui-vatra-album-photo-side-001 .ui-vatra-album-comments-box-001{flex:1 0 auto;min-height:0;max-height:none;overflow:visible}
+body.feed-page .vatra-media-side-unified-001 :is(.vatra-post-comment-list,.profile-photo-comments),
+body.feed-page .vatra-media-side-unified-001.ui-vatra-album-photo-side-001 .ui-vatra-album-comments-list-001{flex:1 0 auto;min-height:112px;max-height:none;overflow:visible}
+@media(max-width:680px){
+ body.feed-page .vatra-media-side-unified-001 .vatra-media-description-001{padding-inline:16px}
+}
+
 
 body.feed-page :is(.ui-vatra-post-media-viewer-content-001,.ui-profile-photo-content-001){
  background:#111419;--vatra-photo-arrow-color:#fff;--vatra-photo-arrow-outline:#10141c;

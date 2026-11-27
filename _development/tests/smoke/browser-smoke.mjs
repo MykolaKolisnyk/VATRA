@@ -3877,10 +3877,43 @@ try{
     await window.VATRA_POST_MEDIA.mount(client,{id:card.dataset.postId,author_vatra_id:"12",kind:"person",body:label,media_kind:"image",media_path:item.media_path},card);
    }
   });
+  // The actual photo viewer must pass a description only for a single attachment.
+  // The navigation fixture has no mounted social interactions; supply a minimal panel
+  // adapter here, leaving the production viewer and description component unchanged.
+  await feedProbe.evaluate(()=>{
+   const api=window.VATRA_POST_INTERACTIONS,original=api.attachMediaPanel;
+   window.__vatraRestoreCaptionAdapter=()=>{api.attachMediaPanel=original;};
+   api.attachMediaPanel=(container,side,description)=>{
+    if(!container.id.startsWith("feed-nav-fixture-"))return original(container,side,description);
+    if(description)side.append(description);
+    return ()=>description?.remove();
+   };
+  });
+  const captionChecks=await feedProbe.evaluate(async()=>{
+   let saved=null;const component=window.VATRA_POST_MEDIA.mediaDescription({kind:"test-photo",limit:2000,onSave:async value=>{saved=value;return value;}});
+   const root=component.root;document.body.append(root);
+   try{
+    const full="VATRA description ".repeat(35);component.paint(full,true);
+    const copy=root.querySelector(".vatra-media-description-copy-001"),more=root.querySelector(".vatra-media-description-more-001"),edit=root.querySelector(".vatra-media-description-edit-001"),form=root.querySelector("form"),input=root.querySelector("textarea");
+    const collapsed=copy.textContent.length<full.length&&!more.hidden&&edit.hidden;
+    more.click();const expanded=copy.textContent===full&&more.getAttribute("aria-expanded")==="true";
+    more.click();const recollapsed=copy.textContent!==full&&more.getAttribute("aria-expanded")==="false";
+    copy.click();const editing=!form.hidden&&input.value===full;
+    input.value="Updated caption";form.requestSubmit();await Promise.resolve();await Promise.resolve();
+    const committed=saved==="Updated caption"&&copy.textContent===saved&&form.hidden;
+    component.paint("Visitor caption",false);copy.click();const readonly=form.hidden&&edit.hidden&&!copy.hasAttribute("tabindex");
+    component.paint("",true);const emptyOwner=!edit.hidden&&copy.hidden;
+    component.paint("",false);const emptyVisitor=root.hidden;
+    return {collapsed,expanded,recollapsed,editing,committed,readonly,emptyOwner,emptyVisitor};
+   }finally{root.remove();}
+  });
+  assert.ok(Object.values(captionChecks).every(Boolean),"Photo description expand, collapse, inline edit and ownership: "+JSON.stringify(captionChecks));
   const firstFeedPhoto=feedProbe.locator("#feed-nav-fixture-1 .vatra-feed-post-media-open-001");
   await feedProbe.locator("#feed-nav-fixture-1").scrollIntoViewIfNeeded();await firstFeedPhoto.click();
   const feedViewer=feedProbe.locator("#vatra-post-media-viewer"),feedCounter=feedViewer.locator(".vatra-post-gallery-counter-001");
   await feedViewer.waitFor({state:"visible"});
+  assert.equal(await feedViewer.locator(".vatra-media-description-copy-001").textContent(),"FeedAlpha","Single attachment shows the post text");
+  assert.equal(await feedViewer.locator(".vatra-media-description-edit-001").isVisible(),false,"Visitor cannot edit another member’s photo description");
   assert.equal(await feedViewer.locator(".vatra-post-gallery-nav-next:visible,.vatra-post-gallery-nav-prev:visible,.vatra-post-gallery-counter-001:visible").count(),0,"Single post photo has no gallery navigation");
   await feedProbe.keyboard.press("ArrowRight");
   assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
@@ -3895,6 +3928,7 @@ try{
   });
   await feedProbe.locator("#feed-nav-fixture-1 .vatra-post-gallery-tile").first().click();
   await feedCounter.waitFor({state:"attached"});assert.equal(await feedCounter.textContent(),"1 / 2");
+  assert.equal(await feedViewer.locator(".vatra-media-description-001").count(),0,"A multi-attachment post must not show the post description beside its photos");
   const feedNext=feedViewer.locator(".vatra-post-gallery-nav-next");
   assert.equal(await feedNext.isDisabled(),false);
   await feedViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
@@ -3903,12 +3937,13 @@ try{
   assert.equal(await feedViewer.locator(".ui-vatra-post-media-author-001 .feed-post-name").textContent(),"FeedAlpha");
   assert.ok((await feedViewer.locator(".vatra-post-media-footer-open-post-001").getAttribute("data-href")).includes("00000000-0000-4000-8000-000000000001"));
   assert.equal(await feedNext.isDisabled(),true);
+  assert.equal(await feedViewer.locator(".vatra-media-description-001").count(),0,"Gallery navigation must never reintroduce the multi-post description");
   await feedProbe.keyboard.press("ArrowRight");
   assert.equal(await feedCounter.textContent(),"2 / 2");
   await feedProbe.keyboard.press("ArrowLeft");
   await feedProbe.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="1 / 2");
   await feedProbe.keyboard.press("Escape");
-  await feedProbe.evaluate(()=>{document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
+  await feedProbe.evaluate(()=>{window.__vatraRestoreCaptionAdapter?.();delete window.__vatraRestoreCaptionAdapter;document.querySelector("#feed-nav-fixture-1")?.remove();document.querySelector("#feed-nav-fixture-2")?.remove();});
   console.log("VATRA Feed photo navigation: single photo isolation, same-post gallery and keyboard bounds verified.");
   assert.equal(await feedProbe.locator("#feed-create-menu").isVisible(),true,
    "Members can create from their Feed");
@@ -5809,6 +5844,7 @@ try{
   await photoViewer.waitFor({state:"visible"});
   const photoCounter=photoViewer.locator(".vatra-post-gallery-counter-001");
   assert.equal(await photoCounter.textContent(),"1 / 2","Gallery opens with navigation across the loaded photos");
+  assert.equal(await photoViewer.locator(".vatra-media-description-001").count(),0,"Photos tab preserves the original post attachment count");
   await photoViewer.locator(".ui-vatra-post-media-viewer-content-001").hover();
   await photoViewer.locator(".vatra-post-gallery-nav-next").click();
   await profilePage.waitForFunction(()=>document.querySelector("#vatra-post-media-viewer .vatra-post-gallery-counter-001")?.textContent==="2 / 2");

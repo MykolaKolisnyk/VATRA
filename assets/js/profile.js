@@ -2705,27 +2705,16 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false,photoCommentHasMore=false;
  let lastAvatarCommentKey="";
  const photoPath=()=>["avatar","avatar-history"].includes(mediaDialog.dataset.kind)?gallery[galleryIndex]||null:null;
- const avatarDescription=document.createElement("div");avatarDescription.className="vatra-media-description-001";avatarDescription.hidden=true;
- const avatarDescriptionCopy=document.createElement("p");avatarDescriptionCopy.className="vatra-media-description-copy-001";
- const avatarDescriptionEdit=document.createElement("button");avatarDescriptionEdit.type="button";avatarDescriptionEdit.className="vatra-media-description-edit-001";avatarDescriptionEdit.textContent=t("Редагувати опис","Edit description");
- const avatarDescriptionForm=document.createElement("form");avatarDescriptionForm.className="vatra-media-description-form-001";avatarDescriptionForm.hidden=true;
- const avatarDescriptionInput=document.createElement("textarea");avatarDescriptionInput.className="vatra-media-description-input-001";avatarDescriptionInput.maxLength=2000;avatarDescriptionInput.rows=3;avatarDescriptionInput.setAttribute("aria-label",avatarDescriptionEdit.textContent);
- const avatarDescriptionSave=document.createElement("button");avatarDescriptionSave.type="submit";avatarDescriptionSave.className="vatra-media-description-save-001";avatarDescriptionSave.textContent=t("Зберегти","Save");
- const avatarDescriptionCancel=document.createElement("button");avatarDescriptionCancel.type="button";avatarDescriptionCancel.className="vatra-media-description-cancel-001";avatarDescriptionCancel.textContent=t("Скасувати","Cancel");
- avatarDescriptionForm.append(avatarDescriptionInput,avatarDescriptionSave,avatarDescriptionCancel);avatarDescription.append(avatarDescriptionCopy,avatarDescriptionEdit,avatarDescriptionForm);
+ let captionEpoch=0;
+ const avatarCaption=window.VATRA_POST_MEDIA.mediaDescription({kind:"avatar-photo",limit:2000,translate:t,onSave:async caption=>{
+  const path=photoPath();if(!canEdit||!path)throw Error("Not permitted");
+  const {data,error}=await client.from("avatar_photo_descriptions").upsert({owner_vatra_id:ownId,avatar_path:path,caption},{onConflict:"owner_vatra_id,avatar_path"}).select("caption").maybeSingle();if(error||!data)throw Error("Not saved");return data.caption;
+ },onError:()=>status(t("Не вдалося зберегти.","Could not save."),true)});
+ const avatarDescription=avatarCaption.root;
  q(".ui-profile-photo-actions-001").after(avatarDescription);
- let captionEpoch=0,captionText="";
- const paintAvatarDescription=()=>{avatarDescriptionCopy.textContent=captionText;avatarDescriptionCopy.hidden=!captionText;avatarDescriptionEdit.hidden=!canEdit;avatarDescriptionForm.hidden=true;avatarDescription.hidden=!canEdit&&!captionText;};
- const loadAvatarDescription=async path=>{const ticket=++captionEpoch;captionText="";avatarDescription.hidden=true;avatarDescriptionForm.hidden=true;
-  try{const {data,error}=await client.from("avatar_photo_descriptions").select("caption").eq("owner_vatra_id",targetId).eq("avatar_path",path).maybeSingle();if(error)throw error;if(ticket!==captionEpoch||photoPath()!==path)return;captionText=data?.caption||"";paintAvatarDescription();}
-  catch(_){if(ticket===captionEpoch)avatarDescription.hidden=true;}
- };
- avatarDescriptionEdit.onclick=()=>{avatarDescriptionInput.value=captionText;avatarDescriptionForm.hidden=false;avatarDescriptionCopy.hidden=true;avatarDescriptionEdit.hidden=true;avatarDescriptionInput.focus();};
- avatarDescriptionCancel.onclick=paintAvatarDescription;
- avatarDescriptionForm.onsubmit=async event=>{event.preventDefault();const path=photoPath(),ticket=captionEpoch;if(!canEdit||!path||avatarDescriptionSave.disabled)return;avatarDescriptionSave.disabled=avatarDescriptionCancel.disabled=true;
-  try{const {data,error}=await client.from("avatar_photo_descriptions").upsert({owner_vatra_id:ownId,avatar_path:path,caption:avatarDescriptionInput.value.trim()},{onConflict:"owner_vatra_id,avatar_path"}).select("caption").maybeSingle();if(error||!data)throw Error("Not saved");if(ticket===captionEpoch&&photoPath()===path){captionText=data.caption;paintAvatarDescription();}}
-  catch(_){status(t("Не вдалося зберегти.","Could not save."),true);}
-  finally{avatarDescriptionSave.disabled=avatarDescriptionCancel.disabled=false;}
+ const loadAvatarDescription=async path=>{const ticket=++captionEpoch;avatarCaption.reset();interaction.scrollTop=0;
+  try{const {data,error}=await client.from("avatar_photo_descriptions").select("caption").eq("owner_vatra_id",targetId).eq("avatar_path",path).maybeSingle();if(error)throw error;if(ticket!==captionEpoch||photoPath()!==path)return;avatarCaption.paint(data?.caption,canEdit);}
+  catch(_){if(ticket===captionEpoch)avatarCaption.reset();}
  };
 
  const tagFailure=(error,fallback,retry)=>{
@@ -3083,7 +3072,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  emojiToggle.addEventListener("click",()=>{expandComposer();setEmojiOpen(emojiPanel.hidden);});
  for(const emoji of ["😀","😂","😍","🥰","❤️","👍","🔥","👏","😊","😢","😮","🤔","🎉","🙌","💙","💛","✨","🙏","😎","🤝","😅","😁","🫶","💯"]){const b=node("button","vatra-profile-photo-emoji-001",emoji);b.type="button";b.addEventListener("click",()=>{const start=commentInput.selectionStart??commentInput.value.length,end=commentInput.selectionEnd??start;if(commentInput.value.length-(end-start)+emoji.length>2000)return;commentInput.setRangeText(emoji,start,end,"end");commentInput.focus();commentInput.dispatchEvent(new Event("input"));setEmojiOpen(false);});emojiPanel.append(b);}
  mediaDialog.addEventListener("click",e=>{if(!emojiPanel.hidden&&!emojiPanel.contains(e.target)&&!emojiToggle.contains(e.target))setEmojiOpen(false);});
- mediaDialog.addEventListener("close",resetPhotoComposer);
+ mediaDialog.addEventListener("close",()=>{captionEpoch++;avatarCaption.reset();resetPhotoComposer();});
  const readAvatarGallery=async()=>{
   const current=saved?.avatar_path,folder=targetId+"/avatar",bucket=client.storage.from("avatars"),files=[];
   if(typeof bucket.list!=="function")return current?[current]:[];

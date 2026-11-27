@@ -411,31 +411,19 @@
   photoDelete.hidden=!isMine;photoActions.append(photoLike,photoActionShare,photoComments);
   photoBottom.append(photoCaption,photoShare,photoDelete,photoMore);
   photoStage.append(photoClose,photoContent,photoBottom);
-  const photoDescription=make("div","vatra-media-description-001");
-  const photoDescriptionCopy=make("p","vatra-media-description-copy-001");
-  const photoDescriptionEdit=button("vatra-media-description-edit-001",t("Редагувати опис","Edit description"));
-  const photoDescriptionForm=make("form","vatra-media-description-form-001");photoDescriptionForm.hidden=true;
-  const photoDescriptionInput=make("textarea","vatra-media-description-input-001");photoDescriptionInput.maxLength=300;photoDescriptionInput.rows=3;
-  photoDescriptionInput.setAttribute("aria-label",t("Редагувати опис","Edit description"));
-  const photoDescriptionSave=button("vatra-media-description-save-001",t("Зберегти","Save"));photoDescriptionSave.type="submit";
-  const photoDescriptionCancel=button("vatra-media-description-cancel-001",t("Скасувати","Cancel"));
-  const paintDescription=()=>{photoDescriptionCopy.textContent=state.currentPhoto?.caption||"";photoDescriptionCopy.hidden=!photoDescriptionCopy.textContent;photoDescriptionEdit.hidden=!isMine;photoDescription.hidden=!isMine&&!photoDescriptionCopy.textContent;photoDescriptionForm.hidden=true;};
-  photoDescriptionEdit.onclick=()=>{photoDescriptionInput.value=state.currentPhoto?.caption||"";photoDescriptionForm.hidden=false;photoDescriptionCopy.hidden=true;photoDescriptionEdit.hidden=true;photoDescriptionInput.focus();};
-  photoDescriptionCancel.onclick=paintDescription;
-  photoDescriptionForm.onsubmit=async event=>{event.preventDefault();const row=state.currentPhoto;if(!isMine||!row||photoDescriptionSave.disabled)return;photoDescriptionSave.disabled=true;photoDescriptionCancel.disabled=true;
-   try{const {data,error}=await client.from("album_photos").update({caption:photoDescriptionInput.value.trim()}).eq("id",row.id).eq("owner_vatra_id",ownId).select("id,caption").maybeSingle();
-    if(error||!data)throw Error("Not saved");row.caption=data.caption;for(const item of [...state.photos,...state.previews])if(item.id===row.id)item.caption=data.caption;if(state.currentPhoto===row)paintDescription();}
-   catch(_){notify(t("Не вдалося зберегти.","Could not save."));}
-   finally{photoDescriptionSave.disabled=photoDescriptionCancel.disabled=false;}
-  };
-  photoDescriptionForm.append(photoDescriptionInput,photoDescriptionSave,photoDescriptionCancel);
-  photoDescription.append(photoDescriptionCopy,photoDescriptionEdit,photoDescriptionForm);
+  const photoCaptionEditor=window.VATRA_POST_MEDIA.mediaDescription({kind:"album-photo",limit:300,translate:t,onSave:async caption=>{
+   const row=state.currentPhoto;if(!isMine||!row)throw Error("Not permitted");
+   const {data,error}=await client.from("album_photos").update({caption}).eq("id",row.id).eq("owner_vatra_id",ownId).select("id,caption").maybeSingle();
+   if(error||!data)throw Error("Not saved");row.caption=data.caption;for(const item of [...state.photos,...state.previews])if(item.id===row.id)item.caption=data.caption;return data.caption;
+  },onError:()=>notify(t("Не вдалося зберегти.","Could not save."))});
+  const photoDescription=photoCaptionEditor.root;
+  const paintDescription=()=>{photoCaptionEditor.paint(state.currentPhoto?.caption,isMine);photoSide.scrollTop=0;};
   photoSide.append(photoAuthor,photoActions,photoDescription);
   photoDialog.append(photoStage,photoSide);
   photoDialog.addEventListener("click",e=>{if(e.target===photoDialog)photoDialog.close();});
   photoDialog.addEventListener("close",()=>{
    window.VATRA_POST_MEDIA?.clearPhotoSlide(photoContent);delete photoDialog.dataset.photoSized;
-   photoLikeTicket++;photoImage.removeAttribute("src");state.currentPhoto=null;photoMore.open=false;
+   photoLikeTicket++;photoImage.removeAttribute("src");state.currentPhoto=null;photoCaptionEditor.reset();photoMore.open=false;
    if(commentsBox.parentElement===photoSide){commentsDialog.append(commentsBox);commentsClose.hidden=false;}
   });
   document.body.append(photoDialog);
@@ -487,10 +475,11 @@
   const discussionOpen=()=>commentsDialog.open||(photoDialog.open&&commentsBox.parentElement===photoSide);
   const loadOnCommentScroll=()=>{
    if(!discussionOpen()||commentLoading||commentsMore.hidden||!commentAlbum)return;
-   if(commentsList.scrollHeight-commentsList.scrollTop-commentsList.clientHeight<=320)
+   const scroll=commentsBox.parentElement===photoSide?photoSide:commentsList;
+   if(scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight<=320)
     void loadComments(commentAlbum,commentPhoto,true);
   };
-  commentsList.addEventListener("scroll",loadOnCommentScroll,{passive:true});
+  commentsList.addEventListener("scroll",loadOnCommentScroll,{passive:true});photoSide.addEventListener("scroll",loadOnCommentScroll,{passive:true});
   const stopComments=()=>{commentsTicket++;commentLoading=false;commentsMore.hidden=true;commentAlbum=null;commentPhoto=null;};
   commentsDialog.addEventListener("close",stopComments);
   photoDialog.addEventListener("close",()=>{if(commentPhoto)stopComments();});
