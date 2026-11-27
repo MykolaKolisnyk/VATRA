@@ -10,7 +10,7 @@ function stop(dialog){
  document.removeEventListener("visibilitychange",state.visibility);
  state.row.hidden=true;state.bar.value=0;
 }
-function start(dialog,slot,story,onComplete,blocked=()=>false){
+function start(dialog,slot,story,onComplete,blocked=()=>false,onViewed=()=>{}){
  stop(dialog);
  const row=dialog.querySelector(".ui-vatra-story-progress-001");
  if(!row)return;
@@ -19,7 +19,8 @@ function start(dialog,slot,story,onComplete,blocked=()=>false){
  const words=labels[String(window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk").split("-")[0]]||labels.uk;
  const videoStory=story.media_kind==="video"&&!!story.media_path;
  const imageStory=story.media_kind==="image"&&!!story.media_path;
- let elapsed=0,last=performance.now(),paused=false;
+ let elapsed=0,last=performance.now(),paused=false,videoElapsed=0,reported=false;
+ const report=()=>{if(!reported){reported=true;onViewed();}};
  row.hidden=false;bar.value=0;bar.setAttribute("aria-label",words[0]);button.hidden=videoStory;
  const sync=()=>{button.setAttribute("aria-pressed",String(paused));button.setAttribute("aria-label",words[paused?2:1]);button.title=words[paused?2:1];};
  const toggle=()=>{paused=!paused;last=performance.now();sync();};
@@ -35,12 +36,13 @@ function start(dialog,slot,story,onComplete,blocked=()=>false){
   if(videoStory){
    const video=slot.querySelector("video");if(!video)return;
    if(Number.isFinite(video.duration)&&video.duration>0)bar.value=Math.max(0,Math.min(1,video.currentTime/video.duration));
-   if(video.ended&&!hold)finish();
+   if(!hold&&!video.paused&&!video.seeking&&video.readyState>=2){videoElapsed+=delta;if(videoElapsed>=1000)report();}
+   if(video.ended&&!hold){if(videoElapsed>0&&Number.isFinite(video.duration)&&video.duration<=1)report();finish();}
    return;
   }
   if(imageStory){const img=slot.querySelector("img");if(!img?.complete||!img.naturalWidth)return;}
   if(hold)return;
-  elapsed+=delta;bar.value=Math.min(1,elapsed/duration);
+  elapsed+=delta;bar.value=Math.min(1,elapsed/duration);if(elapsed>=1000)report();
   if(elapsed>=duration)finish();
  };
  active.set(dialog,state);sync();button.addEventListener("click",toggle);

@@ -318,3 +318,24 @@ console.log("VATRA story viewer: owner-only deletion and real adjacent previews 
  assert.equal(tick,null);assert.equal(completed,3);assert.equal(row.hidden,true);
 }
 console.log("VATRA story clock: media readiness, pause, hidden tab, modal blocking, real video time, completion and cleanup verified.");
+
+{
+ const runtime=await readFile("assets/js/story-views.js","utf8");
+ const window={},document={documentElement:{lang:"uk"}};
+ runInNewContext(runtime,{window,document,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URLSearchParams});
+ const api=window.VATRA_STORY_VIEWS,id="10000000-0000-0000-0000-000000000001",story={id,author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
+ let inserts=0,error=null,reads=0;
+ const client={from(table){assert.equal(table,"story_views");return {
+ insert(value){inserts++;assert.equal(value.story_id,id);assert.equal(value.viewer_vatra_id,"102");return Promise.resolve({error});},
+ select(columns,options){reads++;assert.equal(options.head,true);return {eq(key,value){assert.equal(key,"story_id");assert.equal(value,id);return Promise.resolve({count:7,error});}};}
+ };}};
+ assert.equal(await api.record(client,story,"101"),false);assert.equal(inserts,0);
+ assert.equal(await api.record(client,{...story,expires_at:new Date(now-1).toISOString()},"102"),false);assert.equal(inserts,0);
+ error={code:"network"};assert.equal(await api.record(client,story,"102"),false);assert.equal(inserts,1);
+ error={code:"23505"};assert.deepEqual(await Promise.all([api.record(client,story,"102"),api.record(client,story,"102")]),[true,true]);assert.equal(inserts,2);
+ assert.equal(await api.record(client,story,"102"),true);assert.equal(inserts,2);
+ error=null;assert.equal(await api.count(client,id),7);assert.equal(reads,1);
+ error={code:"PGRST205"};assert.equal(await api.count(client,id),null,"Missing backend must never display a fake zero");
+ assert.equal(await api.count(client,"bad"),null);assert.equal(reads,2);
+}
+console.log("VATRA story views: live-only insert, self exclusion, duplicate/network handling and authoritative count verified.");
