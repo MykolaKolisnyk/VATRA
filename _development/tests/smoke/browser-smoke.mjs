@@ -4664,10 +4664,10 @@ try{
   const accountPanel=feedProbe.locator(".feed-account-dropdown");
   const accountProfileGroup=accountPanel.locator(":scope > .ui-vatra-account-profile-group-001");
   assert.equal(await accountProfileGroup.count(),1);
-  assert.equal(await accountPanel.locator(":scope > a").count(),2,
-   "Support and Settings are the only standalone account links");
-  assert.equal(await accountPanel.locator("a").count(),4,
-   "Profile, VATRA ID, Support and Settings must remain available");
+  assert.equal(await accountPanel.locator(":scope > a").count(),3,
+   "Support, Settings and VATRA Documents are the standalone account links");
+  assert.equal(await accountPanel.locator("a").count(),5,
+   "Profile, VATRA ID, Support, Settings and VATRA Documents must remain available");
   assert.deepEqual(await accountProfileGroup.locator(":scope > a").evaluateAll(links=>links.map(link=>link.classList.contains("feed-account-profile")?"profile":link.classList.contains("vatra-account-manage-001")?"manage":"unexpected")),["profile","manage"],
    "VATRA ID must be directly below My Profile in the same group");
   const manageAccount=accountProfileGroup.locator(".vatra-account-manage-001");
