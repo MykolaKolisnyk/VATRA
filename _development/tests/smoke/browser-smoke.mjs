@@ -4590,13 +4590,17 @@ try{
   assert.equal(await feedProbe.locator(".vatra-story-filter-001").nth(1).getAttribute("aria-pressed"),"true");
   await feedProbe.locator(".vatra-story-undo-001").click();
   assert.equal(await feedProbe.locator(".vatra-story-filter-001").first().getAttribute("aria-pressed"),"true");
+  assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","Story privacy defaults to friends");
+  await feedProbe.locator("#feed-story-audience").selectOption("public");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
+  assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.visibility),"public","Explicit public story audience must be persisted");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.media_kind),"image",
    "Image-only story must persist media metadata");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.body),"",
    "Story captions are optional when media exists");
   await feedProbe.locator("#feed-create-story").click();
+  assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","New stories must reset to private friends-only visibility");
   assert.equal(await feedProbe.locator("#feed-story-media-preview").getAttribute("data-ready"),"false",
    "Reopening the story editor must not retain the previous upload");
   await feedProbe.locator("#feed-story-cancel").click();

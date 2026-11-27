@@ -82,3 +82,8 @@ body.feed-page .ui-vatra-story-panel-001:empty{display:none}
 body.feed-page .ui-vatra-story-history-001 button{color:#fff}
 body.feed-page .ui-vatra-story-footer-001{padding:14px 20px;background:#fff}
 @media(max-width:720px){body.feed-page .ui-vatra-story-workspace-001{grid-template-columns:1fr;padding:12px;gap:12px}body.feed-page .ui-vatra-story-stage-001{padding:10px}body.feed-page .ui-vatra-story-header-001,body.feed-page .ui-vatra-story-footer-001{padding:12px}}
+
+body.feed-page .ui-vatra-story-audience-field-001{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:#445873;font:600 13px/1.4 Onest,system-ui,sans-serif}
+body.feed-page .vatra-story-audience-001{font:600 13px/1.4 Onest,system-ui,sans-serif;background:#f4f7fc;color:#334967;border:1px solid #dce5f1;border-radius:10px;padding:8px 12px;min-height:42px;max-width:100%;cursor:pointer}
+body.feed-page .vatra-story-audience-001:focus-visible{outline:2px solid #88a9ff;outline-offset:2px}
+body.feed-page .ui-vatra-story-info-001{align-items:center}

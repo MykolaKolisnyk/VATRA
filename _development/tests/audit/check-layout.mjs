@@ -2193,7 +2193,8 @@ assert.ok(
  "VATRA comments must have persisted one-level replies, real signed media, emoji and compact inline layout");
 
 assert.ok(
- postInteractionFields.includes('sort.name="vatra_post_comments_sort"') &&
+ !postInteractionFields.includes('sort.name="vatra_post_comments_sort"') &&
+ postInteractionFields.includes('const commentSort="newest"') &&
  postInteractionFields.includes('input.name="vatra_post_comment"') &&
  postInteractionFields.includes('shareAudience.name="vatra_share_visibility"') &&
  postInteractionFields.includes('shareCaption.name="vatra_share_caption"') &&
@@ -2996,3 +2997,5 @@ assert.ok(profileBehavior.includes("cachedFriends.slice(0,4)")&&profileBehavior.
 assert.ok(settingsRuntime.includes("VATRA_FORM_SELECT.fillBirthdays(day,month,year)")&&settingsRuntime.includes("VATRA_FORM_SELECT.wireSelects([...dateParts,gender])")&&!settingsRuntime.includes('field(form,"birthdate"'),"VATRA ID must reuse the registration date and gender component");
 
 assert.ok(!/sticker|стікер/i.test(storyEditorRuntime)&&!/sticker/i.test(storyEditorStyles),"Retired sticker tools must not remain in stories");
+
+assert.ok(storyEditorRuntime.includes('audience.value="friends"')&&storyEditorRuntime.includes('visibility=audience.value==="public"?"public":"friends"')&&storyEditorRuntime.includes("theme:0,visibility,media_kind"),"Story audience is explicit, defaults to friends and persists on insert");
