@@ -21,19 +21,22 @@ assert.ok(!src.includes('community-topic-filter')&&!src.includes('ui-community-t
 const covers=JSON.parse(src.match(/const topicCovers=(\{[^\n]+\});/)[1]);
 assert.deepEqual(Object.keys(covers).sort(),keys.slice().sort(),"Every topic must have a dedicated cover");
 assert.equal(new Set(Object.values(covers)).size,Object.keys(covers).length);
-const folder="assets/communities_covers/";
-const files=(await readdir(folder)).filter(name=>name.endsWith(".webp")&&name!=="communities.webp").sort();
-assert.deepEqual(Object.values(covers).map(name=>name+".webp").sort(),files,"Each uploaded topic cover must map to exactly one category");
+const folder="assets/illustrations/";
+const files=Object.values(covers).map(name=>name+".webp").sort();
+const available=new Set(await readdir(folder));
+assert.ok(files.every(name=>available.has(name))&&available.has("communities.webp"),"All 40 mapped covers and the community banner must exist in shared illustrations");
 for(const name of [...files,"communities.webp"]){
  const bytes=await readFile(folder+name);
  assert.ok(bytes.toString("ascii",0,4)==="RIFF"&&bytes.toString("ascii",8,12)==="WEBP",name+" must be actual WebP");
 }
-assert.ok(src.includes('node("span","ui-community-topic-photo-001")')&&src.includes('new IntersectionObserver')&&src.includes('coverObserver.unobserve')&&src.includes('assets/communities_covers/')&&src.includes('["contextmenu","dragstart"]'));
+assert.ok(src.includes('node("span","ui-community-topic-photo-001")')&&src.includes('new IntersectionObserver')&&src.includes('coverObserver.unobserve')&&src.includes('assets/illustrations/')&&src.includes('["contextmenu","dragstart"]'));
 assert.ok(!src.includes('node("img","ui-community-topic-photo-001")')&&!src.includes("assets/other/"));
 assert.ok(html.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>'));
 const css=await readFile("assets/css/communities.css","utf8");
-assert.ok(css.includes('../communities_covers/communities.webp')&&css.includes('background-size:cover;background-position:center')&&css.includes('pointer-events:none'));
+assert.ok(css.includes('../illustrations/communities.webp')&&css.includes('background-size:cover;background-position:center')&&css.includes('pointer-events:none'));
 assert.ok(css.includes('flex-wrap:nowrap')&&css.includes('flex:0 0 var(--topic-width)')&&css.includes('aspect-ratio:1.65')&&css.includes('overflow-x:auto')&&css.includes('touch-action:pan-x pan-y pinch-zoom')&&css.includes('.ui-community-topic-grid-001.is-expanded'));
 console.log("VATRA community categories: forty unique IDs, bilingual labels, required form, exact filters, DB constraints and cache schema agree.");
 
 assert.ok(!html.includes('id="community-business-enabled"')&&!src.includes("business_enabled")&&html.includes('<dialog id="community-create-panel"')&&src.includes("panel.showModal()"),"Community creation has no retired business opt-in");
+
+assert.ok(src.indexOf("const membershipTask=Promise.allSettled(")<src.indexOf("if(!term&&PUBLIC_DIRECTORY_CACHE_ENABLED")&&src.includes("const results=await membershipTask;"),"Independent directory and membership reads start in parallel");

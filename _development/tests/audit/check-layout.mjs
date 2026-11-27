@@ -1537,7 +1537,7 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
 const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
 assert.ok(communityBannerMarkup.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>')&&
  !communityBannerMarkup.includes('<img class="ui-community-banner-art-001"')&&
- communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../communities_covers/communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
+ communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../illustrations/communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
  communityBannerCSS.includes(".ui-community-discovery-banner-001[hidden]{display:none}")&&
  !(await read("club.html")).includes("ui-community-banner-art-001"),
  "The original Uzhhorod panorama must be exclusively a responsive directory hero");
@@ -3025,3 +3025,5 @@ for(const page of (await readdir(".")).filter(p=>p.endsWith(".html"))){
  assert.equal(html.includes("assets/css/vatra-player.css?rev="),ownsMedia,page+": shared video player stylesheet ownership");
  if(ownsMedia)assert.ok(html.indexOf("assets/js/vatra-player.js?rev=")<html.indexOf("assets/js/post-media.js?rev="),page+": player must load before media");
 }
+
+assert.ok((await read("assets/css/feed.css")).includes(".feed-post-card.vatra-post-delete-pending-001{box-sizing:border-box;padding:0;min-height:66px}")&&(await read("assets/css/feed.css")).includes("padding:10px 12px;min-height:64px;text-align:center"),"Deleted post notice must match the compact 64px composer control");
