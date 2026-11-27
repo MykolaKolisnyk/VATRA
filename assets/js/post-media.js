@@ -515,19 +515,24 @@
   const button=document.createElement("button");
   button.type="button";button.className="vatra-feed-post-read-more-001";
   button.setAttribute("aria-expanded","false");
-  button.textContent=tr("Показати більше","Show more");
+  const label=document.createElement("span");
+  const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.8");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");
+  const chevron=document.createElementNS(icon.namespaceURI,"path");chevron.setAttribute("d","m6 9 6 6 6-6");icon.append(chevron);button.append(label,icon);
   paragraph.dataset.vatraCollapsed="true";
   let expanded=false;
   const update=()=>{
    paragraph.textContent=expanded?full.trimEnd():compact;
    linkifyHashtags(paragraph);
-   if(!expanded)paragraph.append(document.createTextNode(" "),button);
+   label.textContent=expanded?tr("Показати менше","Show less"):tr("Показати більше","Show more");
+   button.setAttribute("aria-expanded",String(expanded));
+   paragraph.dataset.vatraCollapsed=expanded?"expanded":"true";
+   paragraph.append(document.createTextNode(" "),button);
   };
   button.addEventListener("click",()=>{
-   expanded=true;
-   paragraph.dataset.vatraCollapsed="expanded";
-   update();
-  },{once:true});
+   expanded=!expanded;update();button.focus({preventScroll:true});
+   if(!expanded&&button.getBoundingClientRect().top<0)button.scrollIntoView({block:"nearest"});
+  });
   update();
  }
 

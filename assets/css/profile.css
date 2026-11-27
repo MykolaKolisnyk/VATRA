@@ -2163,9 +2163,12 @@ body.profile-page :is(.profile-mini-more,.vatra-profile-about-more-001):focus-vi
  outline:2px solid #628ef0;outline-offset:-3px
 }
 body.profile-page :is(.profile-mini-more,.vatra-profile-about-more-001) svg{
- width:17px;height:17px;flex:none;stroke:currentColor;transform:none!important
+ width:17px;height:17px;flex:none;stroke:currentColor;transition:transform .18s ease;transform:none
 }
-body.profile-page .vatra-profile-about-more-001 svg{transform:rotate(180deg)!important}
+body.profile-page .vatra-profile-about-more-001 svg{transform:rotate(180deg)}
+body.profile-page .profile-mini-more:hover svg{transform:translateX(3px)}
+body.profile-page .vatra-profile-about-more-001:hover svg{transform:translateX(3px) rotate(180deg)}
+@media(prefers-reduced-motion:reduce){body.profile-page :is(.profile-mini-more,.vatra-profile-about-more-001) svg{transition:none}}
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  margin-top:-38px!important
 }
@@ -3034,3 +3037,9 @@ body.profile-page .vatra-profile-editor-multi-option-001{display:flex;align-item
 body.profile-page .vatra-profile-editor-multi-option-001:has(input:checked){border-color:#adc5f5;background:#edf3ff;color:#2865d8}
 body.profile-page .vatra-profile-editor-multi-option-001:focus-within{outline:2px solid #8eb0f5;outline-offset:1px}
 body.profile-page .ui-profile-editor-multi-check-001{appearance:auto;accent-color:#2865d8;width:16px;height:16px;flex:none;margin:0}
+
+body.profile-page .profile-archive-wrap{align-self:stretch;align-items:stretch}
+body.profile-page .profile-archive-wrap>.social-profile-tab{height:100%;align-self:stretch}
+body.profile-page .profile-archive-wrap>.social-profile-tab-active::after{left:0;right:0;bottom:0}
+body.profile-page .vatra-profile-photo-comment-edit-001{right:33px;top:9px;width:28px;height:28px}
+body.profile-page .vatra-profile-photo-comment-edit-001 svg{width:18px;height:18px}

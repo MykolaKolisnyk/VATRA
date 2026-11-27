@@ -196,16 +196,16 @@ try{
    document.body.classList.add("profile-page");
    const profileStyle=measure();
    button.click();
-   const expanded=paragraph.textContent===original&&
-    !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&
-    paragraph.querySelectorAll(".vatra-feed-post-read-more-001").length===0;
-   return {collapsed,collapsedChecks,expanded,feedStyle,profileStyle};
+   const expanded=paragraph.textContent===original+" Показати менше"&&
+    !!paragraph.querySelector("a.vatra-feed-post-hashtag-001")&&button.getAttribute("aria-expanded")==="true"&&!!button.querySelector("svg");
+   button.click();const recollapsed=paragraph.textContent.endsWith("… Показати більше")&&button.getAttribute("aria-expanded")==="false";
+   return {collapsed,collapsedChecks,expanded,recollapsed,feedStyle,profileStyle};
   });
-  assert.ok(result.collapsed&&result.expanded,
-   "Read-more must appear inline, expand once and preserve hashtags: "+JSON.stringify(result));
+  assert.ok(result.collapsed&&result.expanded&&result.recollapsed,
+   "Read-more must appear inline, expand, collapse and preserve hashtags: "+JSON.stringify(result));
   assert.deepEqual(result.feedStyle,result.profileStyle,
    "Feed and Profile post body typography must match: "+JSON.stringify(result));
-  console.log("VATRA post text: inline one-way expansion and matching Feed/Profile fonts passed.");
+  console.log("VATRA post text: inline reversible expansion and matching Feed/Profile fonts passed.");
  }finally{await bodyTextProbe.close();}
 
  // All three production viewer types must share exact sidebar measurements.
@@ -401,7 +401,7 @@ try{
   coverContrast.reduce((sum,sample)=>sum+sample.distance,0)/3>=35,
   "Default profile cover must remain perceptibly distinct from page background: "+
    JSON.stringify(coverContrast));
- console.log("VATRA neutral cover: rendered blue/lilac contrast against page background OK");
+ console.log("VATRA neutral cover: rendered neutral gray contrast against page background OK");
 
 
  // Verify the rendered spacing, not only a CSS string: empty list wrappers
@@ -3998,14 +3998,11 @@ try{
   assert.notEqual(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>
    getComputedStyle(el,"::backdrop").backdropFilter),"none",
    "The underlying Feed should blur while comments are open");
-  await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comments-sort-001").selectOption("newest");
-  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant"],
-   "Changing sort while comments load must queue the refresh instead of starting a duplicate RPC");
+  assert.equal(await feedProbe.locator(".ui-vatra-post-comments-sort-001").count(),0,"No comment ranking selector");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["newest"]);
   await feedProbe.evaluate(()=>window.__vatraSmokeReleaseFirstComment());
-  await feedProbe.waitForFunction(()=>window.__vatraSmokeCommentCalls.length===2&&
-   document.querySelector(".ui-vatra-post-comment-list-001")?.getAttribute("aria-busy")==="false");
-  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
-   "After the in-flight request finishes, the latest selected sort must be fetched");
+  await feedProbe.waitForFunction(()=>document.querySelector(".ui-vatra-post-comment-list-001")?.getAttribute("aria-busy")==="false");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["newest"],"One chronological request");
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeReplyBatches),[
    ["00000000-0000-4000-8000-000000000101","00000000-0000-4000-8000-000000000102"]
   ],"Both roots must have a single batched reply count query");
@@ -4026,14 +4023,14 @@ try{
    return list?.getAttribute("aria-busy")==="false"&&
     list.querySelectorAll(".vatra-post-comment").length===2;
   });
-  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
-   "Reopening within four seconds should reuse the sorted comment page without a third RPC");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["newest"],
+   "Reopening within four seconds should reuse the chronological comment page without another RPC");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
     interactions:width(".vatra-post-interactions"),
     actions:width(".vatra-post-action-row"),
-    comments:width(".vatra-post-comments-filter-row"),
+    comments:width(".vatra-post-comment-list"),
     composer:width(".vatra-post-comment-form")
    };
   });

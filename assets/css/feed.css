@@ -2444,7 +2444,9 @@ body.feed-page .vatra-post-comment-media img{
  display:block;width:auto;height:auto;max-width:min(100%,340px);max-height:360px;
  object-fit:contain;border-radius:11px
 }
-body.feed-page .ui-vatra-comment-author-row-001{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0}
+body.feed-page .ui-vatra-comment-author-row-001{display:flex;align-items:center;gap:8px;width:100%;min-width:0}
+body.feed-page .ui-vatra-comment-owner-tools-001{display:flex;align-items:center;gap:4px;margin-left:auto;flex:none}
+body.feed-page .ui-vatra-comment-owner-tools-001>button{width:28px;height:28px}
 body.feed-page .vatra-comment-hover-delete-001{
  display:grid;place-items:center;flex:none;width:28px;height:28px;
  padding:4px;border:0;border-radius:8px;background:transparent;
@@ -3533,3 +3535,8 @@ body.feed-page .vatra-post-undo-001:focus-visible{outline:2px solid #8eb0f5;outl
 body.feed-page .vatra-post-undo-001:disabled{opacity:.55;cursor:wait}
 @media(prefers-reduced-motion:no-preference){.vatra-post-deleted-line-001{animation:vatra-popup-enter .18s ease-out both}}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-post-undo-001{transition:none}}
+
+/* Inline post disclosure and viewport-relative composer menus. */
+body.feed-page .vatra-feed-post-read-more-001>svg{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-left:4px;transition:transform .18s ease}
+body.feed-page .vatra-feed-post-read-more-001[aria-expanded="true"]>svg{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){body.feed-page .vatra-feed-post-read-more-001>svg{transition:none}}

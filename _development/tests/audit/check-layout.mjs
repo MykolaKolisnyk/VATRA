@@ -2118,7 +2118,7 @@ assert.ok(
   systemAvatarCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
-assert.ok(plainCoverSvg.includes('fill="#edf1f5"')&&!/Gradient|<path/.test(plainCoverSvg)&&
+assert.ok(plainCoverSvg.includes('fill="#ccd2da"')&&!/Gradient|<path/.test(plainCoverSvg)&&
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
  systemProfileCss.includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
  (await read("assets/css/guest-view.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
