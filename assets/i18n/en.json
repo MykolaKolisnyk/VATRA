@@ -3373,7 +3373,7 @@
   "Не вдалося завантажити публікації.": "Could not load community posts.",
   "Не вдалося перевірити підписку.": "Could not check your subscription.",
   "Не вдалося змінити підписку.": "Could not update subscription.",
-  "Додайте текст, фото або відео (до 2000 символів).": "Add text, a photo or a video (up to 2000 characters).",
+  "Додайте текст, фото або відео (до 20000 символів).": "Add text, a photo or a video (up to 20000 characters).",
   "Не вдалося опублікувати допис.": "Could not publish community post.",
   "Спільноту не знайдено": "Community not found",
   "Ця спільнота не існує або її видалено.": "This community does not exist or was deleted.",
@@ -4050,4 +4050,8 @@
   "Посилання може завантажити виконуваний файл.": "The link may download an executable file.",
   "Додати до чорного списку": "Add to blocked list",
   "Посилання на профіль або VATRA ID": "Profile link or VATRA ID"
+,
+  "Комп’ютер": "Computer",
+  "Мобільний пристрій": "Mobile device",
+  "Планшет": "Tablet"
 }

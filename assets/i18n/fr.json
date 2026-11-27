@@ -3519,7 +3519,7 @@
   "Не вдалося завантажити публікації.": "Impossible de charger les publications de la communauté.",
   "Не вдалося перевірити підписку.": "Impossible de vérifier l’abonnement.",
   "Не вдалося змінити підписку.": "Impossible de modifier l’abonnement.",
-  "Додайте текст, фото або відео (до 2000 символів).": "Ajoutez du texte, une photo ou une vidéo (jusqu’à 2000 caractères).",
+  "Додайте текст, фото або відео (до 20000 символів).": "Ajoutez du texte, une photo ou une vidéo (jusqu’à 20000 caractères).",
   "Не вдалося опублікувати допис.": "Impossible de publier le message.",
   "Спільноту не знайдено": "Communauté introuvable",
   "Ця спільнота не існує або її видалено.": "Cette communauté n’existe pas ou a été supprimée.",
@@ -4192,4 +4192,8 @@
   "Посилання може завантажити виконуваний файл.": "Le lien peut télécharger un fichier exécutable.",
   "Додати до чорного списку": "Ajouter à la liste de blocage",
   "Посилання на профіль або VATRA ID": "Lien du profil ou identifiant VATRA"
+,
+  "Комп’ютер": "Ordinateur",
+  "Мобільний пристрій": "Appareil mobile",
+  "Планшет": "Tablette"
 }

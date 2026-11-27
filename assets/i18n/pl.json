@@ -3519,7 +3519,7 @@
   "Не вдалося завантажити публікації.": "Nie udało się wczytać postów społeczności.",
   "Не вдалося перевірити підписку.": "Nie udało się sprawdzić obserwowania.",
   "Не вдалося змінити підписку.": "Nie udało się zmienić obserwowania.",
-  "Додайте текст, фото або відео (до 2000 символів).": "Dodaj tekst, zdjęcie lub film (do 2000 znaków).",
+  "Додайте текст, фото або відео (до 20000 символів).": "Dodaj tekst, zdjęcie lub film (do 20000 znaków).",
   "Не вдалося опублікувати допис.": "Nie udało się opublikować posta.",
   "Спільноту не знайдено": "Nie znaleziono społeczności",
   "Ця спільнота не існує або її видалено.": "Ta społeczność nie istnieje lub została usunięta.",
@@ -4192,4 +4192,8 @@
   "Посилання може завантажити виконуваний файл.": "Link może pobrać plik wykonywalny.",
   "Додати до чорного списку": "Dodaj do czarnej listy",
   "Посилання на профіль або VATRA ID": "Link do profilu lub VATRA ID"
+,
+  "Комп’ютер": "Komputer",
+  "Мобільний пристрій": "Urządzenie mobilne",
+  "Планшет": "Tablet"
 }
