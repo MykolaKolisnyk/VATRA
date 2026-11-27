@@ -6204,6 +6204,8 @@ try{
   assert.ok(systemCover.expected?.startsWith("data:image/svg+xml,")&&
    systemCover.image.includes(systemCover.expected),
    "The missing member's cover is rendered by CSS SVG, not a separate file");
+  assert.equal(systemCover.expected,await profilePage.evaluate(()=>window.VATRA_AVATAR.coverAsset("default")),
+   "Missing users must use the same fallback cover as ordinary profiles");
   assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
   assert.equal(await profilePage.locator("body").getAttribute("data-vatra-profile-unavailable"),"not-found");
   const missingAlignment=await profilePage.evaluate(()=>{
@@ -6282,9 +6284,13 @@ try{
    assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".webp")&&
     neutralArt.actualAvatar!==neutralArt.sharedAvatar,
     "Deleted and blocked members must use their own Vatryk WebP");
-   assert.notEqual(neutralArt.actualCover,neutralArt.sharedCover,
-    "Unavailable members retain neutral cover, distinct from ordinary branded gradient");
-   assert.ok(decodeURIComponent(neutralArt.actualCover).includes('fill="#ccd2da"'));
+   assert.equal(neutralArt.actualCover,neutralArt.sharedCover,
+    "Unavailable members must use the same neutral gradient as ordinary profiles without a cover");
+   const neutralSvg=decodeURIComponent(neutralArt.actualCover);
+   assert.ok(neutralSvg.includes('stop-color="#f3f5f8"')&&neutralSvg.includes('stop-color="#dce4ef"'),
+    "Unavailable profiles retain the approved light blue-gray gradient");
+   const renderedCover=await profilePage.locator("#profile-cover-system").evaluate(el=>getComputedStyle(el).backgroundImage);
+   assert.ok(renderedCover.includes(neutralArt.sharedCover),"Unavailable profile actually renders the shared cover");
    const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
     background:getComputedStyle(el,"::before").backgroundColor,
     image:getComputedStyle(el,"::before").backgroundImage,
