@@ -1733,7 +1733,13 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab);if(settlementType){labelGroup.append(settlementType);enhanceEditorSelect(settlementType);}') &&
+ detailsModule.includes('make(isSettlement(key)?"button":"label"') &&
+ detailsModule.includes('lab.dataset.settlementLabel="true"') &&
+ detailsModule.includes('settlementType.hidden=true;settlementType.tabIndex=-1') &&
+ detailsModule.includes('openEditorMenu(lab,labelGroup,Array.from(settlementType.options)') &&
+ detailsModule.includes('settlementType.dispatchEvent(new Event("change",{bubbles:true}))') &&
+ !detailsModule.includes('enhanceEditorSelect(settlementType)') &&
+ memberCss.includes('button[data-settlement-label]') &&
  detailsModule.includes('if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox)') &&
  detailsModule.includes('if(variant==="compact")button.append(iconWrap);') &&
  !detailsModule.includes('ui-profile-editor-disclosure-') &&

@@ -4742,6 +4742,8 @@ try{
   await feedProbe.locator(".vatra-story-undo-001").click();
   assert.equal(await feedProbe.locator(".vatra-story-filter-001").first().getAttribute("aria-pressed"),"true");
   assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","Story privacy defaults to friends");
+  await feedProbe.locator(".vatra-story-panel-back-001").click();
+  assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"overview");
   await feedProbe.locator("#feed-story-audience").selectOption("public");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
