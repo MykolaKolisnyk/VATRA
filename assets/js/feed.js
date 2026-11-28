@@ -710,11 +710,12 @@
   const media=q("#feed-story-view-media");
   void window.VATRA_POST_MEDIA?.renderStory(client,story,media);
   window.VATRA_STORY_VIEWS?.start(dialog,client,story,vatraId);
+  window.VATRA_STORY_REACTIONS?.start(dialog,client,story,vatraId);
   window.VATRA_STORY_PROGRESS?.start(dialog,media,story,()=>{
    if(!dialog.open||viewSequence[viewIndex]!==story)return;
    if(viewSequence.slice(viewIndex+1).some(storyLive))openStoryAt(viewIndex+1);
    else dialog.close();
-  },()=>actions.open||!!q("#feed-story-delete-dialog")?.open||deleteAction.disabled||window.VATRA_STORY_VIEWS?.blocked(dialog),()=>window.VATRA_STORY_VIEWS?.viewed(dialog));
+  },()=>actions.open||!!q("#feed-story-delete-dialog")?.open||deleteAction.disabled||window.VATRA_STORY_VIEWS?.blocked(dialog)||window.VATRA_STORY_REACTIONS?.blocked(dialog),()=>window.VATRA_STORY_VIEWS?.viewed(dialog));
   syncStoryNeighbors();
  };
  async function loadStories(){
@@ -926,7 +927,7 @@
   storyWide.addEventListener("change",syncStoryNeighbors);
   storyViewer.addEventListener("keydown",event=>{if(event.target.closest("video,input,textarea,select,[contenteditable]"))return;if(event.key==="ArrowLeft"||event.key==="ArrowRight"){event.preventDefault();const step=event.key==="ArrowLeft"?-1:1;openStoryAt(viewIndex+step,step);}});
   storyViewer.addEventListener("close",()=>{
-   if(!storyViewer.open){window.VATRA_STORY_PROGRESS?.stop(storyViewer);window.VATRA_STORY_VIEWS?.stop(storyViewer);storyMenu.open=false;viewSequence=[];viewIndex=-1;window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));syncStoryNeighbors();}
+   if(!storyViewer.open){window.VATRA_STORY_PROGRESS?.stop(storyViewer);window.VATRA_STORY_VIEWS?.stop(storyViewer);window.VATRA_STORY_REACTIONS?.stop(storyViewer);storyMenu.open=false;viewSequence=[];viewIndex=-1;window.VATRA_POST_MEDIA?.clearStory(q("#feed-story-view-media"));syncStoryNeighbors();}
   });
 
  }

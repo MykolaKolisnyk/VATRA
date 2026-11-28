@@ -1485,7 +1485,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
      const dialog=q("#profile-story-viewer");
      const text=q("#profile-story-viewer-text");
      q("#profile-story-viewer-heading").textContent=dateText(item.created_at);
-     window.VATRA_STORY_PROGRESS?.stop(dialog);window.VATRA_STORY_VIEWS?.stop(dialog);
+     window.VATRA_STORY_PROGRESS?.stop(dialog);window.VATRA_STORY_VIEWS?.stop(dialog);window.VATRA_STORY_REACTIONS?.stop(dialog);
      const storyMenu=q("#profile-story-viewer-menu");
      storyMenu.open=false;storyMenu.hidden=true;q("#profile-story-viewer-delete").hidden=true;
      text.textContent=item.body||"";text.hidden=!item.body;
@@ -3250,9 +3250,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   void window.VATRA_POST_MEDIA?.renderStory(client,
    {...viewedStory,author_vatra_id:targetId},storyMedia);
   window.VATRA_STORY_VIEWS?.start(storyDialog,client,{...viewedStory,author_vatra_id:targetId},ownId);
+  window.VATRA_STORY_REACTIONS?.start(storyDialog,client,{...viewedStory,author_vatra_id:targetId},ownId);
   window.VATRA_STORY_PROGRESS?.start(storyDialog,storyMedia,viewedStory,()=>{
    if(storyDialog.open&&activeStory===viewedStory)storyDialog.close();
-  },()=>storyMenu.open||storyViewerDelete.disabled||!!q("#profile-confirm-dialog")?.open||window.VATRA_STORY_VIEWS?.blocked(storyDialog),()=>window.VATRA_STORY_VIEWS?.viewed(storyDialog));
+  },()=>storyMenu.open||storyViewerDelete.disabled||!!q("#profile-confirm-dialog")?.open||window.VATRA_STORY_VIEWS?.blocked(storyDialog)||window.VATRA_STORY_REACTIONS?.blocked(storyDialog),()=>window.VATRA_STORY_VIEWS?.viewed(storyDialog));
  };
  storyButton.addEventListener("click",openStory);
  visitorStory.addEventListener("click",openStory);
@@ -3300,7 +3301,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  q("#profile-story-viewer-close").addEventListener("click",()=>storyDialog.close());
  storyDialog.addEventListener("close",()=>{
-  if(!storyDialog.open){window.VATRA_STORY_PROGRESS?.stop(storyDialog);window.VATRA_STORY_VIEWS?.stop(storyDialog);storyMenu.open=false;window.VATRA_POST_MEDIA?.clearStory(storyMedia);}
+  if(!storyDialog.open){window.VATRA_STORY_PROGRESS?.stop(storyDialog);window.VATRA_STORY_VIEWS?.stop(storyDialog);window.VATRA_STORY_REACTIONS?.stop(storyDialog);storyMenu.open=false;window.VATRA_POST_MEDIA?.clearStory(storyMedia);}
  });
  mediaDialog.addEventListener("click",event=>{
   if(event.target===mediaDialog&&!avatarDeleteInProgress&&!uploading)mediaDialog.close();
