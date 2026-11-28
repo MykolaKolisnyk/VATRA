@@ -68,9 +68,11 @@ try{
     await headerProbe.setContent('<!doctype html><html lang="uk"><head>'+links+'</head>'+body+'<div class="feed-app">'+header+'<main style="min-height:1500px;background:#e2e8f0"></main></div></body></html>',{waitUntil:"load"});
     const value=await headerProbe.evaluate(()=>{
      const h=document.querySelector(".feed-header"),s=getComputedStyle(h),r=h.getBoundingClientRect(),inner=h.querySelector(".feed-header-inner").getBoundingClientRect();
-     return {height:r.height,width:r.width,innerHeight:inner.height,background:s.backgroundColor,shadow:s.boxShadow,border:s.borderBottom,position:s.position,filter:s.backdropFilter,radius:s.borderRadius};
+     const app=document.querySelector(".feed-app").getBoundingClientRect(),body=document.body.getBoundingClientRect();
+     return {height:r.height,innerHeight:inner.height,background:s.backgroundColor,shadow:s.boxShadow,border:s.borderBottom,position:s.position,filter:s.backdropFilter,radius:s.borderRadius,fullWidth:Math.abs(r.left-app.left)<1&&Math.abs(r.right-app.right)<1&&Math.abs(app.left-body.left)<1&&Math.abs(app.right-body.right)<1};
     });
     assert.equal(value.background,"rgb(255, 255, 255)");assert.equal(value.filter,"none");
+    assert.equal(value.fullWidth,true,name+" header must fill its page width at "+width+"px");
     if(!baseline)baseline=value;else assert.deepEqual(value,baseline,"Shared header differs on "+name+" at "+width+"px");
    }
   }
