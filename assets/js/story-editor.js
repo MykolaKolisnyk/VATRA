@@ -2,21 +2,6 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 const script=document.currentScript?.src||location.href;
-const videoInput=file=>/^video\//i.test(file.type)||((!file.type||file.type==="application/octet-stream"||file.type==="application/x-matroska")&&/\.(mp4|webm|mov|avi|mkv|m4v|mpeg|mpg|3gp|3g2|mts|m2ts|wmv|flv|ogv|ts|vob|asf|f4v)$/i.test(file.name||""));
-function convertVideo(file,signal){
- return new Promise((resolve,reject)=>{
-  if(signal.aborted){reject(Error("cancelled"));return;}
-  const worker=new Worker(new URL("assets/js/video-converter.js?rev=bff67f55f7b1c965b2ecea7f1d1c15556a2f0872",new URL("../../",script)),{type:"module"});
-  let done=false,timer;
-  const finish=(error,value)=>{if(done)return;done=true;clearTimeout(timer);signal.removeEventListener("abort",abort);worker.terminate();error?reject(error):resolve(value);};
-  const abort=()=>finish(Error("cancelled"));
-  timer=setTimeout(()=>finish(Error("timeout")),180000);
-  signal.addEventListener("abort",abort,{once:true});
-  worker.onerror=()=>finish(Error("conversion failed"));
-  worker.onmessage=({data})=>{if(data?.bytes instanceof ArrayBuffer&&data.bytes.byteLength>0&&data.bytes.byteLength<=52428800)finish(null,new File([data.bytes],"story.mp4",{type:"video/mp4"}));else finish(Error("conversion failed"));};
-  try{worker.postMessage(file);}catch(error){finish(error);}
- });
-}
 const W=540,H=960;
 const palette=["#ffffff","#202938","#b6a99e","#427deb","#20b486","#ffcd42","#f65379","#a697f4","#8054ec","#ef5aa9","#fb913f","#a8d72f","#73d3f3","#5b6573","#dcd3ca","#e9edf4"];
 const backgrounds=[["#385ee4","#9759df"],["#176fbc","#65c7dc"],["#ed7591","#7f55bb"],["#1b927c","#91d4a7"],["#ff904d","#ffd56a"],["#232b46","#615a9c"],["#f4d9cb","#f7bbda"],["#e7edf7","#c9d9fc"]];
@@ -173,10 +158,10 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   }
  }
  async function loadFile(picked){
-  if(!picked||publishing||loading)return;const videoType=videoInput(picked),imageType=typeof picked.type==="string"&&picked.type.startsWith("image/")&&picked.type!=="image/svg+xml";
+  if(!picked||publishing||loading)return;const videoType=window.VATRA_POST_MEDIA.isVideoInput(picked),imageType=typeof picked.type==="string"&&picked.type.startsWith("image/")&&picked.type!=="image/svg+xml";
   if((!videoType&&!imageType)||!picked.size||picked.size>(videoType?52428800:6291456)){note(tr("Виберіть фото, яке підтримує браузер, до 6 МБ або відео до 50 МБ.","Choose a browser-supported photo up to 6 MB or MP4, WebM video up to 50 MB."));file.value="";return;}
   const epoch=++request;loading=true;note("");render();let url=null,img=null;
-  try{if(videoType){conversion=new AbortController();note(tr("Обробка відео…","Processing video…"));picked=await convertVideo(picked,conversion.signal);if(epoch!==request||!dialog.open)return;note("");}url=URL.createObjectURL(picked);if(imageType){img=new Image();img.src=url;await img.decode();}if(epoch!==request||!dialog.open){URL.revokeObjectURL(url);return;}
+  try{if(videoType){conversion=new AbortController();note(tr("Обробка відео…","Processing video…"));picked=await window.VATRA_POST_MEDIA.prepareVideo(picked,conversion.signal);if(epoch!==request||!dialog.open)return;note("");}url=URL.createObjectURL(picked);if(imageType){img=new Image();img.src=url;await img.decode();}if(epoch!==request||!dialog.open){URL.revokeObjectURL(url);return;}
    checkpoint();state.media=addAsset(picked,img,url);url=null;state.kind=videoType?"video":"image";state.photo=freshPhoto();state.caption="";state.texts=[];state.strokes=[];state.filter=0;state.adjust=fresh().adjust;selected=null;active="overview";
   }catch(_){if(url)URL.revokeObjectURL(url);if(epoch===request)note(videoType?tr("Не вдалося обробити відео. Спробуйте менший або інший файл.","Video processing failed. Try a smaller or different file."):tr("Не вдалося відкрити файл.","Could not open the file."));}finally{if(epoch===request){conversion=null;loading=false;file.value="";render();setPanel(active);}}
  }

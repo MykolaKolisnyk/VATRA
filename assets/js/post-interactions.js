@@ -295,7 +295,7 @@ function appendAudience(container,level,isGroup=false){
   visibility.value=["public","friends","only_me"].includes(post.visibility)?post.visibility:"public";visibility.disabled=!["public","friends","only_me"].includes(post.visibility);audience.append(visibility);
   const controls=make("div","vatra-compose-media-controls ui-vatra-post-edit-media-controls-001");
   const choose=field("button","vatra-post-edit-upload-001","media-choose",tr("Фото / відео","Photo / video"));choose.type="button";
-  const file=field("input","ui-vatra-post-edit-file-001","media");file.type="file";file.multiple=true;file.accept="image/jpeg,image/png,image/webp,video/mp4,video/webm";file.hidden=true;
+  const file=field("input","ui-vatra-post-edit-file-001","media");file.type="file";file.multiple=true;file.accept=api.MEDIA_ACCEPT;file.hidden=true;
   controls.append(choose,file);
   const stage=field("div","vatra-compose-media-preview ui-vatra-post-edit-media-001","media-preview"),grid=make("div","vatra-gallery-picker-grid ui-vatra-post-edit-grid-001");stage.append(grid);
   const note=field("p","vatra-post-composer-notice-001","status");note.setAttribute("role","status");note.hidden=true;
@@ -305,7 +305,7 @@ function appendAudience(container,level,isGroup=false){
   const paint=()=>{
    const ticket=++paintTicket;release();grid.replaceChildren();stage.hidden=!entries.length;grid.dataset.single=String(entries.length===1);
    entries.forEach((entry,index)=>{
-    const tile=make("div","vatra-gallery-picker-tile ui-vatra-post-edit-tile-001"),kind=entry.item?.media_kind||(entry.file.type.startsWith("video/")?"video":"image");
+    const tile=make("div","vatra-gallery-picker-tile ui-vatra-post-edit-tile-001"),kind=entry.item?.media_kind||(api.isVideoInput(entry.file)?"video":"image");
     const media=make(kind==="video"?"video":"img","ui-vatra-post-edit-preview-001");if(kind==="video"){media.controls=true;media.preload="metadata";media.playsInline=true;}else media.alt=tr("Фото публікації","Post photo");
     const remove=make("button","vatra-gallery-picker-remove vatra-post-edit-remove-001");remove.type="button";remove.setAttribute("aria-label",tr("Прибрати файл ","Remove file ")+(index+1));remove.append(glyph("x"));remove.onclick=()=>{if(busy)return;entries.splice(index,1);setError("");paint();};
     tile.append(media,remove);grid.append(tile);
@@ -314,7 +314,7 @@ function appendAudience(container,level,isGroup=false){
    composerUI?.sync();
   };
   choose.onclick=()=>{if(!busy)file.click();};
-  file.onchange=()=>{const files=Array.from(file.files||[]);file.value="";if(!files.length||busy)return;try{const next=[...entries,...files.map(file=>({file}))];if(next.length>12||next.filter(e=>e.item?.media_kind==="video"||e.file?.type.startsWith("video/")).length>4)throw Error(tr("До 12 фото та відео, з них до 4 відео.","Up to 12 media files, including up to 4 videos."));api.validateGallery(next.filter(e=>e.file).map(e=>e.file));entries=next;setError("");paint();}catch(error){setError(error.message);}};
+  file.onchange=()=>{const files=Array.from(file.files||[]);file.value="";if(!files.length||busy)return;try{const next=[...entries,...files.map(file=>({file}))];if(next.length>12||next.filter(e=>e.item?.media_kind==="video"||api.isVideoInput(e.file)).length>4)throw Error(tr("До 12 фото та відео, з них до 4 відео.","Up to 12 media files, including up to 4 videos."));api.validateGallery(next.filter(e=>e.file).map(e=>e.file));entries=next;setError("");paint();}catch(error){setError(error.message);}};
   const setBusy=value=>{busy=value;if(value){for(const el of form.querySelectorAll("button,input,textarea,select")){disabledBefore.set(el,el.disabled);el.disabled=true;}}else{for(const [el,disabled] of disabledBefore)el.disabled=disabled;disabledBefore.clear();composerUI?.sync();}dialog.setAttribute("aria-busy",String(value));};
   cancel.onclick=()=>{if(!busy)dialog.close();};
   dialog.addEventListener("cancel",event=>{if(busy)event.preventDefault();});
@@ -881,7 +881,7 @@ function appendAudience(container,level,isGroup=false){
   const attachmentMenu=make("div","vatra-post-comment-attach-menu ui-vatra-post-comment-attach-menu-001");
   attachmentMenu.hidden=true;attachmentMenu.setAttribute("role","menu");
   const fileInput=make("input","ui-vatra-post-comment-file-001");
-  fileInput.type="file";fileInput.accept="image/jpeg,image/png,image/webp,video/mp4,video/webm";
+  fileInput.type="file";fileInput.accept=window.VATRA_POST_MEDIA?.MEDIA_ACCEPT||"image/jpeg,image/png,image/webp,video/mp4,video/webm";
   fileInput.hidden=true;fileInput.setAttribute("aria-label",tr("Додати файл до коментаря","Choose comment media"));
   const menuOption=(type,uk,en,accept)=>{
    const item=make("button","vatra-post-comment-menu-"+type,tr(uk,en));
@@ -893,9 +893,9 @@ function appendAudience(container,level,isGroup=false){
    });return item;
   };
   attachmentMenu.append(
-   menuOption("device","З пристрою","From device","image/jpeg,image/png,image/webp,video/mp4,video/webm"),
+   menuOption("device","З пристрою","From device",fileInput.accept),
    menuOption("photo","Фотографія","Photo","image/jpeg,image/png,image/webp"),
-   menuOption("video","Відео","Video","video/mp4,video/webm")
+   menuOption("video","Відео","Video",window.VATRA_POST_MEDIA?.VIDEO_ACCEPT||"video/mp4,video/webm")
   );
   const emojiPanel=make("div","vatra-post-comment-emoji-panel ui-vatra-post-comment-emoji-panel-001");
   emojiPanel.hidden=true;
@@ -1032,10 +1032,10 @@ function appendAudience(container,level,isGroup=false){
     "image/webp":["image","webp",31457280],
     "video/mp4":["video","mp4",52428800],"video/webm":["video","webm",52428800]
    };
-   const type=allowed[file.type];
+   const type=window.VATRA_POST_MEDIA?.isVideoInput(file)?["video","mp4",52428800]:allowed[file.type];
    if(!type||file.size>type[2]||file.size<1){
-    feedback(tr("Фото: до 30 МБ. Відео: до 50 МБ. Доступні JPEG, PNG, WebP, MP4, WebM.",
-     "Photo: up to 30 MB. Video: up to 50 MB. JPEG, PNG, WebP, MP4 or WebM."),true);
+    feedback(tr("Фото JPEG, PNG, WebP: до 30 МБ. Відео: до 50 МБ.",
+     "JPEG, PNG, WebP photos: up to 30 MB. Video: up to 50 MB."),true);
     fileInput.value="";chosenFile=null;attachmentPreview.hidden=true;updateSend();return;
    }
    chosenFile={file,kind:type[0],ext:type[1]};
@@ -1518,11 +1518,13 @@ function appendAudience(container,level,isGroup=false){
     const target=replyTarget;
     if(target)payload.parent_comment_id=target.id;
     if(file){
+     let media=file.file,ext=file.ext;
+     if(file.kind==="video"){feedback(tr("Обробка відео…","Processing video…"));media=await window.VATRA_POST_MEDIA.prepareVideo(media);ext="mp4";}
      const bucket=file.kind==="image"?"post-images":"videos";
-     const filename=crypto.randomUUID()+"."+file.ext;
+     const filename=crypto.randomUUID()+"."+ext;
      const path=ownId+"/comments/"+filename;
-     const {error}=await client.storage.from(bucket).upload(path,file.file,{
-      contentType:file.file.type,cacheControl:"3600",upsert:false
+     const {error}=await client.storage.from(bucket).upload(path,media,{
+      contentType:media.type,cacheControl:"3600",upsert:false
      });
      if(error)throw error;
      uploaded={bucket,path};

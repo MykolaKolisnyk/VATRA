@@ -646,15 +646,17 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
 }
 
 {
- const env={Map,WeakMap,Set,Date,URL,Promise,Number,setTimeout,clearTimeout,
-  location:{origin:"https://example.test"},tr:(uk,en)=>en,
+ let conversions=0,activeWorkers=0,maxWorkers=0;
+ const env={Map,WeakMap,WeakSet,Set,Date,URL,Promise,Number,ArrayBuffer,File,setTimeout,clearTimeout,
+  Worker:class {constructor(){conversions++;activeWorkers++;maxWorkers=Math.max(maxWorkers,activeWorkers);}postMessage(){queueMicrotask(()=>this.onmessage({data:{bytes:new ArrayBuffer(42)}}));}terminate(){activeWorkers--; }},
+  location:{origin:"https://example.test",href:"https://example.test/VATRA/assets/js/post-media.js"},tr:(uk,en)=>en,
   crypto:{randomUUID:()=>"01234567-89ab-4def-8123-456789abcdef"}};
  const part=(a,b)=>{const x=source.indexOf(a),y=source.indexOf(b,x);assert.ok(x>=0&&y>x);return source.slice(x,y);};
  runInNewContext(part(" const formats="," function linkifyHashtags(")+
   part(" async function removeGallery("," async function uploadGallery(")+
   part(" async function upload(client,"," const signedURLCaches=")+
   part(" const signedURLCaches="," async function renderStory(")+
-  "\nglobalThis.clipTest={upload,uploadClip,uploadStory,remove,removeGallery,signed,preSignGallery,clipPathValid,storyPathValid,bucketFor};",env);
+  "\nglobalThis.clipTest={prepareVideo,isVideoInput,upload,uploadClip,uploadStory,remove,removeGallery,signed,preSignGallery,clipPathValid,storyPathValid,bucketFor};",env);
  const api=env.clipTest,events=[];
  const client={storage:{from:bucket=>({
   async upload(path){events.push(["upload",bucket,path]);return {error:null};},
@@ -663,7 +665,14 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
   async createSignedUrls(paths){events.push(["bulk",bucket,...paths]);return {data:paths.map(path=>({path,signedUrl:host+"/storage/v1/object/sign/"+bucket+"/"+path}))};}
  })}};
  const file={type:"video/mp4",size:42};
- const video=await api.upload(client,7,file),clip=await api.uploadClip(client,7,file);
+ const prepared=await api.prepareVideo(file);
+ assert.equal(prepared.type,"video/mp4");
+ const video=await api.upload(client,7,prepared),clip=await api.uploadClip(client,7,prepared);
+ assert.equal(conversions,1,"Prepared video must not be encoded twice");
+ assert.equal(api.isVideoInput({name:"phone.MOV",type:"",size:42}),true);
+ assert.equal(api.isVideoInput({name:"document.txt",type:"text/plain",size:42}),false);
+ await Promise.all([api.prepareVideo({name:"clip.avi",type:"video/x-msvideo",size:42}),api.prepareVideo({name:"clip.mkv",type:"application/octet-stream",size:42})]);
+ assert.equal(maxWorkers,1,"Only one heavy conversion worker may run concurrently");
  assert.equal(video.media_path,"7/posts/01234567-89ab-4def-8123-456789abcdef.mp4");
  assert.equal(clip.media_path,"7/clips/01234567-89ab-4def-8123-456789abcdef.mp4");
  assert.equal(api.clipPathValid(video.media_path,7),false);

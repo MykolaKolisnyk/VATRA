@@ -16,10 +16,38 @@
   "video/mp4":{kind:"video",ext:"mp4",bucket:"videos",limit:52428800},
   "video/webm":{kind:"video",ext:"webm",bucket:"videos",limit:52428800}
  };
+ const VIDEO_ACCEPT="video/*,.mov,.avi,.mkv,.m4v,.mpeg,.mpg,.3gp,.3g2,.mts,.m2ts,.wmv,.flv,.ogv,.ts,.vob,.asf,.f4v";
+ const MEDIA_ACCEPT="image/jpeg,image/png,image/webp,"+VIDEO_ACCEPT;
+ const isVideoInput=file=>!!file&&(/^video\//i.test(file.type||"")||((!file.type||["application/octet-stream","application/x-matroska","application/ogg","application/mp4"].includes(file.type))&&/\.(mp4|webm|mov|avi|mkv|m4v|mpeg|mpg|3gp|3g2|mts|m2ts|wmv|flv|ogv|ts|vob|asf|f4v)$/i.test(file.name||"")));
+ const preparedVideos=new WeakSet();
+ const mediaScript=typeof document!=="undefined"?document.currentScript?.src:null;
+ let videoQueue=Promise.resolve();
+ function convertVideo(file,signal){
+  return new Promise((resolve,reject)=>{
+   if(signal?.aborted){reject(Error("cancelled"));return;}
+   const worker=new Worker(new URL("assets/js/video-converter.js?rev=bff67f55f7b1c965b2ecea7f1d1c15556a2f0872",new URL("../../",mediaScript||location.href)),{type:"module"});
+   let done=false,timer;
+   const finish=(error,value)=>{if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener("abort",abort);worker.terminate();error?reject(error):resolve(value);};
+   const abort=()=>finish(Error("cancelled"));
+   timer=setTimeout(()=>finish(Error("timeout")),180000);
+   signal?.addEventListener("abort",abort,{once:true});
+   worker.onerror=()=>finish(Error("conversion failed"));
+   worker.onmessage=({data})=>{if(data?.bytes instanceof ArrayBuffer&&data.bytes.byteLength>0&&data.bytes.byteLength<=52428800){const output=new File([data.bytes],(file.name||"video").replace(/\.[^.]+$/,"")+".mp4",{type:"video/mp4"});preparedVideos.add(output);finish(null,output);}else finish(Error("conversion failed"));};
+   try{worker.postMessage(file);}catch(error){finish(error);}
+  });
+ }
+ async function prepareVideo(file,signal){
+  if(!isVideoInput(file)||!file.size||file.size>52428800)throw Error(tr("Виберіть відео до 50 МБ.","Choose a video up to 50 MB."));
+  if(signal?.aborted)throw Error("cancelled");
+  if(preparedVideos.has(file))return file;
+  const task=videoQueue.then(()=>convertVideo(file,signal));
+  videoQueue=task.catch(()=>{});
+  try{return await task;}catch(_){throw Error(tr("Не вдалося обробити відео. Спробуйте менший або інший файл.","Video processing failed. Try a smaller or different file."));}
+ }
  const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id||""));
  const formatFor=file=>{
-  const info=formats[file?.type];
-  if(!info||!file?.size)throw Error(tr("Виберіть JPEG, PNG, WebP, MP4 або WebM.","Choose JPEG, PNG, WebP, MP4 or WebM."));
+  const info=isVideoInput(file)?formats["video/mp4"]:formats[file?.type];
+  if(!info||!file?.size)throw Error(tr("Виберіть JPEG, PNG, WebP або відео.","Choose JPEG, PNG, WebP or video."));
   if(file.size>info.limit)throw Error(info.kind==="image"?
    tr("Фото має бути до 30 МБ.","Photo must be under 30 MB."):
    tr("Відео має бути до 50 МБ.","Video must be under 50 MB."));
@@ -92,7 +120,7 @@
   const showError=typeof ids.onError==="function"?ids.onError:()=>{};
   const changed=typeof ids.onChange==="function"?ids.onChange:()=>{};
   if(!input||!choose||!clear||!preview)throw Error("Gallery picker markup is incomplete");
-  input.multiple=true;
+  input.multiple=true;input.accept=MEDIA_ACCEPT;
   let selected=[],urls=[];
   const release=()=>{urls.forEach(url=>URL.revokeObjectURL(url));urls=[];};
   function display(){
@@ -101,14 +129,14 @@
    if(selected.length){
     const count=document.createElement("p");count.className="vatra-gallery-selection-count-001";
     count.textContent=selected.length+" / "+GALLERY_LIMIT+" · "+
-     selected.filter(file=>formats[file.type]?.kind==="video").length+" "+tr("відео","videos");
+     selected.filter(file=>isVideoInput(file)).length+" "+tr("відео","videos");
     preview.append(count);
    }
    const grid=document.createElement("div");grid.className="vatra-gallery-picker-grid ui-vatra-gallery-picker-grid-001";
    selected.forEach((file,index)=>{
     const tile=document.createElement("div");tile.className="vatra-gallery-picker-tile ui-vatra-gallery-picker-tile-"+index;
     const url=URL.createObjectURL(file);urls.push(url);
-    const media=document.createElement(formats[file.type].kind==="video"?"video":"img");
+    const media=document.createElement(isVideoInput(file)?"video":"img");
     media.className="ui-vatra-gallery-picker-media-"+index;media.src=url;
     if(media.tagName==="VIDEO"){media.preload="metadata";media.muted=true;media.playsInline=true;}
     else media.alt=tr("Фото для публікації","Selected post photo");
@@ -189,6 +217,7 @@
   const showError=typeof ids.onError==="function"?ids.onError:()=>{};
   const changed=typeof ids.onChange==="function"?ids.onChange:()=>{};
   if(!input||!choose||!clear||!preview)throw Error("VATRA media picker markup is incomplete");
+  input.accept=MEDIA_ACCEPT;
   let selected=null,blob=null;
   const reset=()=>{
    selected=null;input.value="";
@@ -199,7 +228,7 @@
    reset();if(!file)return;
    try{formatFor(file);}catch(error){showError(error.message);return;}
    selected=file;blob=URL.createObjectURL(file);
-   const info=formats[file.type];
+   const info=formatFor(file);
    const media=document.createElement(info.kind==="image"?"img":"video");
    media.className=info.kind==="image"?"vatra-compose-preview-image":"vatra-compose-preview-video";
    media.src=blob;
@@ -270,6 +299,7 @@
  async function upload(client,id,file){
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
+  if(format.kind==="video")file=await prepareVideo(file);
   const path=id+"/posts/"+crypto.randomUUID()+"."+format.ext;
 
 
@@ -294,6 +324,7 @@
  async function uploadClip(client,id,file){
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
+  if(format.kind==="video")file=await prepareVideo(file);
   if(format.kind!=="video")throw Error(tr("Не вдалося завантажити файл. Спробуйте знову.","Could not upload media. Try again."));
   const path=String(id)+"/clips/"+crypto.randomUUID().toLowerCase()+"."+format.ext;
   if(!clipPathValid(path,id))throw Error("Invalid clip media path");
@@ -306,6 +337,7 @@
  async function uploadStory(client,id,file){
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
+  if(format.kind==="video")file=await prepareVideo(file);
   const path=String(id)+"/story-media/"+crypto.randomUUID().toLowerCase()+"."+format.ext;
   if(!storyPathValid(path,format.kind,String(id)))throw Error("Invalid story media path");
   const {error}=await client.storage.from("stories").upload(path,file,{
@@ -1414,5 +1446,5 @@ function openFullMedia(url,kind,container,post=null,client=null,fromPhotos=false
    }else{host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
   }catch(_){host.remove();createdDialogs.forEach(dialog=>dialog.remove());}
  }
- window.VATRA_POST_MEDIA={mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadClip,clipPathValid,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,bindPhotoTileMenu,renderStory,linkifyHashtags,collapsibleBody,signed};
+ window.VATRA_POST_MEDIA={VIDEO_ACCEPT,MEDIA_ACCEPT,isVideoInput,prepareVideo,mediaDescription,beginPhotoSlide,clearPhotoSlide,watchPhotoViewer,bindPicker,bindGalleryPicker,validateGallery,upload,uploadClip,clipPathValid,uploadGallery,removeGallery,uploadStory,remove,mount,clearStory,openPostPhoto,photoNavigation,photoMenuIcon,bindPhotoTileMenu,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();
