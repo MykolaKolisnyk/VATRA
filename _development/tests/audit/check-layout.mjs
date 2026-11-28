@@ -1127,7 +1127,7 @@ assert.ok(reactionsVerifiedDelete.every(part=>reactionsSource.includes(part))&&
  reactionsSource.includes("ownLiked&&String(result.data?.comment_id)"),
  "Post likes, comment likes and bookmarks must verify affected DELETE rows");
 
-const profileExtraScript=await read("assets/js/profile.js");
+const profileExtraScript=await read("assets/js/profile/profile.js");
 const relationshipSource=profileExtraScript.slice(profileExtraScript.indexOf(" const relationshipForms="),profileExtraScript.indexOf(" const choices={"));
 const relationshipTest=new Function('const tr=(uk,en)=>uk;'+relationshipSource+'return {relationshipChoices,relationshipLabel};')();
 assert.ok(relationshipTest.relationshipChoices("male").some(pair=>pair[0]==="Одружений"));
@@ -1239,13 +1239,13 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-tab-videos"')&&
  !profileMarkup.includes('id="profile-tab-about"')&&
  !profileMarkup.includes('id="profile-vatra-id"')&&
- (await read("assets/js/profile.js")).includes('setupProfilePresence(')&&
- (await read("assets/js/profile.js")).includes('setupLazyProfileGallery(')&&
-  (await read("assets/js/profile-gallery.js")).includes('window.VATRA_PROFILE_GALLERY=Object.freeze({mount})')&&
+ (await read("assets/js/profile/profile.js")).includes('setupProfilePresence(')&&
+ (await read("assets/js/profile/profile.js")).includes('setupLazyProfileGallery(')&&
+  (await read("assets/js/profile/profile-gallery.js")).includes('window.VATRA_PROFILE_GALLERY=Object.freeze({mount})')&&
  (await read("assets/js/presence.js")).includes('last_seen_at')&&
  (await read("feed.html")).includes('data-feed-filter="communities"')&&
  (await read("feed.html")).includes('class="feed-top-controls ui-feed-top-controls-001"')&&
- (await read("assets/js/profile.js")).includes('displayed.addEventListener("click",openStatus)')&&
+ (await read("assets/js/profile/profile.js")).includes('displayed.addEventListener("click",openStatus)')&&
  profileMarkup.includes('id="profile-status-dialog"')&&
  profileMarkup.includes('id="profile-tab-gifts"')&&
  profileMarkup.includes('id="profile-tab-saved"')&&
@@ -1263,14 +1263,14 @@ assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
 assert.ok(profileMarkup.includes('id="profile-heading"')&&
  !profileMarkup.includes('id="profile-not-found"')&&
  profileMarkup.includes('class="profile-panels ui-profile-panels-001"')&&
- (await read("assets/js/profile.js")).includes('q(".ui-profile-tab-row-001")?.remove()')&&
- (await read("assets/js/profile.js")).includes('q("#profile-edit-open")?.remove()')&&
- (await read("assets/js/profile.js")).includes('q(".profile-panels")?.remove()')&&
- (await read("assets/js/profile.js")).includes('const ownHeaderMedia=loadOwnHeaderAvatar(client,ownId,user.email);')&&
- (await read("assets/js/profile.js")).includes('const preloadedMedia=isMine?ownHeaderMedia:')&&
- (await read("assets/js/profile.js")).includes('window.VATRA_AVATAR?.invalidatePath?.(client,ownId);'),
+ (await read("assets/js/profile/profile.js")).includes('q(".ui-profile-tab-row-001")?.remove()')&&
+ (await read("assets/js/profile/profile.js")).includes('q("#profile-edit-open")?.remove()')&&
+ (await read("assets/js/profile/profile.js")).includes('q(".profile-panels")?.remove()')&&
+ (await read("assets/js/profile/profile.js")).includes('const ownHeaderMedia=loadOwnHeaderAvatar(client,ownId,user.email);')&&
+ (await read("assets/js/profile/profile.js")).includes('const preloadedMedia=isMine?ownHeaderMedia:')&&
+ (await read("assets/js/profile/profile.js")).includes('window.VATRA_AVATAR?.invalidatePath?.(client,ownId);'),
  "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
-const profileBehavior=await read("assets/js/profile.js");
+const profileBehavior=await read("assets/js/profile/profile.js");
 assert.ok(profileBehavior.includes('client.from("friendships")')&&
  !profileBehavior.includes('client.from("direct_messages")')&&
  profileBehavior.includes("setupProfileInteractions(client,ownId,targetId,isMine)"),
@@ -1289,7 +1289,7 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileBehavior.includes('coverView.addEventListener("click",()=>void openCover())')&&
  profileBehavior.includes('mediaDialog.showModal()'),
  "Avatar story ring and original photo/cover viewer must be backed by real profile media and stories");
-const preflightMemberCss=await read("assets/css/profile.css");
+const preflightMemberCss=await read("assets/css/profile/profile.css");
 assert.ok(
  profileBehavior.includes('const canViewPhoto=!locked') &&
  profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto') &&
@@ -1309,16 +1309,16 @@ for(const route of ["feed","profile","friends","communities","club","clips","mar
  for(const asset of ["story-views.js","story-view-progress.js","story-reactions.js"])assert.equal(markup.includes("assets/js/"+asset),needsStories,route+" "+asset+" route isolation");
 }
 assert.ok(storyViewerCss.includes(".ui-vatra-story-view-stage-001{")&&!sharedCss.includes(".ui-vatra-story-view-stage-001{"),"Story viewer styles belong in the route-only stylesheet");
-const memberCss=await read("assets/css/profile.css");
+const memberCss=await read("assets/css/profile/profile.css");
 assert.ok(!profileMarkup.includes("assets/css/create-menu.css")&&!profileMarkup.includes("assets/js/create-menu.js")&&sharedCss.includes("[data-create-direct]"),"Profile uses the shared compose button without loading the feed-only menu");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
  'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"','href="assets/css/story-viewer.css"','href="assets/css/vatra-player.css"',
- 'href="assets/css/profile.css"','href="assets/css/external-links.css"'
+ 'href="assets/css/profile/profile.css"','href="assets/css/external-links.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
  (await Promise.all(["feed.html","communities.html","club.html","notifications.html"].map(p=>read(p))))
- .every(markup=>!["assets/css/profile.css"].some(path=>markup.includes(path))) &&
+ .every(markup=>!["assets/css/profile/profile.css"].some(path=>markup.includes(path))) &&
  !sharedCss.includes("VATRA personal-information presentation:") &&
  !sharedCss.includes("body.profile-page .profile-editor-layout") &&
  memberCss.includes(".profile-hero{") &&
@@ -1338,7 +1338,7 @@ assert.ok(sharedCss.includes(".vatra-account")===false ||
  sharedCss.includes("body.feed-page .feed-account-dropdown > button > svg"),
  "Account dropdown SVGs must remain visible after language switching");
 const sharedJs=await read("assets/js/social-shell.js");
-const coverScript=await read("assets/js/profile.js");
+const coverScript=await read("assets/js/profile/profile.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  memberCss.includes("body.profile-page .profile-cover.has-photo::before,")&&
  memberCss.includes("body.profile-page .profile-cover.has-photo::after{")&&
@@ -1470,9 +1470,9 @@ assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-cover-change-icon-
 const pencilPath=editGeometry.match(/ d="([^"]+)"/)?.[1];
 assert.ok(pencilPath,"Canonical edit pencil path is required");
 for(const [path,extract] of [
- ["assets/js/profile.js",/edit:"([^"]+)"/],
+ ["assets/js/profile/profile.js",/edit:"([^"]+)"/],
  ["assets/js/post-interactions.js",/if\(type==="edit"\)path\("([^"]+)"\)/],
- ["assets/js/profile-avatar-comment-row.js",/editPath\.setAttribute\("d","([^"]+)"\)/],
+ ["assets/js/profile/profile-avatar-comment-row.js",/editPath\.setAttribute\("d","([^"]+)"\)/],
  ["assets/js/photo-albums.js",/edit:"([^"]+)"/]
 ]){
  assert.equal((await read(path)).match(extract)?.[1],pencilPath,path+": edit actions must use the canonical pencil geometry");
@@ -1520,7 +1520,7 @@ assert.ok(storyPreviewMarkup.includes('id="feed-create-menu-story"')&&
 const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
-const profileScript=await read("assets/js/profile.js");
+const profileScript=await read("assets/js/profile/profile.js");
 assert.ok(
  memberProfileMarkup.includes('id="profile-friend-action"')&&
  memberProfileMarkup.includes('id="profile-friend-menu"')&&
@@ -1535,10 +1535,10 @@ assert.ok(
  profileScript.includes('t("Заблокувати ","Block ")+firstName'),
  "Visitor actions must provide a dropdown for pending friend requests and More actions"
 );
-const avatarCommentRowScript=await read("assets/js/profile-avatar-comment-row.js");
-const profileCoverScript=await read("assets/js/profile-cover-editor.js");
-const profileCoverViewerScript=await read("assets/js/profile-cover-viewer.js");
-const profileAvatarScript=await read("assets/js/profile-avatar-editor.js");
+const avatarCommentRowScript=await read("assets/js/profile/profile-avatar-comment-row.js");
+const profileCoverScript=await read("assets/js/profile/profile-cover-editor.js");
+const profileCoverViewerScript=await read("assets/js/profile/profile-cover-viewer.js");
+const profileAvatarScript=await read("assets/js/profile/profile-avatar-editor.js");
 // Only numeric /idN profile permalinks are generated. GitHub Pages serves its
 // 404.html fallback at these addresses, then mounts the real profile markup.
 assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURIComponent(id);')&&
@@ -1727,7 +1727,7 @@ assert.ok(profileScript.includes('key==="country"?countryCodes.map')&&profileScr
 assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
  "Exactly one page-level profile controller must be loaded");
 assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module has invalid JavaScript");
-assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
+assert.ok(memberProfileMarkup.includes('assets/js/profile/profile.js') &&
  !memberProfileMarkup.includes('assets/js/profile-details.js') &&
  !detailsModule.includes('profile-editor-page-visibility') &&
  detailsModule.includes('from("profile_details")') &&
@@ -1784,7 +1784,7 @@ assert.ok(
  "Profile posts must filter by year/month server-side before pagination, with a safe reset");
 const sharedAvatar=await read("assets/js/avatar.js");
 const systemAvatarCss=await read("assets/css/base.css");
-const systemProfileCss=await read("assets/css/profile.css");
+const systemProfileCss=await read("assets/css/profile/profile.css");
 const systemFeedCss=await read("assets/css/feed.css");
 
 assert.ok(
@@ -2566,7 +2566,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await assetFiles("assets/css",".css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips/clips.css","communities/communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends/friends.css","gifts/gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace/marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips/clips.css","communities/communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends/friends.css","gifts/gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace/marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile/profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await assetFiles("assets/js",".js");
 assert.ok(!javascriptFiles.includes("create-menu.js")&&!cssFiles.includes("create-menu.css"),"Create menu must be integrated into feed assets");
 for(const route of ["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"]){const markup=await read(route+".html");assert.ok(!markup.includes("assets/js/create-menu.js")&&!markup.includes("assets/css/create-menu.css"),route+" must not request deleted standalone menu assets");}
@@ -2595,7 +2595,7 @@ assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
  routerScript.includes('|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|')&&
  languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify')&&
  (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
- !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
+ !(await read("assets/js/profile/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications/notifications.js")).includes('new URL("notifications.html"'),
  "All VATRA member areas and outbound navigation use canonical extensionless routes");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vatra-home-saved-return-001" data-i18n="n508" hidden')&&
@@ -2727,7 +2727,7 @@ for(const publicNamePage of ["feed","profile","communities","club","notification
   "Public-name cache must load before member data on "+publicNamePage);
 }
 for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
- "assets/js/notifications/notifications.js","assets/js/profile.js","assets/js/communities/club.js"]){
+ "assets/js/notifications/notifications.js","assets/js/profile/profile.js","assets/js/communities/club.js"]){
  assert.ok((await read(path)).includes("window.VATRA_PUBLIC_NAMES?.get(client,"),
   "Public-name lookups must use the shared cache in "+path);
 }
@@ -2778,7 +2778,7 @@ await import("../smoke/community-category-smoke.mjs");
 
 /* Off-screen batch DOM rendering avoids repeated list-level mutations. */
 const batchedFeedPosts=await read("assets/js/feed.js");
-const batchedProfilePosts=await read("assets/js/profile.js");
+const batchedProfilePosts=await read("assets/js/profile/profile.js");
 const batchedClubPosts=clubRuntime;
 assert.ok(
  batchedFeedPosts.includes("batch.append(same&&oldElement?oldElement:recoverFeedCard(item,engagement))")&&
@@ -2808,15 +2808,15 @@ assert.ok((legacyViewCleanup.match(/DROP VIEW IF EXISTS public\.vatra_/g)||[]).l
  !storageBucketCleanup.includes("UPDATE storage.objects"),
  "Legacy views can be removed independently; clean Storage buckets must preserve owner-only RLS");
 for(const source of ["assets/js/avatar.js","assets/js/post-media.js","assets/js/post-interactions.js",
- "assets/js/feed.js","assets/js/profile.js","assets/js/communities/communities.js","assets/js/communities/club.js","assets/js/communities/community-core.js",
+ "assets/js/feed.js","assets/js/profile/profile.js","assets/js/communities/communities.js","assets/js/communities/club.js","assets/js/communities/community-core.js",
  "assets/js/friends/friends.js","assets/js/notifications/notifications.js"]){
  const contents=await read(source);
  for(const oldBucket of ["vatra-avatars","vatra-covers","vatra-post-images","vatra-videos"])
   assert.ok(!contents.includes(oldBucket),source+" must not use an old Storage bucket");
 }
 assert.ok((await read("assets/js/post-media.js")).includes('"post-images"')&&
- (await read("assets/js/profile.js")).includes('"avatars"')&&
- (await read("assets/js/profile.js")).includes('"covers"')&&
+ (await read("assets/js/profile/profile.js")).includes('"avatars"')&&
+ (await read("assets/js/profile/profile.js")).includes('"covers"')&&
  (await read("assets/js/post-media.js")).includes('"videos"'),
  "New uploads and signed URL creation must use canonical bucket IDs");
 
@@ -3073,3 +3073,6 @@ for(const name of ["gifts","gift-catalog","gift-viewer"])assert.ok(javascriptFil
 assert.ok(!cssFiles.includes("gifts.css"),"No duplicate flat gift stylesheet");
 
 assert.ok(javascriptFiles.includes("notifications/notifications.js")&&!javascriptFiles.includes("notifications.js"),"Notifications must have one canonical module without a flat duplicate");
+
+for(const name of ["profile","profile-gallery","profile-avatar-editor","profile-cover-editor","profile-cover-viewer","profile-avatar-comment-row"])assert.ok(javascriptFiles.includes("profile/"+name+".js")&&!javascriptFiles.includes(name+".js"),"Profile module canonical path: "+name);
+assert.ok(!cssFiles.includes("profile.css"),"No duplicate flat profile stylesheet");

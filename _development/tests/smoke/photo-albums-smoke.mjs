@@ -4,7 +4,7 @@ import {runInNewContext,Script} from "node:vm";
 
 const [script,css,html,profile,commentRow,sql,indexes,summarySql,redisPolicy,featureLoader]=await Promise.all([
  "assets/js/photo-albums.js","assets/css/photo-albums.css","profile.html",
- "assets/js/profile.js","assets/js/profile-avatar-comment-row.js",
+ "assets/js/profile/profile.js","assets/js/profile/profile-avatar-comment-row.js",
  "_development/supabase/migrations/20261122122000_photo_albums_private_storage.sql",
  "_development/supabase/migrations/20261122123500_album_foreign_key_indexes.sql",
  "_development/supabase/migrations/20261122134500_photo_album_summary_view.sql",
@@ -113,7 +113,7 @@ assert.ok(
 
 const photoSchema=await readFile("_development/supabase/migrations/20261122140000_photo_per_image_comments_personal_album.sql","utf8");
 const media=await readFile("assets/js/post-media.js","utf8");
-const gallery=await readFile("assets/js/profile-gallery.js","utf8");
+const gallery=await readFile("assets/js/profile/profile-gallery.js","utf8");
 assert.ok(
  script.includes('t("Фотографії","Photos")')&&
  !script.includes('t("Знімки","Photos")')&&
@@ -292,7 +292,7 @@ assert.ok(script.includes("if(!await window.VATRA_POST_MEDIA.removeGallery(")&&s
 console.log("VATRA profile gallery: retry routing, quick tab reuse and mutation invalidation passed.");
 
 {
- const profile=await readFile("assets/js/profile.js","utf8");
+ const profile=await readFile("assets/js/profile/profile.js","utf8");
  const html=await readFile("profile.html","utf8");
  const css=await readFile("assets/css/photo-albums.css","utf8");
  const login=await readFile("assets/css/log-in/log-in.css","utf8");

@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext,Script} from "node:vm";
 const [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,commentRows,profileHtml,feedHtml,giftsHtml,catalog,viewer]=await Promise.all([
- "assets/js/feature-loader.js","assets/js/profile.js","assets/js/feed.js",
- "assets/js/photo-albums.js","assets/js/profile-gallery.js","assets/js/profile-cover-editor.js","assets/js/profile-avatar-editor.js","assets/js/profile-cover-viewer.js","assets/js/profile-avatar-comment-row.js","profile.html","feed.html","gifts.html",
+ "assets/js/feature-loader.js","assets/js/profile/profile.js","assets/js/feed.js",
+ "assets/js/photo-albums.js","assets/js/profile/profile-gallery.js","assets/js/profile/profile-cover-editor.js","assets/js/profile/profile-avatar-editor.js","assets/js/profile/profile-cover-viewer.js","assets/js/profile/profile-avatar-comment-row.js","profile.html","feed.html","gifts.html",
  "assets/js/gifts/gift-catalog.js","assets/js/gifts/gift-viewer.js"
 ].map(path=>readFile(path,"utf8")));
 for(const source of [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,commentRows,catalog,viewer])
@@ -24,9 +24,9 @@ for(const html of [profileHtml,giftsHtml]){
  assert.ok(html.includes('assets/js/feature-loader.js?rev='),"Gift-opening pages need shared loader");
 }
 assert.ok(!profileHtml.includes('href="assets/css/gifts/gifts.css"'),"Profile must defer gift styles");
-assert.ok(!profileHtml.includes('src="assets/js/profile-avatar-comment-row.js'),
+assert.ok(!profileHtml.includes('src="assets/js/profile/profile-avatar-comment-row.js'),
  "Avatar comment cards must not preload during profile render");
-assert.ok(loader.includes('assets/js/profile-avatar-comment-row.js?rev=')&&
+assert.ok(loader.includes('assets/js/profile/profile-avatar-comment-row.js?rev=')&&
  loader.includes('key:"VATRA_PROFILE_AVATAR_COMMENT_ROW"')&&
  profile.includes('rows.length?await window.VATRA_FEATURES.load("avatar-comment-row"):null')&&
  commentRows.includes('window.VATRA_PROFILE_AVATAR_COMMENT_ROW=Object.freeze({create})')&&
@@ -34,18 +34,18 @@ assert.ok(loader.includes('assets/js/profile-avatar-comment-row.js?rev=')&&
  commentRows.includes('.eq("id",item.id).eq("author_id",userId).select("id").maybeSingle()')&&
  commentRows.includes('client.from("avatar_comment_likes").insert('),
  "Comment cards must load on demand and retain ownership-filtered deletion and reactions");
-assert.ok(!profileHtml.includes('src="assets/js/profile-cover-viewer.js'),
+assert.ok(!profileHtml.includes('src="assets/js/profile/profile-cover-viewer.js'),
  "Cover viewer must not load eagerly");
-assert.ok(loader.includes('assets/js/profile-cover-viewer.js?rev=')&&
+assert.ok(loader.includes('assets/js/profile/profile-cover-viewer.js?rev=')&&
  loader.includes('key:"VATRA_PROFILE_COVER_VIEWER"')&&
  profile.includes('VATRA_FEATURES.load("cover-viewer")')&&
  profile.includes('coverView.addEventListener("click",()=>void openCover())')&&
  coverViewer.includes('window.VATRA_PROFILE_COVER_VIEWER=Object.freeze({mount})')&&
  coverViewer.includes('const flight=coverPhoto.cloneNode(false)'),
  "Cover viewer must preserve its full-screen transition while loading only on click");
-assert.ok(!profileHtml.includes('src="assets/js/profile-avatar-editor.js'),
+assert.ok(!profileHtml.includes('src="assets/js/profile/profile-avatar-editor.js'),
  "Profile must not eagerly load the avatar editor");
-assert.ok(loader.includes('assets/js/profile-avatar-editor.js?rev=')&&
+assert.ok(loader.includes('assets/js/profile/profile-avatar-editor.js?rev=')&&
  loader.includes('key:"VATRA_PROFILE_AVATAR_EDITOR"')&&
  profile.includes('VATRA_FEATURES.load("avatar-editor")')&&
  profile.includes('startAvatarEditor(fileAvatar.files[0])')&&
@@ -56,17 +56,17 @@ assert.ok(loader.includes('assets/js/profile-avatar-editor.js?rev=')&&
  avatarEditor.includes('!finishing&&!cropLoading')&&
  avatarEditor.includes('window.dispatchEvent(new Event("vatra:profile-media-changed"))'),
  "Avatar crop editor loads only after choosing a file and preserves optional post/story publication");
-assert.ok(!profileHtml.includes('src="assets/js/profile-cover-editor.js'),
+assert.ok(!profileHtml.includes('src="assets/js/profile/profile-cover-editor.js'),
  "Profile must not eagerly load the cover editor");
-assert.ok(loader.includes('assets/js/profile-cover-editor.js?rev=')&&
+assert.ok(loader.includes('assets/js/profile/profile-cover-editor.js?rev=')&&
  loader.includes('key:"VATRA_PROFILE_COVER_EDITOR"')&&
  profile.includes('VATRA_FEATURES.load("cover-editor")')&&
  profile.includes('startCoverEditor(fileCover.files[0])')&&
  coverEditor.includes('window.VATRA_PROFILE_COVER_EDITOR=Object.freeze({mount})'),
  "Cover editor must load after choosing an image while retaining the crop UI");
-assert.ok(!profileHtml.includes('src="assets/js/profile-gallery.js'),
+assert.ok(!profileHtml.includes('src="assets/js/profile/profile-gallery.js'),
  "Profile galleries must not be included in the initial script list");
-assert.ok(loader.includes('assets/js/profile-gallery.js?rev=')&&
+assert.ok(loader.includes('assets/js/profile/profile-gallery.js?rev=')&&
  profile.includes('setupLazyProfileGallery(client,targetId,ownId,user.id)')&&
  profile.includes('VATRA_FEATURES.load("profile-gallery")')&&
  gallery.includes('window.VATRA_PROFILE_GALLERY=Object.freeze({mount})')&&

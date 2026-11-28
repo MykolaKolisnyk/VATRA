@@ -4,7 +4,7 @@ import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 const [base,lang,signup,feed,profile]=await Promise.all([
  "assets/css/base.css","assets/js/lang.js","assets/css/form-select.css",
- "assets/css/feed.css","assets/css/profile.css"
+ "assets/css/feed.css","assets/css/profile/profile.css"
 ].map(path=>readFile(path,"utf8")));
 assert.ok(base.includes(".language-scroll-track.is-visible")&&
  base.includes("background:#454b54")&&

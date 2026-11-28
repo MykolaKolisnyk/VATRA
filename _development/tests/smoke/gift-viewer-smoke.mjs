@@ -5,8 +5,8 @@ import {runInNewContext} from "node:vm";
 const read=path=>readFile(path,"utf8");
 const [catalogScript,js,gifts,profile,css,profileCss]=await Promise.all([
  read("assets/js/gifts/gift-catalog.js"),read("assets/js/gifts/gift-viewer.js"),read("assets/js/gifts/gifts.js"),
- read("assets/js/profile.js"),read("assets/css/gifts/gifts.css"),
- read("assets/css/profile.css")
+ read("assets/js/profile/profile.js"),read("assets/css/gifts/gifts.css"),
+ read("assets/css/profile/profile.css")
 ]);
 const png=await readFile("assets/gifts/gift_first-flame.webp");
 assert.ok(png.toString("ascii",0,4)==="RIFF"&&png.toString("ascii",8,12)==="WEBP"&&png.length>1000,

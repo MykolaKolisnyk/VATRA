@@ -13,7 +13,7 @@ assert.equal(await authFetch("fast",{},100),"ok");
 await assert.rejects(authFetch("slow",{},5),/aborted/);
 const cancel=new AbortController();const pending=authFetch("slow",{signal:cancel.signal},1000);cancel.abort();await assert.rejects(pending,/aborted/);
 assert.ok(auth.includes("global:{fetch:authFetch}"));
-const profile=await readFile("assets/js/profile.js","utf8");
+const profile=await readFile("assets/js/profile/profile.js","utf8");
 assert.ok(profile.includes("const pendingDeleteFlush=Promise.resolve().then(")&&profile.includes("pendingDeleteFlush.then(()=>loadPosts("));
 assert.ok(profile.indexOf("const pendingDeleteFlush=Promise.resolve().then(")<profile.indexOf("const prepared=profileDeadline(window.VATRA_PROFILE_DETAILS.prepare"));
 const community=await readFile("assets/js/communities/community-core.js","utf8");

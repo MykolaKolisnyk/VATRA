@@ -4,7 +4,7 @@ const read=path=>readFile(path,"utf8");
 const [sql,composer,feed,profile,interactions,style,feedStyle]=await Promise.all([
  read("_development/supabase/migrations/20261123161115_feed_polls_and_scheduled_posts.sql"),
  read("assets/js/post-composer-ui.js"),read("assets/js/feed.js"),
- read("assets/js/profile.js"),read("assets/js/post-interactions.js"),
+ read("assets/js/profile/profile.js"),read("assets/js/post-interactions.js"),
  read("assets/css/post-composer.css"),read("assets/css/feed.css")
 ]);
 const required={
