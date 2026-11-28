@@ -450,7 +450,7 @@ const pendingPasswordLocaleKeys=[
  "Введіть пароль.",
  "Встановіть новий пароль"
 ];
-const signInRuntime=await readFile("assets/js/sign-in.js","utf8");
+const signInRuntime=await readFile("assets/js/log-in/log-in.js","utf8");
 const recoveryRuntime=await readFile("assets/js/recovery.js","utf8");
 for(const key of pendingPasswordLocaleKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),

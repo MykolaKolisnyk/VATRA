@@ -1,4 +1,4 @@
-const CACHE="vatra-offline-shell-v101";
+const CACHE="vatra-offline-shell-v102";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
@@ -11,11 +11,11 @@ const ASSETS=[
  ROOT+"assets/css/offline.css",
  ROOT+"assets/vatryk/vatryk_offline.webp",
  ROOT+"assets/js/offline.js",
- ROOT+"assets/css/sign-in.css",
+ ROOT+"assets/css/log-in/log-in.css",
  ROOT+"assets/css/create-account.css",
  ROOT+"assets/css/recovery.css",
  ROOT+"assets/js/auth-core.js",
- ROOT+"assets/js/sign-in.js",
+ ROOT+"assets/js/log-in/log-in.js",
  ROOT+"assets/js/create-account.js",
  ROOT+"assets/i18n/uk.json",
  ROOT+"assets/i18n/en.json",
