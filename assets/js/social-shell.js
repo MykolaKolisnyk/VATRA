@@ -391,8 +391,8 @@
   const vectors={people:"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21v-2a7.5 7.5 0 0 1 15 0v2",communities:"M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 20v-1a6 6 0 0 1 12 0v1M17 6a3 3 0 0 1 0 5M18 14a5 5 0 0 1 3 5v1",products:"M4 7h16l1 14H3L4 7Zm4 0V5a4 4 0 0 1 8 0v2",posts:"M5 3.5h14v17H5zM8 9h8M8 13h8M8 17h5",photos:"M3 4h18v16H3zM3 17l6-6 4 4 3-3 5 5M16 8h.1",videos:"M3 5h13v14H3zM16 10l5-3v10l-5-3",clips:"M3 4h18v16H3zM9 9l6 3-6 3z"};
   const resultIcon=(kind,item,suffix)=>{
    const icon=make("span","vatra-search-live-icon ui-vatra-search-live-icon-"+kind+"-"+suffix);
-   icon.setAttribute("aria-hidden","true");icon.dataset.kind=kind;icon.append(iconVector(kind+"-"+suffix,vectors[kind]||vectors.posts));
-   if(kind==="people"){const url=window.VATRA_SITE_SEARCH?.avatarUrl?.(item.vatra_id,item.avatar_path);if(url){const image=make("img","ui-vatra-search-result-avatar-001");image.alt="";image.loading="lazy";image.decoding="async";image.addEventListener("load",()=>{icon.querySelector("svg")?.remove();},{once:true});image.addEventListener("error",()=>image.remove(),{once:true});icon.append(image);image.src=url;}}
+   icon.setAttribute("aria-hidden","true");icon.dataset.kind=kind;if(kind==="people"){icon.dataset.vatraAvatarState="default";}else icon.append(iconVector(kind+"-"+suffix,vectors[kind]||vectors.posts));
+   if(kind==="people"){const url=window.VATRA_SITE_SEARCH?.avatarUrl?.(item.vatra_id,item.avatar_path);if(url){const image=make("img","ui-vatra-search-result-avatar-001");image.alt="";image.loading="lazy";image.decoding="async";image.addEventListener("load",()=>{icon.classList.add("has-photo");},{once:true});image.addEventListener("error",()=>{icon.classList.remove("has-photo");image.remove();},{once:true});icon.append(image);image.src=url;}}
    return icon;
   };
   function rememberView(kind,item){
