@@ -1,5 +1,4 @@
 
-html:has(body.feed-page){scrollbar-gutter:stable}
 body.feed-page{min-height:100dvh;}
 .feed-page button,.feed-page textarea{font-family:inherit}
 .feed-loading{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;background:#f7f9fe;z-index:250}
