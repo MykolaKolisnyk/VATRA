@@ -36,24 +36,47 @@ function idAction(label,description,key,handler){
  b.append(idSymbol(key),copy,idIcon("next"));return b;
 }
 
+const securityArt=Object.freeze({general:"vatryk_security.webp",warning:"vatryk_security-warning.webp",danger:"vatryk_security-danger.webp",password:"vatryk_security-password.webp",device:"vatryk_security-device.webp",success:"vatryk_security-success.webp"});
+function securityMascot(kind,hook=kind){
+ const img=make("img","ui-vatra-id-security-mascot-001 ui-vatra-id-security-mascot-"+hook+"-001");img.alt="";img.width=144;img.height=144;img.decoding="async";img.loading="lazy";img.src=new URL("assets/vatryk/"+securityArt[kind],root).href;
+ img.addEventListener("error",()=>img.remove(),{once:true});return img;
+}
+function securityNotice(kind,heading,description,hook=kind){
+ const box=make("section","ui-vatra-id-security-notice-001 ui-vatra-id-security-"+hook+"-notice-001");box.dataset.securityState=kind;
+ const copy=make("div","ui-vatra-id-security-notice-copy-001 ui-vatra-id-security-"+hook+"-copy-001");copy.append(make("h3","vatra-id-security-notice-heading-001 vatra-id-security-"+hook+"-heading-001",heading),make("p","vatra-section-form-note-001 vatra-id-security-"+hook+"-description-001",description));
+ box.append(securityMascot(kind,hook),copy);return {box,copy};
+}
+function securitySuccess(host,heading,description,scope="sessions"){
+ if(!host.isConnected)return;
+ host.querySelector('[data-security-state="success"]')?.remove();
+ const {box}=securityNotice("success",heading,description,"success-"+scope);box.setAttribute("role","status");host.prepend(box);
+}
+function securityConcern(kind,onPassword,onDevices){
+ const warning=kind==="warning";
+ const heading=warning?t("Не впізнаєте сеанс?","Don't recognize a session?"):t("Підозрюєте сторонній доступ?","Suspect unauthorized access?");
+ const {d,form}=dialog(heading);
+ const {box}=securityNotice(kind,heading,warning?t("Перевірте пристрої та завершіть сеанси, які вам не належать.","Review devices and sign out sessions that are not yours."):t("Якщо хтось міг отримати доступ до акаунта, змініть пароль та завершіть інші сеанси.","If someone may have accessed your account, change your password and sign out other sessions."));
+ form.append(box,btn(t("Змінити пароль","Change password"),"vatra-section-submit-001 vatra-id-security-"+kind+"-password-001",()=>{d.close();onPassword();}),btn(t("Пристрої та сеанси","Devices and sessions"),"vatra-preferences-action-001 vatra-id-security-"+kind+"-devices-001",()=>{d.close();onDevices();}));
+ d.addEventListener("close",()=>d.remove(),{once:true});d.showModal();
+}
 function sessionDevice(agent){
  const a=String(agent||"");
  const browser=/OPR\/|Opera/i.test(a)?"Opera":/Edg(?:A|iOS)?\//i.test(a)?"Edge":/Firefox\/|FxiOS\//i.test(a)?"Firefox":/Chrome\/|CriOS\//i.test(a)?"Chrome":/Safari\//i.test(a)?"Safari":t("Браузер або застосунок","Browser or app");
  const os=/Windows/i.test(a)?"Windows":/Android/i.test(a)?"Android":/iPhone|iPad|iPod/i.test(a)?"iOS / iPadOS":/Macintosh|Mac OS/i.test(a)?"macOS":/Linux/i.test(a)?"Linux":"";
  return browser+(os?" · "+os:"");
 }
-async function renderDevices(panel){
+async function renderDevices(panel,onConcern){
  const c=card("ui-vatra-id-devices-001"),head=make("div","ui-vatra-id-devices-head-001"),list=make("div","ui-vatra-id-device-list-001");
  head.append(make("h2","vatra-id-device-heading-001",t("Пристрої та сеанси","Devices and sessions")));
  const refresh=btn(t("Оновити","Refresh"),"vatra-id-device-refresh-001",()=>void load());
- head.append(refresh);c.append(head,list);
+ head.append(refresh);const deviceNotice=make("div","ui-vatra-id-device-notice-001");c.append(head,deviceNotice,list);
  const logout=btn(t("Завершити всі інші сеанси","Sign out all other sessions"),"vatra-id-device-revoke-001",async()=>{
   if(logout.disabled)return;logout.disabled=true;
   try{
    if(!await confirmRemove(t("Завершити інші сеанси?","Sign out other sessions?"),t("На інших пристроях потрібно буде увійти повторно. Поточний сеанс залишиться.","Other devices will need to sign in again. Your current session stays active."),t("Завершити","Sign out")))return;
    const {error}=await client.auth.signOut({scope:"others"});if(error)throw error;
    message(t("Інші сеанси завершено. Доступ на них остаточно припиниться після спливу чинних токенів.","Other sessions revoked. Their current access tokens remain valid until expiry."));
-   await load();
+   await load();securitySuccess(c,t("Інші сеанси завершено","Other sessions revoked"),t("Доступ на них остаточно припиниться після спливу чинних токенів.","Their current access tokens remain valid until expiry."));
   }catch(_){message(t("Не вдалося завершити інші сеанси.","Could not revoke other sessions."),true);}finally{logout.disabled=false;}
  });
  c.append(logout);panel.append(c);
@@ -65,27 +88,32 @@ async function renderDevices(panel){
    if(error?.code==="PGRST202"||error?.code==="42883")({data,error}=await client.rpc("vatra_my_sessions_v2"));
    if(error?.code==="PGRST202"||error?.code==="42883")({data,error}=await client.rpc("vatra_my_sessions"));
    if(error)throw error;if(!c.isConnected)return;
-   list.replaceChildren();
-   const date=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?new Intl.DateTimeFormat(locale==="en"?"en-GB":"uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(d):"—";};
+   list.replaceChildren();deviceNotice.replaceChildren();
+   if(onConcern&&Array.isArray(data)&&data.some(entry=>entry.current_session===false)){
+    const {box,copy}=securityNotice("device",t("Інші активні сеанси","Other active sessions"),t("Перевірте, чи впізнаєте всі пристрої.","Check whether you recognize all devices."));
+    copy.append(btn(t("Не впізнаєте сеанс?","Don't recognize a session?"),"vatra-preferences-action-001 vatra-id-security-device-review-001",()=>onConcern("warning")));deviceNotice.append(box);
+   }
+   const dateFormatter=new Intl.DateTimeFormat(locale==="en"?"en-GB":"uk-UA",{dateStyle:"medium",timeStyle:"short"});
+   const date=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?dateFormatter.format(d):"—";};
    for(const [index,entry] of (data||[]).entries()){
-    const row=make("div","ui-vatra-id-device-row-001"),symbol=make("span","ui-vatra-id-device-symbol-001"),ns="http://www.w3.org/2000/svg",icon=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
-    icon.setAttribute("class","ui-vatra-id-device-icon-001");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("width","25");icon.setAttribute("height","25");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.7");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");icon.setAttribute("aria-hidden","true");
-    path.setAttribute("class","ui-vatra-id-device-path-"+index);path.setAttribute("d",/Android|iPhone|iPad/i.test(entry.browser_agent||"")?"M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 15h2":"M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm7 14v3m-4 0h8");
+    const hook="vatra-id-device-item-"+(index+1),row=make("div","ui-vatra-id-device-row-001 ui-"+hook+"-row"),symbol=make("span","ui-vatra-id-device-symbol-001 ui-"+hook+"-symbol"),ns="http://www.w3.org/2000/svg",icon=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
+    icon.setAttribute("class","ui-vatra-id-device-icon-001 ui-"+hook+"-icon");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("width","25");icon.setAttribute("height","25");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.7");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");icon.setAttribute("aria-hidden","true");
+    path.setAttribute("class","ui-vatra-id-device-path-"+index+" ui-"+hook+"-path");path.setAttribute("d",/Android|iPhone|iPad/i.test(entry.browser_agent||"")?"M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 15h2":"M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm7 14v3m-4 0h8");
     icon.append(path);symbol.append(icon);
-    const details=make("div","ui-vatra-id-device-details-001");details.append(make("strong","vatra-id-device-name-001",sessionDevice(entry.browser_agent)),make("span","vatra-id-device-time-001",t("Вхід: ","Signed in: ")+date(entry.signed_in_at)));
+    const details=make("div","ui-vatra-id-device-details-001 ui-"+hook+"-details");details.append(make("strong","vatra-id-device-name-001 "+hook+"-name",sessionDevice(entry.browser_agent)),make("span","vatra-id-device-time-001 "+hook+"-time",t("Вхід: ","Signed in: ")+date(entry.signed_in_at)));
     const activity=entry.refreshed_at&&Date.parse(entry.refreshed_at)>Date.parse(entry.signed_in_at)?entry.refreshed_at:entry.signed_in_at;
-    details.append(make("span","vatra-id-device-activity-001",t("Остання активність: ","Last activity: ")+date(activity)));
+    details.append(make("span","vatra-id-device-activity-001 "+hook+"-activity",t("Остання активність: ","Last activity: ")+date(activity)));
     row.append(symbol,details);
-    if(entry.current_session)row.append(make("span","vatra-id-device-current-001",t("Поточний","Current")));
+    if(entry.current_session)row.append(make("span","vatra-id-device-current-001 "+hook+"-current",t("Поточний","Current")));
     else if(typeof entry.session_id==="string"&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(entry.session_id)){
-     const revoke=btn(t("Завершити сеанс","Sign out session"),"vatra-id-device-single-revoke-001",async()=>{
+     const revoke=btn(t("Завершити сеанс","Sign out session"),"vatra-id-device-single-revoke-001 "+hook+"-revoke",async()=>{
       if(revoke.disabled||!c.isConnected)return;revoke.disabled=true;
       try{
        if(!await confirmRemove(t("Завершити цей сеанс?","Sign out this session?"),t("На цьому пристрої потрібно буде увійти повторно.","You will need to sign in again on this device."),t("Завершити сеанс","Sign out session")))return;
        if(!c.isConnected)return;
        const result=Number.isInteger(entry.session_count)?await client.rpc("vatra_revoke_browser_sessions",{target_session:entry.session_id}):await client.rpc("vatra_revoke_session",{target_session:entry.session_id});
        if(result.error||result.data!==true)throw result.error||Error("Session was not revoked");
-       if(c.isConnected){await load();message(t("Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.","Session revoked. Access ends when the existing token expires."));}
+       if(c.isConnected){await load();message(t("Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.","Session revoked. Access ends when the existing token expires."));securitySuccess(c,t("Сеанс завершено","Session revoked"),t("Доступ остаточно припиниться після спливу чинного токена.","Access ends when the existing token expires."));}
       }catch(_){if(c.isConnected)message(t("Не вдалося завершити сеанс.","Could not revoke session."),true);}
       finally{revoke.disabled=false;}
      });
@@ -94,7 +122,7 @@ async function renderDevices(panel){
     list.append(row);
    }
    if(!data?.length)list.append(empty(t("Немає доступних відомостей про сеанси.","No session details available.")));
-  }catch(_){if(c.isConnected)list.replaceChildren(empty(t("Не вдалося завантажити сеанси.","Could not load sessions.")));}
+  }catch(_){if(c.isConnected){deviceNotice.replaceChildren();list.replaceChildren(empty(t("Не вдалося завантажити сеанси.","Could not load sessions.")));}}
   finally{refresh.disabled=false;refresh.removeAttribute("aria-busy");list.setAttribute("aria-busy","false");}
  }
  await load();
@@ -130,7 +158,7 @@ function accountCredentials(panel,ticket,section){
  });
  security.append(make("h2","vatra-id-heading-001",t("Безпека акаунта","Account security")));
  row(security,"password",t("Пароль","Password"),t("Для безпеки не використовуйте пароль з інших сервісів.","For your security, avoid reusing passwords from other services."),()=>{
-  const {d,form}=openForm(t("Змінити пароль","Change password"));
+  const {d,form}=openForm(t("Змінити пароль","Change password"));form.append(securityMascot("password"));
   const current=field(form,"current-password",t("Поточний пароль","Current password"),"password",128,true),next=field(form,"new-password",t("Новий пароль","New password"),"password",128,true),repeat=field(form,"repeat-password",t("Повторіть пароль","Confirm password"),"password",128,true);
   current.autocomplete="current-password";next.autocomplete=repeat.autocomplete="new-password";next.minLength=repeat.minLength=12;
   form.append(make("p","vatra-section-form-note-001",t("Від 12 символів: мала й велика латинські літери, цифра та спеціальний символ. Не повторюйте пароль з інших сайтів.","At least 12 characters: uppercase and lowercase Latin letters, a digit and a symbol. Do not reuse passwords.")));
@@ -150,7 +178,7 @@ function accountCredentials(panel,ticket,section){
    if(error?.code==="reauthentication_needed"){nonce.parentElement.hidden=false;nonce.required=true;sendCode.hidden=false;message(t("Для зміни пароля потрібне підтвердження електронною поштою.","Email verification is required to change your password."));nonce.focus();return;}
    if(error){message(failure(error),true);return;}
    if(data?.user?.id===user.id)user=data.user;
-   form.reset();closeSuccess(d,t("Зміни збережено.","Changes saved."));
+   form.reset();closeSuccess(d,t("Зміни збережено.","Changes saved."));if(ticket===renderTicket)securitySuccess(panel,t("Пароль змінено","Password changed"),t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password."),"password");
   });d.showModal();
  });
  security.append(link(t("Забули пароль?","Forgot password?"),"forgot","vatra-id-password-001"));
@@ -259,8 +287,9 @@ async function account(){
  const show=async(id)=>{
   const ticket=++renderTicket;window.VATRA_FORM_SELECT?.close();panel.replaceChildren();message("");for(const b of nav.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
   if(id==="security"){
-   const c=card("ui-vatra-id-protection-001");c.append(idSymbol("shield"),make("h2","vatra-id-heading-001",t("Безпека акаунту","Account security")),make("p","vatra-section-form-note-001",t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password.")));panel.append(c);
-   accountCredentials(panel,ticket,"security");if(pendingAction==="password")openQuick(ticket,id);await renderDevices(panel);openQuick(ticket,id);return;
+   const concern=kind=>securityConcern(kind,()=>go("security","password"),()=>go("security","devices"));
+   const c=card("ui-vatra-id-protection-001");c.append(securityMascot("general"),make("h2","vatra-id-heading-001",t("Безпека акаунту","Account security")),make("p","vatra-section-form-note-001",t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password.")),btn(t("Підозрюєте сторонній доступ?","Suspect unauthorized access?"),"vatra-preferences-action-001",()=>concern("danger")));panel.append(c);
+   accountCredentials(panel,ticket,"security");if(pendingAction==="password")openQuick(ticket,id);await renderDevices(panel,concern);openQuick(ticket,id);return;
   }
   const data=await identityCard(ticket,id==="home");if(!data||ticket!==renderTicket)return;const {c,display}=data;panel.append(c);
   if(id==="home"){
@@ -274,7 +303,7 @@ async function account(){
   const dateWrap=make("div","ui-vatra-id-birth-field-001"),dateLabel=make("span","vatra-section-label-birthdate",t("Дата народження","Date of birth")),dateRow=make("div","three ui-vatra-id-birth-row-001");
   dateLabel.id="vatra-id-birth-label";dateRow.setAttribute("role","group");dateRow.setAttribute("aria-labelledby",dateLabel.id);
   const dateParts=[["day",t("День","Day")],["month",t("Місяць","Month")],["year",t("Рік","Year")]].map(([key,label])=>{
-   const select=make("select","control select ui-vatra-id-birth-"+key);select.id="id-birth-"+key;select.required=true;select.setAttribute("aria-label",label);const option=new Option(label,"",true,true);option.disabled=true;select.add(option);dateRow.append(select);return select;
+   const select=make("select","control select ui-vatra-id-birth-"+key);select.id="id-birth-"+key;select.required=true;select.setAttribute("aria-label",label);const option=new Option(label,"",true,true);option.className="vatra-id-birth-"+key+"-placeholder-001";option.disabled=true;select.add(option);dateRow.append(select);return select;
   });
   const [day,month,year]=dateParts;
   window.VATRA_FORM_SELECT.fillBirthdays(day,month,year);
@@ -282,7 +311,7 @@ async function account(){
   if(savedBirth){year.value=savedBirth[1];month.value=savedBirth[2];day.value=savedBirth[3];}
   dateWrap.append(dateLabel,dateRow);form.append(dateWrap);
   const gender=make("select","control select ui-vatra-section-input-gender"),genderWrap=make("div","ui-vatra-section-field-gender"),genderLabel=make("label","vatra-section-label-gender",t("Стать","Gender"));gender.id="vatra-section-gender";genderLabel.htmlFor=gender.id;gender.setAttribute("aria-label",genderLabel.textContent);
-  for(const [value,label] of [["",t("Не вказувати","Not specified")],["female",t("Жіноча","Female")],["male",t("Чоловіча","Male")],["other",t("Користувацька","Custom")]])gender.add(new Option(label,value));
+  for(const [value,label] of [["",t("Не вказувати","Not specified")],["female",t("Жіноча","Female")],["male",t("Чоловіча","Male")],["other",t("Користувацька","Custom")]]){const option=new Option(label,value);option.className="vatra-id-gender-"+(value||"unspecified")+"-option-001";gender.add(option);}
   gender.value=["female","male","other"].includes(user.user_metadata?.gender)?user.user_metadata.gender:"";genderWrap.append(genderLabel,gender);form.append(genderWrap);
   const birth={get value(){return [year.value,month.value,day.value].join("-");},min:"1900-01-01"};
   const now=new Date();birth.max=[now.getFullYear()-13,String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-");
@@ -311,9 +340,9 @@ async function preferences(){
  const layout=make("div","ui-vatra-preferences-layout-001"),panel=make("div","ui-vatra-preferences-content-001"),side=card("ui-vatra-preferences-nav-001");
  const sections=[["general",t("Загальні","General")],["privacy",t("Приватність","Privacy")],["notifications",t("Сповіщення","Notifications")],["blocked",t("Чорний список","Blocked members")]];
  const menu=tabs(sections,id=>{if(location.hash==="#"+id)void show(id);else location.hash=id;});
- for(const b of menu.children){const key={general:"sliders",privacy:"shield",notifications:"bell",blocked:"ban"}[b.dataset.tab];const label=make("span","vatra-preferences-nav-label-001",b.textContent);b.replaceChildren(idIcon(key),label);}
+ for(const b of menu.children){const tab=b.dataset.tab,key={general:"sliders",privacy:"shield",notifications:"bell",blocked:"ban"}[tab];const label=make("span","vatra-preferences-nav-label-001 vatra-preferences-nav-"+tab+"-label-001",b.textContent),icon=idIcon(key);b.classList.add("vatra-preferences-nav-"+tab+"-001");icon.classList.add("ui-vatra-preferences-nav-"+tab+"-icon-001");icon.querySelector("path")?.classList.add("ui-vatra-preferences-nav-"+tab+"-path-001");b.replaceChildren(icon,label);}
  const security=link("","vatra-id#home","vatra-preferences-id-link-001");const securityCopy=make("span","ui-vatra-preferences-id-copy-001");securityCopy.append(idIcon("shield"),make("span","vatra-preferences-security-label-001",t("Керування акаунтом","Manage account")));security.append(securityCopy);
- const brand=make("span","vatra-preferences-id-badge-001");const logo=make("img","vatra-preferences-id-logo-001");logo.src="assets/logo/logo_symbol.svg";logo.alt="";brand.append(logo,document.createTextNode("ID"));security.append(brand);side.append(menu,security);layout.append(panel,side);content.append(layout);
+ const brand=make("span","vatra-preferences-id-badge-001");const logo=make("img","vatra-preferences-id-logo-001");logo.src="assets/logo/logo_symbol.svg";logo.alt="";brand.append(logo,make("span","vatra-preferences-id-badge-label-001","ID"));security.append(brand);side.append(menu,security);layout.append(panel,side);content.append(layout);
  const prefKey="vatra:notification-display:"+ownId;
  const notificationKinds=[
  ["feedback",t("Зворотний зв’язок","Feedback"),[
@@ -338,7 +367,7 @@ async function preferences(){
  ["member_story",t("Нові історії","New stories"),""]]]
  ];
  function settingsCard(heading){const c=card("ui-vatra-preferences-card-001");c.append(make("h2","vatra-preferences-heading-001",heading));return c;}
- function row(c,heading,description,control,key){const line=make("div","ui-vatra-preferences-row-001"),copy=make("div","ui-vatra-preferences-row-copy-001"),label=make("label","vatra-preferences-label-001",heading);if(key){control.id="vatra-preference-"+key;label.htmlFor=control.id;}copy.append(label);if(description)copy.append(make("p","vatra-preferences-description-001",description));line.append(copy,control);c.append(line);return line;}
+ function row(c,heading,description,control,key){const hook=(key||"language").replaceAll("_","-"),prefix="vatra-preferences-"+hook;const line=make("div","ui-vatra-preferences-row-001 ui-"+prefix+"-row-001"),copy=make("div","ui-vatra-preferences-row-copy-001 ui-"+prefix+"-copy-001"),label=make("label","vatra-preferences-label-001 "+prefix+"-label-001",heading);control.classList.add("ui-"+prefix+"-control-001");if(key){control.id="vatra-preference-"+key;label.htmlFor=control.id;}copy.append(label);if(description)copy.append(make("p","vatra-preferences-description-001 "+prefix+"-description-001",description));line.append(copy,control);c.append(line);return line;}
  async function show(id){
   const ticket=++renderTicket;panel.replaceChildren();message("");
   for(const b of menu.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
@@ -357,8 +386,9 @@ async function preferences(){
   if(id==="privacy"){
    const profile=settingsCard(t("Моя сторінка","My profile")),activity=settingsCard(t("Активність","Activity"));
    const visibility=make("select","ui-vatra-preferences-select-001"),presence=make("select","ui-vatra-preferences-select-001");
-   visibility.append(new Option(t("Відкритий","Public"),"public"),new Option(t("Лише друзі","Friends only"),"friends"));
-   presence.append(new Option(t("Усі користувачі","All members"),"public"),new Option(t("Лише друзі","Friends only"),"friends"),new Option(t("Лише я","Only me"),"private"));
+   const addOptions=(control,key,options)=>{for(const [value,label] of options){const option=new Option(label,value);option.className="vatra-preferences-"+key+"-"+value+"-option-001";control.add(option);}};
+   addOptions(visibility,"visibility",[["public",t("Відкритий","Public")],["friends",t("Лише друзі","Friends only")]]);
+   addOptions(presence,"presence",[["public",t("Усі користувачі","All members")],["friends",t("Лише друзі","Friends only")],["private",t("Лише я","Only me")]]);
    visibility.disabled=presence.disabled=true;
    row(profile,t("Тип профілю","Profile visibility"),t("Кому доступна інформація вашої сторінки.","Who can access information on your profile."),visibility,"visibility");
    row(activity,t("Хто бачить, що я онлайн","Who can see when I am online"),t("Видимість статусу онлайн та останньої активності. Налаштування закритого профілю також діють.","Visibility of online status and last activity. Closed-profile restrictions also apply."),presence,"presence");

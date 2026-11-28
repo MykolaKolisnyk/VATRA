@@ -2892,6 +2892,8 @@ assert.ok(individualSessionSQL.includes("s.id=target_session and s.user_id=calle
  settingsRuntime.includes('result.data!==true')&&settingsRuntime.includes('client.rpc("vatra_my_sessions")'),
  "Individual session revocation must be owner-scoped, protect the current session and tolerate an older API");
 const settingsStyle=await read("assets/css/settings.css");
+for(const name of ["vatryk_security.webp","vatryk_security-warning.webp","vatryk_security-danger.webp","vatryk_security-password.webp","vatryk_security-device.webp","vatryk_security-success.webp"]){assert.ok(settingsRuntime.includes(name)&&(await stat("assets/vatryk/"+name)).size>0,"Security artwork must exist and have an explicit mapping: "+name);}
+assert.ok(settingsRuntime.includes('data.some(entry=>entry.current_session===false)')&&settingsRuntime.includes('if(!host.isConnected)return;')&&settingsRuntime.includes('securitySuccess(panel,')&&settingsRuntime.includes('()=>concern("danger")'),"Security guidance must be contextual and success server-confirmed");
 assert.ok(settingsRuntime.includes('["home",t("Головна","Home")]')&&
  settingsRuntime.includes('logo_symbol.svg')&&settingsRuntime.includes('vatra-id-brand-label-001')&&
  settingsRuntime.includes('idIcon("back")')&&settingsRuntime.includes('ui-vatra-id-return-001')&&

@@ -132,7 +132,7 @@ try{
    '</head><body class="vatra-section-page" data-page="vatra-id"><main class="ui-vatra-section-main-001"><h1 id="design-title"></h1><p id="design-subtitle"></p><div id="design-content"></div></main></body></html>'}));
   await accountDesign.goto(base+"design-probe#personal");
   await accountDesign.evaluate(()=>{
-   window.__designWrites=[];window.__designMessage="";window.__fixtureBlocks=[];
+   window.__designWrites=[];window.__designMessage="";window.__fixtureBlocks=[];window.__fixtureSessions=[{current_session:true,session_id:"00000000-0000-4000-8000-000000000001",browser_agent:"Chrome Windows"}];window.__fixtureRevokeAllowed=false;window.__fixtureRevokeCalls=[];
    const make=(tag,cls,text)=>{const element=document.createElement(tag);element.className=cls;if(text!==undefined)element.textContent=text;return element;};
    const btn=(label,cls,fn)=>{const b=make("button",cls,label);b.type="button";b.onclick=fn;return b;};
    const card=cls=>make("section","ui-vatra-section-card-001 "+cls);
@@ -151,6 +151,7 @@ try{
      delete(){deleting=true;return this;},maybeSingle:async()=>{if(deleting&&table==="member_blocks"){const id=filters.blocked_vatra_id;window.__fixtureBlocks=window.__fixtureBlocks.filter(row=>String(row.blocked_vatra_id)!==id);return {data:{blocked_vatra_id:id},error:null};}return {data:change||{},error:null};},
      then(resolve,reject){return Promise.resolve(read()).then(resolve,reject);}};
    },
+    rpc:async(name,args)=>{if(name==="vatra_my_sessions_v3")return {data:window.__fixtureSessions.slice(),error:null};if(name==="vatra_revoke_session"){window.__fixtureRevokeCalls.push(args.target_session);if(!window.__fixtureRevokeAllowed)return {data:false,error:null};window.__fixtureSessions=window.__fixtureSessions.filter(row=>row.session_id!==args.target_session);return {data:true,error:null};}return {data:null,error:{code:"PGRST202"}};},
     auth:{updateUser:async value=>{window.__designWrites.push(value.data);return {data:{user:{...user,user_metadata:value.data}},error:null};}}};
    window.VATRA_LANGUAGE={locale:"uk"};
    window.VATRA_SECTION_CORE={start:fn=>fn({root:new URL("./",location.href),locale:"uk",t:uk=>uk,$:s=>document.querySelector(s),make,btn,card,field,link,sectionIcon,
@@ -190,11 +191,70 @@ try{
   assert.equal(await accountDesign.evaluate(()=>window.__designWrites[1].birthdate),"2000-05-15");
   await accountDesign.setViewportSize({width:390,height:844});
   assert.ok(await accountDesign.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),"Birthday controls must fit a narrow phone");
+  await accountDesign.locator('[data-tab="security"]').click();
+  const deviceList=accountDesign.locator(".ui-vatra-id-device-list-001");
+  await deviceList.locator(".vatra-id-device-current-001").waitFor({state:"visible"});
+  assert.equal(await accountDesign.locator('[data-security-state="device"]').count(),0,"Current session alone must not show a device warning");
+  assert.equal(await deviceList.locator(".vatra-id-device-single-revoke-001").count(),0,"Current session must not be revocable");
+  assert.ok((await accountDesign.locator(".ui-vatra-id-protection-001 img").getAttribute("src")).endsWith("/vatryk_security.webp"));
+  await accountDesign.getByRole("button",{name:"Підозрюєте сторонній доступ?",exact:true}).click();
+  const danger=accountDesign.locator('dialog[open] [data-security-state="danger"]');
+  await danger.waitFor({state:"visible"});
+  for(const cls of ["ui-vatra-id-security-danger-copy-001","vatra-id-security-danger-heading-001","vatra-id-security-danger-description-001","ui-vatra-id-security-mascot-danger-001"])assert.equal(await danger.locator("."+cls).count(),1,"Danger guidance has its own "+cls);
+  assert.ok((await danger.locator("img").getAttribute("src")).endsWith("/vatryk_security-danger.webp"));
+  await accountDesign.keyboard.press("Escape");
+  await danger.waitFor({state:"detached"});
+  const otherSession="00000000-0000-4000-8000-000000000002";
+  await accountDesign.evaluate(id=>{window.__fixtureSessions.push({current_session:false,session_id:id,browser_agent:"Firefox Linux"});},otherSession);
+  await accountDesign.locator(".vatra-id-device-refresh-001").click();
+  const otherNotice=accountDesign.locator('[data-security-state="device"]');
+  await otherNotice.waitFor({state:"visible"});
+  assert.equal(await otherNotice.locator(".vatra-id-security-device-review-001").count(),1);
+  for(const index of [1,2]){
+   const prefix="vatra-id-device-item-"+index;
+   const row=deviceList.locator(".ui-"+prefix+"-row");
+   assert.equal(await row.count(),1,"Each rendered session has an individual class");
+   for(const part of ["symbol","icon","path","details"])assert.equal(await row.locator(".ui-"+prefix+"-"+part).count(),1);
+   for(const part of ["name","time","activity"])assert.equal(await row.locator("."+prefix+"-"+part).count(),1);
+   assert.equal(await row.locator("."+prefix+(index===1?"-current":"-revoke")).count(),1);
+  }
+  assert.equal(await deviceList.locator('[class*="'+otherSession+'"]').count(),0,"DOM hooks must not contain session IDs");
+  assert.ok((await otherNotice.locator("img").getAttribute("src")).endsWith("/vatryk_security-device.webp"));
+  await otherNotice.getByRole("button",{name:"Не впізнаєте сеанс?",exact:true}).click();
+  const warning=accountDesign.locator('dialog[open] [data-security-state="warning"]');
+  await warning.waitFor({state:"visible"});
+  for(const cls of ["ui-vatra-id-security-warning-copy-001","vatra-id-security-warning-heading-001","vatra-id-security-warning-description-001","ui-vatra-id-security-mascot-warning-001"])assert.equal(await warning.locator("."+cls).count(),1,"Warning guidance has its own "+cls);
+  assert.ok((await warning.locator("img").getAttribute("src")).endsWith("/vatryk_security-warning.webp"));
+  await accountDesign.keyboard.press("Escape");
+  await warning.waitFor({state:"detached"});
+  const revoke=deviceList.locator(".vatra-id-device-single-revoke-001");
+  assert.equal(await revoke.count(),1);
+  await revoke.click();
+  await accountDesign.waitForFunction(()=>window.__designMessage==="Не вдалося завершити сеанс.");
+  assert.equal(await accountDesign.locator('[data-security-state="success"]').count(),0,"Rejected revocation must not show success");
+  assert.deepEqual(await accountDesign.evaluate(()=>window.__fixtureRevokeCalls),[otherSession]);
+  await accountDesign.evaluate(()=>{window.__fixtureRevokeAllowed=true;});
+  await revoke.click();
+  const securitySuccess=accountDesign.locator('[data-security-state="success"]');
+  await securitySuccess.waitFor({state:"visible"});
+  assert.equal(await securitySuccess.locator(".ui-vatra-id-security-mascot-success-sessions-001").count(),1);
+  assert.ok((await securitySuccess.locator("img").getAttribute("src")).endsWith("/vatryk_security-success.webp"));
+  assert.deepEqual(await accountDesign.evaluate(()=>window.__fixtureRevokeCalls),[otherSession,otherSession]);
+  assert.equal(await deviceList.locator(".vatra-id-device-current-001").count(),1);
+  assert.equal(await otherNotice.count(),0,"Revoked session must disappear from device guidance");
+  assert.ok(await accountDesign.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),"Security guidance must fit a narrow phone");
+  console.log("VATRA account security: current session, user-initiated concerns, rejected and confirmed revocation, artwork and phone layout passed.");
   await accountDesign.evaluate(()=>{history.replaceState(null,"",location.pathname+"?view=settings#general");document.querySelector("#design-content").replaceChildren();document.body.dataset.page="settings";});
   await accountDesign.addScriptTag({url:base+"assets/js/settings.js"});
   await accountDesign.locator(".ui-vatra-preferences-nav-001").waitFor({state:"visible"});
+  for(const tab of ["general","privacy","notifications","blocked"]){for(const cls of ["vatra-preferences-nav-"+tab+"-001","vatra-preferences-nav-"+tab+"-label-001","ui-vatra-preferences-nav-"+tab+"-icon-001","ui-vatra-preferences-nav-"+tab+"-path-001"])assert.equal(await accountDesign.locator("."+cls).count(),1,"Individual preferences navigation hook "+cls);}
+  for(const key of ["language","viewer-video-autoplay"]){for(const part of ["row","copy","control"])assert.equal(await accountDesign.locator(".ui-vatra-preferences-"+key+"-"+part+"-001").count(),1);for(const part of ["label","description"])assert.equal(await accountDesign.locator(".vatra-preferences-"+key+"-"+part+"-001").count(),1);}
   assert.equal(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").count(),4);
   assert.deepEqual(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).width)),["20px","20px","20px","20px"]);
+  assert.equal(await accountDesign.locator(".vatra-preferences-id-badge-label-001").count(),1);
+  await accountDesign.locator('[data-tab="privacy"]').click();
+  await accountDesign.locator(".ui-vatra-preferences-visibility-control-001").waitFor({state:"visible"});
+  for(const [key,values] of [["visibility",["public","friends"]],["presence",["public","friends","private"]]])for(const value of values){const option=accountDesign.locator(".vatra-preferences-"+key+"-"+value+"-option-001");assert.equal(await option.count(),1,"Individual native option hook: "+key+" "+value);}
   await accountDesign.locator('[data-tab="blocked"]').click();
   await accountDesign.locator(".ui-vatra-preferences-block-empty-001").waitFor({state:"visible"});
   await accountDesign.locator(".ui-vatra-block-header-001 button").click();

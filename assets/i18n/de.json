@@ -4215,5 +4215,15 @@
   "Село проживання": "Wohndorf",
   "Селище проживання": "Wohnort (Kleinstadt)",
   "Рідне село": "Heimatdorf",
-  "Рідне селище": "Heimatkleinstadt"
+  "Рідне селище": "Heimatkleinstadt",
+  "Не впізнаєте сеанс?": "Erkennen Sie eine Sitzung nicht?",
+  "Підозрюєте сторонній доступ?": "Vermuten Sie unbefugten Zugriff?",
+  "Перевірте пристрої та завершіть сеанси, які вам не належать.": "Prüfen Sie die Geräte und beenden Sie fremde Sitzungen.",
+  "Якщо хтось міг отримати доступ до акаунта, змініть пароль та завершіть інші сеанси.": "Wenn jemand Zugriff auf Ihr Konto erlangt haben könnte, ändern Sie Ihr Passwort und beenden Sie andere Sitzungen.",
+  "Інші активні сеанси": "Andere aktive Sitzungen",
+  "Перевірте, чи впізнаєте всі пристрої.": "Prüfen Sie, ob Sie alle Geräte erkennen.",
+  "Інші сеанси завершено": "Andere Sitzungen beendet",
+  "Доступ на них остаточно припиниться після спливу чинних токенів.": "Ihre aktuellen Zugriffstoken bleiben bis zum Ablauf gültig.",
+  "Доступ остаточно припиниться після спливу чинного токена.": "Der Zugriff endet mit Ablauf des aktuellen Tokens.",
+  "Пароль змінено": "Passwort geändert"
 }

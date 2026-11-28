@@ -4215,5 +4215,15 @@
   "Село проживання": "Wieś zamieszkania",
   "Селище проживання": "Osada zamieszkania",
   "Рідне село": "Rodzinna wieś",
-  "Рідне селище": "Rodzinna osada"
+  "Рідне селище": "Rodzinna osada",
+  "Не впізнаєте сеанс?": "Nie rozpoznajesz sesji?",
+  "Підозрюєте сторонній доступ?": "Podejrzewasz nieautoryzowany dostęp?",
+  "Перевірте пристрої та завершіть сеанси, які вам не належать.": "Sprawdź urządzenia i zakończ sesje, które nie należą do Ciebie.",
+  "Якщо хтось міг отримати доступ до акаунта, змініть пароль та завершіть інші сеанси.": "Jeśli ktoś mógł uzyskać dostęp do Twojego konta, zmień hasło i zakończ inne sesje.",
+  "Інші активні сеанси": "Inne aktywne sesje",
+  "Перевірте, чи впізнаєте всі пристрої.": "Sprawdź, czy rozpoznajesz wszystkie urządzenia.",
+  "Інші сеанси завершено": "Inne sesje zakończone",
+  "Доступ на них остаточно припиниться після спливу чинних токенів.": "Ich bieżące tokeny dostępu są ważne do wygaśnięcia.",
+  "Доступ остаточно припиниться після спливу чинного токена.": "Dostęp zakończy się po wygaśnięciu aktualnego tokena.",
+  "Пароль змінено": "Hasło zmienione"
 }
