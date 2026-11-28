@@ -371,7 +371,7 @@ console.log("VATRA story views: live-only insert, self exclusion, duplicate/netw
  runInNewContext(runtime,{window,document,location,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URL});
  const api=window.VATRA_STORY_VIEWS,id="10000000-0000-0000-0000-000000000001",story={id,author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
  const pending=[];let countReads=0;
- const client={storage:{from(bucket){assert.equal(bucket,"avatars");return {getPublicUrl(path){return {data:{publicUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/"+path}}};}};}},from(table){assert.equal(table,"story_views");return {select(_cols,opts){
+ const client={storage:{from(bucket){assert.equal(bucket,"avatars");return {getPublicUrl(path){return {data:{publicUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/"+path}};}};}},from(table){assert.equal(table,"story_views");return {select(_cols,opts){
   const q={eq(){return q;},order(){return q;},range(start,end){assert.equal(end-start,49);return new Promise(resolve=>pending.push({start,resolve}));}};
   if(opts.head){countReads++;q.eq=()=>Promise.resolve({count:3});}return q;
  }};}};
