@@ -332,7 +332,7 @@ for(const key of friendsKeys){
   "English friend-page translation missing: "+key);
 }
 
-const notificationRuntime=await readFile("assets/js/notifications.js","utf8");
+const notificationRuntime=await readFile("assets/js/notifications/notifications.js","utf8");
 const notificationKeys=[
   "{name} хоче додатися до вас у друзі",
   "{name} прийняв вашу заявку в друзі",
