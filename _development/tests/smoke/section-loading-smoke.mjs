@@ -41,7 +41,7 @@ assert.equal(owner.menu.length,0);assert.deepEqual(owner.calls,["account_states"
 assert.equal(owner.imports.length,0);assert.equal(owner.styles.length,0);
 owner.events[0]("SIGNED_OUT");assert.equal(owner.menu.length,0);
 for(const name of ["clips","marketplace","settings"]){
- const src=await readFile("assets/js/"+name+".js","utf8");
+ const src=await readFile("assets/js/"+(name==="settings"?name:name+"/"+name)+".js","utf8");
  let registered=0;new Function("window","document",src)({VATRA_SECTION_CORE:{start(init){assert.equal(typeof init,"function");registered++;}}},{body:{dataset:{page:name}}});
  assert.equal(registered,1,name+" registers only its own initializer");
  new Function("window",src)({VATRA_HOST_ALLOWED:false,VATRA_SECTION_CORE:{start(){throw Error("Forbidden host");}}});
@@ -77,8 +77,8 @@ const button=(cls,copy,fn)=>{const b=make("button",cls,copy);b.addEventListener(
 const btn=(label,cls,fn)=>button(cls,label,fn);
 const field=(parent,key,label,type,max,required)=>{const outer=make("div","field-"+key),input=make("input","input-"+key);outer.append(make("label","label-"+key,label),input);parent.append(outer);return input;};
 const doc={body:element("body"),documentElement:{lang:"uk"},createElement:element,createElementNS:(_,tag)=>element(tag)};
-const market=await readFile("assets/js/marketplace.js","utf8");
-const editor=await readFile("assets/js/marketplace-editor.js","utf8");
+const market=await readFile("assets/js/marketplace/marketplace.js","utf8");
+const editor=await readFile("assets/js/marketplace/marketplace-editor.js","utf8");
 const signature=editor.match(/createMarketplaceEditor\(\{([^}]+)\}\)/)[1].split(",");
 const supplied=market.match(/module\.createMarketplaceEditor\(\{([^}]+)\}\)/)[1].split(",");
 assert.deepEqual(signature,supplied,"All editor dependencies must be passed by the actual caller");

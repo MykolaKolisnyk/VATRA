@@ -601,7 +601,7 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  env.localStorage.getItem=()=>"invalid";assert.equal(env.test.volumePreference(),1);
  env.localStorage.getItem=()=>{throw Error("storage blocked");};assert.equal(env.test.volumePreference(),1);
  for(const mode of ["inline","viewer"])assert.ok(source.includes('VATRA_PLAYER?.attach(')&&source.includes('mode:"'+mode+'"'));
- const clip=await readFile("assets/js/clips.js","utf8");assert.ok(clip.includes('VATRA_PLAYER?.attach(video,{mode:"clip"})'));
+ const clip=await readFile("assets/js/clips/clips.js","utf8");assert.ok(clip.includes('VATRA_PLAYER?.attach(video,{mode:"clip"})'));
  assert.ok(player.includes("video.controls=false")&&player.includes("requestPictureInPicture")&&player.includes("requestFullscreen"));
  for(const file of ["feed.html","profile.html","club.html","clips.html"]){const html=await readFile(file,"utf8");assert.ok(html.indexOf("assets/js/vatra-player.js?rev=")<html.indexOf("assets/js/post-media.js?rev="));assert.ok(html.includes("assets/css/vatra-player.css?rev="));}
  console.log("VATRA Player: helpers, route wiring, native fallback and modes checked.");
@@ -696,7 +696,7 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
 }
 
 {
- const runtime=await readFile("assets/js/clips.js","utf8");
+ const runtime=await readFile("assets/js/clips/clips.js","utf8");
  const from=runtime.indexOf("const clipSwipeDirection="),to=runtime.indexOf("async function clips()",from);
  assert.ok(from>=0&&to>from);
  const env={};

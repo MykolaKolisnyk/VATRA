@@ -2566,7 +2566,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await assetFiles("assets/css",".css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities/communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends/friends.css","gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips/clips.css","communities/communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends/friends.css","gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace/marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await assetFiles("assets/js",".js");
 assert.ok(!javascriptFiles.includes("create-menu.js")&&!cssFiles.includes("create-menu.css"),"Create menu must be integrated into feed assets");
 for(const route of ["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"]){const markup=await read(route+".html");assert.ok(!markup.includes("assets/js/create-menu.js")&&!markup.includes("assets/css/create-menu.css"),route+" must not request deleted standalone menu assets");}
@@ -2878,8 +2878,8 @@ await import("../smoke/section-loading-smoke.mjs");
 await import("../smoke/static-cache-smoke.mjs");
 await import("../../tools/revision-assets.mjs");
 const coreRuntime=await read("assets/js/core.js");
-const marketplaceRuntime=await read("assets/js/marketplace.js");
-const clipsRuntime=await read("assets/js/clips.js");
+const marketplaceRuntime=await read("assets/js/marketplace/marketplace.js");
+const clipsRuntime=await read("assets/js/clips/clips.js");
 const settingsRuntime=await read("assets/js/settings.js");
 const individualSessionSQL=await read("_development/supabase/vatra-individual-session-revocation.sql");
 assert.ok(individualSessionSQL.includes("s.id=target_session and s.user_id=caller and s.id::text<>current_id")&&
@@ -2923,23 +2923,23 @@ assert.ok(!settingsRuntime.includes('settingsCard(t("Сповіщення на �
  settingsStyle.includes('grid-template-columns:minmax(0,1fr) auto;align-items:end')&&
  settingsStyle.includes('top:81px'),
  "Settings must keep stable page alignment, compact blocked list and no redundant notification card");
-const editorRuntime=await read("assets/js/marketplace-editor.js");
-const clipComposerRuntime=await read("assets/js/clip-composer.js");
+const editorRuntime=await read("assets/js/marketplace/marketplace-editor.js");
+const clipComposerRuntime=await read("assets/js/clips/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
-const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities/communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
+const sectionsStyle=(await Promise.all(["core","marketplace/marketplace","clips/clips","settings","communities/communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
 for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
 for(const module of [editorRuntime,clipComposerRuntime])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
-for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
+for(const [section,stem] of [["clips","clips/clips"],["marketplace","marketplace/marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
- for(const other of ["clips","marketplace","settings"].filter(name=>name!==stem)){
+ for(const other of ["clips/clips","marketplace/marketplace","settings"].filter(name=>name!==stem)){
   assert.ok(!markup.includes('assets/js/'+other+'.js')&&!markup.includes('assets/css/'+other+'.css'),section+" must not load another section");
  }
  assert.ok(!markup.includes("sections.js")&&!markup.includes("sections.css")&&!markup.includes("marketplace-editor.js")&&!markup.includes("clip-composer.js"));
 }
 assert.ok(!clipsRuntime.includes("marketplace_listings")&&!settingsRuntime.includes("marketplace_listings")&&!marketplaceRuntime.includes('eq("is_clip",true)'));
 assert.ok(marketplaceRuntime.includes("IntersectionObserver")&&marketplaceRuntime.includes("deferProductPhoto(row,photo)")&&marketplaceRuntime.includes("signedPhotos=new Map()")&&marketplaceRuntime.includes("signedPhotos.clear()"));
-assert.ok(marketplaceRuntime.includes('import(new URL("assets/js/marketplace-editor.js?rev=')&&clipsRuntime.includes('import(new URL("assets/js/clip-composer.js?rev='));
+assert.ok(marketplaceRuntime.includes('import(new URL("assets/js/marketplace/marketplace-editor.js?rev=')&&clipsRuntime.includes('import(new URL("assets/js/clips/clip-composer.js?rev='));
 await assert.rejects(stat("assets/js/sections.js"),{code:"ENOENT"});
 await assert.rejects(stat("assets/css/sections.css"),{code:"ENOENT"});
 assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&!sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
@@ -3066,3 +3066,5 @@ for(const name of ["create-account","recovery","verify"]){assert.ok(javascriptFi
 assert.ok(javascriptFiles.includes("friends/friends.js")&&!javascriptFiles.includes("friends.js")&&!cssFiles.includes("friends.css"),"Friends assets must have a canonical section directory");
 for(const name of ["community-core","communities","club"])assert.ok(javascriptFiles.includes("communities/"+name+".js")&&!javascriptFiles.includes(name+".js"),"Community controller must have a canonical section directory: "+name);
 assert.ok(!cssFiles.includes("communities.css"),"No duplicate flat community stylesheet");
+
+for(const [section,modules] of [["clips",["clips","clip-composer"]],["marketplace",["marketplace","marketplace-editor"]]]){assert.ok(cssFiles.includes(section+"/"+section+".css")&&!cssFiles.includes(section+".css"),section+": canonical stylesheet only");for(const name of modules)assert.ok(javascriptFiles.includes(section+"/"+name+".js")&&!javascriptFiles.includes(name+".js"),section+": canonical module only: "+name);}
