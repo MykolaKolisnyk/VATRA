@@ -1584,7 +1584,7 @@ feedMarkup.includes('id="feed-compose-media"') &&
  clubRuntime.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
  postMediaScript.includes('createSignedUrl(path,ttl)') &&
  postMediaScript.includes('ttl=3600') &&
- postMediaScript.includes('signed(client,kind,path,300)'),
+ postMediaScript.includes('signed(client,kind,path,300,!preview)'),
  "VATRA photos and videos must be attached, published and displayed across all post surfaces");
 assert.ok(
  clubRuntime.includes("postPattern.test(linkedId") &&
