@@ -1782,8 +1782,6 @@ body.feed-page .vatra-scroll-rail[data-mode="compact"] .ui-vatra-scroll-rail-ico
 @media(max-width:600px){body.feed-page .vatra-scroll-rail[data-mode="compact"]{width:44px;height:44px;bottom:max(14px,env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-scroll-rail{transition:none}}
 
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vatra-feed-filter-heading-001{gap:10px
-}
 body.feed-page .ui-feed-filter-heading-icon-001{display:block;flex:none;color:#6381b6;width:20px;height:20px}
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
  border:0!important;box-shadow:none!important;outline-offset:2px
@@ -2112,7 +2110,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-
 
 body.feed-page:not(.profile-page):not(.community-page) .vatra-feed-filter-summary-001{
  margin:9px 5px 1px;padding-top:11px;border-top:1px solid #edf1f8;
- color:#70819e;font:560 12px/1.5 "Onest",system-ui,sans-serif
+ color:#70819e;font:560 12px/1.5 "Onest",system-ui,sans-serif;text-align:center
 }
 @media(prefers-reduced-motion:reduce){
  body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{transition:none}
@@ -2162,8 +2160,9 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
 
 
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vatra-feed-filter-heading-001{
- display:flex;align-items:center;min-height:32px;margin:0 0 6px
+ display:grid;grid-template-columns:20px minmax(0,1fr) 20px;align-items:center;gap:8px;min-height:32px;margin:0 0 6px;text-align:center
 }
+body.feed-page:not(.profile-page):not(.community-page) .vatra-feed-filter-heading-text-001{grid-column:2;min-width:0;overflow-wrap:anywhere;text-align:center}
 
 
 body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){align-items:stretch;}
@@ -3559,7 +3558,11 @@ body.feed-page:not(.profile-page):not(.community-page) .ui-feed-reading-lane-001
 @media(min-width:951px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-main{grid-template-rows:auto!important;align-items:start!important;align-content:start!important}
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001{display:flex;flex-direction:column;gap:var(--vatra-content-card-gap,16px);grid-column:1;grid-row:1;min-width:0;align-self:start}
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:2;grid-row:1!important;align-self:start}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:2;grid-row:1!important;align-self:start;position:sticky;top:calc(61px + var(--vatra-content-card-gap,16px));max-height:calc(100dvh - 61px - 2 * var(--vatra-content-card-gap,16px));overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > *{flex-shrink:0}
+}
+@media(min-width:1201px){
+ body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{position:sticky!important;top:calc(61px + var(--vatra-content-card-gap,16px));align-self:start;max-height:calc(100dvh - 61px - 2 * var(--vatra-content-card-gap,16px));overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin}
 }
 
 body.feed-page .vatra-quick-compose-001:is([data-create-menu],[data-create-direct]):not([hidden]){position:relative;display:block;padding:0;min-height:0;overflow:visible;border-radius:var(--vatra-card-radius)}
