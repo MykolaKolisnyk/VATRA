@@ -360,7 +360,7 @@
  };
  let firstImages=0;
  const SIGN_LIMIT=4,SIGN_TIMEOUT=12000;
- function scheduleSigning(state,version,task){
+ function scheduleSigning(state,version,task,priority=false){
   return new Promise((resolve,reject)=>{
    const start=()=>{
     if(state.version!==version){reject(Error("Session changed while signing media"));return;}
@@ -373,7 +373,7 @@
     });
    };
    start.cancel=()=>reject(Error("Session changed while signing media"));
-   if(state.active<SIGN_LIMIT)start();else state.queue.push(start);
+   if(state.active<SIGN_LIMIT)start();else if(priority)state.queue.unshift(start);else state.queue.push(start);
   });
  }
 
@@ -445,7 +445,7 @@
   }
   return batch.promise;
  }
- async function signed(client,kind,path,ttl=3600){
+ async function signed(client,kind,path,ttl=3600,priority=false){
   const state=signedCacheFor(client),signedURLs=state.signedURLs;
   const version=state.version,key=ttl+":"+kind+":"+path;
   const bulk=state.bulkPending.get(key);
@@ -455,7 +455,7 @@
   const pending=state.singlePending.get(key);
   if(pending)return pending;
   const expiry=Date.now()+Math.max(0,ttl-30)*1000;
-  const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind,path)).createSignedUrl(path,ttl)).then(({data,error})=>{
+  const promise=scheduleSigning(state,version,()=>client.storage.from(bucketFor(kind,path)).createSignedUrl(path,ttl),priority).then(({data,error})=>{
 
    if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
@@ -480,8 +480,10 @@
    if(url===failedURL&&state.signedURLs.get(key)===entry)state.signedURLs.delete(key);
   }catch(_){}
  }
+ const storyLoadCleanups=new WeakMap();
  function clearStory(slot){
   if(!slot)return;
+  storyLoadCleanups.get(slot)?.();storyLoadCleanups.delete(slot);
   const request=String(Number(slot.dataset.storyRequest||"0")+1);
   slot.dataset.storyRequest=request;
   const video=slot.querySelector?.("video");
@@ -498,16 +500,32 @@
   if(preview&&kind==="video"&&mediaConnectionConstrained())return;
   slot.hidden=false;
   if(!preview)slot.textContent=tr("Завантаження медіа…","Loading media…");
+  const current=()=>slot.isConnected&&slot.dataset.storyRequest===request;
+  let src=null,signTimer;
+  const fail=()=>{
+   if(!current())return;
+   storyLoadCleanups.get(slot)?.();storyLoadCleanups.delete(slot);
+   const forgotten=src?forgetFailedSignedURL(client,kind,path,src,300):Promise.resolve();
+   const video=slot.querySelector?.("video");
+   if(video){video.pause();video.removeAttribute("src");video.load();}
+   slot.replaceChildren();
+   if(preview){slot.hidden=true;return;}
+   slot.textContent=tr("Медіафайл історії недоступний.","Story media is unavailable.");
+   const retry=document.createElement("button");retry.type="button";retry.className="vatra-feed-post-media-open-001";
+   retry.textContent=tr("Повторити","Retry");
+   retry.addEventListener("click",async()=>{if(retry.disabled)return;retry.disabled=true;await forgotten;if(current())void renderStory(client,story,slot,false,allowExpired);});
+   slot.append(retry);
+  };
   try{
    if(preview&&kind==="image"){
     if(!await preSignVisible(client,[{media_kind:kind,media_path:path}],300))throw Error("Session changed while signing media");
-    if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
+    if(!current())return;
    }
-   const src=await signed(client,kind,path,300);
-   if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
+   const signing=signed(client,kind,path,300,!preview);
+   src=preview?await signing:await Promise.race([signing,new Promise((_,reject)=>{signTimer=setTimeout(()=>reject(Error("Story signing timed out")),15000);})]);
+   if(!current())return;
    const element=document.createElement(kind==="image"?"img":"video");
    element.className=preview?"vatra-story-media-preview-001":"vatra-story-media-expanded-001";
-   element.src=src;
    if(kind==="image"){
     element.alt=tr("Медіа історії","Story photo");
     element.decoding="async";
@@ -517,13 +535,21 @@
     element.muted=preview;
     if(preview)element.setAttribute("aria-hidden","true");
    }
+   let loadTimer,failed=false;
+   const ready=()=>clearTimeout(loadTimer);
+   const onError=()=>{if(failed)return;failed=true;fail();};
+   if(typeof element.addEventListener==="function"){
+    const readyEvent=kind==="image"?"load":"loadedmetadata";
+    element.addEventListener(readyEvent,ready,{once:true});
+    element.addEventListener("error",onError,{once:true});
+    storyLoadCleanups.set(slot,()=>{clearTimeout(loadTimer);element.removeEventListener(readyEvent,ready);element.removeEventListener("error",onError);});
+    if(!preview)loadTimer=setTimeout(onError,20000);
+   }
    slot.replaceChildren(element);
+   element.src=src;
    if(kind==="video"&&!preview&&typeof window!=="undefined")window.VATRA_PLAYER?.attach(element,{mode:"story"});
-  }catch(_){
-   if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
-   if(preview){slot.hidden=true;slot.replaceChildren();}
-   else slot.textContent=tr("Медіафайл історії недоступний.","Story media is unavailable.");
-  }
+  }catch(_){fail();}
+  finally{clearTimeout(signTimer);}
  }
  function postBodyPreview(full){
   const chars=Array.from(full);

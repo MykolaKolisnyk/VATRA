@@ -548,6 +548,22 @@ console.log("VATRA visible preview batching: cross-card request reduction, cache
  const photo=slot();await renderStory(vc.client,story(10),photo,true);
  assert.equal(vc.calls,2,"Constrained networks must still load photo previews");
  assert.equal(photo.children[0]?.tag,"img");
+ // The viewer must offer a retry after an actual media error and clean up on close.
+ env.document.createElement=tag=>({tag,events:new Map(),setAttribute(){},addEventListener(k,fn){this.events.set(k,fn);},removeEventListener(k,fn){if(this.events.get(k)===fn)this.events.delete(k);}});
+ const failed=slot();failed.append=function(item){this.children.push(item);};
+ const retryClient=makeClient("story-retry");
+ await renderStory(retryClient.client,story(11),failed);
+ const broken=failed.children[0];broken.events.get("error")();
+ assert.equal(failed.textContent,"Медіафайл історії недоступний.");
+ assert.equal(failed.children[0].tag,"button");
+ failed.children[0].events.get("click")();
+ for(let i=0;i<40;i++)await Promise.resolve();
+ assert.equal(retryClient.calls,2,"A failed signed file must obtain a new URL on retry");
+ assert.equal(failed.children[0].tag,"img");
+ const loaded=failed.children[0];loaded.events.get("load")();clearStory(failed);
+ assert.equal(loaded.events.size,0,"Closing removes media listeners and deadline");
+ assert.equal(failed.hidden,true);
+
 }
 console.log("VATRA story photo previews: shared signing, cache reuse, path validation and session isolation passed.");
 
