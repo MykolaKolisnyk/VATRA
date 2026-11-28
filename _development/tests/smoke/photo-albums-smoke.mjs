@@ -86,7 +86,10 @@ assert.ok(
  script.includes("state.photosBusy")&&
  script.includes("new IntersectionObserver(entries=>")&&
  script.includes("pendingSignatures.has(path)")&&
- script.includes('client.auth?.onAuthStateChange?.(event=>')&&
+ script.includes('client.auth?.onAuthStateChange?.((event,session)=>')&&
+ script.includes('viewer===signatureViewer)return')&&
+ script.includes('signatureGeneration++;signed.clear();pendingSignatures.clear()')&&
+ script.includes('bucket.createSignedUrls(batch.map(([path])=>path),120)')&&
  !script.includes('.in("album_id",ids)\n     .order("created_at",{ascending:false}).limit(1000)')&&
  css.includes(".vatra-albums-more-photos-001{"),
  "Album photos must be bounded, progressively paged, lazily signed and invalidated after auth"
