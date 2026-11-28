@@ -1143,11 +1143,11 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-main{
  width:100%;max-width:none;min-width:0;margin:0!important
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{display:contents!important}
-body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-quick-compose{
  grid-column:1;grid-row:2;width:100%;min-width:0;margin:0;
  align-self:start
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-stories{
  grid-column:1;grid-row:1;width:100%;min-width:0;margin:0;align-self:start
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{
@@ -1163,14 +1163,14 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-
  box-shadow:0 5px 19px rgba(30,55,108,.055);
  animation:none;box-sizing:border-box;z-index:5
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-status{
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-status{
  grid-column:1;grid-row:3;width:100%;min-width:0;margin:0
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{
  grid-column:1;grid-row:3;width:100%;min-width:0;margin:0
 }
 
-body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{
+body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{
  grid-row:4
 }
 @media(max-width:1200px){
@@ -1198,8 +1198,8 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stat
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > .feed-filter-row{
   min-height:52px;padding:6px 12px
  }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-status{grid-column:1;grid-row:4}
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-column:1;}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-status{grid-column:1;grid-row:4}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{grid-column:1;}
  
 }
 @media(max-width:600px){
@@ -2732,13 +2732,13 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{
   align-self:start
  }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-stories{
   grid-row:1!important
  }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{
   grid-row:3!important
  }
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:4!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{grid-row:4!important}
 }
 
 body.feed-page:not(.profile-page):not(.community-page) .feed-posts-section{align-self:start!important;min-height:0!important;margin:0!important
@@ -2751,8 +2751,8 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-empty{display:flex;
   grid-template-rows:none!important;row-gap:var(--vatra-card-gap)!important
  }
  
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-row:4!important}
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:5!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{grid-row:4!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{grid-row:5!important}
 }
 
 
@@ -3642,13 +3642,20 @@ body.notifications-page .notifications-main #notifications-list .vatra-notice-pr
 
 body.notifications-page #notifications-empty[hidden]{display:none!important}
 
-body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .feed-quick-compose{grid-row:1!important}
+body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-quick-compose{grid-row:1!important}
 @media(min-width:951px){
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > :is(.feed-status,.feed-posts-section){grid-row:2!important}
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]):has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:3!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .ui-feed-reading-lane-001 > :is(.feed-status,.feed-posts-section){grid-row:2!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]):has(.feed-status:not([hidden])) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{grid-row:3!important}
 }
 @media(max-width:950px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .ui-feed-right-rail-001{grid-row:2!important}
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > :is(.feed-status,.feed-posts-section){grid-row:3!important}
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]):has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:4!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .ui-feed-reading-lane-001 > :is(.feed-status,.feed-posts-section){grid-row:3!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]):has(.feed-status:not([hidden])) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{grid-row:4!important}
+}
+
+body.feed-page:not(.profile-page):not(.community-page) .ui-feed-reading-lane-001{display:contents}
+@media(min-width:951px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main{grid-template-rows:auto!important;align-items:start!important;align-content:start!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001{display:flex;flex-direction:column;gap:var(--vatra-content-card-gap,16px);grid-column:1;grid-row:1;min-width:0;align-self:start}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:2;grid-row:1!important;align-self:start}
 }

@@ -3044,3 +3044,9 @@ body.profile-page .vatra-profile-photo-comment-edit-001 svg{width:18px;height:18
 body.profile-page .profile-posts-main>.vatra-quick-compose-001:not([hidden]){margin:0}
 body.profile-page .profile-posts-main>#profile-posts{margin:0;padding:0;gap:var(--vatra-card-gap)}
 
+
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>.ui-profile-editor-field-label-group-001>button[data-settlement-label]{display:inline-flex;align-items:baseline;gap:5px;width:auto;max-width:100%;min-height:0;border:0;border-radius:0;background:none;box-shadow:none;text-align:start;cursor:pointer;padding-inline:0}
+body.profile-page button[data-settlement-label]::after{content:"";flex:none;width:5px;height:5px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg);opacity:.7}
+body.profile-page button[data-settlement-label]:hover,body.profile-page button[data-settlement-label][aria-expanded="true"]{color:#2861d8;text-decoration:underline;text-underline-offset:3px}
+body.profile-page button[data-settlement-label]:focus-visible{outline:2px solid #507ae8;outline-offset:3px;border-radius:3px}
+body.profile-page .ui-profile-editor-settlement-type-001[hidden]{display:none!important}

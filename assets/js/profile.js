@@ -741,7 +741,7 @@
   const buildField=([key,uk,en,kind],destination)=>{
    const row=make("div","profile-editor-field ui-profile-editor-field-"+key);
    row.dataset.long=kind==="long"?"true":"false";
-   const lab=make("label","vatra-profile-editor-label-"+key,tr(uk,en));
+   const lab=make(isSettlement(key)?"button":"label","vatra-profile-editor-label-"+key,tr(uk,en));
    const current=draft.get(key)||{value:"",visibility:key==="address"?"only_me":"friends"};
    const selectBox=make("select","ui-profile-editor-visibility-"+key);
    selectBox.id="profile-editor-visibility-"+key;
@@ -870,14 +870,15 @@
      const initial=settlementParts(current.value);
      input.value=initial.name;
      settlementType=make("select","ui-profile-editor-settlement-type-001");
-     settlementType.id=inputId+"-type";settlementType.setAttribute("aria-label",tr("Тип населеного пункту","Settlement type")+": "+tr(uk,en));
+     settlementType.id=inputId+"-type-native";settlementType.hidden=true;settlementType.tabIndex=-1;settlementType.setAttribute("aria-hidden","true");
+     lab.id=inputId+"-type";lab.type="button";lab.dataset.settlementLabel="true";lab.setAttribute("role","combobox");lab.setAttribute("aria-haspopup","listbox");lab.setAttribute("aria-expanded","false");
      settlementType.append(opt("",tr("Не вибрано","Not selected")));
      for(const [type,prefix,ua,eng] of settlementKinds)settlementType.append(opt(type,tr(ua,eng)));
      settlementType.value=initial.type;
      readValue=()=>settlementValue(settlementType.value,input.value);
      const refreshLabel=()=>{
       const title=settlementLabel(key,settlementType.value);
-      lab.textContent=title;input.setAttribute("aria-label",title);
+      lab.textContent=title;lab.setAttribute("aria-label",title);input.setAttribute("aria-label",title);
       selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+title);
       input.maxLength=profileFieldLimit(key,kind)-(settlementKinds.find(item=>item[0]===settlementType.value)?.[1].length||0);
      };
@@ -893,7 +894,16 @@
      control.append(input);input.addEventListener(menu?"change":"input",()=>update());
     if(menu)enhanceEditorSelect(input);else if(key==="city")enhanceCityInput(input);
    }
-   lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);if(settlementType){labelGroup.append(settlementType);enhanceEditorSelect(settlementType);}if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
+   if(!settlementType)lab.htmlFor=multiChoiceKeys.has(key)?inputId+"-0":inputId;
+   const labelGroup=make("div","ui-profile-editor-field-label-group-001");labelGroup.append(lab);
+   if(settlementType){
+    labelGroup.append(settlementType);
+    const open=keyboard=>openEditorMenu(lab,labelGroup,Array.from(settlementType.options).map(option=>({value:option.value,text:option.textContent,disabled:option.disabled})),value=>{settlementType.value=value;settlementType.dispatchEvent(new Event("change",{bubbles:true}));},settlementType.value,keyboard);
+    lab.addEventListener("click",()=>{if(editorMenu?.anchor===lab)closeEditorMenu();else open(false);});
+    lab.addEventListener("keydown",event=>dropdownKeys(lab,open,event));
+    lab.addEventListener("blur",event=>{if(editorMenu?.anchor===lab&&!editorMenu.panel.contains(event.relatedTarget))closeEditorMenu();});
+   }
+   if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox);row.append(labelGroup,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
    selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };

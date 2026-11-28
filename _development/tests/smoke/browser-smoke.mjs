@@ -4979,6 +4979,21 @@ try{
      filterGeometry.storyBottom<=filterGeometry.composerTop+1&&
      filterGeometry.filterTop>=filterGeometry.composerBottom-3),
     "Feed post lane and independent filter must fit without overlap: "+JSON.stringify(filterGeometry));
+   if(filterGeometry.screenWidth>950){
+    const tallRail=await feedProbe.evaluate(()=>{
+     const rail=document.querySelector(".ui-feed-right-rail-001"),stories=document.querySelector(".feed-stories"),composer=document.querySelector(".feed-quick-compose"),posts=document.querySelector(".feed-posts-section"),status=document.querySelector(".feed-status");
+     const prev={minHeight:rail.style.minHeight,stories:stories.hidden,status:status.hidden,text:status.textContent};
+     const measure=()=>({gap:posts.getBoundingClientRect().top-composer.getBoundingClientRect().bottom,storyGap:composer.getBoundingClientRect().top-stories.getBoundingClientRect().bottom,railHeight:rail.getBoundingClientRect().height});
+     try{rail.style.minHeight="850px";stories.hidden=false;status.hidden=true;
+      const visible=measure();stories.hidden=true;const hidden=measure();
+      stories.hidden=false;status.textContent="Story published";status.hidden=false;
+      const notice=measure(),noticeGap=status.getBoundingClientRect().top-composer.getBoundingClientRect().bottom,afterNotice=posts.getBoundingClientRect().top-status.getBoundingClientRect().bottom;
+      return {visible,hidden,notice,noticeGap,afterNotice};
+     }finally{rail.style.minHeight=prev.minHeight;stories.hidden=prev.stories;status.hidden=prev.status;status.textContent=prev.text;}
+    });
+    for(const state of [tallRail.visible,tallRail.hidden])assert.ok(state.gap>=8&&state.gap<=21&&state.railHeight>=850,"Tall sidebar cannot move posts down: "+JSON.stringify(tallRail));
+    assert.ok(tallRail.visible.storyGap>=8&&tallRail.visible.storyGap<=21&&tallRail.noticeGap>=8&&tallRail.noticeGap<=21&&tallRail.afterNotice>=8&&tallRail.afterNotice<=21,"Story publication status must not introduce blank space: "+JSON.stringify(tallRail));
+   }
    if(filterGeometry.viewportWidth>1200){
     assert.ok(filterGeometry.adRight+12<=filterGeometry.composeLeft&&
      filterGeometry.filterLeft>=filterGeometry.composeRight+10&&
@@ -5757,6 +5772,13 @@ try{
   };
   await selectCountry("PL");
   await profilePage.locator("#profile-editor-hometown").fill("Львів, Україна");
+  for(const key of ["city","hometown"]){
+   const label=profilePage.locator(".vatra-profile-editor-label-"+key);
+   assert.equal(await label.getAttribute("id"),"profile-editor-"+key+"-type","The visible label itself opens the settlement menu");
+   assert.equal(await label.evaluate(el=>el.tagName),"BUTTON");
+   assert.equal(await label.locator("..").locator(".vatra-editor-select").count(),0,"No separate boxed selector next to the settlement label");
+   assert.equal(await label.evaluate(el=>getComputedStyle(el).borderTopWidth),"0px");
+  }
   await chooseProfileEditorOption("profile-editor-hometown-type","city",language==="uk"?"Місто":"City");
   assert.equal(await profilePage.locator(".vatra-profile-editor-label-hometown").textContent(),language==="uk"?"Рідне місто":"Hometown");
   await chooseProfileEditorOption("profile-editor-hometown-type","village",language==="uk"?"Село":"Village");
