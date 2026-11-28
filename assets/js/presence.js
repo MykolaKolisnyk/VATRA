@@ -30,26 +30,56 @@ function start(client,ownId,gender){
   authSubscription:null,updating:false,promise:null,lastSuccessAt:0,lastAttemptAt:0,failed:false};
  active=state;
  const touchKey="vatra:presence-touch:"+id;
+ const locks=window.navigator?.locks;
+ const shared=typeof locks?.request==="function";
  const readTouch=()=>{
-  try{const value=Number(sessionStorage.getItem(touchKey)||0);return value<=Date.now()?value:0;}
-  catch(_){return 0;}
+  const valid=value=>{const time=Number(value||0);return Number.isFinite(time)&&time>0&&time<=Date.now()?time:0;};
+  let recent=0;
+  try{recent=valid(sessionStorage.getItem(touchKey));}catch(_){}
+  if(shared)try{recent=Math.max(recent,valid(localStorage.getItem(touchKey)));}catch(_){}
+  return recent;
  };
  const rememberTouch=()=>{
-  try{sessionStorage.setItem(touchKey,String(Date.now()));}catch(_){}
+  const value=String(Date.now());
+  try{sessionStorage.setItem(touchKey,value);}catch(_){}
+  if(shared)try{localStorage.setItem(touchKey,value);}catch(_){}
+ };
+ const clearTouch=()=>{
+  try{sessionStorage.removeItem(touchKey);}catch(_){}
+  if(shared)try{localStorage.removeItem(touchKey);}catch(_){}
  };
  state.lastSuccessAt=readTouch();
  const update=async()=>{
   if(active!==state||state.updating||document.visibilityState==="hidden")return false;
   state.updating=true;state.lastAttemptAt=Date.now();
+  const send=async()=>{
+   if(active!==state||state.controller.signal.aborted||document.visibilityState==="hidden")return false;
+   const recent=readTouch();
+   if(Date.now()-recent<HEARTBEAT_INTERVAL_MS){state.lastSuccessAt=recent;state.failed=false;return true;}
+   const controller=new AbortController();
+   const cancel=()=>controller.abort();
+   state.controller.signal.addEventListener("abort",cancel,{once:true});
+   let timer;
+   try{
+    let query=client.from("profile_presence")
+     .upsert({vatra_id:id,last_seen_at:new Date().toISOString(),form:grammar(gender),device_type:deviceType()},
+      {onConflict:"vatra_id"}).select("vatra_id").maybeSingle();
+    if(typeof query.abortSignal==="function")query=query.abortSignal(controller.signal);
+    const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error("Presence heartbeat timed out"));},12000);});
+    const {data,error}=await Promise.race([query,timeout]);
+    if(error||String(data?.vatra_id)!==id)throw error||Error("Presence heartbeat not confirmed");
+    if(active!==state||controller.signal.aborted)return false;
+    state.lastSuccessAt=Date.now();state.failed=false;
+    rememberTouch();
+    return true;
+   }finally{clearTimeout(timer);state.controller.signal.removeEventListener("abort",cancel);}
+  };
   try{
-   const {data,error}=await client.from("profile_presence")
-    .upsert({vatra_id:id,last_seen_at:new Date().toISOString(),form:grammar(gender),device_type:deviceType()},
-     {onConflict:"vatra_id"}).select("vatra_id").maybeSingle();
-   if(error||String(data?.vatra_id)!==id)throw error||Error("Presence heartbeat not confirmed");
-   if(active!==state)return false;
-   state.lastSuccessAt=Date.now();state.failed=false;
-   rememberTouch();
-   return true;
+   if(!shared)return await send();
+   return await locks.request(touchKey,{mode:"exclusive",ifAvailable:true},async lock=>{
+    if(!lock){state.failed=true;return false;}
+    return await send();
+   });
   }catch(_){
    if(active===state){state.failed=true;state.lastAttemptAt=Date.now();}
    return false;
@@ -65,7 +95,7 @@ function start(client,ownId,gender){
  };
  try{
   state.authSubscription=client.auth?.onAuthStateChange?.(event=>{
-   if(event==="SIGNED_OUT"&&active===state)stop();
+   if(event==="SIGNED_OUT"&&active===state){clearTouch();stop();}
   })?.data?.subscription||null;
  }catch(_){}
  const pause=()=>{
@@ -100,11 +130,15 @@ const presenceReadCaches=new WeakMap();
 function presenceReadState(client){
  let state=presenceReadCaches.get(client);
  if(state)return state;
- state={entries:new Map(),generation:0};
+ state={entries:new Map(),generation:0,viewer:null};
  presenceReadCaches.set(client,state);
  if(typeof client.auth?.onAuthStateChange==="function"){
-  client.auth.onAuthStateChange(event=>{
-   if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+  client.auth.onAuthStateChange((event,session)=>{
+   const viewer=session?.user?.id||null;
+   if(event==="INITIAL_SESSION"&&!state.viewer){state.viewer=viewer;return;}
+   if((event==="SIGNED_IN"||event==="TOKEN_REFRESHED"||event==="INITIAL_SESSION")&&viewer&&viewer===state.viewer)return;
+   if(event==="TOKEN_REFRESHED"&&!session)return;
+   state.viewer=viewer;
    state.generation++;
    for(const entry of state.entries.values())entry.controller?.abort();
    state.entries.clear();
