@@ -7,6 +7,24 @@ async function verified(name,hash,type){
  if(digest!==hash)throw Error("engine integrity");
  return URL.createObjectURL(new Blob([bytes],{type}));
 }
+function compatibleStreams(core){
+ try{
+  core.setTimeout(5000);
+  const result=core.ffprobe("-v","error","-protocol_whitelist","file,pipe","-i","input.bin","-show_streams","-show_format","-of","json","-o","probe.json");
+  if(result!==0)return false;
+  const info=JSON.parse(new TextDecoder().decode(core.FS.readFile("probe.json")));
+  const streams=info.streams||[],v=streams.find(s=>s.codec_type==="video"),a=streams.find(s=>s.codec_type==="audio");
+  const rate=String(v?.avg_frame_rate||"").split("/").map(Number),fps=rate[0]/rate[1];
+  const duration=Number(info.format?.duration),bitrate=Number(v?.bit_rate);
+  return !!v&&v.codec_name==="h264"&&["Baseline","Constrained Baseline","Main","High"].includes(v.profile)&&
+   v.pix_fmt==="yuv420p"&&v.width>0&&v.width<=1280&&v.height>0&&v.height<=1280&&v.width%2===0&&v.height%2===0&&
+   v.level>0&&v.level<=41&&v.sample_aspect_ratio==="1:1"&&Number.isFinite(fps)&&fps>0&&fps<=60&&
+   Number.isFinite(duration)&&duration>0&&bitrate>0&&bitrate<=4000000&&
+   !v.disposition?.attached_pic&&!v.side_data_list?.length&&!v.tags?.rotate&&
+   (!a||(a.codec_name==="aac"&&a.profile==="LC"&&a.channels>0&&a.channels<=2&&Number(a.sample_rate)<=48000&&Number(a.sample_rate)>0));
+ }catch(_){return false;}
+ finally{core.reset();try{core.FS.unlink("probe.json");}catch(_){}}
+}
 self.onmessage=async({data:file})=>{
  let js,wasm;
  try{
@@ -16,13 +34,25 @@ self.onmessage=async({data:file})=>{
   const {default:createCore}=await import(js);
   const core=await createCore({mainScriptUrlOrBlob:js+"#"+btoa(JSON.stringify({wasmURL:wasm,workerURL:""}))});
   core.FS.writeFile("input.bin",new Uint8Array(await file.arrayBuffer()));
-  core.setTimeout(160000);
-  core.exec("-nostdin","-protocol_whitelist","file,pipe","-i","input.bin","-map","0:v:0","-map","0:a:0?","-sn","-dn","-map_metadata","-1","-map_chapters","-1","-vf","scale=w='min(1280,iw)':h='min(1280,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1","-c:v","libx264","-pix_fmt","yuv420p","-preset","ultrafast","-crf","25","-maxrate","4M","-bufsize","8M","-c:a","aac","-b:a","128k","-movflags","+faststart","output.mp4");
+  let mode="transcode";
+  const common=["-nostdin","-protocol_whitelist","file,pipe","-i","input.bin","-map","0:v:0","-map","0:a:0?","-sn","-dn","-map_metadata","-1","-map_metadata:s","-1","-map_chapters","-1"];
+  if(compatibleStreams(core)){
+   try{
+    core.setTimeout(15000);
+    core.exec(...common,"-c","copy","-movflags","+faststart","output.mp4");
+    if(core.ret===0){const bytes=core.FS.stat("output.mp4").size;if(bytes>0&&bytes<=limit)mode="remux";}
+   }catch(_){}
+   if(mode!=="remux"){core.reset();try{core.FS.unlink("output.mp4");}catch(_){}}
+  }
+  if(mode==="transcode"){
+   core.setTimeout(140000);
+   core.exec(...common,"-vf","scale=w='min(1280,iw)':h='min(1280,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1","-c:v","libx264","-pix_fmt","yuv420p","-preset","ultrafast","-crf","25","-maxrate","4M","-bufsize","8M","-c:a","aac","-b:a","128k","-movflags","+faststart","output.mp4");
+  }
   if(core.ret!==0)throw Error("conversion failed");
   const output=core.FS.readFile("output.mp4");
   if(!output.length||output.length>limit)throw Error("output limit");
   const bytes=output.slice().buffer;
-  self.postMessage({bytes},[bytes]);
+  self.postMessage({bytes,mode},[bytes]);
  }catch(_){self.postMessage({error:true});}
  finally{if(js)URL.revokeObjectURL(js);if(wasm)URL.revokeObjectURL(wasm);}
 };

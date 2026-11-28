@@ -34,27 +34,29 @@ try{
  const page=await browser.newPage();
  await page.goto("http://127.0.0.1:"+server.address().port+"/");
  assert.equal(engineRequests,0,"Conversion engine must not be fetched on page load");
- const cases=[["mov","mpeg4","aac"],["avi","mpeg4","mp3"],["mkv","libvpx","libopus"]];
- for(const [ext,v,a] of cases){
+ const cases=[["mov","mpeg4","aac","transcode"],["avi","mpeg4","mp3","transcode"],["mkv","libvpx","libopus","transcode"],["webm","libvpx-vp9","libopus","transcode"],["mp4","libx264","aac","remux"]];
+ for(const [ext,v,a,mode] of cases){
   const input=join(temp,"input."+ext),out=join(temp,"output-"+ext+".mp4");
-  execFileSync("ffmpeg",["-hide_banner","-loglevel","error","-y","-f","lavfi","-i","testsrc2=size=96x64:rate=12","-f","lavfi","-i","sine=frequency=440:sample_rate=44100","-t","1","-c:v",v,"-c:a",a,"-threads","1",input],{timeout:30000});
+  execFileSync("ffmpeg",["-hide_banner","-loglevel","error","-y","-f","lavfi","-i","testsrc2=size=96x64:rate=12","-f","lavfi","-i","sine=frequency=440:sample_rate=44100","-t","1","-c:v",v,"-c:a",a,"-threads","1",...(mode==="remux"?["-vf","setsar=1","-pix_fmt","yuv420p","-profile:v","main","-level:v","3.1","-metadata","title=private title"]:[]),input],{timeout:30000});
   const bytes=Array.from(await readFile(input));
   const result=await page.evaluate(async ({bytes,ext})=>await new Promise((resolve,reject)=>{
    const worker=new Worker("/worker.js",{type:"module"});
    const timer=setTimeout(()=>{worker.terminate();reject(Error("Conversion timed out"));},180000);
    const finish=(fn,value)=>{clearTimeout(timer);worker.terminate();fn(value);};
    worker.onerror=e=>finish(reject,Error(e.message));
-   worker.onmessage=({data})=>data.bytes?finish(resolve,Array.from(new Uint8Array(data.bytes))):finish(reject,Error("Conversion rejected "+ext));
+   worker.onmessage=({data})=>data.bytes?finish(resolve,{bytes:Array.from(new Uint8Array(data.bytes)),mode:data.mode}):finish(reject,Error("Conversion rejected "+ext));
    worker.postMessage(new File([Uint8Array.from(bytes)],"input."+ext,{type:"application/octet-stream"}));
   }),{bytes,ext});
-  const output=Buffer.from(result);await writeFile(out,output);
+  assert.equal(result.mode,mode,"Expected encoding path for "+ext);
+  const output=Buffer.from(result.bytes);await writeFile(out,output);
   const info=JSON.parse(execFileSync("ffprobe",["-v","error","-show_streams","-show_format","-of","json",out],{encoding:"utf8"}));
   assert.equal(info.streams.find(x=>x.codec_type==="video")?.codec_name,"h264");
   assert.equal(info.streams.find(x=>x.codec_type==="video")?.pix_fmt,"yuv420p");
   assert.equal(info.streams.find(x=>x.codec_type==="audio")?.codec_name,"aac");
   assert.ok(Number(info.format.duration)>.8&&Number(info.format.duration)<1.3);
   assert.ok(output.indexOf("moov")>0&&output.indexOf("moov")<output.indexOf("mdat"),"MP4 must have fast-start metadata");
-  console.log(ext+" -> H.264/AAC verified");
+  assert.equal(info.format.tags?.title,undefined,"Container title metadata must not survive");
+  console.log(ext+" -> H.264/AAC verified ("+mode+")");
  }
  assert.ok(engineRequests>0);
  const invalid=await page.evaluate(()=>new Promise((resolve,reject)=>{

@@ -7,3 +7,9 @@ Engine: @ffmpeg/core 0.12.10 single-threaded, pinned SHA-256 for ESM and WASM. U
 ## Shared integration
 
 The shared post-media API accepts common video containers for feed/profile/community posts, post editing, stories, clips and post comments. All new videos use the same single-worker FIFO; already prepared File objects are recognized without repeat transcoding. Clip duration is verified on the converted MP4. Original limits and private Storage buckets remain unchanged. A preview of an unsupported source may be unavailable before conversion. Direct messages are not integrated. Synthetic MOV, AVI and MKV test conversions passed on Chromium in run 46130175400 before this integration. Re-run all checks; verify mobile memory and licensing obligations before release.
+
+## Remux optimization and release constraints
+
+The previous integrated draft passed all six GitHub checks in run 46131868824, including the real Chromium conversion. New conservative ffprobe-based remux path: only H.264 Baseline/Main/High 8-bit 4:2:0 square-pixel streams, <=1280 per dimension, <=60 fps, level <=4.1, <=4 Mbps, optional AAC-LC mono/stereo <=48 kHz, no rotation/display side data. All uncertain or incompatible files retain the full conversion path. Both paths strip container/stream metadata and chapters and use faststart. This avoids re-encoding, not the initial engine download. Re-run actual browser tests before merge.
+
+The exact upstream release is https://github.com/ffmpegwasm/ffmpeg.wasm/tree/v12.15 (core package version 0.12.10; FFmpeg n5.1.4). Its core package declares GPL-2.0-or-later. The Dockerfile identifies dependencies but some branches are mutable, so exact corresponding source availability and notice obligations are not yet established. Do not mark this draft ready solely on passing CI. Also verify applicable codec patent terms before public release; no commercial service or license has been purchased.
