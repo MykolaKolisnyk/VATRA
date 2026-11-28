@@ -47,7 +47,7 @@ function viewer(label){
    }};
   }
  };
- return {client,pending,auth(event){for(const fn of authEvents)fn(event);},
+ return {client,pending,auth(event,session){for(const fn of authEvents)fn(event,session);},
   get calls(){return calls;},finish(data,error=null){
    while(pending[0]?.done)pending.shift();
    const req=pending.shift();
@@ -175,3 +175,13 @@ console.log("VATRA presence cache: single-flight, TTL, session isolation, abort,
  c.auth("SIGNED_OUT");await Promise.all([...pending,newest]);
 }
 console.log("VATRA presence: settled-first eviction preserves in-flight requests.");
+
+{
+ const c=viewer("same session");
+ const session={user:{id:"first"}};
+ const first=load(c.client,"17");c.auth("INITIAL_SESSION",session);c.finish(profile(17));await first;
+ c.auth("SIGNED_IN",session);await load(c.client,"17");assert.equal(c.calls,1,"Same-user focus must not invalidate presence cache");
+ c.auth("TOKEN_REFRESHED",{user:{id:"second"}});
+ const next=load(c.client,"17");assert.equal(c.calls,2,"Changed auth user must invalidate presence cache");c.finish(profile(17,"feminine"));assert.equal((await next).form,"feminine");
+}
+console.log("VATRA presence cache: same-user focus reuse and changed-user invalidation passed.");

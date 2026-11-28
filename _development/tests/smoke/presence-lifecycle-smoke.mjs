@@ -52,8 +52,10 @@ function makeClient(label){
  };
  return {client,state};
 }
+const sharedTouches=new Map();
 const context={
- Date:Clock,Promise,AbortController,
+ Date:Clock,Promise,AbortController,setTimeout,clearTimeout,
+ localStorage:{getItem:key=>sharedTouches.get(key)||null,setItem:(key,value)=>sharedTouches.set(key,value),removeItem:key=>sharedTouches.delete(key)},
  sessionStorage:{getItem(){return null;},setItem(){}},
  setInterval(callback){const id=++timerId;intervals.set(id,callback);return id;},
  clearInterval(id){intervals.delete(id);},
@@ -144,3 +146,22 @@ fire("pagehide",{persisted:false});
 assert.equal(presence.active(),null);
 assert.equal(intervals.size,0);
 console.log("VATRA presence: confirmed heartbeat, short retry, foreground/BFCache resume, auth isolation and pagehide cleanup passed.");
+
+{
+ let locked=false,attempts=0;
+ window.navigator.locks={async request(key,options,callback){assert.equal(options.ifAvailable,true);attempts++;return await callback(locked?null:{name:key});}};
+ const c=makeClient("shared"),key="vatra:presence-touch:14";
+ sharedTouches.set(key,String(now-1000));
+ const before=writes.length;
+ assert.equal(await presence.start(c.client,"14","male"),true);
+ assert.equal(writes.length,before,"Recent heartbeat in another tab prevents a duplicate write");
+ now+=46000;locked=true;tick();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(writes.length,before,"A competing tab holding the lock prevents a parallel write");
+ now+=13000;locked=false;tick();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(writes.length,before+1);writes.at(-1).resolve({data:{vatra_id:"14"},error:null});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(sharedTouches.get(key),String(now));assert.ok(attempts>=2);
+ c.state.callback("SIGNED_OUT");assert.equal(sharedTouches.has(key),false);
+ delete window.navigator.locks;
+}
+console.log("VATRA presence: cross-tab heartbeat coalescing and sign-out cleanup passed.");
