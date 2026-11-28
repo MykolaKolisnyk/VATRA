@@ -6,7 +6,24 @@ import {createServer} from "node:http";
 import {createHash} from "node:crypto";
 import {execFileSync} from "node:child_process";
 import {chromium} from "playwright";
+import {runInNewContext} from "node:vm";
 const source=await readFile("assets/js/video-converter.js","utf8");
+{
+ const start=source.indexOf("function boundedOutput("),end=source.indexOf("self.onmessage=",start);
+ assert.ok(start>=0&&end>start);
+ const context={limit:52428800};
+ runInNewContext(source.slice(start,end)+"\nglobalThis.readOutput=boundedOutput;",context);
+ let reads=0;
+ const fixture=(size,bytes)=>({FS:{stat(path){assert.equal(path,"output.mp4");return {size};},readFile(path){assert.equal(path,"output.mp4");reads++;return bytes;}}});
+ for(const size of [0,-1,52428801,NaN,Infinity,1.5])assert.throws(()=>context.readOutput(fixture(size,new Uint8Array(0))),/output limit/);
+ assert.equal(reads,0,"Invalid output sizes must not allocate a second copy in JS");
+ const bytes=new Uint8Array([1,2,3]);
+ assert.equal(context.readOutput(fixture(3,bytes)),bytes);
+ assert.throws(()=>context.readOutput(fixture(4,bytes)),/output limit/);
+ assert.equal(reads,2);
+ console.log("VATRA video: output size verified before reading the WASM file.");
+}
+
 const files=new Map();
 for(const [name,type] of [["ffmpeg-core.js","text/javascript"],["ffmpeg-core.wasm","application/wasm"]]){
  const bytes=await readFile("node_modules/@ffmpeg/core/dist/esm/"+name);

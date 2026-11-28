@@ -27,6 +27,13 @@ function compatibleStreams(core){
  }catch(_){return false;}
  finally{core.setLogger(()=>{});core.reset();try{core.FS.unlink("probe.json");}catch(_){}}
 }
+function boundedOutput(core){
+ const size=core.FS.stat("output.mp4").size;
+ if(!Number.isSafeInteger(size)||size<1||size>limit)throw Error("output limit");
+ const output=core.FS.readFile("output.mp4");
+ if(output.length!==size)throw Error("output limit");
+ return output;
+}
 self.onmessage=async({data:file})=>{
  let js,wasm;
  try{
@@ -56,8 +63,7 @@ self.onmessage=async({data:file})=>{
    core.exec(...common,"-vf","scale=w='min(1280,iw)':h='min(1280,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1","-c:v","libx264","-pix_fmt","yuv420p","-preset","ultrafast","-crf","25","-maxrate","4M","-bufsize","8M","-c:a","aac","-b:a","128k","-movflags","+faststart","output.mp4");
   }
   if(core.ret!==0)throw Error("conversion failed");
-  const output=core.FS.readFile("output.mp4");
-  if(!output.length||output.length>limit)throw Error("output limit");
+  const output=boundedOutput(core);
   const bytes=output.slice().buffer;
   self.postMessage({bytes,mode},[bytes]);
  }catch(_){self.postMessage({error:true});}

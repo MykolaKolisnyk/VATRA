@@ -17,3 +17,7 @@ The exact upstream release is https://github.com/ffmpegwasm/ffmpeg.wasm/tree/v12
 The pinned ffprobe wrapper can return Module.ret (-1) even when the underlying C function returns normally. The probe therefore requires a parseable complete JSON result, no stderr error, and no explicit positive/nonzero exit code. The remux fixture checks encoded packet SHA-256 values before/after. Explanatory comments belong here rather than in shipped runtime JS, in accordance with VATRA's existing audit.
 
 Engine JS and WASM now load concurrently, still independently hash-verified before execution. Concurrent calls for the same File object without independent abort signals share one pending conversion; references are removed on settlement. Cancelled queued requests reject immediately and never start a worker. Existing MP4 still requires a verified remux to avoid publishing original metadata; no bypass based on extension or MIME. No new dependency.
+
+## Output memory guard
+
+The worker now checks the final virtual file size before calling FS.readFile, rejecting empty, invalid or oversized files without allocating a JavaScript copy. It also checks the returned length against the reported size. This does not bound FFmpeg's internal encoding memory or make mobile memory limits disappear. The isolated regression checks that invalid sizes never call readFile; the real browser conversions remain required.
