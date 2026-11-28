@@ -111,8 +111,12 @@ jobs:
         run: go run _development/tests/audit/email-template-audit.go
       - name: Install Playwright browsers for cross-engine UI checks
         run: |
-          npm install --no-save --no-package-lock playwright@1.64.1
+          npm install --no-save --no-package-lock playwright@1.64.1 @ffmpeg/core@0.12.10
           npx playwright install --with-deps chromium firefox webkit
+      - name: Verify real video transcoding in an isolated browser
+        run: |
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          node _development/tests/smoke/video-conversion-browser-smoke.mjs
       - name: Check external link dialog in Chromium Firefox WebKit
         run: node _development/tests/smoke/external-links-browser-smoke.mjs
       - name: Check VATRA Player controls in Chromium Firefox WebKit

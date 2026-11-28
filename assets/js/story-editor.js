@@ -6,7 +6,7 @@ const videoInput=file=>/^video\//i.test(file.type)||((!file.type||file.type==="a
 function convertVideo(file,signal){
  return new Promise((resolve,reject)=>{
   if(signal.aborted){reject(Error("cancelled"));return;}
-  const worker=new Worker(new URL("assets/js/video-converter.js?rev=b496ad37f4dba16424d1029c85edc8354c1240ec",new URL("../../",script)),{type:"module"});
+  const worker=new Worker(new URL("assets/js/video-converter.js?rev=bff67f55f7b1c965b2ecea7f1d1c15556a2f0872",new URL("../../",script)),{type:"module"});
   let done=false,timer;
   const finish=(error,value)=>{if(done)return;done=true;clearTimeout(timer);signal.removeEventListener("abort",abort);worker.terminate();error?reject(error):resolve(value);};
   const abort=()=>finish(Error("cancelled"));
@@ -14,7 +14,7 @@ function convertVideo(file,signal){
   signal.addEventListener("abort",abort,{once:true});
   worker.onerror=()=>finish(Error("conversion failed"));
   worker.onmessage=({data})=>{if(data?.bytes instanceof ArrayBuffer&&data.bytes.byteLength>0&&data.bytes.byteLength<=52428800)finish(null,new File([data.bytes],"story.mp4",{type:"video/mp4"}));else finish(Error("conversion failed"));};
-  worker.postMessage(file);
+  try{worker.postMessage(file);}catch(error){finish(error);}
  });
 }
 const W=540,H=960;

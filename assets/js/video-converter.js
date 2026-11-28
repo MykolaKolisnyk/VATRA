@@ -1,4 +1,3 @@
-// On-demand, single-thread FFmpeg. User media stays in this worker.
 const base="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm/",limit=52428800;
 async function verified(name,hash,type){
  const response=await fetch(base+name,{credentials:"omit",referrerPolicy:"no-referrer",cache:"force-cache"});
@@ -17,7 +16,8 @@ self.onmessage=async({data:file})=>{
   const {default:createCore}=await import(js);
   const core=await createCore({mainScriptUrlOrBlob:js+"#"+btoa(JSON.stringify({wasmURL:wasm,workerURL:""}))});
   core.FS.writeFile("input.bin",new Uint8Array(await file.arrayBuffer()));
-  core.exec("-protocol_whitelist","file,pipe","-i","input.bin","-map","0:v:0","-map","0:a:0?","-sn","-dn","-map_metadata","-1","-map_chapters","-1","-vf","scale=w='min(1280,iw)':h='min(1280,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1","-c:v","libx264","-pix_fmt","yuv420p","-preset","ultrafast","-crf","25","-maxrate","4M","-bufsize","8M","-c:a","aac","-b:a","128k","-movflags","+faststart","output.mp4");
+  core.setTimeout(160000);
+  core.exec("-nostdin","-protocol_whitelist","file,pipe","-i","input.bin","-map","0:v:0","-map","0:a:0?","-sn","-dn","-map_metadata","-1","-map_chapters","-1","-vf","scale=w='min(1280,iw)':h='min(1280,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1","-c:v","libx264","-pix_fmt","yuv420p","-preset","ultrafast","-crf","25","-maxrate","4M","-bufsize","8M","-c:a","aac","-b:a","128k","-movflags","+faststart","output.mp4");
   if(core.ret!==0)throw Error("conversion failed");
   const output=core.FS.readFile("output.mp4");
   if(!output.length||output.length>limit)throw Error("output limit");
