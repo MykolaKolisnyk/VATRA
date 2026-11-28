@@ -2085,10 +2085,12 @@ assert.ok(
  !systemProfileCss.includes('body.profile-page .profile-confirm-dialog::backdrop{'),
  "All profile decisions use the accessible VATRA dialog, not native JS confirm windows");
 assert.ok(
- feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<
- feedMarkup.indexOf('</section>\n          </div>\n        </main>')&&
- systemFeedCss.includes('grid-column:1;grid-row:3;width:100%;min-width:0;margin:0'),
- "Feed posts must sit inside the same two-column grid as composer and story");
+ feedMarkup.indexOf('class="ui-feed-reading-lane-001"')<feedMarkup.indexOf('class="feed-stories is-empty ui-feed-stories-001"')&&
+ feedMarkup.indexOf('class="feed-stories is-empty ui-feed-stories-001"')<feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001')&&
+ feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001')<feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')&&
+ feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<feedMarkup.indexOf('<aside class="ui-feed-right-rail-001">')&&
+ systemFeedCss.includes('.feed-top-controls > .ui-feed-reading-lane-001{display:flex;flex-direction:column;'),
+ "Feed stories, composer and posts share an independent reading lane, not sidebar-sized grid rows");
 
 // The layout shares one compact rhythm between Feed and profiles. A hidden
 // notification does not leave a phantom row; media remains uncropped.
