@@ -22,15 +22,15 @@ runInNewContext(source,{URL,Request,Response,TextEncoder,Uint8Array,Array,Promis
 function request(path){
  let result;handlers.get("fetch")({request:new Request(new URL(path,base)),respondWith(p){result=p;},waitUntil(p){background.push(p);}});return result;
 }
-const first="assets/js/clips.js?rev="+hash(body);
+const first="assets/js/clips/clips.js?rev="+hash(body);
 assert.equal(await (await request(first)).text(),body);
 assert.equal(networkCalls,1);assert.equal(cacheWrites,1);
 await request(first);assert.equal(networkCalls,1,"Versioned assets are reused without network");
 online=false;assert.equal(await (await request(first)).text(),body);
 online=true;body="console.log('v2')";
-const wrong="assets/js/clips.js?rev="+"a".repeat(40);
+const wrong="assets/js/clips/clips.js?rev="+"a".repeat(40);
 await request(wrong);assert.equal(cacheWrites,1,"Never save a mismatched body under the requested fingerprint");
-const second="assets/js/clips.js?rev="+hash(body);
+const second="assets/js/clips/clips.js?rev="+hash(body);
 assert.equal(await (await request(second)).text(),body);
 assert.equal(cacheWrites,2);assert.equal(await (await request(first)).text(),"console.log('v1')");
 const localePath="assets/i18n/uk.json";
@@ -49,7 +49,7 @@ assert.equal(networkCalls,calls+2,"Unversioned assets remain network-first, resp
 assert.ok(source.includes("const INSTALL_ASSETS=["),"Service worker install must use a small, bounded offline shell");
 assert.ok(!source.includes("Promise.allSettled(ASSETS.filter"),"Service worker must not eagerly fetch heavy artwork and font assets");
 assert.equal(request("private/messages.json"),undefined,"Private non-asset requests bypass worker cache");
-for(let i=0;i<85;i++){body="console.log("+i+")";await request("assets/js/clips.js?rev="+hash(body));}
+for(let i=0;i<85;i++){body="console.log("+i+")";await request("assets/js/clips/clips.js?rev="+hash(body));}
 assert.ok([...cacheEntries.keys()].filter(url=>new URL(url).searchParams.has("rev")).length<=80,"Versioned entries remain bounded");
 console.log("VATRA static cache: body verification, old versions, offline reuse, revalidation and bounded storage passed.");
 
@@ -57,7 +57,7 @@ console.log("VATRA static cache: body verification, old versions, offline reuse,
  let release;
  networkGate=new Promise(resolve=>{release=resolve;});
  body="console.log('concurrent')";
- const path="assets/js/clips.js?rev="+hash(body),before=networkCalls;
+ const path="assets/js/clips/clips.js?rev="+hash(body),before=networkCalls;
  const a=request(path),b=request(path);
  for(let i=0;i<8;i++)await Promise.resolve();
  assert.equal(networkCalls,before+1,"Concurrent misses for an immutable asset share one network request");

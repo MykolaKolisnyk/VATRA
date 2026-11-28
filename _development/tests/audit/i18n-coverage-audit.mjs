@@ -621,7 +621,7 @@ for(const code of codes){
 }
 console.log("VATRA eight-language page and dynamic locale integrity: OK; beta email templates excluded");
 
-const clipsRuntime=await readFile("assets/js/clips.js","utf8");
+const clipsRuntime=await readFile("assets/js/clips/clips.js","utf8");
 const clipsDynamicKeys=[...new Set([...clipsRuntime.matchAll(/\bt\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")/g)]
  .map(match=>JSON.parse(match[1])))];
 assert.ok(clipsDynamicKeys.length>=28,"Clips localization coverage must include all dynamic controls");
