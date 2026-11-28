@@ -41,8 +41,8 @@ body.feed-page .vatra-story-progress-pause-001:hover{background:#ffffff16}
 body.feed-page .vatra-story-progress-pause-001:focus-visible{outline:2px solid #fff;outline-offset:2px}
 body.feed-page .vatra-story-progress-pause-001 svg{width:16px;height:16px}
 body.feed-page .vatra-story-progress-pause-001[aria-pressed="false"] .ui-vatra-story-progress-play-001,body.feed-page .vatra-story-progress-pause-001[aria-pressed="true"] .ui-vatra-story-progress-pause-icon-001{display:none}
-body.feed-page .ui-vatra-story-footer-001{position:relative;z-index:4;width:var(--vatra-story-view-width);display:flex;flex-wrap:wrap;gap:4px;justify-content:space-between;align-items:center}
-body.feed-page .ui-vatra-story-footer-001:not(:has(details:not([hidden]))){display:none}
+body.feed-page :is(.feed-story-view,.profile-story-viewer) .ui-vatra-story-footer-001{position:relative;z-index:4;width:var(--vatra-story-view-width);display:flex;flex-wrap:wrap;gap:4px;justify-content:space-between;align-items:center}
+body.feed-page :is(.feed-story-view,.profile-story-viewer) .ui-vatra-story-footer-001:not(:has(details:not([hidden]))){display:none}
 body.feed-page .ui-vatra-story-views-001{position:static;width:auto;font:550 13px/1.4 Onest,system-ui,sans-serif;color:#fff}
 body.feed-page .ui-vatra-story-views-001[hidden]{display:none!important}
 body.feed-page .vatra-story-views-toggle-001{width:max-content;max-width:100%;cursor:pointer;padding:4px 8px;border-radius:6px}

@@ -4775,6 +4775,8 @@ try{
   assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","Story privacy defaults to friends");
   await feedProbe.locator(".vatra-story-panel-back-001").click();
   assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"overview");
+  assert.ok(await feedProbe.locator("#feed-story-audience").isVisible(),"Story viewer styles must not hide editor audience controls");
+  assert.ok(await feedProbe.locator("#feed-story-save").isVisible(),"Story viewer styles must not hide editor publication controls");
   await feedProbe.locator("#feed-story-audience").selectOption("public");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
