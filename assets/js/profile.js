@@ -1495,7 +1495,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
      const dialog=q("#profile-story-viewer");
      const text=q("#profile-story-viewer-text");
      q("#profile-story-viewer-heading").textContent=dateText(item.created_at);
-     window.VATRA_STORY_PROGRESS?.stop(dialog);window.VATRA_STORY_VIEWS?.stop(dialog);
+     window.VATRA_STORY_PROGRESS?.stop(dialog);window.VATRA_STORY_VIEWS?.stop(dialog);window.VATRA_STORY_REACTIONS?.stop(dialog);
      const storyMenu=q("#profile-story-viewer-menu");
      storyMenu.open=false;storyMenu.hidden=true;q("#profile-story-viewer-delete").hidden=true;
      text.textContent=item.body||"";text.hidden=!item.body;
@@ -2600,7 +2600,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),systemCover=q("#profile-cover-system"),avatar=q("#profile-avatar");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
  const avatarWrap=q("#profile-avatar-wrap"),avatarTrigger=q("#profile-avatar-trigger");
- const avatarMenu=q("#profile-avatar-menu"),storyButton=q("#profile-avatar-story");
+ const avatarMenu=q("#profile-avatar-menu"),storyButton=q("#profile-avatar-story"),photoButton=q("#profile-avatar-photo");
  const deleteStoryButton=q("#profile-avatar-story-delete"),coverView=q("#profile-cover-view");
  const canEdit=isMine&&!locked&&validId(ownId),plus=q("#profile-avatar-plus"),coverChange=q("#profile-cover-change"),changePhoto=q("#profile-avatar-change"),removePhoto=q("#profile-avatar-remove"),addStory=q("#profile-add-story");
  avatarWrap.classList.toggle("is-owner-avatar",canEdit);plus.hidden=!canEdit;coverChange.hidden=!canEdit;
@@ -2611,7 +2611,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const bucketFor=kind=>kind==="avatar"?"avatars":"covers";
  let saved=null,activeStory=null;
  const photoURLs={avatar:null,cover:null};
- const visitorStory=q("#profile-visitor-story");
  const prevPhoto=q("#profile-avatar-prev"),nextPhoto=q("#profile-avatar-next"),galleryToolbar=q("#profile-avatar-gallery-toolbar"),galleryCount=q("#profile-avatar-gallery-count"),galleryDelete=q("#profile-avatar-gallery-delete");
  let gallery=[],galleryIndex=0,galleryEpoch=0,menuTimer=null,pendingAvatarUndo=null,avatarDeleteInProgress=false,uploading=false;
  const deletedNotice=q("#profile-photo-deleted-notice");
@@ -2731,19 +2730,19 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden)return;if(viewportMenu&&!avatarMenu.matches(":popover-open"))avatarMenu.showPopover();if(positionAvatarMenu()===false)return;avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
  const repositionAvatarMenu=()=>{if(avatarWrap.classList.contains("is-menu-open"))positionAvatarMenu();};
  window.addEventListener("resize",repositionAvatarMenu,{passive:true});window.addEventListener("scroll",repositionAvatarMenu,{passive:true});window.visualViewport?.addEventListener("resize",repositionAvatarMenu,{passive:true});
- const scheduleMenuClose=()=>{clearTimeout(menuTimer);menuTimer=setTimeout(()=>{if(!avatarMenu.contains(document.activeElement))closeAvatarMenu();},160);};
+ const scheduleMenuClose=()=>{clearTimeout(menuTimer);menuTimer=setTimeout(()=>{if(!avatarMenu.matches(":hover")&&!(canEdit?plus:avatarTrigger).matches(":hover")&&!avatarMenu.contains(document.activeElement))closeAvatarMenu();},280);};
  const syncAvatarMenu=()=>{
   const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
   avatarWrap.classList.toggle("has-active-story",hasStory);
-  avatarMenu.hidden=!canViewPhoto||!canEdit;if(avatarMenu.hidden)closeAvatarMenu();
-  visitorStory.hidden=!canViewPhoto||canEdit||!hasStory||!hasPhoto;
+  avatarMenu.hidden=!canViewPhoto||(!canEdit&&!hasStory);if(avatarMenu.hidden)closeAvatarMenu();
+  photoButton.hidden=!canViewPhoto||canEdit||!hasPhoto||!hasStory;
   storyButton.hidden=!canViewPhoto||!hasStory;
   deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;
   addStory.hidden=!canEdit;changePhoto.hidden=!canEdit;removePhoto.hidden=!canEdit||!hasPhoto;
   const changeLabel=changePhoto.querySelector("span");changeLabel.textContent=hasPhoto?t("Змінити фото","Change photo"):t("Завантажити фото","Upload photo");
   avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory&&!canEdit);
-  avatarTrigger.setAttribute("aria-haspopup",hasPhoto||hasStory?"dialog":"menu");
-  avatarTrigger.setAttribute("aria-label",hasPhoto?t("Відкрити фото профілю","Open profile photo"):hasStory?t("Переглянути історію","View story"):t("Дії з фото профілю","Profile photo actions"));
+  avatarTrigger.setAttribute("aria-haspopup",hasStory&&!canEdit?"menu":hasPhoto||hasStory?"dialog":"menu");
+  avatarTrigger.setAttribute("aria-label",hasStory&&!canEdit?t("Дії з аватаром та історією","Avatar and story actions"):hasPhoto?t("Відкрити фото профілю","Open profile photo"):hasStory?t("Переглянути історію","View story"):t("Дії з фото профілю","Profile photo actions"));
   if(!canEdit&&!hasPhoto&&!hasStory)closeAvatarMenu();
  };
 
@@ -3260,12 +3259,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   void window.VATRA_POST_MEDIA?.renderStory(client,
    {...viewedStory,author_vatra_id:targetId},storyMedia);
   window.VATRA_STORY_VIEWS?.start(storyDialog,client,{...viewedStory,author_vatra_id:targetId},ownId);
+  window.VATRA_STORY_REACTIONS?.start(storyDialog,client,{...viewedStory,author_vatra_id:targetId},ownId);
   window.VATRA_STORY_PROGRESS?.start(storyDialog,storyMedia,viewedStory,()=>{
    if(storyDialog.open&&activeStory===viewedStory)storyDialog.close();
-  },()=>storyMenu.open||storyViewerDelete.disabled||!!q("#profile-confirm-dialog")?.open||window.VATRA_STORY_VIEWS?.blocked(storyDialog),()=>window.VATRA_STORY_VIEWS?.viewed(storyDialog));
+  },()=>storyMenu.open||storyViewerDelete.disabled||!!q("#profile-confirm-dialog")?.open||window.VATRA_STORY_VIEWS?.blocked(storyDialog)||window.VATRA_STORY_REACTIONS?.blocked(storyDialog),()=>window.VATRA_STORY_VIEWS?.viewed(storyDialog));
  };
  storyButton.addEventListener("click",openStory);
- visitorStory.addEventListener("click",openStory);
+ photoButton.addEventListener("click",()=>openMedia("avatar"));
  const deleteActiveStory=async()=>{
   if(!canEdit||!activeStory?.id||deleteStoryButton.disabled)return;
   const removingId=activeStory.id,removingStory={...activeStory};
@@ -3310,14 +3310,17 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  q("#profile-story-viewer-close").addEventListener("click",()=>storyDialog.close());
  storyDialog.addEventListener("close",()=>{
-  if(!storyDialog.open){window.VATRA_STORY_PROGRESS?.stop(storyDialog);window.VATRA_STORY_VIEWS?.stop(storyDialog);storyMenu.open=false;window.VATRA_POST_MEDIA?.clearStory(storyMedia);}
+  if(!storyDialog.open){window.VATRA_STORY_PROGRESS?.stop(storyDialog);window.VATRA_STORY_VIEWS?.stop(storyDialog);window.VATRA_STORY_REACTIONS?.stop(storyDialog);storyMenu.open=false;window.VATRA_POST_MEDIA?.clearStory(storyMedia);}
  });
  mediaDialog.addEventListener("click",event=>{
   if(event.target===mediaDialog&&!avatarDeleteInProgress&&!uploading)mediaDialog.close();
  });
  storyDialog.addEventListener("click",event=>{if(event.target===storyDialog)storyDialog.close();});
  let openedByHover=false;
- avatarTrigger.addEventListener("click",()=>{if(!canViewPhoto)return;if(photoURLs.avatar)openMedia("avatar");else if(activeStory)openStory();else if(canEdit)showAvatarMenu();});
+ const visitorHasStory=()=>{if(canEdit||!canViewPhoto||!activeStory)return false;if(Date.parse(activeStory.expires_at)<=Date.now()){activeStory=null;syncAvatarMenu();return false;}return true;};
+ avatarTrigger.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse"&&visitorHasStory())showAvatarMenu();});
+ avatarTrigger.addEventListener("pointerleave",scheduleMenuClose);
+ avatarTrigger.addEventListener("click",()=>{if(!canViewPhoto)return;if(visitorHasStory()){showAvatarMenu();return;}if(photoURLs.avatar)openMedia("avatar");else if(activeStory)openStory();else if(canEdit)showAvatarMenu();});
  plus.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse"){openedByHover=true;showAvatarMenu();}});
  plus.addEventListener("pointerleave",scheduleMenuClose);
  plus.addEventListener("click",()=>{if(openedByHover){openedByHover=false;showAvatarMenu();}else if(avatarWrap.classList.contains("is-menu-open"))closeAvatarMenu();else showAvatarMenu();});
@@ -3396,6 +3399,21 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   syncAvatarMenu();
   return Promise.allSettled([avatarReady,coverReady]);
  };
+ const storyLookup=(async()=>{
+ if(!locked)try{
+  const requestedStory=new URLSearchParams(location.search).get("story");
+  const exact=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(requestedStory||"");
+  let query=client.from("stories").select("id,body,theme,expires_at,media_kind,media_path")
+   .eq("author_vatra_id",targetId).gt("expires_at",new Date().toISOString());
+  if(exact)query=query.eq("id",requestedStory);
+  const {data,error}=await query.order("created_at",{ascending:false}).limit(1);
+  if(!error&&Array.isArray(data)&&typeof data[0]?.body==="string"){
+   activeStory=data[0];
+   if(exact&&String(activeStory.id)===requestedStory)openStory();
+  }else if(exact)window.VATRA_TOAST?.show?.(t("Історія більше недоступна","Story is no longer available"),"info");
+ }catch(_){}
+ syncAvatarMenu();
+ })();
  try{
 
   const request=()=>client.from("profile_media")
@@ -3412,19 +3430,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   avatarWrap.classList.remove("is-loading-media");
  }
 
- if(!locked)try{
-  const requestedStory=new URLSearchParams(location.search).get("story");
-  const exact=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(requestedStory||"");
-  let query=client.from("stories").select("id,body,theme,expires_at,media_kind,media_path")
-   .eq("author_vatra_id",targetId).gt("expires_at",new Date().toISOString());
-  if(exact)query=query.eq("id",requestedStory);
-  const {data,error}=await query.order("created_at",{ascending:false}).limit(1);
-  if(!error&&Array.isArray(data)&&typeof data[0]?.body==="string"){
-   activeStory=data[0];
-   if(exact&&String(activeStory.id)===requestedStory)openStory();
-  }else if(exact)window.VATRA_TOAST?.show?.(t("Історія більше недоступна","Story is no longer available"),"info");
- }catch(_){}
- syncAvatarMenu();
+ await storyLookup;
  if(!canEdit)return;
  try{
   const raw=sessionStorage.getItem("vatra-profile-photo-toast");

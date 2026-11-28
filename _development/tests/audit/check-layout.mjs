@@ -1278,7 +1278,7 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-avatar-trigger"')&&
  profileMarkup.includes('id="profile-avatar-menu"')&&
  profileMarkup.includes('id="profile-avatar-story"')&&
- !profileMarkup.includes('id="profile-avatar-photo"')&&profileMarkup.includes('id="profile-avatar-next"')&&
+ profileMarkup.includes('id="profile-avatar-photo"')&&profileMarkup.includes('id="profile-avatar-next"')&&
  profileMarkup.includes('id="profile-media-viewer"')&&
  profileMarkup.includes('id="profile-media-viewer-image"')&&
  profileMarkup.includes('id="profile-story-viewer"')&&
@@ -1300,11 +1300,19 @@ assert.ok(
  profileMarkup.includes('data-social-uk="Головна" data-social-en="Home"'),
  "Locked profiles retain cover and avatar but block viewers; fallback portraits stay centered, routes show content before media");
 const sharedCss=await read("assets/css/feed.css");
+const storyViewerCss=await read("assets/css/story-viewer.css");
+for(const route of ["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"]){
+ const markup=await read(route+".html");const needsStories=route==="feed"||route==="profile";
+ assert.equal(markup.includes("assets/css/story-viewer.css"),needsStories,route+" story viewer stylesheet");
+ for(const asset of ["story-views.js","story-view-progress.js","story-reactions.js"])assert.equal(markup.includes("assets/js/"+asset),needsStories,route+" "+asset+" route isolation");
+}
+assert.ok(storyViewerCss.includes(".ui-vatra-story-view-stage-001{")&&!sharedCss.includes(".ui-vatra-story-view-stage-001{"),"Story viewer styles belong in the route-only stylesheet");
 const memberCss=await read("assets/css/profile.css");
+assert.ok(!profileMarkup.includes("assets/css/create-menu.css")&&!profileMarkup.includes("assets/js/create-menu.js")&&sharedCss.includes("[data-create-direct]"),"Profile uses the shared compose button without loading the feed-only menu");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
- 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"','href="assets/css/vatra-player.css"',
- 'href="assets/css/profile.css"','href="assets/css/create-menu.css"','href="assets/css/external-links.css"'
+ 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"','href="assets/css/story-viewer.css"','href="assets/css/vatra-player.css"',
+ 'href="assets/css/profile.css"','href="assets/css/external-links.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
  (await Promise.all(["feed.html","communities.html","club.html","notifications.html"].map(p=>read(p))))
@@ -1319,7 +1327,7 @@ assert.ok(
  "Page-specific CSS belongs in canonical profile stylesheets, not feed.css");
 assert.ok(memberCss.includes("body.profile-page .profile-media-viewer{")&&
  memberCss.includes("width:100vw;height:100dvh;")&&
- memberCss.includes("body.profile-page .profile-avatar-wrap.has-active-story::before{")&&
+ memberCss.includes("body.profile-page .profile-avatar-wrap.has-active-story::before,")&&
  memberCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
  memberCss.includes("body.profile-page .profile-avatar-wrap.is-menu-open .profile-avatar-menu:not([hidden])"),
  "Member photo viewer must fill the screen and story avatar menu must not be clipped");
@@ -1449,9 +1457,9 @@ for(const page of ["feed","profile","communities","club","notifications","friend
  assert.equal(sharedIconGeometry(await read(page+".html"),"ui-vatra-nav-messenger-001"),messengerGeometry,
   page+": Messenger navigation and profile contact must share the same vector geometry");
 }
-assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-story-menu-icon-001"),
- sharedIconGeometry(iconProfileMarkup,"ui-profile-visitor-story-icon-001"),
- "Viewing a story must use the same vector in the avatar menu and visitor button");
+assert.ok(!iconProfileMarkup.includes('id="profile-visitor-story"')&&!profileBehavior.includes("visitorStory")&&
+ profileBehavior.includes("visitorHasStory()")&&profileBehavior.includes('avatarTrigger.addEventListener("pointerenter"')&&profileBehavior.includes('photoButton.addEventListener("click",()=>openMedia("avatar"))')&&memberCss.includes("inset:-6px;box-shadow:0 0 0 1px #dbe3ef"),
+ "Visitor stories use the full avatar target and the same continuous ring as ordinary profiles, never a separate play badge");
 const postActionSource=await read("assets/js/post-interactions.js");
 const photoActionSource=await read("assets/js/post-media.js");
 const editGeometry=sharedIconGeometry(iconProfileMarkup,"ui-profile-edit-profile-icon-001");
@@ -1571,7 +1579,7 @@ assert.ok(storyPreviewMarkup.includes('assets/js/feature-loader.js?rev=')&&
  profileScript.includes('VATRA_FEATURES.load("story")')&&
  storyEditorRuntime.includes('VATRA_POST_MEDIA.uploadStory(client,id,fileToPublish)')&&
  profileScript.includes('VATRA_POST_MEDIA?.renderStory(client,')&&
- postMediaScript.includes('"/stories/"')&&
+ postMediaScript.includes('"/story-media/"')&&postMediaScript.includes('client.storage.from("stories").upload(path,file,')&&
  postMediaScript.includes('createSignedUrl(path,ttl)'),
  "Photo/video Stories must use private signed URLs in Feed and profile, without fake media placeholders.");
 assert.doesNotThrow(()=>new Function(postMediaScript),"Shared post media module has invalid JavaScript");
@@ -2556,8 +2564,11 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","create-menu.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","vatra-player.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","story-viewer.css","vatra-player.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
+assert.ok(!javascriptFiles.includes("create-menu.js")&&!cssFiles.includes("create-menu.css"),"Create menu must be integrated into feed assets");
+for(const route of ["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"]){const markup=await read(route+".html");assert.ok(!markup.includes("assets/js/create-menu.js")&&!markup.includes("assets/css/create-menu.css"),route+" must not request deleted standalone menu assets");}
+assert.ok((await read("assets/js/feed.js")).includes("function bindCreateMenu(){")&&sharedCss.includes(".ui-create-menu-panel-001{"),"Feed retains the menu behavior and styling");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
 const consolidatedFeed=await read("assets/css/feed.css");
