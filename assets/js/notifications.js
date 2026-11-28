@@ -294,14 +294,28 @@ async function noticePreviewURL(run,path){
  cache.set(path,entry);
  return entry.promise;
 }
+async function noticeContent(run,table,fields,id){
+ if(run!==notificationRun)throw Error("Notification viewer changed");
+ const pending=run.contentPending||(run.contentPending=new Map());
+ const key=JSON.stringify([table,fields,id]);
+ let request=pending.get(key);
+ if(!request){
+  request=Promise.resolve().then(async()=>{
+   if(run!==notificationRun)throw Error("Notification viewer changed");
+   const result=await run.client.from(table).select(fields).eq("id",id).maybeSingle();
+   if(run!==notificationRun||result.error||!result.data)throw Error("Notification content unavailable");
+   return result.data;
+  }).finally(()=>{if(pending.get(key)===request)pending.delete(key);});
+  pending.set(key,request);
+ }
+ const data=await request;
+ if(run!==notificationRun)throw Error("Notification viewer changed");
+ return data;
+}
 async function enrichInteraction(record,body,link){
  const run=notificationRun,kind=record.kind;
  if(!run||!exactNoticeUUID(record.target_id))return;
- const read=async(table,fields,id)=>{
-  const r=await run.client.from(table).select(fields).eq("id",id).maybeSingle();
-  if(run!==notificationRun||r.error||!r.data)throw Error("Notification content unavailable");
-  return r.data;
- };
+ const read=(table,fields,id)=>noticeContent(run,table,fields,id);
  try{
   let content=null,photoPath="",bucket="",owner=null,post=null;
   if(["post_comment","post_reply","comment_like","comment_mention"].includes(kind)){
@@ -391,9 +405,8 @@ async function enrichNotice(record,body,link){
    const fields=kind==="comment_like"?"id,body,post_kind,post_id,media_kind,media_path":
     kind==="avatar_comment_like"?"id,body,owner_vatra_id,avatar_path":
     "id,body,media_kind,media_path,media_items";
-   const result=await run.client.from(table).select(fields).eq("id",record.target_id).maybeSingle();
-   if(run!==notificationRun||!body.isConnected||result.error||!result.data)return;
-   content=result.data;
+   content=await noticeContent(run,table,fields,record.target_id);
+   if(run!==notificationRun||!body.isConnected)return;
    if(kind==="comment_like"&&content.post_id){
     const url=new URL("feed",root);url.searchParams.set("post",content.post_id);
     url.searchParams.set("comment",record.target_id);link.href=url.href;

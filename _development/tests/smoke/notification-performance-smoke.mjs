@@ -94,3 +94,31 @@ console.log("VATRA notification previews: single-flight, reuse and stale viewer 
  assert.ok(profile.includes('if(exact)query=query.eq("id",requestedStory)'));
 }
 console.log("VATRA content preferences: lazy read, independent toggles, session isolation, feed exclusion and exact notification routes passed.");
+
+{
+ const start=notices.indexOf("async function noticeContent("),end=notices.indexOf("async function enrichInteraction(",start);
+ assert.ok(start>=0&&end>start);
+ const calls=[],requests=[];
+ const client={from(table){let fields,id;return {select(value){fields=value;return this;},eq(key,value){assert.equal(key,"id");id=value;return this;},maybeSingle(){calls.push([table,fields,id]);const request=deferred();requests.push(request);return request.promise;}};}};
+ const run={client},ctx={notificationRun:run};
+ runInNewContext(notices.slice(start,end)+"\nglobalThis.read=noticeContent;",ctx);
+ const read=(fields="id,body",id="post-1",table="feed_posts",viewer=run)=>ctx.read(viewer,table,fields,id);
+ const first=read(),second=read(),otherProjection=read("id"),otherPost=read("id,body","post-2"),otherTable=read("id,body","post-1","community_posts");
+ await Promise.resolve();
+ assert.equal(calls.length,4,"Identical concurrent preview reads must use one request; projections, IDs and tables stay separate");
+ for(const request of requests)request.resolve({data:{id:"fixture"},error:null});
+ const values=await Promise.all([first,second,otherProjection,otherPost,otherTable]);
+ assert.equal(values[0],values[1]);assert.equal(run.contentPending.size,0,"No settled private content is retained");
+ const retry=read();await Promise.resolve();assert.equal(calls.length,5,"Subsequent read must recheck current RLS");
+ requests[4].resolve({data:null,error:{message:"denied"}});await assert.rejects(retry,/unavailable/);
+ assert.equal(run.contentPending.size,0);
+ const stale=read();await Promise.resolve();
+ const nextRun={client};ctx.notificationRun=nextRun;
+ const fresh=read("id,body","post-1","feed_posts",nextRun);await Promise.resolve();
+ assert.equal(calls.length,7,"A new viewer must not join the old viewer's pending request");
+ requests[5].resolve({data:{id:"old"},error:null});requests[6].resolve({data:{id:"new"},error:null});
+ await assert.rejects(stale,/unavailable|changed/);assert.equal((await fresh).id,"new");
+ assert.equal(run.contentPending.size,0);assert.equal(nextRun.contentPending.size,0);
+ assert.ok(notices.includes("const read=(table,fields,id)=>noticeContent(run,table,fields,id)")&&notices.includes("content=await noticeContent(run,table,fields,record.target_id)"),"Both notification preview paths must use the shared request");
+}
+console.log("VATRA notification content: in-flight deduplication, no persistent private cache, RLS retry and viewer isolation passed.");
