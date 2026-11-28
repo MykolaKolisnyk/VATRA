@@ -3399,6 +3399,21 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   syncAvatarMenu();
   return Promise.allSettled([avatarReady,coverReady]);
  };
+ const storyLookup=(async()=>{
+ if(!locked)try{
+  const requestedStory=new URLSearchParams(location.search).get("story");
+  const exact=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(requestedStory||"");
+  let query=client.from("stories").select("id,body,theme,expires_at,media_kind,media_path")
+   .eq("author_vatra_id",targetId).gt("expires_at",new Date().toISOString());
+  if(exact)query=query.eq("id",requestedStory);
+  const {data,error}=await query.order("created_at",{ascending:false}).limit(1);
+  if(!error&&Array.isArray(data)&&typeof data[0]?.body==="string"){
+   activeStory=data[0];
+   if(exact&&String(activeStory.id)===requestedStory)openStory();
+  }else if(exact)window.VATRA_TOAST?.show?.(t("Історія більше недоступна","Story is no longer available"),"info");
+ }catch(_){}
+ syncAvatarMenu();
+ })();
  try{
 
   const request=()=>client.from("profile_media")
@@ -3415,19 +3430,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   avatarWrap.classList.remove("is-loading-media");
  }
 
- if(!locked)try{
-  const requestedStory=new URLSearchParams(location.search).get("story");
-  const exact=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(requestedStory||"");
-  let query=client.from("stories").select("id,body,theme,expires_at,media_kind,media_path")
-   .eq("author_vatra_id",targetId).gt("expires_at",new Date().toISOString());
-  if(exact)query=query.eq("id",requestedStory);
-  const {data,error}=await query.order("created_at",{ascending:false}).limit(1);
-  if(!error&&Array.isArray(data)&&typeof data[0]?.body==="string"){
-   activeStory=data[0];
-   if(exact&&String(activeStory.id)===requestedStory)openStory();
-  }else if(exact)window.VATRA_TOAST?.show?.(t("Історія більше недоступна","Story is no longer available"),"info");
- }catch(_){}
- syncAvatarMenu();
+ await storyLookup;
  if(!canEdit)return;
  try{
   const raw=sessionStorage.getItem("vatra-profile-photo-toast");
