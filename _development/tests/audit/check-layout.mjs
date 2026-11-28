@@ -1360,7 +1360,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("body.feed-page .feed-header-inner{")&&
  memberCss.includes("border-top:0;border-radius:0 0 19px 19px;background:#fff;")&&
  memberCss.includes("height:290px;overflow:hidden;border-radius:0;")&&
- sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
+ !sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
  sharedCss.includes("max-width:292px;height:36px")&&
  sharedCss.includes("flex:0 0 118px")&&
@@ -2917,7 +2917,7 @@ assert.ok(!settingsRuntime.includes('settingsCard(t("Сповіщення на �
  settingsRuntime.includes('for(const [,heading,kinds] of notificationKinds)')&&
  settingsRuntime.includes('ui-vatra-preferences-block-empty-001')&&
  settingsRuntime.includes('list.setAttribute("aria-live","polite")')&&
- sharedCss.includes('html:has(body.feed-page){scrollbar-gutter:stable}')&&!settingsStyle.includes('scrollbar-gutter:stable;overflow-y:scroll')&&
+ settingsStyle.includes('scrollbar-gutter:stable;overflow-y:scroll')&&
  settingsStyle.includes('grid-template-columns:minmax(0,1fr) auto;align-items:end')&&
  settingsStyle.includes('top:81px'),
  "Settings must keep stable page alignment, compact blocked list and no redundant notification card");
