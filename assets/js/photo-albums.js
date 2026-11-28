@@ -171,24 +171,58 @@
   section.addEventListener("vatra:select-post-photo",event=>{const row=event.detail;if(!isMine||row?.source!=="post"||!row.media_path?.startsWith(ownId+"/posts/")||!validUUID(row.post_id))return;selectPhoto(row);});
   section.addEventListener("vatra:photo-tiles-rendered",()=>updateSelection());
   const signed=new Map(),pendingSignatures=new Map();
-  let signatureGeneration=0;
-  client.auth?.onAuthStateChange?.(event=>{
-   if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
-   signatureGeneration++;signed.clear();pendingSignatures.clear();
+  let signatureGeneration=0,signatureViewer=String(userId||""),signatureQueue=new Map(),signatureScheduled=false;
+  client.auth?.onAuthStateChange?.((event,session)=>{
+   const viewer=String(session?.user?.id||"");
+   if((event==="INITIAL_SESSION"||event==="SIGNED_IN"||event==="TOKEN_REFRESHED")&&viewer===signatureViewer)return;
+   signatureViewer=viewer;signatureGeneration++;signed.clear();pendingSignatures.clear();
+   for(const entry of signatureQueue.values())entry.reject(Error("Session changed"));
+   signatureQueue.clear();
   });
+  function signatureDeadline(task){
+   let timer;
+   return Promise.race([Promise.resolve(task),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error("Photo URL timed out")),12000);})]).finally(()=>clearTimeout(timer));
+  }
+  function storeSignature(path,url,generation){
+   if(signatureGeneration!==generation)throw Error("Session changed");
+   if(typeof url!=="string"||!url)throw Error("Photo URL unavailable");
+   const parsed=new URL(url,location.origin);
+   if(parsed.protocol!=="https:"||parsed.hostname!=="cxrcycxrlkufozomsxcs.supabase.co")throw Error("Invalid photo URL");
+   signed.set(path,{url:parsed.href,until:Date.now()+100000});
+   if(signed.size>160)signed.delete(signed.keys().next().value);
+   return parsed.href;
+  }
+  async function flushSignatures(){
+   signatureScheduled=false;
+   const entries=[...signatureQueue.entries()];signatureQueue.clear();
+   const bucket=client.storage.from(BUCKET);
+   for(let i=0;i<entries.length;i+=32){
+    const batch=entries.slice(i,i+32);
+    try{
+     if(typeof bucket.createSignedUrls==="function"){
+      const {data,error}=await signatureDeadline(bucket.createSignedUrls(batch.map(([path])=>path),120));
+      if(error||!Array.isArray(data))throw error||Error("Photo URLs unavailable");
+      const byPath=new Map(data.filter(x=>x?.path).map(x=>[x.path,x]));
+      for(const [path,entry] of batch){
+       try{const row=byPath.get(path);if(row?.error)throw Error("Photo URL unavailable");entry.resolve(storeSignature(path,row?.signedUrl,entry.generation));}catch(error){entry.reject(error);}
+      }
+     }else{
+      for(const [path,entry] of batch){
+       try{const {data,error}=await signatureDeadline(bucket.createSignedUrl(path,120));if(error)throw error;entry.resolve(storeSignature(path,data?.signedUrl,entry.generation));}catch(error){entry.reject(error);}
+      }
+     }
+    }catch(error){for(const [,entry] of batch)entry.reject(error);}
+   }
+  }
   async function signedUrl(path){
    const old=signed.get(path);
    if(old&&old.until>Date.now())return old.url;
    if(pendingSignatures.has(path))return pendingSignatures.get(path);
    const generation=signatureGeneration;
-   const task=(async()=>{
-    const {data,error}=await client.storage.from(BUCKET).createSignedUrl(path,120);
-    if(error||!data?.signedUrl)throw error||Error("Photo URL unavailable");
-    if(signatureGeneration!==generation)throw Error("Session changed");
-    signed.set(path,{url:data.signedUrl,until:Date.now()+100000});
-    if(signed.size>160)signed.delete(signed.keys().next().value);
-    return data.signedUrl;
-   })();
+   const task=new Promise((resolve,reject)=>{
+    signatureQueue.set(path,{resolve,reject,generation});
+    if(!signatureScheduled){signatureScheduled=true;queueMicrotask(()=>void flushSignatures());}
+   });
    pendingSignatures.set(path,task);
    try{return await task;}
    finally{if(pendingSignatures.get(path)===task)pendingSignatures.delete(path);}
@@ -224,8 +258,7 @@
      return active()&&!signal?.aborted&&generation===signatureGeneration;
     }catch(_){
      if(!active()||signal?.aborted||generation!==signatureGeneration)return false;
-     if(!url)throw Error("Photo URL unavailable");
-     discardSignature(path,url);
+     if(url)discardSignature(path,url);
      if(attempt===1)throw Error("Photo unavailable");
     }
    }
