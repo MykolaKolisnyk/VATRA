@@ -2225,7 +2225,9 @@ assert.ok(
  postInteractionFields.includes('form.append(ownPortrait,composer)') &&
  postInteractionFields.includes('make("div","vatra-post-comment-emoji-panel') &&
  postInteractionFields.includes('make("div","vatra-post-comment-attach-menu') &&
- postInteractionFields.includes('client.storage.from(bucket).upload(path,file.file') &&
+ postInteractionFields.includes('client.storage.from(bucket).upload(path,media') &&
+ postInteractionFields.includes('media=await window.VATRA_POST_MEDIA.prepareVideo(media)') &&
+ postInteractionFields.includes('contentType:media.type') &&
  postInteractionFields.includes('client.storage.from(bucket).createSignedUrl(path,300)') &&
  commentsStyle.includes("body.feed-page .vatra-comment-reply-list") &&
  commentsStyle.includes("body.feed-page .vatra-post-comment-emoji-panel"),

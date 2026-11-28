@@ -29,7 +29,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  const video=e("video","video");video.controls=true;video.playsInline=true;video.preload="metadata";video.hidden=true;
  const empty=e("div","empty"),uploadIcon=e("span","upload-icon");uploadIcon.append(symbol("upload"));uploadIcon.setAttribute("aria-hidden","true");
  const dropCopy=node("p","vatra-story-drop-copy-001",tr("Перетягніть сюди фото або відео","Drag a photo or video here"));
- const file=e("input","file");file.id=prefix==="feed-story"?prefix+"-media":prefix+"-media-input";file.type="file";file.accept="image/*,video/mp4,video/webm";file.hidden=true;
+ const file=e("input","file");file.id=prefix==="feed-story"?prefix+"-media":prefix+"-media-input";file.type="file";file.accept="image/*,video/*,.mov,.avi,.mkv,.m4v,.mpeg,.mpg,.3gp,.3g2,.mts,.m2ts,.wmv,.flv,.ogv,.ts,.vob,.asf,.f4v";file.hidden=true;
  const choose=button("choose",tr("Вибрати файл","Choose file"),()=>file.click(),prefix+"-media-choose");
  const pickBackground=button("empty-background",tr("Вибрати фон","Choose background"),()=>setPanel("background"));
  empty.append(uploadIcon,dropCopy,choose,pickBackground);
@@ -55,14 +55,14 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  const error=node("p","vatra-story-error-001");error.id=prefix+"-error";error.setAttribute("role","status");error.hidden=true;
  const save=button("publish",tr("Опублікувати","Publish"),()=>{},prefix+"-save");save.type="submit";save.disabled=true;
  footer.append(info,error,save);form.append(header,work,footer);const confirm=e("dialog","discard-dialog");const confirmTitle=node("h3","vatra-story-discard-title-001",tr("Закрити редактор?","Close editor?"));confirmTitle.id=prefix+"-discard-title";confirm.setAttribute("aria-labelledby",confirmTitle.id);const confirmCopy=node("p","vatra-story-discard-copy-001",tr("Незбережені зміни буде втрачено.","Unsaved changes will be lost."));const confirmActions=e("div","discard-actions");const keep=button("discard-keep",tr("Продовжити","Continue editing"),()=>confirm.close());keep.autofocus=true;const discard=button("discard-confirm",tr("Закрити","Close"),()=>{confirm.close();dialog.close();});confirmActions.append(keep,discard);confirm.append(confirmTitle,confirmCopy,confirmActions);dialog.replaceChildren(form,confirm);
- let state=fresh(),back=[],forward=[],assets=new Map(),assetSerial=0,layerSerial=0,active="overview",selected=null,brush={color:"#ffffff",width:18,opacity:1},pointer=null,loading=false,publishing=false,request=0;
+ let state=fresh(),back=[],forward=[],assets=new Map(),assetSerial=0,layerSerial=0,active="overview",selected=null,brush={color:"#ffffff",width:18,opacity:1},pointer=null,loading=false,publishing=false,request=0,conversion=null;
  const clone=()=>JSON.parse(JSON.stringify(state));
  const note=value=>{error.textContent=value||"";error.hidden=!value;};
  const checkpoint=()=>{back.push(clone());if(back.length>25)back.shift();forward=[];};
  const changed=()=>{render();};
  const mutate=fn=>{if(publishing||loading)return;checkpoint();fn();changed();};
  const restore=dir=>{if(publishing||loading||pointer)return;const src=dir<0?back:forward,dst=dir<0?forward:back;if(!src.length)return;dst.push(clone());state=src.pop();selected=null;render();setPanel(active);};
- const reset=()=>{request++;loading=false;pointer=null;state=fresh();audience.value="friends";selected=null;back=[];forward=[];for(const a of assets.values())if(a.url)URL.revokeObjectURL(a.url);assets.clear();file.value="";video.pause();video.removeAttribute("src");video.load();note("");active="overview";render();setPanel("overview");};
+ const reset=()=>{conversion?.abort();conversion=null;request++;loading=false;pointer=null;state=fresh();audience.value="friends";selected=null;back=[];forward=[];for(const a of assets.values())if(a.url)URL.revokeObjectURL(a.url);assets.clear();file.value="";video.pause();video.removeAttribute("src");video.load();note("");active="overview";render();setPanel("overview");};
  const hasArt=()=>!!(state.media||state.background||state.texts.some(a=>a.text.trim())||state.strokes.length);
  const requestClose=()=>{if(publishing)return;if(hasArt()||loading){if(!confirm.open)confirm.showModal();}else dialog.close();};
  const addAsset=(file,img,url)=>{const key=String(++assetSerial);assets.set(key,{file,img,url});return key;};
@@ -158,12 +158,12 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   }
  }
  async function loadFile(picked){
-  if(!picked||publishing||loading)return;const videoType=["video/mp4","video/webm"].includes(picked.type),imageType=typeof picked.type==="string"&&picked.type.startsWith("image/")&&picked.type!=="image/svg+xml";
-  if((!videoType&&!imageType)||!picked.size||picked.size>(videoType?52428800:6291456)){note(tr("Виберіть фото, яке підтримує браузер, до 6 МБ або відео MP4, WebM до 50 МБ.","Choose a browser-supported photo up to 6 MB or MP4, WebM video up to 50 MB."));file.value="";return;}
-  const epoch=++request;loading=true;note("");render();let url=URL.createObjectURL(picked),img=null;
-  try{if(imageType){img=new Image();img.src=url;await img.decode();}if(epoch!==request||!dialog.open){URL.revokeObjectURL(url);return;}
+  if(!picked||publishing||loading)return;const videoType=window.VATRA_POST_MEDIA.isVideoInput(picked),imageType=typeof picked.type==="string"&&picked.type.startsWith("image/")&&picked.type!=="image/svg+xml";
+  if((!videoType&&!imageType)||!picked.size||picked.size>(videoType?52428800:6291456)){note(tr("Виберіть фото, яке підтримує браузер, до 6 МБ або відео до 50 МБ.","Choose a browser-supported photo up to 6 MB or MP4, WebM video up to 50 MB."));file.value="";return;}
+  const epoch=++request;loading=true;note("");render();let url=null,img=null;
+  try{if(videoType){conversion=new AbortController();note(tr("Обробка відео…","Processing video…"));picked=await window.VATRA_POST_MEDIA.prepareVideo(picked,conversion.signal);if(epoch!==request||!dialog.open)return;note("");}url=URL.createObjectURL(picked);if(imageType){img=new Image();img.src=url;await img.decode();}if(epoch!==request||!dialog.open){URL.revokeObjectURL(url);return;}
    checkpoint();state.media=addAsset(picked,img,url);url=null;state.kind=videoType?"video":"image";state.photo=freshPhoto();state.caption="";state.texts=[];state.strokes=[];state.filter=0;state.adjust=fresh().adjust;selected=null;active="overview";
-  }catch(_){if(url)URL.revokeObjectURL(url);note(tr("Не вдалося відкрити файл.","Could not open the file."));}finally{if(epoch===request){loading=false;file.value="";render();setPanel(active);}}
+  }catch(_){if(url)URL.revokeObjectURL(url);if(epoch===request)note(videoType?tr("Не вдалося обробити відео. Спробуйте менший або інший файл.","Video processing failed. Try a smaller or different file."):tr("Не вдалося відкрити файл.","Could not open the file."));}finally{if(epoch===request){conversion=null;loading=false;file.value="";render();setPanel(active);}}
  }
  file.addEventListener("change",()=>void loadFile(file.files?.[0]));
  for(const type of ["dragenter","dragover","dragleave","drop"])surface.addEventListener(type,event=>{event.preventDefault();if(type==="dragenter"||type==="dragover")surface.dataset.drag="true";else delete surface.dataset.drag;if(type==="drop")void loadFile(event.dataTransfer?.files?.[0]);});
