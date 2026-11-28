@@ -3562,3 +3562,8 @@ body.feed-page:not(.profile-page):not(.community-page) .ui-feed-reading-lane-001
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001{display:flex;flex-direction:column;gap:var(--vatra-content-card-gap,16px);grid-column:1;grid-row:1;min-width:0;align-self:start}
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:2;grid-row:1!important;align-self:start}
 }
+
+body.feed-page .vatra-quick-compose-001:is([data-create-menu],[data-create-direct]):not([hidden]){position:relative;display:block;padding:0;min-height:0;overflow:visible;border-radius:var(--vatra-card-radius)}
+body.feed-page .vatra-create-menu-trigger-001{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:64px;padding:14px 16px;border:0;border-radius:inherit;background:transparent;color:var(--blue);font:650 15px/1.4 Onest,Inter,system-ui,sans-serif;cursor:pointer}
+body.feed-page .vatra-create-menu-trigger-001:hover,body.feed-page .vatra-create-menu-trigger-001[aria-expanded="true"]{background:#f4f7fc}
+body.feed-page .vatra-create-menu-trigger-001 svg{width:20px;height:20px;flex:none}

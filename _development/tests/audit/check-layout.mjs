@@ -1308,10 +1308,11 @@ for(const route of ["feed","profile","friends","communities","club","clips","mar
 }
 assert.ok(storyViewerCss.includes(".ui-vatra-story-view-stage-001{")&&!sharedCss.includes(".ui-vatra-story-view-stage-001{"),"Story viewer styles belong in the route-only stylesheet");
 const memberCss=await read("assets/css/profile.css");
+assert.ok(!profileMarkup.includes("assets/css/create-menu.css")&&!profileMarkup.includes("assets/js/create-menu.js")&&sharedCss.includes("[data-create-direct]"),"Profile uses the shared compose button without loading the feed-only menu");
 const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
  'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"','href="assets/css/story-viewer.css"','href="assets/css/vatra-player.css"',
- 'href="assets/css/profile.css"','href="assets/css/create-menu.css"','href="assets/css/external-links.css"'
+ 'href="assets/css/profile.css"','href="assets/css/external-links.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
  (await Promise.all(["feed.html","communities.html","club.html","notifications.html"].map(p=>read(p))))
@@ -1359,7 +1360,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("body.feed-page .feed-header-inner{")&&
  memberCss.includes("border-top:0;border-radius:0 0 19px 19px;background:#fff;")&&
  memberCss.includes("height:290px;overflow:hidden;border-radius:0;")&&
- !sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
+ sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
  sharedCss.includes("max-width:292px;height:36px")&&
  sharedCss.includes("flex:0 0 118px")&&
@@ -2913,7 +2914,7 @@ assert.ok(!settingsRuntime.includes('settingsCard(t("Сповіщення на �
  settingsRuntime.includes('for(const [,heading,kinds] of notificationKinds)')&&
  settingsRuntime.includes('ui-vatra-preferences-block-empty-001')&&
  settingsRuntime.includes('list.setAttribute("aria-live","polite")')&&
- settingsStyle.includes('scrollbar-gutter:stable;overflow-y:scroll')&&
+ sharedCss.includes('html:has(body.feed-page){scrollbar-gutter:stable}')&&!settingsStyle.includes('scrollbar-gutter:stable;overflow-y:scroll')&&
  settingsStyle.includes('grid-template-columns:minmax(0,1fr) auto;align-items:end')&&
  settingsStyle.includes('top:81px'),
  "Settings must keep stable page alignment, compact blocked list and no redundant notification card");
