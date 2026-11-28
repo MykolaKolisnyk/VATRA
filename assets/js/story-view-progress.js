@@ -19,11 +19,11 @@ function start(dialog,slot,story,onComplete,blocked=()=>false,onViewed=()=>{}){
  const words=labels[String(window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk").split("-")[0]]||labels.uk;
  const videoStory=story.media_kind==="video"&&!!story.media_path;
  const imageStory=story.media_kind==="image"&&!!story.media_path;
- let elapsed=0,last=performance.now(),paused=false,videoElapsed=0,reported=false,lastVideo=null,lastMediaTime=null,sampleElapsed=0;
+ let elapsed=0,last=performance.now(),paused=false,videoElapsed=0,reported=false,lastVideo=null,lastMediaTime=null,sampleElapsed=0,heldVideo=null;
  const report=()=>{if(!reported){reported=true;onViewed();}};
- row.hidden=false;bar.value=0;bar.setAttribute("aria-label",words[0]);button.hidden=videoStory;
+ row.hidden=false;bar.value=0;bar.setAttribute("aria-label",words[0]);button.hidden=false;
  const sync=()=>{button.setAttribute("aria-pressed",String(paused));button.setAttribute("aria-label",words[paused?2:1]);button.title=words[paused?2:1];};
- const toggle=()=>{paused=!paused;last=performance.now();sync();};
+ const toggle=()=>{paused=!paused;last=performance.now();sync();const video=videoStory?slot.querySelector("video"):null;if(video&&!paused&&!document.hidden&&!blocked()&&video.paused&&!video.ended){heldVideo=null;void Promise.resolve(video.play?.()).catch(()=>{});}};
  const close=()=>{if(!dialog.open)stop(dialog);};
  const visibility=()=>{last=performance.now();lastMediaTime=null;sampleElapsed=0;};
  const state={row,bar,button,toggle,close,visibility,frame:0};
@@ -36,6 +36,8 @@ function start(dialog,slot,story,onComplete,blocked=()=>false,onViewed=()=>{}){
   const hold=paused||document.hidden||blocked();
   if(videoStory){
    const video=slot.querySelector("video");if(!video){lastVideo=null;lastMediaTime=null;sampleElapsed=0;return;}
+   if(hold&&!video.paused&&!video.ended&&typeof video.pause==="function"){heldVideo=video;video.pause();}
+   else if(!hold&&heldVideo===video){heldVideo=null;if(video.paused&&!video.ended)void Promise.resolve(video.play?.()).catch(()=>{});}
    const mediaTime=Number(video.currentTime),rate=Number(video.playbackRate)||1;
    if(lastVideo!==video){lastVideo=video;lastMediaTime=null;sampleElapsed=0;videoElapsed=0;}
    if(Number.isFinite(video.duration)&&video.duration>0)bar.value=Math.max(0,Math.min(1,mediaTime/video.duration));

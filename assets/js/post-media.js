@@ -531,7 +531,8 @@
     element.decoding="async";
    }else{
     element.playsInline=true;element.preload="metadata";
-    element.controls=!preview;
+    element.controls=false;
+    element.autoplay=!preview;
     element.muted=preview;
     if(preview)element.setAttribute("aria-hidden","true");
    }
@@ -547,7 +548,9 @@
    }
    slot.replaceChildren(element);
    element.src=src;
-   if(kind==="video"&&!preview&&typeof window!=="undefined")window.VATRA_PLAYER?.attach(element,{mode:"story"});
+   if(kind==="video"&&!preview&&typeof element.play==="function"){
+    void Promise.resolve(element.play()).catch(()=>{if(!current())return;element.muted=true;return element.play();}).catch(()=>{});
+   }
   }catch(_){fail();}
   finally{clearTimeout(signTimer);}
  }

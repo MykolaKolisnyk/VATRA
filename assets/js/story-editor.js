@@ -29,7 +29,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
  const video=e("video","video");video.controls=true;video.playsInline=true;video.preload="metadata";video.hidden=true;
  const empty=e("div","empty"),uploadIcon=e("span","upload-icon");uploadIcon.append(symbol("upload"));uploadIcon.setAttribute("aria-hidden","true");
  const dropCopy=node("p","vatra-story-drop-copy-001",tr("Перетягніть сюди фото або відео","Drag a photo or video here"));
- const file=e("input","file");file.id=prefix==="feed-story"?prefix+"-media":prefix+"-media-input";file.type="file";file.accept="image/jpeg,image/png,image/webp,video/mp4,video/webm";file.hidden=true;
+ const file=e("input","file");file.id=prefix==="feed-story"?prefix+"-media":prefix+"-media-input";file.type="file";file.accept="image/*,video/mp4,video/webm";file.hidden=true;
  const choose=button("choose",tr("Вибрати файл","Choose file"),()=>file.click(),prefix+"-media-choose");
  const pickBackground=button("empty-background",tr("Вибрати фон","Choose background"),()=>setPanel("background"));
  empty.append(uploadIcon,dropCopy,choose,pickBackground);
@@ -158,8 +158,8 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
   }
  }
  async function loadFile(picked){
-  if(!picked||publishing||loading)return;const videoType=["video/mp4","video/webm"].includes(picked.type),imageType=["image/jpeg","image/png","image/webp"].includes(picked.type);
-  if((!videoType&&!imageType)||!picked.size||picked.size>(videoType?52428800:6291456)){note(tr("Виберіть фото JPEG, PNG, WebP до 6 МБ або відео MP4, WebM до 50 МБ.","Choose JPEG, PNG, WebP up to 6 MB or MP4, WebM up to 50 MB."));file.value="";return;}
+  if(!picked||publishing||loading)return;const videoType=["video/mp4","video/webm"].includes(picked.type),imageType=typeof picked.type==="string"&&picked.type.startsWith("image/")&&picked.type!=="image/svg+xml";
+  if((!videoType&&!imageType)||!picked.size||picked.size>(videoType?52428800:6291456)){note(tr("Виберіть фото, яке підтримує браузер, до 6 МБ або відео MP4, WebM до 50 МБ.","Choose a browser-supported photo up to 6 MB or MP4, WebM video up to 50 MB."));file.value="";return;}
   const epoch=++request;loading=true;note("");render();let url=URL.createObjectURL(picked),img=null;
   try{if(imageType){img=new Image();img.src=url;await img.decode();}if(epoch!==request||!dialog.open){URL.revokeObjectURL(url);return;}
    checkpoint();state.media=addAsset(picked,img,url);url=null;state.kind=videoType?"video":"image";state.photo=freshPhoto();state.caption="";state.texts=[];state.strokes=[];state.filter=0;state.adjust=fresh().adjust;selected=null;active="overview";

@@ -537,7 +537,7 @@ console.log("VATRA visible preview batching: cross-card request reduction, cache
  const explicit=slot();await renderStory(vc.client,videoStory,explicit);
  assert.equal(vc.calls,1,"Opening a story explicitly must still sign its video");
  assert.equal(explicit.children[0]?.tag,"video");
- assert.equal(explicit.children[0]?.controls,true);
+ assert.equal(explicit.children[0]?.controls,false);assert.equal(explicit.children[0]?.autoplay,true);
  env.navigator.connection={effectiveType:"4g",saveData:true};
  await renderStory(vc.client,{...videoStory,media_path:videoStory.media_path.replace("000008","000009")},slot(),true);
  assert.equal(vc.calls,1,"Data saver must prevent speculative video metadata");
@@ -580,7 +580,7 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  env.localStorage.getItem=()=>"9";assert.equal(env.test.volumePreference(),1);
  env.localStorage.getItem=()=>"invalid";assert.equal(env.test.volumePreference(),1);
  env.localStorage.getItem=()=>{throw Error("storage blocked");};assert.equal(env.test.volumePreference(),1);
- for(const mode of ["inline","viewer","story"])assert.ok(source.includes('VATRA_PLAYER?.attach(')&&source.includes('mode:"'+mode+'"'));
+ for(const mode of ["inline","viewer"])assert.ok(source.includes('VATRA_PLAYER?.attach(')&&source.includes('mode:"'+mode+'"'));
  const clip=await readFile("assets/js/clips.js","utf8");assert.ok(clip.includes('VATRA_PLAYER?.attach(video,{mode:"clip"})'));
  assert.ok(player.includes("video.controls=false")&&player.includes("requestPictureInPicture")&&player.includes("requestFullscreen"));
  for(const file of ["feed.html","profile.html","club.html","clips.html"]){const html=await readFile(file,"utf8");assert.ok(html.indexOf("assets/js/vatra-player.js?rev=")<html.indexOf("assets/js/post-media.js?rev="));assert.ok(html.includes("assets/css/vatra-player.css?rev="));}

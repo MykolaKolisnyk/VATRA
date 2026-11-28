@@ -314,7 +314,7 @@ console.log("VATRA story viewer: owner-only deletion and real adjacent previews 
  media={complete:true,naturalWidth:100};advance(70);assert.equal(completed,2);
  media={duration:20,currentTime:10,ended:false};
  api.start(dialog,slot,{media_kind:"video",media_path:"video"},()=>completed++,()=>blocked);
- advance(100);assert.equal(bar.value,.5);assert.equal(completed,2);assert.equal(button.hidden,true);
+ advance(100);assert.equal(bar.value,.5);assert.equal(completed,2);assert.equal(button.hidden,false);
  blocked=true;media.ended=true;media.currentTime=20;advance(1);assert.equal(completed,2);
  blocked=false;advance(1);assert.equal(completed,3);
  let views=0;
