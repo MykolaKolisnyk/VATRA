@@ -1579,7 +1579,7 @@ assert.ok(storyPreviewMarkup.includes('assets/js/feature-loader.js?rev=')&&
  profileScript.includes('VATRA_FEATURES.load("story")')&&
  storyEditorRuntime.includes('VATRA_POST_MEDIA.uploadStory(client,id,fileToPublish)')&&
  profileScript.includes('VATRA_POST_MEDIA?.renderStory(client,')&&
- postMediaScript.includes('"/stories/"')&&
+ postMediaScript.includes('"/story-media/"')&&postMediaScript.includes('client.storage.from("stories").upload(path,file,')&&
  postMediaScript.includes('createSignedUrl(path,ttl)'),
  "Photo/video Stories must use private signed URLs in Feed and profile, without fake media placeholders.");
 assert.doesNotThrow(()=>new Function(postMediaScript),"Shared post media module has invalid JavaScript");

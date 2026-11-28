@@ -184,7 +184,7 @@ function mount({dialog,trigger,client,id,prefix,onPublished}){
    else{await document.fonts?.ready;const out=document.createElement("canvas");out.width=1080;out.height=1920;draw(out);let blob=await new Promise(resolve=>out.toBlob(resolve,"image/webp",.91));if(!blob||!["image/webp","image/png","image/jpeg"].includes(blob.type)||blob.size>6291456)throw Error("Story encoding failed");const ext=blob.type==="image/webp"?"webp":blob.type==="image/jpeg"?"jpg":"png";fileToPublish=new File([blob],"vatra-story."+ext,{type:blob.type});}
    if(!fileToPublish)throw Error("Missing story media");
    uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,id,fileToPublish);
-   if(!uploaded||!["image","video"].includes(uploaded.media_kind)||typeof uploaded.media_path!=="string"||!uploaded.media_path.startsWith(String(id)+"/stories/"))throw Error("Invalid uploaded story metadata");
+   if(!uploaded||!["image","video"].includes(uploaded.media_kind)||typeof uploaded.media_path!=="string"||!uploaded.media_path.startsWith(String(id)+"/story-media/"))throw Error("Invalid uploaded story metadata");
    const visibility=audience.value==="public"?"public":"friends";
    const {error:insertError}=await client.from("stories").insert({author_vatra_id:String(id),body,theme:0,visibility,media_kind:uploaded.media_kind,media_path:uploaded.media_path});
    if(insertError){const failure=Error("Story insert failed");failure.code=insertError.code;failure.constraint=insertError.message?.match(/vatra_stories_[a-z_]+_check/)?.[0];throw failure;}inserted=true;

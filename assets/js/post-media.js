@@ -32,11 +32,11 @@
   return validId(id)&&typeof path==="string"&&
    new RegExp("^"+id+"/posts/[a-f0-9-]{36}\\."+ext+"$").test(path);
  };
- const bucketFor=(kind,path)=>kind==="image"?"post-images":clipPathValid(path,typeof path==="string"?path.split("/")[0]:"")?"clips":"videos";
+ const bucketFor=(kind,path)=>typeof path==="string"&&/^[1-9][0-9]{0,18}\/story-media\//.test(path)?"stories":kind==="image"?"post-images":clipPathValid(path,typeof path==="string"?path.split("/")[0]:"")?"clips":"videos";
  const storyPathValid=(path,kind,id)=>{
   if(!validId(id)||typeof path!=="string"||!["image","video"].includes(kind))return false;
   const extension=kind==="image"?"(?:jpg|png|webp)":"(?:mp4|webm)";
-  return new RegExp("^"+id+"/stories/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\."+extension+"$").test(path);
+  return new RegExp("^"+id+"/(?:stories|story-media)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\."+extension+"$").test(path);
  };
 
 
@@ -306,9 +306,9 @@
  async function uploadStory(client,id,file){
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
-  const path=String(id)+"/stories/"+crypto.randomUUID().toLowerCase()+"."+format.ext;
+  const path=String(id)+"/story-media/"+crypto.randomUUID().toLowerCase()+"."+format.ext;
   if(!storyPathValid(path,format.kind,String(id)))throw Error("Invalid story media path");
-  const {error}=await client.storage.from(format.bucket).upload(path,file,{
+  const {error}=await client.storage.from("stories").upload(path,file,{
    contentType:file.type,cacheControl:"300",upsert:false
   });
   if(error)throw Error(tr("Не вдалося завантажити медіа історії.","Could not upload story media."));

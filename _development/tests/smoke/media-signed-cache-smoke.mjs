@@ -632,9 +632,9 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  const part=(a,b)=>{const x=source.indexOf(a),y=source.indexOf(b,x);assert.ok(x>=0&&y>x);return source.slice(x,y);};
  runInNewContext(part(" const formats="," function linkifyHashtags(")+
   part(" async function removeGallery("," async function uploadGallery(")+
-  part(" async function upload(client,"," async function uploadStory(")+
+  part(" async function upload(client,"," const signedURLCaches=")+
   part(" const signedURLCaches="," async function renderStory(")+
-  "\nglobalThis.clipTest={upload,uploadClip,removeGallery,signed,preSignGallery,clipPathValid};",env);
+  "\nglobalThis.clipTest={upload,uploadClip,uploadStory,remove,removeGallery,signed,preSignGallery,clipPathValid,storyPathValid,bucketFor};",env);
  const api=env.clipTest,events=[];
  const client={storage:{from:bucket=>({
   async upload(path){events.push(["upload",bucket,path]);return {error:null};},
@@ -658,7 +658,21 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  assert.equal(await api.removeGallery(client,[video,clip]),true);
  assert.ok(events.some(x=>x[0]==="remove"&&x[1]==="clips"&&x[2]===clip.media_path));
  assert.ok(events.some(x=>x[0]==="remove"&&x[1]==="videos"&&x[2]===video.media_path));
- console.log("VATRA clips: independent upload, signing, bulk signing and deletion passed.");
+ for(const [type,ext,kind] of [["image/webp","webp","image"],["video/mp4","mp4","video"]]){
+  const story=await api.uploadStory(client,7,{type,size:42});
+  assert.equal(story.media_path,"7/story-media/01234567-89ab-4def-8123-456789abcdef."+ext);
+  assert.equal(api.bucketFor(kind,story.media_path),"stories");
+  assert.equal(api.storyPathValid(story.media_path,kind,7),true);
+  assert.equal(api.storyPathValid(story.media_path,kind,8),false);
+  const legacy=story.media_path.replace("/story-media/","/stories/");
+  assert.equal(api.storyPathValid(legacy,kind,7),true);
+  assert.equal(api.bucketFor(kind,legacy),kind==="image"?"post-images":"videos");
+  assert.ok((await api.signed(client,kind,story.media_path,300)).includes("/stories/7/story-media/"));
+  await api.remove(client,story);
+  assert.ok(events.some(x=>x[0]==="upload"&&x[1]==="stories"&&x[2]===story.media_path));
+  assert.ok(events.some(x=>x[0]==="remove"&&x[1]==="stories"&&x[2]===story.media_path));
+ }
+ console.log("VATRA clips and stories: dedicated storage routing, legacy compatibility, upload, signing and deletion passed.");
 }
 
 {
