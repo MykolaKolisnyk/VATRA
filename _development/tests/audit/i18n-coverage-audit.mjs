@@ -394,7 +394,7 @@ for(const key of notificationKeys){
 }
 
 const feedRuntime=await readFile("assets/js/feed.js","utf8");
-const profileRuntime=await readFile("assets/js/profile.js","utf8");
+const profileRuntime=await readFile("assets/js/profile/profile.js","utf8");
 const socialPageKeys=["VATRA — Стрічка","У розробці","У мережі"];
 for(const key of socialPageKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),

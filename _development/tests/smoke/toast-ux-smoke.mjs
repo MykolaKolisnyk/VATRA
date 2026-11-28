@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import vm from "node:vm";
 const [auth,toast,profile,coverEditor,avatarEditor,html]=await Promise.all([
- "assets/js/auth-core.js","assets/js/toast.js","assets/js/profile.js",
- "assets/js/profile-cover-editor.js","assets/js/profile-avatar-editor.js","profile.html"
+ "assets/js/auth-core.js","assets/js/toast.js","assets/js/profile/profile.js",
+ "assets/js/profile/profile-cover-editor.js","assets/js/profile/profile-avatar-editor.js","profile.html"
 ].map(path=>readFile(path,"utf8")));
 assert.match(auth,/Оберіть день народження\./);
 assert.match(auth,/Оберіть місяць народження\./);

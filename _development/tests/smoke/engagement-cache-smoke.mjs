@@ -109,7 +109,7 @@ function instance(){
 console.log("VATRA engagement cache: single-flight, short hit, invalidation failure fallback and auth transitions passed.");
 
 const feed=await readFile("assets/js/feed.js","utf8");
-const profile=await readFile("assets/js/profile.js","utf8");
+const profile=await readFile("assets/js/profile/profile.js","utf8");
 assert.ok(feed.includes("const engagement=feedDeadline(Promise.resolve().then(()=>window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)")&&
  !feed.includes("await engagement;")&&
  feed.includes("engagementPromise:engagement")&&profile.includes("ownId,userId,engagementPromise:engagement"),

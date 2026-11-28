@@ -1058,7 +1058,7 @@ const t=(uk,en)=>{
  const translated=window.VATRA_LANGUAGE?.translate?.(uk);
  return typeof translated==="string"&&translated!==uk?translated:(english?en:uk);
 };
-const home=new URL("../../",document.currentScript.src).href;
+const home=new URL("../../../",document.currentScript.src).href;
 const validId=id=>typeof id==="string"&&/^[1-9][0-9]{0,18}$/.test(id);
 const memberUrl=id=>home+"id"+encodeURIComponent(id);
 const localizeSocial=()=>{

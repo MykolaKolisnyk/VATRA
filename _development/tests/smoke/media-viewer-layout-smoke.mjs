@@ -6,10 +6,10 @@ const read=path=>readFile(path,"utf8");
 const [postMedia,postInteractions,profile,profileGallery,postCss,profileCss,profileHtml,verifiedScript,notifications]=await Promise.all([
  read("assets/js/post-media.js"),
  read("assets/js/post-interactions.js"),
- read("assets/js/profile.js"),
- read("assets/js/profile-gallery.js"),
+ read("assets/js/profile/profile.js"),
+ read("assets/js/profile/profile-gallery.js"),
  read("assets/css/feed.css"),
- read("assets/css/profile.css"),
+ read("assets/css/profile/profile.css"),
  read("profile.html"),
  read("assets/js/verified.js"),
  read("assets/js/notifications/notifications.js")

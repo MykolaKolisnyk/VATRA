@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 const base=await readFile("assets/css/base.css","utf8");
-const profile=await readFile("assets/css/profile.css","utf8");
+const profile=await readFile("assets/css/profile/profile.css","utf8");
 const notFound=await readFile("assets/css/not-found.css","utf8");
 const avatar=await readFile("assets/js/avatar.js","utf8");
 const html=await readFile("404.html","utf8");
@@ -69,7 +69,7 @@ assert.ok(feedRuntime.indexOf('if(profile.error||!validId(profile.data?.vatra_id
  "Deletion replay must begin only after the verified account, before the shell opens");
 console.log("VATRA Feed: visible startup error, auth deadline, fail-closed account check and non-blocking deletion replay verified.");
 
-const profileRuntime=await readFile("assets/js/profile.js","utf8");
+const profileRuntime=await readFile("assets/js/profile/profile.js","utf8");
 assert.ok(profileRuntime.includes('const prepared=profileDeadline(window.VATRA_PROFILE_DETAILS.prepare({client,ownId,targetId,isMine}))')&&
  profileRuntime.indexOf('const prepared=profileDeadline')<profileRuntime.indexOf('const [directoryOutcome,publicOutcome,stateOutcome,blockOutcome]'),
  "Profile visibility and own detail requests must overlap the identity checks");

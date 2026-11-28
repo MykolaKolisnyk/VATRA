@@ -59,7 +59,7 @@ console.log("VATRA notification panel: coalesced layout work and no hidden-panel
 console.log("VATRA notification previews: single-flight, reuse and stale viewer rejection passed.");
 
 {
- const profile=await readFile("assets/js/profile.js","utf8");
+ const profile=await readFile("assets/js/profile/profile.js","utf8");
  const feed=await readFile("assets/js/feed.js","utf8");
  const start=profile.indexOf("  const settings=[\n"),end=profile.indexOf("  if(morePanel&&removeFriend)",start);
  assert.ok(start>=0&&end>start);

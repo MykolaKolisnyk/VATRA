@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 
-const profile=await readFile("assets/js/profile.js","utf8");
+const profile=await readFile("assets/js/profile/profile.js","utf8");
 const avatar=await readFile("assets/js/avatar.js","utf8");
 const start=profile.indexOf(" async function resolveFriendships(friendships){");
 const end=profile.indexOf(" const showFriends=async()=>{",start);
