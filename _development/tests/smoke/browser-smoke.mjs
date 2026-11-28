@@ -54,6 +54,30 @@ try{
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
 
+ const headerProbe=await context.newPage();
+ try{
+  const pages=["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"];
+  for(const width of [1440,768,390]){
+   await headerProbe.setViewportSize({width,height:900});
+   let baseline=null;
+   for(const name of pages){
+    const source=await readFile(name+".html","utf8");
+    const body=source.match(/<body[^>]*>/)?.[0],header=source.match(/<header class="feed-header[^"]*"[^>]*>[\s\S]*?<\/header>/)?.[0];
+    assert.ok(body&&header,name+" has the real shared header");
+    const links=Array.from(source.matchAll(/href="(assets\/css\/[^"?]+\.css)(?:\?[^"]*)?"/g),m=>'<link rel="stylesheet" href="'+base+m[1]+'">').join("");
+    await headerProbe.setContent('<!doctype html><html lang="uk"><head>'+links+'</head>'+body+'<div class="feed-app">'+header+'<main style="min-height:1500px;background:#e2e8f0"></main></div></body></html>',{waitUntil:"load"});
+    const value=await headerProbe.evaluate(()=>{
+     const h=document.querySelector(".feed-header"),s=getComputedStyle(h),r=h.getBoundingClientRect(),inner=h.querySelector(".feed-header-inner").getBoundingClientRect();
+     return {height:r.height,width:r.width,innerHeight:inner.height,background:s.backgroundColor,shadow:s.boxShadow,border:s.borderBottom,position:s.position,filter:s.backdropFilter,radius:s.borderRadius};
+    });
+    assert.equal(value.background,"rgb(255, 255, 255)");assert.equal(value.filter,"none");
+    if(!baseline)baseline=value;else assert.deepEqual(value,baseline,"Shared header differs on "+name+" at "+width+"px");
+   }
+  }
+  console.log("VATRA shared header: eleven sections, identical responsive height, opaque background, border and shadow verified.");
+ }finally{await headerProbe.close();}
+
+
  // Simulate a constrained mobile network using the real media runtime and mock Storage only.
  const weakMediaPage=await context.newPage();
  try{
