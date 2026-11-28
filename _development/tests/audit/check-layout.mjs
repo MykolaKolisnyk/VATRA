@@ -1903,7 +1903,7 @@ assert.ok(
  "Gallery-only publishing, public community directory and RLS-scoped social writes must be retained");
 
 const domainReadViewMigration=await read("_development/supabase/migrations/20261113171916_add_nonbreaking_domain_named_rls_invoker_read_views.sql");
-const domainGiftsScript=await read("assets/js/gifts.js");
+const domainGiftsScript=await read("assets/js/gifts/gifts.js");
 assert.ok(
  domainReadViewMigration.split("WITH (security_invoker = true)").length===4&&
  domainReadViewMigration.includes("CREATE VIEW public.member_directory")&&
@@ -2122,7 +2122,7 @@ assert.ok(
 
 
 const friendsInteractionCss=await read("assets/css/friends/friends.css");
-const giftsInteractionCss=await read("assets/css/gifts.css");
+const giftsInteractionCss=await read("assets/css/gifts/gifts.css");
 assert.ok(
  ["--vatra-action-ink:#2464d7","--vatra-action-hover-ink:#1e55bf",
   "--vatra-action-primary:linear-gradient(100deg,#2464d7,#326ce1)",
@@ -2566,7 +2566,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await assetFiles("assets/css",".css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips/clips.css","communities/communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends/friends.css","gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace/marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips/clips.css","communities/communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends/friends.css","gifts/gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace/marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await assetFiles("assets/js",".js");
 assert.ok(!javascriptFiles.includes("create-menu.js")&&!cssFiles.includes("create-menu.css"),"Create menu must be integrated into feed assets");
 for(const route of ["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"]){const markup=await read(route+".html");assert.ok(!markup.includes("assets/js/create-menu.js")&&!markup.includes("assets/css/create-menu.css"),route+" must not request deleted standalone menu assets");}
@@ -3068,3 +3068,6 @@ for(const name of ["community-core","communities","club"])assert.ok(javascriptFi
 assert.ok(!cssFiles.includes("communities.css"),"No duplicate flat community stylesheet");
 
 for(const [section,modules] of [["clips",["clips","clip-composer"]],["marketplace",["marketplace","marketplace-editor"]]]){assert.ok(cssFiles.includes(section+"/"+section+".css")&&!cssFiles.includes(section+".css"),section+": canonical stylesheet only");for(const name of modules)assert.ok(javascriptFiles.includes(section+"/"+name+".js")&&!javascriptFiles.includes(name+".js"),section+": canonical module only: "+name);}
+
+for(const name of ["gifts","gift-catalog","gift-viewer"])assert.ok(javascriptFiles.includes("gifts/"+name+".js")&&!javascriptFiles.includes(name+".js"),"Gift module has a canonical section path: "+name);
+assert.ok(!cssFiles.includes("gifts.css"),"No duplicate flat gift stylesheet");
