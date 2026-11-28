@@ -4459,6 +4459,14 @@ try{
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
+  const storyDeleteButtons=await feedProbe.evaluate(()=>{
+   const dialog=document.querySelector("#feed-story-delete-dialog");dialog.showModal();
+   try{return [...dialog.querySelectorAll(".feed-delete-actions button")].map(b=>{const r=b.getBoundingClientRect(),c=getComputedStyle(b);return {w:r.width,h:r.height,top:r.top,radius:c.borderRadius,border:c.borderTopWidth,font:c.fontWeight};});}
+   finally{dialog.close();}
+  });
+  const [storyCancel,storyAccept]=storyDeleteButtons;
+  assert.ok(Math.abs(storyCancel.w-storyAccept.w)<=1&&Math.abs(storyCancel.h-storyAccept.h)<=1&&Math.abs(storyCancel.top-storyAccept.top)<=1,"Actual story deletion buttons must have equal geometry: "+JSON.stringify(storyDeleteButtons));
+  assert.equal(storyCancel.radius,storyAccept.radius);assert.equal(storyCancel.border,storyAccept.border);assert.equal(storyCancel.font,storyAccept.font);
   const postDeleteButtons=await feedProbe.locator("#feed-delete-dialog .feed-delete-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
   assert.deepEqual(postDeleteButtons[0],postDeleteButtons[1],"Actual post deletion buttons must have equal geometry");
   await feedProbe.locator("#feed-delete-confirm").click();
