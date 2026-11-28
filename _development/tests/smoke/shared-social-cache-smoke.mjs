@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 
-const friends=await readFile("assets/js/friends.js","utf8");
+const friends=await readFile("assets/js/friends/friends.js","utf8");
 const friendStart=friends.indexOf("async function data(){");
 const friendEnd=friends.indexOf("function actionButton(",friendStart);
 assert.ok(friendStart>=0&&friendEnd>friendStart,"Find real friends data loader");

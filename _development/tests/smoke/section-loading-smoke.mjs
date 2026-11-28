@@ -47,7 +47,7 @@ for(const name of ["clips","marketplace","settings"]){
  new Function("window",src)({VATRA_HOST_ALLOWED:false,VATRA_SECTION_CORE:{start(){throw Error("Forbidden host");}}});
 }
 for(const name of ["communities","club"]){
- const src=await readFile("assets/js/"+name+".js","utf8");
+ const src=await readFile("assets/js/communities/"+name+".js","utf8");
  let registered=0;
  new Function("window",src)({VATRA_COMMUNITY_CORE:{start(init){assert.equal(typeof init,"function");registered++;}}});
  assert.equal(registered,1,name+" registers only its own initializer");
@@ -112,7 +112,7 @@ for(const [id] of catalog.marketTypes){
 console.log("VATRA lazy forms: marketplace controls and listing validation passed.");
 
 // Authentication and localization are independent; neither should delay starting the other.
-for(const name of ["feed","profile","core","friends","gifts","notifications"]){
+for(const name of ["feed","profile","core","friends/friends","gifts","notifications"]){
  const source=await readFile("assets/js/"+name+".js","utf8");
  const auth=source.match(/Promise\.all\(\[[^\n]*\.auth\.getUser\(\)[^\n]*,(?:languageReady|window\.VATRA_LANGUAGE\?\.ready)\]\)/);
  assert.ok(auth,name+" must overlap server-verified authentication with language initialization");

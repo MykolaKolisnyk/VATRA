@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { runInNewContext } from "node:vm";
 
-const source=await readFile("assets/js/club.js","utf8");
+const source=await readFile("assets/js/communities/club.js","utf8");
 const edge=await readFile("_development/supabase/functions/public-community-directory/index.ts","utf8");
 const begin=source.indexOf("async function fetchPublicClub(client,number){");
 const end=source.indexOf("async function openClub(",begin);
