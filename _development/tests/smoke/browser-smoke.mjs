@@ -57,6 +57,7 @@ try{
  const headerProbe=await context.newPage();
  try{
   const pages=["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"];
+  let canonicalMarkup=null;
   for(const width of [1440,768,390]){
    await headerProbe.setViewportSize({width,height:900});
    let baseline=null;
@@ -64,12 +65,16 @@ try{
     const source=await readFile(name+".html","utf8");
     const body=source.match(/<body[^>]*>/)?.[0],header=source.match(/<header class="feed-header[^"]*"[^>]*>[\s\S]*?<\/header>/)?.[0];
     assert.ok(body&&header,name+" has the real shared header");
+    const normalized=header.replace(/ social-top-(active|pending)\b/g,"").replace(/ aria-current="page"/g,"").replace(/>\s+</g,"><").trim();
+    if(canonicalMarkup===null)canonicalMarkup=normalized;else assert.equal(normalized,canonicalMarkup,name+" must have exactly the shared header markup");
     const links=Array.from(source.matchAll(/href="(assets\/css\/[^"?]+\.css)(?:\?[^"]*)?"/g),m=>'<link rel="stylesheet" href="'+base+m[1]+'">').join("");
     await headerProbe.setContent('<!doctype html><html lang="uk"><head>'+links+'</head>'+body+'<div class="feed-app">'+header+'<main style="min-height:1500px;background:#e2e8f0"></main></div></body></html>',{waitUntil:"load"});
+    await headerProbe.evaluate(async()=>{await document.fonts.ready;for(const node of document.querySelectorAll(".social-top-link")){node.classList.remove("social-top-active");node.classList.toggle("social-top-pending",node.hasAttribute("data-vatra-coming-soon"));node.removeAttribute("aria-current");}});
     const value=await headerProbe.evaluate(()=>{
      const h=document.querySelector(".feed-header"),s=getComputedStyle(h),r=h.getBoundingClientRect(),inner=h.querySelector(".feed-header-inner").getBoundingClientRect();
      const app=document.querySelector(".feed-app").getBoundingClientRect(),body=document.body.getBoundingClientRect();
-     return {height:r.height,innerHeight:inner.height,background:s.backgroundColor,shadow:s.boxShadow,border:s.borderBottom,position:s.position,filter:s.backdropFilter,radius:s.borderRadius,fullWidth:Math.abs(r.left-app.left)<1&&Math.abs(r.right-app.right)<1&&Math.abs(app.left-body.left)<1&&Math.abs(app.right-body.right)<1};
+     const components=[...h.querySelectorAll(".feed-header-brand,.feed-search-form,.feed-search-input,.social-top-link,.feed-header-controls,.feed-header-icon-button,.feed-account-toggle,.feed-header-avatar")].map(el=>{const c=getComputedStyle(el),b=el.getBoundingClientRect();return {x:Math.round(b.x),y:Math.round(b.y),width:Math.round(b.width),height:Math.round(b.height),display:c.display,color:c.color,background:c.backgroundColor,shadow:c.boxShadow,border:c.border,radius:c.borderRadius,font:c.font};});
+     return {height:r.height,width:r.width,innerHeight:inner.height,components,background:s.backgroundColor,shadow:s.boxShadow,border:s.borderBottom,position:s.position,filter:s.backdropFilter,radius:s.borderRadius,fullWidth:Math.abs(r.left-app.left)<1&&Math.abs(r.right-app.right)<1&&Math.abs(app.left-body.left)<1&&Math.abs(app.right-body.right)<1};
     });
     assert.equal(value.background,"rgb(255, 255, 255)");assert.equal(value.filter,"none");
     assert.equal(value.fullWidth,true,name+" header must fill its page width at "+width+"px");

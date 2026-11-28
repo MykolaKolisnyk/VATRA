@@ -73,7 +73,6 @@ body.vatra-section-page .vatra-preferences-block-name-001{font:700 15px/1.4 Ones
 
 body.vatra-section-page .vatra-preferences-id-badge-001{display:inline-flex;align-items:center;gap:3px;color:#647dab;font:700 12px/1.4 Onest,system-ui,sans-serif}
 body.vatra-section-page .vatra-preferences-id-logo-001{width:18px;height:18px;object-fit:contain}
-html:has(body.vatra-section-page:is([data-page="settings"],[data-page="vatra-id"])){scrollbar-gutter:stable;overflow-y:scroll}
 
 body.vatra-section-page .ui-vatra-id-content-001{display:grid;gap:var(--vatra-card-gap);min-width:0}
 body.vatra-section-page .ui-vatra-id-content-001 .ui-vatra-id-devices-001{margin-top:0}
