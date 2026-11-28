@@ -57,6 +57,7 @@ try{
  const headerProbe=await context.newPage();
  try{
   const pages=["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"];
+  let canonicalMarkup=null;
   for(const width of [1440,768,390]){
    await headerProbe.setViewportSize({width,height:900});
    let baseline=null;
@@ -64,12 +65,16 @@ try{
     const source=await readFile(name+".html","utf8");
     const body=source.match(/<body[^>]*>/)?.[0],header=source.match(/<header class="feed-header[^"]*"[^>]*>[\s\S]*?<\/header>/)?.[0];
     assert.ok(body&&header,name+" has the real shared header");
+    const normalized=header.replace(/ social-top-(active|pending)\b/g,"").replace(/ aria-current="page"/g,"").replace(/>\s+</g,"><").trim();
+    if(canonicalMarkup===null)canonicalMarkup=normalized;else assert.equal(normalized,canonicalMarkup,name+" must have exactly the shared header markup");
     const links=Array.from(source.matchAll(/href="(assets\/css\/[^"?]+\.css)(?:\?[^"]*)?"/g),m=>'<link rel="stylesheet" href="'+base+m[1]+'">').join("");
-    await headerProbe.setContent('<!doctype html><html lang="uk"><head>'+links+'</head>'+body+'<div class="feed-app">'+header+'<main style="min-height:1500px;background:#e2e8f0"></main></div></body></html>',{waitUntil:"load"});
+    await headerProbe.setContent('<!doctype html><html lang="uk"><head>'+links+'<style>html{scrollbar-gutter:auto!important;overflow-y:scroll!important}.feed-header,.feed-header *,.feed-header *::before,.feed-header *::after{transition:none!important;animation:none!important}</style></head>'+body+'<div class="feed-app">'+header+'<main style="min-height:1500px;background:#e2e8f0"></main></div></body></html>',{waitUntil:"load"});
+    await headerProbe.evaluate(async()=>{await document.fonts.ready;for(const node of document.querySelectorAll(".social-top-link")){node.classList.remove("social-top-active");node.classList.toggle("social-top-pending",node.hasAttribute("data-vatra-coming-soon"));node.removeAttribute("aria-current");}});
     const value=await headerProbe.evaluate(()=>{
      const h=document.querySelector(".feed-header"),s=getComputedStyle(h),r=h.getBoundingClientRect(),inner=h.querySelector(".feed-header-inner").getBoundingClientRect();
      const app=document.querySelector(".feed-app").getBoundingClientRect(),body=document.body.getBoundingClientRect();
-     return {height:r.height,innerHeight:inner.height,background:s.backgroundColor,shadow:s.boxShadow,border:s.borderBottom,position:s.position,filter:s.backdropFilter,radius:s.borderRadius,fullWidth:Math.abs(r.left-app.left)<1&&Math.abs(r.right-app.right)<1&&Math.abs(app.left-body.left)<1&&Math.abs(app.right-body.right)<1};
+     const components=[...h.querySelectorAll(".feed-header-brand,.feed-search-form,.feed-search-input,.social-top-link,.feed-header-controls,.feed-header-icon-button,.feed-account-toggle,.feed-header-avatar")].map(el=>{const c=getComputedStyle(el),b=el.getBoundingClientRect();return {x:Math.round(b.x),y:Math.round(b.y),width:Math.round(b.width),height:Math.round(b.height),display:c.display,color:c.color,background:c.backgroundColor,shadow:c.boxShadow,border:c.border,radius:c.borderRadius,font:c.font};});
+     return {height:r.height,width:r.width,innerHeight:inner.height,components,background:s.backgroundColor,shadow:s.boxShadow,border:s.borderBottom,position:s.position,filter:s.backdropFilter,radius:s.borderRadius,fullWidth:Math.abs(r.left-app.left)<1&&Math.abs(r.right-app.right)<1&&Math.abs(app.left-body.left)<1&&Math.abs(app.right-body.right)<1};
     });
     assert.equal(value.background,"rgb(255, 255, 255)");assert.equal(value.filter,"none");
     assert.equal(value.fullWidth,true,name+" header must fill its page width at "+width+"px");
@@ -4770,6 +4775,8 @@ try{
   assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","Story privacy defaults to friends");
   await feedProbe.locator(".vatra-story-panel-back-001").click();
   assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"overview");
+  assert.ok(await feedProbe.locator("#feed-story-audience").isVisible(),"Story viewer styles must not hide editor audience controls");
+  assert.ok(await feedProbe.locator("#feed-story-save").isVisible(),"Story viewer styles must not hide editor publication controls");
   await feedProbe.locator("#feed-story-audience").selectOption("public");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
@@ -5315,7 +5322,8 @@ try{
    inset:getComputedStyle(el,"::before").top,
    border:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor
   }));
-  assert.equal(activeRing.inset,"-2px","Active story ring extends exactly 2 CSS pixels outside the avatar");
+  assert.equal(activeRing.inset,"-6px","Active story fills the same six-pixel outer rim as an ordinary avatar");
+  assert.equal(await profilePage.locator("#profile-visitor-story").count(),0,"No separate visitor story badge");
   assert.equal(activeRing.kind,null,
    "A member with an uploaded photo must never be treated as a system portrait");
   assert.ok(activeRing.gradient.includes("conic-gradient")&&
@@ -5324,7 +5332,7 @@ try{
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-avatar-menu").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
-  assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0);
+  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,"Owner opens their avatar directly");
   const avatarLayers=await profilePage.evaluate(()=>({avatar:Number(getComputedStyle(document.querySelector("#profile-avatar-wrap")).zIndex),header:Number(getComputedStyle(document.querySelector(".feed-header")).zIndex)}));
   assert.ok(avatarLayers.avatar<avatarLayers.header,"Opening the avatar menu must never lift the avatar above the sticky header");
   for(const panel of ["photos","videos","clips","communities","saved","archive-stories","archive-posts","archive-photos"])
@@ -5551,8 +5559,10 @@ try{
    kind:el.getAttribute("data-vatra-ring-kind"),
    background:getComputedStyle(el,"::before").backgroundColor,
    image:getComputedStyle(el,"::before").backgroundImage,
+   inset:getComputedStyle(el,"::before").top,
    border:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor
   }));
+  assert.equal(ownRingAfterStory.inset,activeRing.inset,"Story activation must not change the rim geometry");
   assert.ok(ownRingAfterStory.kind===null&&
    ownRingAfterStory.background==="rgb(255, 255, 255)"&&
    ownRingAfterStory.image==="none"&&
@@ -6144,16 +6154,27 @@ try{
 
   // Visitor-only regression: the close handler must never reference the
   // owner-only upload state before it exists.
-  await profilePage.locator("#profile-avatar-trigger").click();
+  await profilePage.locator("#profile-avatar-trigger").hover();
+  await profilePage.locator("#profile-avatar-menu").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-visitor-story").count(),0);
+  assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),false);
+  await profilePage.locator("#profile-avatar-photo").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true,
    "Visitor avatar should open in the shared photo dialog");
   await profilePage.locator("#profile-media-viewer-close").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "The close button must work for a friend's avatar (not just our own)");
   await profilePage.locator("#profile-avatar-trigger").click();
+  await profilePage.locator("#profile-avatar-photo").click();
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape must also dismiss the friend's avatar and release modal scroll lock");
+  await profilePage.locator("#profile-avatar-trigger").click();
+  await profilePage.locator("#profile-avatar-story").click();
+  assert.equal(await profilePage.locator("#profile-story-viewer").evaluate(el=>el.open),true,"Story opens from the same visitor menu");
+  await profilePage.locator("#profile-story-viewer-close").click();
 
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
@@ -6481,7 +6502,7 @@ try{
    getComputedStyle(el).borderTopColor);
   assert.equal(defaultBorder,"rgb(255, 255, 255)",
    "Default avatar must retain a visible white circular frame");
-  assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0,"No redundant open photo menu item");
+  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,"No photo menu action without an uploaded photo");
   const defaultSvg=await profilePage.locator("#profile-avatar").evaluate(el=>({
    rendered:getComputedStyle(el).backgroundImage,
    expected:window.VATRA_AVATAR?.asset?.("default")

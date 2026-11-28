@@ -314,7 +314,7 @@ console.log("VATRA story viewer: owner-only deletion and real adjacent previews 
  media={complete:true,naturalWidth:100};advance(70);assert.equal(completed,2);
  media={duration:20,currentTime:10,ended:false};
  api.start(dialog,slot,{media_kind:"video",media_path:"video"},()=>completed++,()=>blocked);
- advance(100);assert.equal(bar.value,.5);assert.equal(completed,2);assert.equal(button.hidden,true);
+ advance(100);assert.equal(bar.value,.5);assert.equal(completed,2);assert.equal(button.hidden,false);
  blocked=true;media.ended=true;media.currentTime=20;advance(1);assert.equal(completed,2);
  blocked=false;advance(1);assert.equal(completed,3);
  let views=0;
@@ -394,3 +394,37 @@ console.log("VATRA story views: live-only insert, self exclusion, duplicate/netw
  assert.equal(list.children.length,0);assert.equal(ui.hidden,true);assert.equal(api.blocked(dialog),false);
 }
 console.log("VATRA story views: list refresh, pagination deduplication, stale response isolation and teardown verified.");
+
+{
+ const runtime=await readFile("assets/js/story-reactions.js","utf8");
+ const window={},document={documentElement:{lang:"uk"}};
+ runInNewContext(runtime,{window,document,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URL});
+ const api=window.VATRA_STORY_REACTIONS,id="10000000-0000-0000-0000-000000000001",story={id,author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
+ let rows=null,calls=0,fail=false;
+ const client={from(table){assert.equal(table,"story_reactions");calls++;let action="read",value=null;
+ const q={eq(k,v){assert.equal(v,k==="story_id"?id:"102");return q;},select(){return q;},insert(payload){assert.equal(payload.story_id,id);assert.equal(payload.reactor_vatra_id,"102");action="insert";value=payload.reaction;return q;},update(payload){assert.equal(Object.keys(payload).join(","),"reaction");action="update";value=payload.reaction;return q;},delete(){action="delete";return q;},async maybeSingle(){if(fail)return {error:{code:"network"}};if(action==="insert"&&rows!==null)return {error:{code:"23505"}};if(action==="insert"||action==="update"&&rows!==null)rows=value;const data=rows===null?null:{reaction:rows};if(action==="delete")rows=null;return {data,error:null};}};return q;}};
+ assert.equal((await api.read(client,story,"101")).ok,false);assert.equal(calls,0);
+ assert.equal((await api.write(client,story,"102",null,"sticker")).ok,false);assert.equal(calls,0);
+ assert.equal((await api.read(client,story,"102")).value,null);
+ assert.equal((await api.write(client,story,"102",null,"heart")).value,"heart");
+ assert.equal((await api.read(client,story,"102")).value,"heart");
+ assert.equal((await api.write(client,story,"102","heart","fire")).value,"fire");
+ assert.equal((await api.write(client,story,"102","fire",null)).value,null);
+ fail=true;assert.equal((await api.write(client,story,"102",null,"like")).ok,false);fail=false;
+ assert.equal((await api.write(client,story,"102","heart","like")).ok,false,"A missing server row cannot be reported as success");
+ assert.equal((await api.write(client,{...story,expires_at:new Date(now-1).toISOString()},"102",null,"like")).ok,false);
+ assert.equal(await api.page(client,story,"102",0),null,"Only owner requests the reaction list");
+}
+console.log("VATRA story reactions: self exclusion, type allowlist, server-confirmed changes, removal, errors and owner-only list verified.");
+
+{
+ const window={VATRA_PUBLIC_NAMES:{get:async(_client,ids)=>({data:ids.map(vatra_id=>({vatra_id,display_name:"Name "+vatra_id}))})}},document={documentElement:{lang:"uk"}};
+ let batches=0;
+ window.VATRA_AVATAR={paths:async(_client,ids)=>{batches++;return {data:ids.map(vatra_id=>({vatra_id,avatar_path:(vatra_id==="105"?"999":vatra_id)+"/avatar/test.webp"})),error:null};},states:async()=>new Map([["104","blocked"]])};
+ for(const path of ["assets/js/story-views.js","assets/js/story-reactions.js"])runInNewContext(await readFile(path,"utf8"),{window,document,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URL});
+ const api=window.VATRA_STORY_REACTIONS,story={id:"10000000-0000-0000-0000-000000000001",author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
+ const client={storage:{from(bucket){assert.equal(bucket,"avatars");return {getPublicUrl(path){return {data:{publicUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/"+path}};}};}},from(table){assert.equal(table,"story_reactions");const q={select(){return q;},eq(){return q;},order(){return q;},async range(){return {data:[{reactor_vatra_id:"103",reaction:"heart"},{reactor_vatra_id:"104",reaction:"like"},{reactor_vatra_id:"105",reaction:"fire"}],error:null};}};return q;}};
+ assert.equal(await api.page(client,story,"102",0),null);assert.equal(batches,0);
+ const result=await api.page(client,story,"101",0);assert.equal(batches,1);assert.equal(result.rows.length,3);assert.equal(result.rows[0].name,"Name 103");assert.equal(result.rows[0].avatar.url,"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/103/avatar/test.webp");assert.equal(result.rows[1].avatar.state,"blocked");assert.equal(result.rows[1].avatar.url,null);assert.equal(result.rows[2].avatar.url,null);
+}
+console.log("VATRA reaction portraits: owner-only batched lookup and blocked/mismatched path exclusion verified.");
