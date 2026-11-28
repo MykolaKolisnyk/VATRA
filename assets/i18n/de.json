@@ -4215,5 +4215,12 @@
   "Село проживання": "Wohndorf",
   "Селище проживання": "Wohnort (Kleinstadt)",
   "Рідне село": "Heimatdorf",
-  "Рідне селище": "Heimatkleinstadt"
+  "Рідне селище": "Heimatkleinstadt",
+  "Виберіть відео до 50 МБ.": "Wähle ein Video bis 50 MB aus.",
+  "Не вдалося обробити відео. Спробуйте менший або інший файл.": "Das Video konnte nicht verarbeitet werden. Versuche eine kleinere oder andere Datei.",
+  "Виберіть JPEG, PNG, WebP або відео.": "Wähle JPEG, PNG, WebP oder ein Video aus.",
+  "Обробка відео…": "Video wird verarbeitet…",
+  "Відео · до 50 МБ, до 60 секунд": "Video · bis 50 MB und 60 Sekunden",
+  "Фото JPEG, PNG, WebP: до 30 МБ. Відео: до 50 МБ.": "JPEG-, PNG- und WebP-Fotos: bis 30 MB. Video: bis 50 MB.",
+  "Виберіть фото, яке підтримує браузер, до 6 МБ або відео до 50 МБ.": "Wähle ein vom Browser unterstütztes Foto bis 6 MB oder ein Video bis 50 MB aus."
 }

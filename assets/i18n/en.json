@@ -4073,5 +4073,12 @@
   "Село проживання": "Village of residence",
   "Селище проживання": "Town of residence",
   "Рідне село": "Home village",
-  "Рідне селище": "Home town"
+  "Рідне селище": "Home town",
+  "Виберіть відео до 50 МБ.": "Choose a video up to 50 MB.",
+  "Не вдалося обробити відео. Спробуйте менший або інший файл.": "Video processing failed. Try a smaller or different file.",
+  "Виберіть JPEG, PNG, WebP або відео.": "Choose JPEG, PNG, WebP or video.",
+  "Обробка відео…": "Processing video…",
+  "Відео · до 50 МБ, до 60 секунд": "Video · up to 50 MB and 60 seconds",
+  "Фото JPEG, PNG, WebP: до 30 МБ. Відео: до 50 МБ.": "JPEG, PNG, WebP photos: up to 30 MB. Video: up to 50 MB.",
+  "Виберіть фото, яке підтримує браузер, до 6 МБ або відео до 50 МБ.": "Choose a browser-supported photo up to 6 MB or video up to 50 MB."
 }

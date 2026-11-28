@@ -4215,5 +4215,12 @@
   "Село проживання": "Village de résidence",
   "Селище проживання": "Bourg de résidence",
   "Рідне село": "Village d’origine",
-  "Рідне селище": "Bourg d’origine"
+  "Рідне селище": "Bourg d’origine",
+  "Виберіть відео до 50 МБ.": "Choisissez une vidéo de 50 Mo maximum.",
+  "Не вдалося обробити відео. Спробуйте менший або інший файл.": "Impossible de traiter la vidéo. Essayez un fichier plus petit ou différent.",
+  "Виберіть JPEG, PNG, WebP або відео.": "Choisissez un fichier JPEG, PNG, WebP ou une vidéo.",
+  "Обробка відео…": "Traitement de la vidéo…",
+  "Відео · до 50 МБ, до 60 секунд": "Vidéo · 50 Mo et 60 secondes maximum",
+  "Фото JPEG, PNG, WebP: до 30 МБ. Відео: до 50 МБ.": "Photos JPEG, PNG, WebP : 30 Mo maximum. Vidéo : 50 Mo maximum.",
+  "Виберіть фото, яке підтримує браузер, до 6 МБ або відео до 50 МБ.": "Choisissez une photo compatible avec le navigateur de 6 Mo maximum ou une vidéo de 50 Mo maximum."
 }

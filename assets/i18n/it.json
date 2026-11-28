@@ -4215,5 +4215,12 @@
   "Село проживання": "Villaggio di residenza",
   "Селище проживання": "Borgo di residenza",
   "Рідне село": "Villaggio di origine",
-  "Рідне селище": "Borgo di origine"
+  "Рідне селище": "Borgo di origine",
+  "Виберіть відео до 50 МБ.": "Scegli un video fino a 50 MB.",
+  "Не вдалося обробити відео. Спробуйте менший або інший файл.": "Impossibile elaborare il video. Prova un file più piccolo o diverso.",
+  "Виберіть JPEG, PNG, WebP або відео.": "Scegli JPEG, PNG, WebP o un video.",
+  "Обробка відео…": "Elaborazione del video…",
+  "Відео · до 50 МБ, до 60 секунд": "Video · fino a 50 MB e 60 secondi",
+  "Фото JPEG, PNG, WebP: до 30 МБ. Відео: до 50 МБ.": "Foto JPEG, PNG, WebP: fino a 30 MB. Video: fino a 50 MB.",
+  "Виберіть фото, яке підтримує браузер, до 6 МБ або відео до 50 МБ.": "Scegli una foto supportata dal browser fino a 6 MB o un video fino a 50 MB."
 }

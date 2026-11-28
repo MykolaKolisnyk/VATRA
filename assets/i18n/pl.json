@@ -4215,5 +4215,12 @@
   "Село проживання": "Wieś zamieszkania",
   "Селище проживання": "Osada zamieszkania",
   "Рідне село": "Rodzinna wieś",
-  "Рідне селище": "Rodzinna osada"
+  "Рідне селище": "Rodzinna osada",
+  "Виберіть відео до 50 МБ.": "Wybierz film o rozmiarze do 50 MB.",
+  "Не вдалося обробити відео. Спробуйте менший або інший файл.": "Nie udało się przetworzyć filmu. Spróbuj użyć mniejszego lub innego pliku.",
+  "Виберіть JPEG, PNG, WebP або відео.": "Wybierz JPEG, PNG, WebP lub film.",
+  "Обробка відео…": "Przetwarzanie filmu…",
+  "Відео · до 50 МБ, до 60 секунд": "Film · do 50 MB i 60 sekund",
+  "Фото JPEG, PNG, WebP: до 30 МБ. Відео: до 50 МБ.": "Zdjęcia JPEG, PNG, WebP: do 30 MB. Film: do 50 MB.",
+  "Виберіть фото, яке підтримує браузер, до 6 МБ або відео до 50 МБ.": "Wybierz zdjęcie obsługiwane przez przeglądarkę do 6 MB lub film do 50 MB."
 }

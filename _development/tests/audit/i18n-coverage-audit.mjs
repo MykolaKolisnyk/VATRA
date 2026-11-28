@@ -162,7 +162,8 @@ assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
 // Read labels from actual post media controls, including aria and error strings.
 const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/\b(?:tr|translate)\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
  .map(match=>JSON.parse(match[1])))];
-assert.equal(postMediaKeys.length,50,"Post media runtime includes retry, photo zoom and shared description controls");
+assert.equal(postMediaKeys.length,52,"Post media runtime includes retry, photo zoom, shared description controls and video preparation");
+for(const key of ["Виберіть відео до 50 МБ.","Не вдалося обробити відео. Спробуйте менший або інший файл.","Виберіть JPEG, PNG, WebP або відео."])assert.ok(postMediaKeys.includes(key),"Missing video preparation label: "+key);
 for(const key of ["Редагувати опис","Введіть опис","Зберегти","Скасувати","Показати більше","Показати менше"])assert.ok(postMediaKeys.includes(key),"Missing description label: "+key);
 for(const key of ["Масштаб фотографії","Наблизити","Віддалити","Показати менше"])assert.ok(postMediaKeys.includes(key),"Missing zoom label: "+key);
 assert.ok(postMediaKeys.includes("Повторити"),"Media retry action must be translated");
