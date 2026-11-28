@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 
-const code=await readFile("assets/js/notifications.js","utf8");
+const code=await readFile("assets/js/notifications/notifications.js","utf8");
 function section(start,end){
  const i=code.indexOf(start),j=code.indexOf(end,i+start.length);
  assert.ok(i>=0&&j>i,"Missing live notification function: "+start);

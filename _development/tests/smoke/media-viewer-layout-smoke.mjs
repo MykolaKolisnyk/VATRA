@@ -12,7 +12,7 @@ const [postMedia,postInteractions,profile,profileGallery,postCss,profileCss,prof
  read("assets/css/profile.css"),
  read("profile.html"),
  read("assets/js/verified.js"),
- read("assets/js/notifications.js")
+ read("assets/js/notifications/notifications.js")
 ]);
 
 assert.ok(

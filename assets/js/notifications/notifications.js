@@ -1,7 +1,7 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-const root=new URL("../../",document.currentScript?.src||"assets/js/notifications.js");
+const root=new URL("../../../",document.currentScript?.src||"assets/js/notifications/notifications.js");
 const pick=s=>document.querySelector(s);
 const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
 const dateLocales={uk:"uk-UA",en:"en-GB",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};

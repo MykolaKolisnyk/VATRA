@@ -33,7 +33,7 @@ assert.ok(core.indexOf("bindViewer?.(client,user.id)")>core.indexOf("ownId=Strin
 for(const [file,accountAnchor,binding] of [
  ["friends/friends",'ownId=String(account.data.vatra_id);','bindViewer?.(client,user.id)'],
  ["gifts/gifts",'const id=String(account.data.vatra_id);','bindViewer?.(client,user.id)'],
- ["notifications",'const id=String(account.vatra_id);','bindViewer?.(clientRef,user.id)'],
+ ["notifications/notifications",'const id=String(account.vatra_id);','bindViewer?.(clientRef,user.id)'],
  ["communities/community-core",'const ownId=account?.vatra_id==null?null:String(account.vatra_id);','bindViewer?.(client,user.id)']
 ]){
  const source=await readFile("assets/js/"+file+".js","utf8");

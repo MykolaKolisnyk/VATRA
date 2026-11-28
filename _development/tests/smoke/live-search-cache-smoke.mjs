@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
-const source=await readFile("assets/js/notifications.js","utf8");
+const source=await readFile("assets/js/notifications/notifications.js","utf8");
 const start=source.indexOf("const SITE_SEARCH_TTL_MS=8_000,SITE_SEARCH_MAX=24;");
 const end=source.indexOf("window.VATRA_SITE_SEARCH={search:findSite,",start);
 assert.ok(start>=0&&end>start);

@@ -1103,7 +1103,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","sw.js"]){
+for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications/notifications.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
@@ -1163,14 +1163,14 @@ assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
  !(await read("feed.html")).includes('ui-feed-filter-friends-icon-001')&&
  !(await read("feed.html")).includes('ui-feed-filter-communities-icon-001')&&
  (await read("assets/css/feed.css")).includes('vatra-post-share-dialog')&&
- (await read("assets/js/notifications.js")).includes('vatra-notification-avatar'),
+ (await read("assets/js/notifications/notifications.js")).includes('vatra-notification-avatar'),
  "Social interactions, full post cards, branded filters and scroll rail must remain functional");
 assert.ok((await read("assets/js/feed.js")).includes('vatra-global-search-results')&&
  (await read("assets/js/feed.js")).includes('public_profiles')&&
  (await read("assets/js/feed.js")).includes('client.from("communities")'),
  "Global VATRA search must search names and communities as well as accessible posts");
 const liveSiteShell=await read("assets/js/social-shell.js");
-const liveNotificationProvider=await read("assets/js/notifications.js");
+const liveNotificationProvider=await read("assets/js/notifications/notifications.js");
 assert.ok(liveSiteShell.includes('vatra-search-live-results')&&
  liveSiteShell.includes('ui-vatra-search-live-glyph-')&&
  liveSiteShell.includes('scheduleLive(term)')&&
@@ -1179,7 +1179,7 @@ assert.ok(liveSiteShell.includes('vatra-search-live-results')&&
  liveSiteShell.includes('ui-vatra-search-categories-001')&&liveSiteShell.includes('rememberView(kind,item)'),
  "Site-wide search must query RLS-visible people, communities and posts directly");
 const notificationMarkup=await read("notifications.html");
-const notificationScript=await read("assets/js/notifications.js");
+const notificationScript=await read("assets/js/notifications/notifications.js");
 assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationMarkup.includes('id="notifications-list"')&&
  notificationMarkup.includes('id="notifications-more"')&&
@@ -1389,8 +1389,8 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedJs.includes("vatra.search.history.v2.member.")&&
  sharedJs.includes("window.VATRA_SEARCH_HISTORY={setViewer}")&&
  !sharedJs.includes('const storageKey="vatra.search.history.v1"')&&
- (await read("assets/js/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(null)")&&
- (await read("assets/js/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(ownId)")&&
+ (await read("assets/js/notifications/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(null)")&&
+ (await read("assets/js/notifications/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(ownId)")&&
  sharedJs.includes("setUpSiteSearch()")&&
  !sharedCss.includes(".vatra-search-history::-webkit-scrollbar-thumb")&&
  css.includes(".vatra-search-history")&&
@@ -1488,7 +1488,7 @@ const storyDeletePath=iconProfileMarkup.match(/class="ui-profile-story-delete-pa
 assert.equal(storyDeletePath,postActionSource.split('if(type==="delete")path("')[1]?.split('"')[0],
  "Story deletion must use the same vector as post deletion");
 const albumActionSource=await read("assets/js/photo-albums.js");
-const notificationIconSource=await read("assets/js/notifications.js");
+const notificationIconSource=await read("assets/js/notifications/notifications.js");
 for(const [albumKey,postKey] of [["comments","comments"],["close","x"],["send","arrow"],["smile","smile"],["trash","delete"],["like","thumb"],["share","share"]]){
  const postPath=postActionSource.split('if(type==="'+postKey+'")path("')[1]?.split('"')[0];
  const albumPath=albumActionSource.split(albumKey+':"')[1]?.split('"')[0];
@@ -2044,7 +2044,7 @@ assert.ok(
  profileBehavior.includes('result.data?.id')&&
  profileBehavior.includes('Friendship was not changed'),
  "Profile blocking and friendship changes must confirm affected rows");
-const notificationPerfScript=await read("assets/js/notifications.js");
+const notificationPerfScript=await read("assets/js/notifications/notifications.js");
 const workerPerfScript=await read("sw.js");
 assert.ok(
  postMediaScript.includes('createSignedUrls(paths,ttl)')&&
@@ -2596,7 +2596,7 @@ assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
  languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify')&&
  (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
- !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
+ !(await read("assets/js/notifications/notifications.js")).includes('new URL("notifications.html"'),
  "All VATRA member areas and outbound navigation use canonical extensionless routes");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vatra-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
@@ -2658,7 +2658,7 @@ assert.ok(
  !socialMotion.includes('new URL(ownProfile?"profile.html":"club.html"')&&
  !socialMotion.includes('searchParams.set("vatra_id"')&&
  !profileScript.includes('query.get("vatra_id")')&&
- (await read("assets/js/notifications.js")).includes('if(!window.VATRA_NAVIGATE?.to(link.href))'),
+ (await read("assets/js/notifications/notifications.js")).includes('if(!window.VATRA_NAVIGATE?.to(link.href))'),
  "Brand tab title and direct /idN routing must never generate query-style profile URLs");
 
 /* English dictionaries are asynchronous: no UI reveal may finish while the
@@ -2720,14 +2720,14 @@ for(const publicNamePage of ["feed","profile","communities","club","notification
  const cachePos=html.indexOf('assets/js/public-name-cache.js');
  const avatarPos=html.indexOf('assets/js/avatar.js');
  const interactionsPos=html.indexOf('assets/js/post-interactions.js');
- const notificationsPos=html.indexOf('assets/js/notifications.js');
+ const notificationsPos=html.indexOf('assets/js/notifications/notifications.js');
  assert.ok(cachePos>avatarPos && avatarPos>=0 &&
   (interactionsPos===-1||cachePos<interactionsPos) &&
   (notificationsPos===-1||cachePos<notificationsPos),
   "Public-name cache must load before member data on "+publicNamePage);
 }
 for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
- "assets/js/notifications.js","assets/js/profile.js","assets/js/communities/club.js"]){
+ "assets/js/notifications/notifications.js","assets/js/profile.js","assets/js/communities/club.js"]){
  assert.ok((await read(path)).includes("window.VATRA_PUBLIC_NAMES?.get(client,"),
   "Public-name lookups must use the shared cache in "+path);
 }
@@ -2809,7 +2809,7 @@ assert.ok((legacyViewCleanup.match(/DROP VIEW IF EXISTS public\.vatra_/g)||[]).l
  "Legacy views can be removed independently; clean Storage buckets must preserve owner-only RLS");
 for(const source of ["assets/js/avatar.js","assets/js/post-media.js","assets/js/post-interactions.js",
  "assets/js/feed.js","assets/js/profile.js","assets/js/communities/communities.js","assets/js/communities/club.js","assets/js/communities/community-core.js",
- "assets/js/friends/friends.js","assets/js/notifications.js"]){
+ "assets/js/friends/friends.js","assets/js/notifications/notifications.js"]){
  const contents=await read(source);
  for(const oldBucket of ["vatra-avatars","vatra-covers","vatra-post-images","vatra-videos"])
   assert.ok(!contents.includes(oldBucket),source+" must not use an old Storage bucket");
@@ -2835,7 +2835,7 @@ await import("../smoke/media-signed-cache-smoke.mjs");
 
 /* The shared live-search results contain RLS-scoped posts. Cache only in
    bounded viewer-local memory; never persist or share them via Redis. */
-const liveSearchCacheScript=await read("assets/js/notifications.js");
+const liveSearchCacheScript=await read("assets/js/notifications/notifications.js");
 assert.ok(
  liveSearchCacheScript.includes("const SITE_SEARCH_TTL_MS=8_000,SITE_SEARCH_MAX=24")&&
  liveSearchCacheScript.includes("const siteSearchCaches=new WeakMap()")&&
@@ -3071,3 +3071,5 @@ for(const [section,modules] of [["clips",["clips","clip-composer"]],["marketplac
 
 for(const name of ["gifts","gift-catalog","gift-viewer"])assert.ok(javascriptFiles.includes("gifts/"+name+".js")&&!javascriptFiles.includes(name+".js"),"Gift module has a canonical section path: "+name);
 assert.ok(!cssFiles.includes("gifts.css"),"No duplicate flat gift stylesheet");
+
+assert.ok(javascriptFiles.includes("notifications/notifications.js")&&!javascriptFiles.includes("notifications.js"),"Notifications must have one canonical module without a flat duplicate");
