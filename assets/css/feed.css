@@ -2162,8 +2162,9 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
 
 
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vatra-feed-filter-heading-001{
- display:flex;align-items:center;min-height:32px;margin:0 0 6px
+ display:grid;grid-template-columns:20px minmax(0,1fr) 20px;align-items:center;gap:8px;min-height:32px;margin:0 0 6px;text-align:center
 }
+body.feed-page:not(.profile-page):not(.community-page) .vatra-feed-filter-heading-text-001{grid-column:2;min-width:0;overflow-wrap:anywhere;text-align:center}
 
 
 body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){align-items:stretch;}
@@ -3559,7 +3560,11 @@ body.feed-page:not(.profile-page):not(.community-page) .ui-feed-reading-lane-001
 @media(min-width:951px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-main{grid-template-rows:auto!important;align-items:start!important;align-content:start!important}
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001{display:flex;flex-direction:column;gap:var(--vatra-content-card-gap,16px);grid-column:1;grid-row:1;min-width:0;align-self:start}
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:2;grid-row:1!important;align-self:start}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:2;grid-row:1!important;align-self:start;position:sticky;top:calc(61px + var(--vatra-content-card-gap,16px));max-height:calc(100dvh - 61px - 2 * var(--vatra-content-card-gap,16px));overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > *{flex-shrink:0}
+}
+@media(min-width:1201px){
+ body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{position:sticky!important;top:calc(61px + var(--vatra-content-card-gap,16px));align-self:start;max-height:calc(100dvh - 61px - 2 * var(--vatra-content-card-gap,16px));overflow-y:auto;overscroll-behavior-y:contain;scrollbar-width:thin}
 }
 
 body.feed-page .vatra-quick-compose-001:is([data-create-menu],[data-create-direct]):not([hidden]){position:relative;display:block;padding:0;min-height:0;overflow:visible;border-radius:var(--vatra-card-radius)}
