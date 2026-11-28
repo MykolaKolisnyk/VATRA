@@ -1733,7 +1733,13 @@ assert.ok(
  detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
  detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
  detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
- detailsModule.includes('labelGroup.append(lab);if(settlementType){labelGroup.append(settlementType);enhanceEditorSelect(settlementType);}') &&
+ detailsModule.includes('make(isSettlement(key)?"button":"label"') &&
+ detailsModule.includes('lab.dataset.settlementLabel="true"') &&
+ detailsModule.includes('settlementType.hidden=true;settlementType.tabIndex=-1') &&
+ detailsModule.includes('openEditorMenu(lab,labelGroup,Array.from(settlementType.options)') &&
+ detailsModule.includes('settlementType.dispatchEvent(new Event("change",{bubbles:true}))') &&
+ !detailsModule.includes('enhanceEditorSelect(settlementType)') &&
+ memberCss.includes('button[data-settlement-label]') &&
  detailsModule.includes('if(fieldCounter)labelGroup.append(fieldCounter);control.append(selectBox)') &&
  detailsModule.includes('if(variant==="compact")button.append(iconWrap);') &&
  !detailsModule.includes('ui-profile-editor-disclosure-') &&
@@ -1803,8 +1809,9 @@ assert.ok(searchLogic.includes("const compact=vw<=600;")&&
  searchLogic.includes("Math.min(ox+vw-left-(compact?0:12)")&&
  systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('.feed-top-controls{display:contents!important}')&&
- systemFeedCss.includes('.feed-top-controls > .feed-posts-section{')&&
- systemFeedCss.includes('grid-column:1;grid-row:3;width:100%;min-width:0;margin:0')&&
+ systemFeedCss.includes('.feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{')&&
+ systemFeedCss.includes('.feed-top-controls > .ui-feed-reading-lane-001{display:flex;flex-direction:column;')&&
+ systemFeedCss.includes('grid-column:2;grid-row:1!important;align-self:start')&&
  systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
  "Search must align to the header search area without overflowing; Stories and Posts retain the Composer column; avatar is larger");
 
@@ -2078,10 +2085,12 @@ assert.ok(
  !systemProfileCss.includes('body.profile-page .profile-confirm-dialog::backdrop{'),
  "All profile decisions use the accessible VATRA dialog, not native JS confirm windows");
 assert.ok(
- feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<
- feedMarkup.indexOf('</section>\n          </div>\n        </main>')&&
- systemFeedCss.includes('grid-column:1;grid-row:3;width:100%;min-width:0;margin:0'),
- "Feed posts must sit inside the same two-column grid as composer and story");
+ feedMarkup.indexOf('class="ui-feed-reading-lane-001"')<feedMarkup.indexOf('class="feed-stories is-empty ui-feed-stories-001"')&&
+ feedMarkup.indexOf('class="feed-stories is-empty ui-feed-stories-001"')<feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001')&&
+ feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001')<feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')&&
+ feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<feedMarkup.indexOf('<aside class="ui-feed-right-rail-001">')&&
+ systemFeedCss.includes('.feed-top-controls > .ui-feed-reading-lane-001{display:flex;flex-direction:column;'),
+ "Feed stories, composer and posts share an independent reading lane, not sidebar-sized grid rows");
 
 // The layout shares one compact rhythm between Feed and profiles. A hidden
 // notification does not leave a phantom row; media remains uncropped.

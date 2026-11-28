@@ -298,8 +298,11 @@ console.log("VATRA story viewer: owner-only deletion and real adjacent previews 
  const document={...listeners(),hidden:false,documentElement:{lang:"uk"}},window={};
  const slot={querySelector:()=>media};
  runInNewContext(runtime,{window,document,performance:{now:()=>clock},WeakMap,Number,Math,String,
-  setInterval(fn){tick=fn;return 1;},clearInterval(){tick=null;}});
- const api=window.VATRA_STORY_PROGRESS,advance=n=>{for(let i=0;i<n;i++){clock+=100;tick?.();}};
+  requestAnimationFrame(fn){tick=fn;return 1;},cancelAnimationFrame(){tick=null;}});
+ const api=window.VATRA_STORY_PROGRESS,advance=(n,step=100)=>{for(let i=0;i<n;i++){clock+=step;const frame=tick;tick=null;frame?.();}};
+ api.start(dialog,slot,{},()=>completed++,()=>blocked);
+ advance(1,16);const firstFrame=bar.value;advance(1,16);assert.ok(firstFrame>0&&bar.value>firstFrame,"Progress advances on successive display frames, not every 100ms");
+ api.stop(dialog);assert.equal(tick,null,"Stopping cancels the scheduled animation frame");
  api.start(dialog,slot,{},()=>completed++,()=>blocked);
  advance(30);assert.ok(bar.value>.4&&bar.value<.5);
  blocked=true;const before=bar.value;advance(100);assert.equal(bar.value,before);

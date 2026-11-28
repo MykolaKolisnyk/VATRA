@@ -4459,6 +4459,14 @@ try{
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
+  const storyDeleteButtons=await feedProbe.evaluate(()=>{
+   const dialog=document.querySelector("#feed-story-delete-dialog");dialog.showModal();
+   try{return [...dialog.querySelectorAll(".feed-delete-actions button")].map(b=>{const r=b.getBoundingClientRect(),c=getComputedStyle(b);return {w:r.width,h:r.height,top:r.top,radius:c.borderRadius,border:c.borderTopWidth,font:c.fontWeight};});}
+   finally{dialog.close();}
+  });
+  const [storyCancel,storyAccept]=storyDeleteButtons;
+  assert.ok(Math.abs(storyCancel.w-storyAccept.w)<=1&&Math.abs(storyCancel.h-storyAccept.h)<=1&&Math.abs(storyCancel.top-storyAccept.top)<=1,"Actual story deletion buttons must have equal geometry: "+JSON.stringify(storyDeleteButtons));
+  assert.equal(storyCancel.radius,storyAccept.radius);assert.equal(storyCancel.border,storyAccept.border);assert.equal(storyCancel.font,storyAccept.font);
   const postDeleteButtons=await feedProbe.locator("#feed-delete-dialog .feed-delete-actions").evaluate(el=>[...el.querySelectorAll("button")].map(b=>({w:b.offsetWidth,h:b.offsetHeight,radius:getComputedStyle(b).borderRadius})));
   assert.deepEqual(postDeleteButtons[0],postDeleteButtons[1],"Actual post deletion buttons must have equal geometry");
   await feedProbe.locator("#feed-delete-confirm").click();
@@ -4734,6 +4742,8 @@ try{
   await feedProbe.locator(".vatra-story-undo-001").click();
   assert.equal(await feedProbe.locator(".vatra-story-filter-001").first().getAttribute("aria-pressed"),"true");
   assert.equal(await feedProbe.locator("#feed-story-audience").inputValue(),"friends","Story privacy defaults to friends");
+  await feedProbe.locator(".vatra-story-panel-back-001").click();
+  assert.equal(await feedProbe.locator(".ui-vatra-story-sidebar-001").getAttribute("data-panel"),"overview");
   await feedProbe.locator("#feed-story-audience").selectOption("public");
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
@@ -4979,6 +4989,24 @@ try{
      filterGeometry.storyBottom<=filterGeometry.composerTop+1&&
      filterGeometry.filterTop>=filterGeometry.composerBottom-3),
     "Feed post lane and independent filter must fit without overlap: "+JSON.stringify(filterGeometry));
+   if(filterGeometry.screenWidth>950){
+    const tallRail=await feedProbe.evaluate(()=>{
+     const rail=document.querySelector(".ui-feed-right-rail-001"),stories=document.querySelector(".feed-stories"),composer=document.querySelector(".feed-quick-compose"),posts=document.querySelector(".feed-posts-section"),status=document.querySelector(".feed-status");
+     const prev={minHeight:rail.style.minHeight,stories:stories.hidden,status:status.hidden,text:status.textContent,toast:document.documentElement.classList.contains("vatra-toast-enabled")};
+     const measure=()=>({gap:posts.getBoundingClientRect().top-composer.getBoundingClientRect().bottom,storyGap:composer.getBoundingClientRect().top-stories.getBoundingClientRect().bottom,railHeight:rail.getBoundingClientRect().height});
+     try{rail.style.minHeight="850px";stories.hidden=false;status.hidden=true;
+      const visible=measure();stories.hidden=true;const hidden=measure();
+      stories.hidden=false;status.textContent="Story published";status.hidden=false;
+      document.documentElement.classList.add("vatra-toast-enabled");
+      const toast=measure(),toastStatusHidden=getComputedStyle(status).display==="none";
+      document.documentElement.classList.remove("vatra-toast-enabled");
+      const notice=measure(),noticeGap=status.getBoundingClientRect().top-composer.getBoundingClientRect().bottom,afterNotice=posts.getBoundingClientRect().top-status.getBoundingClientRect().bottom;
+      return {visible,hidden,toast,toastStatusHidden,notice,noticeGap,afterNotice};
+     }finally{rail.style.minHeight=prev.minHeight;stories.hidden=prev.stories;status.hidden=prev.status;status.textContent=prev.text;document.documentElement.classList.toggle("vatra-toast-enabled",prev.toast);}
+    });
+    for(const state of [tallRail.visible,tallRail.hidden,tallRail.toast])assert.ok(state.gap>=8&&state.gap<=21&&state.railHeight>=850,"Tall sidebar cannot move posts down: "+JSON.stringify(tallRail));
+    assert.ok(tallRail.toastStatusHidden&&tallRail.visible.storyGap>=8&&tallRail.visible.storyGap<=21&&tallRail.noticeGap>=8&&tallRail.noticeGap<=21&&tallRail.afterNotice>=8&&tallRail.afterNotice<=21,"Story publication status must not introduce blank space: "+JSON.stringify(tallRail));
+   }
    if(filterGeometry.viewportWidth>1200){
     assert.ok(filterGeometry.adRight+12<=filterGeometry.composeLeft&&
      filterGeometry.filterLeft>=filterGeometry.composeRight+10&&
@@ -5757,6 +5785,13 @@ try{
   };
   await selectCountry("PL");
   await profilePage.locator("#profile-editor-hometown").fill("Львів, Україна");
+  for(const key of ["city","hometown"]){
+   const label=profilePage.locator(".vatra-profile-editor-label-"+key);
+   assert.equal(await label.getAttribute("id"),"profile-editor-"+key+"-type","The visible label itself opens the settlement menu");
+   assert.equal(await label.evaluate(el=>el.tagName),"BUTTON");
+   assert.equal(await label.locator("..").locator(".vatra-editor-select").count(),0,"No separate boxed selector next to the settlement label");
+   assert.equal(await label.evaluate(el=>getComputedStyle(el).borderTopWidth),"0px");
+  }
   await chooseProfileEditorOption("profile-editor-hometown-type","city",language==="uk"?"Місто":"City");
   assert.equal(await profilePage.locator(".vatra-profile-editor-label-hometown").textContent(),language==="uk"?"Рідне місто":"Hometown");
   await chooseProfileEditorOption("profile-editor-hometown-type","village",language==="uk"?"Село":"Village");
