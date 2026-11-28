@@ -13,8 +13,6 @@ function compatibleStreams(core){
   core.setLogger(({type,message})=>{if(type==="stderr"&&String(message).trim())probeError=true;});
   core.setTimeout(5000);
   const result=core.ffprobe("-v","error","-protocol_whitelist","file,pipe","-i","input.bin","-show_streams","-show_format","-of","json","-o","probe.json");
-  // This pinned ffprobe wrapper returns Module.ret (-1) when C returns normally.
-  // Require complete probe output and reject all explicit nonzero exit codes.
   if(probeError||(result!==0&&result!==-1))return false;
   const info=JSON.parse(new TextDecoder().decode(core.FS.readFile("probe.json")));
   const streams=info.streams||[],v=streams.find(s=>s.codec_type==="video"),a=streams.find(s=>s.codec_type==="audio");

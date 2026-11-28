@@ -25,7 +25,7 @@
  function convertVideo(file,signal){
   return new Promise((resolve,reject)=>{
    if(signal?.aborted){reject(Error("cancelled"));return;}
-   const worker=new Worker(new URL("assets/js/video-converter.js?rev=e6b836c1d6ba92bdd7982ced447d57a74c7180c6",new URL("../../",mediaScript||location.href)),{type:"module"});
+   const worker=new Worker(new URL("assets/js/video-converter.js?rev=a37dd09d32615968307480ed43b8bff4863997e0",new URL("../../",mediaScript||location.href)),{type:"module"});
    let done=false,timer;
    const finish=(error,value)=>{if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener("abort",abort);worker.terminate();error?reject(error):resolve(value);};
    const abort=()=>finish(Error("cancelled"));

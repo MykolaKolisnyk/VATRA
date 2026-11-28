@@ -367,21 +367,37 @@ function appendAudience(container,level,isGroup=false){
   return validId(ownId)&&validUUID(id)?deletionQueuePrefix(ownId)+id:null;
  }
  function clearQueuedDeletion(key){if(key)try{localStorage.removeItem(key);}catch(_){}}
- async function flushPendingPostDeletes(client,ownId){
-  if(!validId(ownId))return;
-  const prefix=deletionQueuePrefix(ownId);let keys=[];
-  try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith(prefix)&&validUUID(key.slice(prefix.length)))keys.push(key);}}catch(_){return;}
-  for(const key of keys.slice(0,20)){
-   const id=key.slice(prefix.length);
-   try{
-    const {data,error}=await client.from("feed_posts").delete().eq("id",id).eq("author_vatra_id",ownId).select("id,media_kind,media_path,media_items").maybeSingle();
-    if(error){if(error.code)clearQueuedDeletion(key);continue;}
-    if(!data){const result=await client.from("feed_posts").select("id").eq("id",id).eq("author_vatra_id",ownId).maybeSingle();if(result.error)continue;clearQueuedDeletion(key);if(result.data)window.VATRA_TOAST?.show?.(tr("Не вдалося видалити.","Could not delete post."),"error");continue;}
-    clearQueuedDeletion(key);
-    const items=[...(Array.isArray(data.media_items)?data.media_items:[]),...(data.media_path?[data]:[])].filter(item=>typeof item.media_path==="string"&&item.media_path.startsWith(String(ownId)+"/posts/"));
-    if(items.length)void window.VATRA_POST_MEDIA?.removeGallery(client,items).catch(()=>{});
-   }catch(_){}
-  }
+ const deletionFlushes=new WeakMap();
+ function flushPendingPostDeletes(client,ownId){
+  if(!client||!validId(ownId))return Promise.resolve();
+  const owner=String(ownId);
+  let inflight=deletionFlushes.get(client);
+  if(!inflight){inflight=new Map();deletionFlushes.set(client,inflight);}
+  if(inflight.has(owner))return inflight.get(owner);
+  const task=Promise.resolve().then(async()=>{
+   const prefix=deletionQueuePrefix(owner);let keys=[];
+   try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key?.startsWith(prefix)&&validUUID(key.slice(prefix.length)))keys.push(key);}}catch(_){return;}
+   const queue=keys.slice(0,20);
+   const media=[];
+   let cursor=0;
+   async function drain(){
+    while(cursor<queue.length){
+     const key=queue[cursor++],id=key.slice(prefix.length);
+     try{
+      const {data,error}=await client.from("feed_posts").delete().eq("id",id).eq("author_vatra_id",owner).select("id,media_kind,media_path,media_items").maybeSingle();
+      if(error){if(error.code)clearQueuedDeletion(key);continue;}
+      if(!data){const result=await client.from("feed_posts").select("id").eq("id",id).eq("author_vatra_id",owner).maybeSingle();if(result.error)continue;clearQueuedDeletion(key);if(result.data)window.VATRA_TOAST?.show?.(tr("Не вдалося видалити.","Could not delete post."),"error");continue;}
+      clearQueuedDeletion(key);
+      const items=[...(Array.isArray(data.media_items)?data.media_items:[]),...(data.media_path?[data]:[])].filter(item=>typeof item.media_path==="string"&&item.media_path.startsWith(owner+"/posts/"));
+      media.push(...items);
+     }catch(_){}
+    }
+   }
+   await Promise.all(Array.from({length:Math.min(3,queue.length)},drain));
+   if(media.length)void window.VATRA_POST_MEDIA?.removeGallery(client,media).catch(()=>{});
+  }).finally(()=>{if(inflight.get(owner)===task)inflight.delete(owner);});
+  inflight.set(owner,task);
+  return task;
  }
  function deferPostDelete(card,commit,onError,ownId){
   if(!card?.dataset.postId)return false;
