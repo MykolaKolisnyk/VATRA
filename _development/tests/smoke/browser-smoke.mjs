@@ -209,6 +209,16 @@ try{
   await accountDesign.locator(".vatra-id-device-refresh-001").click();
   const otherNotice=accountDesign.locator('[data-security-state="device"]');
   await otherNotice.waitFor({state:"visible"});
+  assert.equal(await otherNotice.locator(".vatra-id-security-device-review-001").count(),1);
+  for(const index of [1,2]){
+   const prefix="vatra-id-device-item-"+index;
+   const row=deviceList.locator(".ui-"+prefix+"-row");
+   assert.equal(await row.count(),1,"Each rendered session has an individual class");
+   for(const part of ["symbol","icon","path","details"])assert.equal(await row.locator(".ui-"+prefix+"-"+part).count(),1);
+   for(const part of ["name","time","activity"])assert.equal(await row.locator("."+prefix+"-"+part).count(),1);
+   assert.equal(await row.locator("."+prefix+(index===1?"-current":"-revoke")).count(),1);
+  }
+  assert.equal(await deviceList.locator('[class*="'+otherSession+'"]').count(),0,"DOM hooks must not contain session IDs");
   assert.ok((await otherNotice.locator("img").getAttribute("src")).endsWith("/vatryk_security-device.webp"));
   await otherNotice.getByRole("button",{name:"Не впізнаєте сеанс?",exact:true}).click();
   const warning=accountDesign.locator('dialog[open] [data-security-state="warning"]');
@@ -241,6 +251,9 @@ try{
   for(const key of ["language","viewer-video-autoplay"]){for(const part of ["row","copy","control"])assert.equal(await accountDesign.locator(".ui-vatra-preferences-"+key+"-"+part+"-001").count(),1);for(const part of ["label","description"])assert.equal(await accountDesign.locator(".vatra-preferences-"+key+"-"+part+"-001").count(),1);}
   assert.equal(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").count(),4);
   assert.deepEqual(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).width)),["20px","20px","20px","20px"]);
+  assert.equal(await accountDesign.locator(".vatra-preferences-id-badge-label-001").count(),1);
+  await accountDesign.locator('[data-tab="privacy"]').click();
+  for(const [key,values] of [["visibility",["public","friends"]],["presence",["public","friends","private"]]])for(const value of values)assert.equal(await accountDesign.locator(".vatra-preferences-"+key+"-"+value+"-option-001").count(),1);
   await accountDesign.locator('[data-tab="blocked"]').click();
   await accountDesign.locator(".ui-vatra-preferences-block-empty-001").waitFor({state:"visible"});
   await accountDesign.locator(".ui-vatra-block-header-001 button").click();

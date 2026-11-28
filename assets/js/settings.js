@@ -91,21 +91,22 @@ async function renderDevices(panel,onConcern){
    list.replaceChildren();deviceNotice.replaceChildren();
    if(onConcern&&Array.isArray(data)&&data.some(entry=>entry.current_session===false)){
     const {box,copy}=securityNotice("device",t("Інші активні сеанси","Other active sessions"),t("Перевірте, чи впізнаєте всі пристрої.","Check whether you recognize all devices."));
-    copy.append(btn(t("Не впізнаєте сеанс?","Don't recognize a session?"),"vatra-preferences-action-001",()=>onConcern("warning")));deviceNotice.append(box);
+    copy.append(btn(t("Не впізнаєте сеанс?","Don't recognize a session?"),"vatra-preferences-action-001 vatra-id-security-device-review-001",()=>onConcern("warning")));deviceNotice.append(box);
    }
-   const date=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?new Intl.DateTimeFormat(locale==="en"?"en-GB":"uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(d):"—";};
+   const dateFormatter=new Intl.DateTimeFormat(locale==="en"?"en-GB":"uk-UA",{dateStyle:"medium",timeStyle:"short"});
+   const date=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?dateFormatter.format(d):"—";};
    for(const [index,entry] of (data||[]).entries()){
-    const row=make("div","ui-vatra-id-device-row-001"),symbol=make("span","ui-vatra-id-device-symbol-001"),ns="http://www.w3.org/2000/svg",icon=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
-    icon.setAttribute("class","ui-vatra-id-device-icon-001");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("width","25");icon.setAttribute("height","25");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.7");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");icon.setAttribute("aria-hidden","true");
-    path.setAttribute("class","ui-vatra-id-device-path-"+index);path.setAttribute("d",/Android|iPhone|iPad/i.test(entry.browser_agent||"")?"M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 15h2":"M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm7 14v3m-4 0h8");
+    const hook="vatra-id-device-item-"+(index+1),row=make("div","ui-vatra-id-device-row-001 ui-"+hook+"-row"),symbol=make("span","ui-vatra-id-device-symbol-001 ui-"+hook+"-symbol"),ns="http://www.w3.org/2000/svg",icon=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
+    icon.setAttribute("class","ui-vatra-id-device-icon-001 ui-"+hook+"-icon");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("width","25");icon.setAttribute("height","25");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.7");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");icon.setAttribute("aria-hidden","true");
+    path.setAttribute("class","ui-vatra-id-device-path-"+index+" ui-"+hook+"-path");path.setAttribute("d",/Android|iPhone|iPad/i.test(entry.browser_agent||"")?"M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 15h2":"M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm7 14v3m-4 0h8");
     icon.append(path);symbol.append(icon);
-    const details=make("div","ui-vatra-id-device-details-001");details.append(make("strong","vatra-id-device-name-001",sessionDevice(entry.browser_agent)),make("span","vatra-id-device-time-001",t("Вхід: ","Signed in: ")+date(entry.signed_in_at)));
+    const details=make("div","ui-vatra-id-device-details-001 ui-"+hook+"-details");details.append(make("strong","vatra-id-device-name-001 "+hook+"-name",sessionDevice(entry.browser_agent)),make("span","vatra-id-device-time-001 "+hook+"-time",t("Вхід: ","Signed in: ")+date(entry.signed_in_at)));
     const activity=entry.refreshed_at&&Date.parse(entry.refreshed_at)>Date.parse(entry.signed_in_at)?entry.refreshed_at:entry.signed_in_at;
-    details.append(make("span","vatra-id-device-activity-001",t("Остання активність: ","Last activity: ")+date(activity)));
+    details.append(make("span","vatra-id-device-activity-001 "+hook+"-activity",t("Остання активність: ","Last activity: ")+date(activity)));
     row.append(symbol,details);
-    if(entry.current_session)row.append(make("span","vatra-id-device-current-001",t("Поточний","Current")));
+    if(entry.current_session)row.append(make("span","vatra-id-device-current-001 "+hook+"-current",t("Поточний","Current")));
     else if(typeof entry.session_id==="string"&&/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(entry.session_id)){
-     const revoke=btn(t("Завершити сеанс","Sign out session"),"vatra-id-device-single-revoke-001",async()=>{
+     const revoke=btn(t("Завершити сеанс","Sign out session"),"vatra-id-device-single-revoke-001 "+hook+"-revoke",async()=>{
       if(revoke.disabled||!c.isConnected)return;revoke.disabled=true;
       try{
        if(!await confirmRemove(t("Завершити цей сеанс?","Sign out this session?"),t("На цьому пристрої потрібно буде увійти повторно.","You will need to sign in again on this device."),t("Завершити сеанс","Sign out session")))return;
@@ -302,7 +303,7 @@ async function account(){
   const dateWrap=make("div","ui-vatra-id-birth-field-001"),dateLabel=make("span","vatra-section-label-birthdate",t("Дата народження","Date of birth")),dateRow=make("div","three ui-vatra-id-birth-row-001");
   dateLabel.id="vatra-id-birth-label";dateRow.setAttribute("role","group");dateRow.setAttribute("aria-labelledby",dateLabel.id);
   const dateParts=[["day",t("День","Day")],["month",t("Місяць","Month")],["year",t("Рік","Year")]].map(([key,label])=>{
-   const select=make("select","control select ui-vatra-id-birth-"+key);select.id="id-birth-"+key;select.required=true;select.setAttribute("aria-label",label);const option=new Option(label,"",true,true);option.disabled=true;select.add(option);dateRow.append(select);return select;
+   const select=make("select","control select ui-vatra-id-birth-"+key);select.id="id-birth-"+key;select.required=true;select.setAttribute("aria-label",label);const option=new Option(label,"",true,true);option.className="vatra-id-birth-"+key+"-placeholder-001";option.disabled=true;select.add(option);dateRow.append(select);return select;
   });
   const [day,month,year]=dateParts;
   window.VATRA_FORM_SELECT.fillBirthdays(day,month,year);
@@ -310,7 +311,7 @@ async function account(){
   if(savedBirth){year.value=savedBirth[1];month.value=savedBirth[2];day.value=savedBirth[3];}
   dateWrap.append(dateLabel,dateRow);form.append(dateWrap);
   const gender=make("select","control select ui-vatra-section-input-gender"),genderWrap=make("div","ui-vatra-section-field-gender"),genderLabel=make("label","vatra-section-label-gender",t("Стать","Gender"));gender.id="vatra-section-gender";genderLabel.htmlFor=gender.id;gender.setAttribute("aria-label",genderLabel.textContent);
-  for(const [value,label] of [["",t("Не вказувати","Not specified")],["female",t("Жіноча","Female")],["male",t("Чоловіча","Male")],["other",t("Користувацька","Custom")]])gender.add(new Option(label,value));
+  for(const [value,label] of [["",t("Не вказувати","Not specified")],["female",t("Жіноча","Female")],["male",t("Чоловіча","Male")],["other",t("Користувацька","Custom")]]){const option=new Option(label,value);option.className="vatra-id-gender-"+(value||"unspecified")+"-option-001";gender.add(option);}
   gender.value=["female","male","other"].includes(user.user_metadata?.gender)?user.user_metadata.gender:"";genderWrap.append(genderLabel,gender);form.append(genderWrap);
   const birth={get value(){return [year.value,month.value,day.value].join("-");},min:"1900-01-01"};
   const now=new Date();birth.max=[now.getFullYear()-13,String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-");
@@ -341,7 +342,7 @@ async function preferences(){
  const menu=tabs(sections,id=>{if(location.hash==="#"+id)void show(id);else location.hash=id;});
  for(const b of menu.children){const tab=b.dataset.tab,key={general:"sliders",privacy:"shield",notifications:"bell",blocked:"ban"}[tab];const label=make("span","vatra-preferences-nav-label-001 vatra-preferences-nav-"+tab+"-label-001",b.textContent),icon=idIcon(key);b.classList.add("vatra-preferences-nav-"+tab+"-001");icon.classList.add("ui-vatra-preferences-nav-"+tab+"-icon-001");icon.querySelector("path")?.classList.add("ui-vatra-preferences-nav-"+tab+"-path-001");b.replaceChildren(icon,label);}
  const security=link("","vatra-id#home","vatra-preferences-id-link-001");const securityCopy=make("span","ui-vatra-preferences-id-copy-001");securityCopy.append(idIcon("shield"),make("span","vatra-preferences-security-label-001",t("Керування акаунтом","Manage account")));security.append(securityCopy);
- const brand=make("span","vatra-preferences-id-badge-001");const logo=make("img","vatra-preferences-id-logo-001");logo.src="assets/logo/logo_symbol.svg";logo.alt="";brand.append(logo,document.createTextNode("ID"));security.append(brand);side.append(menu,security);layout.append(panel,side);content.append(layout);
+ const brand=make("span","vatra-preferences-id-badge-001");const logo=make("img","vatra-preferences-id-logo-001");logo.src="assets/logo/logo_symbol.svg";logo.alt="";brand.append(logo,make("span","vatra-preferences-id-badge-label-001","ID"));security.append(brand);side.append(menu,security);layout.append(panel,side);content.append(layout);
  const prefKey="vatra:notification-display:"+ownId;
  const notificationKinds=[
  ["feedback",t("Зворотний зв’язок","Feedback"),[
@@ -385,8 +386,9 @@ async function preferences(){
   if(id==="privacy"){
    const profile=settingsCard(t("Моя сторінка","My profile")),activity=settingsCard(t("Активність","Activity"));
    const visibility=make("select","ui-vatra-preferences-select-001"),presence=make("select","ui-vatra-preferences-select-001");
-   visibility.append(new Option(t("Відкритий","Public"),"public"),new Option(t("Лише друзі","Friends only"),"friends"));
-   presence.append(new Option(t("Усі користувачі","All members"),"public"),new Option(t("Лише друзі","Friends only"),"friends"),new Option(t("Лише я","Only me"),"private"));
+   const addOptions=(control,key,options)=>{for(const [value,label] of options){const option=new Option(label,value);option.className="vatra-preferences-"+key+"-"+value+"-option-001";control.add(option);}};
+   addOptions(visibility,"visibility",[["public",t("Відкритий","Public")],["friends",t("Лише друзі","Friends only")]]);
+   addOptions(presence,"presence",[["public",t("Усі користувачі","All members")],["friends",t("Лише друзі","Friends only")],["private",t("Лише я","Only me")]]);
    visibility.disabled=presence.disabled=true;
    row(profile,t("Тип профілю","Profile visibility"),t("Кому доступна інформація вашої сторінки.","Who can access information on your profile."),visibility,"visibility");
    row(activity,t("Хто бачить, що я онлайн","Who can see when I am online"),t("Видимість статусу онлайн та останньої активності. Налаштування закритого профілю також діють.","Visibility of online status and last activity. Closed-profile restrictions also apply."),presence,"presence");
