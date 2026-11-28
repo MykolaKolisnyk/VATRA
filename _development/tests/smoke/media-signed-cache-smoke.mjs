@@ -673,6 +673,27 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  assert.equal(api.isVideoInput({name:"document.txt",type:"text/plain",size:42}),false);
  await Promise.all([api.prepareVideo({name:"clip.avi",type:"video/x-msvideo",size:42}),api.prepareVideo({name:"clip.mkv",type:"application/octet-stream",size:42})]);
  assert.equal(maxWorkers,1,"Only one heavy conversion worker may run concurrently");
+ const same={name:"same.mov",type:"video/quicktime",size:42};
+ const before=conversions;
+ const [one,two]=await Promise.all([api.prepareVideo(same),api.prepareVideo(same)]);
+ assert.equal(one,two,"Concurrent consumers of the same file share one result");
+ assert.equal(conversions,before+1);
+ let releaseWorker;
+ env.Worker=class {constructor(){conversions++;activeWorkers++;maxWorkers=Math.max(maxWorkers,activeWorkers);}postMessage(){releaseWorker=()=>this.onmessage({data:{bytes:new ArrayBuffer(42)}});}terminate(){activeWorkers--;}};
+ const running=api.prepareVideo({name:"running.mov",type:"video/quicktime",size:42});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(activeWorkers,1);
+ const cancel=new AbortController();
+ const queued=api.prepareVideo({name:"queued.mov",type:"video/quicktime",size:42},cancel.signal);
+ const expected=conversions;
+ cancel.abort();
+ await assert.rejects(queued,/cancelled/);
+ assert.equal(activeWorkers,1,"Cancelling queued work must not stop another conversion");
+ releaseWorker();await running;
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(conversions,expected,"Cancelled queued work must never start a worker");
+ assert.equal(activeWorkers,0);
+
  assert.equal(video.media_path,"7/posts/01234567-89ab-4def-8123-456789abcdef.mp4");
  assert.equal(clip.media_path,"7/clips/01234567-89ab-4def-8123-456789abcdef.mp4");
  assert.equal(api.clipPathValid(video.media_path,7),false);

@@ -31,8 +31,13 @@ self.onmessage=async({data:file})=>{
  let js,wasm;
  try{
   if(!(file instanceof Blob)||!file.size||file.size>limit)throw Error("input limit");
-  js=await verified("ffmpeg-core.js","67a48f11645f85439f3fde4f2119042c16b374b910206b7a7a24f342e28dcae3","text/javascript");
-  wasm=await verified("ffmpeg-core.wasm","9f57947a5bd530d8f00c5b3f2cb2a3492faa7e5d823315342d6a8656d0a6b7b7","application/wasm");
+  const engine=await Promise.allSettled([
+   verified("ffmpeg-core.js","67a48f11645f85439f3fde4f2119042c16b374b910206b7a7a24f342e28dcae3","text/javascript"),
+   verified("ffmpeg-core.wasm","9f57947a5bd530d8f00c5b3f2cb2a3492faa7e5d823315342d6a8656d0a6b7b7","application/wasm")
+  ]);
+  js=engine[0].status==="fulfilled"?engine[0].value:null;
+  wasm=engine[1].status==="fulfilled"?engine[1].value:null;
+  if(!js||!wasm)throw Error("engine unavailable");
   const {default:createCore}=await import(js);
   const core=await createCore({mainScriptUrlOrBlob:js+"#"+btoa(JSON.stringify({wasmURL:wasm,workerURL:""}))});
   core.FS.writeFile("input.bin",new Uint8Array(await file.arrayBuffer()));

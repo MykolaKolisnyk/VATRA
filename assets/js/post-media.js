@@ -20,12 +20,13 @@
  const MEDIA_ACCEPT="image/jpeg,image/png,image/webp,"+VIDEO_ACCEPT;
  const isVideoInput=file=>!!file&&(/^video\//i.test(file.type||"")||((!file.type||["application/octet-stream","application/x-matroska","application/ogg","application/mp4"].includes(file.type))&&/\.(mp4|webm|mov|avi|mkv|m4v|mpeg|mpg|3gp|3g2|mts|m2ts|wmv|flv|ogv|ts|vob|asf|f4v)$/i.test(file.name||"")));
  const preparedVideos=new WeakSet();
+ const sharedVideoTasks=new WeakMap();
  const mediaScript=typeof document!=="undefined"?document.currentScript?.src:null;
  let videoQueue=Promise.resolve();
  function convertVideo(file,signal){
   return new Promise((resolve,reject)=>{
    if(signal?.aborted){reject(Error("cancelled"));return;}
-   const worker=new Worker(new URL("assets/js/video-converter.js?rev=a37dd09d32615968307480ed43b8bff4863997e0",new URL("../../",mediaScript||location.href)),{type:"module"});
+   const worker=new Worker(new URL("assets/js/video-converter.js?rev=71290b712a69c7370c638f9bb7011d380fda20e4",new URL("../../",mediaScript||location.href)),{type:"module"});
    let done=false,timer;
    const finish=(error,value)=>{if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener("abort",abort);worker.terminate();error?reject(error):resolve(value);};
    const abort=()=>finish(Error("cancelled"));
@@ -40,9 +41,30 @@
   if(!isVideoInput(file)||!file.size||file.size>52428800)throw Error(tr("Виберіть відео до 50 МБ.","Choose a video up to 50 MB."));
   if(signal?.aborted)throw Error("cancelled");
   if(preparedVideos.has(file))return file;
-  const task=videoQueue.then(()=>convertVideo(file,signal));
-  videoQueue=task.catch(()=>{});
-  try{return await task;}catch(_){throw Error(tr("Не вдалося обробити відео. Спробуйте менший або інший файл.","Video processing failed. Try a smaller or different file."));}
+  let task=!signal?sharedVideoTasks.get(file):null;
+  if(!task){
+   task=videoQueue.then(()=>convertVideo(file,signal));
+   videoQueue=task.catch(()=>{});
+   if(!signal){
+    sharedVideoTasks.set(file,task);
+    const clear=()=>{if(sharedVideoTasks.get(file)===task)sharedVideoTasks.delete(file);};
+    void task.then(clear,clear);
+   }
+  }
+  let abort;
+  try{
+   if(!signal)return await task;
+   const cancelled=new Promise((_,reject)=>{
+    abort=()=>reject(Error("cancelled"));
+    signal.addEventListener("abort",abort,{once:true});
+    if(signal.aborted)abort();
+   });
+   return await Promise.race([task,cancelled]);
+  }catch(_){
+   if(signal?.aborted)throw Error("cancelled");
+   throw Error(tr("Не вдалося обробити відео. Спробуйте менший або інший файл.","Video processing failed. Try a smaller or different file."));
+  }finally{if(abort)signal.removeEventListener("abort",abort);}
+
  }
  const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id||""));
  const formatFor=file=>{
