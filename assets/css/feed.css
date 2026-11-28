@@ -765,7 +765,7 @@ body.community-page .ui-community-card-001:hover{
 
 
 body.feed-page .feed-header{
- position:sticky;top:0;z-index:90;flex:none;box-sizing:border-box;width:100%;min-height:0;background:#fff;color:#29374e;
+ position:sticky;top:0;z-index:90;flex:none;box-sizing:border-box;width:100%;min-height:0;background:#fff;color:#29374e;font:400 16px/1.5 "Onest",system-ui,sans-serif;
  border:0;border-bottom:1px solid #e9edf7;border-radius:0;
  box-shadow:0 2px 12px rgba(30,48,87,.065);
  backdrop-filter:none;-webkit-backdrop-filter:none;
