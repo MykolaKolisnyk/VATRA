@@ -4992,17 +4992,20 @@ try{
    if(filterGeometry.screenWidth>950){
     const tallRail=await feedProbe.evaluate(()=>{
      const rail=document.querySelector(".ui-feed-right-rail-001"),stories=document.querySelector(".feed-stories"),composer=document.querySelector(".feed-quick-compose"),posts=document.querySelector(".feed-posts-section"),status=document.querySelector(".feed-status");
-     const prev={minHeight:rail.style.minHeight,stories:stories.hidden,status:status.hidden,text:status.textContent};
+     const prev={minHeight:rail.style.minHeight,stories:stories.hidden,status:status.hidden,text:status.textContent,toast:document.documentElement.classList.contains("vatra-toast-enabled")};
      const measure=()=>({gap:posts.getBoundingClientRect().top-composer.getBoundingClientRect().bottom,storyGap:composer.getBoundingClientRect().top-stories.getBoundingClientRect().bottom,railHeight:rail.getBoundingClientRect().height});
      try{rail.style.minHeight="850px";stories.hidden=false;status.hidden=true;
       const visible=measure();stories.hidden=true;const hidden=measure();
       stories.hidden=false;status.textContent="Story published";status.hidden=false;
+      document.documentElement.classList.add("vatra-toast-enabled");
+      const toast=measure(),toastStatusHidden=getComputedStyle(status).display==="none";
+      document.documentElement.classList.remove("vatra-toast-enabled");
       const notice=measure(),noticeGap=status.getBoundingClientRect().top-composer.getBoundingClientRect().bottom,afterNotice=posts.getBoundingClientRect().top-status.getBoundingClientRect().bottom;
-      return {visible,hidden,notice,noticeGap,afterNotice};
-     }finally{rail.style.minHeight=prev.minHeight;stories.hidden=prev.stories;status.hidden=prev.status;status.textContent=prev.text;}
+      return {visible,hidden,toast,toastStatusHidden,notice,noticeGap,afterNotice};
+     }finally{rail.style.minHeight=prev.minHeight;stories.hidden=prev.stories;status.hidden=prev.status;status.textContent=prev.text;document.documentElement.classList.toggle("vatra-toast-enabled",prev.toast);}
     });
-    for(const state of [tallRail.visible,tallRail.hidden])assert.ok(state.gap>=8&&state.gap<=21&&state.railHeight>=850,"Tall sidebar cannot move posts down: "+JSON.stringify(tallRail));
-    assert.ok(tallRail.visible.storyGap>=8&&tallRail.visible.storyGap<=21&&tallRail.noticeGap>=8&&tallRail.noticeGap<=21&&tallRail.afterNotice>=8&&tallRail.afterNotice<=21,"Story publication status must not introduce blank space: "+JSON.stringify(tallRail));
+    for(const state of [tallRail.visible,tallRail.hidden,tallRail.toast])assert.ok(state.gap>=8&&state.gap<=21&&state.railHeight>=850,"Tall sidebar cannot move posts down: "+JSON.stringify(tallRail));
+    assert.ok(tallRail.toastStatusHidden&&tallRail.visible.storyGap>=8&&tallRail.visible.storyGap<=21&&tallRail.noticeGap>=8&&tallRail.noticeGap<=21&&tallRail.afterNotice>=8&&tallRail.afterNotice<=21,"Story publication status must not introduce blank space: "+JSON.stringify(tallRail));
    }
    if(filterGeometry.viewportWidth>1200){
     assert.ok(filterGeometry.adRight+12<=filterGeometry.composeLeft&&
