@@ -5040,6 +5040,33 @@ try{
     for(const state of [tallRail.visible,tallRail.hidden,tallRail.toast])assert.ok(state.gap>=8&&state.gap<=21&&state.railHeight>=850,"Tall sidebar cannot move posts down: "+JSON.stringify(tallRail));
     assert.ok(tallRail.toastStatusHidden&&tallRail.visible.storyGap>=8&&tallRail.visible.storyGap<=21&&tallRail.noticeGap>=8&&tallRail.noticeGap<=21&&tallRail.afterNotice>=8&&tallRail.afterNotice<=21,"Story publication status must not introduce blank space: "+JSON.stringify(tallRail));
    }
+   const stickyGeometry=await feedProbe.evaluate(async()=>{
+    const rail=document.querySelector(".ui-feed-right-rail-001"),ad=document.querySelector(".feed-ad-sidebar"),header=document.querySelector(".feed-header"),filter=document.querySelector(".feed-filter-row"),heading=filter.querySelector(".vatra-feed-filter-heading-text-001"),lane=document.querySelector(".ui-feed-reading-lane-001");
+    const start=window.scrollY,oldMin=lane.style.minHeight;
+    const rect=el=>el.getBoundingClientRect();
+    const settle=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    try{
+     lane.style.minHeight="2400px";
+     window.scrollTo({top:0,behavior:"instant"});await settle();
+     const centerError=Math.abs((rect(heading).left+rect(heading).right)/2-(rect(filter).left+rect(filter).right)/2);
+     window.scrollTo({top:600,behavior:"instant"});await settle();
+     const first={rail:rect(rail).top,ad:rect(ad).top,head:rect(header).bottom,scroll:window.scrollY};
+     window.scrollTo({top:1000,behavior:"instant"});await settle();
+     const second={rail:rect(rail).top,ad:rect(ad).top,head:rect(header).bottom,scroll:window.scrollY};
+     return {centerError,summaryAlign:getComputedStyle(filter.querySelector(".vatra-feed-filter-summary-001")).textAlign,first,second,width:innerWidth,railPosition:getComputedStyle(rail).position,adPosition:getComputedStyle(ad).position,railHeight:rect(rail).height,viewport:innerHeight};
+    }finally{lane.style.minHeight=oldMin;window.scrollTo({top:start,behavior:"instant"});await settle();}
+   });
+   assert.ok(stickyGeometry.centerError<=2,"Filter title text itself must be centered independently of the icon: "+JSON.stringify(stickyGeometry));
+   assert.equal(stickyGeometry.summaryAlign,"center","All feed filter summary labels are centered");
+   if(stickyGeometry.width>950){
+    assert.equal(stickyGeometry.railPosition,"sticky");
+    assert.ok(stickyGeometry.second.scroll-stickyGeometry.first.scroll>=200&&Math.abs(stickyGeometry.first.rail-stickyGeometry.second.rail)<=2&&stickyGeometry.second.rail>=stickyGeometry.second.head,"Right rail remains below header on scroll: "+JSON.stringify(stickyGeometry));
+    assert.ok(stickyGeometry.railHeight<=stickyGeometry.viewport-stickyGeometry.second.head,"Tall right rail fits the available viewport");
+   }else assert.equal(stickyGeometry.railPosition,"static","Mobile filter must not cover the reading lane");
+   if(stickyGeometry.width>1200){
+    assert.equal(stickyGeometry.adPosition,"sticky");
+    assert.ok(Math.abs(stickyGeometry.first.ad-stickyGeometry.second.ad)<=2&&stickyGeometry.second.ad>=stickyGeometry.second.head,"Desktop ads remain below header on scroll");
+   }else assert.equal(stickyGeometry.adPosition,"static","Ads below reading lane must scroll normally");
    if(filterGeometry.viewportWidth>1200){
     assert.ok(filterGeometry.adRight+12<=filterGeometry.composeLeft&&
      filterGeometry.filterLeft>=filterGeometry.composeRight+10&&
