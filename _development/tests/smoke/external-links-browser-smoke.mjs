@@ -111,7 +111,7 @@ try{
    try{
     await confirmationPage.goto(base+"fixture");
     await confirmationPage.emulateMedia({reducedMotion:"reduce"});
-    for(const file of ["assets/css/feed.css","assets/css/profile.css","assets/css/photo-albums.css","assets/css/story-editor.css","assets/css/core.css","assets/css/settings.css","assets/css/sign-in.css"])await confirmationPage.addStyleTag({content:await readFile(file,"utf8")});
+    for(const file of ["assets/css/feed.css","assets/css/profile.css","assets/css/photo-albums.css","assets/css/story-editor.css","assets/css/core.css","assets/css/settings.css","assets/css/log-in/log-in.css"])await confirmationPage.addStyleTag({content:await readFile(file,"utf8")});
     const variants=[
      ["feed-page profile-page","profile-confirm-dialog ui-profile-confirm-dialog-001","vatra-profile-confirm-heading-001","vatra-profile-confirm-description-001","profile-confirm-actions","vatra-profile-confirm-cancel-001","vatra-profile-confirm-accept-001","h2"],
      ["feed-page","feed-delete-dialog ui-feed-delete-dialog-001","feed-delete-title","feed-delete-description","feed-delete-actions","feed-delete-cancel","feed-delete-confirm","h2"],

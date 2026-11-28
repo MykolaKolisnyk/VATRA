@@ -4,19 +4,20 @@ const read=path=>readFile(path,"utf8");
 const pages=["index","404","create-account","forgot","reset","verify","feed","profile","documents","terms","privacy","cookies","commerce","offline","maintenance"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
 const authBaseCss=await read("assets/css/base.css");
-const signInCss=await read("assets/css/sign-in.css");
-const createAccountCss=await read("assets/css/create-account.css");
-const recoveryCss=await read("assets/css/recovery.css");
-const verifyCss=await read("assets/css/verify.css");
+const {assetFiles}=await import("../../tools/asset-files.mjs");
+const signInCss=await read("assets/css/log-in/log-in.css");
+const createAccountCss=await read("assets/css/create-account/create-account.css");
+const recoveryCss=await read("assets/css/recovery/recovery.css");
+const verifyCss=await read("assets/css/verify/verify.css");
 const notFoundCss=await read("assets/css/not-found.css");
 const sharedSelectCss=await read("assets/css/form-select.css");
 const css=[authBaseCss,signInCss,createAccountCss,sharedSelectCss,recoveryCss,verifyCss,notFoundCss].join("\n");
 const legalCss=await read("assets/css/legal.css");
 const authShared=await read("assets/js/auth-core.js");
-const authSignIn=await read("assets/js/sign-in.js");
-const authCreateAccount=await read("assets/js/create-account.js");
-const authRecovery=await read("assets/js/recovery.js");
-const authVerify=await read("assets/js/verify.js");
+const authSignIn=await read("assets/js/log-in/log-in.js");
+const authCreateAccount=await read("assets/js/create-account/create-account.js");
+const authRecovery=await read("assets/js/recovery/recovery.js");
+const authVerify=await read("assets/js/verify/verify.js");
 const auth=[authShared,authSignIn,authCreateAccount,authRecovery,authVerify].join("\n");
 
 assert.ok(
@@ -36,23 +37,23 @@ assert.ok(
 const accountPage=await read("create-account.html");
 assert.ok(
  accountPage.includes('data-page="create-account"')&&
- accountPage.includes("assets/css/create-account.css")&&
- accountPage.includes("assets/js/create-account.js")&&
- (await read("index.html")).includes("assets/css/sign-in.css")&&
- (await read("index.html")).includes("assets/js/sign-in.js")&&
- (await read("forgot.html")).includes("assets/css/recovery.css")&&
- (await read("verify.html")).includes("assets/js/verify.js"),
+ accountPage.includes("assets/css/create-account/create-account.css")&&
+ accountPage.includes("assets/js/create-account/create-account.js")&&
+ (await read("index.html")).includes("assets/css/log-in/log-in.css")&&
+ (await read("index.html")).includes("assets/js/log-in/log-in.js")&&
+ (await read("forgot.html")).includes("assets/css/recovery/recovery.css")&&
+ (await read("verify.html")).includes("assets/js/verify/verify.js"),
  "Each authentication page must load its own CSS and JavaScript after shared resources");
 
 
 const authPageModules=[
- ["index","login","sign-in","sign-in"],
- ["create-account","create-account","create-account","create-account"],
- ["forgot","forgot","recovery","recovery"],
- ["reset","reset","recovery","recovery"],
- ["verify","verify","verify","verify"]
+ ["index","login","log-in/log-in","log-in/log-in"],
+ ["create-account","create-account","create-account/create-account","create-account/create-account"],
+ ["forgot","forgot","recovery/recovery","recovery/recovery"],
+ ["reset","reset","recovery/recovery","recovery/recovery"],
+ ["verify","verify","verify/verify","verify/verify"]
 ];
-const authControllerNames=["sign-in","create-account","recovery","verify"];
+const authControllerNames=["log-in/log-in","create-account/create-account","recovery/recovery","verify/verify"];
 for(const [name,pageId,controller,stylesheet] of authPageModules){
  const html=await read(name+".html");
  const js='src="assets/js/'+controller+'.js';
@@ -506,18 +507,18 @@ assert.ok(signInCss.includes(".vatra-login-hero-001{")&&
  signInCss.includes("object-fit:contain")&&
  signInCss.includes("transition:opacity .9s ease-in-out")&&
  !signInCss.includes("login-hero.webp")&&
- landing.includes("assets/js/login-hero.js?rev=")&&
+ landing.includes("assets/js/log-in/hero.js?rev=")&&
  signInCss.includes("aspect-ratio:1 / 1")&&
  signInCss.includes("pointer-events:none;user-select:none")&&
  !/\.(?:orbit-|intro-circle|intro-art|intro-symbol)/.test(signInCss)&&
  !/vatraOrbitClockwise|vatraIconUpright|vatraGlyphFloat/.test(css)&&
- !(await read("assets/js/sign-in.js")).includes("wireOrbitTooltips")&&
+ !(await read("assets/js/log-in/log-in.js")).includes("wireOrbitTooltips")&&
  !signInCss.includes(".intro-side:before"),
  "Login hero illustration must retain its dimensions and aspect ratio at every breakpoint");
-const loginHeroSource=await read("assets/js/login-hero.js");
+const loginHeroSource=await read("assets/js/log-in/hero.js");
 for(const n of ["01","02","03"]){
  const path="assets/illustrations/login_hero-"+n+".webp";
- assert.ok((await stat(path)).size>0&&loginHeroSource.includes("../illustrations/login_hero-"+n+".webp"),"All three login hero images must be available");
+ assert.ok((await stat(path)).size>0&&loginHeroSource.includes("../../illustrations/login_hero-"+n+".webp"),"All three login hero images must be available");
 }
 assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  loginHeroSource.includes("Math.random()")&&loginHeroSource.includes("i!==current")&&
@@ -540,7 +541,7 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
   now=end;await flush();
  };
  const stage={append(image){layers.push(image);}};
- const doc={hidden:false,currentScript:{src:"https://example.test/VATRA/assets/js/login-hero.js"},querySelector:()=>stage,
+ const doc={hidden:false,currentScript:{src:"https://example.test/VATRA/assets/js/log-in/hero.js"},querySelector:()=>stage,
   addEventListener:(name,fn)=>events.set(name,fn),
   createElement(){
    const classes=new Set(),img={classList:{add:name=>classes.add(name),remove:name=>classes.delete(name),contains:name=>classes.has(name)},
@@ -554,6 +555,7 @@ assert.ok(loginHeroSource.includes("INTERVAL=30_000,PRELOAD=25_000")&&
  await flush();
  const selected=()=>layers.find(img=>img.classList.contains("is-active"))?.url;
  assert.ok(new URL(selected()).pathname.endsWith("login_hero-02.webp"),"The first illustration must use the random draw");
+ assert.equal(new URL(selected()).pathname,"/VATRA/assets/illustrations/login_hero-02.webp","Nested login scripts must resolve images against the correct asset directory");
  assert.equal(requests.length,1,"Only the selected image is loaded at startup");
  const first=selected();
  await tick(24_999);assert.equal(requests.length,1);
@@ -2563,9 +2565,9 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
-const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","story-editor.css","story-viewer.css","vatra-player.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
-const javascriptFiles=await readdir("assets/js");
+const cssFiles=await assetFiles("assets/css",".css");
+assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+const javascriptFiles=await assetFiles("assets/js",".js");
 assert.ok(!javascriptFiles.includes("create-menu.js")&&!cssFiles.includes("create-menu.css"),"Create menu must be integrated into feed assets");
 for(const route of ["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"]){const markup=await read(route+".html");assert.ok(!markup.includes("assets/js/create-menu.js")&&!markup.includes("assets/css/create-menu.css"),route+" must not request deleted standalone menu assets");}
 assert.ok((await read("assets/js/feed.js")).includes("function bindCreateMenu(){")&&sharedCss.includes(".ui-create-menu-panel-001{"),"Feed retains the menu behavior and styling");
@@ -3056,3 +3058,7 @@ for(const page of (await readdir(".")).filter(p=>p.endsWith(".html"))){
 assert.ok((await read("assets/css/feed.css")).includes(".profile-posts-section .feed-post-card.vatra-post-delete-pending-001{box-sizing:border-box;padding:0;min-height:66px}")&&(await read("assets/css/feed.css")).includes("padding:10px 12px;min-height:64px;text-align:center"),"Deleted post notice must match the compact 64px composer control");
 
 assert.ok(!memberProfileMarkup.includes('id="profile-cover-viewer-original"')&&!profileCoverViewerScript.includes("coverOriginal")&&!memberCss.includes("vatra-profile-cover-viewer-original-001"),"Cover viewer must not include an original link or unused styles");
+
+assert.ok(javascriptFiles.includes("log-in/log-in.js")&&javascriptFiles.includes("log-in/hero.js")&&!javascriptFiles.includes("sign-in.js")&&!javascriptFiles.includes("login-hero.js")&&!cssFiles.includes("sign-in.css"),"Login must have one canonical section directory without legacy file copies");
+
+for(const name of ["create-account","recovery","verify"]){assert.ok(javascriptFiles.includes(name+"/"+name+".js")&&!javascriptFiles.includes(name+".js")&&cssFiles.includes(name+"/"+name+".css")&&!cssFiles.includes(name+".css"),name+": one canonical section directory without legacy copies");}
