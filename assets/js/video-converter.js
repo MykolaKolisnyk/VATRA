@@ -9,9 +9,13 @@ async function verified(name,hash,type){
 }
 function compatibleStreams(core){
  try{
+  let probeError=false;
+  core.setLogger(({type,message})=>{if(type==="stderr"&&String(message).trim())probeError=true;});
   core.setTimeout(5000);
   const result=core.ffprobe("-v","error","-protocol_whitelist","file,pipe","-i","input.bin","-show_streams","-show_format","-of","json","-o","probe.json");
-  if(result!==0)return false;
+  // This pinned ffprobe wrapper returns Module.ret (-1) when C returns normally.
+  // Require complete probe output and reject all explicit nonzero exit codes.
+  if(probeError||(result!==0&&result!==-1))return false;
   const info=JSON.parse(new TextDecoder().decode(core.FS.readFile("probe.json")));
   const streams=info.streams||[],v=streams.find(s=>s.codec_type==="video"),a=streams.find(s=>s.codec_type==="audio");
   const rate=String(v?.avg_frame_rate||"").split("/").map(Number),fps=rate[0]/rate[1];
@@ -23,7 +27,7 @@ function compatibleStreams(core){
    !v.disposition?.attached_pic&&!v.side_data_list?.length&&!v.tags?.rotate&&
    (!a||(a.codec_name==="aac"&&a.profile==="LC"&&a.channels>0&&a.channels<=2&&Number(a.sample_rate)<=48000&&Number(a.sample_rate)>0));
  }catch(_){return false;}
- finally{core.reset();try{core.FS.unlink("probe.json");}catch(_){}}
+ finally{core.setLogger(()=>{});core.reset();try{core.FS.unlink("probe.json");}catch(_){}}
 }
 self.onmessage=async({data:file})=>{
  let js,wasm;

@@ -56,6 +56,11 @@ try{
   assert.ok(Number(info.format.duration)>.8&&Number(info.format.duration)<1.3);
   assert.ok(output.indexOf("moov")>0&&output.indexOf("moov")<output.indexOf("mdat"),"MP4 must have fast-start metadata");
   assert.equal(info.format.tags?.title,undefined,"Container title metadata must not survive");
+  if(mode==="remux"){
+   const packetHashes=path=>JSON.parse(execFileSync("ffprobe",["-v","error","-show_packets","-show_data_hash","sha256","-show_entries","packet=stream_index,data_hash","-of","json",path],{encoding:"utf8"})).packets;
+   const before=packetHashes(input),after=packetHashes(out);
+   for(const index of [0,1])assert.deepEqual(after.filter(p=>p.stream_index===index).map(p=>p.data_hash),before.filter(p=>p.stream_index===index).map(p=>p.data_hash),"Remux preserves encoded packet bytes");
+  }
   console.log(ext+" -> H.264/AAC verified ("+mode+")");
  }
  assert.ok(engineRequests>0);
