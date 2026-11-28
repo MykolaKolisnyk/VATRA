@@ -16,7 +16,7 @@ assert.ok(auth.includes("global:{fetch:authFetch}"));
 const profile=await readFile("assets/js/profile.js","utf8");
 assert.ok(profile.includes("const pendingDeleteFlush=Promise.resolve().then(")&&profile.includes("pendingDeleteFlush.then(()=>loadPosts("));
 assert.ok(profile.indexOf("const pendingDeleteFlush=Promise.resolve().then(")<profile.indexOf("const prepared=profileDeadline(window.VATRA_PROFILE_DETAILS.prepare"));
-const community=await readFile("assets/js/community-core.js","utf8");
+const community=await readFile("assets/js/communities/community-core.js","utf8");
 assert.ok(community.indexOf("const initialAuth=Promise.resolve().then(")<community.indexOf("await window.VATRA_LANGUAGE?.ready;"));
 assert.ok(community.includes("const startup=await initialAuth;"));
 const core=await readFile("assets/js/core.js","utf8");
@@ -31,17 +31,17 @@ console.log("VATRA startup: bounded Auth requests, cancellation, parallel profil
 assert.ok(core.indexOf("bindViewer?.(client,user.id)")>core.indexOf("ownId=String(accountResult.data.vatra_id)"),"Verified viewer must bind the existing tab cache before section initialization");
 
 for(const [file,accountAnchor,binding] of [
- ["friends",'ownId=String(account.data.vatra_id);','bindViewer?.(client,user.id)'],
+ ["friends/friends",'ownId=String(account.data.vatra_id);','bindViewer?.(client,user.id)'],
  ["gifts",'const id=String(account.data.vatra_id);','bindViewer?.(client,user.id)'],
  ["notifications",'const id=String(account.vatra_id);','bindViewer?.(clientRef,user.id)'],
- ["community-core",'const ownId=account?.vatra_id==null?null:String(account.vatra_id);','bindViewer?.(client,user.id)']
+ ["communities/community-core",'const ownId=account?.vatra_id==null?null:String(account.vatra_id);','bindViewer?.(client,user.id)']
 ]){
  const source=await readFile("assets/js/"+file+".js","utf8");
  assert.ok(source.includes(accountAnchor)&&source.indexOf(binding)>source.indexOf(accountAnchor),file+" must bind cache after account lookup");
 }
 
 {
- const source=await readFile("assets/js/friends.js","utf8");
+ const source=await readFile("assets/js/friends/friends.js","utf8");
  const start=source.indexOf("async function data(){"),end=source.indexOf("function online(id)",start);
  assert.ok(start>=0&&end>start);
  const calls=[],pending=[];

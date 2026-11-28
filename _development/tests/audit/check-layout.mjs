@@ -1549,20 +1549,20 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  !profileScript.includes('home+"id="+')&&
  lang.includes('if(/^id[1-9][0-9]{0,18}$/.test(segment))return "profile";'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
-const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
+const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities/communities.css");
 assert.ok(communityBannerMarkup.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>')&&
  !communityBannerMarkup.includes('<img class="ui-community-banner-art-001"')&&
- communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../illustrations/communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
+ communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../../illustrations/communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
  communityBannerCSS.includes(".ui-community-discovery-banner-001[hidden]{display:none}")&&
  !(await read("club.html")).includes("ui-community-banner-art-001"),
  "The original Uzhhorod panorama must be exclusively a responsive directory hero");
-const communityScript=await read("assets/js/communities.js");
-const clubRuntime=await read("assets/js/club.js");
-const communityCoreRuntime=await read("assets/js/community-core.js");
+const communityScript=await read("assets/js/communities/communities.js");
+const clubRuntime=await read("assets/js/communities/club.js");
+const communityCoreRuntime=await read("assets/js/communities/community-core.js");
 for(const source of [communityScript,clubRuntime,communityCoreRuntime])assert.doesNotThrow(()=>new Function(source),"Community routes and Redis fallback must parse as JavaScript");
 const directoryMarkup=await read("communities.html"),clubMarkup=await read("club.html");
-assert.ok(directoryMarkup.includes("assets/js/community-core.js")&&directoryMarkup.includes("assets/js/communities.js")&&!directoryMarkup.includes("assets/js/club.js")&&!directoryMarkup.includes("assets/js/post-media.js")&&!directoryMarkup.includes("assets/js/post-interactions.js"),"Directory must not load club publication features");
-assert.ok(clubMarkup.includes("assets/js/community-core.js")&&clubMarkup.includes("assets/js/club.js")&&!clubMarkup.includes("assets/js/communities.js")&&clubMarkup.includes("assets/js/post-media.js")&&clubMarkup.includes("assets/js/post-interactions.js"),"Club route owns its publication features");
+assert.ok(directoryMarkup.includes("assets/js/communities/community-core.js")&&directoryMarkup.includes("assets/js/communities/communities.js")&&!directoryMarkup.includes("assets/js/communities/club.js")&&!directoryMarkup.includes("assets/js/post-media.js")&&!directoryMarkup.includes("assets/js/post-interactions.js"),"Directory must not load club publication features");
+assert.ok(clubMarkup.includes("assets/js/communities/community-core.js")&&clubMarkup.includes("assets/js/communities/club.js")&&!clubMarkup.includes("assets/js/communities/communities.js")&&clubMarkup.includes("assets/js/post-media.js")&&clubMarkup.includes("assets/js/post-interactions.js"),"Club route owns its publication features");
 assert.ok(!communityScript.includes("setupClubSocial")&&!clubRuntime.includes("openDirectory"),"Community pages must contain only their own route logic");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
@@ -2027,7 +2027,7 @@ assert.ok(
  feedScript.includes("if(version===feedRequestVersion)"),
  "New search/filter revisions must supersede old Feed pages and errors");
 // Third-party friends list privacy must be enforced in both the UI and RLS.
-const friendshipPrivacyJs=await read("assets/js/friends.js");
+const friendshipPrivacyJs=await read("assets/js/friends/friends.js");
 const friendshipPrivacySql=await read("_development/supabase/migrations/20261114154237_private_friendship_rows_to_participants.sql");
 assert.ok(
  friendshipPrivacyJs.includes('if(!me){')&&
@@ -2121,7 +2121,7 @@ assert.ok(
  "Feed cards, profile stacks and restricted states share compact spacing");
 
 
-const friendsInteractionCss=await read("assets/css/friends.css");
+const friendsInteractionCss=await read("assets/css/friends/friends.css");
 const giftsInteractionCss=await read("assets/css/gifts.css");
 assert.ok(
  ["--vatra-action-ink:#2464d7","--vatra-action-hover-ink:#1e55bf",
@@ -2163,7 +2163,7 @@ assert.ok(plainCoverSvg.includes("<linearGradient")&&plainCoverSvg.includes('fil
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
  systemProfileCss.includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
  (await read("assets/css/guest-view.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
- (await read("assets/css/communities.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
+ (await read("assets/css/communities/communities.css")).includes('background:var(--vatra-default-cover) center/cover no-repeat')&&
  systemAvatarCss.includes('[data-vatra-avatar-state="default"]:not(.has-photo){background-image:var(--vatra-default-avatar)')&&
  systemProfileCss.includes('.profile-cover.has-photo{'),
  "SVG cover must remain distinct from the page background without affecting uploads");
@@ -2566,7 +2566,7 @@ assert.ok(landing.includes('class="vatra-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await assetFiles("assets/css",".css");
-assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends.css","gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","clips.css","communities/communities.css","core.css","create-account/create-account.css","external-links.css","feed.css","form-select.css","friends/friends.css","gifts.css","guest-view.css","legal.css","log-in/log-in.css","maintenance.css","marketplace.css","not-found.css","offline.css","onboarding.css","photo-albums.css","post-composer.css","profile.css","recovery/recovery.css","settings.css","story-editor.css","story-viewer.css","vatra-player.css","verify/verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await assetFiles("assets/js",".js");
 assert.ok(!javascriptFiles.includes("create-menu.js")&&!cssFiles.includes("create-menu.css"),"Create menu must be integrated into feed assets");
 for(const route of ["feed","profile","friends","communities","club","clips","marketplace","gifts","notifications","settings","vatra-id"]){const markup=await read(route+".html");assert.ok(!markup.includes("assets/js/create-menu.js")&&!markup.includes("assets/css/create-menu.css"),route+" must not request deleted standalone menu assets");}
@@ -2727,7 +2727,7 @@ for(const publicNamePage of ["feed","profile","communities","club","notification
   "Public-name cache must load before member data on "+publicNamePage);
 }
 for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
- "assets/js/notifications.js","assets/js/profile.js","assets/js/club.js"]){
+ "assets/js/notifications.js","assets/js/profile.js","assets/js/communities/club.js"]){
  assert.ok((await read(path)).includes("window.VATRA_PUBLIC_NAMES?.get(client,"),
   "Public-name lookups must use the shared cache in "+path);
 }
@@ -2808,8 +2808,8 @@ assert.ok((legacyViewCleanup.match(/DROP VIEW IF EXISTS public\.vatra_/g)||[]).l
  !storageBucketCleanup.includes("UPDATE storage.objects"),
  "Legacy views can be removed independently; clean Storage buckets must preserve owner-only RLS");
 for(const source of ["assets/js/avatar.js","assets/js/post-media.js","assets/js/post-interactions.js",
- "assets/js/feed.js","assets/js/profile.js","assets/js/communities.js","assets/js/club.js","assets/js/community-core.js",
- "assets/js/friends.js","assets/js/notifications.js"]){
+ "assets/js/feed.js","assets/js/profile.js","assets/js/communities/communities.js","assets/js/communities/club.js","assets/js/communities/community-core.js",
+ "assets/js/friends/friends.js","assets/js/notifications.js"]){
  const contents=await read(source);
  for(const oldBucket of ["vatra-avatars","vatra-covers","vatra-post-images","vatra-videos"])
   assert.ok(!contents.includes(oldBucket),source+" must not use an old Storage bucket");
@@ -2926,7 +2926,7 @@ assert.ok(!settingsRuntime.includes('settingsCard(t("Сповіщення на �
 const editorRuntime=await read("assets/js/marketplace-editor.js");
 const clipComposerRuntime=await read("assets/js/clip-composer.js");
 const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
-const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
+const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings","communities/communities"].map(name=>read("assets/css/"+name+".css")))).join("\n");
 for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
 for(const module of [editorRuntime,clipComposerRuntime])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
 for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
@@ -3000,8 +3000,8 @@ for(const file of await readdir("assets/i18n")){if(!file.endsWith(".json"))conti
 await import("../smoke/maintenance-smoke.mjs");
 
 await assert.rejects(stat("business.html"),{code:"ENOENT"});
-assert.ok(!(await read("assets/js/club.js")).includes("setupCommunityBusiness")&&
- !(await read("assets/js/communities.js")).includes("business_enabled")&&
+assert.ok(!(await read("assets/js/communities/club.js")).includes("setupCommunityBusiness")&&
+ !(await read("assets/js/communities/communities.js")).includes("business_enabled")&&
  !(await read("communities.html")).includes("community-business-enabled")&&
  !(await read("club.html")).includes("club-business-tools"),
  "Retired business tools must be absent from both community pages");
@@ -3012,7 +3012,7 @@ assert.ok(retiredActivitySQL.includes("drop table public.business_posts;")&&reti
 
 await assert.rejects(stat("assets/css/business.css"),{code:"ENOENT"});
 assert.ok(!communityBannerCSS.includes("vatra-business-page")&&!communityBannerCSS.includes("ui-club-business-tools-001"),"Retired business styles must be absent");
-assert.ok(!(await read("assets/js/club.js")).includes("assets/css/business.css"),"Community tools must not fetch a retired stylesheet");
+assert.ok(!(await read("assets/js/communities/club.js")).includes("assets/css/business.css"),"Community tools must not fetch a retired stylesheet");
 for(const asset of ["community-business","community-business-brand","community-business-bookings",
  "community-business-jobs","community-business-inbox","community-business-stores"]){
  await assert.rejects(stat("assets/js/"+asset+".js"),{code:"ENOENT"});
@@ -3062,3 +3062,7 @@ assert.ok(!memberProfileMarkup.includes('id="profile-cover-viewer-original"')&&!
 assert.ok(javascriptFiles.includes("log-in/log-in.js")&&javascriptFiles.includes("log-in/hero.js")&&!javascriptFiles.includes("sign-in.js")&&!javascriptFiles.includes("login-hero.js")&&!cssFiles.includes("sign-in.css"),"Login must have one canonical section directory without legacy file copies");
 
 for(const name of ["create-account","recovery","verify"]){assert.ok(javascriptFiles.includes(name+"/"+name+".js")&&!javascriptFiles.includes(name+".js")&&cssFiles.includes(name+"/"+name+".css")&&!cssFiles.includes(name+".css"),name+": one canonical section directory without legacy copies");}
+
+assert.ok(javascriptFiles.includes("friends/friends.js")&&!javascriptFiles.includes("friends.js")&&!cssFiles.includes("friends.css"),"Friends assets must have a canonical section directory");
+for(const name of ["community-core","communities","club"])assert.ok(javascriptFiles.includes("communities/"+name+".js")&&!javascriptFiles.includes(name+".js"),"Community controller must have a canonical section directory: "+name);
+assert.ok(!cssFiles.includes("communities.css"),"No duplicate flat community stylesheet");

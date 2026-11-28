@@ -2,7 +2,7 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-const root=new URL("../../",document.currentScript?.src||"assets/js/friends.js");
+const root=new URL("../../../",document.currentScript?.src||"assets/js/friends/friends.js");
 const q=s=>document.querySelector(s);
 const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
 const t=(uk,english)=>{

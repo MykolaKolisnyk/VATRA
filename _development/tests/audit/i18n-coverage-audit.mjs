@@ -201,7 +201,7 @@ for(const key of postEngagementKeys){
  assert.ok(postInteractionsRuntime.includes(key)&&typeof en[key]==="string"&&en[key].trim(),
   "Missing English post engagement string: "+key);
 }
-const communityRuntime=(await Promise.all(["community-core","communities","club"].map(name=>readFile("assets/js/"+name+".js","utf8")))).join("\n");
+const communityRuntime=(await Promise.all(["community-core","communities","club"].map(name=>readFile("assets/js/communities/"+name+".js","utf8")))).join("\n");
 const communityPages=[
  await readFile("communities.html","utf8"),
  await readFile("club.html","utf8")
@@ -301,7 +301,7 @@ for(const key of composerKeys){
   "Composer no longer uses the localized key: "+key);
 }
 
-const friendsRuntime=await readFile("assets/js/friends.js","utf8");
+const friendsRuntime=await readFile("assets/js/friends/friends.js","utf8");
 const friendsKeys=[
  "Дію виконано, але список не оновився. Оновіть сторінку.",
  "Не вдалося виконати дію.",

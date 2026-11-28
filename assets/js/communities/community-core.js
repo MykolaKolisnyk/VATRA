@@ -4,7 +4,7 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const PROJECT_URL="https://cxrcycxrlkufozomsxcs.supabase.co";
 const PUBLIC_KEY="sb_publishable_oKypZDxi8PP1oxSylfh5wQ_H6HxeM-i";
-const root=new URL("../../",document.currentScript.src).href;
+const root=new URL("../../../",document.currentScript.src).href;
 const activeLocale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
 const dateLocales={uk:"uk-UA",en:"en-US",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
 const locale=dateLocales[activeLocale]||"uk-UA";

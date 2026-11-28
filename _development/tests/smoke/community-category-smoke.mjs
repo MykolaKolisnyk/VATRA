@@ -1,7 +1,7 @@
 // The real directory, DB constraint and public cache must agree.
 import assert from "node:assert/strict";
 import { readFile,readdir } from "node:fs/promises";
-const src=await readFile("assets/js/communities.js","utf8");
+const src=await readFile("assets/js/communities/communities.js","utf8");
 const edge=await readFile("_development/supabase/functions/public-community-directory/index.ts","utf8");
 const sql=await readFile("_development/supabase/migrations/20261118181717_add_community_categories.sql","utf8");
 const html=await readFile("communities.html","utf8");
@@ -32,7 +32,7 @@ for(const name of [...files,"communities.webp"]){
 assert.ok(src.includes('node("span","ui-community-topic-photo-001")')&&src.includes('new IntersectionObserver')&&src.includes('coverObserver.unobserve')&&src.includes('assets/illustrations/')&&src.includes('["contextmenu","dragstart"]'));
 assert.ok(!src.includes('node("img","ui-community-topic-photo-001")')&&!src.includes("assets/other/"));
 assert.ok(html.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>'));
-const css=await readFile("assets/css/communities.css","utf8");
+const css=await readFile("assets/css/communities/communities.css","utf8");
 assert.ok(css.includes('../illustrations/communities.webp')&&css.includes('background-size:cover;background-position:center')&&css.includes('pointer-events:none'));
 assert.ok(css.includes('flex-wrap:nowrap')&&css.includes('flex:0 0 var(--topic-width)')&&css.includes('aspect-ratio:1.65')&&css.includes('overflow-x:auto')&&css.includes('touch-action:pan-x pan-y pinch-zoom')&&css.includes('.ui-community-topic-grid-001.is-expanded'));
 console.log("VATRA community categories: forty unique IDs, bilingual labels, required form, exact filters, DB constraints and cache schema agree.");
