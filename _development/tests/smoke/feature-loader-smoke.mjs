@@ -286,3 +286,33 @@ assert.equal(deletedNotifications,1,"Final deletion must update comment paginati
 assert.ok(rowOps.some(op=>op.table==="avatar_comments"&&op.field==="author_id"&&op.value==="user-8"),
  "Delete query must constrain the author id, not just the comment id");
 console.log("VATRA lazy features: no eager payload, CSS before JS, deduplication, deep links, owner-only comment actions and retry passed.");
+
+{
+ const sharedJS="host.js lang.js avatar.js public-name-cache.js verified.js notifications.js network.js social-shell.js scroll-rail.js external-links.js".split(" ");
+ const sharedCSS="base.css feed.css external-links.css".split(" ");
+ const mediaJS="vatra-player.js post-media.js post-interactions.js".split(" ");
+ const storyJS="story-views.js story-view-progress.js story-reactions.js".split(" ");
+ const routes={
+  feed:{js:[...mediaJS,...storyJS,"presence.js","ads.js","onboarding.js","feature-loader.js","feed.js"],css:["story-viewer.css","vatra-player.css","onboarding.css"]},
+  profile:{js:[...mediaJS,...storyJS,"presence.js","gift-catalog.js","guest-view.js","feature-loader.js","profile.js"],css:["guest-view.css","story-viewer.css","vatra-player.css","profile.css"]},
+  friends:{js:["presence.js","friends.js"],css:["friends.css"]},
+  communities:{js:["presence.js","community-core.js","communities.js"],css:["communities.css"]},
+  club:{js:[...mediaJS,"presence.js","guest-view.js","community-core.js","club.js"],css:["guest-view.css","vatra-player.css","communities.css"]},
+  clips:{js:[...mediaJS,"presence.js","core.js","clips.js"],css:["vatra-player.css","core.css","clips.css"]},
+  marketplace:{js:["presence.js","core.js","marketplace.js"],css:["core.css","marketplace.css"]},
+  gifts:{js:["gift-catalog.js","feature-loader.js","gifts.js"],css:["gifts.css"]},
+  notifications:{js:[],css:[]},
+  settings:{js:["presence.js","core.js","settings.js"],css:["core.css","settings.css"]},
+  "vatra-id":{js:["presence.js","core.js","form-select.js","settings.js"],css:["core.css","form-select.css","settings.css"]}
+ };
+ for(const [route,expected] of Object.entries(routes)){
+  const html=await readFile(route+".html","utf8");
+  const js=[...html.matchAll(/\bsrc="assets\/js\/([^"?]+)/g)].map(x=>x[1]);
+  const css=[...html.matchAll(/\bhref="assets\/css\/([^"?]+)/g)].map(x=>x[1]);
+  for(const [kind,actual,wanted] of [["JavaScript",js,[...sharedJS,...expected.js]],["CSS",css,[...sharedCSS,...expected.css]]]){
+   assert.equal(new Set(actual).size,actual.length,route+": duplicate "+kind+" dependency");
+   assert.deepEqual(actual.sort(),wanted.sort(),route+": eager "+kind+" must be deliberately owned by the page; update the contract when adding a required dependency");
+  }
+ }
+ console.log("VATRA route ownership: exact initial local JS/CSS dependencies, no duplicates, 11 member routes.");
+}

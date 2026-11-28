@@ -37,26 +37,26 @@ function idAction(label,description,key,handler){
 }
 
 const securityArt=Object.freeze({general:"vatryk_security.webp",warning:"vatryk_security-warning.webp",danger:"vatryk_security-danger.webp",password:"vatryk_security-password.webp",device:"vatryk_security-device.webp",success:"vatryk_security-success.webp"});
-function securityMascot(kind){
- const img=make("img","ui-vatra-id-security-mascot-001");img.alt="";img.width=144;img.height=144;img.decoding="async";img.loading="lazy";img.src=new URL("assets/vatryk/"+securityArt[kind],root).href;
+function securityMascot(kind,hook=kind){
+ const img=make("img","ui-vatra-id-security-mascot-001 ui-vatra-id-security-mascot-"+hook+"-001");img.alt="";img.width=144;img.height=144;img.decoding="async";img.loading="lazy";img.src=new URL("assets/vatryk/"+securityArt[kind],root).href;
  img.addEventListener("error",()=>img.remove(),{once:true});return img;
 }
-function securityNotice(kind,heading,description){
- const box=make("section","ui-vatra-id-security-notice-001");box.dataset.securityState=kind;
- const copy=make("div","ui-vatra-id-security-notice-copy-001");copy.append(make("h3","vatra-id-security-notice-heading-001",heading),make("p","vatra-section-form-note-001",description));
- box.append(securityMascot(kind),copy);return {box,copy};
+function securityNotice(kind,heading,description,hook=kind){
+ const box=make("section","ui-vatra-id-security-notice-001 ui-vatra-id-security-"+hook+"-notice-001");box.dataset.securityState=kind;
+ const copy=make("div","ui-vatra-id-security-notice-copy-001 ui-vatra-id-security-"+hook+"-copy-001");copy.append(make("h3","vatra-id-security-notice-heading-001 vatra-id-security-"+hook+"-heading-001",heading),make("p","vatra-section-form-note-001 vatra-id-security-"+hook+"-description-001",description));
+ box.append(securityMascot(kind,hook),copy);return {box,copy};
 }
-function securitySuccess(host,heading,description){
+function securitySuccess(host,heading,description,scope="sessions"){
  if(!host.isConnected)return;
  host.querySelector('[data-security-state="success"]')?.remove();
- const {box}=securityNotice("success",heading,description);box.setAttribute("role","status");host.prepend(box);
+ const {box}=securityNotice("success",heading,description,"success-"+scope);box.setAttribute("role","status");host.prepend(box);
 }
 function securityConcern(kind,onPassword,onDevices){
  const warning=kind==="warning";
  const heading=warning?t("Не впізнаєте сеанс?","Don't recognize a session?"):t("Підозрюєте сторонній доступ?","Suspect unauthorized access?");
  const {d,form}=dialog(heading);
  const {box}=securityNotice(kind,heading,warning?t("Перевірте пристрої та завершіть сеанси, які вам не належать.","Review devices and sign out sessions that are not yours."):t("Якщо хтось міг отримати доступ до акаунта, змініть пароль та завершіть інші сеанси.","If someone may have accessed your account, change your password and sign out other sessions."));
- form.append(box,btn(t("Змінити пароль","Change password"),"vatra-section-submit-001",()=>{d.close();onPassword();}),btn(t("Пристрої та сеанси","Devices and sessions"),"vatra-preferences-action-001",()=>{d.close();onDevices();}));
+ form.append(box,btn(t("Змінити пароль","Change password"),"vatra-section-submit-001 vatra-id-security-"+kind+"-password-001",()=>{d.close();onPassword();}),btn(t("Пристрої та сеанси","Devices and sessions"),"vatra-preferences-action-001 vatra-id-security-"+kind+"-devices-001",()=>{d.close();onDevices();}));
  d.addEventListener("close",()=>d.remove(),{once:true});d.showModal();
 }
 function sessionDevice(agent){
@@ -177,7 +177,7 @@ function accountCredentials(panel,ticket,section){
    if(error?.code==="reauthentication_needed"){nonce.parentElement.hidden=false;nonce.required=true;sendCode.hidden=false;message(t("Для зміни пароля потрібне підтвердження електронною поштою.","Email verification is required to change your password."));nonce.focus();return;}
    if(error){message(failure(error),true);return;}
    if(data?.user?.id===user.id)user=data.user;
-   form.reset();closeSuccess(d,t("Зміни збережено.","Changes saved."));if(ticket===renderTicket)securitySuccess(panel,t("Пароль змінено","Password changed"),t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password."));
+   form.reset();closeSuccess(d,t("Зміни збережено.","Changes saved."));if(ticket===renderTicket)securitySuccess(panel,t("Пароль змінено","Password changed"),t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password."),"password");
   });d.showModal();
  });
  security.append(link(t("Забули пароль?","Forgot password?"),"forgot","vatra-id-password-001"));
@@ -339,7 +339,7 @@ async function preferences(){
  const layout=make("div","ui-vatra-preferences-layout-001"),panel=make("div","ui-vatra-preferences-content-001"),side=card("ui-vatra-preferences-nav-001");
  const sections=[["general",t("Загальні","General")],["privacy",t("Приватність","Privacy")],["notifications",t("Сповіщення","Notifications")],["blocked",t("Чорний список","Blocked members")]];
  const menu=tabs(sections,id=>{if(location.hash==="#"+id)void show(id);else location.hash=id;});
- for(const b of menu.children){const key={general:"sliders",privacy:"shield",notifications:"bell",blocked:"ban"}[b.dataset.tab];const label=make("span","vatra-preferences-nav-label-001",b.textContent);b.replaceChildren(idIcon(key),label);}
+ for(const b of menu.children){const tab=b.dataset.tab,key={general:"sliders",privacy:"shield",notifications:"bell",blocked:"ban"}[tab];const label=make("span","vatra-preferences-nav-label-001 vatra-preferences-nav-"+tab+"-label-001",b.textContent),icon=idIcon(key);b.classList.add("vatra-preferences-nav-"+tab+"-001");icon.classList.add("ui-vatra-preferences-nav-"+tab+"-icon-001");icon.querySelector("path")?.classList.add("ui-vatra-preferences-nav-"+tab+"-path-001");b.replaceChildren(icon,label);}
  const security=link("","vatra-id#home","vatra-preferences-id-link-001");const securityCopy=make("span","ui-vatra-preferences-id-copy-001");securityCopy.append(idIcon("shield"),make("span","vatra-preferences-security-label-001",t("Керування акаунтом","Manage account")));security.append(securityCopy);
  const brand=make("span","vatra-preferences-id-badge-001");const logo=make("img","vatra-preferences-id-logo-001");logo.src="assets/logo/logo_symbol.svg";logo.alt="";brand.append(logo,document.createTextNode("ID"));security.append(brand);side.append(menu,security);layout.append(panel,side);content.append(layout);
  const prefKey="vatra:notification-display:"+ownId;
@@ -366,7 +366,7 @@ async function preferences(){
  ["member_story",t("Нові історії","New stories"),""]]]
  ];
  function settingsCard(heading){const c=card("ui-vatra-preferences-card-001");c.append(make("h2","vatra-preferences-heading-001",heading));return c;}
- function row(c,heading,description,control,key){const line=make("div","ui-vatra-preferences-row-001"),copy=make("div","ui-vatra-preferences-row-copy-001"),label=make("label","vatra-preferences-label-001",heading);if(key){control.id="vatra-preference-"+key;label.htmlFor=control.id;}copy.append(label);if(description)copy.append(make("p","vatra-preferences-description-001",description));line.append(copy,control);c.append(line);return line;}
+ function row(c,heading,description,control,key){const hook=(key||"language").replaceAll("_","-"),prefix="vatra-preferences-"+hook;const line=make("div","ui-vatra-preferences-row-001 ui-"+prefix+"-row-001"),copy=make("div","ui-vatra-preferences-row-copy-001 ui-"+prefix+"-copy-001"),label=make("label","vatra-preferences-label-001 "+prefix+"-label-001",heading);control.classList.add("ui-"+prefix+"-control-001");if(key){control.id="vatra-preference-"+key;label.htmlFor=control.id;}copy.append(label);if(description)copy.append(make("p","vatra-preferences-description-001 "+prefix+"-description-001",description));line.append(copy,control);c.append(line);return line;}
  async function show(id){
   const ticket=++renderTicket;panel.replaceChildren();message("");
   for(const b of menu.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}

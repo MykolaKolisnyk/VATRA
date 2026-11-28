@@ -200,6 +200,7 @@ try{
   await accountDesign.getByRole("button",{name:"Підозрюєте сторонній доступ?",exact:true}).click();
   const danger=accountDesign.locator('dialog[open] [data-security-state="danger"]');
   await danger.waitFor({state:"visible"});
+  for(const cls of ["ui-vatra-id-security-danger-copy-001","vatra-id-security-danger-heading-001","vatra-id-security-danger-description-001","ui-vatra-id-security-mascot-danger-001"])assert.equal(await danger.locator("."+cls).count(),1,"Danger guidance has its own "+cls);
   assert.ok((await danger.locator("img").getAttribute("src")).endsWith("/vatryk_security-danger.webp"));
   await accountDesign.keyboard.press("Escape");
   await danger.waitFor({state:"detached"});
@@ -212,6 +213,7 @@ try{
   await otherNotice.getByRole("button",{name:"Не впізнаєте сеанс?",exact:true}).click();
   const warning=accountDesign.locator('dialog[open] [data-security-state="warning"]');
   await warning.waitFor({state:"visible"});
+  for(const cls of ["ui-vatra-id-security-warning-copy-001","vatra-id-security-warning-heading-001","vatra-id-security-warning-description-001","ui-vatra-id-security-mascot-warning-001"])assert.equal(await warning.locator("."+cls).count(),1,"Warning guidance has its own "+cls);
   assert.ok((await warning.locator("img").getAttribute("src")).endsWith("/vatryk_security-warning.webp"));
   await accountDesign.keyboard.press("Escape");
   await warning.waitFor({state:"detached"});
@@ -225,6 +227,7 @@ try{
   await revoke.click();
   const securitySuccess=accountDesign.locator('[data-security-state="success"]');
   await securitySuccess.waitFor({state:"visible"});
+  assert.equal(await securitySuccess.locator(".ui-vatra-id-security-mascot-success-sessions-001").count(),1);
   assert.ok((await securitySuccess.locator("img").getAttribute("src")).endsWith("/vatryk_security-success.webp"));
   assert.deepEqual(await accountDesign.evaluate(()=>window.__fixtureRevokeCalls),[otherSession,otherSession]);
   assert.equal(await deviceList.locator(".vatra-id-device-current-001").count(),1);
@@ -234,6 +237,8 @@ try{
   await accountDesign.evaluate(()=>{history.replaceState(null,"",location.pathname+"?view=settings#general");document.querySelector("#design-content").replaceChildren();document.body.dataset.page="settings";});
   await accountDesign.addScriptTag({url:base+"assets/js/settings.js"});
   await accountDesign.locator(".ui-vatra-preferences-nav-001").waitFor({state:"visible"});
+  for(const tab of ["general","privacy","notifications","blocked"]){for(const cls of ["vatra-preferences-nav-"+tab+"-001","vatra-preferences-nav-"+tab+"-label-001","ui-vatra-preferences-nav-"+tab+"-icon-001","ui-vatra-preferences-nav-"+tab+"-path-001"])assert.equal(await accountDesign.locator("."+cls).count(),1,"Individual preferences navigation hook "+cls);}
+  for(const key of ["language","viewer-video-autoplay"]){for(const part of ["row","copy","control"])assert.equal(await accountDesign.locator(".ui-vatra-preferences-"+key+"-"+part+"-001").count(),1);for(const part of ["label","description"])assert.equal(await accountDesign.locator(".vatra-preferences-"+key+"-"+part+"-001").count(),1);}
   assert.equal(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").count(),4);
   assert.deepEqual(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).width)),["20px","20px","20px","20px"]);
   await accountDesign.locator('[data-tab="blocked"]').click();
