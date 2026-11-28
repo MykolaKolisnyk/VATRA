@@ -132,3 +132,22 @@ assert.equal(dialogClasses.has("vatra-form-scroll-active"),true,"Non-overflowing
 fire("pointerout",{pointerType:"mouse",target:{closest:()=>plainTextarea},relatedTarget:null});
 assert.equal(dialogClasses.has("vatra-form-scroll-active"),false);
 console.log("VATRA forms: graphite, arrowless and hover-present scrollbars verified offline.");
+
+{
+ const start=registerJs.indexOf("function ownNativeOptions("),end=registerJs.indexOf("function wireSelects(",start);
+ assert.ok(start>=0&&end>start);
+ const ctx={};
+ runInNewContext(registerJs.slice(start,end)+"\nglobalThis.own=ownNativeOptions;",ctx);
+ const create=(id,count)=>({id,options:Array.from({length:count},()=>{const classes=new Set(["existing-option-hook"]);return {classes,classList:{add:name=>classes.add(name)}};})});
+ const day=create("birth-day",32),month=create("birth-month",13);
+ for(const select of [day,month]){ctx.own(select);ctx.own(select);}
+ const individual=[day,month].flatMap(select=>select.options.map((option,index)=>{
+  const expected="vatra-select-"+select.id+"-native-option-"+(index+1);
+  assert.deepEqual([...option.classes],["existing-option-hook",expected],"Existing hooks are preserved and repeated setup is idempotent");return expected;
+ }));
+ assert.equal(new Set(individual).size,45,"Native options, including placeholders, have distinct hooks");
+ assert.ok(registerJs.includes('select.classList.add("vatra-select-native","ui-select-native-"+select.id)')&&registerJs.includes("ownNativeOptions(select);"));
+ const scrollHandler=registerJs.match(/scrollArea\.addEventListener\("scroll",[^\n]+/)[0];
+ assert.equal(scrollHandler,'scrollArea.addEventListener("scroll",showRail,{passive:true});',"Scroll must not duplicate the geometry calculation already in showRail");
+}
+console.log("VATRA shared selectors: unique native option classes and one geometry update per scroll.");
