@@ -1782,8 +1782,6 @@ body.feed-page .vatra-scroll-rail[data-mode="compact"] .ui-vatra-scroll-rail-ico
 @media(max-width:600px){body.feed-page .vatra-scroll-rail[data-mode="compact"]{width:44px;height:44px;bottom:max(14px,env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-scroll-rail{transition:none}}
 
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vatra-feed-filter-heading-001{gap:10px
-}
 body.feed-page .ui-feed-filter-heading-icon-001{display:block;flex:none;color:#6381b6;width:20px;height:20px}
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
  border:0!important;box-shadow:none!important;outline-offset:2px
@@ -2112,7 +2110,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-
 
 body.feed-page:not(.profile-page):not(.community-page) .vatra-feed-filter-summary-001{
  margin:9px 5px 1px;padding-top:11px;border-top:1px solid #edf1f8;
- color:#70819e;font:560 12px/1.5 "Onest",system-ui,sans-serif
+ color:#70819e;font:560 12px/1.5 "Onest",system-ui,sans-serif;text-align:center
 }
 @media(prefers-reduced-motion:reduce){
  body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{transition:none}

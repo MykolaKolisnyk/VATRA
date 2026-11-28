@@ -5053,10 +5053,11 @@ try{
      const first={rail:rect(rail).top,ad:rect(ad).top,head:rect(header).bottom,scroll:window.scrollY};
      window.scrollTo({top:1000,behavior:"instant"});await settle();
      const second={rail:rect(rail).top,ad:rect(ad).top,head:rect(header).bottom,scroll:window.scrollY};
-     return {centerError,first,second,width:innerWidth,railPosition:getComputedStyle(rail).position,adPosition:getComputedStyle(ad).position,railHeight:rect(rail).height,viewport:innerHeight};
+     return {centerError,summaryAlign:getComputedStyle(filter.querySelector(".vatra-feed-filter-summary-001")).textAlign,first,second,width:innerWidth,railPosition:getComputedStyle(rail).position,adPosition:getComputedStyle(ad).position,railHeight:rect(rail).height,viewport:innerHeight};
     }finally{lane.style.minHeight=oldMin;window.scrollTo({top:start,behavior:"instant"});await settle();}
    });
    assert.ok(stickyGeometry.centerError<=2,"Filter title text itself must be centered independently of the icon: "+JSON.stringify(stickyGeometry));
+   assert.equal(stickyGeometry.summaryAlign,"center","All feed filter summary labels are centered");
    if(stickyGeometry.width>950){
     assert.equal(stickyGeometry.railPosition,"sticky");
     assert.ok(stickyGeometry.second.scroll-stickyGeometry.first.scroll>=200&&Math.abs(stickyGeometry.first.rail-stickyGeometry.second.rail)<=2&&stickyGeometry.second.rail>=stickyGeometry.second.head,"Right rail remains below header on scroll: "+JSON.stringify(stickyGeometry));
