@@ -679,6 +679,7 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  assert.equal(one,two,"Concurrent consumers of the same file share one result");
  assert.equal(conversions,before+1);
  let releaseWorker;
+ const automaticWorker=env.Worker;
  env.Worker=class {constructor(){conversions++;activeWorkers++;maxWorkers=Math.max(maxWorkers,activeWorkers);}postMessage(){releaseWorker=()=>this.onmessage({data:{bytes:new ArrayBuffer(42)}});}terminate(){activeWorkers--;}};
  const running=api.prepareVideo({name:"running.mov",type:"video/quicktime",size:42});
  await new Promise(resolve=>setImmediate(resolve));
@@ -693,6 +694,7 @@ console.log("VATRA story photo previews: shared signing, cache reuse, path valid
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(conversions,expected,"Cancelled queued work must never start a worker");
  assert.equal(activeWorkers,0);
+ env.Worker=automaticWorker;
 
  assert.equal(video.media_path,"7/posts/01234567-89ab-4def-8123-456789abcdef.mp4");
  assert.equal(clip.media_path,"7/clips/01234567-89ab-4def-8123-456789abcdef.mp4");
