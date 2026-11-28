@@ -2724,22 +2724,6 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
 
 
 
-@media(min-width:951px){
- body.feed-page:not(.profile-page):not(.community-page) .feed-main{
-  grid-template-rows:max-content max-content auto auto!important;
-  align-content:start!important;row-gap:var(--vatra-card-gap)!important
- }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{
-  align-self:start
- }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-stories{
-  grid-row:1!important
- }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{
-  grid-row:3!important
- }
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{grid-row:4!important}
-}
 
 body.feed-page:not(.profile-page):not(.community-page) .feed-posts-section{align-self:start!important;min-height:0!important;margin:0!important
 }
@@ -3643,10 +3627,6 @@ body.notifications-page .notifications-main #notifications-list .vatra-notice-pr
 body.notifications-page #notifications-empty[hidden]{display:none!important}
 
 body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-quick-compose{grid-row:1!important}
-@media(min-width:951px){
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .ui-feed-reading-lane-001 > :is(.feed-status,.feed-posts-section){grid-row:2!important}
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]):has(.feed-status:not([hidden])) .feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{grid-row:3!important}
-}
 @media(max-width:950px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .ui-feed-right-rail-001{grid-row:2!important}
  body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stories[hidden]) .feed-top-controls > .ui-feed-reading-lane-001 > :is(.feed-status,.feed-posts-section){grid-row:3!important}
