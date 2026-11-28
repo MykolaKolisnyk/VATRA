@@ -1809,8 +1809,9 @@ assert.ok(searchLogic.includes("const compact=vw<=600;")&&
  searchLogic.includes("Math.min(ox+vw-left-(compact?0:12)")&&
  systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('.feed-top-controls{display:contents!important}')&&
- systemFeedCss.includes('.feed-top-controls > .feed-posts-section{')&&
- systemFeedCss.includes('grid-column:1;grid-row:3;width:100%;min-width:0;margin:0')&&
+ systemFeedCss.includes('.feed-top-controls > .ui-feed-reading-lane-001 > .feed-posts-section{')&&
+ systemFeedCss.includes('.feed-top-controls > .ui-feed-reading-lane-001{display:flex;flex-direction:column;')&&
+ systemFeedCss.includes('grid-column:2;grid-row:1!important;align-self:start')&&
  systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
  "Search must align to the header search area without overflowing; Stories and Posts retain the Composer column; avatar is larger");
 
