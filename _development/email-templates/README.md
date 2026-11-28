@@ -27,7 +27,7 @@
 
 ## Мова листа
 
-Поточна форма створення акаунта в `assets/js/create-account.js` передає `preferred_locale` зі значенням `uk` або `en` у метаданих Supabase. **Саме `.Data.preferred_locale`**, а не `.Data.preferredLanguage`, використано в усіх восьми шаблонах.
+Поточна форма створення акаунта в `assets/js/create-account/create-account.js` передає `preferred_locale` зі значенням `uk` або `en` у метаданих Supabase. **Саме `.Data.preferred_locale`**, а не `.Data.preferredLanguage`, використано в усіх восьми шаблонах.
 
 - Для `en` відображається англійський текст.
 - Для `uk` або відсутніх метаданих — український.
