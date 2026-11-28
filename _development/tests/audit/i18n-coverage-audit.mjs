@@ -114,9 +114,9 @@ for(const key of socialShellKeys){
   "English social-shell translation missing: "+key);
 }
 
-const giftRuntime=await readFile("assets/js/gifts.js","utf8");
-const giftViewerRuntime=await readFile("assets/js/gift-viewer.js","utf8");
-const giftCatalogueRuntime=await readFile("assets/js/gift-catalog.js","utf8");
+const giftRuntime=await readFile("assets/js/gifts/gifts.js","utf8");
+const giftViewerRuntime=await readFile("assets/js/gifts/gift-viewer.js","utf8");
+const giftCatalogueRuntime=await readFile("assets/js/gifts/gift-catalog.js","utf8");
 const giftsMarkup=await readFile("gifts.html","utf8");
 const giftKeys=[
  "У колекції",

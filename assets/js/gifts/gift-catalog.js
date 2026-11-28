@@ -1,7 +1,7 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-const root=new URL("../../",document.currentScript?.src||"assets/js/gift-catalog.js");
+const root=new URL("../../../",document.currentScript?.src||"assets/js/gifts/gift-catalog.js");
 const catalog=[
  {code:"first_flame",image:"gift_first-flame.webp",
   uk:"Перший вогник",en:"First flame",

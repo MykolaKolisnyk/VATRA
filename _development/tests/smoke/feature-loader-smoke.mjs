@@ -4,7 +4,7 @@ import {runInNewContext,Script} from "node:vm";
 const [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,commentRows,profileHtml,feedHtml,giftsHtml,catalog,viewer]=await Promise.all([
  "assets/js/feature-loader.js","assets/js/profile.js","assets/js/feed.js",
  "assets/js/photo-albums.js","assets/js/profile-gallery.js","assets/js/profile-cover-editor.js","assets/js/profile-avatar-editor.js","assets/js/profile-cover-viewer.js","assets/js/profile-avatar-comment-row.js","profile.html","feed.html","gifts.html",
- "assets/js/gift-catalog.js","assets/js/gift-viewer.js"
+ "assets/js/gifts/gift-catalog.js","assets/js/gifts/gift-viewer.js"
 ].map(path=>readFile(path,"utf8")));
 for(const source of [loader,profile,feed,albums,gallery,coverEditor,avatarEditor,coverViewer,commentRows,catalog,viewer])
  assert.doesNotThrow(()=>new Script(source),"VATRA feature source must parse");
@@ -19,11 +19,11 @@ for(const [page,html] of [["profile",profileHtml],["feed",feedHtml]]){
 for(const asset of ['src="assets/js/photo-albums.js?rev=','href="assets/css/photo-albums.css?rev='])
  assert.ok(!profileHtml.includes(asset),"Profile must not eagerly load "+asset);
 for(const html of [profileHtml,giftsHtml]){
- assert.ok(html.includes('assets/js/gift-catalog.js?rev='),"Gift catalogue must initialize with its page");
- assert.ok(!html.includes('src="assets/js/gift-viewer.js'),"Viewer must not load eagerly");
+ assert.ok(html.includes('assets/js/gifts/gift-catalog.js?rev='),"Gift catalogue must initialize with its page");
+ assert.ok(!html.includes('src="assets/js/gifts/gift-viewer.js'),"Viewer must not load eagerly");
  assert.ok(html.includes('assets/js/feature-loader.js?rev='),"Gift-opening pages need shared loader");
 }
-assert.ok(!profileHtml.includes('href="assets/css/gifts.css"'),"Profile must defer gift styles");
+assert.ok(!profileHtml.includes('href="assets/css/gifts/gifts.css"'),"Profile must defer gift styles");
 assert.ok(!profileHtml.includes('src="assets/js/profile-avatar-comment-row.js'),
  "Avatar comment cards must not preload during profile render");
 assert.ok(loader.includes('assets/js/profile-avatar-comment-row.js?rev=')&&
@@ -74,8 +74,8 @@ assert.ok(loader.includes('assets/js/profile-gallery.js?rev=')&&
  gallery.includes('tab.getAttribute("aria-selected")==="true"&&(!refreshedAt||Date.now()-refreshedAt>=REUSE_MS)')&&
  gallery.includes('if(busy){refreshQueued=true;return;}'),
  "Photo, video and clip galleries are initialized only after opening a media tab");
-assert.ok(giftsHtml.includes('href="assets/css/gifts.css"'),"Collection cards retain gift styles");
-assert.ok(loader.includes("gift-viewer.js?rev=")&&loader.includes('css:"assets/css/gifts.css"')&&
+assert.ok(giftsHtml.includes('href="assets/css/gifts/gifts.css"'),"Collection cards retain gift styles");
+assert.ok(loader.includes("gift-viewer.js?rev=")&&loader.includes('css:"assets/css/gifts/gifts.css"')&&
  profile.includes('VATRA_FEATURES.load("gift")'),"Gift viewer loads on click");
 for(const asset of ["photo-albums.js?rev=","photo-albums.css?rev=",
  "story-editor.js?rev=","story-editor.css?rev=","post-composer-ui.js","post-composer.css"])
@@ -100,7 +100,7 @@ function fakeBrowser(failFirstStyle=false,preloadedGiftStyle=false,failFirstGall
  const window={},requests=[];let rejectOnce=failFirstStyle,rejectGallery=failFirstGalleryScript,rejectAvatar=failFirstAvatarScript;
  const document={
   currentScript:{src:"https://example.com/VATRA/assets/js/feature-loader.js"},
-  querySelectorAll(){return preloadedGiftStyle?[{href:"https://example.com/VATRA/assets/css/gifts.css"}]:[];},
+  querySelectorAll(){return preloadedGiftStyle?[{href:"https://example.com/VATRA/assets/css/gifts/gifts.css"}]:[];},
   head:{append(el){
    requests.push({tag:el.tagName,src:el.src||el.href});
    queueMicrotask(()=>{

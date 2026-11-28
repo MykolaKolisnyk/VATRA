@@ -7,7 +7,7 @@ const features=Object.freeze({
  albums:{css:"assets/css/photo-albums.css?rev=d173acc7faec74b33482af60793cb107e3b54eb8",js:"assets/js/photo-albums.js?rev=9d0ff67d898de335f087068204f86164144010fc",key:"VATRA_ALBUMS"},
  story:{css:"assets/css/story-editor.css?rev=f60b09930c66318e1d19dfbef884331df1f57451",js:"assets/js/story-editor.js?rev=e698389b58dcbfdb9ab9e0c78c6c225a380e8368",key:"VATRA_STORY_EDITOR"},
  composer:{css:"assets/css/post-composer.css?rev=a1036096ca552c5ac0c7f51c0f58522441bdba94",js:"assets/js/post-composer-ui.js?rev=f0d7d3846bb7804712992f96ec1e948dff5639c0",key:"VATRA_COMPOSER_UI"},
- gift:{css:"assets/css/gifts.css",js:"assets/js/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"},
+ gift:{css:"assets/css/gifts/gifts.css",js:"assets/js/gifts/gift-viewer.js?rev=a9252a6ee75ae9b880b0bec7bf179c3937a5c532",key:"VATRA_GIFT_VIEWER"},
  "profile-gallery":{js:"assets/js/profile-gallery.js?rev=107fc433a724266e5f29b9b2d95375c99a7e15a0",key:"VATRA_PROFILE_GALLERY"},
  "cover-editor":{js:"assets/js/profile-cover-editor.js?rev=95d2182c4b03c53a74e7b9ebdbc9761d585898b9",key:"VATRA_PROFILE_COVER_EDITOR"},
  "avatar-editor":{js:"assets/js/profile-avatar-editor.js?rev=633a59bbf180682416062cae5f853e5de3f80c2f",key:"VATRA_PROFILE_AVATAR_EDITOR"},
