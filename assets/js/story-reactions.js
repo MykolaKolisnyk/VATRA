@@ -35,8 +35,10 @@ async function page(client,story,viewer,offset){
  try{const {data,error}=await client.from("story_reactions").select("reactor_vatra_id,reaction").eq("story_id",story.id).order("created_at",{ascending:false}).order("reactor_vatra_id",{ascending:true}).range(offset,offset+pageSize-1);
  if(error||!Array.isArray(data))return null;
  const rows=data.filter(x=>validId(x.reactor_vatra_id)&&types.includes(x.reaction)),ids=[...new Set(rows.map(x=>String(x.reactor_vatra_id)))];let names=new Map();
+ const avatars=window.VATRA_STORY_VIEWS?.portraits?.(client,ids)||Promise.resolve(new Map());
  if(ids.length)try{const result=await (window.VATRA_PUBLIC_NAMES?.get(client,ids)||client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids));if(!result.error)names=new Map((result.data||[]).filter(x=>validId(x.vatra_id)).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]));}catch(_){}
- return {rows:rows.map(x=>({id:String(x.reactor_vatra_id),reaction:x.reaction,name:names.get(String(x.reactor_vatra_id))||""})),next:offset+data.length,more:data.length===pageSize};
+ const faces=await avatars;
+ return {rows:rows.map(x=>({id:String(x.reactor_vatra_id),reaction:x.reaction,name:names.get(String(x.reactor_vatra_id))||"",avatar:faces.get(String(x.reactor_vatra_id))||null})),next:offset+data.length,more:data.length===pageSize};
  }catch(_){return null;}
 }
 function stop(dialog){
@@ -63,7 +65,7 @@ function start(dialog,client,story,viewer){
   if(!current()||request!==generation||!ui.open)return;loading=false;
   if(owner){
    if(!result){fail();return;}
-   for(const item of result.rows){if(seen.has(item.id))continue;seen.add(item.id);const li=document.createElement("li"),a=document.createElement("a");a.className="vatra-story-reaction-person-001";a.href=new URL("id"+item.id,new URL("./",location.href)).href;a.textContent=icons[types.indexOf(item.reaction)]+" "+(item.name||w[9]+" · "+item.id);li.append(a);list.append(li);}
+   for(const item of result.rows){if(seen.has(item.id))continue;seen.add(item.id);const li=document.createElement("li"),a=document.createElement("a");a.className="vatra-story-viewer-link-001";a.href=new URL("id"+item.id,new URL("./",location.href)).href;const face=window.VATRA_STORY_VIEWS?.portrait?.(item),name=document.createElement("span"),emoji=document.createElement("span");name.className="vatra-story-viewer-name-001";name.textContent=item.name||w[9]+" · "+item.id;emoji.className="vatra-story-reaction-emoji-label-001";emoji.textContent=icons[types.indexOf(item.reaction)];emoji.setAttribute("aria-label",w[10+types.indexOf(item.reaction)]);if(face)a.append(face);a.append(name,emoji);li.append(a);list.append(li);}
    offset=result.next;status.textContent=seen.size?"":w[6];more.hidden=!result.more;
   }else{
    ready=!!result.ok;if(!ready)fail();else{selected=result.value;status.textContent="";}paint();

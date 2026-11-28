@@ -416,3 +416,15 @@ console.log("VATRA story views: list refresh, pagination deduplication, stale re
  assert.equal(await api.page(client,story,"102",0),null,"Only owner requests the reaction list");
 }
 console.log("VATRA story reactions: self exclusion, type allowlist, server-confirmed changes, removal, errors and owner-only list verified.");
+
+{
+ const window={VATRA_PUBLIC_NAMES:{get:async(_client,ids)=>({data:ids.map(vatra_id=>({vatra_id,display_name:"Name "+vatra_id}))})}},document={documentElement:{lang:"uk"}};
+ let batches=0;
+ window.VATRA_AVATAR={paths:async(_client,ids)=>{batches++;return {data:ids.map(vatra_id=>({vatra_id,avatar_path:(vatra_id==="105"?"999":vatra_id)+"/avatar/test.webp"})),error:null};},states:async()=>new Map([["104","blocked"]])};
+ for(const path of ["assets/js/story-views.js","assets/js/story-reactions.js"])runInNewContext(await readFile(path,"utf8"),{window,document,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URL});
+ const api=window.VATRA_STORY_REACTIONS,story={id:"10000000-0000-0000-0000-000000000001",author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
+ const client={storage:{from(bucket){assert.equal(bucket,"avatars");return {getPublicUrl(path){return {data:{publicUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/"+path}};}};}},from(table){assert.equal(table,"story_reactions");const q={select(){return q;},eq(){return q;},order(){return q;},async range(){return {data:[{reactor_vatra_id:"103",reaction:"heart"},{reactor_vatra_id:"104",reaction:"like"},{reactor_vatra_id:"105",reaction:"fire"}],error:null};}};return q;}};
+ assert.equal(await api.page(client,story,"102",0),null);assert.equal(batches,0);
+ const result=await api.page(client,story,"101",0);assert.equal(batches,1);assert.equal(result.rows.length,3);assert.equal(result.rows[0].name,"Name 103");assert.equal(result.rows[0].avatar.url,"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/103/avatar/test.webp");assert.equal(result.rows[1].avatar.state,"blocked");assert.equal(result.rows[1].avatar.url,null);assert.equal(result.rows[2].avatar.url,null);
+}
+console.log("VATRA reaction portraits: owner-only batched lookup and blocked/mismatched path exclusion verified.");

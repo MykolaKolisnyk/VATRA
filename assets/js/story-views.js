@@ -107,5 +107,5 @@ function start(dialog,client,story,viewer){
  ui.addEventListener("toggle",toggle);more.addEventListener("click",moreClick);dialog.addEventListener("close",close);
  void count(client,story.id).then(n=>{if(current()&&n!==null&&total===null){updateCount(n);ui.hidden=false;}});
 }
-window.VATRA_STORY_VIEWS={record,count,page,start,stop,viewed,blocked,profileHref};
+window.VATRA_STORY_VIEWS={record,count,page,start,stop,viewed,blocked,profileHref,portraits,portrait};
 })();

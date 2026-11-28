@@ -769,7 +769,7 @@ body.feed-page .vatra-story-reaction-emoji-001{min-height:38px;padding:4px;borde
 body.feed-page .vatra-story-reaction-emoji-001[aria-pressed="true"]{border-color:#7bb8ff;background:#7bb8ff33}
 body.feed-page .vatra-story-reaction-emoji-001:disabled{opacity:.55;cursor:default}
 body.feed-page .ui-vatra-story-reaction-list-001{display:grid;gap:4px;list-style:none;padding:0;margin:0}
-body.feed-page .vatra-story-reaction-person-001{display:block;padding:6px;color:#fff;overflow-wrap:anywhere}
+body.feed-page .vatra-story-reaction-emoji-label-001{margin-inline-start:auto;flex:none;font-size:20px}
 body.feed-page .vatra-story-reaction-status-001{padding:4px;margin:0;color:#e2e8f0}
 body.feed-page .vatra-story-reaction-status-001:empty{display:none}
 body.feed-page :is(.vatra-story-reaction-retry-001,.vatra-story-reaction-more-001){margin-top:6px;padding:6px 10px;border:1px solid #ffffff35;border-radius:8px;color:#fff;background:transparent;cursor:pointer}
