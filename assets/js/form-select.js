@@ -27,6 +27,9 @@ let opened=null;
   opened=null;
   if(focus)trigger.focus();
  }
+function ownNativeOptions(select){
+ for(const [index,option] of Array.from(select.options).entries())option.classList.add("vatra-select-"+select.id+"-native-option-"+(index+1));
+}
 function wireSelects(selects){
  for(const select of selects){
   if(!select||select.classList.contains("vatra-select-native"))continue;
@@ -36,7 +39,8 @@ function wireSelects(selects){
   root.append(select);
   const required=select.required;
   select.required=false; 
-  select.classList.add("vatra-select-native");
+  select.classList.add("vatra-select-native","ui-select-native-"+select.id);
+  ownNativeOptions(select);
   select.tabIndex=-1;
   select.setAttribute("aria-hidden","true");
   const trigger=document.createElement("button");
@@ -103,7 +107,7 @@ function wireSelects(selects){
     if(!dragging){clearTimeout(hideTimer);rail.classList.remove("is-visible");}
    }
   });
-  scrollArea.addEventListener("scroll",()=>{updateRail();showRail();},{passive:true});
+  scrollArea.addEventListener("scroll",showRail,{passive:true});
   rail.addEventListener("pointerdown",e=>{
    if(e.button!==0||rail.hidden)return;
    e.preventDefault();e.stopPropagation();
