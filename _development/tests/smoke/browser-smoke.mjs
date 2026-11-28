@@ -5320,7 +5320,8 @@ try{
    inset:getComputedStyle(el,"::before").top,
    border:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor
   }));
-  assert.equal(activeRing.inset,"-2px","Active story ring extends exactly 2 CSS pixels outside the avatar");
+  assert.equal(activeRing.inset,"-6px","Active story fills the same six-pixel outer rim as an ordinary avatar");
+  assert.equal(await profilePage.locator("#profile-visitor-story").count(),0,"No separate visitor story badge");
   assert.equal(activeRing.kind,null,
    "A member with an uploaded photo must never be treated as a system portrait");
   assert.ok(activeRing.gradient.includes("conic-gradient")&&
@@ -5556,8 +5557,10 @@ try{
    kind:el.getAttribute("data-vatra-ring-kind"),
    background:getComputedStyle(el,"::before").backgroundColor,
    image:getComputedStyle(el,"::before").backgroundImage,
+   inset:getComputedStyle(el,"::before").top,
    border:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor
   }));
+  assert.equal(ownRingAfterStory.inset,activeRing.inset,"Story activation must not change the rim geometry");
   assert.ok(ownRingAfterStory.kind===null&&
    ownRingAfterStory.background==="rgb(255, 255, 255)"&&
    ownRingAfterStory.image==="none"&&

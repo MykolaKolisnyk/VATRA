@@ -1456,9 +1456,9 @@ for(const page of ["feed","profile","communities","club","notifications","friend
  assert.equal(sharedIconGeometry(await read(page+".html"),"ui-vatra-nav-messenger-001"),messengerGeometry,
   page+": Messenger navigation and profile contact must share the same vector geometry");
 }
-assert.equal(sharedIconGeometry(iconProfileMarkup,"ui-profile-story-menu-icon-001"),
- sharedIconGeometry(iconProfileMarkup,"ui-profile-visitor-story-icon-001"),
- "Viewing a story must use the same vector in the avatar menu and visitor button");
+assert.ok(!iconProfileMarkup.includes('id="profile-visitor-story"')&&!profileBehavior.includes("visitorStory")&&
+ profileBehavior.includes("if(activeStory&&!canEdit)")&&memberCss.includes("inset:-6px;box-shadow:0 0 0 1px #dbe3ef"),
+ "Visitor stories use the full avatar target and the same continuous ring as ordinary profiles, never a separate play badge");
 const postActionSource=await read("assets/js/post-interactions.js");
 const photoActionSource=await read("assets/js/post-media.js");
 const editGeometry=sharedIconGeometry(iconProfileMarkup,"ui-profile-edit-profile-icon-001");

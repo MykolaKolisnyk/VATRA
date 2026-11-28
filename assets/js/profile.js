@@ -2611,7 +2611,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const bucketFor=kind=>kind==="avatar"?"avatars":"covers";
  let saved=null,activeStory=null;
  const photoURLs={avatar:null,cover:null};
- const visitorStory=q("#profile-visitor-story");
  const prevPhoto=q("#profile-avatar-prev"),nextPhoto=q("#profile-avatar-next"),galleryToolbar=q("#profile-avatar-gallery-toolbar"),galleryCount=q("#profile-avatar-gallery-count"),galleryDelete=q("#profile-avatar-gallery-delete");
  let gallery=[],galleryIndex=0,galleryEpoch=0,menuTimer=null,pendingAvatarUndo=null,avatarDeleteInProgress=false,uploading=false;
  const deletedNotice=q("#profile-photo-deleted-notice");
@@ -2736,14 +2735,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
   avatarWrap.classList.toggle("has-active-story",hasStory);
   avatarMenu.hidden=!canViewPhoto||!canEdit;if(avatarMenu.hidden)closeAvatarMenu();
-  visitorStory.hidden=!canViewPhoto||canEdit||!hasStory||!hasPhoto;
-  storyButton.hidden=!canViewPhoto||!hasStory;
+  storyButton.hidden=!canEdit||!canViewPhoto||!hasStory;
   deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;
   addStory.hidden=!canEdit;changePhoto.hidden=!canEdit;removePhoto.hidden=!canEdit||!hasPhoto;
   const changeLabel=changePhoto.querySelector("span");changeLabel.textContent=hasPhoto?t("Змінити фото","Change photo"):t("Завантажити фото","Upload photo");
   avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory&&!canEdit);
   avatarTrigger.setAttribute("aria-haspopup",hasPhoto||hasStory?"dialog":"menu");
-  avatarTrigger.setAttribute("aria-label",hasPhoto?t("Відкрити фото профілю","Open profile photo"):hasStory?t("Переглянути історію","View story"):t("Дії з фото профілю","Profile photo actions"));
+  avatarTrigger.setAttribute("aria-label",hasStory&&!canEdit?t("Переглянути історію","View story"):hasPhoto?t("Відкрити фото профілю","Open profile photo"):hasStory?t("Переглянути історію","View story"):t("Дії з фото профілю","Profile photo actions"));
   if(!canEdit&&!hasPhoto&&!hasStory)closeAvatarMenu();
  };
 
@@ -3266,7 +3264,6 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   },()=>storyMenu.open||storyViewerDelete.disabled||!!q("#profile-confirm-dialog")?.open||window.VATRA_STORY_VIEWS?.blocked(storyDialog)||window.VATRA_STORY_REACTIONS?.blocked(storyDialog),()=>window.VATRA_STORY_VIEWS?.viewed(storyDialog));
  };
  storyButton.addEventListener("click",openStory);
- visitorStory.addEventListener("click",openStory);
  const deleteActiveStory=async()=>{
   if(!canEdit||!activeStory?.id||deleteStoryButton.disabled)return;
   const removingId=activeStory.id,removingStory={...activeStory};
@@ -3318,7 +3315,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  storyDialog.addEventListener("click",event=>{if(event.target===storyDialog)storyDialog.close();});
  let openedByHover=false;
- avatarTrigger.addEventListener("click",()=>{if(!canViewPhoto)return;if(photoURLs.avatar)openMedia("avatar");else if(activeStory)openStory();else if(canEdit)showAvatarMenu();});
+ avatarTrigger.addEventListener("click",()=>{if(!canViewPhoto)return;if(activeStory&&!canEdit){if(Date.parse(activeStory.expires_at)>Date.now()){openStory();return;}activeStory=null;syncAvatarMenu();}if(photoURLs.avatar)openMedia("avatar");else if(activeStory)openStory();else if(canEdit)showAvatarMenu();});
  plus.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse"){openedByHover=true;showAvatarMenu();}});
  plus.addEventListener("pointerleave",scheduleMenuClose);
  plus.addEventListener("click",()=>{if(openedByHover){openedByHover=false;showAvatarMenu();}else if(avatarWrap.classList.contains("is-menu-open"))closeAvatarMenu();else showAvatarMenu();});

@@ -350,10 +350,6 @@ body.profile-page .profile-avatar-trigger:focus-visible{
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap .profile-avatar{
  position:relative;z-index:1;box-sizing:border-box
 }
-body.profile-page .profile-avatar-wrap.has-active-story::before{
- content:"";position:absolute;inset:-2px;border-radius:50%;
- background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8)
-}
 body.profile-page .profile-avatar-menu{
  position:absolute;box-sizing:border-box;z-index:35;top:var(--avatar-menu-top,calc(100% + 9px));left:var(--avatar-menu-left,0);max-height:var(--avatar-menu-max-height,60dvh);overflow:auto;
  display:flex;flex-direction:column;min-width:216px;max-width:calc(100vw - 28px);opacity:0;visibility:hidden;transform:translateY(-5px);pointer-events:none;transition:none;
@@ -1981,10 +1977,6 @@ body.profile-page .profile-avatar-wrap::before{
  pointer-events:none
 }
 body.profile-page .profile-avatar-wrap .profile-avatar{opacity:1!important;}
-body.profile-page .profile-avatar-wrap.has-active-story:not([data-vatra-ring-kind])::before{
- background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8);
- box-shadow:none
-}
 
  
 
@@ -2031,7 +2023,7 @@ body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  width:146px;height:146px;margin:-54px 0 0
 }
 body.profile-page .profile-avatar-wrap::before{
- inset:-3px;box-shadow:0 0 0 1px #dbe3ef
+ inset:-6px;box-shadow:0 0 0 1px #dbe3ef
 }
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap .profile-avatar{
  width:100%;height:100%;margin:0!important;border:2px solid #fff!important;
@@ -2585,8 +2577,6 @@ body.profile-page :is(.vatra-profile-avatar-prev-001,.vatra-profile-avatar-next-
 }
 @media(prefers-reduced-motion:reduce){body.profile-page .profile-avatar-menu{transition:none}}
 
-body.profile-page .vatra-profile-visitor-story-001{position:absolute;z-index:9;right:4px;bottom:4px;width:33px;height:33px;display:grid;place-items:center;padding:0;border:3px solid #fff;border-radius:50%;background:#376de8;color:#fff;cursor:pointer}
-body.profile-page .vatra-profile-visitor-story-001[hidden]{display:none!important}
 
 
 body.profile-page.feed-page:not(.community-page) .ui-profile-tab-row-001{display:flex;align-items:center;min-width:0;border-top:1px solid #edf0f6}
