@@ -1278,7 +1278,7 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-avatar-trigger"')&&
  profileMarkup.includes('id="profile-avatar-menu"')&&
  profileMarkup.includes('id="profile-avatar-story"')&&
- !profileMarkup.includes('id="profile-avatar-photo"')&&profileMarkup.includes('id="profile-avatar-next"')&&
+ profileMarkup.includes('id="profile-avatar-photo"')&&profileMarkup.includes('id="profile-avatar-next"')&&
  profileMarkup.includes('id="profile-media-viewer"')&&
  profileMarkup.includes('id="profile-media-viewer-image"')&&
  profileMarkup.includes('id="profile-story-viewer"')&&
@@ -1326,7 +1326,7 @@ assert.ok(
  "Page-specific CSS belongs in canonical profile stylesheets, not feed.css");
 assert.ok(memberCss.includes("body.profile-page .profile-media-viewer{")&&
  memberCss.includes("width:100vw;height:100dvh;")&&
- memberCss.includes("body.profile-page .profile-avatar-wrap.has-active-story::before{")&&
+ memberCss.includes("body.profile-page .profile-avatar-wrap.has-active-story::before,")&&
  memberCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
  memberCss.includes("body.profile-page .profile-avatar-wrap.is-menu-open .profile-avatar-menu:not([hidden])"),
  "Member photo viewer must fill the screen and story avatar menu must not be clipped");
@@ -1457,7 +1457,7 @@ for(const page of ["feed","profile","communities","club","notifications","friend
   page+": Messenger navigation and profile contact must share the same vector geometry");
 }
 assert.ok(!iconProfileMarkup.includes('id="profile-visitor-story"')&&!profileBehavior.includes("visitorStory")&&
- profileBehavior.includes("if(activeStory&&!canEdit)")&&memberCss.includes("inset:-6px;box-shadow:0 0 0 1px #dbe3ef"),
+ profileBehavior.includes("visitorHasStory()")&&profileBehavior.includes('avatarTrigger.addEventListener("pointerenter"')&&profileBehavior.includes('photoButton.addEventListener("click",()=>openMedia("avatar"))')&&memberCss.includes("inset:-6px;box-shadow:0 0 0 1px #dbe3ef"),
  "Visitor stories use the full avatar target and the same continuous ring as ordinary profiles, never a separate play badge");
 const postActionSource=await read("assets/js/post-interactions.js");
 const photoActionSource=await read("assets/js/post-media.js");

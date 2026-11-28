@@ -2600,7 +2600,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),systemCover=q("#profile-cover-system"),avatar=q("#profile-avatar");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
  const avatarWrap=q("#profile-avatar-wrap"),avatarTrigger=q("#profile-avatar-trigger");
- const avatarMenu=q("#profile-avatar-menu"),storyButton=q("#profile-avatar-story");
+ const avatarMenu=q("#profile-avatar-menu"),storyButton=q("#profile-avatar-story"),photoButton=q("#profile-avatar-photo");
  const deleteStoryButton=q("#profile-avatar-story-delete"),coverView=q("#profile-cover-view");
  const canEdit=isMine&&!locked&&validId(ownId),plus=q("#profile-avatar-plus"),coverChange=q("#profile-cover-change"),changePhoto=q("#profile-avatar-change"),removePhoto=q("#profile-avatar-remove"),addStory=q("#profile-add-story");
  avatarWrap.classList.toggle("is-owner-avatar",canEdit);plus.hidden=!canEdit;coverChange.hidden=!canEdit;
@@ -2730,18 +2730,19 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const showAvatarMenu=()=>{clearTimeout(menuTimer);if(avatarMenu.hidden)return;if(viewportMenu&&!avatarMenu.matches(":popover-open"))avatarMenu.showPopover();if(positionAvatarMenu()===false)return;avatarWrap.classList.add("is-menu-open");plus.setAttribute("aria-expanded","true");if(!canEdit)avatarTrigger.setAttribute("aria-expanded","true");};
  const repositionAvatarMenu=()=>{if(avatarWrap.classList.contains("is-menu-open"))positionAvatarMenu();};
  window.addEventListener("resize",repositionAvatarMenu,{passive:true});window.addEventListener("scroll",repositionAvatarMenu,{passive:true});window.visualViewport?.addEventListener("resize",repositionAvatarMenu,{passive:true});
- const scheduleMenuClose=()=>{clearTimeout(menuTimer);menuTimer=setTimeout(()=>{if(!avatarMenu.contains(document.activeElement))closeAvatarMenu();},160);};
+ const scheduleMenuClose=()=>{clearTimeout(menuTimer);menuTimer=setTimeout(()=>{if(!avatarMenu.matches(":hover")&&!(canEdit?plus:avatarTrigger).matches(":hover")&&!avatarMenu.contains(document.activeElement))closeAvatarMenu();},280);};
  const syncAvatarMenu=()=>{
   const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
   avatarWrap.classList.toggle("has-active-story",hasStory);
-  avatarMenu.hidden=!canViewPhoto||!canEdit;if(avatarMenu.hidden)closeAvatarMenu();
-  storyButton.hidden=!canEdit||!canViewPhoto||!hasStory;
+  avatarMenu.hidden=!canViewPhoto||(!canEdit&&!hasStory);if(avatarMenu.hidden)closeAvatarMenu();
+  photoButton.hidden=!canViewPhoto||canEdit||!hasPhoto||!hasStory;
+  storyButton.hidden=!canViewPhoto||!hasStory;
   deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;
   addStory.hidden=!canEdit;changePhoto.hidden=!canEdit;removePhoto.hidden=!canEdit||!hasPhoto;
   const changeLabel=changePhoto.querySelector("span");changeLabel.textContent=hasPhoto?t("Змінити фото","Change photo"):t("Завантажити фото","Upload photo");
   avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory&&!canEdit);
-  avatarTrigger.setAttribute("aria-haspopup",hasPhoto||hasStory?"dialog":"menu");
-  avatarTrigger.setAttribute("aria-label",hasStory&&!canEdit?t("Переглянути історію","View story"):hasPhoto?t("Відкрити фото профілю","Open profile photo"):hasStory?t("Переглянути історію","View story"):t("Дії з фото профілю","Profile photo actions"));
+  avatarTrigger.setAttribute("aria-haspopup",hasStory&&!canEdit?"menu":hasPhoto||hasStory?"dialog":"menu");
+  avatarTrigger.setAttribute("aria-label",hasStory&&!canEdit?t("Дії з аватаром та історією","Avatar and story actions"):hasPhoto?t("Відкрити фото профілю","Open profile photo"):hasStory?t("Переглянути історію","View story"):t("Дії з фото профілю","Profile photo actions"));
   if(!canEdit&&!hasPhoto&&!hasStory)closeAvatarMenu();
  };
 
@@ -3264,6 +3265,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   },()=>storyMenu.open||storyViewerDelete.disabled||!!q("#profile-confirm-dialog")?.open||window.VATRA_STORY_VIEWS?.blocked(storyDialog)||window.VATRA_STORY_REACTIONS?.blocked(storyDialog),()=>window.VATRA_STORY_VIEWS?.viewed(storyDialog));
  };
  storyButton.addEventListener("click",openStory);
+ photoButton.addEventListener("click",()=>openMedia("avatar"));
  const deleteActiveStory=async()=>{
   if(!canEdit||!activeStory?.id||deleteStoryButton.disabled)return;
   const removingId=activeStory.id,removingStory={...activeStory};
@@ -3315,7 +3317,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  storyDialog.addEventListener("click",event=>{if(event.target===storyDialog)storyDialog.close();});
  let openedByHover=false;
- avatarTrigger.addEventListener("click",()=>{if(!canViewPhoto)return;if(activeStory&&!canEdit){if(Date.parse(activeStory.expires_at)>Date.now()){openStory();return;}activeStory=null;syncAvatarMenu();}if(photoURLs.avatar)openMedia("avatar");else if(activeStory)openStory();else if(canEdit)showAvatarMenu();});
+ const visitorHasStory=()=>{if(canEdit||!canViewPhoto||!activeStory)return false;if(Date.parse(activeStory.expires_at)<=Date.now()){activeStory=null;syncAvatarMenu();return false;}return true;};
+ avatarTrigger.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse"&&visitorHasStory())showAvatarMenu();});
+ avatarTrigger.addEventListener("pointerleave",scheduleMenuClose);
+ avatarTrigger.addEventListener("click",()=>{if(!canViewPhoto)return;if(visitorHasStory()){showAvatarMenu();return;}if(photoURLs.avatar)openMedia("avatar");else if(activeStory)openStory();else if(canEdit)showAvatarMenu();});
  plus.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse"){openedByHover=true;showAvatarMenu();}});
  plus.addEventListener("pointerleave",scheduleMenuClose);
  plus.addEventListener("click",()=>{if(openedByHover){openedByHover=false;showAvatarMenu();}else if(avatarWrap.classList.contains("is-menu-open"))closeAvatarMenu();else showAvatarMenu();});

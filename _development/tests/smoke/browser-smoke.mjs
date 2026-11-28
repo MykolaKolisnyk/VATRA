@@ -5330,7 +5330,7 @@ try{
   await profilePage.locator("#profile-avatar-plus").hover();
   await profilePage.locator("#profile-avatar-menu").waitFor({state:"visible"});
   assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
-  assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0);
+  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,"Owner opens their avatar directly");
   const avatarLayers=await profilePage.evaluate(()=>({avatar:Number(getComputedStyle(document.querySelector("#profile-avatar-wrap")).zIndex),header:Number(getComputedStyle(document.querySelector(".feed-header")).zIndex)}));
   assert.ok(avatarLayers.avatar<avatarLayers.header,"Opening the avatar menu must never lift the avatar above the sticky header");
   for(const panel of ["photos","videos","clips","communities","saved","archive-stories","archive-posts","archive-photos"])
@@ -6152,16 +6152,27 @@ try{
 
   // Visitor-only regression: the close handler must never reference the
   // owner-only upload state before it exists.
-  await profilePage.locator("#profile-avatar-trigger").click();
+  await profilePage.locator("#profile-avatar-trigger").hover();
+  await profilePage.locator("#profile-avatar-menu").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-visitor-story").count(),0);
+  assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),false);
+  await profilePage.locator("#profile-avatar-photo").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true,
    "Visitor avatar should open in the shared photo dialog");
   await profilePage.locator("#profile-media-viewer-close").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "The close button must work for a friend's avatar (not just our own)");
   await profilePage.locator("#profile-avatar-trigger").click();
+  await profilePage.locator("#profile-avatar-photo").click();
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape must also dismiss the friend's avatar and release modal scroll lock");
+  await profilePage.locator("#profile-avatar-trigger").click();
+  await profilePage.locator("#profile-avatar-story").click();
+  assert.equal(await profilePage.locator("#profile-story-viewer").evaluate(el=>el.open),true,"Story opens from the same visitor menu");
+  await profilePage.locator("#profile-story-viewer-close").click();
 
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
@@ -6489,7 +6500,7 @@ try{
    getComputedStyle(el).borderTopColor);
   assert.equal(defaultBorder,"rgb(255, 255, 255)",
    "Default avatar must retain a visible white circular frame");
-  assert.equal(await profilePage.locator("#profile-avatar-photo").count(),0,"No redundant open photo menu item");
+  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,"No photo menu action without an uploaded photo");
   const defaultSvg=await profilePage.locator("#profile-avatar").evaluate(el=>({
    rendered:getComputedStyle(el).backgroundImage,
    expected:window.VATRA_AVATAR?.asset?.("default")

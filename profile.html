@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="assets/css/feed.css?rev=853278c1f813c2a9bc8c5004980afd74b49ecc35">
     <link rel="stylesheet" href="assets/css/story-viewer.css?rev=68e2e38507a1b4234099f056becf6d459f3f417e">
     <link rel="stylesheet" href="assets/css/vatra-player.css?rev=6d2ceb40c665f32c1d852ebf73cb7ffafdc6e434">
-    <link rel="stylesheet" href="assets/css/profile.css?rev=00cd3359b5862816276e526fbc80b98dadfe1733">
+    <link rel="stylesheet" href="assets/css/profile.css?rev=594ebae75d3267320476e47f8e5e3a044eb4ab4e">
     <link rel="stylesheet" href="assets/css/create-menu.css?rev=26c98c4b349b7acafac621058b1ba6515a78955f">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
@@ -38,7 +38,7 @@
     <script defer src="assets/js/story-views.js?rev=e74a77af06a8c4c1685ab1f570ab58f1da8feb46"></script>
     <script defer src="assets/js/story-view-progress.js?rev=4786b32330c501c06e7221ade201c3da4fbe03dd"></script>
     <script defer src="assets/js/story-reactions.js?rev=c6c9ab12002cf930857c22e1bcffcfcf766bf25a"></script>
-    <script defer src="assets/js/profile.js?rev=a500766a020257c0a5efb4de057cdd1cebc221c6"></script>
+    <script defer src="assets/js/profile.js?rev=53930c0027da260aae7fe940ffe8467602bea58c"></script>
     <script defer src="assets/js/network.js?rev=111422be73f779068c5c4e03ced3f45ddd8433fa"></script>
     <script defer src="assets/js/social-shell.js?rev=35c19269de94d4b2451f7b96979763e9caecfd20"></script>
     <script defer src="assets/js/scroll-rail.js?rev=b647db54473fdaf6e4a5fafbe4d9e921f3fa1962"></script>
@@ -161,12 +161,13 @@
             </div>
             <div class="profile-summary ui-profile-summary-001">
               <div id="profile-avatar-wrap" class="profile-avatar-wrap ui-profile-avatar-wrap-001">
-                <button id="profile-avatar-trigger" class="profile-avatar-trigger vatra-profile-avatar-trigger-001" type="button" aria-label="Фото профілю" disabled>
+                <button id="profile-avatar-trigger" class="profile-avatar-trigger vatra-profile-avatar-trigger-001" type="button" aria-label="Фото профілю" aria-controls="profile-avatar-menu" aria-expanded="false" disabled>
         <span id="profile-avatar" class="profile-avatar vatra-profile-avatar-001" aria-hidden="true">V</span>
        </button>
        
                 <button id="profile-avatar-plus" class="vatra-profile-avatar-plus-001" type="button" aria-label="Дії з фото профілю" data-shell-aria-uk="Дії з фото профілю" data-shell-aria-en="Profile photo actions" aria-controls="profile-avatar-menu" aria-expanded="false" hidden><svg class="ui-profile-avatar-plus-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-plus-path-001" d="M12 5v14M5 12h14"/></svg></button>
                 <div id="profile-avatar-menu" class="profile-avatar-menu ui-profile-avatar-menu-001" role="menu" hidden>
+                  <button id="profile-avatar-photo" class="vatra-profile-avatar-menu-photo-001" type="button" role="menuitem" hidden><svg class="ui-profile-avatar-photo-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg><span class="vatra-profile-avatar-photo-label-001" data-social-uk="Переглянути аватар" data-social-en="View avatar">Переглянути аватар</span></button>
                   <button id="profile-add-story" class="vatra-profile-add-story-001 " type="button" role="menuitem" hidden><svg class="ui-profile-avatar-add-story-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-add-story-path-001" d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5M18 2v8M14 6h8"/></svg><span class="vatra-profile-add-story-label-001" data-social-uk="Додати історію" data-social-en="Add story">Додати історію</span></button>
                   <button id="profile-avatar-change" class="vatra-profile-avatar-change-001 " type="button" role="menuitem" hidden><svg class="ui-profile-avatar-change-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-change-path-001" d="M14.5 5.5 18.5 9.5M4 20l4.5-1L20 7.5a2.8 2.8 0 0 0-4-4L4.9 15Z"/></svg><span class="vatra-profile-avatar-change-label-001" data-social-uk="Завантажити фото" data-social-en="Upload photo">Завантажити фото</span></button>
                   
