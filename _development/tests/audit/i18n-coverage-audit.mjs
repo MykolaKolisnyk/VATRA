@@ -410,8 +410,8 @@ for(const source of [feedRuntime,profileRuntime]){
 assert.ok(profileRuntime.includes('t("У мережі","Online")'),
  "Online presence label must be localized");
 
-const verifyRuntime=await readFile("assets/js/verify.js","utf8");
-const signupRuntime=await readFile("assets/js/create-account.js","utf8");
+const verifyRuntime=await readFile("assets/js/verify/verify.js","utf8");
+const signupRuntime=await readFile("assets/js/create-account/create-account.js","utf8");
 const verificationKeys=[
  "Підтвердження пошти не завершено",
  "Якщо пошту вже підтверджено, увійдіть за email і паролем. Інакше запросіть новий лист на пристрої реєстрації.",
@@ -450,8 +450,8 @@ const pendingPasswordLocaleKeys=[
  "Введіть пароль.",
  "Встановіть новий пароль"
 ];
-const signInRuntime=await readFile("assets/js/sign-in.js","utf8");
-const recoveryRuntime=await readFile("assets/js/recovery.js","utf8");
+const signInRuntime=await readFile("assets/js/log-in/log-in.js","utf8");
+const recoveryRuntime=await readFile("assets/js/recovery/recovery.js","utf8");
 for(const key of pendingPasswordLocaleKeys){
  assert.ok(typeof en[key]==="string"&&en[key].trim(),
   "Missing English auth and recovery text: "+key);

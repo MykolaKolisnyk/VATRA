@@ -295,7 +295,7 @@ console.log("VATRA profile gallery: retry routing, quick tab reuse and mutation 
  const profile=await readFile("assets/js/profile.js","utf8");
  const html=await readFile("profile.html","utf8");
  const css=await readFile("assets/css/photo-albums.css","utf8");
- const login=await readFile("assets/css/sign-in.css","utf8");
+ const login=await readFile("assets/css/log-in/log-in.css","utf8");
  assert.ok(gallery.includes('new URL("id"+targetId+"?post="'),"Gallery must link to the author's profile publication");
  assert.ok(profile.includes('if(focusPost)query=query.eq("id",focusPost)')&&profile.includes('?.("posts")'),"Profile deep link must select the publication tab and fetch the exact post");
  for(const id of ["messenger","gift","hide-news","post-notice","story-notice","remove-friend"])assert.ok(html.includes('id="profile-'+id+'"'));

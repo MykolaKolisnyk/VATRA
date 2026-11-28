@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {readFile,readdir} from "node:fs/promises";
+import {assetFiles} from "../../tools/asset-files.mjs";
 
 function rules(source){
  const clean=source.replace(/\/\*[\s\S]*?\*\//g,m=>m.replace(/[^\n]/g," "));
@@ -40,7 +41,7 @@ function rules(source){
 const rootEntries=await readdir(".");
 for(const folder of ["tests","tools","supabase","docs"])
  assert.ok(!rootEntries.includes(folder),folder+": development-only files belong under _development");
-const cssFiles=(await readdir("assets/css")).filter(x=>x.endsWith(".css"));
+const cssFiles=await assetFiles("assets/css",".css");
 for(const file of cssFiles){
  const found=rules(await readFile("assets/css/"+file,"utf8")),visited=new Map;
  for(const decl of found){
@@ -60,7 +61,7 @@ for(const file of htmlFiles){
  assert.equal(scripts.length,new Set(scripts).size,file+": duplicate JavaScript import");
  assert.equal(styles.length,new Set(styles).size,file+": duplicate CSS import");
 }
-const jsFiles=(await readdir("assets/js")).filter(x=>x.endsWith(".js"));
+const jsFiles=await assetFiles("assets/js",".js");
 for(const [folder,files] of [["assets/js",jsFiles],["assets/css",cssFiles]]){
  for(const file of files){
   const source=await readFile(folder+"/"+file,"utf8");
