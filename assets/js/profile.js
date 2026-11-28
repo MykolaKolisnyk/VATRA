@@ -3830,7 +3830,7 @@ async function start(){
   });
   const [{data,error}]=await Promise.all([profileDeadline(client.auth.getUser()),languageReady]);
   localizeSocial();
-  if(error&&![401,403].includes(Number(error.status))&&error.name!=="AuthSessionMissingError"&&!["session_expired","session_not_found","refresh_token_not_found","refresh_token_already_used","bad_jwt"].includes(error.code))throw error;
+  if(error&&error.name!=="AuthSessionMissingError"&&!["session_expired","session_not_found","refresh_token_not_found","user_not_found"].includes(error.code))throw error;
   if(error||!data?.user?.id||!data.user.email_confirmed_at){
    const id=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1];
    if(!data?.user?.id&&id&&await window.VATRA_GUEST?.profile(client,id))return;

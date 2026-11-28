@@ -647,7 +647,7 @@
     posts.querySelectorAll(".feed-post-placeholder").forEach(el=>el.remove());
     reportFeedFailure(stage,error);
     const retryFeed=()=>{invalidateFeedPages(client);subscriptionsLoadedAt=0;return loadPosts(true);};
-    const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:retryFeed});
+    const illustrated=window.VATRA_SERVICE_NOTICE?.report(error,{session:!["PGRST301","PGRST303","bad_jwt","refresh_token_already_used"].includes(error?.code),retry:retryFeed});
     if(reset){
      visibleFeed=previousFeed||[];
      renderedIds=new Set(visibleFeed.map(item=>item.kind+":"+item.id));
@@ -1030,10 +1030,9 @@
    localizeSocial();
    if(error||!data?.user?.id){
     if(error){
-     const kind=window.VATRA_SERVICE_NOTICE?.classify(error,{session:true,access:false});
-     if(kind&&kind!=="session"){showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));return;}
-     if(!kind&&![401,403].includes(Number(error.status))&&error.name!=="AuthSessionMissingError"){
-      showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));return;
+     const ended=error.name==="AuthSessionMissingError"||["session_expired","session_not_found","refresh_token_not_found","user_not_found"].includes(error.code);
+     if(!ended){
+      showErrorAtGate(t("Не вдалося перевірити сеанс VATRA. Спробуйте ще раз.","Could not verify your VATRA session. Please retry."));return;
      }
     }
     window.location.replace(new URL("./",location.href).href);return;

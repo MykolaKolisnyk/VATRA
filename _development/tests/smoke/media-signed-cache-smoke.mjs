@@ -327,6 +327,26 @@ console.log("VATRA inline video: deferred request, actual download failure, fres
 }
 console.log("VATRA media cleanup: deduplication, Storage errors, rejected requests and empty selection passed.");
 
+{
+ const source=await readFile("assets/js/photo-albums.js","utf8");
+ const start=source.indexOf("  const signed=new Map(),pendingSignatures=new Map();"),end=source.indexOf("  function discardSignature(",start);
+ assert.ok(start>=0&&end>start);
+ let listener,batches=0;
+ const viewer="album-viewer",host="https://cxrcycxrlkufozomsxcs.supabase.co";
+ const client={auth:{onAuthStateChange(fn){listener=fn;}},storage:{from:()=>({async createSignedUrls(paths){batches++;return {data:paths.map(path=>({path,signedUrl:host+"/storage/v1/object/sign/album-photos/"+path})),error:null};}})}};
+ const runtime=new Function("client","BUCKET","userId","location","queueMicrotask","setTimeout","clearTimeout",source.slice(start,end)+"return {signedUrl};")(client,"album-photos",viewer,{origin:host},queueMicrotask,setTimeout,clearTimeout);
+ const paths=Array.from({length:8},(_,i)=>"7/albums/photo-"+i+".webp");
+ const urls=await Promise.all(paths.map(path=>runtime.signedUrl(path)));
+ assert.equal(batches,1,"Eight visible album thumbnails share one signing request");
+ assert.equal(urls.length,8);
+ listener("SIGNED_IN",{user:{id:viewer}});
+ await runtime.signedUrl(paths[0]);assert.equal(batches,1,"Same account focus does not invalidate photo URLs");
+ listener("SIGNED_OUT",null);
+ await runtime.signedUrl(paths[0]);assert.equal(batches,2,"Sign-out discards the previous signing cache");
+ console.log("VATRA album signing: batch, cache reuse and session isolation passed.");
+}
+
+
 
 // One observer serves all pending photo/gallery targets, including cards
 // constructed in a detached fragment. Removed cards never initiate a download.
