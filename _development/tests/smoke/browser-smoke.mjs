@@ -253,7 +253,8 @@ try{
   assert.deepEqual(await accountDesign.locator(".ui-vatra-preferences-nav-001 .ui-vatra-section-tabs-001 button svg").evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).width)),["20px","20px","20px","20px"]);
   assert.equal(await accountDesign.locator(".vatra-preferences-id-badge-label-001").count(),1);
   await accountDesign.locator('[data-tab="privacy"]').click();
-  for(const [key,values] of [["visibility",["public","friends"]],["presence",["public","friends","private"]]])for(const value of values)assert.equal(await accountDesign.locator(".vatra-preferences-"+key+"-"+value+"-option-001").count(),1);
+  await accountDesign.locator(".ui-vatra-preferences-visibility-control-001").waitFor({state:"visible"});
+  for(const [key,values] of [["visibility",["public","friends"]],["presence",["public","friends","private"]]])for(const value of values){const option=accountDesign.locator(".vatra-preferences-"+key+"-"+value+"-option-001");assert.equal(await option.count(),1,"Individual native option hook: "+key+" "+value);}
   await accountDesign.locator('[data-tab="blocked"]').click();
   await accountDesign.locator(".ui-vatra-preferences-block-empty-001").waitFor({state:"visible"});
   await accountDesign.locator(".ui-vatra-block-header-001 button").click();
