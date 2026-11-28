@@ -73,3 +73,27 @@ for(const [file,accountAnchor,binding] of [
  for(const finish of pending.splice(0))finish();
  await status;assert.equal(api.getPresence().size,201);
 }
+
+{
+ const source=await readFile("assets/js/post-interactions.js","utf8");
+ const start=source.indexOf(" const deletionQueuePrefix="),end=source.indexOf(" function deferPostDelete(",start);
+ assert.ok(start>=0&&end>start);
+ const keys=new Map(),prefix="vatra.post-delete.pending.v1.7.";
+ const ids=Array.from({length:8},(_,i)=>"00000000-0000-4000-8000-"+String(i+1).padStart(12,"0"));
+ ids.forEach(id=>keys.set(prefix+id,"1"));
+ keys.set("vatra.post-delete.pending.v1.8."+ids[0],"1");
+ keys.set(prefix+"invalid","1");
+ const storage={get length(){return keys.size;},key:i=>[...keys.keys()][i],removeItem:k=>keys.delete(k)};
+ const pending=[],removed=[];let active=0,max=0,calls=0;
+ const client={from(table){assert.equal(table,"feed_posts");let id,owner;const chain={delete(){return chain;},eq(key,value){if(key==="id")id=value;else {assert.equal(key,"author_vatra_id");owner=value;}return chain;},select(){return chain;},maybeSingle(){assert.equal(owner,"7");calls++;active++;max=Math.max(max,active);return new Promise(resolve=>pending.push(()=>{active--;if(id===ids[1])resolve({error:new Error("temporary")});else resolve({data:{id,media_items:[{media_kind:"image",media_path:"7/posts/"+id+".webp"},{media_kind:"image",media_path:"8/posts/"+id+".webp"}]},error:null});}));}};return chain;}};
+ const flush=new Function("localStorage","window","validId","validUUID","tr",source.slice(start,end)+"return flushPendingPostDeletes;")(storage,{VATRA_POST_MEDIA:{async removeGallery(c,items){removed.push(...items);}}},x=>/^\d+$/.test(x),x=>/^[0-9a-f-]{36}$/.test(x),(uk,en)=>en);
+ const a=flush(client,"7"),b=flush(client,7);assert.equal(a,b,"Concurrent startup consumers share one deletion flush");
+ await Promise.resolve();assert.equal(calls,3,"Only three initial deletions may start");
+ while(pending.length){pending.splice(0).forEach(f=>f());await new Promise(resolve=>setImmediate(resolve));}
+ await a;
+ assert.equal(max,3);assert.equal(calls,8);assert.equal(removed.length,7);
+ assert.ok(removed.every(x=>x.media_path.startsWith("7/posts/")));
+ assert.equal(keys.size,3,"Retryable failures, invalid keys and other-account keys stay untouched");
+ assert.ok(keys.has(prefix+ids[1]));
+}
+console.log("VATRA startup: bounded three-way delete recovery, single-flight and owner-scoped media cleanup passed.");
