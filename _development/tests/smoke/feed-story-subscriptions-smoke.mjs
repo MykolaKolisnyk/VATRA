@@ -357,22 +357,25 @@ console.log("VATRA story views: live-only insert, self exclusion, duplicate/netw
 
 {
  const runtime=await readFile("assets/js/story-views.js","utf8");
- const element=()=>({events:new Map(),children:[],hidden:false,open:false,textContent:"",
+ const element=()=>({events:new Map(),children:[],dataset:{},hidden:false,open:false,textContent:"",setAttribute(k,v){this[k]=v;},remove(){this.removed=true;},
   addEventListener(k,fn){this.events.set(k,fn);},removeEventListener(k,fn){if(this.events.get(k)===fn)this.events.delete(k);},
   append(...items){this.children.push(...items);},replaceChildren(...items){this.children=items;}});
  const label=element(),list=element(),status=element(),more=element(),ui=element(),dialog=element();
  ui.querySelector=s=>({"summary":label,"ul":list,"[data-story-views-status]":status,"button":more})[s];
  dialog.querySelector=()=>ui;dialog.open=true;
- const window={VATRA_PUBLIC_NAMES:{get:async(_client,ids)=>({data:ids.map(vatra_id=>({vatra_id,display_name:"Name "+vatra_id}))})}},
+ let avatarBatches=0;
+ const window={VATRA_PUBLIC_NAMES:{get:async(_client,ids)=>({data:ids.map(vatra_id=>({vatra_id,display_name:"Name "+vatra_id}))})},
+ VATRA_AVATAR:{paths:async(_client,ids)=>{avatarBatches++;return {data:ids.map(vatra_id=>({vatra_id,avatar_path:vatra_id==="103"?"103/avatar/test.webp":vatra_id==="104"?"104/avatar/test.webp":"999/avatar/other.webp"})),error:null};},
+ states:async()=>new Map([["104","blocked"]])}},
  document={documentElement:{lang:"uk"},createElement:element},location={href:"https://example.test/VATRA/feed"};
  runInNewContext(runtime,{window,document,location,WeakMap,Map,Set,Promise,Date:FakeDate,Number,String,URL});
  const api=window.VATRA_STORY_VIEWS,id="10000000-0000-0000-0000-000000000001",story={id,author_vatra_id:"101",expires_at:new Date(now+60000).toISOString()};
  const pending=[];let countReads=0;
- const client={from(table){assert.equal(table,"story_views");return {select(_cols,opts){
+ const client={storage:{from(bucket){assert.equal(bucket,"avatars");return {getPublicUrl(path){return {data:{publicUrl:"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/"+path}}};}};}},from(table){assert.equal(table,"story_views");return {select(_cols,opts){
   const q={eq(){return q;},order(){return q;},range(start,end){assert.equal(end-start,49);return new Promise(resolve=>pending.push({start,resolve}));}};
   if(opts.head){countReads++;q.eq=()=>Promise.resolve({count:3});}return q;
  }};}};
- const flush=async()=>{for(let i=0;i<20;i++)await Promise.resolve();};
+ const flush=async()=>{for(let i=0;i<40;i++)await Promise.resolve();};
  const toggle=open=>{ui.open=open;ui.events.get("toggle")();};
  api.start(dialog,client,story,"101");await flush();
  assert.equal(countReads,1);assert.equal(ui.hidden,false);assert.equal(label.textContent,"Перегляди: 3");
@@ -381,10 +384,10 @@ console.log("VATRA story views: live-only insert, self exclusion, duplicate/netw
  pending[0].resolve({count:3,data:[{viewer_vatra_id:102}]});await flush();
  assert.equal(list.children.length,0,"A response from the previous open cannot paint the new list");
  pending[1].resolve({count:3,data:[{viewer_vatra_id:103},{viewer_vatra_id:104}]});await flush();
- assert.equal(list.children.length,2);assert.equal(list.children[0].children[0].textContent,"Name 103");
+ assert.equal(list.children.length,2);const first=list.children[0].children[0],second=list.children[1].children[0];assert.equal(first.children[1].textContent,"Name 103");assert.equal(first.children[0].children[0].src,"https://cxrcycxrlkufozomsxcs.supabase.co/storage/v1/object/public/avatars/103/avatar/test.webp");assert.equal(second.children[0].dataset.vatraAvatarState,"blocked");assert.equal(second.children[0].children.length,0,"Blocked account cannot expose a photo");assert.equal(avatarBatches,2);
  more.events.get("click")();assert.equal(pending[2].start,2);
  pending[2].resolve({count:3,data:[{viewer_vatra_id:104},{viewer_vatra_id:105}]});await flush();
- assert.equal(list.children.length,3,"Repeated rows across pages are displayed once");
+ assert.equal(list.children.length,3,"Repeated rows across pages are displayed once");assert.equal(list.children[2].children[0].children[0].children.length,0,"A mismatched owner path cannot expose another avatar");
  toggle(false);assert.equal(list.children.length,0,"Closed list drops private viewer data");
  toggle(true);assert.equal(pending[3].start,0,"Reopening refreshes access and names from the server");
  api.stop(dialog);pending[3].resolve({count:1,data:[{viewer_vatra_id:102}]});await flush();

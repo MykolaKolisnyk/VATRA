@@ -29,17 +29,39 @@ async function count(client,id){
  return !result.error&&Number.isSafeInteger(result.count)&&result.count>=0?result.count:null;
  }catch(_){return null;}
 }
+function avatarUrl(client,id,path){
+ if(typeof path!=="string"||!path.startsWith(id+"/avatar/")||!/^[1-9][0-9]{0,18}\/avatar\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp)$/i.test(path))return null;
+ try{const url=new URL(client.storage.from("avatars").getPublicUrl(path).data?.publicUrl);return url.origin==="https://cxrcycxrlkufozomsxcs.supabase.co"&&!url.search&&!url.hash&&url.pathname==="/storage/v1/object/public/avatars/"+path?url.href:null;}catch(_){return null;}
+}
+async function portraits(client,ids){
+ const result=new Map(),api=window.VATRA_AVATAR;
+ if(!ids.length||!api?.paths||!api?.states)return result;
+ try{
+ const [paths,states]=await Promise.all([api.paths(client,ids),api.states(client,ids)]);
+ if(paths.error)return result;
+ const allowed=new Set(ids),byId=new Map((paths.data||[]).filter(x=>allowed.has(String(x.vatra_id))).map(x=>[String(x.vatra_id),x.avatar_path]));
+ for(const id of ids){const state=states.get(id)||"default";result.set(id,{state,url:state==="default"?avatarUrl(client,id,byId.get(id)):null});}
+ }catch(_){}
+ return result;
+}
+function portrait(viewer){
+ const face=document.createElement("span");face.className="vatra-story-viewer-avatar-001";face.setAttribute("aria-hidden","true");face.dataset.vatraAvatarState=viewer.avatar?.state||"default";
+ if(viewer.avatar?.url){const image=document.createElement("img");image.className="vatra-story-viewer-avatar-image-001";image.alt="";image.loading="lazy";image.decoding="async";image.addEventListener("error",()=>image.remove(),{once:true});face.append(image);image.src=viewer.avatar.url;}
+ return face;
+}
 async function page(client,id,offset=0){
  if(!validStory(id)||!Number.isSafeInteger(offset)||offset<0)return null;
  try{
  const result=await client.from("story_views").select("viewer_vatra_id,viewed_at",{count:"exact"}).eq("story_id",id).order("viewed_at",{ascending:false}).order("viewer_vatra_id",{ascending:true}).range(offset,offset+pageSize-1);
  if(result.error||!Array.isArray(result.data)||!Number.isSafeInteger(result.count)||result.count<0)return null;
  const ids=[...new Set(result.data.map(x=>x.viewer_vatra_id).filter(validId).map(String))];let names=new Map();
+ const avatars=portraits(client,ids);
  if(ids.length)try{
  const named=await (window.VATRA_PUBLIC_NAMES?.get(client,ids)||client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids));
  if(!named.error)names=new Map((named.data||[]).filter(x=>validId(x.vatra_id)).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]));
  }catch(_){}
- return {count:result.count,rows:result.data.filter(x=>validId(x.viewer_vatra_id)).map(x=>({id:String(x.viewer_vatra_id),name:names.get(String(x.viewer_vatra_id))||""})),next:offset+result.data.length};
+ const faces=await avatars;
+ return {count:result.count,rows:result.data.filter(x=>validId(x.viewer_vatra_id)).map(x=>({id:String(x.viewer_vatra_id),name:names.get(String(x.viewer_vatra_id))||"",avatar:faces.get(String(x.viewer_vatra_id))||null})),next:offset+result.data.length};
  }catch(_){return null;}
 }
 function stop(dialog){
@@ -70,7 +92,7 @@ function start(dialog,client,story,viewer){
    const result=await page(client,story.id,offset);
    if(generation!==request||!current()||!ui.open)return;
    if(!result){status.textContent=w[3];more.hidden=false;return;}
-   updateCount(result.count);for(const viewer of result.rows){if(shown.has(viewer.id))continue;shown.add(viewer.id);const li=document.createElement("li"),a=document.createElement("a");a.className="vatra-story-viewer-link-001";a.href=profileHref(viewer.id);a.textContent=viewer.name||w[5]+" · "+viewer.id;li.append(a);list.append(li);}
+   updateCount(result.count);for(const viewer of result.rows){if(shown.has(viewer.id))continue;shown.add(viewer.id);const li=document.createElement("li"),a=document.createElement("a");a.className="vatra-story-viewer-link-001";a.href=profileHref(viewer.id);const name=document.createElement("span");name.className="vatra-story-viewer-name-001";name.textContent=viewer.name||w[5]+" · "+viewer.id;a.append(portrait(viewer),name);li.append(a);list.append(li);}
    offset=result.next;status.textContent=result.count===0?w[2]:"";more.hidden=offset>=result.count||!result.rows.length;
   }finally{if(generation===request)loading=false;}
  };
