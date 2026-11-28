@@ -4073,5 +4073,16 @@
   "Село проживання": "Village of residence",
   "Селище проживання": "Town of residence",
   "Рідне село": "Home village",
-  "Рідне селище": "Home town"
+  "Рідне селище": "Home town",
+  "Не впізнаєте сеанс?": "Don't recognize a session?",
+  "Підозрюєте сторонній доступ?": "Suspect unauthorized access?",
+  "Перевірте пристрої та завершіть сеанси, які вам не належать.": "Review devices and sign out sessions that are not yours.",
+  "Якщо хтось міг отримати доступ до акаунта, змініть пароль та завершіть інші сеанси.": "If someone may have accessed your account, change your password and sign out other sessions.",
+  "Інші активні сеанси": "Other active sessions",
+  "Перевірте, чи впізнаєте всі пристрої.": "Check whether you recognize all devices.",
+  "Інші сеанси завершено": "Other sessions revoked",
+  "Доступ на них остаточно припиниться після спливу чинних токенів.": "Their current access tokens remain valid until expiry.",
+  "Сеанс завершено": "Session revoked",
+  "Доступ остаточно припиниться після спливу чинного токена.": "Access ends when the existing token expires.",
+  "Пароль змінено": "Password changed"
 }

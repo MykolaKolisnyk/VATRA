@@ -4215,5 +4215,15 @@
   "Село проживання": "Villaggio di residenza",
   "Селище проживання": "Borgo di residenza",
   "Рідне село": "Villaggio di origine",
-  "Рідне селище": "Borgo di origine"
+  "Рідне селище": "Borgo di origine",
+  "Не впізнаєте сеанс?": "Non riconosci una sessione?",
+  "Підозрюєте сторонній доступ?": "Sospetti un accesso non autorizzato?",
+  "Перевірте пристрої та завершіть сеанси, які вам не належать.": "Controlla i dispositivi e termina le sessioni che non ti appartengono.",
+  "Якщо хтось міг отримати доступ до акаунта, змініть пароль та завершіть інші сеанси.": "Se qualcuno potrebbe aver avuto accesso al tuo account, cambia la password e termina le altre sessioni.",
+  "Інші активні сеанси": "Altre sessioni attive",
+  "Перевірте, чи впізнаєте всі пристрої.": "Verifica se riconosci tutti i dispositivi.",
+  "Інші сеанси завершено": "Altre sessioni terminate",
+  "Доступ на них остаточно припиниться після спливу чинних токенів.": "I token di accesso attuali restano validi fino alla scadenza.",
+  "Доступ остаточно припиниться після спливу чинного токена.": "L’accesso termina alla scadenza del token attuale.",
+  "Пароль змінено": "Password modificata"
 }

@@ -4215,5 +4215,15 @@
   "Село проживання": "Village de résidence",
   "Селище проживання": "Bourg de résidence",
   "Рідне село": "Village d’origine",
-  "Рідне селище": "Bourg d’origine"
+  "Рідне селище": "Bourg d’origine",
+  "Не впізнаєте сеанс?": "Vous ne reconnaissez pas une session ?",
+  "Підозрюєте сторонній доступ?": "Vous soupçonnez un accès non autorisé ?",
+  "Перевірте пристрої та завершіть сеанси, які вам не належать.": "Vérifiez les appareils et déconnectez les sessions qui ne sont pas les vôtres.",
+  "Якщо хтось міг отримати доступ до акаунта, змініть пароль та завершіть інші сеанси.": "Si quelqu’un a pu accéder à votre compte, changez votre mot de passe et déconnectez les autres sessions.",
+  "Інші активні сеанси": "Autres sessions actives",
+  "Перевірте, чи впізнаєте всі пристрої.": "Vérifiez si vous reconnaissez tous les appareils.",
+  "Інші сеанси завершено": "Autres sessions déconnectées",
+  "Доступ на них остаточно припиниться після спливу чинних токенів.": "Leurs jetons d’accès actuels restent valides jusqu’à expiration.",
+  "Доступ остаточно припиниться після спливу чинного токена.": "L’accès prendra fin à l’expiration du jeton actuel.",
+  "Пароль змінено": "Mot de passe modifié"
 }

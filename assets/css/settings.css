@@ -157,3 +157,13 @@ body.vatra-section-page .vatra-block-picker-avatar-001{display:block;width:42px;
 
 body.vatra-section-page .vatra-block-picker-avatar-001{overflow:hidden}
 body.vatra-section-page .vatra-block-picker-photo-001{display:block;width:100%;height:100%;object-fit:cover}
+
+body.vatra-section-page .ui-vatra-id-security-mascot-001{display:block;width:min(144px,100%);height:auto;aspect-ratio:1;object-fit:contain;justify-self:center;align-self:center;margin:0 auto}
+body.vatra-section-page .ui-vatra-id-security-notice-001{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border:1px solid #dce6f5;border-radius:12px;background:#f5f8ff;margin:8px 0;color:var(--ink)}
+body.vatra-section-page .ui-vatra-id-security-notice-copy-001{display:grid;gap:8px;min-width:0}
+body.vatra-section-page .vatra-id-security-notice-heading-001{margin:0;font:650 15px/1.4 Onest,system-ui,sans-serif;overflow-wrap:anywhere}
+body.vatra-section-page .ui-vatra-id-security-notice-001 p{margin:0;overflow-wrap:anywhere}
+body.vatra-section-page .ui-vatra-id-security-notice-001[data-security-state="warning"]{background:#fff8eb;border-color:#eed5a5}
+body.vatra-section-page .ui-vatra-id-security-notice-001[data-security-state="danger"]{background:#fff2f2;border-color:#efc3c3}
+body.vatra-section-page .ui-vatra-id-security-notice-001[data-security-state="success"]{background:#eff9f4;border-color:#c8e6d5}
+@media(max-width:420px){body.vatra-section-page .ui-vatra-id-security-notice-001{grid-template-columns:minmax(0,1fr);text-align:center}body.vatra-section-page .ui-vatra-id-security-notice-001 .ui-vatra-id-security-mascot-001{width:96px}}

@@ -36,24 +36,47 @@ function idAction(label,description,key,handler){
  b.append(idSymbol(key),copy,idIcon("next"));return b;
 }
 
+const securityArt=Object.freeze({general:"vatryk_security.webp",warning:"vatryk_security-warning.webp",danger:"vatryk_security-danger.webp",password:"vatryk_security-password.webp",device:"vatryk_security-device.webp",success:"vatryk_security-success.webp"});
+function securityMascot(kind){
+ const img=make("img","ui-vatra-id-security-mascot-001");img.alt="";img.width=144;img.height=144;img.decoding="async";img.loading="lazy";img.src=new URL("assets/vatryk/"+securityArt[kind],root).href;
+ img.addEventListener("error",()=>img.remove(),{once:true});return img;
+}
+function securityNotice(kind,heading,description){
+ const box=make("section","ui-vatra-id-security-notice-001");box.dataset.securityState=kind;
+ const copy=make("div","ui-vatra-id-security-notice-copy-001");copy.append(make("h3","vatra-id-security-notice-heading-001",heading),make("p","vatra-section-form-note-001",description));
+ box.append(securityMascot(kind),copy);return {box,copy};
+}
+function securitySuccess(host,heading,description){
+ if(!host.isConnected)return;
+ host.querySelector('[data-security-state="success"]')?.remove();
+ const {box}=securityNotice("success",heading,description);box.setAttribute("role","status");host.prepend(box);
+}
+function securityConcern(kind,onPassword,onDevices){
+ const warning=kind==="warning";
+ const heading=warning?t("Не впізнаєте сеанс?","Don't recognize a session?"):t("Підозрюєте сторонній доступ?","Suspect unauthorized access?");
+ const {d,form}=dialog(heading);
+ const {box}=securityNotice(kind,heading,warning?t("Перевірте пристрої та завершіть сеанси, які вам не належать.","Review devices and sign out sessions that are not yours."):t("Якщо хтось міг отримати доступ до акаунта, змініть пароль та завершіть інші сеанси.","If someone may have accessed your account, change your password and sign out other sessions."));
+ form.append(box,btn(t("Змінити пароль","Change password"),"vatra-section-submit-001",()=>{d.close();onPassword();}),btn(t("Пристрої та сеанси","Devices and sessions"),"vatra-preferences-action-001",()=>{d.close();onDevices();}));
+ d.addEventListener("close",()=>d.remove(),{once:true});d.showModal();
+}
 function sessionDevice(agent){
  const a=String(agent||"");
  const browser=/OPR\/|Opera/i.test(a)?"Opera":/Edg(?:A|iOS)?\//i.test(a)?"Edge":/Firefox\/|FxiOS\//i.test(a)?"Firefox":/Chrome\/|CriOS\//i.test(a)?"Chrome":/Safari\//i.test(a)?"Safari":t("Браузер або застосунок","Browser or app");
  const os=/Windows/i.test(a)?"Windows":/Android/i.test(a)?"Android":/iPhone|iPad|iPod/i.test(a)?"iOS / iPadOS":/Macintosh|Mac OS/i.test(a)?"macOS":/Linux/i.test(a)?"Linux":"";
  return browser+(os?" · "+os:"");
 }
-async function renderDevices(panel){
+async function renderDevices(panel,onConcern){
  const c=card("ui-vatra-id-devices-001"),head=make("div","ui-vatra-id-devices-head-001"),list=make("div","ui-vatra-id-device-list-001");
  head.append(make("h2","vatra-id-device-heading-001",t("Пристрої та сеанси","Devices and sessions")));
  const refresh=btn(t("Оновити","Refresh"),"vatra-id-device-refresh-001",()=>void load());
- head.append(refresh);c.append(head,list);
+ head.append(refresh);const deviceNotice=make("div","ui-vatra-id-device-notice-001");c.append(head,deviceNotice,list);
  const logout=btn(t("Завершити всі інші сеанси","Sign out all other sessions"),"vatra-id-device-revoke-001",async()=>{
   if(logout.disabled)return;logout.disabled=true;
   try{
    if(!await confirmRemove(t("Завершити інші сеанси?","Sign out other sessions?"),t("На інших пристроях потрібно буде увійти повторно. Поточний сеанс залишиться.","Other devices will need to sign in again. Your current session stays active."),t("Завершити","Sign out")))return;
    const {error}=await client.auth.signOut({scope:"others"});if(error)throw error;
    message(t("Інші сеанси завершено. Доступ на них остаточно припиниться після спливу чинних токенів.","Other sessions revoked. Their current access tokens remain valid until expiry."));
-   await load();
+   await load();securitySuccess(c,t("Інші сеанси завершено","Other sessions revoked"),t("Доступ на них остаточно припиниться після спливу чинних токенів.","Their current access tokens remain valid until expiry."));
   }catch(_){message(t("Не вдалося завершити інші сеанси.","Could not revoke other sessions."),true);}finally{logout.disabled=false;}
  });
  c.append(logout);panel.append(c);
@@ -65,7 +88,11 @@ async function renderDevices(panel){
    if(error?.code==="PGRST202"||error?.code==="42883")({data,error}=await client.rpc("vatra_my_sessions_v2"));
    if(error?.code==="PGRST202"||error?.code==="42883")({data,error}=await client.rpc("vatra_my_sessions"));
    if(error)throw error;if(!c.isConnected)return;
-   list.replaceChildren();
+   list.replaceChildren();deviceNotice.replaceChildren();
+   if(onConcern&&Array.isArray(data)&&data.some(entry=>entry.current_session===false)){
+    const {box,copy}=securityNotice("device",t("Інші активні сеанси","Other active sessions"),t("Перевірте, чи впізнаєте всі пристрої.","Check whether you recognize all devices."));
+    copy.append(btn(t("Не впізнаєте сеанс?","Don't recognize a session?"),"vatra-preferences-action-001",()=>onConcern("warning")));deviceNotice.append(box);
+   }
    const date=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?new Intl.DateTimeFormat(locale==="en"?"en-GB":"uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(d):"—";};
    for(const [index,entry] of (data||[]).entries()){
     const row=make("div","ui-vatra-id-device-row-001"),symbol=make("span","ui-vatra-id-device-symbol-001"),ns="http://www.w3.org/2000/svg",icon=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
@@ -85,7 +112,7 @@ async function renderDevices(panel){
        if(!c.isConnected)return;
        const result=Number.isInteger(entry.session_count)?await client.rpc("vatra_revoke_browser_sessions",{target_session:entry.session_id}):await client.rpc("vatra_revoke_session",{target_session:entry.session_id});
        if(result.error||result.data!==true)throw result.error||Error("Session was not revoked");
-       if(c.isConnected){await load();message(t("Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.","Session revoked. Access ends when the existing token expires."));}
+       if(c.isConnected){await load();message(t("Сеанс завершено. Доступ остаточно припиниться після спливу чинного токена.","Session revoked. Access ends when the existing token expires."));securitySuccess(c,t("Сеанс завершено","Session revoked"),t("Доступ остаточно припиниться після спливу чинного токена.","Access ends when the existing token expires."));}
       }catch(_){if(c.isConnected)message(t("Не вдалося завершити сеанс.","Could not revoke session."),true);}
       finally{revoke.disabled=false;}
      });
@@ -94,7 +121,7 @@ async function renderDevices(panel){
     list.append(row);
    }
    if(!data?.length)list.append(empty(t("Немає доступних відомостей про сеанси.","No session details available.")));
-  }catch(_){if(c.isConnected)list.replaceChildren(empty(t("Не вдалося завантажити сеанси.","Could not load sessions.")));}
+  }catch(_){if(c.isConnected){deviceNotice.replaceChildren();list.replaceChildren(empty(t("Не вдалося завантажити сеанси.","Could not load sessions.")));}}
   finally{refresh.disabled=false;refresh.removeAttribute("aria-busy");list.setAttribute("aria-busy","false");}
  }
  await load();
@@ -130,7 +157,7 @@ function accountCredentials(panel,ticket,section){
  });
  security.append(make("h2","vatra-id-heading-001",t("Безпека акаунта","Account security")));
  row(security,"password",t("Пароль","Password"),t("Для безпеки не використовуйте пароль з інших сервісів.","For your security, avoid reusing passwords from other services."),()=>{
-  const {d,form}=openForm(t("Змінити пароль","Change password"));
+  const {d,form}=openForm(t("Змінити пароль","Change password"));form.append(securityMascot("password"));
   const current=field(form,"current-password",t("Поточний пароль","Current password"),"password",128,true),next=field(form,"new-password",t("Новий пароль","New password"),"password",128,true),repeat=field(form,"repeat-password",t("Повторіть пароль","Confirm password"),"password",128,true);
   current.autocomplete="current-password";next.autocomplete=repeat.autocomplete="new-password";next.minLength=repeat.minLength=12;
   form.append(make("p","vatra-section-form-note-001",t("Від 12 символів: мала й велика латинські літери, цифра та спеціальний символ. Не повторюйте пароль з інших сайтів.","At least 12 characters: uppercase and lowercase Latin letters, a digit and a symbol. Do not reuse passwords.")));
@@ -150,7 +177,7 @@ function accountCredentials(panel,ticket,section){
    if(error?.code==="reauthentication_needed"){nonce.parentElement.hidden=false;nonce.required=true;sendCode.hidden=false;message(t("Для зміни пароля потрібне підтвердження електронною поштою.","Email verification is required to change your password."));nonce.focus();return;}
    if(error){message(failure(error),true);return;}
    if(data?.user?.id===user.id)user=data.user;
-   form.reset();closeSuccess(d,t("Зміни збережено.","Changes saved."));
+   form.reset();closeSuccess(d,t("Зміни збережено.","Changes saved."));if(ticket===renderTicket)securitySuccess(panel,t("Пароль змінено","Password changed"),t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password."));
   });d.showModal();
  });
  security.append(link(t("Забули пароль?","Forgot password?"),"forgot","vatra-id-password-001"));
@@ -259,8 +286,9 @@ async function account(){
  const show=async(id)=>{
   const ticket=++renderTicket;window.VATRA_FORM_SELECT?.close();panel.replaceChildren();message("");for(const b of nav.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
   if(id==="security"){
-   const c=card("ui-vatra-id-protection-001");c.append(idSymbol("shield"),make("h2","vatra-id-heading-001",t("Безпека акаунту","Account security")),make("p","vatra-section-form-note-001",t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password.")));panel.append(c);
-   accountCredentials(panel,ticket,"security");if(pendingAction==="password")openQuick(ticket,id);await renderDevices(panel);openQuick(ticket,id);return;
+   const concern=kind=>securityConcern(kind,()=>go("security","password"),()=>go("security","devices"));
+   const c=card("ui-vatra-id-protection-001");c.append(securityMascot("general"),make("h2","vatra-id-heading-001",t("Безпека акаунту","Account security")),make("p","vatra-section-form-note-001",t("Перевіряйте активні сеанси та використовуйте надійний унікальний пароль.","Review active sessions and use a strong unique password.")),btn(t("Підозрюєте сторонній доступ?","Suspect unauthorized access?"),"vatra-preferences-action-001",()=>concern("danger")));panel.append(c);
+   accountCredentials(panel,ticket,"security");if(pendingAction==="password")openQuick(ticket,id);await renderDevices(panel,concern);openQuick(ticket,id);return;
   }
   const data=await identityCard(ticket,id==="home");if(!data||ticket!==renderTicket)return;const {c,display}=data;panel.append(c);
   if(id==="home"){
